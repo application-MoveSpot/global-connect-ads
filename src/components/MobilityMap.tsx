@@ -1,37 +1,54 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 type Hub = {
   id: string;
   city: string;
   country: string;
   flag: string;
-  x: number;
-  y: number;
+  lng: number;
+  lat: number;
   vehicles: number;
   status: "high" | "medium" | "low";
 };
 
 const INITIAL_HUBS: Hub[] = [
-  { id: "par", city: "Paris", country: "FR", flag: "🇫🇷", x: 48, y: 32, vehicles: 1243, status: "high" },
-  { id: "nyc", city: "New York", country: "US", flag: "🇺🇸", x: 24, y: 38, vehicles: 2180, status: "high" },
-  { id: "tok", city: "Tokyo", country: "JP", flag: "🇯🇵", x: 84, y: 40, vehicles: 1876, status: "high" },
-  { id: "dub", city: "Dubai", country: "AE", flag: "🇦🇪", x: 62, y: 48, vehicles: 534, status: "medium" },
-  { id: "sao", city: "São Paulo", country: "BR", flag: "🇧🇷", x: 32, y: 68, vehicles: 412, status: "medium" },
-  { id: "sin", city: "Singapore", country: "SG", flag: "🇸🇬", x: 78, y: 58, vehicles: 689, status: "medium" },
-  { id: "lag", city: "Lagos", country: "NG", flag: "🇳🇬", x: 50, y: 56, vehicles: 187, status: "low" },
-  { id: "syd", city: "Sydney", country: "AU", flag: "🇦🇺", x: 88, y: 74, vehicles: 298, status: "low" },
+  { id: "par", city: "Paris", country: "FR", flag: "🇫🇷", lng: 2.3522, lat: 48.8566, vehicles: 1243, status: "high" },
+  { id: "nyc", city: "New York", country: "US", flag: "🇺🇸", lng: -74.006, lat: 40.7128, vehicles: 2180, status: "high" },
+  { id: "tok", city: "Tokyo", country: "JP", flag: "🇯🇵", lng: 139.6917, lat: 35.6895, vehicles: 1876, status: "high" },
+  { id: "dub", city: "Dubai", country: "AE", flag: "🇦🇪", lng: 55.2708, lat: 25.2048, vehicles: 534, status: "medium" },
+  { id: "sao", city: "São Paulo", country: "BR", flag: "🇧🇷", lng: -46.6333, lat: -23.5505, vehicles: 412, status: "medium" },
+  { id: "sin", city: "Singapore", country: "SG", flag: "🇸🇬", lng: 103.8198, lat: 1.3521, vehicles: 689, status: "medium" },
+  { id: "lag", city: "Lagos", country: "NG", flag: "🇳🇬", lng: 3.3792, lat: 6.5244, vehicles: 187, status: "low" },
+  { id: "syd", city: "Sydney", country: "AU", flag: "🇦🇺", lng: 151.2093, lat: -33.8688, vehicles: 298, status: "low" },
 ];
 
-const statusColor = {
-  high: "bg-signal",
-  medium: "bg-warning",
-  low: "bg-destructive",
+const statusColor: Record<Hub["status"], string> = {
+  high: "#22c55e",
+  medium: "#f59e0b",
+  low: "#ef4444",
 };
+
+const TOKEN_KEY = "movespot_mapbox_token";
 
 export function MobilityMap() {
   const [hubs, setHubs] = useState(INITIAL_HUBS);
   const [selected, setSelected] = useState<Hub>(INITIAL_HUBS[0]);
+  const [token, setToken] = useState<string>("");
+  const [tokenInput, setTokenInput] = useState<string>("");
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<Record<string, mapboxgl.Marker>>({});
 
+  // Load token from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(TOKEN_KEY);
+    if (saved) setToken(saved);
+  }, []);
+
+  // Update vehicle counts
   useEffect(() => {
     const interval = setInterval(() => {
       setHubs((prev) =>
@@ -44,30 +61,128 @@ export function MobilityMap() {
     return () => clearInterval(interval);
   }, []);
 
+  // Initialize map
+  useEffect(() => {
+    if (!token || !mapContainer.current || mapRef.current) return;
+
+    mapboxgl.accessToken = token;
+    try {
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/dark-v11",
+        center: [10, 25],
+        zoom: 1.3,
+        projection: { name: "globe" },
+        attributionControl: false,
+      });
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+      map.on("style.load", () => {
+        map.setFog({
+          color: "rgb(10, 15, 25)",
+          "high-color": "rgb(30, 40, 70)",
+          "horizon-blend": 0.2,
+          "space-color": "rgb(5, 8, 15)",
+          "star-intensity": 0.6,
+        });
+      });
+
+      INITIAL_HUBS.forEach((hub) => {
+        const el = document.createElement("div");
+        el.style.cssText = `width:14px;height:14px;border-radius:999px;background:${statusColor[hub.status]};box-shadow:0 0 0 4px ${statusColor[hub.status]}33, 0 0 12px ${statusColor[hub.status]};cursor:pointer;border:2px solid #0f172a;`;
+        el.title = `${hub.flag} ${hub.city}`;
+        el.addEventListener("click", () => {
+          setSelected(hub);
+          map.flyTo({ center: [hub.lng, hub.lat], zoom: 4, duration: 1500 });
+        });
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat([hub.lng, hub.lat])
+          .addTo(map);
+        markersRef.current[hub.id] = marker;
+      });
+
+      mapRef.current = map;
+    } catch (e) {
+      console.error("Mapbox init error", e);
+    }
+
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = null;
+      markersRef.current = {};
+    };
+  }, [token]);
+
+  const saveToken = () => {
+    const t = tokenInput.trim();
+    if (!t.startsWith("pk.")) return;
+    window.localStorage.setItem(TOKEN_KEY, t);
+    setToken(t);
+  };
+
+  const resetToken = () => {
+    window.localStorage.removeItem(TOKEN_KEY);
+    setToken("");
+    setTokenInput("");
+    mapRef.current?.remove();
+    mapRef.current = null;
+  };
+
+  const currentVehicles = hubs.find((h) => h.id === selected.id)?.vehicles ?? 0;
+
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-      <div className="relative aspect-[16/9] rounded-2xl border border-border bg-gradient-card grid-pattern overflow-hidden shadow-elevated">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        {hubs.map((hub) => (
+      <div className="relative aspect-[16/9] rounded-2xl border border-border bg-gradient-card overflow-hidden shadow-elevated">
+        {token ? (
+          <div ref={mapContainer} className="absolute inset-0" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center p-8 grid-pattern">
+            <div className="max-w-md w-full rounded-xl border border-border bg-card/80 backdrop-blur p-6 space-y-4">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-primary mb-2">● Activer la carte</div>
+                <h3 className="font-display text-xl font-semibold mb-2">Collez votre token Mapbox</h3>
+                <p className="text-sm text-muted-foreground">
+                  Créez un compte gratuit sur{" "}
+                  <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noreferrer" className="text-primary underline">
+                    mapbox.com
+                  </a>{" "}
+                  et copiez votre token public (commence par <code className="text-xs bg-secondary px-1 rounded">pk.</code>).
+                </p>
+              </div>
+              <input
+                type="text"
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
+                placeholder="pk.eyJ1Ijoi..."
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              <button
+                onClick={saveToken}
+                disabled={!tokenInput.trim().startsWith("pk.")}
+                className="w-full rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Activer la carte
+              </button>
+              <p className="text-[10px] text-muted-foreground">
+                Le token est stocké uniquement dans votre navigateur (localStorage).
+              </p>
+            </div>
+          </div>
+        )}
+        {token && (
+          <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-muted-foreground bg-card/80 backdrop-blur px-3 py-2 rounded-lg border border-border">
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal" /> Haute</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-warning" /> Moyenne</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-destructive" /> Faible</span>
+          </div>
+        )}
+        {token && (
           <button
-            key={hub.id}
-            onClick={() => setSelected(hub)}
-            className="absolute -translate-x-1/2 -translate-y-1/2 group"
-            style={{ left: `${hub.x}%`, top: `${hub.y}%` }}
+            onClick={resetToken}
+            className="absolute top-4 left-4 text-[10px] uppercase tracking-wider bg-card/80 backdrop-blur border border-border rounded-md px-2 py-1 text-muted-foreground hover:text-foreground transition"
           >
-            <div className="relative">
-              <div className={`pulse-dot relative h-3 w-3 rounded-full ${statusColor[hub.status]}`} />
-            </div>
-            <div className="absolute left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-card px-2 py-1 rounded-md border border-border">
-              {hub.flag} {hub.city}
-            </div>
+            Changer token
           </button>
-        ))}
-        <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal" /> Haute</span>
-          <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-warning" /> Moyenne</span>
-          <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-destructive" /> Faible</span>
-        </div>
+        )}
       </div>
 
       <div className="rounded-2xl border border-border bg-gradient-card p-6 flex flex-col gap-4">
@@ -83,7 +198,7 @@ export function MobilityMap() {
         <div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Véhicules disponibles</div>
           <div className="font-display text-4xl font-bold tabular-nums text-primary">
-            {hubs.find((h) => h.id === selected.id)?.vehicles.toLocaleString("fr-FR")}
+            {currentVehicles.toLocaleString("fr-FR")}
           </div>
           <div className="text-xs text-muted-foreground mt-1">Mis à jour en temps réel</div>
         </div>
