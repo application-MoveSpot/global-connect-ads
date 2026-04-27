@@ -1,26 +1,128 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { MobilityMap } from "@/components/MobilityMap";
+import { AdSpots, type Spot } from "@/components/AdSpots";
+import { BookingForm } from "@/components/BookingForm";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "MoveSpot — Mobilité mondiale & publicité de proximité en temps réel" },
+      { name: "description", content: "Suivez la disponibilité de la mobilité internationale en temps réel et réservez des emplacements publicitaires monétisés pour votre entreprise locale." },
+    ],
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function Index() {
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      {/* Nav */}
+      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-gradient-signal shadow-glow flex items-center justify-center font-display font-bold text-primary-foreground">M</div>
+            <span className="font-display font-bold text-lg tracking-tight">MoveSpot</span>
+          </div>
+          <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+            <a href="#map" className="hover:text-foreground transition">Temps réel</a>
+            <a href="#spots" className="hover:text-foreground transition">Emplacements</a>
+            <a href="#charter" className="hover:text-foreground transition">Charte</a>
+          </nav>
+          <a href="#spots" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
+            Réserver
+          </a>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-hero opacity-60" />
+        <div className="absolute inset-0 grid-pattern opacity-30" />
+        <div className="relative max-w-7xl mx-auto px-6 pt-20 pb-16">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 backdrop-blur px-4 py-1.5 text-xs font-medium mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-signal opacity-75 animate-ping" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
+            </span>
+            Live · 8 247 véhicules actifs dans le monde
+          </div>
+          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
+            La mobilité mondiale en temps réel,<br />
+            <span className="bg-gradient-signal bg-clip-text text-transparent">monétisée localement.</span>
+          </h1>
+          <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
+            Visualisez la disponibilité des flottes internationales et transformez chaque hub en vitrine publicitaire pour votre entreprise de proximité.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+              Voir la carte live
+            </a>
+            <a href="#spots" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+              Acheter un espace
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Map */}
+      <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
+        <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-primary mb-2">● Temps réel</div>
+            <h2 className="font-display text-4xl font-bold">Disponibilité mondiale</h2>
+            <p className="text-muted-foreground mt-2">Les données se rafraîchissent toutes les 2 secondes.</p>
+          </div>
+        </div>
+        <MobilityMap />
+      </section>
+
+      {/* Ad Spots */}
+      <section id="spots" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
+        <AdSpots onSelect={setSelectedSpot} />
+      </section>
+
+      {/* Charter */}
+      <section id="charter" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
+        <div className="rounded-3xl border border-border bg-gradient-card p-10 md:p-14">
+          <div className="max-w-3xl">
+            <div className="text-xs uppercase tracking-widest text-accent mb-3">Charte de contenu</div>
+            <h2 className="font-display text-4xl font-bold mb-6">Des publicités respectueuses, toujours.</h2>
+            <p className="text-muted-foreground text-lg mb-8">
+              MoveSpot s'engage à offrir un espace public sain. Toute campagne soumise à notre plateforme est modérée selon une charte stricte.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {[
+                "Contenus religieux ou fêtes religieuses",
+                "Propos ou images sexistes",
+                "Contenus pornographiques ou à caractère sexuel",
+                "Incitation à la violence sous toutes ses formes",
+              ].map((rule) => (
+                <div key={rule} className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+                  <span className="h-6 w-6 shrink-0 rounded-full bg-destructive/20 text-destructive flex items-center justify-center text-sm font-bold">✕</span>
+                  <span className="text-sm">{rule}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-border">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div>© {new Date().getFullYear()} MoveSpot. Tous droits réservés.</div>
+          <div>Mobilité · Publicité · Proximité</div>
+        </div>
+      </footer>
+
+      <BookingForm spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
