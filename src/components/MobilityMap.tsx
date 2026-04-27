@@ -83,7 +83,7 @@ export function MobilityMap() {
         <div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Véhicules disponibles</div>
           <div className="font-display text-4xl font-bold tabular-nums text-primary">
-            {hubs.find((h) => h.id === selected.id)?.vehicles.toLocaleString()}
+            {hubs.find((h) => h.id === selected.id)?.vehicles.toLocaleString("fr-FR")}
           </div>
           <div className="text-xs text-muted-foreground mt-1">Mis à jour en temps réel</div>
         </div>
