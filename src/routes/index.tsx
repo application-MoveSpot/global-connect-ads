@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { MobilityMap } from "@/components/MobilityMap";
 import { AdSpots, type Spot } from "@/components/AdSpots";
