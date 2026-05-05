@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Spot } from "./AdSpots";
+import { supabase } from "@/integrations/supabase/client";
 
 const FORBIDDEN_KEYWORDS = [
   // religieux / fêtes religieuses
@@ -24,12 +25,12 @@ export function BookingForm({ spot, onClose }: Props) {
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [accepted, setAccepted] = useState(false);
-  const [status, setStatus] = useState<"idle" | "rejected" | "success">("idle");
+  const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
 
   if (!spot) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const lower = message.toLowerCase();
     const match = FORBIDDEN_KEYWORDS.find((k) => lower.includes(k));
@@ -41,6 +42,21 @@ export function BookingForm({ spot, onClose }: Props) {
     if (!accepted) {
       setStatus("rejected");
       setReason("Vous devez accepter la charte de contenu.");
+      return;
+    }
+    setStatus("loading");
+    const { error } = await supabase.from("campaign_requests").insert({
+      spot_id: String(spot.id),
+      spot_name: spot.name,
+      spot_location: spot.location,
+      spot_price: spot.price,
+      company,
+      email,
+      message,
+    });
+    if (error) {
+      setStatus("rejected");
+      setReason("Erreur lors de l'envoi. Veuillez réessayer.");
       return;
     }
     setStatus("success");
@@ -112,8 +128,8 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
               )}
 
-              <button type="submit" className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
-                Soumettre la campagne
+              <button type="submit" disabled={status === "loading"} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+                {status === "loading" ? "Envoi..." : "Soumettre la campagne"}
               </button>
             </div>
           </form>
