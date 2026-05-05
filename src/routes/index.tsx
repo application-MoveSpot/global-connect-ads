@@ -118,7 +118,10 @@ function Index() {
       <footer className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
           <div>© {new Date().getFullYear()} MoveSpot. Tous droits réservés.</div>
-          <div>Mobilité · Publicité · Proximité</div>
+          <div className="flex items-center gap-4">
+            <span>Mobilité · Publicité · Proximité</span>
+            <Link to="/admin" className="opacity-60 hover:opacity-100 transition">Admin</Link>
+          </div>
         </div>
       </footer>
 
