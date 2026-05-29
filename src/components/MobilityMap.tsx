@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { getMapboxToken } from "@/lib/mapbox.functions";
 
 type Hub = {
   id: string;
@@ -30,22 +31,17 @@ const statusColor: Record<Hub["status"], string> = {
   low: "#ef4444",
 };
 
-const TOKEN_KEY = "movespot_mapbox_token";
-
 export function MobilityMap() {
   const [hubs, setHubs] = useState(INITIAL_HUBS);
   const [selected, setSelected] = useState<Hub>(INITIAL_HUBS[0]);
   const [token, setToken] = useState<string>("");
-  const [tokenInput, setTokenInput] = useState<string>("");
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<Record<string, mapboxgl.Marker>>({});
 
-  // Load token from localStorage
+  // Load token from server
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = window.localStorage.getItem(TOKEN_KEY);
-    if (saved) setToken(saved);
+    getMapboxToken().then((res) => setToken(res.token)).catch(() => setToken(""));
   }, []);
 
   // Update vehicle counts
@@ -112,21 +108,6 @@ export function MobilityMap() {
     };
   }, [token]);
 
-  const saveToken = () => {
-    const t = tokenInput.trim();
-    if (!t.startsWith("pk.")) return;
-    window.localStorage.setItem(TOKEN_KEY, t);
-    setToken(t);
-  };
-
-  const resetToken = () => {
-    window.localStorage.removeItem(TOKEN_KEY);
-    setToken("");
-    setTokenInput("");
-    mapRef.current?.remove();
-    mapRef.current = null;
-  };
-
   const currentVehicles = hubs.find((h) => h.id === selected.id)?.vehicles ?? 0;
 
   return (
@@ -135,36 +116,9 @@ export function MobilityMap() {
         {token ? (
           <div ref={mapContainer} className="absolute inset-0" />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center p-8 grid-pattern">
-            <div className="max-w-md w-full rounded-xl border border-border bg-card/80 backdrop-blur p-6 space-y-4">
-              <div>
-                <div className="text-xs uppercase tracking-widest text-primary mb-2">● Activer la carte</div>
-                <h3 className="font-display text-xl font-semibold mb-2">Collez votre token Mapbox</h3>
-                <p className="text-sm text-muted-foreground">
-                  Créez un compte gratuit sur{" "}
-                  <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noreferrer" className="text-primary underline">
-                    mapbox.com
-                  </a>{" "}
-                  et copiez votre token public (commence par <code className="text-xs bg-secondary px-1 rounded">pk.</code>).
-                </p>
-              </div>
-              <input
-                type="text"
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="pk.eyJ1Ijoi..."
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-              />
-              <button
-                onClick={saveToken}
-                disabled={!tokenInput.trim().startsWith("pk.")}
-                className="w-full rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                Activer la carte
-              </button>
-              <p className="text-[10px] text-muted-foreground">
-                Le token est stocké uniquement dans votre navigateur (localStorage).
-              </p>
+          <div className="absolute inset-0 flex items-center justify-center grid-pattern">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
+              Chargement de la carte…
             </div>
           </div>
         )}
@@ -174,14 +128,6 @@ export function MobilityMap() {
             <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-warning" /> Moyenne</span>
             <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-destructive" /> Faible</span>
           </div>
-        )}
-        {token && (
-          <button
-            onClick={resetToken}
-            className="absolute top-4 left-4 text-[10px] uppercase tracking-wider bg-card/80 backdrop-blur border border-border rounded-md px-2 py-1 text-muted-foreground hover:text-foreground transition"
-          >
-            Changer token
-          </button>
         )}
       </div>
 
