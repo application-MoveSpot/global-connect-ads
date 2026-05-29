@@ -92,9 +92,9 @@
 }
 
 @layer utilities {
-  .bg-gradient-hero { background: var(--gradient-hero); }
-  .bg-gradient-signal { background: var(--gradient-signal); }
-  .bg-gradient-card { background: var(--gradient-card); }
+  .bg-gradient-hero { background-image: var(--gradient-hero); }
+  .bg-gradient-signal { background-image: var(--gradient-signal); }
+  .bg-gradient-card { background-image: var(--gradient-card); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
 
