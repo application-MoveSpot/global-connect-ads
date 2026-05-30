@@ -34,7 +34,7 @@ function Index() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#map" className="hover:text-foreground transition">Temps réel</a>
             <a href="#spots" className="hover:text-foreground transition">Emplacements</a>
-            <a href="#charter" className="hover:text-foreground transition">Charte</a>
+            <Link to="/cgu" className="hover:text-foreground transition">Charte</Link>
           </nav>
           <a href="#spots" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
             Réserver
@@ -89,31 +89,6 @@ function Index() {
         <AdSpots onSelect={setSelectedSpot} />
       </section>
 
-      {/* Charter */}
-      <section id="charter" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
-        <div className="rounded-3xl border border-border bg-gradient-card p-10 md:p-14">
-          <div className="max-w-3xl">
-            <div className="text-xs uppercase tracking-widest text-accent mb-3">Charte de contenu</div>
-            <h2 className="font-display text-4xl font-bold mb-6">Des publicités respectueuses, toujours.</h2>
-            <p className="text-muted-foreground text-lg mb-8">
-              MoveSpot s'engage à offrir un espace public sain. Toute campagne soumise à notre plateforme est modérée selon une charte stricte.
-            </p>
-            <div className="grid md:grid-cols-2 gap-4">
-              {[
-                "Contenus religieux ou fêtes religieuses",
-                "Propos ou images sexistes",
-                "Contenus pornographiques ou à caractère sexuel",
-                "Incitation à la violence sous toutes ses formes",
-              ].map((rule) => (
-                <div key={rule} className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
-                  <span className="h-6 w-6 shrink-0 rounded-full bg-destructive/20 text-destructive flex items-center justify-center text-sm font-bold">✕</span>
-                  <span className="text-sm">{rule}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
       <footer className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
