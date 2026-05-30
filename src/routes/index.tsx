@@ -34,7 +34,7 @@ function Index() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#map" className="hover:text-foreground transition">Temps réel</a>
             <a href="#spots" className="hover:text-foreground transition">Emplacements</a>
-            <Link to="/cgu" className="hover:text-foreground transition">Charte</Link>
+            
           </nav>
           <a href="#spots" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
             Réserver
