@@ -37,21 +37,21 @@ const slides: Slide[] = [
     ),
   },
   {
-    kicker: "02 · Problème",
-    title: <>La pub locale est cassée.</>,
+    kicker: "02 · Constat",
+    title: <>La pub locale manque de précision.</>,
     body: (
-      <div className="grid md:grid-cols-3 gap-6 max-w-5xl">
+      <ul className="space-y-3 text-muted-foreground max-w-3xl slide-body">
         {[
-          { n: "73%", t: "des commerçants jugent leur budget pub mal investi." },
-          { n: "0", t: "outil simple pour cibler les flux piétons réels en temps réel." },
-          { n: "8 247", t: "véhicules partagés circulent en moyenne dans une grande ville." },
-        ].map((s) => (
-          <div key={s.n} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6">
-            <div className="font-display text-5xl font-bold bg-gradient-signal bg-clip-text text-transparent">{s.n}</div>
-            <p className="mt-3 text-muted-foreground">{s.t}</p>
-          </div>
+          "Les commerces de proximité ont peu d'outils pour toucher les flux réels autour d'eux.",
+          "La mobilité partagée (vélos, scooters, voitures) génère un trafic dense, mais largement invisible côté publicité.",
+          "Les régies traditionnelles restent chères, lentes et peu adaptées aux petites campagnes locales.",
+        ].map((l) => (
+          <li key={l} className="flex items-start gap-3">
+            <span className="mt-2 h-2 w-2 rounded-full bg-signal shadow-glow" />
+            <span>{l}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     ),
   },
   {
@@ -60,13 +60,13 @@ const slides: Slide[] = [
     body: (
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          Une carte mondiale temps réel des flottes partagées. Chaque hub devient un emplacement
-          réservable à la journée, avec un volume d'impressions prédictible.
+          L'idée : une carte des hubs de mobilité partagée, où chaque emplacement devient
+          réservable à la journée par les commerces du coin.
         </p>
         <ul className="space-y-3 text-muted-foreground">
           {[
-            "Visualisation live de la mobilité (rafraîchissement 2 s)",
-            "Réservation à la journée, sans intermédiaire",
+            "Visualisation de la mobilité autour de l'annonceur",
+            "Réservation simple, à la journée, sans intermédiaire",
             "Charte éditoriale stricte : pas de politique, religion ou contenu violent",
           ].map((l) => (
             <li key={l} className="flex items-start gap-3">
@@ -80,13 +80,13 @@ const slides: Slide[] = [
   },
   {
     kicker: "04 · Produit",
-    title: <>Réserver un spot en 60 secondes.</>,
+    title: <>Réserver un spot, en quelques clics.</>,
     body: (
       <div className="grid md:grid-cols-3 gap-6 max-w-5xl">
         {[
           { step: "1", t: "L'annonceur explore la carte et choisit un hub." },
           { step: "2", t: "Il sélectionne ses dates et soumet sa création." },
-          { step: "3", t: "MoveSpot valide sous 24 h et lance la diffusion." },
+          { step: "3", t: "MoveSpot valide le contenu puis lance la diffusion." },
         ].map((s) => (
           <div key={s.step} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6">
             <div className="h-10 w-10 rounded-full bg-gradient-signal flex items-center justify-center font-display font-bold text-primary-foreground shadow-glow">{s.step}</div>
@@ -98,30 +98,23 @@ const slides: Slide[] = [
   },
   {
     kicker: "05 · Marché",
-    title: <>Une vague mondiale.</>,
+    title: <>Un terrain à structurer.</>,
     body: (
-      <div className="grid md:grid-cols-3 gap-6 max-w-5xl">
-        {[
-          { n: "≈ 220 Mds$", t: "marché mondial de la publicité extérieure d'ici 2030." },
-          { n: "+ 12 %", t: "croissance annuelle du DOOH (digital out-of-home)." },
-          { n: "1 500+", t: "villes équipées de mobilité partagée dans le monde." },
-        ].map((s) => (
-          <div key={s.n} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6">
-            <div className="font-display text-4xl font-bold">{s.n}</div>
-            <p className="mt-3 text-muted-foreground">{s.t}</p>
-          </div>
-        ))}
-      </div>
+      <p className="slide-body-lg text-muted-foreground max-w-3xl">
+        La publicité extérieure se digitalise vite, et la mobilité partagée s'étend dans
+        un nombre croissant de villes. À ce croisement, il reste de la place pour une
+        plateforme simple, locale et transparente — c'est l'espace que MoveSpot veut occuper.
+      </p>
     ),
   },
   {
-    kicker: "06 · Modèle économique",
-    title: <>Marge nette par jour, par hub.</>,
+    kicker: "06 · Modèle envisagé",
+    title: <>Simple, à la journée.</>,
     body: (
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          Tarification journalière par emplacement, calculée selon le volume d'impressions estimé.
-          MoveSpot prélève une commission sur chaque campagne diffusée.
+          Tarification journalière par emplacement, sans engagement. MoveSpot se rémunère
+          via une commission sur chaque campagne diffusée.
         </p>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
@@ -130,22 +123,21 @@ const slides: Slide[] = [
           </div>
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">MoveSpot</div>
-            <p className="mt-2 text-muted-foreground">Commission + service de validation éditoriale.</p>
+            <p className="mt-2 text-muted-foreground">Commission + validation éditoriale.</p>
           </div>
         </div>
       </div>
     ),
   },
   {
-    kicker: "07 · Différenciation",
-    title: <>Pourquoi maintenant, pourquoi nous.</>,
+    kicker: "07 · Pourquoi MoveSpot",
+    title: <>Une approche claire dès le départ.</>,
     body: (
       <ul className="space-y-3 text-muted-foreground max-w-3xl">
         {[
-          "Données mobilité temps réel agrégées — une première à cette échelle.",
-          "Charte éditoriale claire : confiance des marques et des collectivités.",
-          "Plateforme self-service : zéro friction pour les commerces locaux.",
-          "Ancrage Guadeloupe + ambition mondiale dès le jour 1.",
+          "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
+          "Une expérience pensée pour les commerces locaux, pas pour les grandes régies.",
+          "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (
           <li key={l} className="flex items-start gap-3">
             <span className="mt-2 h-2 w-2 rounded-full bg-signal shadow-glow" />
@@ -155,6 +147,7 @@ const slides: Slide[] = [
       </ul>
     ),
   },
+
   {
     kicker: "08 · Appel",
     title: <>Rejoignez le mouvement.</>,
