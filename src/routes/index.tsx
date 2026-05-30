@@ -63,7 +63,7 @@ function Index() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
-              Voir la carte live
+              Voir la carte en direct
             </a>
             <a href="#spots" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
               Acheter un espace
