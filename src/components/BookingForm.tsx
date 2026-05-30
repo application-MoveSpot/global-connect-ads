@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 const FORBIDDEN_KEYWORDS = [
-  // religieux / fêtes religieuses
   "religion", "religieux", "religieuse", "église", "eglise", "mosquée", "mosquee", "synagogue", "temple",
   "dieu", "allah", "jésus", "jesus", "christ", "bouddha", "ramadan", "pâques", "paques", "noël", "noel",
   "hanouka", "aïd", "aid", "baptême", "bapteme", "communion",
-  // sexiste
   "sexiste", "misogyne", "machiste", "femme à la cuisine", "infériorité",
-  // pornographique
   "porno", "pornographique", "xxx", "nudité", "nudite", "sexe", "escort", "érotique", "erotique",
-  // violence
   "violence", "violent", "tuer", "meurtre", "arme", "sang", "agression", "frapper", "battre",
-  // politique
   "politique", "parti", "élection", "election", "candidat", "candidate", "campagne électorale",
   "vote", "voter", "scrutin", "président", "presidente", "député", "depute", "sénateur", "senateur",
   "maire", "ministre", "gouvernement", "république", "republique", "extrême droite", "extreme droite",
@@ -29,9 +30,19 @@ export function BookingForm({ spot, onClose }: Props) {
   const [message, setMessage] = useState("");
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
+
+  const { days, total } = useMemo(() => {
+    if (!startDate || !endDate || !spot) return { days: 0, total: 0 };
+    const ms = endDate.getTime() - startDate.getTime();
+    const d = Math.floor(ms / (1000 * 60 * 60 * 24)) + 1;
+    if (d <= 0) return { days: 0, total: 0 };
+    return { days: d, total: d * spot.price };
+  }, [startDate, endDate, spot]);
 
   if (!spot) return null;
 
@@ -42,6 +53,16 @@ export function BookingForm({ spot, onClose }: Props) {
     if (match) {
       setStatus("rejected");
       setReason(`Contenu interdit détecté : « ${match} ». Les publicités religieuses, sexistes, pornographiques ou incitant à la violence ne sont pas acceptées.`);
+      return;
+    }
+    if (!startDate || !endDate) {
+      setStatus("rejected");
+      setReason("Veuillez sélectionner une date de début et une date de fin.");
+      return;
+    }
+    if (days <= 0) {
+      setStatus("rejected");
+      setReason("La date de fin doit être postérieure ou égale à la date de début.");
       return;
     }
     if (!accepted) {
@@ -58,6 +79,10 @@ export function BookingForm({ spot, onClose }: Props) {
       company,
       email,
       message,
+      start_date: format(startDate, "yyyy-MM-dd"),
+      end_date: format(endDate, "yyyy-MM-dd"),
+      days_count: days,
+      total_price: total,
     });
     if (error) {
       setStatus("rejected");
@@ -66,6 +91,9 @@ export function BookingForm({ spot, onClose }: Props) {
     }
     setStatus("success");
   };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={onClose}>
@@ -98,6 +126,22 @@ export function BookingForm({ spot, onClose }: Props) {
             <div className="space-y-4">
               <Field label="Entreprise" value={company} onChange={setCompany} placeholder="Nom de votre entreprise" required />
               <Field label="Email professionnel" value={email} onChange={setEmail} placeholder="contact@entreprise.com" type="email" required />
+
+              <div className="grid grid-cols-2 gap-3">
+                <DateField label="Date de début" value={startDate} onChange={(d) => { setStartDate(d); setStatus("idle"); if (endDate && d && endDate < d) setEndDate(undefined); }} minDate={today} />
+                <DateField label="Date de fin" value={endDate} onChange={(d) => { setEndDate(d); setStatus("idle"); }} minDate={startDate ?? today} />
+              </div>
+
+              {days > 0 && (
+                <div className="rounded-lg bg-secondary/50 border border-border p-4 flex items-center justify-between">
+                  <div className="text-sm">
+                    <div className="text-muted-foreground">{days} jour{days > 1 ? "s" : ""} × {spot.price}€</div>
+                    <div className="font-display text-xs uppercase tracking-widest text-muted-foreground mt-1">Total</div>
+                  </div>
+                  <div className="font-display text-2xl font-bold">{total.toLocaleString("fr-FR")}€</div>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium mb-1.5">Message de la campagne</label>
                 <textarea
@@ -158,6 +202,41 @@ function Field({ label, value, onChange, placeholder, type = "text", required }:
         required={required}
         className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       />
+    </div>
+  );
+}
+
+function DateField({ label, value, onChange, minDate }: {
+  label: string; value: Date | undefined; onChange: (d: Date | undefined) => void; minDate?: Date;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1.5">{label}</label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "w-full flex items-center justify-between rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring",
+              !value && "text-muted-foreground"
+            )}
+          >
+            {value ? format(value, "d MMM yyyy", { locale: fr }) : "Choisir"}
+            <CalendarIcon className="h-4 w-4 opacity-60" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={value}
+            onSelect={onChange}
+            disabled={(d) => (minDate ? d < minDate : false)}
+            initialFocus
+            locale={fr}
+            className={cn("p-3 pointer-events-auto")}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
