@@ -1,0 +1,5 @@
+ALTER TABLE public.campaign_requests
+  ADD COLUMN IF NOT EXISTS start_date DATE,
+  ADD COLUMN IF NOT EXISTS end_date DATE,
+  ADD COLUMN IF NOT EXISTS days_count INTEGER,
+  ADD COLUMN IF NOT EXISTS total_price NUMERIC;

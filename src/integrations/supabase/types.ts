@@ -19,42 +19,54 @@ export type Database = {
           admin_notes: string | null
           company: string
           created_at: string
+          days_count: number | null
           email: string
+          end_date: string | null
           id: string
           message: string
           spot_id: string
           spot_location: string | null
           spot_name: string
           spot_price: number | null
+          start_date: string | null
           status: string
+          total_price: number | null
           updated_at: string
         }
         Insert: {
           admin_notes?: string | null
           company: string
           created_at?: string
+          days_count?: number | null
           email: string
+          end_date?: string | null
           id?: string
           message: string
           spot_id: string
           spot_location?: string | null
           spot_name: string
           spot_price?: number | null
+          start_date?: string | null
           status?: string
+          total_price?: number | null
           updated_at?: string
         }
         Update: {
           admin_notes?: string | null
           company?: string
           created_at?: string
+          days_count?: number | null
           email?: string
+          end_date?: string | null
           id?: string
           message?: string
           spot_id?: string
           spot_location?: string | null
           spot_name?: string
           spot_price?: number | null
+          start_date?: string | null
           status?: string
+          total_price?: number | null
           updated_at?: string
         }
         Relationships: []
