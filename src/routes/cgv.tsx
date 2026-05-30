@@ -36,7 +36,7 @@ function CGV() {
           La commande s'effectue via le formulaire de réservation disponible sur la Plateforme. Toute commande
           implique l'acceptation sans réserve des présentes CGV. L'Annonceur recevra une confirmation de demande à
           l'adresse email renseignée. La validation définitive intervient après vérification du contenu publicitaire
-          par les équipes de MoveSpot, dans un délai de 24 heures ouvrées.
+          par MoveSpot, dans un délai de 24 heures ouvrées.
         </p>
       </LegalSection>
 
