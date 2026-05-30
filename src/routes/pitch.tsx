@@ -136,7 +136,7 @@ const slides: Slide[] = [
       <ul className="space-y-3 text-muted-foreground max-w-3xl">
         {[
           "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
-          "Une expérience pensée pour les commerces locaux, pas pour les grandes régies.",
+          "Un outil simple et accessible : un commerçant peut réserver un véhicule, pour une journée, sans budget minimum ni jargon publicitaire.",
           "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (
           <li key={l} className="flex items-start gap-3">
