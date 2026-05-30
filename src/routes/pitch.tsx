@@ -179,6 +179,7 @@ const slides: Slide[] = [
 
 function Pitch() {
   const [current, setCurrent] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -186,27 +187,53 @@ function Pitch() {
         setCurrent((c) => Math.min(c + 1, slides.length - 1));
       } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         setCurrent((c) => Math.max(c - 1, 0));
+      } else if (e.key === "f" || e.key === "F") {
+        toggleFullscreen();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
   const s = slides[current];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
+      <header className={`sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border ${isFullscreen ? "hidden" : ""}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-gradient-signal shadow-glow flex items-center justify-center font-display font-bold text-primary-foreground">M</div>
             <span className="font-display font-bold text-lg tracking-tight">MoveSpot · Pitch</span>
           </Link>
-          <div className="text-xs text-muted-foreground tracking-widest">
-            {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleFullscreen}
+              className="rounded-full border border-border bg-card/50 backdrop-blur px-3 py-1.5 text-xs font-medium hover:bg-card transition"
+              title="Plein écran (F)"
+            >
+              ⛶ Plein écran
+            </button>
+            <div className="text-xs text-muted-foreground tracking-widest">
+              {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+            </div>
           </div>
         </div>
       </header>
+
 
       <main className="relative flex-1 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-50" />
