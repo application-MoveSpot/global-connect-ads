@@ -154,8 +154,8 @@ const slides: Slide[] = [
     body: (
       <div className="space-y-6 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          Nous ouvrons les premières villes pilotes. Partenaires, annonceurs, investisseurs :
-          parlons-nous.
+          MoveSpot en est à ses débuts. Si le projet vous parle — partenaires, futurs annonceurs,
+          collectivités, investisseurs — discutons-en.
         </p>
         <div className="flex flex-wrap gap-3">
           <a href="mailto:contact@notify.move-spot.com" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
