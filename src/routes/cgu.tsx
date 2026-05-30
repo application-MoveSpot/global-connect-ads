@@ -28,7 +28,7 @@ function CGU() {
 
       <LegalSection title="2. Éditeur du site">
         <p>
-          La Plateforme MoveSpot est éditée par la société MoveSpot, dont le siège social est situé en France.
+          La Plateforme MoveSpot est éditée par la société MoveSpot, dont le siège social est situé en Guadeloupe (France).
           Contact : <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">contact@notify.move-spot.com</a>.
         </p>
       </LegalSection>
