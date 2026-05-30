@@ -9,11 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as CgvRouteImport } from './routes/cgv'
+import { Route as CguRouteImport } from './routes/cgu'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CgvRoute = CgvRouteImport.update({
+  id: '/cgv',
+  path: '/cgv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CguRoute = CguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -40,12 +64,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/cgu': typeof CguRoute
+  '/cgv': typeof CgvRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/cookies': typeof CookiesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/cgu': typeof CguRoute
+  '/cgv': typeof CgvRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/cookies': typeof CookiesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -53,25 +85,86 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/cgu': typeof CguRoute
+  '/cgv': typeof CgvRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/cookies': typeof CookiesRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/auth' | '/lovable/email/queue/process'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/cgu'
+    | '/cgv'
+    | '/confidentialite'
+    | '/cookies'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/auth' | '/lovable/email/queue/process'
-  id: '__root__' | '/' | '/admin' | '/auth' | '/lovable/email/queue/process'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/cgu'
+    | '/cgv'
+    | '/confidentialite'
+    | '/cookies'
+    | '/lovable/email/queue/process'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/cgu'
+    | '/cgv'
+    | '/confidentialite'
+    | '/cookies'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
+  CguRoute: typeof CguRoute
+  CgvRoute: typeof CgvRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
+  CookiesRoute: typeof CookiesRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgv': {
+      id: '/cgv'
+      path: '/cgv'
+      fullPath: '/cgv'
+      preLoaderRoute: typeof CgvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgu': {
+      id: '/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof CguRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -107,8 +200,21 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
+  CguRoute: CguRoute,
+  CgvRoute: CgvRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
+  CookiesRoute: CookiesRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
