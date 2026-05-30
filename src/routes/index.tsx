@@ -52,21 +52,21 @@ function Index() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-signal opacity-75 animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
             </span>
-            Live · 8 247 véhicules actifs dans le monde
+            Aperçu démo · projet en construction
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
-            La mobilité mondiale en temps réel,<br />
+            La mobilité mondiale,<br />
             <span className="bg-gradient-signal bg-clip-text text-transparent">monétisée localement.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-            Visualisez la disponibilité des flottes internationales et transformez chaque hub en vitrine publicitaire pour votre entreprise de proximité.
+            MoveSpot veut transformer chaque hub de mobilité partagée en vitrine publicitaire pour les commerces de proximité. Voici un aperçu de la plateforme en cours de développement.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
-              Voir la carte en direct
+              Découvrir l'aperçu
             </a>
-            <a href="#spots" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
-              Acheter un espace
+            <a href="/pitch" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+              Voir le pitch
             </a>
           </div>
         </div>
@@ -76,9 +76,9 @@ function Index() {
       <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-primary mb-2">● Temps réel</div>
-            <h2 className="font-display text-4xl font-bold">Disponibilité mondiale</h2>
-            <p className="text-muted-foreground mt-2">Les données se rafraîchissent toutes les 2 secondes.</p>
+            <div className="text-xs uppercase tracking-widest text-primary mb-2">● Aperçu</div>
+            <h2 className="font-display text-4xl font-bold">Visualisation de la mobilité</h2>
+            <p className="text-muted-foreground mt-2">Aperçu illustratif — les données réelles seront branchées progressivement.</p>
           </div>
         </div>
         <MobilityMap />
