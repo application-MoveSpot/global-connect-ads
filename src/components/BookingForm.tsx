@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,18 +21,47 @@ type Props = {
   onClose: () => void;
 };
 
+type AuthState =
+  | { kind: "loading" }
+  | { kind: "anon" }
+  | { kind: "no-profile"; userId: string; email: string }
+  | { kind: "ready"; userId: string; profile: { full_name: string; company: string | null; email: string } };
+
 export function BookingForm({ spot, onClose }: Props) {
+  const navigate = useNavigate();
+  const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [message, setMessage] = useState("");
-  const [company, setCompany] = useState("");
-  const [email, setEmail] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
 
+  useEffect(() => {
+    if (!spot) return;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) { setAuth({ kind: "anon" }); return; }
+      const userId = data.session.user.id;
+      const email = data.session.user.email ?? "";
+      const { data: prof } = await supabase
+        .from("advertiser_profiles")
+        .select("full_name, company")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!prof) { setAuth({ kind: "no-profile", userId, email }); return; }
+      setAuth({ kind: "ready", userId, profile: { full_name: prof.full_name, company: prof.company, email } });
+    })();
+  }, [spot]);
+
   if (!spot) return null;
+
+  const goSignIn = () => {
+    onClose();
+    navigate({ to: "/annonceur/inscription", search: { redirect: window.location.pathname + "#spots" } });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (auth.kind !== "ready") return;
     const lower = message.toLowerCase();
     const match = FORBIDDEN_KEYWORDS.find((k) => lower.includes(k));
     if (match) {
@@ -46,13 +76,14 @@ export function BookingForm({ spot, onClose }: Props) {
     }
     setStatus("loading");
     const { error } = await supabase.from("campaign_requests").insert({
+      user_id: auth.userId,
       spot_id: String(spot.id),
       vehicle_id: spot.vehicleId ?? null,
       spot_name: spot.name,
       spot_location: spot.location,
       spot_price: spot.price,
-      company,
-      email,
+      company: auth.profile.company ?? auth.profile.full_name,
+      email: auth.profile.email,
       message,
     });
     if (error) {
@@ -69,7 +100,31 @@ export function BookingForm({ spot, onClose }: Props) {
         className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-elevated max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {status === "success" ? (
+        {auth.kind === "loading" ? (
+          <div className="py-10 text-center text-muted-foreground text-sm">Chargement…</div>
+        ) : auth.kind === "anon" ? (
+          <div className="text-center py-6">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Connexion requise</div>
+            <h3 className="font-display text-2xl font-bold mb-3">Réservez {spot.name}</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Pour soumettre une campagne, vous devez créer un compte annonceur (ou vous connecter). Cela nous permet de suivre vos demandes et de protéger les propriétaires.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button onClick={goSignIn} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
+                Créer un compte / Se connecter
+              </button>
+              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Annuler</button>
+            </div>
+          </div>
+        ) : auth.kind === "no-profile" ? (
+          <div className="text-center py-6">
+            <h3 className="font-display text-2xl font-bold mb-3">Profil incomplet</h3>
+            <p className="text-sm text-muted-foreground mb-6">Finalisez votre profil annonceur pour continuer.</p>
+            <button onClick={goSignIn} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
+              Compléter mon profil
+            </button>
+          </div>
+        ) : status === "success" ? (
           <div className="text-center py-8">
             <div className="mx-auto h-16 w-16 rounded-full bg-signal/20 flex items-center justify-center mb-4">
               <svg className="h-8 w-8 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -77,8 +132,11 @@ export function BookingForm({ spot, onClose }: Props) {
               </svg>
             </div>
             <h3 className="font-display text-2xl font-bold mb-2">Demande envoyée</h3>
-            <p className="text-muted-foreground mb-6">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation. Vous recevrez une réponse sous 24h.</p>
-            <button onClick={onClose} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Fermer</button>
+            <p className="text-muted-foreground mb-6">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation. Retrouvez-la dans votre espace annonceur.</p>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Voir mes campagnes</button>
+              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Fermer</button>
+            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -91,10 +149,12 @@ export function BookingForm({ spot, onClose }: Props) {
               <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl leading-none">×</button>
             </div>
 
-            <div className="space-y-4">
-              <Field label="Entreprise" value={company} onChange={setCompany} placeholder="Nom de votre entreprise" required />
-              <Field label="Email professionnel" value={email} onChange={setEmail} placeholder="contact@entreprise.com" type="email" required />
+            <div className="rounded-lg bg-secondary/40 border border-border p-3 mb-4 text-xs text-muted-foreground">
+              Connecté en tant que <strong className="text-foreground">{auth.profile.full_name}</strong>
+              {auth.profile.company ? ` (${auth.profile.company})` : ""} · {auth.profile.email}
+            </div>
 
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">Message de la campagne</label>
                 <textarea
@@ -137,24 +197,6 @@ export function BookingForm({ spot, onClose }: Props) {
           </form>
         )}
       </div>
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, placeholder, type = "text", required }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; required?: boolean;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-      />
     </div>
   );
 }
