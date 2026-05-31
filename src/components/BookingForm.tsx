@@ -47,6 +47,7 @@ export function BookingForm({ spot, onClose }: Props) {
     setStatus("loading");
     const { error } = await supabase.from("campaign_requests").insert({
       spot_id: String(spot.id),
+      vehicle_id: spot.vehicleId ?? null,
       spot_name: spot.name,
       spot_location: spot.location,
       spot_price: spot.price,
