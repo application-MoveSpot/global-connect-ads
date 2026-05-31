@@ -11,12 +11,12 @@ type Spot = {
 };
 
 const SPOTS: Spot[] = [
-  { id: "1", name: "Station Vélo · République", location: "Paris 11e", impressions: "48K/jour", price: 120, format: "Écran 32\"", available: true },
-  { id: "2", name: "Hub Scooter · Gare du Nord", location: "Paris 10e", impressions: "112K/jour", price: 280, format: "Habillage total", available: true },
-  { id: "3", name: "Borne Auto · Times Square", location: "New York", impressions: "340K/jour", price: 890, format: "LED géant", available: true },
-  { id: "4", name: "Station Shibuya Crossing", location: "Tokyo", impressions: "210K/jour", price: 620, format: "Écran panoramique", available: false },
-  { id: "5", name: "Hub Marina Bay", location: "Singapore", impressions: "88K/jour", price: 340, format: "Digital 55\"", available: true },
-  { id: "6", name: "Station Ipanema", location: "Rio de Janeiro", impressions: "64K/jour", price: 180, format: "Affiche dynamique", available: true },
+  { id: "1", name: "Food Truck · Le Bistrot Roulant", location: "Paris 11e · Bastille → République", impressions: "32K/jour", price: 140, format: "Habillage latéral 4m²", available: true },
+  { id: "2", name: "Van de livraison · ExpressCo", location: "Paris intra-muros", impressions: "85K/jour", price: 220, format: "Habillage total véhicule", available: true },
+  { id: "3", name: "Flotte Taxi · 12 véhicules", location: "Paris & petite couronne", impressions: "180K/jour", price: 480, format: "Toit lumineux + portières", available: true },
+  { id: "4", name: "Scooter livraison · Pack 20", location: "Lyon centre", impressions: "95K/jour", price: 260, format: "Top-case publicitaire", available: false },
+  { id: "5", name: "Food Truck · Tacos & Co", location: "Marseille Vieux-Port", impressions: "28K/jour", price: 120, format: "Bâche arrière 3m²", available: true },
+  { id: "6", name: "Van événementiel · NomadAd", location: "Île-de-France", impressions: "55K/jour", price: 320, format: "Écran LED extérieur", available: true },
 ];
 
 export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
