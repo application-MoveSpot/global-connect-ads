@@ -8,11 +8,11 @@ import logo from "@/assets/movespot-logo.png";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MoveSpot — Publicité locale sur la mobilité partagée à Paris & Île-de-France" },
-      { name: "description", content: "Réservez à la journée des emplacements publicitaires sur les stations Vélib', scooters et hubs de mobilité partagée à Paris et en Île-de-France. Pour les commerces de proximité." },
-      { name: "keywords", content: "publicité commerce local Paris, affichage station Vélib, DOOH proximité, écran publicitaire mobilité partagée, publicité locale Île-de-France" },
-      { property: "og:title", content: "MoveSpot — Publicité locale sur la mobilité partagée à Paris" },
-      { property: "og:description", content: "Transformez chaque station Vélib' et hub de mobilité en vitrine pour votre commerce. Réservation à la journée, sans engagement." },
+      { title: "MoveSpot — Marketplace de publicité mobile sur véhicules" },
+      { name: "description", content: "MoveSpot met en relation annonceurs et propriétaires de véhicules (food trucks, vans, taxis, scooters de livraison) pour louer des espaces publicitaires mobiles à la journée." },
+      { name: "keywords", content: "publicité mobile, marketplace publicitaire véhicules, food truck publicité, habillage van, taxi publicité, scooter livraison pub, DOOH mobile" },
+      { property: "og:title", content: "MoveSpot — Marketplace de publicité mobile" },
+      { property: "og:description", content: "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement." },
       { property: "og:url", content: "https://move-spot.com/" },
       { property: "og:type", content: "website" },
     ],
