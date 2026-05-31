@@ -7,10 +7,16 @@ import { BookingForm } from "@/components/BookingForm";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MoveSpot — Mobilité mondiale & publicité de proximité en temps réel" },
-      { name: "description", content: "Suivez la disponibilité de la mobilité internationale en temps réel et réservez des emplacements publicitaires monétisés pour votre entreprise locale." },
+      { title: "MoveSpot — Publicité locale sur la mobilité partagée à Paris & Île-de-France" },
+      { name: "description", content: "Réservez à la journée des emplacements publicitaires sur les stations Vélib', scooters et hubs de mobilité partagée à Paris et en Île-de-France. Pour les commerces de proximité." },
+      { name: "keywords", content: "publicité commerce local Paris, affichage station Vélib, DOOH proximité, écran publicitaire mobilité partagée, publicité locale Île-de-France" },
+      { property: "og:title", content: "MoveSpot — Publicité locale sur la mobilité partagée à Paris" },
+      { property: "og:description", content: "Transformez chaque station Vélib' et hub de mobilité en vitrine pour votre commerce. Réservation à la journée, sans engagement." },
+      { property: "og:url", content: "https://move-spot.com/" },
+      { property: "og:type", content: "website" },
     ],
     links: [
+      { rel: "canonical", href: "https://move-spot.com/" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" },
