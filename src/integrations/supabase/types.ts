@@ -24,6 +24,7 @@ export type Database = {
           end_date: string | null
           id: string
           message: string
+          owner_response: string
           spot_id: string
           spot_location: string | null
           spot_name: string
@@ -32,6 +33,7 @@ export type Database = {
           status: string
           total_price: number | null
           updated_at: string
+          vehicle_id: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           message: string
+          owner_response?: string
           spot_id: string
           spot_location?: string | null
           spot_name: string
@@ -50,6 +53,7 @@ export type Database = {
           status?: string
           total_price?: number | null
           updated_at?: string
+          vehicle_id?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -60,6 +64,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           message?: string
+          owner_response?: string
           spot_id?: string
           spot_location?: string | null
           spot_name?: string
@@ -68,8 +73,17 @@ export type Database = {
           status?: string
           total_price?: number | null
           updated_at?: string
+          vehicle_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "campaign_requests_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_send_log: {
         Row: {
@@ -158,6 +172,42 @@ export type Database = {
         }
         Relationships: []
       }
+      owner_profiles: {
+        Row: {
+          bio: string | null
+          city: string | null
+          company: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -203,6 +253,68 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicles: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string | null
+          format_publicitaire: string
+          id: string
+          km_per_day: number | null
+          name: string
+          owner_id: string
+          photos: string[] | null
+          price_per_day: number
+          status: Database["public"]["Enums"]["vehicle_status"]
+          surface_m2: number | null
+          type: Database["public"]["Enums"]["vehicle_type"]
+          updated_at: string
+          zones: string[] | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          format_publicitaire: string
+          id?: string
+          km_per_day?: number | null
+          name: string
+          owner_id: string
+          photos?: string[] | null
+          price_per_day: number
+          status?: Database["public"]["Enums"]["vehicle_status"]
+          surface_m2?: number | null
+          type: Database["public"]["Enums"]["vehicle_type"]
+          updated_at?: string
+          zones?: string[] | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          format_publicitaire?: string
+          id?: string
+          km_per_day?: number | null
+          name?: string
+          owner_id?: string
+          photos?: string[] | null
+          price_per_day?: number
+          status?: Database["public"]["Enums"]["vehicle_status"]
+          surface_m2?: number | null
+          type?: Database["public"]["Enums"]["vehicle_type"]
+          updated_at?: string
+          zones?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owner_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -242,7 +354,15 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "owner"
+      vehicle_status: "pending" | "approved" | "rejected" | "paused"
+      vehicle_type:
+        | "food_truck"
+        | "van"
+        | "taxi"
+        | "scooter"
+        | "voiture"
+        | "autre"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -370,7 +490,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "owner"],
+      vehicle_status: ["pending", "approved", "rejected", "paused"],
+      vehicle_type: [
+        "food_truck",
+        "van",
+        "taxi",
+        "scooter",
+        "voiture",
+        "autre",
+      ],
     },
   },
 } as const
