@@ -61,11 +61,11 @@ function Index() {
             Aperçu démo · projet en construction
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
-            La mobilité mondiale,<br />
-            <span className="bg-gradient-signal bg-clip-text text-transparent">monétisée localement.</span>
+            La mobilité partagée,<br />
+            <span className="bg-gradient-signal bg-clip-text text-transparent">vitrine de vos commerces.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-            MoveSpot veut transformer chaque hub de mobilité partagée en vitrine publicitaire pour les commerces de proximité. Voici un aperçu de la plateforme en cours de développement.
+            MoveSpot transforme les stations Vélib', scooters et hubs de mobilité partagée à <strong className="text-foreground">Paris &amp; en Île-de-France</strong> en espaces publicitaires réservables à la journée par les commerces de proximité. Une ambition mondiale, un déploiement local.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
