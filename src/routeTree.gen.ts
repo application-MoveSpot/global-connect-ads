@@ -19,7 +19,9 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
+import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
+import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
@@ -73,9 +75,19 @@ const ProprietaireIndexRoute = ProprietaireIndexRouteImport.update({
   path: '/proprietaire/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnonceurIndexRoute = AnnonceurIndexRouteImport.update({
+  id: '/annonceur/',
+  path: '/annonceur/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProprietaireInscriptionRoute = ProprietaireInscriptionRouteImport.update({
   id: '/proprietaire/inscription',
   path: '/proprietaire/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
+  id: '/annonceur/inscription',
+  path: '/annonceur/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProprietaireVehiculesNouveauRoute =
@@ -101,7 +113,9 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/pitch': typeof PitchRoute
+  '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -116,7 +130,9 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/pitch': typeof PitchRoute
+  '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/annonceur': typeof AnnonceurIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -132,7 +148,9 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/pitch': typeof PitchRoute
+  '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -149,7 +167,9 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/devenir-partenaire'
     | '/pitch'
+    | '/annonceur/inscription'
     | '/proprietaire/inscription'
+    | '/annonceur/'
     | '/proprietaire/'
     | '/proprietaire/vehicules/nouveau'
     | '/lovable/email/queue/process'
@@ -164,7 +184,9 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/devenir-partenaire'
     | '/pitch'
+    | '/annonceur/inscription'
     | '/proprietaire/inscription'
+    | '/annonceur'
     | '/proprietaire'
     | '/proprietaire/vehicules/nouveau'
     | '/lovable/email/queue/process'
@@ -179,7 +201,9 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/devenir-partenaire'
     | '/pitch'
+    | '/annonceur/inscription'
     | '/proprietaire/inscription'
+    | '/annonceur/'
     | '/proprietaire/'
     | '/proprietaire/vehicules/nouveau'
     | '/lovable/email/queue/process'
@@ -195,7 +219,9 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
   PitchRoute: typeof PitchRoute
+  AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
+  AnnonceurIndexRoute: typeof AnnonceurIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -273,11 +299,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/': {
+      id: '/annonceur/'
+      path: '/annonceur'
+      fullPath: '/annonceur/'
+      preLoaderRoute: typeof AnnonceurIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proprietaire/inscription': {
       id: '/proprietaire/inscription'
       path: '/proprietaire/inscription'
       fullPath: '/proprietaire/inscription'
       preLoaderRoute: typeof ProprietaireInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceur/inscription': {
+      id: '/annonceur/inscription'
+      path: '/annonceur/inscription'
+      fullPath: '/annonceur/inscription'
+      preLoaderRoute: typeof AnnonceurInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/proprietaire/vehicules/nouveau': {
@@ -307,7 +347,9 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   DevenirPartenaireRoute: DevenirPartenaireRoute,
   PitchRoute: PitchRoute,
+  AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
+  AnnonceurIndexRoute: AnnonceurIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
