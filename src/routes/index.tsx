@@ -7,10 +7,16 @@ import { BookingForm } from "@/components/BookingForm";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MoveSpot — Mobilité mondiale & publicité de proximité en temps réel" },
-      { name: "description", content: "Suivez la disponibilité de la mobilité internationale en temps réel et réservez des emplacements publicitaires monétisés pour votre entreprise locale." },
+      { title: "MoveSpot — Publicité locale sur la mobilité partagée à Paris & Île-de-France" },
+      { name: "description", content: "Réservez à la journée des emplacements publicitaires sur les stations Vélib', scooters et hubs de mobilité partagée à Paris et en Île-de-France. Pour les commerces de proximité." },
+      { name: "keywords", content: "publicité commerce local Paris, affichage station Vélib, DOOH proximité, écran publicitaire mobilité partagée, publicité locale Île-de-France" },
+      { property: "og:title", content: "MoveSpot — Publicité locale sur la mobilité partagée à Paris" },
+      { property: "og:description", content: "Transformez chaque station Vélib' et hub de mobilité en vitrine pour votre commerce. Réservation à la journée, sans engagement." },
+      { property: "og:url", content: "https://move-spot.com/" },
+      { property: "og:type", content: "website" },
     ],
     links: [
+      { rel: "canonical", href: "https://move-spot.com/" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" },
@@ -55,11 +61,11 @@ function Index() {
             Aperçu démo · projet en construction
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
-            La mobilité mondiale,<br />
-            <span className="bg-gradient-signal bg-clip-text text-transparent">monétisée localement.</span>
+            La mobilité partagée,<br />
+            <span className="bg-gradient-signal bg-clip-text text-transparent">vitrine de vos commerces.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-            MoveSpot veut transformer chaque hub de mobilité partagée en vitrine publicitaire pour les commerces de proximité. Voici un aperçu de la plateforme en cours de développement.
+            MoveSpot transforme les stations Vélib', scooters et hubs de mobilité partagée à <strong className="text-foreground">Paris &amp; en Île-de-France</strong> en espaces publicitaires réservables à la journée par les commerces de proximité. Une ambition mondiale, un déploiement local.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
