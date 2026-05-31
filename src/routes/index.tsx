@@ -84,8 +84,8 @@ function Index() {
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary mb-2">● Aperçu</div>
-            <h2 className="font-display text-4xl font-bold">Visualisation de la mobilité</h2>
-            <p className="text-muted-foreground mt-2">Aperçu illustratif — les données réelles seront branchées progressivement.</p>
+            <h2 className="font-display text-4xl font-bold">Véhicules en circulation</h2>
+            <p className="text-muted-foreground mt-2">Aperçu illustratif des flux de véhicules — données réelles branchées progressivement.</p>
           </div>
         </div>
         <MobilityMap />
