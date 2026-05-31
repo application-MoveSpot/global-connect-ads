@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertiser_profiles: {
+        Row: {
+          city: string | null
+          company: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_requests: {
         Row: {
           admin_notes: string | null
@@ -33,6 +66,7 @@ export type Database = {
           status: string
           total_price: number | null
           updated_at: string
+          user_id: string | null
           vehicle_id: string | null
         }
         Insert: {
@@ -53,6 +87,7 @@ export type Database = {
           status?: string
           total_price?: number | null
           updated_at?: string
+          user_id?: string | null
           vehicle_id?: string | null
         }
         Update: {
@@ -73,6 +108,7 @@ export type Database = {
           status?: string
           total_price?: number | null
           updated_at?: string
+          user_id?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
@@ -354,7 +390,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "owner"
+      app_role: "admin" | "user" | "owner" | "advertiser"
       vehicle_status: "pending" | "approved" | "rejected" | "paused"
       vehicle_type:
         | "food_truck"
@@ -490,7 +526,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "owner"],
+      app_role: ["admin", "user", "owner", "advertiser"],
       vehicle_status: ["pending", "approved", "rejected", "paused"],
       vehicle_type: [
         "food_truck",
