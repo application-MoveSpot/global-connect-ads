@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PitchRouteImport } from './routes/pitch'
+import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CgvRouteImport } from './routes/cgv'
@@ -17,11 +18,19 @@ import { Route as CguRouteImport } from './routes/cgu'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
+import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
+import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const PitchRoute = PitchRouteImport.update({
   id: '/pitch',
   path: '/pitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevenirPartenaireRoute = DevenirPartenaireRouteImport.update({
+  id: '/devenir-partenaire',
+  path: '/devenir-partenaire',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CookiesRoute = CookiesRouteImport.update({
@@ -59,6 +68,22 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProprietaireIndexRoute = ProprietaireIndexRouteImport.update({
+  id: '/proprietaire/',
+  path: '/proprietaire/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProprietaireInscriptionRoute = ProprietaireInscriptionRouteImport.update({
+  id: '/proprietaire/inscription',
+  path: '/proprietaire/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProprietaireVehiculesNouveauRoute =
+  ProprietaireVehiculesNouveauRouteImport.update({
+    id: '/proprietaire/vehicules/nouveau',
+    path: '/proprietaire/vehicules/nouveau',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -74,7 +99,11 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
+  '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/pitch': typeof PitchRoute
+  '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/proprietaire/': typeof ProprietaireIndexRoute
+  '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -85,7 +114,11 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
+  '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/pitch': typeof PitchRoute
+  '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/proprietaire': typeof ProprietaireIndexRoute
+  '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -97,7 +130,11 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
+  '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/pitch': typeof PitchRoute
+  '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/proprietaire/': typeof ProprietaireIndexRoute
+  '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -110,7 +147,11 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/cookies'
+    | '/devenir-partenaire'
     | '/pitch'
+    | '/proprietaire/inscription'
+    | '/proprietaire/'
+    | '/proprietaire/vehicules/nouveau'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,7 +162,11 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/cookies'
+    | '/devenir-partenaire'
     | '/pitch'
+    | '/proprietaire/inscription'
+    | '/proprietaire'
+    | '/proprietaire/vehicules/nouveau'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -132,7 +177,11 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/cookies'
+    | '/devenir-partenaire'
     | '/pitch'
+    | '/proprietaire/inscription'
+    | '/proprietaire/'
+    | '/proprietaire/vehicules/nouveau'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -144,7 +193,11 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
+  DevenirPartenaireRoute: typeof DevenirPartenaireRoute
   PitchRoute: typeof PitchRoute
+  ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
+  ProprietaireIndexRoute: typeof ProprietaireIndexRoute
+  ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -155,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/pitch'
       fullPath: '/pitch'
       preLoaderRoute: typeof PitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/devenir-partenaire': {
+      id: '/devenir-partenaire'
+      path: '/devenir-partenaire'
+      fullPath: '/devenir-partenaire'
+      preLoaderRoute: typeof DevenirPartenaireRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cookies': {
@@ -206,6 +266,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/proprietaire/': {
+      id: '/proprietaire/'
+      path: '/proprietaire'
+      fullPath: '/proprietaire/'
+      preLoaderRoute: typeof ProprietaireIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proprietaire/inscription': {
+      id: '/proprietaire/inscription'
+      path: '/proprietaire/inscription'
+      fullPath: '/proprietaire/inscription'
+      preLoaderRoute: typeof ProprietaireInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proprietaire/vehicules/nouveau': {
+      id: '/proprietaire/vehicules/nouveau'
+      path: '/proprietaire/vehicules/nouveau'
+      fullPath: '/proprietaire/vehicules/nouveau'
+      preLoaderRoute: typeof ProprietaireVehiculesNouveauRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -224,7 +305,11 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
+  DevenirPartenaireRoute: DevenirPartenaireRoute,
   PitchRoute: PitchRoute,
+  ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
+  ProprietaireIndexRoute: ProprietaireIndexRoute,
+  ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
