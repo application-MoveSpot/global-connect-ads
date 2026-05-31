@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MobilityMap } from "@/components/MobilityMap";
 import { AdSpots, type Spot } from "@/components/AdSpots";
 import { BookingForm } from "@/components/BookingForm";
+import logo from "@/assets/movespot-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
