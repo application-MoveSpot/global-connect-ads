@@ -27,8 +27,8 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
     <div>
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div>
-          <h2 className="font-display text-4xl font-bold">Exemples d'emplacements</h2>
-          <p className="text-muted-foreground mt-2">Aperçu illustratif des futurs hubs de mobilité partagée.</p>
+          <h2 className="font-display text-4xl font-bold">Véhicules disponibles</h2>
+          <p className="text-muted-foreground mt-2">Aperçu illustratif des véhicules proposant des espaces publicitaires mobiles.</p>
         </div>
         <div className="flex gap-2 rounded-full border border-border p-1 bg-card">
           <button
