@@ -8,11 +8,11 @@ import logo from "@/assets/movespot-logo.png";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MoveSpot — Publicité locale sur la mobilité partagée à Paris & Île-de-France" },
-      { name: "description", content: "Réservez à la journée des emplacements publicitaires sur les stations Vélib', scooters et hubs de mobilité partagée à Paris et en Île-de-France. Pour les commerces de proximité." },
-      { name: "keywords", content: "publicité commerce local Paris, affichage station Vélib, DOOH proximité, écran publicitaire mobilité partagée, publicité locale Île-de-France" },
-      { property: "og:title", content: "MoveSpot — Publicité locale sur la mobilité partagée à Paris" },
-      { property: "og:description", content: "Transformez chaque station Vélib' et hub de mobilité en vitrine pour votre commerce. Réservation à la journée, sans engagement." },
+      { title: "MoveSpot — Marketplace de publicité mobile sur véhicules" },
+      { name: "description", content: "MoveSpot met en relation annonceurs et propriétaires de véhicules (food trucks, vans, taxis, scooters de livraison) pour louer des espaces publicitaires mobiles à la journée." },
+      { name: "keywords", content: "publicité mobile, marketplace publicitaire véhicules, food truck publicité, habillage van, taxi publicité, scooter livraison pub, DOOH mobile" },
+      { property: "og:title", content: "MoveSpot — Marketplace de publicité mobile" },
+      { property: "og:description", content: "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement." },
       { property: "og:url", content: "https://move-spot.com/" },
       { property: "og:type", content: "website" },
     ],
@@ -62,11 +62,11 @@ function Index() {
             Aperçu démo · projet en construction
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
-            La mobilité partagée,<br />
-            <span className="bg-gradient-signal bg-clip-text text-transparent">vitrine de vos commerces.</span>
+            Vos pubs roulent,<br />
+            <span className="bg-gradient-signal bg-clip-text text-transparent">vos ventes décollent.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-            MoveSpot transforme les stations Vélib', scooters et hubs de mobilité partagée à <strong className="text-foreground">Paris &amp; en Île-de-France</strong> en espaces publicitaires réservables à la journée par les commerces de proximité. Une ambition mondiale, un déploiement local.
+            MoveSpot est la marketplace qui met en relation <strong className="text-foreground">annonceurs</strong> et <strong className="text-foreground">propriétaires de véhicules</strong> — food trucks, vans, taxis, scooters de livraison — pour louer des espaces publicitaires mobiles à la journée.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
@@ -84,8 +84,8 @@ function Index() {
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary mb-2">● Aperçu</div>
-            <h2 className="font-display text-4xl font-bold">Visualisation de la mobilité</h2>
-            <p className="text-muted-foreground mt-2">Aperçu illustratif — les données réelles seront branchées progressivement.</p>
+            <h2 className="font-display text-4xl font-bold">Véhicules en circulation</h2>
+            <p className="text-muted-foreground mt-2">Aperçu illustratif des flux de véhicules — données réelles branchées progressivement.</p>
           </div>
         </div>
         <MobilityMap />
