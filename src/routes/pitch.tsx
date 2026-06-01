@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoLink } from "@/components/LogoLink";
 import { useEffect, useState } from "react";
 
