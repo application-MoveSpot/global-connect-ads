@@ -68,6 +68,10 @@ function NewVehiclePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerId || !userId) return;
+    if (selectedFormats.length === 0 && !formatOther.trim()) {
+      setError("Veuillez sélectionner au moins un format publicitaire.");
+      return;
+    }
     setError("");
     setLoading(true);
 
