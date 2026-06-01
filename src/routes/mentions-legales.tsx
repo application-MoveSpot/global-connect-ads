@@ -17,22 +17,21 @@ function MentionsLegales() {
     <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="30 mai 2026">
       <LegalSection title="Éditeur du site">
         <p>
-          La plateforme MoveSpot (ci-après « le Site ») est éditée par la société <strong>MoveSpot</strong>,
-          dont le siège social est situé en Guadeloupe (France).
+          La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>MoveSpot</strong>,
+          entreprise individuelle dont le siège social est situé en Guadeloupe (France).
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Forme juridique</strong> : SAS (Société par Actions Simplifiée) — <em>à compléter</em></li>
-          <li><strong>Capital social</strong> : <em>à compléter</em></li>
-          <li><strong>SIRET</strong> : <em>à compléter</em></li>
-          <li><strong>RCS</strong> : <em>à compléter</em></li>
+          <li><strong>Forme juridique</strong> : Entreprise individuelle</li>
+          <li><strong>SIRET</strong> : 804 671 444 00052</li>
+          <li><strong>RCS</strong> : 804 671 444 R.C.S. Pointe-à-Pitre</li>
           <li><strong>Numéro de TVA intracommunautaire</strong> : <em>à compléter</em></li>
         </ul>
       </LegalSection>
 
       <LegalSection title="Directeur de la publication">
         <p>
-          Le directeur de la publication est <strong><em>à compléter — nom du représentant légal</em></strong>,
-          en sa qualité de Président / Directeur Général de MoveSpot.
+          Le directeur de la publication est <strong>Garry PALERME</strong>,
+          en sa qualité de gérant de MoveSpot.
         </p>
       </LegalSection>
 
