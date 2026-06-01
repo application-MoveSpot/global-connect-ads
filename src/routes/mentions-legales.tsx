@@ -17,21 +17,22 @@ function MentionsLegales() {
     <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="30 mai 2026">
       <LegalSection title="Éditeur du site">
         <p>
-          La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>MoveSpot</strong>,
-          entreprise individuelle dont le siège social est situé en Guadeloupe (France).
+          La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>Garry PALERME</strong>,
+          entrepreneur individuel exerçant sous le nom commercial <strong>MoveSpot</strong>.
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Forme juridique</strong> : Entreprise individuelle</li>
-          <li><strong>SIRET</strong> : 804 671 444 00052</li>
+          <li><strong>Forme juridique</strong> : Entrepreneur individuel</li>
+          <li><strong>SIREN</strong> : 804 671 444</li>
+          <li><strong>SIRET (établissement MoveSpot)</strong> : 804 671 444 00052</li>
           <li><strong>RCS</strong> : 804 671 444 R.C.S. Pointe-à-Pitre</li>
-          <li><strong>Numéro de TVA intracommunautaire</strong> : <em>à compléter</em></li>
+          <li><strong>Code APE</strong> : 47.91B — Vente à distance sur catalogue spécialisé</li>
         </ul>
       </LegalSection>
 
       <LegalSection title="Directeur de la publication">
         <p>
           Le directeur de la publication est <strong>Garry PALERME</strong>,
-          en sa qualité de gérant de MoveSpot.
+          en sa qualité d'entrepreneur individuel exploitant MoveSpot.
         </p>
       </LegalSection>
 
@@ -43,9 +44,10 @@ function MentionsLegales() {
           </a>
         </p>
         <p>
-          <strong>Adresse postale</strong> : Zone activité commerciale de Houelbourg 1 Lot, Immeuble Sud Jarry, 97122 Baie-Mahault
+          <strong>Adresse de correspondance</strong> : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault
         </p>
       </LegalSection>
+
 
       <LegalSection title="Hébergeur">
         <p>
