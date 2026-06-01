@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   component: NewVehiclePage,
@@ -81,6 +82,9 @@ function NewVehiclePage() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
         <Link to="/proprietaire" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour au tableau de bord</Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
           <h1 className="font-display text-3xl font-bold mb-2">Ajouter un véhicule</h1>

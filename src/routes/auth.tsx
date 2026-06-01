@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -43,6 +44,9 @@ function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
         <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
         <h1 className="font-display text-3xl font-bold mt-4 mb-2">{mode === "signin" ? "Connexion admin" : "Créer un compte"}</h1>
         <p className="text-sm text-muted-foreground mb-6">

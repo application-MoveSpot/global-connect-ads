@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { LogoLink } from "@/components/LogoLink";
 
 type Props = {
   eyebrow: string;
@@ -13,12 +14,7 @@ export function LegalPage({ eyebrow, title, updatedAt, children }: Props) {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-signal shadow-glow flex items-center justify-center font-display font-bold text-primary-foreground">
-              M
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight">MoveSpot</span>
-          </Link>
+          <LogoLink />
           <Link
             to="/"
             className="rounded-full border border-border bg-card/50 backdrop-blur px-4 py-2 text-sm font-medium hover:bg-card transition"
