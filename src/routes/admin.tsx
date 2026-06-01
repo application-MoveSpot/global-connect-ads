@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
@@ -36,45 +36,55 @@ type Vehicle = {
   created_at: string;
 };
 
+type AuthState = "checking" | "unauthenticated" | "unauthorized" | "ok";
+
 function AdminPage() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [authorized, setAuthorized] = useState(false);
+  const [authState, setAuthState] = useState<AuthState>("checking");
+  const [dataLoading, setDataLoading] = useState(true);
   const [requests, setRequests] = useState<Request[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [tab, setTab] = useState<"requests" | "vehicles">("requests");
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
 
-  const load = useCallback(async () => {
-    const [{ data: reqs }, { data: vehs }] = await Promise.all([
-      supabase.from("campaign_requests").select("*").order("created_at", { ascending: false }),
-      supabase.from("vehicles").select("*").order("created_at", { ascending: false }),
-    ]);
+  const load = useCallback(async (statusFilter: typeof filter) => {
+    setDataLoading(true);
+    const reqQ = supabase.from("campaign_requests").select("*").order("created_at", { ascending: false }).limit(100);
+    const vehQ = supabase.from("vehicles").select("*").order("created_at", { ascending: false }).limit(100);
+    if (statusFilter !== "all") {
+      reqQ.eq("status", statusFilter);
+      vehQ.eq("status", statusFilter);
+    }
+    const [{ data: reqs }, { data: vehs }] = await Promise.all([reqQ, vehQ]);
     setRequests((reqs as Request[]) ?? []);
     setVehicles((vehs as Vehicle[]) ?? []);
+    setDataLoading(false);
   }, []);
 
   useEffect(() => {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) { navigate({ to: "/auth" }); return; }
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id);
-      const isAdmin = roles?.some((r) => r.role === "admin");
-      if (!isAdmin) { setLoading(false); return; }
-      setAuthorized(true);
-      await load();
-      setLoading(false);
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id).eq("role", "admin").limit(1);
+      if (!roles || roles.length === 0) { setAuthState("unauthorized"); return; }
+      setAuthState("ok");
+      load(filter);
     })();
-  }, [navigate, load]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
+
+  useEffect(() => {
+    if (authState === "ok") load(filter);
+  }, [filter, authState, load]);
 
   const updateRequest = async (id: string, status: "approved" | "rejected") => {
     await supabase.from("campaign_requests").update({ status }).eq("id", id);
-    await load();
+    load(filter);
   };
 
   const updateVehicle = async (id: string, status: "approved" | "rejected", note?: string) => {
     await supabase.from("vehicles").update({ status, admin_notes: note ?? null }).eq("id", id);
-    await load();
+    load(filter);
   };
 
   const logout = async () => {
@@ -82,9 +92,9 @@ function AdminPage() {
     navigate({ to: "/auth" });
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement...</div>;
+  if (authState === "checking") return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement...</div>;
 
-  if (!authorized) {
+  if (authState === "unauthorized") {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 text-center">
         <div>
@@ -95,9 +105,6 @@ function AdminPage() {
       </div>
     );
   }
-
-  const filteredReq = filter === "all" ? requests : requests.filter((r) => r.status === filter);
-  const filteredVeh = filter === "all" ? vehicles : vehicles.filter((v) => v.status === filter);
 
   return (
     <div className="min-h-screen bg-background">
@@ -113,8 +120,8 @@ function AdminPage() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex gap-2 mb-6">
-          <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes ({requests.length})</TabBtn>
-          <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules ({vehicles.length})</TabBtn>
+          <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
+          <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
         </div>
 
         <div className="flex gap-2 mb-4 flex-wrap">
@@ -128,12 +135,22 @@ function AdminPage() {
           ))}
         </div>
 
-        {tab === "requests" ? (
-          filteredReq.length === 0 ? (
+        {dataLoading ? (
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card p-6 animate-pulse">
+                <div className="h-4 w-1/3 bg-muted rounded mb-3" />
+                <div className="h-3 w-1/2 bg-muted rounded mb-2" />
+                <div className="h-20 w-full bg-muted/50 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : tab === "requests" ? (
+          requests.length === 0 ? (
             <Empty msg="Aucune demande dans cette catégorie." />
           ) : (
             <div className="space-y-4">
-              {filteredReq.map((r) => (
+              {requests.map((r) => (
                 <div key={r.id} className="rounded-2xl border border-border bg-card p-6">
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                     <div>
@@ -163,11 +180,11 @@ function AdminPage() {
               ))}
             </div>
           )
-        ) : filteredVeh.length === 0 ? (
+        ) : vehicles.length === 0 ? (
           <Empty msg="Aucun véhicule dans cette catégorie." />
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {filteredVeh.map((v) => (
+            {vehicles.map((v) => (
               <VehicleCard key={v.id} v={v} onUpdate={updateVehicle} />
             ))}
           </div>
@@ -182,7 +199,7 @@ function VehicleCard({ v, onUpdate }: { v: Vehicle; onUpdate: (id: string, statu
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       {v.photos && v.photos[0] && (
-        <img src={v.photos[0]} alt={v.name} className="w-full h-40 object-cover rounded-lg mb-4" />
+        <img src={v.photos[0]} alt={v.name} loading="lazy" className="w-full h-40 object-cover rounded-lg mb-4" />
       )}
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-display text-lg font-bold">{v.name}</h3>
