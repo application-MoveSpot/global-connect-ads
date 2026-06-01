@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LogoLink } from "@/components/LogoLink";
+import { FAQChatbot } from "@/components/FAQChatbot";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
@@ -106,6 +107,15 @@ function AnnonceurDashboard() {
           </div>
         )}
       </main>
+      <FAQChatbot
+        audience="annonceur"
+        suggestions={[
+          "Comment réserver un emplacement publicitaire ?",
+          "Combien de temps dure la validation de ma campagne ?",
+          "Quelles sont les conditions d'annulation ?",
+          "Quels contenus publicitaires sont interdits ?",
+        ]}
+      />
     </div>
   );
 }

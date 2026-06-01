@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
+import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -91,6 +92,11 @@ const ProprietaireInscriptionRoute = ProprietaireInscriptionRouteImport.update({
   path: '/proprietaire/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
+  id: '/api/faq-chat',
+  path: '/api/faq-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
   id: '/annonceur/inscription',
   path: '/annonceur/inscription',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
+  '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
+  '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/annonceur': typeof AnnonceurIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
+  '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/pitch'
     | '/annonceur/inscription'
+    | '/api/faq-chat'
     | '/proprietaire/inscription'
     | '/annonceur/'
     | '/proprietaire/'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/pitch'
     | '/annonceur/inscription'
+    | '/api/faq-chat'
     | '/proprietaire/inscription'
     | '/annonceur'
     | '/proprietaire'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/pitch'
     | '/annonceur/inscription'
+    | '/api/faq-chat'
     | '/proprietaire/inscription'
     | '/annonceur/'
     | '/proprietaire/'
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   PitchRoute: typeof PitchRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
+  ApiFaqChatRoute: typeof ApiFaqChatRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/faq-chat': {
+      id: '/api/faq-chat'
+      path: '/api/faq-chat'
+      fullPath: '/api/faq-chat'
+      preLoaderRoute: typeof ApiFaqChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/annonceur/inscription': {
       id: '/annonceur/inscription'
       path: '/annonceur/inscription'
@@ -369,6 +389,7 @@ const rootRouteChildren: RootRouteChildren = {
   MentionsLegalesRoute: MentionsLegalesRoute,
   PitchRoute: PitchRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
+  ApiFaqChatRoute: ApiFaqChatRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,

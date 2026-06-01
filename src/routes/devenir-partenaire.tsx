@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoLink } from "@/components/LogoLink";
+import { FAQChatbot } from "@/components/FAQChatbot";
 
 export const Route = createFileRoute("/devenir-partenaire")({
   head: () => ({
@@ -131,6 +132,15 @@ function DevenirPartenaire() {
           © {new Date().getFullYear()} MoveSpot
         </div>
       </footer>
+      <FAQChatbot
+        audience="proprietaire"
+        suggestions={[
+          "Quels véhicules puis-je inscrire ?",
+          "Combien je peux gagner par mois ?",
+          "Combien de temps prend la validation de mon véhicule ?",
+          "Que dit la réglementation sur la pub mobile ?",
+        ]}
+      />
     </div>
   );
 }
