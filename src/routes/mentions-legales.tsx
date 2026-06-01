@@ -49,11 +49,11 @@ function MentionsLegales() {
 
       <LegalSection title="Hébergeur">
         <p>
-          Le Site est hébergé par <strong><em>à compléter — nom de l'hébergeur</em></strong>.
+          Le Site est hébergé par <strong>Lovable GPT AB</strong>.
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Adresse</strong> : <em>à compléter</em></li>
-          <li><strong>Téléphone</strong> : <em>à compléter</em></li>
+          <li><strong>Adresse</strong> : Sveavägen 31, 111 34 Stockholm, Suède</li>
+          <li><strong>Site web</strong> : <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="underline">https://lovable.dev</a></li>
         </ul>
       </LegalSection>
 
