@@ -43,9 +43,6 @@ function MentionsLegales() {
           </a>
         </p>
         <p>
-          <strong>Téléphone</strong> : <em>à compléter</em>
-        </p>
-        <p>
           <strong>Adresse postale</strong> : <em>à compléter</em>
         </p>
       </LegalSection>
