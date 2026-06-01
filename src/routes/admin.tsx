@@ -38,9 +38,9 @@ type Vehicle = {
 
 type AuthState = "checking" | "unauthenticated" | "unauthorized" | "ok";
 
-const REQUEST_TIMEOUT_MS = 8000;
+const REQUEST_TIMEOUT_MS = 6000;
 
-function withTimeout<T>(promise: Promise<T>, label: string) {
+function withTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
   return Promise.race([
     promise,
     new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error(`${label} a expiré`)), REQUEST_TIMEOUT_MS)),
@@ -124,7 +124,19 @@ function AdminPage() {
     navigate({ to: "/auth" });
   };
 
-  if (authState === "checking") return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement...</div>;
+  if (authState === "checking") return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Vérification de la session...</div>;
+
+  if (authState === "unauthenticated") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 text-center">
+        <div>
+          <h1 className="font-display text-3xl font-bold mb-2">Session introuvable</h1>
+          <p className="text-muted-foreground mb-4">Reconnectez-vous pour accéder au dashboard admin.</p>
+          <button onClick={() => navigate({ to: "/auth" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Se connecter</button>
+        </div>
+      </div>
+    );
+  }
 
   if (authState === "unauthorized") {
     return (
