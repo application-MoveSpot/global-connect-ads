@@ -189,6 +189,12 @@ function AdminPage() {
               </div>
             ))}
           </div>
+        ) : dataError ? (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-8 text-center">
+            <h2 className="font-display text-xl font-bold mb-2">Chargement impossible</h2>
+            <p className="text-sm text-muted-foreground mb-4">{dataError}</p>
+            <button onClick={() => load(filter)} className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold">Réessayer</button>
+          </div>
         ) : tab === "requests" ? (
           requests.length === 0 ? (
             <Empty msg="Aucune demande dans cette catégorie." />
