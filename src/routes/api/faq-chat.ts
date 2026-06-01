@@ -66,7 +66,7 @@ Ne jamais inventer de tarifs, de chiffres ou d'engagements. Utilise du markdown 
 
 === BASE DE CONNAISSANCES MOVESPOT ===
 ${KNOWLEDGE_BASE}`,
-          messages: convertToModelMessages(messages as UIMessage[]),
+          messages: await convertToModelMessages(messages as UIMessage[]),
         });
 
         return result.toUIMessageStreamResponse();
