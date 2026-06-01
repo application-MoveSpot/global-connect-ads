@@ -86,7 +86,7 @@ function NewVehiclePage() {
       type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
       name,
       description: description || null,
-      format_publicitaire: format,
+      format_publicitaire: [...selectedFormats, formatOther.trim()].filter(Boolean).join(" · "),
       surface_m2: surface ? Number(surface) : null,
       km_per_day: km ? Number(km) : null,
       zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
