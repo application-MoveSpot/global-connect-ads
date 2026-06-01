@@ -38,10 +38,20 @@ type Vehicle = {
 
 type AuthState = "checking" | "unauthenticated" | "unauthorized" | "ok";
 
+const REQUEST_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, label: string) {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => window.setTimeout(() => reject(new Error(`${label} a expiré`)), REQUEST_TIMEOUT_MS)),
+  ]);
+}
+
 function AdminPage() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>("checking");
   const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState("");
   const [requests, setRequests] = useState<Request[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [tab, setTab] = useState<"requests" | "vehicles">("requests");
@@ -49,28 +59,50 @@ function AdminPage() {
 
   const load = useCallback(async (statusFilter: typeof filter) => {
     setDataLoading(true);
+    setDataError("");
     const reqQ = supabase.from("campaign_requests").select("*").order("created_at", { ascending: false }).limit(100);
     const vehQ = supabase.from("vehicles").select("*").order("created_at", { ascending: false }).limit(100);
     if (statusFilter !== "all") {
       reqQ.eq("status", statusFilter);
       vehQ.eq("status", statusFilter);
     }
-    const [{ data: reqs }, { data: vehs }] = await Promise.all([reqQ, vehQ]);
-    setRequests((reqs as Request[]) ?? []);
-    setVehicles((vehs as Vehicle[]) ?? []);
-    setDataLoading(false);
+    try {
+      const [{ data: reqs, error: reqError }, { data: vehs, error: vehError }] = await withTimeout(Promise.all([reqQ, vehQ]), "Le chargement des données");
+      if (reqError || vehError) throw reqError ?? vehError;
+      setRequests((reqs as Request[]) ?? []);
+      setVehicles((vehs as Vehicle[]) ?? []);
+    } catch (error) {
+      setDataError(error instanceof Error ? error.message : "Impossible de charger les données admin.");
+      setRequests([]);
+      setVehicles([]);
+    } finally {
+      setDataLoading(false);
+    }
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/auth" }); return; }
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id).eq("role", "admin").limit(1);
-      if (!roles || roles.length === 0) { setAuthState("unauthorized"); return; }
-      setAuthState("ok");
-      load(filter);
+      try {
+        const { data: sess, error: sessionError } = await withTimeout(supabase.auth.getSession(), "La vérification de session");
+        if (cancelled) return;
+        if (sessionError || !sess.session) {
+          setAuthState("unauthenticated");
+          navigate({ to: "/auth" });
+          return;
+        }
+        const { data: roles, error: roleError } = await withTimeout(
+          supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id).eq("role", "admin").limit(1),
+          "La vérification du rôle admin"
+        );
+        if (cancelled) return;
+        if (roleError || !roles || roles.length === 0) { setAuthState("unauthorized"); return; }
+        setAuthState("ok");
+      } catch {
+        if (!cancelled) setAuthState("unauthenticated");
+      }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { cancelled = true; };
   }, [navigate]);
 
   useEffect(() => {
