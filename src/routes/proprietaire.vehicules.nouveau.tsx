@@ -12,6 +12,7 @@ const TYPES = [
   { v: "van", l: "Van utilitaire" },
   { v: "taxi", l: "Taxi / VTC" },
   { v: "scooter", l: "Scooter livraison" },
+  { v: "velo", l: "Vélo" },
   { v: "voiture", l: "Voiture" },
   { v: "autre", l: "Autre" },
 ];
