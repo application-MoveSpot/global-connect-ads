@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoLink } from "@/components/LogoLink";
+import { FAQChatbot } from "@/components/FAQChatbot";
 
 export const Route = createFileRoute("/devenir-partenaire")({
   head: () => ({
