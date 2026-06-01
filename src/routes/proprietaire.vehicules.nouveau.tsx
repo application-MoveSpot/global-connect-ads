@@ -12,6 +12,7 @@ const TYPES = [
   { v: "van", l: "Van utilitaire" },
   { v: "taxi", l: "Taxi / VTC" },
   { v: "scooter", l: "Scooter livraison" },
+  { v: "velo", l: "Vélo" },
   { v: "voiture", l: "Voiture" },
   { v: "autre", l: "Autre" },
 ];
@@ -65,7 +66,7 @@ function NewVehiclePage() {
 
     const { error: insErr } = await supabase.from("vehicles").insert({
       owner_id: ownerId,
-      type: type as "food_truck" | "van" | "taxi" | "scooter" | "voiture" | "autre",
+      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo" | "voiture" | "autre",
       name,
       description: description || null,
       format_publicitaire: format,
