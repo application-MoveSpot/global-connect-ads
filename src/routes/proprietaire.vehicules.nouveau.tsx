@@ -20,6 +20,19 @@ const TYPES = [
   { v: "autre", l: "Autre" },
 ];
 
+const FORMATS_BY_TYPE: Record<string, string[]> = {
+  food_truck: ["Habillage total (covering)", "Habillage latéral", "Habillage arrière", "Toit publicitaire", "Auvent / store", "Bâche événementielle"],
+  van: ["Habillage total (covering)", "Habillage latéral", "Habillage arrière", "Lunette arrière (one-way vision)", "Stickers portières", "Magnétique amovible"],
+  taxi: ["Toit lumineux (taxi-top)", "Portières latérales", "Lunette arrière", "Appuie-tête intérieur", "Tablette numérique passager"],
+  scooter: ["Top-case publicitaire", "Sacoche latérale", "Jambières / tablier", "Coque arrière", "Casque sponsorisé"],
+  velo_cargo: ["Caisson avant (toutes faces)", "Bâche latérale", "Panneau arrière", "Habillage roues", "Drapeau / fanion"],
+  velo_remorque: ["Panneau latéral remorque", "Panneau arrière remorque", "Bâche événementielle", "Structure 3D / mobile board"],
+  triporteur: ["Caisson avant 3 faces", "Bâche arrière", "Habillage cadre", "Parasol publicitaire"],
+  tutuk: ["Habillage total", "Bâche toit", "Panneaux latéraux", "Lunette arrière", "Auvent"],
+  voiture: ["Habillage total (covering)", "Habillage latéral", "Stickers portières", "Lunette arrière (one-way vision)", "Magnétique amovible", "Toit"],
+  autre: ["Habillage total", "Habillage partiel", "Panneau latéral", "Panneau arrière"],
+};
+
 function NewVehiclePage() {
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState<string | null>(null);
