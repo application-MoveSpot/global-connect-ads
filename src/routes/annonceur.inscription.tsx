@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LogoLink } from "@/components/LogoLink";
 
 type Search = { redirect?: string };
 
@@ -94,6 +95,9 @@ function AnnonceurInscription() {
   return (
     <div className="min-h-screen bg-background p-4 flex items-center justify-center">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
         <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
 
         {step === "auth" ? (

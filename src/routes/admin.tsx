@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -103,8 +104,8 @@ function AdminPage() {
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground">MoveSpot</Link>
-            <h1 className="font-display text-2xl font-bold">Dashboard admin</h1>
+            <LogoLink />
+            <h1 className="font-display text-2xl font-bold mt-1">Dashboard admin</h1>
           </div>
           <button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">Déconnexion</button>
         </div>

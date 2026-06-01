@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { LogoLink } from "@/components/LogoLink";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
@@ -58,7 +59,7 @@ function AnnonceurDashboard() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="font-display text-xl font-bold">MoveSpot</Link>
+          <LogoLink />
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:inline">{profile?.full_name}{profile?.company ? ` · ${profile.company}` : ""}</span>
             <button

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/devenir-partenaire")({
   head: () => ({
@@ -17,7 +18,7 @@ function DevenirPartenaire() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="font-display font-bold text-lg tracking-tight">MoveSpot</Link>
+           <LogoLink />
           <Link to="/proprietaire/inscription" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
             S'inscrire
           </Link>

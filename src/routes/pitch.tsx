@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { LogoLink } from "@/components/LogoLink";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/pitch")({
@@ -207,10 +208,7 @@ function Pitch() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className={`sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border ${isFullscreen ? "hidden" : ""}`}>
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-signal shadow-glow flex items-center justify-center font-display font-bold text-primary-foreground">M</div>
-            <span className="font-display font-bold text-lg tracking-tight">MoveSpot · Pitch</span>
-          </Link>
+          <LogoLink />
           <div className="flex items-center gap-4">
             <button
               onClick={toggleFullscreen}
