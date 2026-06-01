@@ -43,7 +43,7 @@ function MentionsLegales() {
           </a>
         </p>
         <p>
-          <strong>Adresse postale</strong> : <em>à compléter</em>
+          <strong>Adresse postale</strong> : Zone activité commerciale de Houelbourg 1 Lot, Immeuble Sud Jarry, 97122 Baie-Mahault
         </p>
       </LegalSection>
 
