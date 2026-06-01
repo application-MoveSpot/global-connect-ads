@@ -111,7 +111,7 @@ function NewVehiclePage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} required
+              <select value={type} onChange={(e) => { setType(e.target.value); setSelectedFormats([]); }} required
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                 {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
               </select>
@@ -122,7 +122,36 @@ function NewVehiclePage() {
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
-            <Field label="Format publicitaire proposé *" value={format} onChange={setFormat} required placeholder="Ex. Habillage latéral 4m²" />
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Formats publicitaires proposés *</label>
+              <p className="text-xs text-muted-foreground mb-2">Cochez tous les emplacements que vous pouvez offrir sur ce véhicule.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(FORMATS_BY_TYPE[type] ?? []).map((f) => {
+                  const checked = selectedFormats.includes(f);
+                  return (
+                    <label key={f} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition ${checked ? "border-primary bg-primary/10" : "border-border bg-input hover:bg-secondary"}`}>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => setSelectedFormats((prev) => e.target.checked ? [...prev, f] : prev.filter((x) => x !== f))}
+                        className="accent-primary"
+                      />
+                      <span>{f}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              <input
+                type="text"
+                value={formatOther}
+                onChange={(e) => setFormatOther(e.target.value)}
+                placeholder="Autre format (optionnel) — ex. surface 4m²"
+                className="mt-2 w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              {selectedFormats.length === 0 && !formatOther.trim() && (
+                <p className="text-xs text-muted-foreground mt-1.5">Sélectionnez au moins un format ou précisez-en un.</p>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Surface (m²)" value={surface} onChange={setSurface} type="number" />
               <Field label="Km / jour" value={km} onChange={setKm} type="number" />
