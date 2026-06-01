@@ -62,18 +62,31 @@ function MentionsLegales() {
 
       <LegalSection title="Propriété intellectuelle">
         <p>
-          L'ensemble des éléments constituant le Site (textes, graphismes, logiciels, photographies, images,
-          vidéos, sons, plans, logos, marques, etc.) est la propriété exclusive de MoveSpot ou de ses
-          partenaires. Ces éléments sont protégés par le droit d'auteur, le droit des marques et tous autres
-          droits de propriété intellectuelle.
+          Le nom commercial <strong>MoveSpot</strong> est exploité par Garry PALERME, entrepreneur
+          individuel, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
+          d'un dépôt de marque auprès de l'INPI : son usage commercial est légal, mais ne confère
+          pas de droit exclusif au titre du droit des marques.
         </p>
         <p>
-          Toute reproduction, représentation, modification, publication, adaptation ou exploitation,
-          totale ou partielle, du Site ou de l'un quelconque de ses éléments, par quelque procédé que ce soit,
-          sans l'autorisation préalable et écrite de MoveSpot, est strictement interdite et constituerait une
-          contrefaçon sanctionnée par les articles L.335-2 et suivants du Code de la propriété intellectuelle.
+          Les contenus éditoriaux propres au Site (textes, choix graphiques, identité visuelle,
+          structure des pages) sont la propriété de Garry PALERME / MoveSpot et sont protégés par
+          le droit d'auteur dès leur création (article L.111-1 du Code de la propriété intellectuelle).
+        </p>
+        <p>
+          Le Site a été conçu et développé à l'aide de la plateforme{" "}
+          <a href="https://lovable.dev" target="_blank" rel="noopener noreferrer" className="underline">Lovable</a>
+          {" "}et intègre des composants et bibliothèques open source tiers (notamment React, Tailwind CSS,
+          shadcn/ui, TanStack) ainsi que des services tiers (cartographie, hébergement) utilisés
+          conformément à leurs licences et conditions d'utilisation respectives. Les marques, logos et
+          contenus appartenant à ces tiers restent la propriété de leurs détenteurs.
+        </p>
+        <p>
+          Toute reproduction, représentation ou exploitation non autorisée des éléments propres au
+          Site est interdite et constituerait une contrefaçon sanctionnée par les articles L.335-2
+          et suivants du Code de la propriété intellectuelle.
         </p>
       </LegalSection>
+
 
       <LegalSection title="Données personnelles et cookies">
         <p>
