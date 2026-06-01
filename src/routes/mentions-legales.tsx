@@ -26,6 +26,7 @@ function MentionsLegales() {
           <li><strong>SIRET (établissement MoveSpot)</strong> : 804 671 444 00052</li>
           <li><strong>RCS</strong> : 804 671 444 R.C.S. Pointe-à-Pitre</li>
           <li><strong>Code APE</strong> : 47.91B — Vente à distance sur catalogue spécialisé</li>
+          <li><strong>TVA</strong> : TVA non applicable, article 293 B du CGI (franchise en base de TVA)</li>
         </ul>
       </LegalSection>
 
