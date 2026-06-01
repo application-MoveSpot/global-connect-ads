@@ -30,8 +30,8 @@ function MentionsLegales() {
 
       <LegalSection title="Directeur de la publication">
         <p>
-          Le directeur de la publication est <strong><em>à compléter — nom du représentant légal</em></strong>,
-          en sa qualité de Président / Directeur Général de MoveSpot.
+          Le directeur de la publication est <strong>Garry PALERME</strong>,
+          en sa qualité de gérant de MoveSpot.
         </p>
       </LegalSection>
 
