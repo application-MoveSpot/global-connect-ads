@@ -114,6 +114,7 @@ function Index() {
             <Link to="/cgv" className="hover:text-foreground transition">CGV</Link>
             <Link to="/confidentialite" className="hover:text-foreground transition">Confidentialité</Link>
             <Link to="/cookies" className="hover:text-foreground transition">Cookies</Link>
+            <Link to="/mentions-legales" className="hover:text-foreground transition">Mentions légales</Link>
             <Link to="/admin" className="opacity-60 hover:opacity-100 transition">Admin</Link>
           </div>
         </div>

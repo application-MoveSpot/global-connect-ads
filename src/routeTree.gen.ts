@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PitchRouteImport } from './routes/pitch'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
@@ -28,6 +29,11 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 const PitchRoute = PitchRouteImport.update({
   id: '/pitch',
   path: '/pitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevenirPartenaireRoute = DevenirPartenaireRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/mentions-legales'
     | '/pitch'
     | '/annonceur/inscription'
     | '/proprietaire/inscription'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/mentions-legales'
     | '/pitch'
     | '/annonceur/inscription'
     | '/proprietaire/inscription'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/mentions-legales'
     | '/pitch'
     | '/annonceur/inscription'
     | '/proprietaire/inscription'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
   PitchRoute: typeof PitchRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
@@ -234,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/pitch'
       fullPath: '/pitch'
       preLoaderRoute: typeof PitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/devenir-partenaire': {
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
   DevenirPartenaireRoute: DevenirPartenaireRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
   PitchRoute: PitchRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
