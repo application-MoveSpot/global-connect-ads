@@ -71,6 +71,54 @@ function DevenirPartenaire() {
         </div>
       </section>
 
+      <section className="max-w-4xl mx-auto px-6 py-12">
+        <div className="rounded-2xl border border-border bg-card/60 backdrop-blur p-6 md:p-8">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl" aria-hidden>⚠️</span>
+            <div className="space-y-3">
+              <h2 className="font-display text-xl md:text-2xl font-bold">
+                Publicité extérieure : ce que dit la réglementation
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                L'affichage publicitaire sur véhicules et dans l'espace public est encadré par le Code de
+                l'environnement (articles L.581-1 et suivants) et le règlement local de publicité (RLP) de chaque commune.
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                <li>
+                  La <strong>publicité lumineuse</strong> est interdite dans les agglomérations de moins de
+                  10 000 habitants ne faisant pas partie d'une unité urbaine de plus de 100 000 habitants.
+                </li>
+                <li>
+                  La publicité est interdite sur les <strong>immeubles classés ou inscrits</strong>, monuments
+                  historiques, arbres, et dans les sites protégés (parcs nationaux, réserves naturelles).
+                </li>
+                <li>
+                  Les <strong>véhicules utilisés ou équipés principalement à des fins publicitaires</strong> ne
+                  peuvent pas stationner ou circuler dans certaines zones (article R.581-48 du Code de
+                  l'environnement).
+                </li>
+                <li>
+                  Les formats, surfaces et emplacements doivent respecter le <strong>RLP de la commune</strong>{" "}
+                  concernée.
+                </li>
+              </ul>
+              <p className="text-xs text-muted-foreground">
+                Source :{" "}
+                <a
+                  href="https://www.service-public.fr/professionnels-entreprises/vosdroits/F22397"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  service-public.fr — Réglementation de la publicité extérieure
+                </a>
+                . MoveSpot vérifie chaque campagne pour garantir sa conformité.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="max-w-3xl mx-auto px-6 py-16 text-center">
         <h2 className="font-display text-3xl font-bold mb-4">Prêt à monétiser vos trajets ?</h2>
         <Link to="/proprietaire/inscription" className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
