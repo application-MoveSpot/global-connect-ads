@@ -163,9 +163,18 @@ function AdminPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex gap-2 mb-6">
-          <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
-          <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex gap-2">
+            <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
+            <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
+          </div>
+          <a
+            href="/MoveSpot_Previsionnel_5ans.pdf"
+            download
+            className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+          >
+            📊 Télécharger le prévisionnel (PDF)
+          </a>
         </div>
 
         <div className="flex gap-2 mb-4 flex-wrap">
