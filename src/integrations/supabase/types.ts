@@ -294,7 +294,7 @@ export type Database = {
           admin_notes: string | null
           created_at: string
           description: string | null
-          format_publicitaire: string
+          format_publicitaire: string | null
           id: string
           km_per_day: number | null
           name: string
@@ -311,7 +311,7 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string
           description?: string | null
-          format_publicitaire: string
+          format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
           name: string
@@ -328,7 +328,7 @@ export type Database = {
           admin_notes?: string | null
           created_at?: string
           description?: string | null
-          format_publicitaire?: string
+          format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
           name?: string

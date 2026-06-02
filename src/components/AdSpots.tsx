@@ -9,7 +9,7 @@ type Spot = {
   location: string;
   impressions: string;
   price: number;
-  format: string;
+  format: string | null;
   available: boolean;
 };
 

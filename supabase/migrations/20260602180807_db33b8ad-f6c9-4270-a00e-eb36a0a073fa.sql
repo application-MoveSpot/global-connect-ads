@@ -1,0 +1,1 @@
+ALTER TABLE public.vehicles ALTER COLUMN format_publicitaire DROP NOT NULL;

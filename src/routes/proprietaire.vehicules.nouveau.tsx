@@ -20,19 +20,6 @@ const TYPES = [
   { v: "autre", l: "Autre" },
 ];
 
-const FORMATS_BY_TYPE: Record<string, string[]> = {
-  food_truck: ["Habillage total (covering)", "Habillage latéral", "Habillage arrière", "Toit publicitaire", "Auvent / store", "Bâche événementielle"],
-  van: ["Habillage total (covering)", "Habillage latéral", "Habillage arrière", "Lunette arrière (one-way vision)", "Stickers portières", "Magnétique amovible"],
-  taxi: ["Toit lumineux (taxi-top)", "Portières latérales", "Lunette arrière", "Appuie-tête intérieur", "Tablette numérique passager"],
-  scooter: ["Top-case publicitaire", "Sacoche latérale", "Jambières / tablier", "Coque arrière", "Casque sponsorisé"],
-  velo_cargo: ["Caisson avant (toutes faces)", "Bâche latérale", "Panneau arrière", "Habillage roues", "Drapeau / fanion"],
-  velo_remorque: ["Panneau latéral remorque", "Panneau arrière remorque", "Bâche événementielle", "Structure 3D / mobile board"],
-  triporteur: ["Caisson avant 3 faces", "Bâche arrière", "Habillage cadre", "Parasol publicitaire"],
-  tutuk: ["Habillage total", "Bâche toit", "Panneaux latéraux", "Lunette arrière", "Auvent"],
-  voiture: ["Habillage total (covering)", "Habillage latéral", "Stickers portières", "Lunette arrière (one-way vision)", "Magnétique amovible", "Toit"],
-  autre: ["Habillage total", "Habillage partiel", "Panneau latéral", "Panneau arrière"],
-};
-
 function NewVehiclePage() {
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState<string | null>(null);
@@ -40,8 +27,6 @@ function NewVehiclePage() {
   const [type, setType] = useState("food_truck");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  const [formatOther, setFormatOther] = useState("");
   const [surface, setSurface] = useState("");
   const [km, setKm] = useState("");
   const [zones, setZones] = useState("");
@@ -68,10 +53,6 @@ function NewVehiclePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerId || !userId) return;
-    if (selectedFormats.length === 0 && !formatOther.trim()) {
-      setError("Veuillez sélectionner au moins un format publicitaire.");
-      return;
-    }
     setError("");
     setLoading(true);
 
@@ -90,7 +71,7 @@ function NewVehiclePage() {
       type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
       name,
       description: description || null,
-      format_publicitaire: [...selectedFormats, formatOther.trim()].filter(Boolean).join(" · "),
+      format_publicitaire: null,
       surface_m2: surface ? Number(surface) : null,
       km_per_day: km ? Number(km) : null,
       zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
@@ -115,7 +96,7 @@ function NewVehiclePage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
-              <select value={type} onChange={(e) => { setType(e.target.value); setSelectedFormats([]); }} required
+              <select value={type} onChange={(e) => setType(e.target.value)} required
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
                 {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
               </select>
@@ -124,37 +105,9 @@ function NewVehiclePage() {
             <div>
               <label className="block text-sm font-medium mb-1.5">Description</label>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
+                placeholder="Décrivez votre véhicule, son état, ses spécificités…"
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Formats publicitaires proposés *</label>
-              <p className="text-xs text-muted-foreground mb-2">Cochez tous les emplacements que vous pouvez offrir sur ce véhicule.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {(FORMATS_BY_TYPE[type] ?? []).map((f) => {
-                  const checked = selectedFormats.includes(f);
-                  return (
-                    <label key={f} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition ${checked ? "border-primary bg-primary/10" : "border-border bg-input hover:bg-secondary"}`}>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(e) => setSelectedFormats((prev) => e.target.checked ? [...prev, f] : prev.filter((x) => x !== f))}
-                        className="accent-primary"
-                      />
-                      <span>{f}</span>
-                    </label>
-                  );
-                })}
-              </div>
-              <input
-                type="text"
-                value={formatOther}
-                onChange={(e) => setFormatOther(e.target.value)}
-                placeholder="Autre format (optionnel) — ex. surface 4m²"
-                className="mt-2 w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              {selectedFormats.length === 0 && !formatOther.trim() && (
-                <p className="text-xs text-muted-foreground mt-1.5">Sélectionnez au moins un format ou précisez-en un.</p>
-              )}
+              <p className="text-xs text-muted-foreground mt-1.5">Pas besoin de préciser les formats publicitaires : ce sont les annonceurs qui choisissent ce qu'ils veulent habiller.</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Surface (m²)" value={surface} onChange={setSurface} type="number" />
