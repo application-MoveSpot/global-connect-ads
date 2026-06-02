@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
@@ -27,6 +28,11 @@ import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.ins
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
+const PrevisionnelRoute = PrevisionnelRouteImport.update({
+  id: '/previsionnel',
+  path: '/previsionnel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PitchRoute = PitchRouteImport.update({
   id: '/pitch',
   path: '/pitch',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
+  '/previsionnel': typeof PrevisionnelRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
+  '/previsionnel': typeof PrevisionnelRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
+  '/previsionnel': typeof PrevisionnelRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/mentions-legales'
     | '/pitch'
+    | '/previsionnel'
     | '/annonceur/inscription'
     | '/api/faq-chat'
     | '/proprietaire/inscription'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/mentions-legales'
     | '/pitch'
+    | '/previsionnel'
     | '/annonceur/inscription'
     | '/api/faq-chat'
     | '/proprietaire/inscription'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/mentions-legales'
     | '/pitch'
+    | '/previsionnel'
     | '/annonceur/inscription'
     | '/api/faq-chat'
     | '/proprietaire/inscription'
@@ -244,6 +256,7 @@ export interface RootRouteChildren {
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   PitchRoute: typeof PitchRoute
+  PrevisionnelRoute: typeof PrevisionnelRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
@@ -255,6 +268,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/previsionnel': {
+      id: '/previsionnel'
+      path: '/previsionnel'
+      fullPath: '/previsionnel'
+      preLoaderRoute: typeof PrevisionnelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pitch': {
       id: '/pitch'
       path: '/pitch'
@@ -388,6 +408,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevenirPartenaireRoute: DevenirPartenaireRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   PitchRoute: PitchRoute,
+  PrevisionnelRoute: PrevisionnelRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
