@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/auth")({
@@ -79,10 +80,11 @@ function AuthPage() {
         <button
           type="button"
           onClick={async () => {
-            await supabase.auth.signInWithOAuth({
-              provider: "google",
-              options: { redirectTo: `${window.location.origin}/admin` },
+            const result = await lovable.auth.signInWithOAuth("google", {
+              redirect_uri: `${window.location.origin}/admin`,
             });
+            if (result.error) setError(result.error.message);
+            else if (!result.redirected) navigate({ to: "/admin" });
           }}
           className="w-full rounded-lg border border-border bg-card hover:bg-secondary py-3 font-semibold flex items-center justify-center gap-2 transition"
         >
