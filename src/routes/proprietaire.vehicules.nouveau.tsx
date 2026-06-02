@@ -53,10 +53,6 @@ function NewVehiclePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerId || !userId) return;
-    if (selectedFormats.length === 0 && !formatOther.trim()) {
-      setError("Veuillez sélectionner au moins un format publicitaire.");
-      return;
-    }
     setError("");
     setLoading(true);
 
@@ -75,7 +71,7 @@ function NewVehiclePage() {
       type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
       name,
       description: description || null,
-      format_publicitaire: [...selectedFormats, formatOther.trim()].filter(Boolean).join(" · "),
+      format_publicitaire: null,
       surface_m2: surface ? Number(surface) : null,
       km_per_day: km ? Number(km) : null,
       zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
