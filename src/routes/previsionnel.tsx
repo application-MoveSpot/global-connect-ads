@@ -17,7 +17,7 @@ const structure = ["Micro-BIC", "Micro-BIC", "SASU (IS)", "SASU (IS)", "SASU (IS
 const fmt = (n: number) =>
   new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(n)) + " €";
 const pct = (n: number) => (n * 100).toFixed(1) + " %";
-const txt = (s: string) => s;
+const txt = ((s: unknown) => String(s)) as unknown as (n: number) => string;
 
 // Commission MoveSpot (CA réel — flux propriétaires hors CA grâce au mandat d'encaissement Stripe Connect)
 const commission = [11286, 57564, 200621, 480168, 901836];
