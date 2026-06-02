@@ -168,13 +168,23 @@ function AdminPage() {
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
             <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
           </div>
-          <a
-            href="/MoveSpot_Previsionnel_5ans.pdf"
-            download
-            className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
-          >
-            📊 Télécharger le prévisionnel (PDF)
-          </a>
+          <div className="flex gap-2">
+            <a
+              href="/previsionnel"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+            >
+              🖨️ Prévisionnel imprimable
+            </a>
+            <a
+              href="/MoveSpot_Previsionnel_5ans.pdf"
+              download
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
+            >
+              📄 PDF
+            </a>
+          </div>
         </div>
 
         <div className="flex gap-2 mb-4 flex-wrap">
