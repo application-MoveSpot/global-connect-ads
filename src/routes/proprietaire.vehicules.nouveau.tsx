@@ -27,8 +27,6 @@ function NewVehiclePage() {
   const [type, setType] = useState("food_truck");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  const [formatOther, setFormatOther] = useState("");
   const [surface, setSurface] = useState("");
   const [km, setKm] = useState("");
   const [zones, setZones] = useState("");
