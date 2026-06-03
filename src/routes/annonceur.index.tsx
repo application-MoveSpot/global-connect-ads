@@ -51,7 +51,7 @@ function AnnonceurDashboard() {
       setProfile(prof);
       const { data: reqs } = await supabase
         .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois")
         .eq("user_id", sess.session.user.id)
         .order("created_at", { ascending: false });
       setRequests((reqs as Req[]) ?? []);
