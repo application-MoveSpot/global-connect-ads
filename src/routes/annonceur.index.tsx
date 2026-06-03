@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
 import { RouteSummary } from "@/components/RouteSummary";
+import { CreativeFiles } from "@/components/CreativeFiles";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
