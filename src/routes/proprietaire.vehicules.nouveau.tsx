@@ -79,10 +79,14 @@ function NewVehiclePage() {
 
     const { error: insErr } = await supabase.from("vehicles").insert({
       owner_id: ownerId,
-      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "autre",
+      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
       name,
       description: description || null,
-      format_publicitaire: type === "sac_a_dos_lcd" ? `Écran LCD ${backpackFormat}` : null,
+      format_publicitaire: type === "sac_a_dos_lcd"
+        ? `Écran LCD ${backpackFormat}`
+        : type === "sac_a_dos_affiche"
+        ? `Affiche ${backpackFormat}`
+        : null,
       surface_m2: surface ? Number(surface) : null,
       km_per_day: km ? Number(km) : null,
       zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
