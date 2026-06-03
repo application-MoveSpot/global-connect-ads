@@ -177,6 +177,43 @@ export function BookingForm({ spot, onClose }: Props) {
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
               </div>
 
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
+                <div className="text-sm font-semibold">Itinéraire de diffusion <span className="text-muted-foreground font-normal">(optionnel)</span></div>
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-muted-foreground">Zones / quartiers ciblés</label>
+                  <textarea
+                    value={zones}
+                    onChange={(e) => setZones(e.target.value)}
+                    rows={2}
+                    placeholder="Ex: Bastille, République, Le Marais"
+                    className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-muted-foreground">Étapes du parcours (une par ligne)</label>
+                  <textarea
+                    value={waypoints}
+                    onChange={(e) => setWaypoints(e.target.value)}
+                    rows={3}
+                    placeholder={"Départ : Place de la Bastille\nGare de Lyon\nArrivée : Place de la République"}
+                    className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-muted-foreground">Points d'intérêt à couvrir</label>
+                  <textarea
+                    value={pois}
+                    onChange={(e) => setPois(e.target.value)}
+                    rows={2}
+                    placeholder="Ex: Centre commercial Beaugrenelle, Université Sorbonne"
+                    className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">Le propriétaire utilisera ces indications pour planifier la tournée. La validation reste automatique si les dates et le véhicule sont libres.</p>
+              </div>
+
+
+
               <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
                 <div className="font-semibold text-foreground mb-2">⚠ Contenus refusés</div>
                 <p>Publicités à caractère religieux ou fêtes religieuses, politique ou électoral, sexistes, pornographiques ou incitant à la violence.</p>
