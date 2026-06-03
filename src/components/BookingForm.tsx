@@ -107,6 +107,26 @@ export function BookingForm({ spot, onClose }: Props) {
     setStatus("loading");
     const splitLines = (s: string) =>
       s.split(/\r?\n|,/).map((v) => v.trim()).filter(Boolean).slice(0, 50);
+
+    // Upload creative files first
+    const uploadedPaths: string[] = [];
+    if (files.length > 0) {
+      const folder = `${auth.userId}/${Date.now()}`;
+      for (const f of files) {
+        const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${folder}/${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from("campaign-creatives")
+          .upload(path, f, { upsert: false, contentType: f.type });
+        if (upErr) {
+          setStatus("rejected");
+          setReason(`Erreur lors de l'upload de « ${f.name} ». Réessayez.`);
+          return;
+        }
+        uploadedPaths.push(path);
+      }
+    }
+
     const { error } = await supabase.from("campaign_requests").insert({
       user_id: auth.userId,
       spot_id: String(spot.id),
@@ -121,6 +141,7 @@ export function BookingForm({ spot, onClose }: Props) {
       route_waypoints: splitLines(waypoints),
       route_pois: splitLines(pois),
       estimated_impressions_per_day: impressions ? Math.max(0, parseInt(impressions, 10)) || null : null,
+      creative_files: uploadedPaths,
     });
     if (error) {
       setStatus("rejected");
@@ -128,6 +149,24 @@ export function BookingForm({ spot, onClose }: Props) {
       return;
     }
     setStatus("success");
+  };
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const list = Array.from(e.target.files ?? []);
+    const merged = [...files, ...list].slice(0, MAX_FILES);
+    const filtered: File[] = [];
+    for (const f of merged) {
+      const isVid = f.type.startsWith("video/");
+      const max = isVid ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+      if (f.size > max) {
+        setStatus("rejected");
+        setReason(`« ${f.name} » dépasse la taille max (${isVid ? "200" : "50"} Mo).`);
+        continue;
+      }
+      filtered.push(f);
+    }
+    setFiles(filtered);
+    e.target.value = "";
   };
 
   return (
