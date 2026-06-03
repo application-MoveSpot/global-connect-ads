@@ -45,7 +45,7 @@ const resultatNet = years.map((_, i) => {
 const margeNette = resultatNet.map((r, i) => r / commission[i]);
 
 // Trésorerie
-const apport = 15000;
+const apport = 0;
 const tresoFin: number[] = [];
 let acc = apport;
 for (let i = 0; i < 5; i++) {
@@ -123,7 +123,7 @@ const compteResultat: Array<{ section?: string; row?: [string, (number | string)
 const tresorerie: Array<{ section?: string; row?: [string, (number | string)[], (n: number) => string] }> = [
   { section: "FINANCEMENT INITIAL" },
   { row: ["Apport personnel / fondateurs", [apport, "—", "—", "—", "—"], fmt] },
-  { section: "FLUX DE TRÉSORERIE (hors reversement propriétaires, hors CA)" },
+  { section: "MODÈLE DE TRÉSORERIE — Encaissement à la confirmation de campagne (pas d'apport requis)" },
   { row: ["Trésorerie début de période", [apport, tresoFin[0], tresoFin[1], tresoFin[2], tresoFin[3]], fmt] },
   { row: ["(+) Commission encaissée", commission, fmt] },
   { row: ["(-) Charges d'exploitation", chargesCash.map((c) => -c), fmt] },
