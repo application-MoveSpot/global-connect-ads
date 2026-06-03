@@ -22,6 +22,8 @@ type Request = {
   route_zones: string[] | null;
   route_waypoints: string[] | null;
   route_pois: string[] | null;
+  estimated_impressions_per_day: number | null;
+  days_count: number | null;
 };
 
 type Vehicle = {
