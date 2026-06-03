@@ -34,6 +34,9 @@ type Request = {
   end_date: string | null;
   total_price: number | null;
   created_at: string;
+  route_zones: string[] | null;
+  route_waypoints: string[] | null;
+  route_pois: string[] | null;
 };
 
 function DashboardPage() {
