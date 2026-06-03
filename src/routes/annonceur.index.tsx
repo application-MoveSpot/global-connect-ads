@@ -15,6 +15,9 @@ type Req = {
   owner_response: string;
   admin_notes: string | null;
   created_at: string;
+  route_zones: string[] | null;
+  route_waypoints: string[] | null;
+  route_pois: string[] | null;
 };
 
 type Profile = { full_name: string; company: string | null };
