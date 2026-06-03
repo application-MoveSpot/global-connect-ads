@@ -114,6 +114,7 @@ export function BookingForm({ spot, onClose }: Props) {
       route_zones: splitLines(zones),
       route_waypoints: splitLines(waypoints),
       route_pois: splitLines(pois),
+      estimated_impressions_per_day: impressions ? Math.max(0, parseInt(impressions, 10)) || null : null,
     });
     if (error) {
       setStatus("rejected");
