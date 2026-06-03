@@ -34,9 +34,30 @@ export function BookingForm({ spot, onClose }: Props) {
   const [zones, setZones] = useState("");
   const [waypoints, setWaypoints] = useState("");
   const [pois, setPois] = useState("");
+  const [impressions, setImpressions] = useState<string>("");
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
+
+  // Estimation auto basée sur km/jour × 1000 impressions/km, ajusté selon le format
+  const formatMultiplier = (() => {
+    const f = (spot?.format ?? "").toLowerCase();
+    if (f.includes("lcd") || f.includes("écran") || f.includes("ecran") || f.includes("digital")) return 1.4;
+    if (f.includes("toit") || f.includes("totem")) return 1.2;
+    if (f.includes("affiche") || f.includes("sticker") || f.includes("covering")) return 1.0;
+    return 1.0;
+  })();
+  const suggestedImpressions = spot?.kmPerDay
+    ? Math.round(spot.kmPerDay * 1000 * formatMultiplier)
+    : null;
+
+  useEffect(() => {
+    if (suggestedImpressions && !impressions) {
+      setImpressions(String(suggestedImpressions));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedImpressions]);
+
 
   useEffect(() => {
     if (!spot) return;
