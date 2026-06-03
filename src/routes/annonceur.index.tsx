@@ -21,6 +21,7 @@ type Req = {
   route_pois: string[] | null;
   estimated_impressions_per_day: number | null;
   days_count: number | null;
+  creative_files: string[] | null;
 };
 
 type Profile = { full_name: string; company: string | null };
