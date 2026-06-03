@@ -28,6 +28,7 @@ type Request = {
   message: string;
   status: string;
   owner_response: string;
+  admin_notes: string | null;
   start_date: string | null;
   end_date: string | null;
   total_price: number | null;
