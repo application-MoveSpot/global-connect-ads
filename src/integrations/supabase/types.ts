@@ -55,6 +55,7 @@ export type Database = {
           days_count: number | null
           email: string
           end_date: string | null
+          estimated_impressions_per_day: number | null
           id: string
           message: string
           owner_response: string
@@ -79,6 +80,7 @@ export type Database = {
           days_count?: number | null
           email: string
           end_date?: string | null
+          estimated_impressions_per_day?: number | null
           id?: string
           message: string
           owner_response?: string
@@ -103,6 +105,7 @@ export type Database = {
           days_count?: number | null
           email?: string
           end_date?: string | null
+          estimated_impressions_per_day?: number | null
           id?: string
           message?: string
           owner_response?: string

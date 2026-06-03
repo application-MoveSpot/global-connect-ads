@@ -34,9 +34,30 @@ export function BookingForm({ spot, onClose }: Props) {
   const [zones, setZones] = useState("");
   const [waypoints, setWaypoints] = useState("");
   const [pois, setPois] = useState("");
+  const [impressions, setImpressions] = useState<string>("");
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
+
+  // Estimation auto basée sur km/jour × 1000 impressions/km, ajusté selon le format
+  const formatMultiplier = (() => {
+    const f = (spot?.format ?? "").toLowerCase();
+    if (f.includes("lcd") || f.includes("écran") || f.includes("ecran") || f.includes("digital")) return 1.4;
+    if (f.includes("toit") || f.includes("totem")) return 1.2;
+    if (f.includes("affiche") || f.includes("sticker") || f.includes("covering")) return 1.0;
+    return 1.0;
+  })();
+  const suggestedImpressions = spot?.kmPerDay
+    ? Math.round(spot.kmPerDay * 1000 * formatMultiplier)
+    : null;
+
+  useEffect(() => {
+    if (suggestedImpressions && !impressions) {
+      setImpressions(String(suggestedImpressions));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedImpressions]);
+
 
   useEffect(() => {
     if (!spot) return;
@@ -93,6 +114,7 @@ export function BookingForm({ spot, onClose }: Props) {
       route_zones: splitLines(zones),
       route_waypoints: splitLines(waypoints),
       route_pois: splitLines(pois),
+      estimated_impressions_per_day: impressions ? Math.max(0, parseInt(impressions, 10)) || null : null,
     });
     if (error) {
       setStatus("rejected");
@@ -212,12 +234,43 @@ export function BookingForm({ spot, onClose }: Props) {
                 <p className="text-[11px] text-muted-foreground">Le propriétaire utilisera ces indications pour planifier la tournée. La validation reste automatique si les dates et le véhicule sont libres.</p>
               </div>
 
-
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-2">
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="text-sm font-semibold">Impressions estimées / jour</div>
+                  {suggestedImpressions && (
+                    <button
+                      type="button"
+                      onClick={() => setImpressions(String(suggestedImpressions))}
+                      className="text-[11px] text-primary hover:underline"
+                    >
+                      Recalculer ({suggestedImpressions.toLocaleString("fr-FR")})
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    step={500}
+                    value={impressions}
+                    onChange={(e) => setImpressions(e.target.value)}
+                    placeholder="ex : 30000"
+                    className="flex-1 rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <span className="text-xs text-muted-foreground">vues/jour</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {suggestedImpressions
+                    ? <>Estimation calculée à partir de la distance moyenne ({spot.kmPerDay} km/jour) et du format <strong>{spot.format ?? "standard"}</strong>. Ajustable selon vos hypothèses.</>
+                    : "Aucune donnée de distance pour ce véhicule. Saisissez votre propre estimation."}
+                </p>
+              </div>
 
               <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
                 <div className="font-semibold text-foreground mb-2">⚠ Contenus refusés</div>
                 <p>Publicités à caractère religieux ou fêtes religieuses, politique ou électoral, sexistes, pornographiques ou incitant à la violence.</p>
               </div>
+
 
               <label className="flex items-start gap-3 text-sm cursor-pointer">
                 <input
