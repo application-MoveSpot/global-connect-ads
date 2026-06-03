@@ -116,9 +116,11 @@ function NewVehiclePage() {
                 {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
               </select>
             </div>
-            {type === "sac_a_dos_lcd" && (
+            {isBackpack(type) && (
               <div>
-                <label className="block text-sm font-medium mb-1.5">Format de l'écran *</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  {type === "sac_a_dos_lcd" ? "Format de l'écran *" : "Format de l'affiche *"}
+                </label>
                 <div className="grid grid-cols-3 gap-2">
                   {BACKPACK_FORMATS.map((f) => (
                     <button type="button" key={f.v} onClick={() => setBackpackFormat(f.v)}
@@ -132,7 +134,11 @@ function NewVehiclePage() {
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1.5">Walker équipé d'un écran LCD diffusant les visuels publicitaires en déplacement (street marketing).</p>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {type === "sac_a_dos_lcd"
+                    ? "Walker équipé d'un écran LCD diffusant les visuels publicitaires en déplacement (street marketing)."
+                    : "Walker équipé d'un panneau rigide imprimé (affiche papier ou PVC) — solution simple, sans batterie."}
+                </p>
               </div>
             )}
             <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
