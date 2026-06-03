@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
 import { RouteSummary } from "@/components/RouteSummary";
+import { CreativeFiles } from "@/components/CreativeFiles";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
@@ -20,6 +21,7 @@ type Req = {
   route_pois: string[] | null;
   estimated_impressions_per_day: number | null;
   days_count: number | null;
+  creative_files: string[] | null;
 };
 
 type Profile = { full_name: string; company: string | null };
@@ -53,7 +55,7 @@ function AnnonceurDashboard() {
       setProfile(prof);
       const { data: reqs } = await supabase
         .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files")
         .eq("user_id", sess.session.user.id)
         .order("created_at", { ascending: false });
       setRequests((reqs as Req[]) ?? []);
@@ -117,6 +119,7 @@ function AnnonceurDashboard() {
                   </div>
                 )}
                 <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
+                <CreativeFiles paths={r.creative_files} />
               </div>
             ))}
           </div>

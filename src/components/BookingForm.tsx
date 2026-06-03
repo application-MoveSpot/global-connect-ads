@@ -35,9 +35,15 @@ export function BookingForm({ spot, onClose }: Props) {
   const [waypoints, setWaypoints] = useState("");
   const [pois, setPois] = useState("");
   const [impressions, setImpressions] = useState<string>("");
+  const [files, setFiles] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
+
+  const MAX_FILES = 5;
+  const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50 MB
+  const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
+  const ACCEPT = "image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime";
 
   // Estimation auto basée sur km/jour × 1000 impressions/km, ajusté selon le format
   const formatMultiplier = (() => {
@@ -101,6 +107,26 @@ export function BookingForm({ spot, onClose }: Props) {
     setStatus("loading");
     const splitLines = (s: string) =>
       s.split(/\r?\n|,/).map((v) => v.trim()).filter(Boolean).slice(0, 50);
+
+    // Upload creative files first
+    const uploadedPaths: string[] = [];
+    if (files.length > 0) {
+      const folder = `${auth.userId}/${Date.now()}`;
+      for (const f of files) {
+        const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${folder}/${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from("campaign-creatives")
+          .upload(path, f, { upsert: false, contentType: f.type });
+        if (upErr) {
+          setStatus("rejected");
+          setReason(`Erreur lors de l'upload de « ${f.name} ». Réessayez.`);
+          return;
+        }
+        uploadedPaths.push(path);
+      }
+    }
+
     const { error } = await supabase.from("campaign_requests").insert({
       user_id: auth.userId,
       spot_id: String(spot.id),
@@ -115,6 +141,7 @@ export function BookingForm({ spot, onClose }: Props) {
       route_waypoints: splitLines(waypoints),
       route_pois: splitLines(pois),
       estimated_impressions_per_day: impressions ? Math.max(0, parseInt(impressions, 10)) || null : null,
+      creative_files: uploadedPaths,
     });
     if (error) {
       setStatus("rejected");
@@ -122,6 +149,24 @@ export function BookingForm({ spot, onClose }: Props) {
       return;
     }
     setStatus("success");
+  };
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const list = Array.from(e.target.files ?? []);
+    const merged = [...files, ...list].slice(0, MAX_FILES);
+    const filtered: File[] = [];
+    for (const f of merged) {
+      const isVid = f.type.startsWith("video/");
+      const max = isVid ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+      if (f.size > max) {
+        setStatus("rejected");
+        setReason(`« ${f.name} » dépasse la taille max (${isVid ? "200" : "50"} Mo).`);
+        continue;
+      }
+      filtered.push(f);
+    }
+    setFiles(filtered);
+    e.target.value = "";
   };
 
   return (
@@ -265,6 +310,43 @@ export function BookingForm({ spot, onClose }: Props) {
                     : "Aucune donnée de distance pour ce véhicule. Saisissez votre propre estimation."}
                 </p>
               </div>
+
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="text-sm font-semibold">Fichiers de la créa <span className="text-muted-foreground font-normal">(optionnel)</span></div>
+                  <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  accept={ACCEPT}
+                  onChange={handleFilesChange}
+                  disabled={files.length >= MAX_FILES}
+                  className="block w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:cursor-pointer file:text-xs hover:file:bg-primary/90 disabled:opacity-50"
+                />
+                {files.length > 0 && (
+                  <ul className="space-y-1">
+                    {files.map((f, i) => (
+                      <li key={i} className="flex items-center justify-between gap-2 text-xs bg-background rounded-md px-2 py-1.5 border border-border">
+                        <span className="truncate">
+                          {f.type.startsWith("video/") ? "🎬" : f.type === "application/pdf" ? "📄" : "🖼"} {f.name}
+                          <span className="text-muted-foreground ml-1">({(f.size / 1024 / 1024).toFixed(1)} Mo)</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
+                          className="text-muted-foreground hover:text-destructive shrink-0"
+                          aria-label="Retirer"
+                        >×</button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  JPG, PNG, WebP, PDF (max 50 Mo) · MP4, MOV (max 200 Mo) · {MAX_FILES} fichiers max. Les fichiers ne sont visibles que par vous, le propriétaire du véhicule et l'équipe MoveSpot.
+                </p>
+              </div>
+
 
               <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
                 <div className="font-semibold text-foreground mb-2">⚠ Contenus refusés</div>

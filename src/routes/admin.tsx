@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { RouteSummary } from "@/components/RouteSummary";
+import { CreativeFiles } from "@/components/CreativeFiles";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -24,6 +25,7 @@ type Request = {
   route_pois: string[] | null;
   estimated_impressions_per_day: number | null;
   days_count: number | null;
+  creative_files: string[] | null;
 };
 
 type Vehicle = {
@@ -240,6 +242,7 @@ function AdminPage() {
                   </div>
                   <div className="rounded-lg bg-secondary/40 p-4 text-sm mb-4 whitespace-pre-wrap">{r.message}</div>
                   <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
+                  <CreativeFiles paths={r.creative_files} />
                   {r.admin_notes && (
                     <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
                       <strong>Motif (auto) :</strong> {r.admin_notes}
