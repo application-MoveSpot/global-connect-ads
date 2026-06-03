@@ -31,6 +31,9 @@ export function BookingForm({ spot, onClose }: Props) {
   const navigate = useNavigate();
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [message, setMessage] = useState("");
+  const [zones, setZones] = useState("");
+  const [waypoints, setWaypoints] = useState("");
+  const [pois, setPois] = useState("");
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
