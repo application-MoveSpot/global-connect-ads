@@ -116,7 +116,7 @@ function AnnonceurDashboard() {
                     <strong>Motif :</strong> {r.admin_notes}
                   </div>
                 )}
-                <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} />
+                <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
               </div>
             ))}
           </div>
