@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
+import { RouteSummary } from "@/components/RouteSummary";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
