@@ -311,6 +311,43 @@ export function BookingForm({ spot, onClose }: Props) {
                 </p>
               </div>
 
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <div className="text-sm font-semibold">Fichiers de la créa <span className="text-muted-foreground font-normal">(optionnel)</span></div>
+                  <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  accept={ACCEPT}
+                  onChange={handleFilesChange}
+                  disabled={files.length >= MAX_FILES}
+                  className="block w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:cursor-pointer file:text-xs hover:file:bg-primary/90 disabled:opacity-50"
+                />
+                {files.length > 0 && (
+                  <ul className="space-y-1">
+                    {files.map((f, i) => (
+                      <li key={i} className="flex items-center justify-between gap-2 text-xs bg-background rounded-md px-2 py-1.5 border border-border">
+                        <span className="truncate">
+                          {f.type.startsWith("video/") ? "🎬" : f.type === "application/pdf" ? "📄" : "🖼"} {f.name}
+                          <span className="text-muted-foreground ml-1">({(f.size / 1024 / 1024).toFixed(1)} Mo)</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
+                          className="text-muted-foreground hover:text-destructive shrink-0"
+                          aria-label="Retirer"
+                        >×</button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  JPG, PNG, WebP, PDF (max 50 Mo) · MP4, MOV (max 200 Mo) · {MAX_FILES} fichiers max. Les fichiers ne sont visibles que par vous, le propriétaire du véhicule et l'équipe MoveSpot.
+                </p>
+              </div>
+
+
               <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
                 <div className="font-semibold text-foreground mb-2">⚠ Contenus refusés</div>
                 <p>Publicités à caractère religieux ou fêtes religieuses, politique ou électoral, sexistes, pornographiques ou incitant à la violence.</p>
