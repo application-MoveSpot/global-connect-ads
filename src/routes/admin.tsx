@@ -18,6 +18,9 @@ type Request = {
   status: string;
   admin_notes: string | null;
   created_at: string;
+  route_zones: string[] | null;
+  route_waypoints: string[] | null;
+  route_pois: string[] | null;
 };
 
 type Vehicle = {
