@@ -52,6 +52,7 @@ export type Database = {
           admin_notes: string | null
           company: string
           created_at: string
+          creative_files: string[]
           days_count: number | null
           email: string
           end_date: string | null
@@ -77,6 +78,7 @@ export type Database = {
           admin_notes?: string | null
           company: string
           created_at?: string
+          creative_files?: string[]
           days_count?: number | null
           email: string
           end_date?: string | null
@@ -102,6 +104,7 @@ export type Database = {
           admin_notes?: string | null
           company?: string
           created_at?: string
+          creative_files?: string[]
           days_count?: number | null
           email?: string
           end_date?: string | null
