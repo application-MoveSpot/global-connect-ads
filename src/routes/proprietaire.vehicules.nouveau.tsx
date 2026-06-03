@@ -32,6 +32,7 @@ function NewVehiclePage() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
+  const [backpackFormat, setBackpackFormat] = useState("medium");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [surface, setSurface] = useState("");
