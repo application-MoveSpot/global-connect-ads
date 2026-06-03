@@ -78,6 +78,8 @@ export function BookingForm({ spot, onClose }: Props) {
       return;
     }
     setStatus("loading");
+    const splitLines = (s: string) =>
+      s.split(/\r?\n|,/).map((v) => v.trim()).filter(Boolean).slice(0, 50);
     const { error } = await supabase.from("campaign_requests").insert({
       user_id: auth.userId,
       spot_id: String(spot.id),
@@ -88,6 +90,9 @@ export function BookingForm({ spot, onClose }: Props) {
       company: auth.profile.company ?? auth.profile.full_name,
       email: auth.profile.email,
       message,
+      route_zones: splitLines(zones),
+      route_waypoints: splitLines(waypoints),
+      route_pois: splitLines(pois),
     });
     if (error) {
       setStatus("rejected");
