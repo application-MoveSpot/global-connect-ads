@@ -17,7 +17,7 @@ export function CreativeFiles({ paths }: Props) {
       if (!data) return;
       setFiles(
         data
-          .filter((d) => d.signedUrl)
+          .filter((d): d is typeof d & { signedUrl: string } => Boolean(d.signedUrl))
           .map((d) => {
             const path = d.path ?? "";
             const name = path.split("/").pop() ?? path;
