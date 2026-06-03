@@ -45,7 +45,7 @@ const resultatNet = years.map((_, i) => {
 const margeNette = resultatNet.map((r, i) => r / commission[i]);
 
 // Trésorerie
-const apport = 15000;
+const apport = 0;
 const tresoFin: number[] = [];
 let acc = apport;
 for (let i = 0; i < 5; i++) {
