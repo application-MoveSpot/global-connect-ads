@@ -239,7 +239,7 @@ function AdminPage() {
                     </div>
                   </div>
                   <div className="rounded-lg bg-secondary/40 p-4 text-sm mb-4 whitespace-pre-wrap">{r.message}</div>
-                  <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} />
+                  <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
                   {r.admin_notes && (
                     <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
                       <strong>Motif (auto) :</strong> {r.admin_notes}
