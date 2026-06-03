@@ -52,12 +52,26 @@ function AnnonceurInscription() {
     setError("");
     setLoading(true);
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/annonceur/inscription` },
       });
       if (error) { setError(error.message); setLoading(false); return; }
+      // Email déjà utilisé : Supabase renvoie 200 avec identities vide (anti-énumération).
+      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+        setMode("signin");
+        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setLoading(false);
+        return;
+      }
+      // Pas de session = confirmation email requise.
+      if (!signUpData.session) {
+        setMode("signin");
+        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setLoading(false);
+        return;
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
