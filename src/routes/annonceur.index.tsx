@@ -93,16 +93,23 @@ function AnnonceurDashboard() {
         ) : (
           <div className="space-y-3">
             {requests.map((r) => (
-              <div key={r.id} className="rounded-xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <div className="font-semibold">{r.spot_name}</div>
-                  <div className="text-xs text-muted-foreground">{r.spot_location} · {r.spot_price}€/jour</div>
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2 max-w-xl">{r.message}</p>
+              <div key={r.id} className="rounded-xl border border-border bg-card p-5 flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <div className="font-semibold">{r.spot_name}</div>
+                    <div className="text-xs text-muted-foreground">{r.spot_location} · {r.spot_price}€/jour</div>
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2 max-w-xl">{r.message}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge status={r.status} />
+                    <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("fr-FR")}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <Badge status={r.status} />
-                  <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("fr-FR")}</span>
-                </div>
+                {r.admin_notes && (
+                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+                    <strong>Motif :</strong> {r.admin_notes}
+                  </div>
+                )}
               </div>
             ))}
           </div>
