@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { RouteSummary } from "@/components/RouteSummary";
+import { CreativeFiles } from "@/components/CreativeFiles";
 
 export const Route = createFileRoute("/proprietaire/")({
   component: DashboardPage,
