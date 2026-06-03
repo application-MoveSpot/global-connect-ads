@@ -18,14 +18,17 @@ const TYPES = [
   { v: "tutuk", l: "Tutuk" },
   { v: "voiture", l: "Voiture" },
   { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (walker)" },
+  { v: "sac_a_dos_affiche", l: "Sac à dos publicitaire affiche (walker)" },
   { v: "autre", l: "Autre" },
 ];
 
 const BACKPACK_FORMATS = [
-  { v: "small", l: "Small (~15,6\")", desc: "Format tablette, idéal mobilité" },
+  { v: "small", l: "Small (~15,6\")", desc: "Format compact, idéal mobilité" },
   { v: "medium", l: "Medium (~21,5\")", desc: "Bon compromis visibilité / poids" },
   { v: "large", l: "Large (~27-32\")", desc: "Impact maximal, plein dos" },
 ];
+
+const isBackpack = (t: string) => t === "sac_a_dos_lcd" || t === "sac_a_dos_affiche";
 
 function NewVehiclePage() {
   const navigate = useNavigate();
