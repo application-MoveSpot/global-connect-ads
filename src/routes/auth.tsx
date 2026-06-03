@@ -61,8 +61,16 @@ function AuthPage() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1.5">Mot de passe</label>
-            <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)}
+            <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            {mode === "signup" && (
+              <p className="text-xs text-muted-foreground mt-1">Min. 8 caractères. Les mots de passe compromis sont refusés.</p>
+            )}
+            {mode === "signin" && (
+              <div className="mt-2 text-right">
+                <Link to="/reset-password" className="text-xs text-muted-foreground hover:text-foreground underline">Mot de passe oublié ?</Link>
+              </div>
+            )}
           </div>
           {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
           <button type="submit" disabled={loading}
