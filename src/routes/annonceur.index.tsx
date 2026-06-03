@@ -12,6 +12,7 @@ type Req = {
   message: string;
   status: string;
   owner_response: string;
+  admin_notes: string | null;
   created_at: string;
 };
 
