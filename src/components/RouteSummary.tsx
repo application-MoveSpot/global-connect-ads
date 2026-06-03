@@ -17,6 +17,15 @@ export function RouteSummary({ zones, waypoints, pois, impressionsPerDay, days }
   return (
     <div className="rounded-lg border border-border bg-secondary/30 p-3 text-xs mb-4 space-y-2">
       <div className="font-semibold text-foreground">🗺 Itinéraire demandé</div>
+      {impressionsPerDay && impressionsPerDay > 0 && (
+        <div className="rounded-md bg-primary/10 text-primary px-2 py-1.5 flex flex-wrap items-baseline gap-x-2">
+          <span className="font-semibold">{impressionsPerDay.toLocaleString("fr-FR")}</span>
+          <span className="opacity-80">impressions/jour estimées</span>
+          {days && days > 0 && (
+            <span className="opacity-80">· soit ~{(impressionsPerDay * days).toLocaleString("fr-FR")} sur {days} j</span>
+          )}
+        </div>
+      )}
       {zones && zones.length > 0 && (
         <div>
           <div className="text-muted-foreground mb-1">Zones ciblées</div>
