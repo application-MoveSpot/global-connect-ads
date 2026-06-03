@@ -109,6 +109,25 @@ function NewVehiclePage() {
                 {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
               </select>
             </div>
+            {type === "sac_a_dos_lcd" && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Format de l'écran *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {BACKPACK_FORMATS.map((f) => (
+                    <button type="button" key={f.v} onClick={() => setBackpackFormat(f.v)}
+                      className={`rounded-lg border px-3 py-2.5 text-left transition ${
+                        backpackFormat === f.v
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-input hover:border-primary/40"
+                      }`}>
+                      <div className="text-sm font-semibold">{f.l}</div>
+                      <div className="text-[11px] text-muted-foreground mt-0.5">{f.desc}</div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">Walker équipé d'un écran LCD diffusant les visuels publicitaires en déplacement (street marketing).</p>
+              </div>
+            )}
             <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
             <div>
               <label className="block text-sm font-medium mb-1.5">Description</label>
