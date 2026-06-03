@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { RouteSummary } from "@/components/RouteSummary";
 
 export const Route = createFileRoute("/proprietaire/")({
   component: DashboardPage,
@@ -33,6 +34,9 @@ type Request = {
   end_date: string | null;
   total_price: number | null;
   created_at: string;
+  route_zones: string[] | null;
+  route_waypoints: string[] | null;
+  route_pois: string[] | null;
 };
 
 function DashboardPage() {
@@ -147,6 +151,7 @@ function DashboardPage() {
                     </div>
                   </div>
                   <div className="rounded-lg bg-secondary/40 p-4 text-sm mb-4 whitespace-pre-wrap">{r.message}</div>
+                  <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} />
                   {r.admin_notes && (
                     <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
                       <strong>Motif :</strong> {r.admin_notes}

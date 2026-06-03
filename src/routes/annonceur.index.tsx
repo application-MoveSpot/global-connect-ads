@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
+import { RouteSummary } from "@/components/RouteSummary";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
@@ -14,6 +15,9 @@ type Req = {
   owner_response: string;
   admin_notes: string | null;
   created_at: string;
+  route_zones: string[] | null;
+  route_waypoints: string[] | null;
+  route_pois: string[] | null;
 };
 
 type Profile = { full_name: string; company: string | null };
@@ -47,7 +51,7 @@ function AnnonceurDashboard() {
       setProfile(prof);
       const { data: reqs } = await supabase
         .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois")
         .eq("user_id", sess.session.user.id)
         .order("created_at", { ascending: false });
       setRequests((reqs as Req[]) ?? []);
@@ -110,6 +114,7 @@ function AnnonceurDashboard() {
                     <strong>Motif :</strong> {r.admin_notes}
                   </div>
                 )}
+                <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} />
               </div>
             ))}
           </div>

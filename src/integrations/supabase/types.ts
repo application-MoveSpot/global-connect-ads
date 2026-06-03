@@ -58,6 +58,9 @@ export type Database = {
           id: string
           message: string
           owner_response: string
+          route_pois: string[] | null
+          route_waypoints: string[] | null
+          route_zones: string[] | null
           spot_id: string
           spot_location: string | null
           spot_name: string
@@ -79,6 +82,9 @@ export type Database = {
           id?: string
           message: string
           owner_response?: string
+          route_pois?: string[] | null
+          route_waypoints?: string[] | null
+          route_zones?: string[] | null
           spot_id: string
           spot_location?: string | null
           spot_name: string
@@ -100,6 +106,9 @@ export type Database = {
           id?: string
           message?: string
           owner_response?: string
+          route_pois?: string[] | null
+          route_waypoints?: string[] | null
+          route_zones?: string[] | null
           spot_id?: string
           spot_location?: string | null
           spot_name?: string
