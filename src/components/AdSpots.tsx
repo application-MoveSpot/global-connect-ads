@@ -40,6 +40,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
         name: `${TYPE_LABELS[v.type] ?? "Véhicule"} · ${v.name}`,
         location: (v.zones && v.zones.length > 0) ? v.zones.join(" · ") : "Zone à confirmer",
         impressions: v.km_per_day ? `${(v.km_per_day * 1000).toLocaleString("fr-FR")} impressions/jour` : "—",
+        kmPerDay: v.km_per_day ?? null,
         price: Number(v.price_per_day),
         format: v.format_publicitaire,
         available: true,
