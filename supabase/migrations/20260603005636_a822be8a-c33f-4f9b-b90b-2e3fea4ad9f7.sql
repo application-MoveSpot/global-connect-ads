@@ -1,0 +1,1 @@
+ALTER TYPE public.vehicle_type ADD VALUE IF NOT EXISTS 'sac_a_dos_lcd';

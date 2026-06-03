@@ -17,7 +17,14 @@ const TYPES = [
   { v: "triporteur", l: "Triporteur" },
   { v: "tutuk", l: "Tutuk" },
   { v: "voiture", l: "Voiture" },
+  { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (walker)" },
   { v: "autre", l: "Autre" },
+];
+
+const BACKPACK_FORMATS = [
+  { v: "small", l: "Small (~15,6\")", desc: "Format tablette, idéal mobilité" },
+  { v: "medium", l: "Medium (~21,5\")", desc: "Bon compromis visibilité / poids" },
+  { v: "large", l: "Large (~27-32\")", desc: "Impact maximal, plein dos" },
 ];
 
 function NewVehiclePage() {
@@ -25,6 +32,7 @@ function NewVehiclePage() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
+  const [backpackFormat, setBackpackFormat] = useState("medium");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [surface, setSurface] = useState("");
@@ -68,10 +76,10 @@ function NewVehiclePage() {
 
     const { error: insErr } = await supabase.from("vehicles").insert({
       owner_id: ownerId,
-      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
+      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "autre",
       name,
       description: description || null,
-      format_publicitaire: null,
+      format_publicitaire: type === "sac_a_dos_lcd" ? `Écran LCD ${backpackFormat}` : null,
       surface_m2: surface ? Number(surface) : null,
       km_per_day: km ? Number(km) : null,
       zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
@@ -101,6 +109,25 @@ function NewVehiclePage() {
                 {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
               </select>
             </div>
+            {type === "sac_a_dos_lcd" && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Format de l'écran *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {BACKPACK_FORMATS.map((f) => (
+                    <button type="button" key={f.v} onClick={() => setBackpackFormat(f.v)}
+                      className={`rounded-lg border px-3 py-2.5 text-left transition ${
+                        backpackFormat === f.v
+                          ? "border-primary bg-primary/10"
+                          : "border-border bg-input hover:border-primary/40"
+                      }`}>
+                      <div className="text-sm font-semibold">{f.l}</div>
+                      <div className="text-[11px] text-muted-foreground mt-0.5">{f.desc}</div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">Walker équipé d'un écran LCD diffusant les visuels publicitaires en déplacement (street marketing).</p>
+              </div>
+            )}
             <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
             <div>
               <label className="block text-sm font-medium mb-1.5">Description</label>
