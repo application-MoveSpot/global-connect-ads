@@ -404,6 +404,7 @@ export type Database = {
         | "triporteur"
         | "tutuk"
         | "sac_a_dos_lcd"
+        | "sac_a_dos_affiche"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -545,6 +546,7 @@ export const Constants = {
         "triporteur",
         "tutuk",
         "sac_a_dos_lcd",
+        "sac_a_dos_affiche",
       ],
     },
   },
