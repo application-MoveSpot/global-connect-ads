@@ -35,9 +35,15 @@ export function BookingForm({ spot, onClose }: Props) {
   const [waypoints, setWaypoints] = useState("");
   const [pois, setPois] = useState("");
   const [impressions, setImpressions] = useState<string>("");
+  const [files, setFiles] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
+
+  const MAX_FILES = 5;
+  const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50 MB
+  const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
+  const ACCEPT = "image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime";
 
   // Estimation auto basée sur km/jour × 1000 impressions/km, ajusté selon le format
   const formatMultiplier = (() => {
