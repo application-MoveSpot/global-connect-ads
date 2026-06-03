@@ -266,8 +266,11 @@ export function BookingForm({ spot, onClose }: Props) {
                 </p>
               </div>
 
-
+              <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
+                <div className="font-semibold text-foreground mb-2">⚠ Contenus refusés</div>
+                <p>Publicités à caractère religieux ou fêtes religieuses, politique ou électoral, sexistes, pornographiques ou incitant à la violence.</p>
               </div>
+
 
               <label className="flex items-start gap-3 text-sm cursor-pointer">
                 <input
