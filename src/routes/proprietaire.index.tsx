@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { RouteSummary } from "@/components/RouteSummary";
 
 export const Route = createFileRoute("/proprietaire/")({
   component: DashboardPage,
