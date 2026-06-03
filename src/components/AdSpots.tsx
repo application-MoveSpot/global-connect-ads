@@ -8,6 +8,7 @@ type Spot = {
   name: string;
   location: string;
   impressions: string;
+  kmPerDay?: number | null;
   price: number;
   format: string | null;
   available: boolean;
