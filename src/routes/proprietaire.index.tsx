@@ -147,6 +147,11 @@ function DashboardPage() {
                     </div>
                   </div>
                   <div className="rounded-lg bg-secondary/40 p-4 text-sm mb-4 whitespace-pre-wrap">{r.message}</div>
+                  {r.admin_notes && (
+                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
+                      <strong>Motif :</strong> {r.admin_notes}
+                    </div>
+                  )}
                   {r.owner_response === "pending" && (
                     <div className="flex gap-2">
                       <button onClick={() => respond(r.id, "accepted")}
