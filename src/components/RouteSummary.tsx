@@ -2,13 +2,16 @@ type Props = {
   zones?: string[] | null;
   waypoints?: string[] | null;
   pois?: string[] | null;
+  impressionsPerDay?: number | null;
+  days?: number | null;
 };
 
-export function RouteSummary({ zones, waypoints, pois }: Props) {
+export function RouteSummary({ zones, waypoints, pois, impressionsPerDay, days }: Props) {
   const hasAny =
     (zones && zones.length > 0) ||
     (waypoints && waypoints.length > 0) ||
-    (pois && pois.length > 0);
+    (pois && pois.length > 0) ||
+    (impressionsPerDay && impressionsPerDay > 0);
   if (!hasAny) return null;
 
   return (
