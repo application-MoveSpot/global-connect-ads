@@ -324,12 +324,32 @@ function NewVehiclePage() {
                   {estimate.condition_alert && (
                     <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
                   )}
+                  {estimate.ai_generated_detected && (
+                    <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-2.5 text-xs">
+                      🚫 <strong>Photo refusée — image générée ou retouchée par IA détectée.</strong>
+                      {estimate.ai_generated_notes && <span className="block mt-1">{estimate.ai_generated_notes}</span>}
+                      <span className="block mt-1">Merci de téléverser une photo authentique du véhicule.</span>
+                    </div>
+                  )}
+                  {estimate.condition_alert && (
+                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
+                  )}
+                  {estimate.suggested_price_max > 0 && (
+                    <div className="rounded-lg bg-card p-2.5 text-xs">
+                      <strong>Plafond MoveSpot (marge 30 %) :</strong> {Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                    </div>
+                  )}
                   {estimate.recommendation && (
                     <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
                   )}
                 </div>
               )}
             </div>
+
+            <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
+              <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en publiant ce véhicule et ses photos, vous certifiez en détenir les droits et vous engagez à respecter la législation française et européenne sur la propriété intellectuelle (droits d'auteur, marques, droit à l'image). Les visuels publicitaires diffusés par les annonceurs sont sous leur seule responsabilité.
+            </div>
+
 
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
 
