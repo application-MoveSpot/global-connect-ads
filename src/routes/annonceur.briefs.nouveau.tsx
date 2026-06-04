@@ -81,12 +81,11 @@ function NewBriefPage() {
     const end = new Date(endDate);
     const days = Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
 
-    const { data, error: insErr } = await supabase.from("advertiser_briefs").insert({
+    const { data, error: insErr } = await supabase.from("advertiser_briefs").insert([{
       advertiser_id: userId,
       title,
       description,
-      // @ts-expect-error vehicle_type[] enum stored as string[]
-      vehicle_types: vehicleTypes,
+      vehicle_types: vehicleTypes as never,
       zones: zoneList,
       start_date: startDate,
       end_date: endDate,
@@ -94,7 +93,7 @@ function NewBriefPage() {
       budget_max: budget ? Number(budget) : null,
       audience_target: audience || null,
       creative_files: uploadedPaths,
-    }).select("id").single();
+    }]).select("id").single();
 
     setLoading(false);
     if (insErr) { setError(insErr.message); return; }
