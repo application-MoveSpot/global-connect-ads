@@ -9,7 +9,7 @@ export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   component: NewVehiclePage,
 });
 
-const TYPES = [
+const TYPES_VEHICULES = [
   { v: "food_truck", l: "Food truck" },
   { v: "van", l: "Van utilitaire" },
   { v: "taxi", l: "Taxi / VTC" },
@@ -19,8 +19,10 @@ const TYPES = [
   { v: "triporteur", l: "Triporteur" },
   { v: "tutuk", l: "Tutuk" },
   { v: "voiture", l: "Voiture" },
-  { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (walker)" },
-  { v: "sac_a_dos_affiche", l: "Sac à dos publicitaire affiche (walker)" },
+];
+const TYPES_AUTRES = [
+  { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (Walker)" },
+  { v: "sac_a_dos_affiche", l: "Sac à dos publicitaire affiche (Walker)" },
   { v: "autre", l: "Autre" },
 ];
 
@@ -63,6 +65,8 @@ function NewVehiclePage() {
     photo_match: "ok" | "doubtful" | "mismatch" | "unverified";
     photo_notes: string;
     condition_alert: string | null;
+    ai_generated_detected: boolean;
+    ai_generated_notes: string;
     recommendation: string;
     uploaded_urls: string[];
   }>(null);
@@ -136,6 +140,15 @@ function NewVehiclePage() {
       setError("Les véhicules en mauvais état ne sont pas acceptés.");
       return;
     }
+    if (estimate?.ai_generated_detected) {
+      setError("⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.");
+      return;
+    }
+    if (estimate && estimate.suggested_price_max > 0 && Number(price) > estimate.suggested_price_max * 0.7) {
+      const maxAcceptable = Math.floor(estimate.suggested_price_max * 0.7);
+      setError(`⛔ Prix refusé : MoveSpot doit conserver au moins 30 % de marge sur le prix de marché estimé. Prix max acceptable : ${maxAcceptable} €/jour (estimation IA : ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j). Référez-vous à l'estimation IA ci-dessus.`);
+      return;
+    }
     setLoading(true);
     try {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
@@ -159,6 +172,8 @@ function NewVehiclePage() {
           photo_match: estimate.photo_match,
           photo_notes: estimate.photo_notes,
           condition_alert: estimate.condition_alert,
+          ai_generated_detected: estimate.ai_generated_detected,
+          ai_generated_notes: estimate.ai_generated_notes,
           suggested_price_min: estimate.suggested_price_min,
           suggested_price_max: estimate.suggested_price_max,
           estimated_impressions_per_day: estimate.estimated_impressions_per_day,
@@ -189,7 +204,12 @@ function NewVehiclePage() {
               <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
               <select value={type} onChange={(e) => setType(e.target.value)} required
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                <optgroup label="Véhicules">
+                  {TYPES_VEHICULES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                </optgroup>
+                <optgroup label="Autre">
+                  {TYPES_AUTRES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                </optgroup>
               </select>
             </div>
             {isBackpack(type) && (
@@ -252,7 +272,10 @@ function NewVehiclePage() {
               <Field label="Km / jour" value={km} onChange={setKm} type="number" />
             </div>
             <Field label="Zones desservies" value={zones} onChange={setZones} placeholder="Paris 11e, Bastille, République (séparés par virgules)" />
-            <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
+            <div>
+              <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
+              <p className="text-xs text-muted-foreground mt-1.5">À renseigner manuellement. MoveSpot doit conserver au moins 30 % de marge : votre prix ne peut pas dépasser 70 % du prix max estimé par l'IA.</p>
+            </div>
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
@@ -301,12 +324,29 @@ function NewVehiclePage() {
                   {estimate.condition_alert && (
                     <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
                   )}
+                  {estimate.ai_generated_detected && (
+                    <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-2.5 text-xs">
+                      🚫 <strong>Photo refusée — image générée ou retouchée par IA détectée.</strong>
+                      {estimate.ai_generated_notes && <span className="block mt-1">{estimate.ai_generated_notes}</span>}
+                      <span className="block mt-1">Merci de téléverser une photo authentique du véhicule.</span>
+                    </div>
+                  )}
+                  {estimate.suggested_price_max > 0 && (
+                    <div className="rounded-lg bg-card p-2.5 text-xs">
+                      <strong>Plafond MoveSpot (marge 30 %) :</strong> {Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                    </div>
+                  )}
                   {estimate.recommendation && (
                     <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
                   )}
                 </div>
               )}
             </div>
+
+            <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
+              <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en publiant ce véhicule et ses photos, vous certifiez en détenir les droits et vous engagez à respecter la législation française et européenne sur la propriété intellectuelle (droits d'auteur, marques, droit à l'image). Les visuels publicitaires diffusés par les annonceurs sont sous leur seule responsabilité.
+            </div>
+
 
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
 

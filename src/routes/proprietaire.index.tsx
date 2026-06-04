@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
+import { MobilityMap } from "@/components/MobilityMap";
 
 export const Route = createFileRoute("/proprietaire/")({
   component: DashboardPage,
@@ -179,6 +180,12 @@ function DashboardPage() {
             </div>
           )
         )}
+
+        <section className="mt-12">
+          <h2 className="font-display text-2xl font-bold mb-2">Aperçu illustratif des flux de véhicules</h2>
+          <p className="text-sm text-muted-foreground mb-4">Visualisation indicative — données réelles branchées progressivement.</p>
+          <MobilityMap />
+        </section>
       </main>
     </div>
   );
