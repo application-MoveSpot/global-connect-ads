@@ -221,7 +221,7 @@ function NewVehiclePage() {
               <label className="block text-sm font-medium mb-1.5">État du véhicule *</label>
               <div className="grid grid-cols-2 gap-2">
                 {CONDITIONS.map((c) => (
-                  <button type="button" key={c.v} onClick={() => { setCondition(c.v as typeof condition); setEstimate(null); }}
+                  <button type="button" key={c.v} onClick={() => { setCondition(c.v as "excellent" | "bon" | "moyen" | "mauvais"); setEstimate(null); }}
                     className={`rounded-lg border px-3 py-2.5 text-left transition ${
                       condition === c.v
                         ? c.v === "mauvais"
