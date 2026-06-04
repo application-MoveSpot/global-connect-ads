@@ -440,6 +440,63 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_positions: {
+        Row: {
+          accuracy: number | null
+          campaign_request_id: string | null
+          created_at: string
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          owner_id: string
+          recorded_at: string
+          speed: number | null
+          vehicle_id: string
+        }
+        Insert: {
+          accuracy?: number | null
+          campaign_request_id?: string | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          owner_id: string
+          recorded_at?: string
+          speed?: number | null
+          vehicle_id: string
+        }
+        Update: {
+          accuracy?: number | null
+          campaign_request_id?: string | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          owner_id?: string
+          recorded_at?: string
+          speed?: number | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_positions_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_positions_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           admin_notes: string | null
