@@ -331,9 +331,6 @@ function NewVehiclePage() {
                       <span className="block mt-1">Merci de téléverser une photo authentique du véhicule.</span>
                     </div>
                   )}
-                  {estimate.condition_alert && (
-                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
-                  )}
                   {estimate.suggested_price_max > 0 && (
                     <div className="rounded-lg bg-card p-2.5 text-xs">
                       <strong>Plafond MoveSpot (marge 30 %) :</strong> {Math.floor(estimate.suggested_price_max * 0.7)} €/j
