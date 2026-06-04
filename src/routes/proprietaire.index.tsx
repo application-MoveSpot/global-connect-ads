@@ -99,9 +99,12 @@ function DashboardPage() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Tab active={tab === "vehicles"} onClick={() => setTab("vehicles")} count={vehicles.length}>Mes véhicules</Tab>
             <Tab active={tab === "requests"} onClick={() => setTab("requests")} count={requests.length}>Demandes reçues</Tab>
+            <Link to="/proprietaire/briefs" className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition">
+              Briefs ouverts →
+            </Link>
           </div>
           {tab === "vehicles" && (
             <Link to="/proprietaire/vehicules/nouveau" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition">

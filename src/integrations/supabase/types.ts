@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertiser_briefs: {
+        Row: {
+          advertiser_id: string
+          audience_target: string | null
+          budget_max: number | null
+          created_at: string
+          creative_files: string[]
+          days_count: number | null
+          description: string
+          end_date: string
+          id: string
+          start_date: string
+          status: Database["public"]["Enums"]["brief_status"]
+          title: string
+          updated_at: string
+          vehicle_types: Database["public"]["Enums"]["vehicle_type"][]
+          zones: string[]
+        }
+        Insert: {
+          advertiser_id: string
+          audience_target?: string | null
+          budget_max?: number | null
+          created_at?: string
+          creative_files?: string[]
+          days_count?: number | null
+          description: string
+          end_date: string
+          id?: string
+          start_date: string
+          status?: Database["public"]["Enums"]["brief_status"]
+          title: string
+          updated_at?: string
+          vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
+          zones?: string[]
+        }
+        Update: {
+          advertiser_id?: string
+          audience_target?: string | null
+          budget_max?: number | null
+          created_at?: string
+          creative_files?: string[]
+          days_count?: number | null
+          description?: string
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["brief_status"]
+          title?: string
+          updated_at?: string
+          vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
+          zones?: string[]
+        }
+        Relationships: []
+      }
       advertiser_profiles: {
         Row: {
           city: string | null
@@ -55,6 +109,64 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      brief_proposals: {
+        Row: {
+          brief_id: string
+          created_at: string
+          id: string
+          message: string | null
+          owner_id: string
+          price_per_day: number
+          status: Database["public"]["Enums"]["proposal_status"]
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          brief_id: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          owner_id: string
+          price_per_day: number
+          status?: Database["public"]["Enums"]["proposal_status"]
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          brief_id?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          owner_id?: string
+          price_per_day?: number
+          status?: Database["public"]["Enums"]["proposal_status"]
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brief_proposals_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_proposals_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owner_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brief_proposals_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       campaign_requests: {
         Row: {
@@ -436,6 +548,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "owner" | "advertiser"
+      brief_status: "open" | "closed" | "fulfilled" | "cancelled"
+      proposal_status: "pending" | "accepted" | "rejected" | "withdrawn"
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
       vehicle_status: "pending" | "approved" | "rejected" | "paused"
       vehicle_type:
@@ -579,6 +693,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "owner", "advertiser"],
+      brief_status: ["open", "closed", "fulfilled", "cancelled"],
+      proposal_status: ["pending", "accepted", "rejected", "withdrawn"],
       vehicle_condition: ["excellent", "bon", "moyen", "mauvais"],
       vehicle_status: ["pending", "approved", "rejected", "paused"],
       vehicle_type: [

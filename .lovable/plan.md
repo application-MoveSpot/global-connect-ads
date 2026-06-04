@@ -1,63 +1,71 @@
-# Plan — Espace propriétaires MoveSpot
+# Brief annonceur + droit de suivi
 
-Objectif : permettre aux propriétaires de véhicules (food trucks, vans, taxis, scooters) de s'inscrire, proposer leurs véhicules, et recevoir des demandes de campagnes — avec validation admin.
+## Réponse à ta question
 
-## 1. Base de données (migration unique)
+**Oui, l'annonceur a le droit de suivre le véhicule pendant toute la durée payée de sa campagne** (ex. 24h, 3 jours, etc.). C'est même un argument commercial fort : il paye pour de la visibilité mobile, il doit pouvoir vérifier que le véhicule a bien circulé dans les zones convenues.
 
-**Enum** `vehicle_type` : `food_truck`, `van`, `taxi`, `scooter`, `voiture`, `autre`
-**Enum** `vehicle_status` : `pending`, `approved`, `rejected`, `paused`
-**Enum** `app_role` : ajouter `owner` à l'existant (`admin`, `user`)
+On l'inscrit dès maintenant comme règle métier, même si le tracking GPS temps réel sera branché plus tard :
 
-**Tables** :
-- `owner_profiles` (lié à `auth.users`) : full_name, phone, company, city, bio
-- `vehicles` : owner_id, type, name, description, format_publicitaire, surface_m2, km_per_day, zones (text[]), price_per_day, photos (text[] = URLs storage), status, admin_notes
-- `campaign_requests` : ajouter `vehicle_id` (nullable, pour rétro-compat) + colonne `owner_response` (pending/accepted/rejected)
+- **Pendant** une `campaign_request` au statut `approved` et dont la période `[start_date, end_date]` couvre aujourd'hui → l'annonceur voit la position live + un historique du trajet du jour.
+- **Après** `end_date` → accès à un récapitulatif (trace GPS, km parcourus, zones traversées, heures actives) pendant 30 jours, puis purge RGPD.
+- **Hors période** → aucun accès aux positions (le propriétaire reste maître de sa vie privée le reste du temps).
 
-**Storage bucket** `vehicle-photos` (public) avec RLS : owner uploade dans `{user_id}/...`
+Ces règles seront portées par les policies RLS sur la future table `vehicle_positions`. Je les documente dans `.lovable/plan.md` pour quand on implémentera le tracking.
+
+## Partie à construire maintenant : flux « Brief annonceur »
+
+### 1. Base de données (1 migration)
+
+**Enum** `brief_status` : `open`, `closed`, `fulfilled`, `cancelled`
+**Enum** `proposal_status` : `pending`, `accepted`, `rejected`, `withdrawn`
+
+**Table `advertiser_briefs`** :
+- `id`, `advertiser_id` (→ auth.users), `title`, `description`
+- `vehicle_types` (text[]) — types souhaités (food_truck, van, taxi, scooter, sac_a_dos_lcd, sac_a_dos_affiche, autre)
+- `zones` (text[]), `start_date`, `end_date`, `days_count`
+- `budget_max` (numeric, optionnel), `audience_target` (text)
+- `creative_files` (text[]) — uploads bucket `campaign-creatives`
+- `status` (brief_status, default `open`), `created_at`, `updated_at`
+
+**Table `brief_proposals`** :
+- `id`, `brief_id` (→ advertiser_briefs), `vehicle_id` (→ vehicles), `owner_id`
+- `price_per_day` (numeric), `message` (text)
+- `status` (proposal_status, default `pending`), `created_at`
 
 **RLS** :
-- `owner_profiles` : owner CRUD ses propres données ; admin lit tout
-- `vehicles` : owner CRUD ses propres véhicules ; public lit ceux `approved` ; admin tout
-- `campaign_requests` : owner lit/update ceux de ses véhicules ; reste inchangé
+- `advertiser_briefs` : annonceur CRUD ses briefs ; propriétaires lisent ceux `open` dont le `vehicle_types` recoupe leurs véhicules approuvés ; admin tout.
+- `brief_proposals` : propriétaire crée/lit/retire ses propositions ; annonceur propriétaire du brief lit/accepte/refuse ; admin tout.
+- `GRANT` standards (`authenticated`, `service_role`).
 
-**Trigger** : à la création d'un `owner_profile`, ajouter le rôle `owner` dans `user_roles`.
+**Trigger** : quand une proposition passe en `accepted` → créer automatiquement une `campaign_request` liée (statut soumis aux règles existantes `auto_validate_campaign_request`) et passer le brief en `fulfilled`.
 
-## 2. Authentification
+### 2. Server functions (`src/lib/briefs.functions.ts`)
 
-- Réutiliser `/auth` existant (signup email + Google via `lovable.auth.signInWithOAuth`)
-- Activer Google via `configure_social_auth`
-- Après signup propriétaire : créer `owner_profile` puis rediriger vers `/proprietaire`
+Toutes protégées par `requireSupabaseAuth`, validation Zod :
+- `createBrief`, `listMyBriefs`, `cancelBrief` (annonceur)
+- `listOpenBriefsForOwner` (propriétaires éligibles)
+- `submitProposal`, `withdrawProposal` (propriétaire)
+- `acceptProposal`, `rejectProposal` (annonceur)
 
-## 3. Pages frontend
+### 3. Pages frontend
 
-- **`/devenir-partenaire`** (public) : landing pitch + CTA "Inscrivez-vous"
-- **`/proprietaire/inscription`** : form profil + 1er véhicule (multi-étapes simple)
-- **`/proprietaire`** (protégé, layout `_authenticated`) :
-  - liste de mes véhicules + statut (pending/approved/rejected)
-  - bouton "Ajouter un véhicule"
-  - liste des demandes de campagne reçues → accepter/refuser
-- **`/proprietaire/vehicules/nouveau`** et `/proprietaire/vehicules/$id` (édition)
-- **`/admin`** existant : ajouter onglet "Véhicules à valider" avec approve/reject
+**Côté annonceur** :
+- `/annonceur/briefs/nouveau` — formulaire (titre, types, zones, dates, budget optionnel, créa, audience)
+- `/annonceur/briefs` — liste de mes briefs avec nb de propositions reçues
+- `/annonceur/briefs/$briefId` — détail brief + liste des propositions (accepter/refuser)
+- Ajouter bouton « + Nouveau brief » sur `/annonceur` à côté de « + Nouvelle campagne »
 
-## 4. Marketplace (`AdSpots.tsx`)
+**Côté propriétaire** :
+- Nouvel onglet « Briefs ouverts » sur `/proprietaire` listant les briefs compatibles avec mes véhicules approuvés
+- `/proprietaire/briefs/$briefId` — détail + bouton « Proposer un véhicule » (choix du véhicule + prix + message)
+- Section « Mes propositions » avec statut
 
-Remplacer la liste fictive par les véhicules `approved` depuis la DB (via server fn publique avec `supabaseAdmin` projetant uniquement les colonnes safe).
+### 4. Header
 
-## 5. Header / navigation
+Ajouter dans le menu annonceur connecté : lien « Mes briefs ».
 
-- Ajouter lien "Devenir partenaire" dans le header de `index.tsx`
-- Si user connecté avec rôle `owner` : lien "Mon espace"
+## Hors scope (pour plus tard)
 
-## Détails techniques
-
-- Server functions dans `src/lib/owners.functions.ts` (createOwnerProfile, listMyVehicles, createVehicle, listMyRequests, respondToRequest) avec `requireSupabaseAuth`
-- Server functions admin dans `src/lib/admin.functions.ts` (listPendingVehicles, approveVehicle, rejectVehicle)
-- Upload photos via `supabase.storage.from('vehicle-photos').upload()` côté client
-- Validation Zod sur chaque server fn
-- Vérifier `attachSupabaseAuth` dans `src/start.ts`
-
-## Hors scope (volontaire)
-
-- Pas de paiement automatisé (admin/owner gèrent hors plateforme pour l'instant)
-- Pas de messagerie interne (email/téléphone fournis dans la demande)
-- Pas de géoloc temps réel des véhicules
+- Tracking GPS temps réel (`vehicle_positions` + app mobile propriétaire + Realtime). Les règles d'accès annonceur ci-dessus seront appliquées à ce moment-là.
+- Notifications email automatiques sur nouvelle proposition / acceptation (à brancher quand on activera les app emails sur ces événements).
+- Paiement automatisé via Stripe à l'acceptation (déjà hors scope dans le plan global).
