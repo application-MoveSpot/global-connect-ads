@@ -331,6 +331,8 @@ export type Database = {
       vehicles: {
         Row: {
           admin_notes: string | null
+          ai_verification: Json | null
+          condition: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at: string
           description: string | null
           format_publicitaire: string | null
@@ -348,6 +350,8 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          ai_verification?: Json | null
+          condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
           format_publicitaire?: string | null
@@ -365,6 +369,8 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          ai_verification?: Json | null
+          condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
           format_publicitaire?: string | null
@@ -430,6 +436,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "owner" | "advertiser"
+      vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
       vehicle_status: "pending" | "approved" | "rejected" | "paused"
       vehicle_type:
         | "food_truck"
@@ -572,6 +579,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "owner", "advertiser"],
+      vehicle_condition: ["excellent", "bon", "moyen", "mauvais"],
       vehicle_status: ["pending", "approved", "rejected", "paused"],
       vehicle_type: [
         "food_truck",
