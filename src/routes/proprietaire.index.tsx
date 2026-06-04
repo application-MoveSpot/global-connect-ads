@@ -108,6 +108,9 @@ function DashboardPage() {
             <Link to="/proprietaire/tracking" className="px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition">
               📍 Démarrer suivi GPS
             </Link>
+            <Link to="/proprietaire/flotte" className="px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition">
+              🚚 Gérer ma flotte
+            </Link>
           </div>
           {tab === "vehicles" && (
             <Link to="/proprietaire/vehicules/nouveau" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition">

@@ -25,6 +25,7 @@ import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.ind
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as ProprietaireTrackingRouteImport } from './routes/proprietaire.tracking'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
+import { Route as ProprietaireFlotteRouteImport } from './routes/proprietaire.flotte'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
@@ -116,6 +117,11 @@ const ProprietaireInscriptionRoute = ProprietaireInscriptionRouteImport.update({
   path: '/proprietaire/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProprietaireFlotteRoute = ProprietaireFlotteRouteImport.update({
+  id: '/proprietaire/flotte',
+  path: '/proprietaire/flotte',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   id: '/api/faq-chat',
   path: '/api/faq-chat',
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/proprietaire/flotte': typeof ProprietaireFlotteRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/proprietaire/flotte': typeof ProprietaireFlotteRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur': typeof AnnonceurIndexRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/proprietaire/flotte': typeof ProprietaireFlotteRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/annonceur/inscription'
     | '/api/faq-chat'
+    | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/annonceur/inscription'
     | '/api/faq-chat'
+    | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/annonceur/inscription'
     | '/api/faq-chat'
+    | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
@@ -358,6 +370,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
+  ProprietaireFlotteRoute: typeof ProprietaireFlotteRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
@@ -486,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/proprietaire/flotte': {
+      id: '/proprietaire/flotte'
+      path: '/proprietaire/flotte'
+      fullPath: '/proprietaire/flotte'
+      preLoaderRoute: typeof ProprietaireFlotteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/faq-chat': {
       id: '/api/faq-chat'
       path: '/api/faq-chat'
@@ -574,6 +594,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
+  ProprietaireFlotteRoute: ProprietaireFlotteRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
