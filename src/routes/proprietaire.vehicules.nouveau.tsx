@@ -140,6 +140,15 @@ function NewVehiclePage() {
       setError("Les véhicules en mauvais état ne sont pas acceptés.");
       return;
     }
+    if (estimate?.ai_generated_detected) {
+      setError("⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.");
+      return;
+    }
+    if (estimate && estimate.suggested_price_max > 0 && Number(price) > estimate.suggested_price_max * 0.7) {
+      const maxAcceptable = Math.floor(estimate.suggested_price_max * 0.7);
+      setError(`⛔ Prix refusé : MoveSpot doit conserver au moins 30 % de marge sur le prix de marché estimé. Prix max acceptable : ${maxAcceptable} €/jour (estimation IA : ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j). Référez-vous à l'estimation IA ci-dessus.`);
+      return;
+    }
     setLoading(true);
     try {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
@@ -163,6 +172,8 @@ function NewVehiclePage() {
           photo_match: estimate.photo_match,
           photo_notes: estimate.photo_notes,
           condition_alert: estimate.condition_alert,
+          ai_generated_detected: estimate.ai_generated_detected,
+          ai_generated_notes: estimate.ai_generated_notes,
           suggested_price_min: estimate.suggested_price_min,
           suggested_price_max: estimate.suggested_price_max,
           estimated_impressions_per_day: estimate.estimated_impressions_per_day,
