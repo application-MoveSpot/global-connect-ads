@@ -272,7 +272,10 @@ function NewVehiclePage() {
               <Field label="Km / jour" value={km} onChange={setKm} type="number" />
             </div>
             <Field label="Zones desservies" value={zones} onChange={setZones} placeholder="Paris 11e, Bastille, République (séparés par virgules)" />
-            <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
+            <div>
+              <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
+              <p className="text-xs text-muted-foreground mt-1.5">À renseigner manuellement. MoveSpot doit conserver au moins 30 % de marge : votre prix ne peut pas dépasser 70 % du prix max estimé par l'IA.</p>
+            </div>
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
