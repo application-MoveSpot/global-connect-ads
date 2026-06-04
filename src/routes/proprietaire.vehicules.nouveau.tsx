@@ -217,9 +217,36 @@ function NewVehiclePage() {
                 </p>
               </div>
             )}
+            <div>
+              <label className="block text-sm font-medium mb-1.5">État du véhicule *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {CONDITIONS.map((c) => (
+                  <button type="button" key={c.v} onClick={() => { setCondition(c.v as typeof condition); setEstimate(null); }}
+                    className={`rounded-lg border px-3 py-2.5 text-left transition ${
+                      condition === c.v
+                        ? c.v === "mauvais"
+                          ? "border-destructive bg-destructive/10"
+                          : "border-primary bg-primary/10"
+                        : "border-border bg-input hover:border-primary/40"
+                    }`}>
+                    <div className="text-sm font-semibold">{c.l}</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">{c.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                ⚠️ L'état déclaré est vérifié sur photo par notre IA et confirmé par notre équipe. Toute fausse déclaration entraîne un refus.
+              </p>
+            </div>
+
             <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
             <div>
               <label className="block text-sm font-medium mb-1.5">Description</label>
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
+                placeholder="Décrivez votre véhicule, son état, ses spécificités…"
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <p className="text-xs text-muted-foreground mt-1.5">Pas besoin de préciser les formats publicitaires : ce sont les annonceurs qui choisissent ce qu'ils veulent habiller.</p>
+            </div>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
                 placeholder="Décrivez votre véhicule, son état, ses spécificités…"
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
