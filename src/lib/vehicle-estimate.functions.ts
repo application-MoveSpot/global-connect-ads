@@ -37,6 +37,8 @@ export const estimateVehicle = createServerFn({ method: "POST" })
         photo_match: "unverified",
         photo_notes: "",
         condition_alert: "Les véhicules en mauvais état ne sont pas acceptés sur MoveSpot.",
+        ai_generated_detected: false,
+        ai_generated_notes: "",
         recommendation: "Refusé automatiquement : véhicule en mauvais état.",
       };
     }
