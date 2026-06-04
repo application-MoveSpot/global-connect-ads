@@ -204,7 +204,12 @@ function NewVehiclePage() {
               <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
               <select value={type} onChange={(e) => setType(e.target.value)} required
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                {TYPES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                <optgroup label="Véhicules">
+                  {TYPES_VEHICULES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                </optgroup>
+                <optgroup label="Autre">
+                  {TYPES_AUTRES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                </optgroup>
               </select>
             </div>
             {isBackpack(type) && (
