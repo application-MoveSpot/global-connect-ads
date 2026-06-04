@@ -44,6 +44,7 @@ function NewVehiclePage() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
+  const [condition, setCondition] = useState<"excellent" | "bon" | "moyen" | "mauvais">("bon");
   const [backpackFormat, setBackpackFormat] = useState("medium");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -54,6 +55,18 @@ function NewVehiclePage() {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [estimating, setEstimating] = useState(false);
+  const [estimate, setEstimate] = useState<null | {
+    suggested_price_min: number;
+    suggested_price_max: number;
+    estimated_impressions_per_day: number;
+    photo_match: "ok" | "doubtful" | "mismatch" | "unverified";
+    photo_notes: string;
+    condition_alert: string | null;
+    recommendation: string;
+    uploaded_urls: string[];
+  }>(null);
+  const callEstimate = useServerFn(estimateVehicle);
 
   useEffect(() => {
     (async () => {
