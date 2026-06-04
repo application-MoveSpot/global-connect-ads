@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-r
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { SiretField, type SiretCheck } from "@/components/SiretField";
 
 type Search = { redirect?: string };
 
@@ -23,6 +24,7 @@ function AnnonceurInscription() {
   const [company, setCompany] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
+  const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -92,15 +94,22 @@ function AnnonceurInscription() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!siret.verified) {
+      setError("Merci de vérifier votre numéro SIRET avant de continuer.");
+      return;
+    }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
     const { error } = await supabase.from("advertiser_profiles").insert({
       user_id: sess.session.user.id,
       full_name: fullName,
-      company: company || null,
+      company: company || siret.denomination,
       phone: phone || null,
       city: city || null,
+      siret: siret.siret,
+      siret_denomination: siret.denomination,
+      siret_verified_at: new Date().toISOString(),
     });
     if (error) { setError(error.message); setLoading(false); return; }
     goNext();
@@ -142,6 +151,7 @@ function AnnonceurInscription() {
             <p className="text-sm text-muted-foreground mb-6">Quelques infos pour finaliser votre inscription.</p>
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
+              <SiretField value={siret} onChange={setSiret} />
               <Input label="Entreprise" value={company} onChange={setCompany} />
               <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} />
               <Input label="Ville" value={city} onChange={setCity} />
