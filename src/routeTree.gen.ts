@@ -23,6 +23,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
+import { Route as ProprietaireTrackingRouteImport } from './routes/proprietaire.tracking'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
@@ -30,6 +31,7 @@ import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietai
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
 import { Route as ProprietaireBriefsBriefIdRouteImport } from './routes/proprietaire.briefs.$briefId'
+import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur.suivi.$campaignId'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -104,6 +106,11 @@ const AnnonceurIndexRoute = AnnonceurIndexRouteImport.update({
   path: '/annonceur/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProprietaireTrackingRoute = ProprietaireTrackingRouteImport.update({
+  id: '/proprietaire/tracking',
+  path: '/proprietaire/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProprietaireInscriptionRoute = ProprietaireInscriptionRouteImport.update({
   id: '/proprietaire/inscription',
   path: '/proprietaire/inscription',
@@ -141,6 +148,12 @@ const ProprietaireBriefsBriefIdRoute =
     path: '/proprietaire/briefs/$briefId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AnnonceurSuiviCampaignIdRoute =
+  AnnonceurSuiviCampaignIdRouteImport.update({
+    id: '/annonceur/suivi/$campaignId',
+    path: '/annonceur/suivi/$campaignId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AnnonceurBriefsNouveauRoute = AnnonceurBriefsNouveauRouteImport.update({
   id: '/annonceur/briefs/nouveau',
   path: '/annonceur/briefs/nouveau',
@@ -174,10 +187,12 @@ export interface FileRoutesByFullPath {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
+  '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
@@ -200,10 +215,12 @@ export interface FileRoutesByTo {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur': typeof AnnonceurIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
+  '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs': typeof AnnonceurBriefsIndexRoute
@@ -227,10 +244,12 @@ export interface FileRoutesById {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
+  '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
+  '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
@@ -255,10 +274,12 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/api/faq-chat'
     | '/proprietaire/inscription'
+    | '/proprietaire/tracking'
     | '/annonceur/'
     | '/proprietaire/'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
+    | '/annonceur/suivi/$campaignId'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
@@ -281,10 +302,12 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/api/faq-chat'
     | '/proprietaire/inscription'
+    | '/proprietaire/tracking'
     | '/annonceur'
     | '/proprietaire'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
+    | '/annonceur/suivi/$campaignId'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs'
@@ -307,10 +330,12 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/api/faq-chat'
     | '/proprietaire/inscription'
+    | '/proprietaire/tracking'
     | '/annonceur/'
     | '/proprietaire/'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
+    | '/annonceur/suivi/$campaignId'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
@@ -334,10 +359,12 @@ export interface RootRouteChildren {
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
+  ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
   AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
+  AnnonceurSuiviCampaignIdRoute: typeof AnnonceurSuiviCampaignIdRoute
   ProprietaireBriefsBriefIdRoute: typeof ProprietaireBriefsBriefIdRoute
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   AnnonceurBriefsIndexRoute: typeof AnnonceurBriefsIndexRoute
@@ -445,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/proprietaire/tracking': {
+      id: '/proprietaire/tracking'
+      path: '/proprietaire/tracking'
+      fullPath: '/proprietaire/tracking'
+      preLoaderRoute: typeof ProprietaireTrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proprietaire/inscription': {
       id: '/proprietaire/inscription'
       path: '/proprietaire/inscription'
@@ -494,6 +528,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireBriefsBriefIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/suivi/$campaignId': {
+      id: '/annonceur/suivi/$campaignId'
+      path: '/annonceur/suivi/$campaignId'
+      fullPath: '/annonceur/suivi/$campaignId'
+      preLoaderRoute: typeof AnnonceurSuiviCampaignIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/annonceur/briefs/nouveau': {
       id: '/annonceur/briefs/nouveau'
       path: '/annonceur/briefs/nouveau'
@@ -534,10 +575,12 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
+  ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,
   AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
+  AnnonceurSuiviCampaignIdRoute: AnnonceurSuiviCampaignIdRoute,
   ProprietaireBriefsBriefIdRoute: ProprietaireBriefsBriefIdRoute,
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   AnnonceurBriefsIndexRoute: AnnonceurBriefsIndexRoute,

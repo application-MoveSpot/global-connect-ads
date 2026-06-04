@@ -129,6 +129,11 @@ function AnnonceurDashboard() {
                 )}
                 <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
                 <CreativeFiles paths={r.creative_files} />
+                {r.status === "approved" && (
+                  <Link to="/annonceur/suivi/$campaignId" params={{ campaignId: r.id }} className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/20 transition">
+                    📍 Suivre en direct
+                  </Link>
+                )}
               </div>
             ))}
           </div>
