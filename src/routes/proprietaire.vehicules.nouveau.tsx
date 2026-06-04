@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { useServerFn } from "@tanstack/react-start";
+import { estimateVehicle } from "@/lib/vehicle-estimate.functions";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   component: NewVehiclePage,
@@ -28,6 +30,13 @@ const BACKPACK_FORMATS = [
   { v: "large", l: "Large (~27-32\")", desc: "Impact maximal, plein dos" },
 ];
 
+const CONDITIONS = [
+  { v: "excellent", l: "Excellent", desc: "Carrosserie impeccable, comme neuf" },
+  { v: "bon", l: "Bon", desc: "Quelques traces d'usage, propre et soigné" },
+  { v: "moyen", l: "Moyen", desc: "Usure visible mais correct" },
+  { v: "mauvais", l: "Mauvais", desc: "⛔ Non accepté sur MoveSpot" },
+];
+
 const isBackpack = (t: string) => t === "sac_a_dos_lcd" || t === "sac_a_dos_affiche";
 
 function NewVehiclePage() {
@@ -35,6 +44,7 @@ function NewVehiclePage() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
+  const [condition, setCondition] = useState<"excellent" | "bon" | "moyen" | "mauvais">("bon");
   const [backpackFormat, setBackpackFormat] = useState("medium");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -45,6 +55,18 @@ function NewVehiclePage() {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [estimating, setEstimating] = useState(false);
+  const [estimate, setEstimate] = useState<null | {
+    suggested_price_min: number;
+    suggested_price_max: number;
+    estimated_impressions_per_day: number;
+    photo_match: "ok" | "doubtful" | "mismatch" | "unverified";
+    photo_notes: string;
+    condition_alert: string | null;
+    recommendation: string;
+    uploaded_urls: string[];
+  }>(null);
+  const callEstimate = useServerFn(estimateVehicle);
 
   useEffect(() => {
     (async () => {
@@ -61,40 +83,94 @@ function NewVehiclePage() {
     })();
   }, [navigate]);
 
+  const uploadPhotos = async (): Promise<string[]> => {
+    if (!userId) return [];
+    const urls: string[] = [];
+    for (const file of files.slice(0, 5)) {
+      const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file);
+      if (upErr) throw new Error(`Upload : ${upErr.message}`);
+      const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
+      urls.push(pub.publicUrl);
+    }
+    return urls;
+  };
+
+  const runEstimate = async () => {
+    setError("");
+    if (condition === "mauvais") {
+      setError("Les véhicules en mauvais état ne sont pas acceptés sur MoveSpot.");
+      return;
+    }
+    if (files.length === 0) {
+      setError("Ajoutez au moins une photo pour l'estimation et la vérification.");
+      return;
+    }
+    setEstimating(true);
+    try {
+      const urls = estimate?.uploaded_urls ?? (await uploadPhotos());
+      const res = await callEstimate({
+        data: {
+          type,
+          condition,
+          surface_m2: surface ? Number(surface) : null,
+          km_per_day: km ? Number(km) : null,
+          zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+          price_per_day: price ? Number(price) : null,
+          photo_urls: urls,
+        },
+      });
+      setEstimate({ ...res, uploaded_urls: urls });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur estimation");
+    } finally {
+      setEstimating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerId || !userId) return;
     setError("");
-    setLoading(true);
-
-    // Upload photos
-    const photoUrls: string[] = [];
-    for (const file of files.slice(0, 5)) {
-      const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file);
-      if (upErr) { setError(`Upload : ${upErr.message}`); setLoading(false); return; }
-      const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
-      photoUrls.push(pub.publicUrl);
+    if (condition === "mauvais") {
+      setError("Les véhicules en mauvais état ne sont pas acceptés.");
+      return;
     }
-
-    const { error: insErr } = await supabase.from("vehicles").insert({
-      owner_id: ownerId,
-      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
-      name,
-      description: description || null,
-      format_publicitaire: type === "sac_a_dos_lcd"
-        ? `Écran LCD ${backpackFormat}`
-        : type === "sac_a_dos_affiche"
-        ? `Affiche ${backpackFormat}`
-        : null,
-      surface_m2: surface ? Number(surface) : null,
-      km_per_day: km ? Number(km) : null,
-      zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
-      price_per_day: Number(price),
-      photos: photoUrls,
-    });
-    if (insErr) { setError(insErr.message); setLoading(false); return; }
-    navigate({ to: "/proprietaire" });
+    setLoading(true);
+    try {
+      const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
+      const { error: insErr } = await supabase.from("vehicles").insert({
+        owner_id: ownerId,
+        type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
+        condition,
+        name,
+        description: description || null,
+        format_publicitaire: type === "sac_a_dos_lcd"
+          ? `Écran LCD ${backpackFormat}`
+          : type === "sac_a_dos_affiche"
+          ? `Affiche ${backpackFormat}`
+          : null,
+        surface_m2: surface ? Number(surface) : null,
+        km_per_day: km ? Number(km) : null,
+        zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+        price_per_day: Number(price),
+        photos: photoUrls,
+        ai_verification: estimate ? {
+          photo_match: estimate.photo_match,
+          photo_notes: estimate.photo_notes,
+          condition_alert: estimate.condition_alert,
+          suggested_price_min: estimate.suggested_price_min,
+          suggested_price_max: estimate.suggested_price_max,
+          estimated_impressions_per_day: estimate.estimated_impressions_per_day,
+          checked_at: new Date().toISOString(),
+        } : null,
+      });
+      if (insErr) { setError(insErr.message); setLoading(false); return; }
+      navigate({ to: "/proprietaire" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+      setLoading(false);
+    }
   };
 
   return (
@@ -141,6 +217,28 @@ function NewVehiclePage() {
                 </p>
               </div>
             )}
+            <div>
+              <label className="block text-sm font-medium mb-1.5">État du véhicule *</label>
+              <div className="grid grid-cols-2 gap-2">
+                {CONDITIONS.map((c) => (
+                  <button type="button" key={c.v} onClick={() => { setCondition(c.v as typeof condition); setEstimate(null); }}
+                    className={`rounded-lg border px-3 py-2.5 text-left transition ${
+                      condition === c.v
+                        ? c.v === "mauvais"
+                          ? "border-destructive bg-destructive/10"
+                          : "border-primary bg-primary/10"
+                        : "border-border bg-input hover:border-primary/40"
+                    }`}>
+                    <div className="text-sm font-semibold">{c.l}</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">{c.desc}</div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                ⚠️ L'état déclaré est vérifié sur photo par notre IA et confirmé par notre équipe. Toute fausse déclaration entraîne un refus.
+              </p>
+            </div>
+
             <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
             <div>
               <label className="block text-sm font-medium mb-1.5">Description</label>
@@ -157,10 +255,57 @@ function NewVehiclePage() {
             <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Photos (max 5)</label>
-              <input type="file" accept="image/*" multiple onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+              <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
+              <input type="file" accept="image/*" multiple onChange={(e) => { setFiles(Array.from(e.target.files ?? [])); setEstimate(null); }}
                 className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
               {files.length > 0 && <div className="text-xs text-muted-foreground mt-2">{files.length} fichier(s) sélectionné(s)</div>}
+              <p className="text-xs text-muted-foreground mt-1.5">Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.</p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-secondary/30 p-4">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <div>
+                  <div className="text-sm font-semibold">Estimation IA</div>
+                  <div className="text-xs text-muted-foreground">Vérifie la photo et propose un prix réaliste.</div>
+                </div>
+                <button type="button" onClick={runEstimate} disabled={estimating || condition === "mauvais"}
+                  className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap">
+                  {estimating ? "Analyse..." : "Lancer l'estimation"}
+                </button>
+              </div>
+              {estimate && (
+                <div className="space-y-2 text-sm mt-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-card p-2.5">
+                      <div className="text-[11px] text-muted-foreground uppercase">Prix conseillé</div>
+                      <div className="font-semibold">{estimate.suggested_price_min}–{estimate.suggested_price_max} €/j</div>
+                    </div>
+                    <div className="rounded-lg bg-card p-2.5">
+                      <div className="text-[11px] text-muted-foreground uppercase">Impressions est.</div>
+                      <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString("fr-FR")} /j</div>
+                    </div>
+                  </div>
+                  <div className={`rounded-lg p-2.5 text-xs ${
+                    estimate.photo_match === "ok" ? "bg-signal/10 text-signal" :
+                    estimate.photo_match === "doubtful" ? "bg-yellow-500/10 text-yellow-600" :
+                    estimate.photo_match === "mismatch" ? "bg-destructive/10 text-destructive" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    <strong>Vérification photo : </strong>
+                    {estimate.photo_match === "ok" && "✓ cohérente avec la déclaration."}
+                    {estimate.photo_match === "doubtful" && "⚠️ cohérence incertaine."}
+                    {estimate.photo_match === "mismatch" && "✗ ne correspond pas à la déclaration."}
+                    {estimate.photo_match === "unverified" && "Non vérifiée."}
+                    {estimate.photo_notes && <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>}
+                  </div>
+                  {estimate.condition_alert && (
+                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
+                  )}
+                  {estimate.recommendation && (
+                    <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
