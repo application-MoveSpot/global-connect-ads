@@ -65,6 +65,8 @@ function NewVehiclePage() {
     photo_match: "ok" | "doubtful" | "mismatch" | "unverified";
     photo_notes: string;
     condition_alert: string | null;
+    ai_generated_detected: boolean;
+    ai_generated_notes: string;
     recommendation: string;
     uploaded_urls: string[];
   }>(null);
