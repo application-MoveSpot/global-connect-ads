@@ -278,7 +278,12 @@ export function BookingForm({ spot, onClose }: Props) {
               </svg>
             </div>
             <h3 className="font-display text-2xl font-bold mb-2">Demande envoyée</h3>
-            <p className="text-muted-foreground mb-6">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation. Retrouvez-la dans votre espace annonceur.</p>
+            <p className="text-muted-foreground mb-4">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation.</p>
+            <div className="rounded-lg bg-secondary/40 border border-border p-3 text-left text-xs text-muted-foreground mb-6 space-y-1.5">
+              <div>⏱ <strong className="text-foreground">Validation automatique immédiate</strong> si le véhicule est libre sur les dates demandées.</div>
+              <div>📩 Sinon, le propriétaire dispose de <strong className="text-foreground">48 h maximum</strong> pour répondre. Passé ce délai, la demande est automatiquement refusée et vous êtes notifié par email.</div>
+              <div>❌ En cas de refus, le motif est affiché dans votre espace annonceur (dates indisponibles, véhicule non approuvé, contenu non conforme…).</div>
+            </div>
             <div className="flex flex-col gap-2">
               <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Voir mes campagnes</button>
               <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Fermer</button>
