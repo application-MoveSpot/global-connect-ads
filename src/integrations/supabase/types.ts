@@ -263,6 +263,53 @@ export type Database = {
           },
         ]
       }
+      drivers: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drivers_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owner_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -504,6 +551,7 @@ export type Database = {
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at: string
           description: string | null
+          driver_id: string | null
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
@@ -523,6 +571,7 @@ export type Database = {
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
+          driver_id?: string | null
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
@@ -542,6 +591,7 @@ export type Database = {
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
+          driver_id?: string | null
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
@@ -556,6 +606,13 @@ export type Database = {
           zones?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "vehicles_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vehicles_owner_id_fkey"
             columns: ["owner_id"]
@@ -604,7 +661,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "owner" | "advertiser"
+      app_role: "admin" | "user" | "owner" | "advertiser" | "driver"
       brief_status: "open" | "closed" | "fulfilled" | "cancelled"
       proposal_status: "pending" | "accepted" | "rejected" | "withdrawn"
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
@@ -749,7 +806,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "owner", "advertiser"],
+      app_role: ["admin", "user", "owner", "advertiser", "driver"],
       brief_status: ["open", "closed", "fulfilled", "cancelled"],
       proposal_status: ["pending", "accepted", "rejected", "withdrawn"],
       vehicle_condition: ["excellent", "bon", "moyen", "mauvais"],
