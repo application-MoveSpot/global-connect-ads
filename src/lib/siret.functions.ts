@@ -32,35 +32,24 @@ export const verifySiret = createServerFn({ method: "POST" })
       console.warn("SIRET Luhn check failed, calling INSEE anyway", siret);
     }
 
-    const clientId = process.env.INSEE_CLIENT_ID;
-    const clientSecret = process.env.INSEE_CLIENT_SECRET;
-    if (!clientId || !clientSecret) {
+    // Nouvelle API Sirene 3.11 (depuis 2024) : clé d'API unique via header X-INSEE-Api-Key-Integration
+    const apiKey =
+      process.env.INSEE_API_KEY ||
+      process.env.INSEE_CLIENT_SECRET ||
+      process.env.INSEE_CLIENT_ID;
+    if (!apiKey) {
       return { ok: false, error: "Vérification SIRET indisponible (configuration manquante)." };
     }
 
     try {
-      // 1) OAuth2 client_credentials
-      const tokenRes = await fetch("https://api.insee.fr/token", {
-        method: "POST",
-        headers: {
-          Authorization: "Basic " + btoa(`${clientId}:${clientSecret}`),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: "grant_type=client_credentials",
-      });
-      if (!tokenRes.ok) {
-        const txt = await tokenRes.text();
-        console.error("INSEE token error", tokenRes.status, txt);
-        return { ok: false, error: "Service INSEE momentanément indisponible." };
-      }
-      const tokenJson = (await tokenRes.json()) as { access_token?: string };
-      const token = tokenJson.access_token;
-      if (!token) return { ok: false, error: "Service INSEE momentanément indisponible." };
-
-      // 2) Appel Sirene V3.11
       const sireneRes = await fetch(
-        `https://api.insee.fr/entreprises/sirene/V3.11/siret/${siret}`,
-        { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } },
+        `https://api.insee.fr/api-sirene/3.11/siret/${siret}`,
+        {
+          headers: {
+            "X-INSEE-Api-Key-Integration": apiKey,
+            Accept: "application/json",
+          },
+        },
       );
       if (sireneRes.status === 404) {
         return { ok: false, error: "Aucun établissement trouvé pour ce SIRET." };
