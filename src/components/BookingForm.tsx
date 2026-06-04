@@ -143,6 +143,32 @@ export function BookingForm({ spot, onClose }: Props) {
       setReason("Vous devez accepter la charte de contenu.");
       return;
     }
+    // Validation calendrier
+    if (!startDate || !endDate) {
+      setStatus("rejected");
+      setReason("Veuillez choisir une date de début et une date de fin.");
+      return;
+    }
+    if (new Date(startDate) < minStart) {
+      setStatus("rejected");
+      setReason(`La date de début doit être au moins ${MIN_LEAD_DAYS} jours après aujourd'hui (le temps de valider la campagne).`);
+      return;
+    }
+    if (daysCount < 1) {
+      setStatus("rejected");
+      setReason("La date de fin doit être postérieure ou égale à la date de début.");
+      return;
+    }
+    if (daysCount > MAX_DURATION_DAYS) {
+      setStatus("rejected");
+      setReason(`La durée maximale d'une campagne est de ${MAX_DURATION_DAYS} jours.`);
+      return;
+    }
+    if (dailyEnd <= dailyStart) {
+      setStatus("rejected");
+      setReason("L'heure de fin de diffusion doit être après l'heure de début.");
+      return;
+    }
     setStatus("loading");
     const splitLines = (s: string) =>
       s.split(/\r?\n|,/).map((v) => v.trim()).filter(Boolean).slice(0, 50);
@@ -176,6 +202,12 @@ export function BookingForm({ spot, onClose }: Props) {
       company: auth.profile.company ?? auth.profile.full_name,
       email: auth.profile.email,
       message,
+      start_date: startDate,
+      end_date: endDate,
+      days_count: daysCount,
+      total_price: totalPrice,
+      daily_start_time: dailyStart,
+      daily_end_time: dailyEnd,
       route_zones: splitLines(zones),
       route_waypoints: splitLines(waypoints),
       route_pois: splitLines(pois),
