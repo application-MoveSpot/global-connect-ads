@@ -103,7 +103,14 @@ function InscriptionPage() {
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <Input label="Email" type="email" value={email} onChange={setEmail} required />
-              <Input label="Mot de passe" type="password" value={password} onChange={setPassword} required minLength={6} />
+              <div>
+                <Input label="Mot de passe" type="password" value={password} onChange={setPassword} required minLength={6} />
+                {mode === "signin" && (
+                  <div className="mt-2 text-right">
+                    <Link to="/reset-password" className="text-xs text-muted-foreground hover:text-foreground underline">Mot de passe oublié ?</Link>
+                  </div>
+                )}
+              </div>
               {error && <Err msg={error} />}
               <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
                 {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
