@@ -30,6 +30,13 @@ const BACKPACK_FORMATS = [
   { v: "large", l: "Large (~27-32\")", desc: "Impact maximal, plein dos" },
 ];
 
+const CONDITIONS = [
+  { v: "excellent", l: "Excellent", desc: "Carrosserie impeccable, comme neuf" },
+  { v: "bon", l: "Bon", desc: "Quelques traces d'usage, propre et soigné" },
+  { v: "moyen", l: "Moyen", desc: "Usure visible mais correct" },
+  { v: "mauvais", l: "Mauvais", desc: "⛔ Non accepté sur MoveSpot" },
+];
+
 const isBackpack = (t: string) => t === "sac_a_dos_lcd" || t === "sac_a_dos_affiche";
 
 function NewVehiclePage() {
