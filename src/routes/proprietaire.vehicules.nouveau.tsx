@@ -9,7 +9,7 @@ export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   component: NewVehiclePage,
 });
 
-const TYPES = [
+const TYPES_VEHICULES = [
   { v: "food_truck", l: "Food truck" },
   { v: "van", l: "Van utilitaire" },
   { v: "taxi", l: "Taxi / VTC" },
@@ -19,8 +19,10 @@ const TYPES = [
   { v: "triporteur", l: "Triporteur" },
   { v: "tutuk", l: "Tutuk" },
   { v: "voiture", l: "Voiture" },
-  { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (walker)" },
-  { v: "sac_a_dos_affiche", l: "Sac à dos publicitaire affiche (walker)" },
+];
+const TYPES_AUTRES = [
+  { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (Walker)" },
+  { v: "sac_a_dos_affiche", l: "Sac à dos publicitaire affiche (Walker)" },
   { v: "autre", l: "Autre" },
 ];
 
