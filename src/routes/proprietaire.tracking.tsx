@@ -188,7 +188,7 @@ function TrackingPage() {
                 <SelectContent>
                   {vehicles.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
-                      {v.name} ({v.vehicle_type})
+                      {v.name} ({v.type})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -204,7 +204,7 @@ function TrackingPage() {
                   <>
                     <p className="font-medium">📢 Campagne en cours</p>
                     <p className="text-muted-foreground">{campaign.company} — {campaign.spot_name}</p>
-                    <p className="text-xs text-muted-foreground">Jusqu'au {new Date(campaign.end_date).toLocaleDateString("fr-FR")}</p>
+                    <p className="text-xs text-muted-foreground">Jusqu'au {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString("fr-FR") : "—"}</p>
                   </>
                 ) : (
                   <p className="text-muted-foreground">Aucune campagne active aujourd'hui. Les positions seront enregistrées sans lien de campagne.</p>

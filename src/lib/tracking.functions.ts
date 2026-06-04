@@ -56,7 +56,7 @@ export const getOwnerVehiclesForTracking = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("vehicles")
-      .select("id, name, vehicle_type, status")
+      .select("id, name, type, status")
       .eq("owner_id", userId)
       .eq("status", "approved");
     if (error) throw new Error(error.message);
