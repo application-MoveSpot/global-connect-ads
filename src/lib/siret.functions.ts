@@ -26,8 +26,10 @@ export const verifySiret = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<VerifyResult> => {
     const siret = data.siret;
-    if (!luhnSiretValid(siret)) {
-      return { ok: false, error: "Numéro SIRET invalide (clé de contrôle incorrecte)." };
+    // La Poste (SIREN 356000000) ne respecte pas Luhn — on laisse passer et l'API INSEE tranchera.
+    const isLaPoste = siret.startsWith("356000000");
+    if (!isLaPoste && !luhnSiretValid(siret)) {
+      console.warn("SIRET Luhn check failed, calling INSEE anyway", siret);
     }
 
     const clientId = process.env.INSEE_CLIENT_ID;
