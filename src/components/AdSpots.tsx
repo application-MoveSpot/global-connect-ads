@@ -11,6 +11,7 @@ type Spot = {
   kmPerDay?: number | null;
   price: number;
   format: string | null;
+  vehicleType?: string | null;
   available: boolean;
 };
 
