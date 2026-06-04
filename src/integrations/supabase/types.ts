@@ -22,6 +22,9 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
+          siret: string | null
+          siret_denomination: string | null
+          siret_verified_at: string | null
           updated_at: string
           user_id: string
         }
@@ -32,6 +35,9 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -42,6 +48,9 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -232,6 +241,9 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
+          siret: string | null
+          siret_denomination: string | null
+          siret_verified_at: string | null
           updated_at: string
           user_id: string
         }
@@ -243,6 +255,9 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -254,6 +269,9 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
           updated_at?: string
           user_id?: string
         }
