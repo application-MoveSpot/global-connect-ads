@@ -83,40 +83,94 @@ function NewVehiclePage() {
     })();
   }, [navigate]);
 
+  const uploadPhotos = async (): Promise<string[]> => {
+    if (!userId) return [];
+    const urls: string[] = [];
+    for (const file of files.slice(0, 5)) {
+      const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file);
+      if (upErr) throw new Error(`Upload : ${upErr.message}`);
+      const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
+      urls.push(pub.publicUrl);
+    }
+    return urls;
+  };
+
+  const runEstimate = async () => {
+    setError("");
+    if (condition === "mauvais") {
+      setError("Les véhicules en mauvais état ne sont pas acceptés sur MoveSpot.");
+      return;
+    }
+    if (files.length === 0) {
+      setError("Ajoutez au moins une photo pour l'estimation et la vérification.");
+      return;
+    }
+    setEstimating(true);
+    try {
+      const urls = estimate?.uploaded_urls ?? (await uploadPhotos());
+      const res = await callEstimate({
+        data: {
+          type,
+          condition,
+          surface_m2: surface ? Number(surface) : null,
+          km_per_day: km ? Number(km) : null,
+          zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+          price_per_day: price ? Number(price) : null,
+          photo_urls: urls,
+        },
+      });
+      setEstimate({ ...res, uploaded_urls: urls });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur estimation");
+    } finally {
+      setEstimating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerId || !userId) return;
     setError("");
-    setLoading(true);
-
-    // Upload photos
-    const photoUrls: string[] = [];
-    for (const file of files.slice(0, 5)) {
-      const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file);
-      if (upErr) { setError(`Upload : ${upErr.message}`); setLoading(false); return; }
-      const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
-      photoUrls.push(pub.publicUrl);
+    if (condition === "mauvais") {
+      setError("Les véhicules en mauvais état ne sont pas acceptés.");
+      return;
     }
-
-    const { error: insErr } = await supabase.from("vehicles").insert({
-      owner_id: ownerId,
-      type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
-      name,
-      description: description || null,
-      format_publicitaire: type === "sac_a_dos_lcd"
-        ? `Écran LCD ${backpackFormat}`
-        : type === "sac_a_dos_affiche"
-        ? `Affiche ${backpackFormat}`
-        : null,
-      surface_m2: surface ? Number(surface) : null,
-      km_per_day: km ? Number(km) : null,
-      zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
-      price_per_day: Number(price),
-      photos: photoUrls,
-    });
-    if (insErr) { setError(insErr.message); setLoading(false); return; }
-    navigate({ to: "/proprietaire" });
+    setLoading(true);
+    try {
+      const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
+      const { error: insErr } = await supabase.from("vehicles").insert({
+        owner_id: ownerId,
+        type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
+        condition,
+        name,
+        description: description || null,
+        format_publicitaire: type === "sac_a_dos_lcd"
+          ? `Écran LCD ${backpackFormat}`
+          : type === "sac_a_dos_affiche"
+          ? `Affiche ${backpackFormat}`
+          : null,
+        surface_m2: surface ? Number(surface) : null,
+        km_per_day: km ? Number(km) : null,
+        zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+        price_per_day: Number(price),
+        photos: photoUrls,
+        ai_verification: estimate ? {
+          photo_match: estimate.photo_match,
+          photo_notes: estimate.photo_notes,
+          condition_alert: estimate.condition_alert,
+          suggested_price_min: estimate.suggested_price_min,
+          suggested_price_max: estimate.suggested_price_max,
+          estimated_impressions_per_day: estimate.estimated_impressions_per_day,
+          checked_at: new Date().toISOString(),
+        } : null,
+      });
+      if (insErr) { setError(insErr.message); setLoading(false); return; }
+      navigate({ to: "/proprietaire" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+      setLoading(false);
+    }
   };
 
   return (
