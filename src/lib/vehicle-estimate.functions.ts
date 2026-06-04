@@ -50,9 +50,10 @@ export const estimateVehicle = createServerFn({ method: "POST" })
 
 Analyse ce véhicule proposé sur MoveSpot et :
 1. Vérifie que la/les photo(s) correspondent au type déclaré "${data.type}" et à l'état déclaré "${data.condition}".
-2. Estime une fourchette de prix par jour réaliste en € (marché FR) selon type, état, surface, km/jour et zones.
-3. Estime les impressions/jour réalistes (vues humaines uniques) selon km/jour, type et zones.
-4. Donne une courte recommandation au propriétaire.
+2. Détecte INDÉPENDAMMENT si la/les photo(s) ont été générées ou retouchées par une IA (artefacts de diffusion, incohérences anatomiques/perspectives, textures lissées, ombres incohérentes, watermarks IA). Sois strict.
+3. Estime une fourchette de prix par jour réaliste en € (marché FR) selon type, état, surface, km/jour et zones.
+4. Estime les impressions/jour réalistes (vues humaines uniques) selon km/jour, type et zones.
+5. Donne une courte recommandation au propriétaire (rappelle aussi la législation de propriété intellectuelle : photos personnelles, pas de droits tiers violés).
 
 Données déclarées :
 - Type: ${data.type}
@@ -70,6 +71,8 @@ Réponds UNIQUEMENT en JSON strict :
   "photo_match": "ok" | "doubtful" | "mismatch" | "unverified",
   "photo_notes": "court commentaire en français sur la cohérence photo/déclaration",
   "condition_alert": "alerte si l'état réel sur la photo semble pire que déclaré, sinon null",
+  "ai_generated_detected": boolean,
+  "ai_generated_notes": "explication courte en français (indices visuels) si suspicion d'image IA, sinon vide",
   "recommendation": "1-2 phrases en français"
 }`,
       },
