@@ -40,7 +40,18 @@ type Vehicle = {
   owner_id: string;
   zones: string[] | null;
   km_per_day: number | null;
+  surface_m2: number | null;
   description: string | null;
+  condition: string | null;
+  ai_verification: {
+    photo_match?: string;
+    photo_notes?: string;
+    condition_alert?: string | null;
+    suggested_price_min?: number;
+    suggested_price_max?: number;
+    estimated_impressions_per_day?: number;
+    checked_at?: string;
+  } | null;
   created_at: string;
 };
 
@@ -280,19 +291,67 @@ function AdminPage() {
 
 function VehicleCard({ v, onUpdate }: { v: Vehicle; onUpdate: (id: string, status: "approved" | "rejected", note?: string) => Promise<void> }) {
   const [note, setNote] = useState(v.admin_notes ?? "");
+  const [lightbox, setLightbox] = useState<string | null>(null);
+  const photos = v.photos ?? [];
+  const ai = v.ai_verification;
+  const matchColor = ai?.photo_match === "ok" ? "bg-signal/20 text-signal"
+    : ai?.photo_match === "doubtful" ? "bg-yellow-500/15 text-yellow-600"
+    : ai?.photo_match === "mismatch" ? "bg-destructive/20 text-destructive"
+    : "bg-muted text-muted-foreground";
+
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
-      {v.photos && v.photos[0] && (
-        <img src={v.photos[0]} alt={v.name} loading="lazy" className="w-full h-40 object-cover rounded-lg mb-4" />
+      {photos.length > 0 ? (
+        <div className="mb-4">
+          <div className="grid grid-cols-3 gap-2">
+            {photos.map((url, i) => (
+              <button type="button" key={url + i} onClick={() => setLightbox(url)}
+                className="aspect-square rounded-lg overflow-hidden border border-border hover:border-primary transition">
+                <img src={url} alt={`${v.name} ${i + 1}`} loading="lazy" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+          <div className="text-[11px] text-muted-foreground mt-1.5">{photos.length} photo(s) — cliquez pour agrandir et vérifier la conformité.</div>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed border-border p-4 mb-4 text-center text-xs text-muted-foreground">Aucune photo fournie</div>
       )}
+
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-display text-lg font-bold">{v.name}</h3>
         <StatusBadge status={v.status} />
       </div>
-      <div className="text-xs text-muted-foreground mb-2">{v.type} · {v.format_publicitaire}</div>
+      <div className="text-xs text-muted-foreground mb-2">
+        {v.type}{v.format_publicitaire ? ` · ${v.format_publicitaire}` : ""}
+        {v.condition && <span className="ml-2 px-1.5 py-0.5 rounded bg-secondary">État : {v.condition}</span>}
+      </div>
       {v.description && <p className="text-sm mb-3">{v.description}</p>}
-      <div className="text-sm font-display font-bold text-primary mb-3">{v.price_per_day}€/jour</div>
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
+        <span><strong className="text-foreground">{v.price_per_day}€/jour</strong></span>
+        {v.surface_m2 != null && <span>{v.surface_m2} m²</span>}
+        {v.km_per_day != null && <span>{v.km_per_day} km/j</span>}
+      </div>
       {v.zones && v.zones.length > 0 && <div className="text-xs text-muted-foreground mb-3">Zones : {v.zones.join(", ")}</div>}
+
+      {ai && (
+        <div className="rounded-lg border border-border bg-secondary/30 p-3 mb-3 space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] uppercase tracking-wide text-muted-foreground">Vérification IA</span>
+            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded ${matchColor}`}>
+              {ai.photo_match === "ok" ? "✓ Photo cohérente" : ai.photo_match === "doubtful" ? "⚠ Doute" : ai.photo_match === "mismatch" ? "✗ Incohérence" : "Non vérifiée"}
+            </span>
+          </div>
+          {ai.photo_notes && <p className="text-xs">{ai.photo_notes}</p>}
+          {ai.condition_alert && <p className="text-xs text-destructive">⚠ {ai.condition_alert}</p>}
+          {(ai.suggested_price_min != null || ai.estimated_impressions_per_day != null) && (
+            <div className="text-xs text-muted-foreground">
+              {ai.suggested_price_min != null && <>Prix conseillé : <strong className="text-foreground">{ai.suggested_price_min}–{ai.suggested_price_max} €/j</strong></>}
+              {ai.estimated_impressions_per_day != null && <> · ~{ai.estimated_impressions_per_day.toLocaleString("fr-FR")} imp/j</>}
+            </div>
+          )}
+        </div>
+      )}
+
       <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note admin (raison du refus, demande de modification...)" rows={2}
         className="w-full text-xs rounded-lg bg-input border border-border px-3 py-2 mb-3" />
       <div className="flex gap-2">
@@ -305,6 +364,15 @@ function VehicleCard({ v, onUpdate }: { v: Vehicle; onUpdate: (id: string, statu
           ✕ Refuser
         </button>
       </div>
+
+      {lightbox && (
+        <div onClick={() => setLightbox(null)}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-zoom-out">
+          <img src={lightbox} alt="Aperçu" className="max-w-full max-h-full object-contain rounded-lg" />
+          <button onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+            className="absolute top-4 right-4 rounded-full bg-white/10 hover:bg-white/20 text-white w-10 h-10 flex items-center justify-center text-xl">✕</button>
+        </div>
+      )}
     </div>
   );
 }
