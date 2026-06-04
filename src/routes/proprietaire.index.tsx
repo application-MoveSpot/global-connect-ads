@@ -180,6 +180,12 @@ function DashboardPage() {
             </div>
           )
         )}
+
+        <section className="mt-12">
+          <h2 className="font-display text-2xl font-bold mb-2">Aperçu illustratif des flux de véhicules</h2>
+          <p className="text-sm text-muted-foreground mb-4">Visualisation indicative — données réelles branchées progressivement.</p>
+          <MobilityMap />
+        </section>
       </main>
     </div>
   );
