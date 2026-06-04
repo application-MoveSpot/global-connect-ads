@@ -97,7 +97,7 @@ export function BookingForm({ spot, onClose }: Props) {
     : null;
 
   useEffect(() => {
-    if (suggestedImpressions && !impressions) {
+    if (suggestedImpressions) {
       setImpressions(String(suggestedImpressions));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
