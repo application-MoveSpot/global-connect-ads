@@ -20,8 +20,14 @@ const TYPE_LABELS: Record<string, string> = {
   van: "Van",
   taxi: "Taxi / VTC",
   scooter: "Scooter",
+  velo_cargo: "Vélo cargo",
+  velo_remorque: "Vélo remorque",
+  triporteur: "Triporteur",
+  tutuk: "Tutuk",
   voiture: "Voiture",
-  autre: "Véhicule",
+  sac_a_dos_lcd: "Autre · Sac à dos LCD (Walker)",
+  sac_a_dos_affiche: "Autre · Sac à dos affiche (Walker)",
+  autre: "Autre véhicule",
 };
 
 export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
