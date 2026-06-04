@@ -125,6 +125,16 @@ function AnnonceurDashboard() {
             ))}
           </div>
         )}
+
+        <section className="mt-12">
+          <h2 className="font-display text-2xl font-bold mb-2">Aperçu illustratif des flux de véhicules</h2>
+          <p className="text-sm text-muted-foreground mb-4">Visualisation indicative — données réelles branchées progressivement.</p>
+          <MobilityMap />
+        </section>
+
+        <div className="mt-10 rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
+          <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en soumettant un visuel publicitaire, vous garantissez en détenir tous les droits (créations, marques, droit à l'image, musiques) et vous engagez à respecter la législation française et européenne. Tout contenu litigieux est refusé.
+        </div>
       </main>
       <FAQChatbot
         audience="annonceur"
