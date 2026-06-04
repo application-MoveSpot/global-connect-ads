@@ -40,12 +40,36 @@ export function BookingForm({ spot, onClose }: Props) {
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
 
+  // Calendrier de réservation : min 3 jours d'avance, durée 1 à 30 jours
+  const MIN_LEAD_DAYS = 3;
+  const MAX_DURATION_DAYS = 30;
+  const toISO = (d: Date) => d.toISOString().slice(0, 10);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const minStart = new Date(today); minStart.setDate(minStart.getDate() + MIN_LEAD_DAYS);
+  const defaultStart = new Date(minStart);
+  const defaultEnd = new Date(minStart); defaultEnd.setDate(defaultEnd.getDate() + 6); // 7 jours
+  const [startDate, setStartDate] = useState<string>(toISO(defaultStart));
+  const [endDate, setEndDate] = useState<string>(toISO(defaultEnd));
+
+  // Plage horaire de diffusion (par défaut 08:00 → 20:00, soit 12h)
+  const [dailyStart, setDailyStart] = useState<string>("08:00");
+  const [dailyEnd, setDailyEnd] = useState<string>("20:00");
+
+  const daysCount = (() => {
+    if (!startDate || !endDate) return 0;
+    const s = new Date(startDate); const e = new Date(endDate);
+    const diff = Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
+    return diff > 0 ? diff : 0;
+  })();
+
+  const totalPrice = spot ? daysCount * spot.price : 0;
+
   const MAX_FILES = 5;
   const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50 MB
   const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
   const ACCEPT = "image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime";
 
-  // Estimation auto basée sur km/jour × 1000 impressions/km, ajusté selon le format
+  // Estimation impressions/jour = km/jour × 1000 × coef format × coef mobilité × coef plage horaire
   const formatMultiplier = (() => {
     const f = (spot?.format ?? "").toLowerCase();
     if (f.includes("lcd") || f.includes("écran") || f.includes("ecran") || f.includes("digital")) return 1.4;
@@ -53,12 +77,27 @@ export function BookingForm({ spot, onClose }: Props) {
     if (f.includes("affiche") || f.includes("sticker") || f.includes("covering")) return 1.0;
     return 1.0;
   })();
+  const mobilityMultiplier = (() => {
+    const t = (spot?.vehicleType ?? "").toLowerCase();
+    if (t === "taxi" || t === "vtc") return 1.3;          // forte rotation urbaine
+    if (t === "food_truck") return 1.1;                    // stationne en lieux passants
+    if (t === "scooter") return 0.9;                       // visibilité plus courte
+    if (t === "van" || t === "voiture") return 1.0;
+    return 1.0;
+  })();
+  const hoursPerDay = (() => {
+    const [sh, sm] = dailyStart.split(":").map(Number);
+    const [eh, em] = dailyEnd.split(":").map(Number);
+    const h = (eh + em / 60) - (sh + sm / 60);
+    return Math.max(1, Math.min(24, h));
+  })();
+  const hoursMultiplier = hoursPerDay / 12; // référence : 12h/jour
   const suggestedImpressions = spot?.kmPerDay
-    ? Math.round(spot.kmPerDay * 1000 * formatMultiplier)
+    ? Math.round(spot.kmPerDay * 1000 * formatMultiplier * mobilityMultiplier * hoursMultiplier)
     : null;
 
   useEffect(() => {
-    if (suggestedImpressions && !impressions) {
+    if (suggestedImpressions) {
       setImpressions(String(suggestedImpressions));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,6 +143,32 @@ export function BookingForm({ spot, onClose }: Props) {
       setReason("Vous devez accepter la charte de contenu.");
       return;
     }
+    // Validation calendrier
+    if (!startDate || !endDate) {
+      setStatus("rejected");
+      setReason("Veuillez choisir une date de début et une date de fin.");
+      return;
+    }
+    if (new Date(startDate) < minStart) {
+      setStatus("rejected");
+      setReason(`La date de début doit être au moins ${MIN_LEAD_DAYS} jours après aujourd'hui (le temps de valider la campagne).`);
+      return;
+    }
+    if (daysCount < 1) {
+      setStatus("rejected");
+      setReason("La date de fin doit être postérieure ou égale à la date de début.");
+      return;
+    }
+    if (daysCount > MAX_DURATION_DAYS) {
+      setStatus("rejected");
+      setReason(`La durée maximale d'une campagne est de ${MAX_DURATION_DAYS} jours.`);
+      return;
+    }
+    if (dailyEnd <= dailyStart) {
+      setStatus("rejected");
+      setReason("L'heure de fin de diffusion doit être après l'heure de début.");
+      return;
+    }
     setStatus("loading");
     const splitLines = (s: string) =>
       s.split(/\r?\n|,/).map((v) => v.trim()).filter(Boolean).slice(0, 50);
@@ -137,6 +202,12 @@ export function BookingForm({ spot, onClose }: Props) {
       company: auth.profile.company ?? auth.profile.full_name,
       email: auth.profile.email,
       message,
+      start_date: startDate,
+      end_date: endDate,
+      days_count: daysCount,
+      total_price: totalPrice,
+      daily_start_time: dailyStart,
+      daily_end_time: dailyEnd,
       route_zones: splitLines(zones),
       route_waypoints: splitLines(waypoints),
       route_pois: splitLines(pois),
@@ -207,7 +278,12 @@ export function BookingForm({ spot, onClose }: Props) {
               </svg>
             </div>
             <h3 className="font-display text-2xl font-bold mb-2">Demande envoyée</h3>
-            <p className="text-muted-foreground mb-6">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation. Retrouvez-la dans votre espace annonceur.</p>
+            <p className="text-muted-foreground mb-4">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation.</p>
+            <div className="rounded-lg bg-secondary/40 border border-border p-3 text-left text-xs text-muted-foreground mb-6 space-y-1.5">
+              <div>⏱ <strong className="text-foreground">Réponse immédiate</strong> : si le véhicule est libre sur vos dates, la campagne est validée automatiquement.</div>
+              <div>❌ En cas de refus (dates indisponibles, véhicule non approuvé, contenu non conforme), le motif s'affiche immédiatement dans votre espace annonceur.</div>
+              <div>📩 Le propriétaire est notifié et peut vous contacter sous <strong className="text-foreground">48 h</strong> pour préciser l'itinéraire.</div>
+            </div>
             <div className="flex flex-col gap-2">
               <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Voir mes campagnes</button>
               <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Fermer</button>
@@ -243,6 +319,63 @@ export function BookingForm({ spot, onClose }: Props) {
                 />
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
               </div>
+
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
+                <div className="text-sm font-semibold">📅 Période de diffusion</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Date de début</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      min={toISO(minStart)}
+                      onChange={(e) => { setStartDate(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Date de fin</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      min={startDate || toISO(minStart)}
+                      onChange={(e) => { setEndDate(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Heure de début (par jour)</label>
+                    <input
+                      type="time"
+                      value={dailyStart}
+                      onChange={(e) => { setDailyStart(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Heure de fin (par jour)</label>
+                    <input
+                      type="time"
+                      value={dailyEnd}
+                      onChange={(e) => { setDailyEnd(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+                {daysCount > 0 && (
+                  <div className="rounded-md bg-primary/10 text-primary px-3 py-2 text-xs flex flex-wrap items-baseline gap-x-3">
+                    <span><strong>{daysCount}</strong> jour{daysCount > 1 ? "s" : ""} · <strong>{hoursPerDay.toFixed(1)}h</strong>/jour</span>
+                    <span className="opacity-80">·</span>
+                    <span>Total estimé : <strong>{totalPrice.toLocaleString("fr-FR")} €</strong></span>
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  Réservation possible à partir de <strong>{MIN_LEAD_DAYS} jours</strong> et jusqu'à <strong>{MAX_DURATION_DAYS} jours</strong> consécutifs. Les dates passées ou déjà réservées sont automatiquement refusées.
+                </p>
+              </div>
+
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="text-sm font-semibold">Itinéraire de diffusion <span className="text-muted-foreground font-normal">(optionnel)</span></div>
@@ -306,7 +439,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
                 <p className="text-[11px] text-muted-foreground">
                   {suggestedImpressions
-                    ? <>Estimation calculée à partir de la distance moyenne ({spot.kmPerDay} km/jour) et du format <strong>{spot.format ?? "standard"}</strong>. Ajustable selon vos hypothèses.</>
+                    ? <>Recalculée automatiquement : <strong>{spot.kmPerDay} km/jour</strong> × format <strong>{spot.format ?? "standard"}</strong> × mobilité <strong>{spot.vehicleType ?? "véhicule"}</strong> × plage horaire <strong>{hoursPerDay.toFixed(1)}h</strong>. Modifiable selon vos hypothèses.</>
                     : "Aucune donnée de distance pour ce véhicule. Saisissez votre propre estimation."}
                 </p>
               </div>

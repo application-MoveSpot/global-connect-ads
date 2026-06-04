@@ -62,6 +62,8 @@ export type Database = {
           company: string
           created_at: string
           creative_files: string[]
+          daily_end_time: string | null
+          daily_start_time: string | null
           days_count: number | null
           email: string
           end_date: string | null
@@ -88,6 +90,8 @@ export type Database = {
           company: string
           created_at?: string
           creative_files?: string[]
+          daily_end_time?: string | null
+          daily_start_time?: string | null
           days_count?: number | null
           email: string
           end_date?: string | null
@@ -114,6 +118,8 @@ export type Database = {
           company?: string
           created_at?: string
           creative_files?: string[]
+          daily_end_time?: string | null
+          daily_start_time?: string | null
           days_count?: number | null
           email?: string
           end_date?: string | null
