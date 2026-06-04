@@ -29,6 +29,7 @@ import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.ins
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
+import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -132,6 +133,11 @@ const AnnonceurBriefsNouveauRoute = AnnonceurBriefsNouveauRouteImport.update({
   path: '/annonceur/briefs/nouveau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnonceurBriefsBriefIdRoute = AnnonceurBriefsBriefIdRouteImport.update({
+  id: '/annonceur/briefs/$briefId',
+  path: '/annonceur/briefs/$briefId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
+  '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/annonceur': typeof AnnonceurIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
+  '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs': typeof AnnonceurBriefsIndexRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
+  '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/proprietaire/inscription'
     | '/annonceur/'
     | '/proprietaire/'
+    | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/proprietaire/inscription'
     | '/annonceur'
     | '/proprietaire'
+    | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/proprietaire/inscription'
     | '/annonceur/'
     | '/proprietaire/'
+    | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
+  AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   AnnonceurBriefsIndexRoute: typeof AnnonceurBriefsIndexRoute
@@ -447,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurBriefsNouveauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/briefs/$briefId': {
+      id: '/annonceur/briefs/$briefId'
+      path: '/annonceur/briefs/$briefId'
+      fullPath: '/annonceur/briefs/$briefId'
+      preLoaderRoute: typeof AnnonceurBriefsBriefIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -475,6 +495,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,
+  AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   AnnonceurBriefsIndexRoute: AnnonceurBriefsIndexRoute,
