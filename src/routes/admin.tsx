@@ -40,7 +40,18 @@ type Vehicle = {
   owner_id: string;
   zones: string[] | null;
   km_per_day: number | null;
+  surface_m2: number | null;
   description: string | null;
+  condition: string | null;
+  ai_verification: {
+    photo_match?: string;
+    photo_notes?: string;
+    condition_alert?: string | null;
+    suggested_price_min?: number;
+    suggested_price_max?: number;
+    estimated_impressions_per_day?: number;
+    checked_at?: string;
+  } | null;
   created_at: string;
 };
 
