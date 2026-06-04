@@ -439,7 +439,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
                 <p className="text-[11px] text-muted-foreground">
                   {suggestedImpressions
-                    ? <>Estimation calculée à partir de la distance moyenne ({spot.kmPerDay} km/jour) et du format <strong>{spot.format ?? "standard"}</strong>. Ajustable selon vos hypothèses.</>
+                    ? <>Recalculée automatiquement : <strong>{spot.kmPerDay} km/jour</strong> × format <strong>{spot.format ?? "standard"}</strong> × mobilité <strong>{spot.vehicleType ?? "véhicule"}</strong> × plage horaire <strong>{hoursPerDay.toFixed(1)}h</strong>. Modifiable selon vos hypothèses.</>
                     : "Aucune donnée de distance pour ce véhicule. Saisissez votre propre estimation."}
                 </p>
               </div>
