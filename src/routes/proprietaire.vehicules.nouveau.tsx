@@ -247,11 +247,6 @@ function NewVehiclePage() {
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
               <p className="text-xs text-muted-foreground mt-1.5">Pas besoin de préciser les formats publicitaires : ce sont les annonceurs qui choisissent ce qu'ils veulent habiller.</p>
             </div>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
-                placeholder="Décrivez votre véhicule, son état, ses spécificités…"
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              <p className="text-xs text-muted-foreground mt-1.5">Pas besoin de préciser les formats publicitaires : ce sont les annonceurs qui choisissent ce qu'ils veulent habiller.</p>
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Surface (m²)" value={surface} onChange={setSurface} type="number" />
               <Field label="Km / jour" value={km} onChange={setKm} type="number" />
@@ -260,10 +255,57 @@ function NewVehiclePage() {
             <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Photos (max 5)</label>
-              <input type="file" accept="image/*" multiple onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+              <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
+              <input type="file" accept="image/*" multiple onChange={(e) => { setFiles(Array.from(e.target.files ?? [])); setEstimate(null); }}
                 className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
               {files.length > 0 && <div className="text-xs text-muted-foreground mt-2">{files.length} fichier(s) sélectionné(s)</div>}
+              <p className="text-xs text-muted-foreground mt-1.5">Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.</p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-secondary/30 p-4">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <div>
+                  <div className="text-sm font-semibold">Estimation IA</div>
+                  <div className="text-xs text-muted-foreground">Vérifie la photo et propose un prix réaliste.</div>
+                </div>
+                <button type="button" onClick={runEstimate} disabled={estimating || condition === "mauvais"}
+                  className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap">
+                  {estimating ? "Analyse..." : "Lancer l'estimation"}
+                </button>
+              </div>
+              {estimate && (
+                <div className="space-y-2 text-sm mt-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-card p-2.5">
+                      <div className="text-[11px] text-muted-foreground uppercase">Prix conseillé</div>
+                      <div className="font-semibold">{estimate.suggested_price_min}–{estimate.suggested_price_max} €/j</div>
+                    </div>
+                    <div className="rounded-lg bg-card p-2.5">
+                      <div className="text-[11px] text-muted-foreground uppercase">Impressions est.</div>
+                      <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString("fr-FR")} /j</div>
+                    </div>
+                  </div>
+                  <div className={`rounded-lg p-2.5 text-xs ${
+                    estimate.photo_match === "ok" ? "bg-signal/10 text-signal" :
+                    estimate.photo_match === "doubtful" ? "bg-yellow-500/10 text-yellow-600" :
+                    estimate.photo_match === "mismatch" ? "bg-destructive/10 text-destructive" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    <strong>Vérification photo : </strong>
+                    {estimate.photo_match === "ok" && "✓ cohérente avec la déclaration."}
+                    {estimate.photo_match === "doubtful" && "⚠️ cohérence incertaine."}
+                    {estimate.photo_match === "mismatch" && "✗ ne correspond pas à la déclaration."}
+                    {estimate.photo_match === "unverified" && "Non vérifiée."}
+                    {estimate.photo_notes && <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>}
+                  </div>
+                  {estimate.condition_alert && (
+                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
+                  )}
+                  {estimate.recommendation && (
+                    <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
