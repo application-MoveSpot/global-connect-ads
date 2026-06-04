@@ -44,6 +44,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
         kmPerDay: v.km_per_day ?? null,
         price: Number(v.price_per_day),
         format: v.format_publicitaire,
+        vehicleType: v.type,
         available: true,
       }));
       setSpots(mapped);
