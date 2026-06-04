@@ -316,6 +316,63 @@ export function BookingForm({ spot, onClose }: Props) {
               </div>
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
+                <div className="text-sm font-semibold">📅 Période de diffusion</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Date de début</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      min={toISO(minStart)}
+                      onChange={(e) => { setStartDate(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Date de fin</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      min={startDate || toISO(minStart)}
+                      onChange={(e) => { setEndDate(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Heure de début (par jour)</label>
+                    <input
+                      type="time"
+                      value={dailyStart}
+                      onChange={(e) => { setDailyStart(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Heure de fin (par jour)</label>
+                    <input
+                      type="time"
+                      value={dailyEnd}
+                      onChange={(e) => { setDailyEnd(e.target.value); setStatus("idle"); }}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+                {daysCount > 0 && (
+                  <div className="rounded-md bg-primary/10 text-primary px-3 py-2 text-xs flex flex-wrap items-baseline gap-x-3">
+                    <span><strong>{daysCount}</strong> jour{daysCount > 1 ? "s" : ""} · <strong>{hoursPerDay.toFixed(1)}h</strong>/jour</span>
+                    <span className="opacity-80">·</span>
+                    <span>Total estimé : <strong>{totalPrice.toLocaleString("fr-FR")} €</strong></span>
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  Réservation possible à partir de <strong>{MIN_LEAD_DAYS} jours</strong> et jusqu'à <strong>{MAX_DURATION_DAYS} jours</strong> consécutifs. Les dates passées ou déjà réservées sont automatiquement refusées.
+                </p>
+              </div>
+
+
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="text-sm font-semibold">Itinéraire de diffusion <span className="text-muted-foreground font-normal">(optionnel)</span></div>
                 <div>
                   <label className="block text-xs font-medium mb-1 text-muted-foreground">Zones / quartiers ciblés</label>
