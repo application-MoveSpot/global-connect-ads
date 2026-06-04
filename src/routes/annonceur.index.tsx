@@ -4,6 +4,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
+import { MobilityMap } from "@/components/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
 
 type Req = {
