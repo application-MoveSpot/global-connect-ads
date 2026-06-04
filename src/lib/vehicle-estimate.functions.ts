@@ -109,6 +109,8 @@ Réponds UNIQUEMENT en JSON strict :
       photo_match: (parsed.photo_match as EstimateResult["photo_match"]) ?? "unverified",
       photo_notes: String(parsed.photo_notes ?? ""),
       condition_alert: parsed.condition_alert ? String(parsed.condition_alert) : null,
+      ai_generated_detected: Boolean(parsed.ai_generated_detected),
+      ai_generated_notes: String(parsed.ai_generated_notes ?? ""),
       recommendation: String(parsed.recommendation ?? ""),
     };
   });
