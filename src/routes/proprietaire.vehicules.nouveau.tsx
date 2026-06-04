@@ -343,12 +343,11 @@ function NewVehiclePage() {
               )}
             </div>
 
+            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+
             <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
               <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en publiant ce véhicule et ses photos, vous certifiez en détenir les droits et vous engagez à respecter la législation française et européenne sur la propriété intellectuelle (droits d'auteur, marques, droit à l'image). Les visuels publicitaires diffusés par les annonceurs sont sous leur seule responsabilité.
             </div>
-
-
-            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
 
             <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
               {loading ? "Envoi..." : "Soumettre pour validation"}
