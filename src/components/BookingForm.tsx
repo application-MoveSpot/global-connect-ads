@@ -40,12 +40,36 @@ export function BookingForm({ spot, onClose }: Props) {
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
 
+  // Calendrier de réservation : min 3 jours d'avance, durée 1 à 30 jours
+  const MIN_LEAD_DAYS = 3;
+  const MAX_DURATION_DAYS = 30;
+  const toISO = (d: Date) => d.toISOString().slice(0, 10);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const minStart = new Date(today); minStart.setDate(minStart.getDate() + MIN_LEAD_DAYS);
+  const defaultStart = new Date(minStart);
+  const defaultEnd = new Date(minStart); defaultEnd.setDate(defaultEnd.getDate() + 6); // 7 jours
+  const [startDate, setStartDate] = useState<string>(toISO(defaultStart));
+  const [endDate, setEndDate] = useState<string>(toISO(defaultEnd));
+
+  // Plage horaire de diffusion (par défaut 08:00 → 20:00, soit 12h)
+  const [dailyStart, setDailyStart] = useState<string>("08:00");
+  const [dailyEnd, setDailyEnd] = useState<string>("20:00");
+
+  const daysCount = (() => {
+    if (!startDate || !endDate) return 0;
+    const s = new Date(startDate); const e = new Date(endDate);
+    const diff = Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
+    return diff > 0 ? diff : 0;
+  })();
+
+  const totalPrice = spot ? daysCount * spot.price : 0;
+
   const MAX_FILES = 5;
   const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50 MB
   const MAX_VIDEO_SIZE = 200 * 1024 * 1024; // 200 MB
   const ACCEPT = "image/jpeg,image/png,image/webp,application/pdf,video/mp4,video/quicktime";
 
-  // Estimation auto basée sur km/jour × 1000 impressions/km, ajusté selon le format
+  // Estimation impressions/jour = km/jour × 1000 × coef format × coef mobilité × coef plage horaire
   const formatMultiplier = (() => {
     const f = (spot?.format ?? "").toLowerCase();
     if (f.includes("lcd") || f.includes("écran") || f.includes("ecran") || f.includes("digital")) return 1.4;
@@ -53,8 +77,23 @@ export function BookingForm({ spot, onClose }: Props) {
     if (f.includes("affiche") || f.includes("sticker") || f.includes("covering")) return 1.0;
     return 1.0;
   })();
+  const mobilityMultiplier = (() => {
+    const t = (spot?.vehicleType ?? "").toLowerCase();
+    if (t === "taxi" || t === "vtc") return 1.3;          // forte rotation urbaine
+    if (t === "food_truck") return 1.1;                    // stationne en lieux passants
+    if (t === "scooter") return 0.9;                       // visibilité plus courte
+    if (t === "van" || t === "voiture") return 1.0;
+    return 1.0;
+  })();
+  const hoursPerDay = (() => {
+    const [sh, sm] = dailyStart.split(":").map(Number);
+    const [eh, em] = dailyEnd.split(":").map(Number);
+    const h = (eh + em / 60) - (sh + sm / 60);
+    return Math.max(1, Math.min(24, h));
+  })();
+  const hoursMultiplier = hoursPerDay / 12; // référence : 12h/jour
   const suggestedImpressions = spot?.kmPerDay
-    ? Math.round(spot.kmPerDay * 1000 * formatMultiplier)
+    ? Math.round(spot.kmPerDay * 1000 * formatMultiplier * mobilityMultiplier * hoursMultiplier)
     : null;
 
   useEffect(() => {
