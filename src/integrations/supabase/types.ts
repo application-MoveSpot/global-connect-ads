@@ -189,6 +189,9 @@ export type Database = {
           id: string
           message: string
           owner_response: string
+          paid_amount_cents: number | null
+          paid_at: string | null
+          payment_status: string
           route_pois: string[] | null
           route_waypoints: string[] | null
           route_zones: string[] | null
@@ -217,6 +220,9 @@ export type Database = {
           id?: string
           message: string
           owner_response?: string
+          paid_amount_cents?: number | null
+          paid_at?: string | null
+          payment_status?: string
           route_pois?: string[] | null
           route_waypoints?: string[] | null
           route_zones?: string[] | null
@@ -245,6 +251,9 @@ export type Database = {
           id?: string
           message?: string
           owner_response?: string
+          paid_amount_cents?: number | null
+          paid_at?: string | null
+          payment_status?: string
           route_pois?: string[] | null
           route_waypoints?: string[] | null
           route_zones?: string[] | null
