@@ -41,6 +41,23 @@ function AnnonceurDashboard() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [requests, setRequests] = useState<Req[]>([]);
+  const [balanceCents, setBalanceCents] = useState<number>(0);
+  const [paying, setPaying] = useState<string | null>(null);
+  const payFn = useServerFn(payCampaignWithWallet);
+  const walletFn = useServerFn(getMyWallet);
+
+  const reload = async (userId: string) => {
+    const [{ data: reqs }, w] = await Promise.all([
+      supabase
+        .from("campaign_requests")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
+      walletFn(),
+    ]);
+    setRequests((reqs as Req[]) ?? []);
+    setBalanceCents(w?.balance_cents ?? 0);
+  };
 
   useEffect(() => {
     (async () => {
@@ -59,15 +76,31 @@ function AnnonceurDashboard() {
         return;
       }
       setProfile(prof);
-      const { data: reqs } = await supabase
-        .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files")
-        .eq("user_id", sess.session.user.id)
-        .order("created_at", { ascending: false });
-      setRequests((reqs as Req[]) ?? []);
+      await reload(sess.session.user.id);
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
+
+  const handlePay = async (r: Req) => {
+    const cents = Math.round(Number(r.total_price ?? 0) * 100);
+    if (cents > balanceCents) {
+      toast.error(`Solde insuffisant. Manque ${((cents - balanceCents) / 100).toFixed(2)} €.`);
+      navigate({ to: "/annonceur/portefeuille" });
+      return;
+    }
+    setPaying(r.id);
+    try {
+      await payFn({ data: { campaignRequestId: r.id } });
+      toast.success("Paiement effectué ✓");
+      const { data: sess } = await supabase.auth.getSession();
+      if (sess.session) await reload(sess.session.user.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec du paiement");
+    } finally {
+      setPaying(null);
+    }
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
