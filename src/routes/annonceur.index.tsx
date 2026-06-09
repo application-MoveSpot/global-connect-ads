@@ -224,3 +224,14 @@ function Badge({ status }: { status: string }) {
   const s = map[status] ?? map.pending;
   return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
 }
+
+function PaymentBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    unpaid: { label: "À payer", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    paid: { label: "Payée ✓", cls: "bg-signal/20 text-signal" },
+    refunded: { label: "Remboursée", cls: "bg-secondary text-foreground" },
+    partial_refund: { label: "Remb. partiel", cls: "bg-secondary text-foreground" },
+  };
+  const s = map[status] ?? map.unpaid;
+  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+}
