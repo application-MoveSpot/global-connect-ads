@@ -131,6 +131,8 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
       .eq("id", data.campaignRequestId)
       .single();
     if (cErr || !campaign) throw new Error("Campagne introuvable");
+    if (!campaign.user_id) throw new Error("Campagne sans annonceur identifié");
+    const campaignUserId = campaign.user_id;
 
     const amountCents = Math.round(data.amountEuros * 100);
 
@@ -139,21 +141,21 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
       .from("refunds")
       .insert({
         campaign_request_id: campaign.id,
-        user_id: campaign.user_id,
+        user_id: campaignUserId,
         amount_cents: amountCents,
         currency: "eur",
         reason: data.reason,
         channel: data.channel,
         status: "pending",
-      })
+      } as never)
       .select("id")
       .single();
-    if (rErr) throw new Error(rErr.message);
+    if (rErr || !refundRow) throw new Error(rErr?.message ?? "Création remboursement échouée");
 
     try {
       if (data.channel === "wallet_credit") {
         await supabaseAdmin.rpc("apply_wallet_transaction", {
-          p_user_id: campaign.user_id,
+          p_user_id: campaignUserId,
           p_kind: "refund",
           p_amount_cents: amountCents,
           p_description: `Remboursement campagne — ${data.reason}`,
@@ -164,7 +166,7 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
         // Stripe refund: find original payment
         const stripe = createStripeClient(data.environment as StripeEnv);
         const found = await stripe.customers.search({
-          query: `metadata['userId']:'${campaign.user_id}'`,
+          query: `metadata['userId']:'${campaignUserId}'`,
           limit: 1,
         });
         if (!found.data.length) throw new Error("Aucun client Stripe trouvé");

@@ -10,8 +10,8 @@ async function handleCheckoutCompleted(session: Record<string, unknown>) {
   if (session.payment_status !== "paid") return;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const piId = typeof session.payment_intent === "string" ? session.payment_intent : null;
-  const sessionId = typeof session.id === "string" ? session.id : null;
+  const piId = typeof session.payment_intent === "string" ? session.payment_intent : undefined;
+  const sessionId = typeof session.id === "string" ? session.id : undefined;
 
   await supabaseAdmin.rpc("apply_wallet_transaction", {
     p_user_id: userId,
