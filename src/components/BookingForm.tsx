@@ -464,7 +464,7 @@ export function BookingForm({ spot, onClose }: Props) {
                   </ul>
                 )}
                 <p className="text-[11px] text-muted-foreground">
-                  JPG, PNG, WebP, PDF (max 50 Mo) · MP4, MOV (max 200 Mo) · {MAX_FILES} fichiers max. Les fichiers ne sont visibles que par vous, le propriétaire du véhicule et l'équipe MoveSpot.
+                  JPG, PNG, WebP, PDF (max 50 Mo) · MP4, MOV (max 200 Mo) · {MAX_FILES} fichiers max. Les fichiers ne sont visibles que par vous, le propriétaire du véhicule et MoveSpot.
                 </p>
               </div>
 

@@ -14,7 +14,7 @@ MoveSpot est une marketplace française de publicité mobile qui met en relation
 POUR LES PROPRIÉTAIRES :
 1. Inscription en 2 minutes sur /proprietaire/inscription
 2. Ajout d'un véhicule avec photos, format publicitaire, surface, km/jour, prix/jour
-3. Validation du véhicule par l'équipe MoveSpot sous 48h
+3. Validation du véhicule par MoveSpot sous 48h
 4. Réception de demandes de campagnes — le propriétaire accepte ou refuse chaque demande
 5. Revenu passif sur les trajets quotidiens
 

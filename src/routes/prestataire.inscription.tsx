@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { SiretField, type SiretCheck } from "@/components/SiretField";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
@@ -14,7 +15,7 @@ function ProviderSignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");
-  const [siret, setSiret] = useState("");
+  const [siretCheck, setSiretCheck] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
@@ -59,6 +60,24 @@ function ProviderSignupPage() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    const companyTrim = company.trim();
+    const fullNameTrim = fullName.trim();
+    if (companyTrim.length < 2) { setError("Nom de l'entreprise invalide."); return; }
+    if (!siretCheck.verified) { setError("Veuillez vérifier le SIRET de votre entreprise."); return; }
+    // Vérification que le nom d'entreprise saisi correspond bien à la dénomination INSEE
+    const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+    const denom = siretCheck.denomination ? norm(siretCheck.denomination) : "";
+    const typed = norm(companyTrim);
+    const denomTokens = new Set(denom.split(" ").filter((t) => t.length > 2));
+    const typedTokens = typed.split(" ").filter((t) => t.length > 2);
+    const overlap = typedTokens.filter((t) => denomTokens.has(t)).length;
+    if (denom && overlap === 0 && !denom.includes(typed) && !typed.includes(denom)) {
+      setError(`Le nom de l'entreprise ne correspond pas au SIRET (INSEE : « ${siretCheck.denomination} »).`);
+      return;
+    }
+    // Nom de contact : au moins prénom + nom, lettres uniquement
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
+    if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
@@ -67,7 +86,7 @@ function ProviderSignupPage() {
     const portfolioList = portfolio.split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 10);
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
-      company, siret: siret || null, full_name: fullName, email,
+      company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
       phone: phone || null, website: website || null,
       description, services: ["covering_vehicule"],
       coverage_areas: coverageList, portfolio_urls: portfolioList,
@@ -88,7 +107,7 @@ function ProviderSignupPage() {
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="font-display text-3xl font-bold mb-2">Devenir prestataire MoveSpot</h1>
-        <p className="text-sm text-muted-foreground mb-6">Proposez vos services d'impression covering véhicule aux annonceurs. Votre fiche sera publiée après validation par notre équipe.</p>
+        <p className="text-sm text-muted-foreground mb-6">Proposez vos services d'impression covering véhicule aux annonceurs. Votre fiche sera publiée après validation par MoveSpot.</p>
 
         {step === "auth" ? (
           <form onSubmit={handleAuth} className="space-y-4 rounded-2xl border border-border bg-card p-6">
@@ -105,9 +124,9 @@ function ProviderSignupPage() {
           </form>
         ) : (
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
-            <Input label="Société" value={company} onChange={setCompany} required />
-            <Input label="SIRET (optionnel)" value={siret} onChange={setSiret} />
-            <Input label="Nom du contact" value={fullName} onChange={setFullName} required />
+            <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
+            <SiretField value={siretCheck} onChange={setSiretCheck} required />
+            <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
             <Input label="Téléphone" value={phone} onChange={setPhone} />
             <Input label="Site web" value={website} onChange={setWebsite} placeholder="https://..." />
             <Field label="Description de votre activité">

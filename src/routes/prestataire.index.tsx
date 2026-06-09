@@ -81,7 +81,7 @@ function ProviderDashboard() {
 
         {profile.status === "pending" && (
           <div className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-            ⏳ Votre fiche est en cours de validation par l'équipe MoveSpot. Vous recevrez les demandes dès qu'elle sera approuvée.
+            ⏳ Votre fiche est en cours de validation par MoveSpot. Vous recevrez les demandes dès qu'elle sera approuvée.
           </div>
         )}
         {profile.status === "rejected" && (

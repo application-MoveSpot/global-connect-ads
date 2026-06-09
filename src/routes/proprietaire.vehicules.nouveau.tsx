@@ -197,7 +197,7 @@ function NewVehiclePage() {
         <Link to="/proprietaire" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour au tableau de bord</Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
           <h1 className="font-display text-3xl font-bold mb-2">Ajouter un véhicule</h1>
-          <p className="text-sm text-muted-foreground mb-6">Votre véhicule sera vérifié par notre équipe avant d'apparaître sur la marketplace.</p>
+          <p className="text-sm text-muted-foreground mb-6">Votre véhicule sera vérifié par MoveSpot avant d'apparaître sur la marketplace.</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -255,7 +255,7 @@ function NewVehiclePage() {
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">
-                ⚠️ L'état déclaré est vérifié sur photo par notre IA et confirmé par notre équipe. Toute fausse déclaration entraîne un refus.
+                ⚠️ L'état déclaré est vérifié sur photo par notre IA et confirmé par MoveSpot. Toute fausse déclaration entraîne un refus.
               </p>
             </div>
 
