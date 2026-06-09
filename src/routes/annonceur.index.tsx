@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
 import { MobilityMap } from "@/components/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
+import { payCampaignWithWallet, getMyWallet } from "@/lib/wallet.functions";
+import { toast } from "sonner";
 
 type Req = {
   id: string;
@@ -23,6 +26,8 @@ type Req = {
   estimated_impressions_per_day: number | null;
   days_count: number | null;
   creative_files: string[] | null;
+  total_price: number | null;
+  payment_status: string;
 };
 
 type Profile = { full_name: string; company: string | null };
@@ -36,6 +41,23 @@ function AnnonceurDashboard() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [requests, setRequests] = useState<Req[]>([]);
+  const [balanceCents, setBalanceCents] = useState<number>(0);
+  const [paying, setPaying] = useState<string | null>(null);
+  const payFn = useServerFn(payCampaignWithWallet);
+  const walletFn = useServerFn(getMyWallet);
+
+  const reload = async (userId: string) => {
+    const [{ data: reqs }, w] = await Promise.all([
+      supabase
+        .from("campaign_requests")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
+      walletFn(),
+    ]);
+    setRequests((reqs as Req[]) ?? []);
+    setBalanceCents(w?.balance_cents ?? 0);
+  };
 
   useEffect(() => {
     (async () => {
@@ -54,15 +76,31 @@ function AnnonceurDashboard() {
         return;
       }
       setProfile(prof);
-      const { data: reqs } = await supabase
-        .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files")
-        .eq("user_id", sess.session.user.id)
-        .order("created_at", { ascending: false });
-      setRequests((reqs as Req[]) ?? []);
+      await reload(sess.session.user.id);
       setLoading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
+
+  const handlePay = async (r: Req) => {
+    const cents = Math.round(Number(r.total_price ?? 0) * 100);
+    if (cents > balanceCents) {
+      toast.error(`Solde insuffisant. Manque ${((cents - balanceCents) / 100).toFixed(2)} €.`);
+      navigate({ to: "/annonceur/portefeuille" });
+      return;
+    }
+    setPaying(r.id);
+    try {
+      await payFn({ data: { campaignRequestId: r.id } });
+      toast.success("Paiement effectué ✓");
+      const { data: sess } = await supabase.auth.getSession();
+      if (sess.session) await reload(sess.session.user.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Échec du paiement");
+    } finally {
+      setPaying(null);
+    }
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
@@ -91,7 +129,7 @@ function AnnonceurDashboard() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Link to="/annonceur/portefeuille" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition">
-              💳 Portefeuille
+              💳 Portefeuille · {(balanceCents / 100).toFixed(2)} €
             </Link>
             <Link to="/annonceur/briefs" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition">
               Mes briefs
@@ -133,9 +171,21 @@ function AnnonceurDashboard() {
                 <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
                 <CreativeFiles paths={r.creative_files} />
                 {r.status === "approved" && (
-                  <Link to="/annonceur/suivi/$campaignId" params={{ campaignId: r.id }} className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/20 transition">
-                    📍 Suivre en direct
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <PaymentBadge status={r.payment_status} />
+                    {r.payment_status !== "paid" && r.total_price != null && (
+                      <button
+                        onClick={() => handlePay(r)}
+                        disabled={paying === r.id}
+                        className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+                      >
+                        {paying === r.id ? "Paiement…" : `Payer ${Number(r.total_price).toFixed(2)} € avec mon portefeuille`}
+                      </button>
+                    )}
+                    <Link to="/annonceur/suivi/$campaignId" params={{ campaignId: r.id }} className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/20 transition">
+                      📍 Suivre en direct
+                    </Link>
+                  </div>
                 )}
               </div>
             ))}
@@ -172,5 +222,16 @@ function Badge({ status }: { status: string }) {
     rejected: { label: "Refusée", cls: "bg-destructive/20 text-destructive" },
   };
   const s = map[status] ?? map.pending;
+  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+}
+
+function PaymentBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    unpaid: { label: "À payer", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    paid: { label: "Payée ✓", cls: "bg-signal/20 text-signal" },
+    refunded: { label: "Remboursée", cls: "bg-secondary text-foreground" },
+    partial_refund: { label: "Remb. partiel", cls: "bg-secondary text-foreground" },
+  };
+  const s = map[status] ?? map.unpaid;
   return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
 }
