@@ -124,9 +124,9 @@ function ProviderSignupPage() {
           </form>
         ) : (
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
-            <Input label="Société" value={company} onChange={setCompany} required />
-            <Input label="SIRET (optionnel)" value={siret} onChange={setSiret} />
-            <Input label="Nom du contact" value={fullName} onChange={setFullName} required />
+            <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
+            <SiretField value={siretCheck} onChange={setSiretCheck} required />
+            <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
             <Input label="Téléphone" value={phone} onChange={setPhone} />
             <Input label="Site web" value={website} onChange={setWebsite} placeholder="https://..." />
             <Field label="Description de votre activité">
