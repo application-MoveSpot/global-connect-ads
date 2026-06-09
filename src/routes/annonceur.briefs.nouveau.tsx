@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { findForbiddenKeyword } from "@/lib/forbidden-keywords";
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   component: NewBriefPage,
@@ -62,6 +63,11 @@ function NewBriefPage() {
     if (vehicleTypes.length === 0) { setError("Sélectionnez au moins un type de véhicule."); return; }
     if (!startDate || !endDate) { setError("Dates obligatoires."); return; }
     if (endDate < startDate) { setError("La date de fin doit être après la date de début."); return; }
+    const forbidden = findForbiddenKeyword(`${title} ${description} ${audience}`);
+    if (forbidden) {
+      setError(`Contenu interdit détecté : « ${forbidden} ». Charte MoveSpot : pas de campagne religieuse, politique/électorale, sexiste, pornographique, violente, ni d'anniversaire personnel.`);
+      return;
+    }
     setLoading(true);
 
     // Upload creatives
