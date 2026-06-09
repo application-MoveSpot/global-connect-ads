@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { SiretField, type SiretCheck } from "@/components/SiretField";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
