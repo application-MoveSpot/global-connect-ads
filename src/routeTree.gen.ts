@@ -24,13 +24,18 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
+import { Route as PrestatairesIndexRouteImport } from './routes/prestataires.index'
+import { Route as PrestataireIndexRouteImport } from './routes/prestataire.index'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as ProprietaireTrackingRouteImport } from './routes/proprietaire.tracking'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
 import { Route as ProprietaireFlotteRouteImport } from './routes/proprietaire.flotte'
+import { Route as PrestatairesProviderIdRouteImport } from './routes/prestataires.$providerId'
+import { Route as PrestataireInscriptionRouteImport } from './routes/prestataire.inscription'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
+import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
@@ -118,6 +123,16 @@ const ProprietaireIndexRoute = ProprietaireIndexRouteImport.update({
   path: '/proprietaire/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrestatairesIndexRoute = PrestatairesIndexRouteImport.update({
+  id: '/prestataires/',
+  path: '/prestataires/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrestataireIndexRoute = PrestataireIndexRouteImport.update({
+  id: '/prestataire/',
+  path: '/prestataire/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnonceurIndexRoute = AnnonceurIndexRouteImport.update({
   id: '/annonceur/',
   path: '/annonceur/',
@@ -138,6 +153,16 @@ const ProprietaireFlotteRoute = ProprietaireFlotteRouteImport.update({
   path: '/proprietaire/flotte',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrestatairesProviderIdRoute = PrestatairesProviderIdRouteImport.update({
+  id: '/prestataires/$providerId',
+  path: '/prestataires/$providerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrestataireInscriptionRoute = PrestataireInscriptionRouteImport.update({
+  id: '/prestataire/inscription',
+  path: '/prestataire/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   id: '/api/faq-chat',
   path: '/api/faq-chat',
@@ -152,6 +177,11 @@ const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
   id: '/annonceur/inscription',
   path: '/annonceur/inscription',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
+  id: '/prestataires',
+  path: '/prestataires',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ProprietaireBriefsIndexRoute = ProprietaireBriefsIndexRouteImport.update({
   id: '/proprietaire/briefs/',
@@ -217,7 +247,7 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
@@ -230,13 +260,18 @@ export interface FileRoutesByFullPath {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/prestataire/inscription': typeof PrestataireInscriptionRoute
+  '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
+  '/prestataire/': typeof PrestataireIndexRoute
+  '/prestataires/': typeof PrestatairesIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
@@ -252,7 +287,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
@@ -265,13 +300,18 @@ export interface FileRoutesByTo {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/prestataire/inscription': typeof PrestataireInscriptionRoute
+  '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur': typeof AnnonceurIndexRoute
+  '/prestataire': typeof PrestataireIndexRoute
+  '/prestataires': typeof PrestatairesIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
@@ -288,7 +328,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
@@ -301,13 +341,18 @@ export interface FileRoutesById {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/prestataire/inscription': typeof PrestataireInscriptionRoute
+  '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
+  '/prestataire/': typeof PrestataireIndexRoute
+  '/prestataires/': typeof PrestatairesIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
@@ -338,13 +383,18 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/prestataire/inscription'
+    | '/prestataires/$providerId'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
+    | '/prestataire/'
+    | '/prestataires/'
     | '/proprietaire/'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
@@ -373,13 +423,18 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/prestataire/inscription'
+    | '/prestataires/$providerId'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur'
+    | '/prestataire'
+    | '/prestataires'
     | '/proprietaire'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
@@ -408,13 +463,18 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/prestataire/inscription'
+    | '/prestataires/$providerId'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
+    | '/prestataire/'
+    | '/prestataires/'
     | '/proprietaire/'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
@@ -431,7 +491,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
@@ -447,10 +507,14 @@ export interface RootRouteChildren {
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
+  PrestataireInscriptionRoute: typeof PrestataireInscriptionRoute
+  PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
   ProprietaireFlotteRoute: typeof ProprietaireFlotteRouteWithChildren
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
+  PrestataireIndexRoute: typeof PrestataireIndexRoute
+  PrestatairesIndexRoute: typeof PrestatairesIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
   AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
@@ -570,6 +634,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prestataires/': {
+      id: '/prestataires/'
+      path: '/prestataires'
+      fullPath: '/prestataires/'
+      preLoaderRoute: typeof PrestatairesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prestataire/': {
+      id: '/prestataire/'
+      path: '/prestataire'
+      fullPath: '/prestataire/'
+      preLoaderRoute: typeof PrestataireIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/annonceur/': {
       id: '/annonceur/'
       path: '/annonceur'
@@ -598,6 +676,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireFlotteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prestataires/$providerId': {
+      id: '/prestataires/$providerId'
+      path: '/prestataires/$providerId'
+      fullPath: '/prestataires/$providerId'
+      preLoaderRoute: typeof PrestatairesProviderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prestataire/inscription': {
+      id: '/prestataire/inscription'
+      path: '/prestataire/inscription'
+      fullPath: '/prestataire/inscription'
+      preLoaderRoute: typeof PrestataireInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/faq-chat': {
       id: '/api/faq-chat'
       path: '/api/faq-chat'
@@ -618,6 +710,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/annonceur/inscription'
       preLoaderRoute: typeof AnnonceurInscriptionRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/prestataires': {
+      id: '/admin/prestataires'
+      path: '/prestataires'
+      fullPath: '/admin/prestataires'
+      preLoaderRoute: typeof AdminPrestatairesRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/proprietaire/briefs/': {
       id: '/proprietaire/briefs/'
@@ -699,6 +798,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminPrestatairesRoute: AdminPrestatairesRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface ProprietaireFlotteRouteChildren {
   ProprietaireFlotteImportRoute: typeof ProprietaireFlotteImportRoute
   ProprietaireFlotteQrRoute: typeof ProprietaireFlotteQrRoute
@@ -714,7 +823,7 @@ const ProprietaireFlotteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CguRoute: CguRoute,
   CgvRoute: CgvRoute,
@@ -730,10 +839,14 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
+  PrestataireInscriptionRoute: PrestataireInscriptionRoute,
+  PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
   ProprietaireFlotteRoute: ProprietaireFlotteRouteWithChildren,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
+  PrestataireIndexRoute: PrestataireIndexRoute,
+  PrestatairesIndexRoute: PrestatairesIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,
   AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
