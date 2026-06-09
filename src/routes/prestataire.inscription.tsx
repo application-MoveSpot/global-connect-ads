@@ -93,7 +93,7 @@ function ProviderSignupPage() {
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
       company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
-      phone: null, website: website.trim() || null,
+      phone: null, website: null,
       description, services: ["covering_vehicule"],
       coverage_areas: coverageList, portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
