@@ -37,6 +37,7 @@ function TrackingPage() {
   const [lastSent, setLastSent] = useState<Date | null>(null);
   const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
   const [errorCount, setErrorCount] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const [online, setOnline] = useState(true);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
@@ -76,6 +77,7 @@ function TrackingPage() {
   }, [navigate]);
 
   useEffect(() => {
+    setIsMounted(true);
     setOnline(navigator.onLine);
     const onOnline = () => setOnline(true);
     const onOffline = () => setOnline(false);
@@ -189,8 +191,8 @@ function TrackingPage() {
         <div className="flex items-center justify-between">
           <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
           <div className="flex items-center gap-1 text-xs">
-            {online ? <Wifi className="h-4 w-4 text-green-600" /> : <WifiOff className="h-4 w-4 text-destructive" />}
-            <span>{online ? "En ligne" : "Hors ligne"}</span>
+            {isMounted && !online ? <WifiOff className="h-4 w-4 text-destructive" /> : <Wifi className="h-4 w-4 text-green-600" />}
+            <span>{isMounted && !online ? "Hors ligne" : "En ligne"}</span>
           </div>
         </div>
 
