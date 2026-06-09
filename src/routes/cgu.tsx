@@ -65,9 +65,11 @@ function CGU() {
       <LegalSection title="6. Charte de contenu publicitaire">
         <p>
           Sont strictement refusées toutes campagnes à caractère religieux ou de fêtes religieuses, politique ou
-          électoral (partis, candidats, mouvements, propagande), sexistes, pornographiques, ou incitant à la violence
-          sous toutes ses formes. MoveSpot se réserve le droit de refuser toute campagne ne respectant pas cette
-          charte, sans avoir à se justifier.
+          électoral (partis, candidats, mouvements, propagande, élections), sexistes, pornographiques, ou incitant à la
+          violence sous toutes ses formes. Sont également exclus les messages d'anniversaires personnels et plus
+          largement tout contenu privé à caractère célébratoire individuel. MoveSpot se réserve le droit de refuser
+          toute campagne ne respectant pas cette charte, sans avoir à se justifier ni à rembourser les frais déjà
+          engagés au titre du contrôle éditorial.
         </p>
       </LegalSection>
 

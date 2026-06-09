@@ -2,19 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
-
-const FORBIDDEN_KEYWORDS = [
-  "religion", "religieux", "religieuse", "église", "eglise", "mosquée", "mosquee", "synagogue", "temple",
-  "dieu", "allah", "jésus", "jesus", "christ", "bouddha", "ramadan", "pâques", "paques", "noël", "noel",
-  "hanouka", "aïd", "aid", "baptême", "bapteme", "communion",
-  "sexiste", "misogyne", "machiste", "femme à la cuisine", "infériorité",
-  "porno", "pornographique", "xxx", "nudité", "nudite", "sexe", "escort", "érotique", "erotique",
-  "violence", "violent", "tuer", "meurtre", "arme", "sang", "agression", "frapper", "battre",
-  "politique", "parti", "élection", "election", "candidat", "candidate", "campagne électorale",
-  "vote", "voter", "scrutin", "président", "presidente", "député", "depute", "sénateur", "senateur",
-  "maire", "ministre", "gouvernement", "république", "republique", "extrême droite", "extreme droite",
-  "extrême gauche", "extreme gauche",
-];
+import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
 
 type Props = {
   spot: Spot | null;
