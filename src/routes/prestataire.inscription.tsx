@@ -146,6 +146,8 @@ function ProviderSignupPage() {
             <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
+            <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} required placeholder="Ex. +33 6 12 34 56 78" />
+            <Input label="Site web (optionnel)" type="url" value={website} onChange={setWebsite} placeholder="https://votre-entreprise.fr" />
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
