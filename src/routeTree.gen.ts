@@ -35,6 +35,7 @@ import { Route as PrestataireInscriptionRouteImport } from './routes/prestataire
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
+import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
@@ -177,6 +178,11 @@ const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
   path: '/annonceur/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
+  id: '/prestataires',
+  path: '/prestataires',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ProprietaireBriefsIndexRoute = ProprietaireBriefsIndexRouteImport.update({
   id: '/proprietaire/briefs/',
   path: '/proprietaire/briefs/',
@@ -241,7 +247,7 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
@@ -254,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -280,7 +287,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
@@ -293,6 +300,7 @@ export interface FileRoutesByTo {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -320,7 +328,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
@@ -333,6 +341,7 @@ export interface FileRoutesById {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -374,6 +383,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -413,6 +423,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -452,6 +463,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -479,7 +491,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
@@ -699,6 +711,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/prestataires': {
+      id: '/admin/prestataires'
+      path: '/prestataires'
+      fullPath: '/admin/prestataires'
+      preLoaderRoute: typeof AdminPrestatairesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/proprietaire/briefs/': {
       id: '/proprietaire/briefs/'
       path: '/proprietaire/briefs'
@@ -779,6 +798,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminPrestatairesRoute: AdminPrestatairesRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface ProprietaireFlotteRouteChildren {
   ProprietaireFlotteImportRoute: typeof ProprietaireFlotteImportRoute
   ProprietaireFlotteQrRoute: typeof ProprietaireFlotteQrRoute
@@ -794,7 +823,7 @@ const ProprietaireFlotteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   CguRoute: CguRoute,
   CgvRoute: CgvRoute,
