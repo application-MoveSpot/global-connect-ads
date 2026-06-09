@@ -448,6 +448,59 @@ export type Database = {
         }
         Relationships: []
       }
+      refunds: {
+        Row: {
+          amount_cents: number
+          campaign_request_id: string | null
+          channel: string
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          reason: string
+          status: string
+          stripe_refund_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          campaign_request_id?: string | null
+          channel?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          reason: string
+          status?: string
+          stripe_refund_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          campaign_request_id?: string | null
+          channel?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          reason?: string
+          status?: string
+          stripe_refund_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -628,11 +681,112 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount_cents: number
+          campaign_request_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          kind: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_refund_id: string | null
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount_cents: number
+          campaign_request_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount_cents?: number
+          campaign_request_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_refund_id?: string | null
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance_cents: number
+          created_at: string
+          currency: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      apply_wallet_transaction: {
+        Args: {
+          p_amount_cents: number
+          p_campaign_request_id?: string
+          p_currency?: string
+          p_description?: string
+          p_kind: string
+          p_stripe_checkout_session_id?: string
+          p_stripe_payment_intent_id?: string
+          p_stripe_refund_id?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
