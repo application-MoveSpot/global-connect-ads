@@ -70,7 +70,7 @@ function Privacy() {
 
       <LegalSection title="6. Destinataires">
         <p>
-          Vos données sont destinées aux équipes internes de MoveSpot (commerciales, modération, comptabilité) et,
+          Vos données sont destinées à MoveSpot (administration, modération, comptabilité) et,
           le cas échéant, à nos sous-traitants techniques (hébergement, paiement, envoi d'emails). Tous nos
           sous-traitants sont liés par des engagements de confidentialité et de sécurité conformes au RGPD.
         </p>
