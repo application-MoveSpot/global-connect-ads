@@ -1,11 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
 import { MobilityMap } from "@/components/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
+import { payCampaignWithWallet, getMyWallet } from "@/lib/wallet.functions";
+import { toast } from "sonner";
 
 type Req = {
   id: string;
@@ -23,6 +26,8 @@ type Req = {
   estimated_impressions_per_day: number | null;
   days_count: number | null;
   creative_files: string[] | null;
+  total_price: number | null;
+  payment_status: string;
 };
 
 type Profile = { full_name: string; company: string | null };
