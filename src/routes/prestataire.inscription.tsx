@@ -1,15 +1,26 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
+import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/ProviderPortfolioUploader";
+import { verifyWebsite, type WebsiteCheck } from "@/lib/website-verify.functions";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
 });
 
+const DEFAULT_PRICING = `Tarifs indicatifs (covering véhicule, hors pose) :
+• Stickers / micro-perforé : à partir de 150 € par véhicule
+• Demi-covering (latéraux + arrière) : à partir de 450 €
+• Total covering (véhicule utilitaire) : à partir de 900 €
+• Pose : 80 € / heure, ou forfait selon véhicule
+Devis personnalisé après réception du brief.`;
+
 function ProviderSignupPage() {
   const navigate = useNavigate();
+  const verifyWebsiteFn = useServerFn(verifyWebsite);
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
@@ -17,12 +28,13 @@ function ProviderSignupPage() {
   const [company, setCompany] = useState("");
   const [siretCheck, setSiretCheck] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
+  const [websiteCheck, setWebsiteCheck] = useState<WebsiteCheck | null>(null);
+  const [verifyingSite, setVerifyingSite] = useState(false);
   const [description, setDescription] = useState("");
   const [coverage, setCoverage] = useState("");
   const [pricingInfo, setPricingInfo] = useState("");
-  const [portfolio, setPortfolio] = useState("");
+  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -57,6 +69,20 @@ function ProviderSignupPage() {
     setStep("profile"); setLoading(false);
   };
 
+  const runWebsiteCheck = async () => {
+    if (!website.trim()) { setWebsiteCheck(null); return; }
+    setVerifyingSite(true); setWebsiteCheck(null);
+    try {
+      const result = await verifyWebsiteFn({ data: { url: website.trim() } });
+      setWebsiteCheck(result);
+      if (result.ok && result.finalUrl) setWebsite(result.finalUrl);
+    } catch (e) {
+      setWebsiteCheck({ ok: false, https: false, reachable: false, reason: e instanceof Error ? e.message : "Erreur de vérification." });
+    } finally {
+      setVerifyingSite(false);
+    }
+  };
+
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -64,7 +90,6 @@ function ProviderSignupPage() {
     const fullNameTrim = fullName.trim();
     if (companyTrim.length < 2) { setError("Nom de l'entreprise invalide."); return; }
     if (!siretCheck.verified) { setError("Veuillez vérifier le SIRET de votre entreprise."); return; }
-    // Vérification que le nom d'entreprise saisi correspond bien à la dénomination INSEE
     const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
     const denom = siretCheck.denomination ? norm(siretCheck.denomination) : "";
     const typed = norm(companyTrim);
@@ -75,21 +100,24 @@ function ProviderSignupPage() {
       setError(`Le nom de l'entreprise ne correspond pas au SIRET (INSEE : « ${siretCheck.denomination} »).`);
       return;
     }
-    // Nom de contact : au moins prénom + nom, lettres uniquement
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
+    if (website.trim() && !websiteCheck?.ok) {
+      setError("Le site web indiqué n'a pas été vérifié ou n'est pas sécurisé. Cliquez sur « Vérifier » ou retirez-le.");
+      return;
+    }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
     const coverageList = coverage.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean).slice(0, 30);
-    const portfolioList = portfolio.split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 10);
+    const portfolioPaths = portfolio.map((p) => p.path);
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
       company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
-      phone: phone || null, website: website || null,
+      phone: null, website: website.trim() || null,
       description, services: ["covering_vehicule"],
-      coverage_areas: coverageList, portfolio_urls: portfolioList,
+      coverage_areas: coverageList, portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
     });
     setLoading(false);
@@ -127,8 +155,29 @@ function ProviderSignupPage() {
             <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
-            <Input label="Téléphone" value={phone} onChange={setPhone} />
-            <Input label="Site web" value={website} onChange={setWebsite} placeholder="https://..." />
+            <Field label="Site web (optionnel)">
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={website}
+                  onChange={(e) => { setWebsite(e.target.value); setWebsiteCheck(null); }}
+                  onBlur={() => { if (website.trim()) runWebsiteCheck(); }}
+                  placeholder="https://mon-entreprise.fr"
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2"
+                />
+                <button type="button" onClick={runWebsiteCheck} disabled={verifyingSite || !website.trim()}
+                  className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary disabled:opacity-50">
+                  {verifyingSite ? "Vérification…" : "Vérifier"}
+                </button>
+              </div>
+              {websiteCheck && (
+                <p className={`mt-1.5 text-xs ${websiteCheck.ok ? "text-signal" : "text-destructive"}`}>
+                  {websiteCheck.ok
+                    ? `✓ Site sécurisé et joignable (${websiteCheck.finalUrl}).`
+                    : `⚠ ${websiteCheck.reason ?? "Site non vérifié."}`}
+                </p>
+              )}
+            </Field>
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
@@ -139,15 +188,20 @@ function ProviderSignupPage() {
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
                 placeholder="Paris&#10;Île-de-France&#10;Lyon" />
             </Field>
-            <Field label="Indication tarifaire (optionnel)">
-              <textarea value={pricingInfo} onChange={(e) => setPricingInfo(e.target.value)} rows={2} maxLength={500}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2"
+            <Field label="Indication tarifaire">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-muted-foreground">Vous pouvez générer une grille type puis l'ajuster.</span>
+                <button type="button" onClick={() => setPricingInfo(DEFAULT_PRICING)}
+                  className="text-xs rounded-full border border-border px-2.5 py-1 hover:bg-secondary">
+                  ⚡ Auto-remplir
+                </button>
+              </div>
+              <textarea value={pricingInfo} onChange={(e) => setPricingInfo(e.target.value)} rows={6} maxLength={1500}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
                 placeholder="Ex. À partir de 450 € pour un demi-covering, 900 € pour un total covering." />
             </Field>
-            <Field label="Portfolio (URLs, une par ligne)">
-              <textarea value={portfolio} onChange={(e) => setPortfolio(e.target.value)} rows={3}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                placeholder="https://monsite.com/realisation-1" />
+            <Field label="Portfolio — images et vidéos de vos réalisations">
+              <ProviderPortfolioUploader value={portfolio} onChange={setPortfolio} />
             </Field>
             {error && <ErrorBox>{error}</ErrorBox>}
             <button disabled={loading} className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
