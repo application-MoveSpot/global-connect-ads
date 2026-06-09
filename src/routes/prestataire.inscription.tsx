@@ -64,19 +64,6 @@ function ProviderSignupPage() {
     setStep("profile"); setLoading(false);
   };
 
-  const runWebsiteCheck = async () => {
-    if (!website.trim()) { setWebsiteCheck(null); return; }
-    setVerifyingSite(true); setWebsiteCheck(null);
-    try {
-      const result = await verifyWebsiteFn({ data: { url: website.trim() } });
-      setWebsiteCheck(result);
-      if (result.ok && result.finalUrl) setWebsite(result.finalUrl);
-    } catch (e) {
-      setWebsiteCheck({ ok: false, https: false, reachable: false, reason: e instanceof Error ? e.message : "Erreur de vérification." });
-    } finally {
-      setVerifyingSite(false);
-    }
-  };
 
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
