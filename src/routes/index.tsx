@@ -41,6 +41,7 @@ function Index() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#map" className="hover:text-foreground transition">Temps réel</a>
             <a href="#spots" className="hover:text-foreground transition">Véhicules</a>
+            <Link to="/comment-ca-marche" className="hover:text-foreground transition">Comment ça marche</Link>
             <Link to="/devenir-partenaire" className="hover:text-foreground transition">Devenir partenaire</Link>
           </nav>
           <div className="flex items-center gap-2">

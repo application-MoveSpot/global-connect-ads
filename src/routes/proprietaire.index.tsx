@@ -111,6 +111,12 @@ function DashboardPage() {
             <Link to="/proprietaire/flotte" className="px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition">
               🚚 Gérer ma flotte
             </Link>
+            <Link to="/proprietaire/flotte/import" className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition">
+              📥 Import CSV
+            </Link>
+            <Link to="/proprietaire/flotte/qr" className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition">
+              🔳 QR codes véhicules
+            </Link>
           </div>
           {tab === "vehicles" && (
             <Link to="/proprietaire/vehicules/nouveau" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition">
