@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/proprietaire/tracking")({
   head: () => ({
@@ -25,16 +26,18 @@ export const Route = createFileRoute("/proprietaire/tracking")({
 });
 
 function TrackingPage() {
+  const navigate = useNavigate();
   const fetchVehicles = useServerFn(getOwnerVehiclesForTracking);
   const fetchCampaign = useServerFn(getActiveCampaignForVehicle);
   const sendPosition = useServerFn(pushPosition);
 
+  const [authReady, setAuthReady] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
   const [tracking, setTracking] = useState(false);
   const [lastSent, setLastSent] = useState<Date | null>(null);
   const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
   const [errorCount, setErrorCount] = useState(0);
-  const [online, setOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [online, setOnline] = useState(true);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
 
@@ -46,15 +49,34 @@ function TrackingPage() {
   const { data: vehiclesData } = useQuery({
     queryKey: ["tracking-vehicles"],
     queryFn: () => fetchVehicles(),
+    enabled: authReady,
+    retry: false,
   });
 
   const { data: campaignData } = useQuery({
     queryKey: ["tracking-campaign", vehicleId],
     queryFn: () => fetchCampaign({ data: { vehicleId } }),
-    enabled: !!vehicleId,
+    enabled: authReady && !!vehicleId,
+    retry: false,
   });
 
   useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      if (!data.session) {
+        navigate({ to: "/proprietaire/inscription" });
+        return;
+      }
+      setAuthReady(true);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    setOnline(navigator.onLine);
     const onOnline = () => setOnline(true);
     const onOffline = () => setOnline(false);
     window.addEventListener("online", onOnline);
