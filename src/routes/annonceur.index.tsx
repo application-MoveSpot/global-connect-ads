@@ -171,9 +171,21 @@ function AnnonceurDashboard() {
                 <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
                 <CreativeFiles paths={r.creative_files} />
                 {r.status === "approved" && (
-                  <Link to="/annonceur/suivi/$campaignId" params={{ campaignId: r.id }} className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/20 transition">
-                    📍 Suivre en direct
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <PaymentBadge status={r.payment_status} />
+                    {r.payment_status !== "paid" && r.total_price != null && (
+                      <button
+                        onClick={() => handlePay(r)}
+                        disabled={paying === r.id}
+                        className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+                      >
+                        {paying === r.id ? "Paiement…" : `Payer ${Number(r.total_price).toFixed(2)} € avec mon portefeuille`}
+                      </button>
+                    )}
+                    <Link to="/annonceur/suivi/$campaignId" params={{ campaignId: r.id }} className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/20 transition">
+                      📍 Suivre en direct
+                    </Link>
+                  </div>
                 )}
               </div>
             ))}
