@@ -16,6 +16,8 @@ import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as CommentCaMarcheRouteImport } from './routes/comment-ca-marche'
+import { Route as ChauffeurRouteImport } from './routes/chauffeur'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -31,6 +33,8 @@ import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.ins
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
+import { Route as ProprietaireFlotteQrRouteImport } from './routes/proprietaire.flotte.qr'
+import { Route as ProprietaireFlotteImportRouteImport } from './routes/proprietaire.flotte.import'
 import { Route as ProprietaireBriefsBriefIdRouteImport } from './routes/proprietaire.briefs.$briefId'
 import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur.suivi.$campaignId'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
@@ -70,6 +74,16 @@ const CookiesRoute = CookiesRouteImport.update({
 const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   id: '/confidentialite',
   path: '/confidentialite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommentCaMarcheRoute = CommentCaMarcheRouteImport.update({
+  id: '/comment-ca-marche',
+  path: '/comment-ca-marche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChauffeurRoute = ChauffeurRouteImport.update({
+  id: '/chauffeur',
+  path: '/chauffeur',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CgvRoute = CgvRouteImport.update({
@@ -148,6 +162,17 @@ const ProprietaireVehiculesNouveauRoute =
     path: '/proprietaire/vehicules/nouveau',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ProprietaireFlotteQrRoute = ProprietaireFlotteQrRouteImport.update({
+  id: '/qr',
+  path: '/qr',
+  getParentRoute: () => ProprietaireFlotteRoute,
+} as any)
+const ProprietaireFlotteImportRoute =
+  ProprietaireFlotteImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => ProprietaireFlotteRoute,
+  } as any)
 const ProprietaireBriefsBriefIdRoute =
   ProprietaireBriefsBriefIdRouteImport.update({
     id: '/proprietaire/briefs/$briefId',
@@ -183,6 +208,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
+  '/chauffeur': typeof ChauffeurRoute
+  '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
@@ -192,7 +219,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
-  '/proprietaire/flotte': typeof ProprietaireFlotteRoute
+  '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
@@ -201,6 +228,8 @@ export interface FileRoutesByFullPath {
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
+  '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
+  '/proprietaire/flotte/qr': typeof ProprietaireFlotteQrRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
@@ -212,6 +241,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
+  '/chauffeur': typeof ChauffeurRoute
+  '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
@@ -221,7 +252,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
-  '/proprietaire/flotte': typeof ProprietaireFlotteRoute
+  '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur': typeof AnnonceurIndexRoute
@@ -230,6 +261,8 @@ export interface FileRoutesByTo {
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
+  '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
+  '/proprietaire/flotte/qr': typeof ProprietaireFlotteQrRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs': typeof ProprietaireBriefsIndexRoute
@@ -242,6 +275,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
+  '/chauffeur': typeof ChauffeurRoute
+  '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
@@ -251,7 +286,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
-  '/proprietaire/flotte': typeof ProprietaireFlotteRoute
+  '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
@@ -260,6 +295,8 @@ export interface FileRoutesById {
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
+  '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
+  '/proprietaire/flotte/qr': typeof ProprietaireFlotteQrRoute
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
@@ -273,6 +310,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cgu'
     | '/cgv'
+    | '/chauffeur'
+    | '/comment-ca-marche'
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
@@ -291,6 +330,8 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
     | '/proprietaire/briefs/$briefId'
+    | '/proprietaire/flotte/import'
+    | '/proprietaire/flotte/qr'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
@@ -302,6 +343,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cgu'
     | '/cgv'
+    | '/chauffeur'
+    | '/comment-ca-marche'
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
@@ -320,6 +363,8 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
     | '/proprietaire/briefs/$briefId'
+    | '/proprietaire/flotte/import'
+    | '/proprietaire/flotte/qr'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs'
     | '/proprietaire/briefs'
@@ -331,6 +376,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cgu'
     | '/cgv'
+    | '/chauffeur'
+    | '/comment-ca-marche'
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
@@ -349,6 +396,8 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
     | '/proprietaire/briefs/$briefId'
+    | '/proprietaire/flotte/import'
+    | '/proprietaire/flotte/qr'
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
@@ -361,6 +410,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
+  ChauffeurRoute: typeof ChauffeurRoute
+  CommentCaMarcheRoute: typeof CommentCaMarcheRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
@@ -370,7 +421,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
-  ProprietaireFlotteRoute: typeof ProprietaireFlotteRoute
+  ProprietaireFlotteRoute: typeof ProprietaireFlotteRouteWithChildren
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
@@ -434,6 +485,20 @@ declare module '@tanstack/react-router' {
       path: '/confidentialite'
       fullPath: '/confidentialite'
       preLoaderRoute: typeof ConfidentialiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comment-ca-marche': {
+      id: '/comment-ca-marche'
+      path: '/comment-ca-marche'
+      fullPath: '/comment-ca-marche'
+      preLoaderRoute: typeof CommentCaMarcheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chauffeur': {
+      id: '/chauffeur'
+      path: '/chauffeur'
+      fullPath: '/chauffeur'
+      preLoaderRoute: typeof ChauffeurRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cgv': {
@@ -541,6 +606,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireVehiculesNouveauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/proprietaire/flotte/qr': {
+      id: '/proprietaire/flotte/qr'
+      path: '/qr'
+      fullPath: '/proprietaire/flotte/qr'
+      preLoaderRoute: typeof ProprietaireFlotteQrRouteImport
+      parentRoute: typeof ProprietaireFlotteRoute
+    }
+    '/proprietaire/flotte/import': {
+      id: '/proprietaire/flotte/import'
+      path: '/import'
+      fullPath: '/proprietaire/flotte/import'
+      preLoaderRoute: typeof ProprietaireFlotteImportRouteImport
+      parentRoute: typeof ProprietaireFlotteRoute
+    }
     '/proprietaire/briefs/$briefId': {
       id: '/proprietaire/briefs/$briefId'
       path: '/proprietaire/briefs/$briefId'
@@ -579,12 +658,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ProprietaireFlotteRouteChildren {
+  ProprietaireFlotteImportRoute: typeof ProprietaireFlotteImportRoute
+  ProprietaireFlotteQrRoute: typeof ProprietaireFlotteQrRoute
+}
+
+const ProprietaireFlotteRouteChildren: ProprietaireFlotteRouteChildren = {
+  ProprietaireFlotteImportRoute: ProprietaireFlotteImportRoute,
+  ProprietaireFlotteQrRoute: ProprietaireFlotteQrRoute,
+}
+
+const ProprietaireFlotteRouteWithChildren =
+  ProprietaireFlotteRoute._addFileChildren(ProprietaireFlotteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   CguRoute: CguRoute,
   CgvRoute: CgvRoute,
+  ChauffeurRoute: ChauffeurRoute,
+  CommentCaMarcheRoute: CommentCaMarcheRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
   DevenirPartenaireRoute: DevenirPartenaireRoute,
@@ -594,7 +688,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
-  ProprietaireFlotteRoute: ProprietaireFlotteRoute,
+  ProprietaireFlotteRoute: ProprietaireFlotteRouteWithChildren,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
@@ -611,12 +705,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

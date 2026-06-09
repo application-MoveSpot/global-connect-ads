@@ -10,7 +10,7 @@ export const Route = createFileRoute("/chauffeur")({
   component: DriverPage,
 });
 
-type Vehicle = { id: string; name: string; type: string; format: string };
+type Vehicle = { id: string; name: string; type: string; format: string | null };
 
 function DriverPage() {
   const { t } = Route.useSearch();
@@ -39,7 +39,7 @@ function DriverPage() {
     tokenRef.current = tok;
     verify({ data: { token: tok } }).then((r) => {
       if (r.ok) {
-        setVehicle(r.vehicle);
+        setVehicle(r.vehicle as Vehicle);
         setState("ready");
         try { localStorage.setItem("movespot_driver_token", tok); } catch {}
       } else {
