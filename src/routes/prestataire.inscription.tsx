@@ -18,7 +18,7 @@ Devis personnalisé après réception du brief.`;
 
 function ProviderSignupPage() {
   const navigate = useNavigate();
-  const verifyWebsiteFn = useServerFn(verifyWebsite);
+  
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
