@@ -1,11 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/ProviderPortfolioUploader";
-import { verifyWebsite, type WebsiteCheck } from "@/lib/website-verify.functions";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
@@ -20,7 +18,7 @@ Devis personnalisé après réception du brief.`;
 
 function ProviderSignupPage() {
   const navigate = useNavigate();
-  const verifyWebsiteFn = useServerFn(verifyWebsite);
+  
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
@@ -28,9 +26,6 @@ function ProviderSignupPage() {
   const [company, setCompany] = useState("");
   const [siretCheck, setSiretCheck] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [fullName, setFullName] = useState("");
-  const [website, setWebsite] = useState("");
-  const [websiteCheck, setWebsiteCheck] = useState<WebsiteCheck | null>(null);
-  const [verifyingSite, setVerifyingSite] = useState(false);
   const [description, setDescription] = useState("");
   const [coverage, setCoverage] = useState("");
   const [pricingInfo, setPricingInfo] = useState("");
@@ -69,19 +64,6 @@ function ProviderSignupPage() {
     setStep("profile"); setLoading(false);
   };
 
-  const runWebsiteCheck = async () => {
-    if (!website.trim()) { setWebsiteCheck(null); return; }
-    setVerifyingSite(true); setWebsiteCheck(null);
-    try {
-      const result = await verifyWebsiteFn({ data: { url: website.trim() } });
-      setWebsiteCheck(result);
-      if (result.ok && result.finalUrl) setWebsite(result.finalUrl);
-    } catch (e) {
-      setWebsiteCheck({ ok: false, https: false, reachable: false, reason: e instanceof Error ? e.message : "Erreur de vérification." });
-    } finally {
-      setVerifyingSite(false);
-    }
-  };
 
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,10 +84,6 @@ function ProviderSignupPage() {
     }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
-    if (website.trim() && !websiteCheck?.ok) {
-      setError("Le site web indiqué n'a pas été vérifié ou n'est pas sécurisé. Cliquez sur « Vérifier » ou retirez-le.");
-      return;
-    }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
@@ -115,7 +93,7 @@ function ProviderSignupPage() {
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
       company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
-      phone: null, website: website.trim() || null,
+      phone: null, website: null,
       description, services: ["covering_vehicule"],
       coverage_areas: coverageList, portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
@@ -155,29 +133,6 @@ function ProviderSignupPage() {
             <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
-            <Field label="Site web (optionnel)">
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={website}
-                  onChange={(e) => { setWebsite(e.target.value); setWebsiteCheck(null); }}
-                  onBlur={() => { if (website.trim()) runWebsiteCheck(); }}
-                  placeholder="https://mon-entreprise.fr"
-                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2"
-                />
-                <button type="button" onClick={runWebsiteCheck} disabled={verifyingSite || !website.trim()}
-                  className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary disabled:opacity-50">
-                  {verifyingSite ? "Vérification…" : "Vérifier"}
-                </button>
-              </div>
-              {websiteCheck && (
-                <p className={`mt-1.5 text-xs ${websiteCheck.ok ? "text-signal" : "text-destructive"}`}>
-                  {websiteCheck.ok
-                    ? `✓ Site sécurisé et joignable (${websiteCheck.finalUrl}).`
-                    : `⚠ ${websiteCheck.reason ?? "Site non vérifié."}`}
-                </p>
-              )}
-            </Field>
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
