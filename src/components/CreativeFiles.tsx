@@ -41,23 +41,32 @@ export function CreativeFiles({ paths }: Props) {
       <div className="font-semibold text-foreground">🎨 Créa fournie ({paths.length})</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {files.map((f) => (
-          <a
+          <div
             key={f.path}
-            href={f.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block rounded-md border border-border bg-background overflow-hidden hover:border-primary transition"
+            className="rounded-md border border-border bg-background overflow-hidden hover:border-primary transition"
             title={f.name}
           >
             {f.isImage ? (
-              <img src={f.url} alt={f.name} className="w-full h-24 object-cover" />
+              <a href={f.url} target="_blank" rel="noopener noreferrer" className="block">
+                <img src={f.url} alt={f.name} className="w-full h-32 object-cover" loading="lazy" />
+              </a>
             ) : f.isVideo ? (
-              <video src={f.url} className="w-full h-24 object-cover" muted />
+              <video
+                src={f.url}
+                className="w-full h-32 object-cover bg-black"
+                controls
+                preload="metadata"
+                playsInline
+                muted
+              />
             ) : (
-              <div className="w-full h-24 flex items-center justify-center text-2xl">📄</div>
+              <a href={f.url} target="_blank" rel="noopener noreferrer" className="block w-full h-32 flex items-center justify-center text-2xl">📄</a>
             )}
-            <div className="px-2 py-1 truncate text-[10px] text-muted-foreground">{f.name}</div>
-          </a>
+            <div className="flex items-center justify-between gap-2 px-2 py-1">
+              <span className="truncate text-[10px] text-muted-foreground">{f.name}</span>
+              <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline shrink-0">Ouvrir</a>
+            </div>
+          </div>
         ))}
       </div>
     </div>
