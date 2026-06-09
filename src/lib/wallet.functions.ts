@@ -188,3 +188,46 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
       throw new Error(getStripeErrorMessage(error));
     }
   });
+
+// ----- Advertiser: pay an approved campaign with prepaid wallet credits -----
+const PayInput = z.object({ campaignRequestId: z.string().uuid() });
+
+export const payCampaignWithWallet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.infer<typeof PayInput>) => PayInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: campaign, error } = await supabase
+      .from("campaign_requests")
+      .select("id, user_id, total_price, status, payment_status, spot_name")
+      .eq("id", data.campaignRequestId)
+      .maybeSingle();
+    if (error || !campaign) throw new Error("Campagne introuvable");
+    if (campaign.user_id !== userId) throw new Error("Accès refusé");
+    if (campaign.status !== "approved") throw new Error("La campagne doit être validée avant le paiement");
+    if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
+    if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
+
+    const amountCents = Math.round(Number(campaign.total_price) * 100);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Debit (negative amount). RPC raises if balance insufficient.
+    await supabaseAdmin.rpc("apply_wallet_transaction", {
+      p_user_id: userId,
+      p_kind: "campaign_debit",
+      p_amount_cents: -amountCents,
+      p_description: `Paiement campagne — ${campaign.spot_name}`,
+      p_campaign_request_id: campaign.id,
+    });
+
+    await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        payment_status: "paid",
+        paid_at: new Date().toISOString(),
+        paid_amount_cents: amountCents,
+      })
+      .eq("id", campaign.id);
+
+    return { ok: true, amountCents };
+  });
