@@ -457,6 +457,66 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_profiles: {
+        Row: {
+          admin_notes: string | null
+          company: string
+          coverage_areas: string[]
+          created_at: string
+          description: string
+          email: string
+          full_name: string
+          logo_url: string | null
+          phone: string | null
+          portfolio_urls: string[]
+          pricing_info: string | null
+          services: string[]
+          siret: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          company: string
+          coverage_areas?: string[]
+          created_at?: string
+          description: string
+          email: string
+          full_name: string
+          logo_url?: string | null
+          phone?: string | null
+          portfolio_urls?: string[]
+          pricing_info?: string | null
+          services?: string[]
+          siret?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          company?: string
+          coverage_areas?: string[]
+          created_at?: string
+          description?: string
+          email?: string
+          full_name?: string
+          logo_url?: string | null
+          phone?: string | null
+          portfolio_urls?: string[]
+          pricing_info?: string | null
+          services?: string[]
+          siret?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       refunds: {
         Row: {
           amount_cents: number
@@ -509,6 +569,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_quotes: {
+        Row: {
+          advertiser_id: string
+          attachments: string[]
+          created_at: string
+          deadline: string | null
+          format: string | null
+          id: string
+          message: string
+          provider_id: string
+          quantity: number | null
+          quoted_at: string | null
+          quoted_currency: string | null
+          quoted_message: string | null
+          quoted_price_cents: number | null
+          service_type: string
+          status: string
+          updated_at: string
+          vehicle_type: string | null
+          zone: string | null
+        }
+        Insert: {
+          advertiser_id: string
+          attachments?: string[]
+          created_at?: string
+          deadline?: string | null
+          format?: string | null
+          id?: string
+          message: string
+          provider_id: string
+          quantity?: number | null
+          quoted_at?: string | null
+          quoted_currency?: string | null
+          quoted_message?: string | null
+          quoted_price_cents?: number | null
+          service_type: string
+          status?: string
+          updated_at?: string
+          vehicle_type?: string | null
+          zone?: string | null
+        }
+        Update: {
+          advertiser_id?: string
+          attachments?: string[]
+          created_at?: string
+          deadline?: string | null
+          format?: string | null
+          id?: string
+          message?: string
+          provider_id?: string
+          quantity?: number | null
+          quoted_at?: string | null
+          quoted_currency?: string | null
+          quoted_message?: string | null
+          quoted_price_cents?: number | null
+          service_type?: string
+          status?: string
+          updated_at?: string
+          vehicle_type?: string | null
+          zone?: string | null
+        }
+        Relationships: []
       }
       suppressed_emails: {
         Row: {
@@ -830,7 +953,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "owner" | "advertiser" | "driver"
+      app_role:
+        | "admin"
+        | "user"
+        | "owner"
+        | "advertiser"
+        | "driver"
+        | "provider"
       brief_status: "open" | "closed" | "fulfilled" | "cancelled"
       proposal_status: "pending" | "accepted" | "rejected" | "withdrawn"
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
@@ -975,7 +1104,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "owner", "advertiser", "driver"],
+      app_role: ["admin", "user", "owner", "advertiser", "driver", "provider"],
       brief_status: ["open", "closed", "fulfilled", "cancelled"],
       proposal_status: ["pending", "accepted", "rejected", "withdrawn"],
       vehicle_condition: ["excellent", "bon", "moyen", "mauvais"],
