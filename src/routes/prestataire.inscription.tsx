@@ -30,6 +30,8 @@ function ProviderSignupPage() {
   const [coverage, setCoverage] = useState("");
   const [pricingInfo, setPricingInfo] = useState("");
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const [phone, setPhone] = useState("");
+  const [website, setWebsite] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
