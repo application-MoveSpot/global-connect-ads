@@ -71,7 +71,7 @@ function HowItWorks() {
         <section className="mb-12">
           <h2 className="font-display text-2xl font-bold mb-4">📱 Chauffeur</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <Step n={1} title="Je scanne le QR">Avec mon téléphone — aucune installation, aucun compte. La page <Link to="/chauffeur" className="text-primary underline">/chauffeur</Link> s'ouvre.</Step>
+            <Step n={1} title="Je scanne le QR">Avec mon téléphone — aucune installation, aucun compte. La page <Link to="/chauffeur" search={{ t: "" }} className="text-primary underline">/chauffeur</Link> s'ouvre.</Step>
             <Step n={2} title="J'appuie sur Démarrer">Le GPS du téléphone envoie ma position toutes les 20 secondes, l'écran reste allumé (Wake Lock).</Step>
             <Step n={3} title="Je conduis">L'annonceur voit la campagne vivre en temps réel sur sa carte.</Step>
             <Step n={4} title="J'arrête en fin de tournée">Un bouton, et c'est fini. Mes données ne sont accessibles qu'à mon employeur et à l'annonceur, uniquement pendant la campagne.</Step>
