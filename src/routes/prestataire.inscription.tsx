@@ -84,10 +84,6 @@ function ProviderSignupPage() {
     }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
-    if (website.trim() && !websiteCheck?.ok) {
-      setError("Le site web indiqué n'a pas été vérifié ou n'est pas sécurisé. Cliquez sur « Vérifier » ou retirez-le.");
-      return;
-    }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
