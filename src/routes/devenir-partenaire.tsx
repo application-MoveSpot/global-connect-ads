@@ -51,7 +51,7 @@ function DevenirPartenaire() {
         <div className="grid md:grid-cols-3 gap-6">
           {[
             { n: "01", t: "Créez votre profil", d: "Inscription en 2 minutes. Renseignez vos informations et ajoutez votre premier véhicule avec photos." },
-            { n: "02", t: "Validation par MoveSpot", d: "Notre équipe vérifie votre véhicule sous 48h pour garantir la qualité de la marketplace." },
+            { n: "02", t: "Validation par MoveSpot", d: "MoveSpot vérifie votre véhicule sous 48h pour garantir la qualité de la marketplace." },
             { n: "03", t: "Recevez des campagnes", d: "Les annonceurs vous contactent. Vous acceptez ou refusez chaque demande, et empochez le revenu." },
           ].map((s) => (
             <div key={s.n} className="rounded-2xl border border-border bg-card p-6">

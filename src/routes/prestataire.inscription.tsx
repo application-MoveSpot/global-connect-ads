@@ -88,7 +88,7 @@ function ProviderSignupPage() {
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="font-display text-3xl font-bold mb-2">Devenir prestataire MoveSpot</h1>
-        <p className="text-sm text-muted-foreground mb-6">Proposez vos services d'impression covering véhicule aux annonceurs. Votre fiche sera publiée après validation par notre équipe.</p>
+        <p className="text-sm text-muted-foreground mb-6">Proposez vos services d'impression covering véhicule aux annonceurs. Votre fiche sera publiée après validation par MoveSpot.</p>
 
         {step === "auth" ? (
           <form onSubmit={handleAuth} className="space-y-4 rounded-2xl border border-border bg-card p-6">
