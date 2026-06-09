@@ -87,6 +87,17 @@ function ProviderSignupPage() {
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
+    const phoneTrim = phone.trim();
+    if (!/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) { setError("Numéro de téléphone invalide."); return; }
+    const websiteTrim = website.trim();
+    let websiteValue: string | null = null;
+    if (websiteTrim) {
+      try {
+        const u = new URL(websiteTrim);
+        if (u.protocol !== "https:") { setError("Le site web doit utiliser HTTPS (https://...)."); return; }
+        websiteValue = u.toString();
+      } catch { setError("URL de site web invalide."); return; }
+    }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
@@ -95,7 +106,7 @@ function ProviderSignupPage() {
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
       company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
-      phone: null, website: null,
+      phone: phoneTrim, website: websiteValue,
       description, services: ["covering_vehicule"],
       coverage_areas: coverageList, portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
