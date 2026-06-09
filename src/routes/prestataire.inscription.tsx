@@ -155,29 +155,6 @@ function ProviderSignupPage() {
             <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
-            <Field label="Site web (optionnel)">
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={website}
-                  onChange={(e) => { setWebsite(e.target.value); setWebsiteCheck(null); }}
-                  onBlur={() => { if (website.trim()) runWebsiteCheck(); }}
-                  placeholder="https://mon-entreprise.fr"
-                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2"
-                />
-                <button type="button" onClick={runWebsiteCheck} disabled={verifyingSite || !website.trim()}
-                  className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary disabled:opacity-50">
-                  {verifyingSite ? "Vérification…" : "Vérifier"}
-                </button>
-              </div>
-              {websiteCheck && (
-                <p className={`mt-1.5 text-xs ${websiteCheck.ok ? "text-signal" : "text-destructive"}`}>
-                  {websiteCheck.ok
-                    ? `✓ Site sécurisé et joignable (${websiteCheck.finalUrl}).`
-                    : `⚠ ${websiteCheck.reason ?? "Site non vérifié."}`}
-                </p>
-              )}
-            </Field>
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
