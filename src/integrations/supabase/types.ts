@@ -70,6 +70,8 @@ export type Database = {
       }
       advertiser_profiles: {
         Row: {
+          account_type: string
+          address: string | null
           city: string | null
           company: string | null
           created_at: string
@@ -83,6 +85,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_type?: string
+          address?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
@@ -96,6 +100,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_type?: string
+          address?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
