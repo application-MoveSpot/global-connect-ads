@@ -60,6 +60,24 @@ function ProviderSignupPage() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    const companyTrim = company.trim();
+    const fullNameTrim = fullName.trim();
+    if (companyTrim.length < 2) { setError("Nom de l'entreprise invalide."); return; }
+    if (!siretCheck.verified) { setError("Veuillez vérifier le SIRET de votre entreprise."); return; }
+    // Vérification que le nom d'entreprise saisi correspond bien à la dénomination INSEE
+    const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+    const denom = siretCheck.denomination ? norm(siretCheck.denomination) : "";
+    const typed = norm(companyTrim);
+    const denomTokens = new Set(denom.split(" ").filter((t) => t.length > 2));
+    const typedTokens = typed.split(" ").filter((t) => t.length > 2);
+    const overlap = typedTokens.filter((t) => denomTokens.has(t)).length;
+    if (denom && overlap === 0 && !denom.includes(typed) && !typed.includes(denom)) {
+      setError(`Le nom de l'entreprise ne correspond pas au SIRET (INSEE : « ${siretCheck.denomination} »).`);
+      return;
+    }
+    // Nom de contact : au moins prénom + nom, lettres uniquement
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
+    if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
@@ -68,7 +86,7 @@ function ProviderSignupPage() {
     const portfolioList = portfolio.split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 10);
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
-      company, siret: siret || null, full_name: fullName, email,
+      company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
       phone: phone || null, website: website || null,
       description, services: ["covering_vehicule"],
       coverage_areas: coverageList, portfolio_urls: portfolioList,
