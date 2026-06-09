@@ -26,9 +26,6 @@ function ProviderSignupPage() {
   const [company, setCompany] = useState("");
   const [siretCheck, setSiretCheck] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [fullName, setFullName] = useState("");
-  const [website, setWebsite] = useState("");
-  const [websiteCheck, setWebsiteCheck] = useState<WebsiteCheck | null>(null);
-  const [verifyingSite, setVerifyingSite] = useState(false);
   const [description, setDescription] = useState("");
   const [coverage, setCoverage] = useState("");
   const [pricingInfo, setPricingInfo] = useState("");
