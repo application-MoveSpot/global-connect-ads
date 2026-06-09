@@ -15,7 +15,7 @@ function ProviderSignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("");
-  const [siret, setSiret] = useState("");
+  const [siretCheck, setSiretCheck] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
