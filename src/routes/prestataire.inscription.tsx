@@ -85,7 +85,9 @@ function ProviderSignupPage() {
     const denomTokens = new Set(denom.split(" ").filter((t) => t.length > 2));
     const typedTokens = typed.split(" ").filter((t) => t.length > 2);
     const overlap = typedTokens.filter((t) => denomTokens.has(t)).length;
-    if (denom && overlap === 0 && !denom.includes(typed) && !typed.includes(denom)) {
+    // Pour une entreprise individuelle (pas de raison sociale officielle), on accepte
+    // un nom commercial libre — l'identité légale reste celle du chef d'entreprise.
+    if (!siretCheck.isIndividual && denom && overlap === 0 && !denom.includes(typed) && !typed.includes(denom)) {
       setError(`Le nom de l'entreprise ne correspond pas au SIRET (INSEE : « ${siretCheck.denomination} »).`);
       return;
     }
