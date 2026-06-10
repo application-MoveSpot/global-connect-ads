@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
@@ -68,6 +68,7 @@ function withTimeout<T>(promise: PromiseLike<T>, label: string): Promise<T> {
 
 function AdminPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [authState, setAuthState] = useState<AuthState>("checking");
   const [dataLoading, setDataLoading] = useState(true);
   const [dataError, setDataError] = useState("");
@@ -142,6 +143,8 @@ function AdminPage() {
     await supabase.auth.signOut();
     navigate({ to: "/auth" });
   };
+
+  if (location.pathname !== "/admin") return <Outlet />;
 
   if (authState === "checking") return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Vérification de la session...</div>;
 
