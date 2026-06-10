@@ -17,7 +17,7 @@ function luhnSiretValid(siret: string): boolean {
 }
 
 type VerifyResult =
-  | { ok: true; siret: string; denomination: string; etatAdministratif: string; adresse: string | null }
+  | { ok: true; siret: string; denomination: string; etatAdministratif: string; adresse: string | null; isIndividual: boolean; categorieJuridique: string | null }
   | { ok: false; error: string };
 
 export const verifySiret = createServerFn({ method: "POST" })
