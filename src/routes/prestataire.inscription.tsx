@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/ProviderPortfolioUploader";
+import { verifyWebsite } from "@/lib/website-verify.functions";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
