@@ -29,6 +29,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
