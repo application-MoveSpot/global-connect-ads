@@ -111,6 +111,68 @@ function ProviderDashboard() {
   );
 }
 
+function ProfilePreview({ profile }: { profile: Profile }) {
+  const arr = (a: string[] | null) => (a && a.length > 0 ? a : null);
+  return (
+    <section className="mb-8 rounded-2xl border border-border bg-card p-5">
+      <div className="flex items-start gap-4 mb-4">
+        {profile.logo_url ? (
+          <img src={profile.logo_url} alt={profile.company} className="w-16 h-16 rounded-lg object-cover" />
+        ) : (
+          <div className="w-16 h-16 rounded-lg bg-primary/15 text-primary font-bold flex items-center justify-center text-xl">
+            {profile.company.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold truncate">{profile.company}</h2>
+          <div className="text-sm text-muted-foreground">Contact : {profile.full_name}</div>
+          {profile.siret && <div className="text-xs text-muted-foreground mt-0.5">SIRET : {profile.siret}</div>}
+        </div>
+        <Link to="/prestataire/inscription" className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary shrink-0">
+          Modifier
+        </Link>
+      </div>
+      <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+        {profile.email && <Row label="Email" value={profile.email} />}
+        {profile.phone && <Row label="Téléphone" value={profile.phone} />}
+        {profile.website && <Row label="Site web" value={profile.website} />}
+        {profile.pricing_info && <Row label="Tarifs" value={profile.pricing_info} />}
+      </dl>
+      {profile.description && (
+        <div className="mt-3">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Description</div>
+          <p className="text-sm whitespace-pre-wrap">{profile.description}</p>
+        </div>
+      )}
+      {arr(profile.services) && (
+        <div className="mt-3">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Services</div>
+          <div className="flex flex-wrap gap-1">
+            {profile.services!.map((s) => <span key={s} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{s}</span>)}
+          </div>
+        </div>
+      )}
+      {arr(profile.coverage_areas) && (
+        <div className="mt-3">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Zones couvertes</div>
+          <div className="flex flex-wrap gap-1">
+            {profile.coverage_areas!.map((z) => <span key={z} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{z}</span>)}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2">
+      <dt className="text-muted-foreground shrink-0">{label} :</dt>
+      <dd className="min-w-0 break-words">{value}</dd>
+    </div>
+  );
+}
+
 function QuoteCard({ q, onRespond, onReject }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void }) {
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
