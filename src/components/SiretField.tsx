@@ -30,7 +30,7 @@ export function SiretField({
     try {
       const res = await verify({ data: { siret: cleaned } });
       if (res.ok) {
-        onChange({ siret: cleaned, denomination: res.denomination, verified: true });
+        onChange({ siret: cleaned, denomination: res.denomination, verified: true, isIndividual: res.isIndividual });
       } else {
         onChange({ siret: cleaned, denomination: null, verified: false });
         setError(res.error);
