@@ -102,6 +102,7 @@ function ProviderSignupPage() {
         if (u.protocol !== "https:") { setError("Le site web doit utiliser HTTPS (https://...)."); return; }
         websiteValue = u.toString();
       } catch { setError("URL de site web invalide."); return; }
+      if (!websiteCheck?.ok) { setError("Veuillez vérifier votre site web avant de soumettre."); return; }
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
