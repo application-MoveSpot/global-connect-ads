@@ -93,6 +93,9 @@ function ProviderDashboard() {
           </div>
         )}
 
+        <ProfilePreview profile={profile} />
+
+
         <h2 className="font-display text-xl font-bold mb-3">Demandes ({quotes.length})</h2>
         {quotes.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
