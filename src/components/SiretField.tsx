@@ -6,6 +6,7 @@ export type SiretCheck = {
   siret: string;
   denomination: string | null;
   verified: boolean;
+  isIndividual?: boolean;
 };
 
 export function SiretField({
