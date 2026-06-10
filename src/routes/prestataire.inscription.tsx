@@ -90,7 +90,7 @@ function ProviderSignupPage() {
       return;
     }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
-    if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du contact (lettres uniquement)."); return; }
+    if (!nameRe.test(fullNameTrim)) { setError("Indiquez le prénom et le nom du responsable / contact principal (lettres uniquement)."); return; }
     if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
     const phoneTrim = phone.trim();
     if (!/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) { setError("Numéro de téléphone invalide."); return; }
@@ -151,7 +151,7 @@ function ProviderSignupPage() {
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
             <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
-            <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
+            <Input label="Nom et prénom du responsable / contact principal" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" hint="Ce nom sera affiché comme interlocuteur commercial sur votre fiche publique." />
             <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} required placeholder="Ex. +33 6 12 34 56 78" />
             <Field label="Site web (optionnel)">
               <div className="flex gap-2">
@@ -220,11 +220,12 @@ function ProviderSignupPage() {
   );
 }
 
-function Input({ label, value, onChange, type = "text", required, placeholder }: { label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string }) {
+function Input({ label, value, onChange, type = "text", required, placeholder, hint }: { label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string; hint?: string }) {
   return (
     <Field label={label}>
       <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
         className="w-full rounded-lg border border-border bg-background px-3 py-2" />
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </Field>
   );
 }
