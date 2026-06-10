@@ -9,6 +9,9 @@ export const Route = createFileRoute("/prestataire/")({
 
 type Profile = {
   user_id: string; company: string; full_name: string; status: string; admin_notes: string | null;
+  siret: string | null; email: string | null; phone: string | null; website: string | null;
+  description: string | null; services: string[] | null; coverage_areas: string[] | null;
+  pricing_info: string | null; logo_url: string | null;
 };
 
 type Quote = {
