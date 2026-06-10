@@ -53,12 +53,35 @@ function Index() {
             <Link to="/proprietaire" className="hidden md:inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
               Espace propriétaire
             </Link>
-            <a href="#spots" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
+            <a href="#spots" className="hidden sm:inline-block rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
               Réserver
             </a>
+            <button
+              type="button"
+              aria-label="Menu"
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full border border-border bg-card hover:bg-secondary transition"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
 
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
+            <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
+              <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Temps réel</a>
+              <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Véhicules</a>
+              <Link to="/comment-ca-marche" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Comment ça marche</Link>
+              <Link to="/devenir-partenaire" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Devenir partenaire</Link>
+              <div className="h-px bg-border my-2" />
+              <Link to="/annonceur" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">Espace annonceur</Link>
+              <Link to="/proprietaire" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">Espace propriétaire</Link>
+              <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="mt-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-center font-semibold">Réserver</a>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Hero */}
