@@ -85,7 +85,9 @@ function ProviderSignupPage() {
     const denomTokens = new Set(denom.split(" ").filter((t) => t.length > 2));
     const typedTokens = typed.split(" ").filter((t) => t.length > 2);
     const overlap = typedTokens.filter((t) => denomTokens.has(t)).length;
-    if (denom && overlap === 0 && !denom.includes(typed) && !typed.includes(denom)) {
+    // Pour une entreprise individuelle (pas de raison sociale officielle), on accepte
+    // un nom commercial libre — l'identité légale reste celle du chef d'entreprise.
+    if (!siretCheck.isIndividual && denom && overlap === 0 && !denom.includes(typed) && !typed.includes(denom)) {
       setError(`Le nom de l'entreprise ne correspond pas au SIRET (INSEE : « ${siretCheck.denomination} »).`);
       return;
     }
@@ -149,7 +151,7 @@ function ProviderSignupPage() {
           </form>
         ) : (
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
-            <Input label="Société (raison sociale)" value={company} onChange={setCompany} required placeholder="Conforme au registre du commerce" />
+            <Input label="Société (raison sociale ou nom commercial)" value={company} onChange={setCompany} required placeholder="Raison sociale, ou nom commercial pour une entreprise individuelle" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom et prénom du responsable / contact principal" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" hint="Ce nom sera affiché comme interlocuteur commercial sur votre fiche publique." />
             <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} required placeholder="Ex. +33 6 12 34 56 78" />

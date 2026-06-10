@@ -6,6 +6,7 @@ export type SiretCheck = {
   siret: string;
   denomination: string | null;
   verified: boolean;
+  isIndividual?: boolean;
 };
 
 export function SiretField({
@@ -29,7 +30,7 @@ export function SiretField({
     try {
       const res = await verify({ data: { siret: cleaned } });
       if (res.ok) {
-        onChange({ siret: cleaned, denomination: res.denomination, verified: true });
+        onChange({ siret: cleaned, denomination: res.denomination, verified: true, isIndividual: res.isIndividual });
       } else {
         onChange({ siret: cleaned, denomination: null, verified: false });
         setError(res.error);
@@ -72,6 +73,7 @@ export function SiretField({
       {value.verified && value.denomination && (
         <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
           ✓ {value.denomination}
+          {value.isIndividual && " (entreprise individuelle — l'identité légale est le nom du chef d'entreprise)"}
         </p>
       )}
       {error && (
