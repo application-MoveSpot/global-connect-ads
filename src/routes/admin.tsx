@@ -183,9 +183,10 @@ function AdminPage() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
             <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
+            <a href="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">Prestataires →</a>
           </div>
           <div className="flex gap-2">
             <a
