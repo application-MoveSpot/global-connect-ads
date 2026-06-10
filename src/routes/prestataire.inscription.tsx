@@ -153,7 +153,37 @@ function ProviderSignupPage() {
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom du contact (prénom + nom)" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" />
             <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} required placeholder="Ex. +33 6 12 34 56 78" />
-            <Input label="Site web (optionnel)" type="url" value={website} onChange={setWebsite} placeholder="https://votre-entreprise.fr" />
+            <Field label="Site web (optionnel)">
+              <div className="flex gap-2">
+                <input type="url" value={website}
+                  onChange={(e) => { setWebsite(e.target.value); setWebsiteCheck(null); }}
+                  placeholder="https://votre-entreprise.fr"
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2" />
+                <button type="button" disabled={verifyingSite || !website.trim()}
+                  onClick={async () => {
+                    setError(""); setWebsiteCheck(null); setVerifyingSite(true);
+                    try {
+                      const r = await callVerifyWebsite({ data: { url: website.trim() } });
+                      if (!r.ok) { setError(r.error); setWebsiteCheck({ ok: false }); }
+                      else setWebsiteCheck({ ok: true, title: r.title, warnings: r.warnings });
+                    } catch { setError("Erreur lors de la vérification du site."); }
+                    finally { setVerifyingSite(false); }
+                  }}
+                  className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary disabled:opacity-50">
+                  {verifyingSite ? "…" : "Vérifier"}
+                </button>
+              </div>
+              {websiteCheck?.ok && (
+                <div className="mt-2 text-xs rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-2 text-emerald-700 dark:text-emerald-300">
+                  ✅ Site sécurisé (HTTPS) accessible{websiteCheck.title ? ` — « ${websiteCheck.title} »` : ""}.
+                  {websiteCheck.warnings && websiteCheck.warnings.length > 0 && (
+                    <ul className="mt-1 list-disc pl-4 text-amber-700 dark:text-amber-300">
+                      {websiteCheck.warnings.map((w, i) => <li key={i}>⚠ {w}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </Field>
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
