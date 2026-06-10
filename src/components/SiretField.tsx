@@ -73,6 +73,7 @@ export function SiretField({
       {value.verified && value.denomination && (
         <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
           ✓ {value.denomination}
+          {value.isIndividual && " (entreprise individuelle — l'identité légale est le nom du chef d'entreprise)"}
         </p>
       )}
       {error && (
