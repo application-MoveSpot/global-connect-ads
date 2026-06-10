@@ -34,6 +34,9 @@ function ProviderSignupPage() {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
+  const [websiteCheck, setWebsiteCheck] = useState<{ ok: boolean; title?: string | null; warnings?: string[] } | null>(null);
+  const [verifyingSite, setVerifyingSite] = useState(false);
+  const callVerifyWebsite = useServerFn(verifyWebsite);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
