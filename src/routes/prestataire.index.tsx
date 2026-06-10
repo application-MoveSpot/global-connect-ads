@@ -31,7 +31,7 @@ function ProviderDashboard() {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/prestataire/inscription" }); return; }
     const { data: p } = await supabase.from("provider_profiles")
-      .select("user_id, company, full_name, status, admin_notes")
+      .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url")
       .eq("user_id", sess.session.user.id).maybeSingle();
     if (!p) { navigate({ to: "/prestataire/inscription" }); return; }
     setProfile(p as Profile);
