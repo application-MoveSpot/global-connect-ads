@@ -84,7 +84,10 @@ export const verifySiret = createServerFn({ method: "POST" })
         return { ok: false, error: `Établissement fermé (SIRET ${siret}).` };
       }
 
-      return { ok: true, siret, denomination, etatAdministratif: etat, adresse };
+      const categorieJuridique: string | null = u.categorieJuridiqueUniteLegale ?? null;
+      const isIndividual = !!categorieJuridique && categorieJuridique.startsWith("1");
+
+      return { ok: true, siret, denomination, etatAdministratif: etat, adresse, isIndividual, categorieJuridique };
     } catch (err) {
       console.error("verifySiret crash", err);
       return { ok: false, error: "Erreur réseau lors de la vérification." };
