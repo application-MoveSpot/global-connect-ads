@@ -36,7 +36,7 @@ function ProviderDetailPage() {
     (async () => {
       const [{ data: p }, { data: sess }] = await Promise.all([
         supabase.from("provider_profiles")
-          .select("user_id, company, full_name, email, phone, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url")
+          .select("user_id, company, full_name, email, phone, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url, services")
           .eq("user_id", providerId).eq("status", "approved").maybeSingle(),
         supabase.auth.getSession(),
       ]);
