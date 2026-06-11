@@ -17,6 +17,7 @@ export const Route = createFileRoute("/prestataires/")({
 type Provider = {
   user_id: string; company: string; full_name: string; description: string;
   coverage_areas: string[]; pricing_info: string | null; logo_url: string | null; website: string | null;
+  services: string[];
 };
 
 function ProvidersDirectory() {
