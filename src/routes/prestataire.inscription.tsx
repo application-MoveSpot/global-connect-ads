@@ -191,6 +191,23 @@ function ProviderSignupPage() {
                 </div>
               )}
             </Field>
+            <Field label="Types de prestations proposées">
+              <p className="text-xs text-muted-foreground mb-2">Cochez tout ce que vous proposez. Vous pouvez cumuler plusieurs rôles.</p>
+              <div className="space-y-2">
+                {PROVIDER_SERVICES.map((s) => {
+                  const checked = services.includes(s.key);
+                  return (
+                    <label key={s.key} className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition ${checked ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/50"}`}>
+                      <input type="checkbox" checked={checked} onChange={() => toggleService(s.key)} className="mt-0.5" />
+                      <div>
+                        <div className="text-sm font-medium">{s.label}</div>
+                        <div className="text-xs text-muted-foreground">{s.description}</div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </Field>
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
