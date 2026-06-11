@@ -34,6 +34,9 @@ function ProviderSignupPage() {
   const [pricingInfo, setPricingInfo] = useState("");
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [phone, setPhone] = useState("");
+  const [services, setServices] = useState<ProviderServiceKey[]>(["covering_vehicule"]);
+  const toggleService = (k: ProviderServiceKey) =>
+    setServices((prev) => (prev.includes(k) ? prev.filter((s) => s !== k) : [...prev, k]));
   const [website, setWebsite] = useState("");
   const [websiteCheck, setWebsiteCheck] = useState<{ ok: boolean; title?: string | null; warnings?: string[] } | null>(null);
   const [verifyingSite, setVerifyingSite] = useState(false);
