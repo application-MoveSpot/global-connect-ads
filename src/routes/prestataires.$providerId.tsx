@@ -98,6 +98,11 @@ function ProviderDetailPage() {
             <h1 className="font-display text-3xl font-bold">{provider.company}</h1>
             <p className="text-sm text-muted-foreground">Contact : {provider.full_name}</p>
             {provider.website && <a href={provider.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">{provider.website}</a>}
+            {provider.services && provider.services.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {provider.services.map((s) => <span key={s} className="text-xs bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+              </div>
+            )}
           </div>
         </div>
 
