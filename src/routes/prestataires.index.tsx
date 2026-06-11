@@ -53,8 +53,8 @@ function ProvidersDirectory() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="font-display text-3xl font-bold mb-2">Prestataires impression covering</h1>
-        <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot pour habiller vos véhicules publicitaires.</p>
+        <h1 className="font-display text-3xl font-bold mb-2">Prestataires MoveSpot</h1>
+        <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.</p>
 
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher (société, zone, expertise…)"
           className="w-full rounded-full border border-border bg-card px-5 py-3 mb-6" />
