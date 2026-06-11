@@ -28,7 +28,7 @@ function ProvidersDirectory() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("provider_profiles")
-        .select("user_id, company, full_name, description, coverage_areas, pricing_info, logo_url, website")
+        .select("user_id, company, full_name, description, coverage_areas, pricing_info, logo_url, website, services")
         .eq("status", "approved").order("created_at", { ascending: false });
       setProviders((data as Provider[]) ?? []);
       setLoading(false);
