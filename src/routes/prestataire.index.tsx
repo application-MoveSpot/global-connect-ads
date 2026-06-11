@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataire/")({
   component: ProviderDashboard,
