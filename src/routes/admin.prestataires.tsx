@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/admin/prestataires")({
   component: AdminProvidersPage,
@@ -11,7 +12,7 @@ type Provider = {
   user_id: string; company: string; siret: string | null; full_name: string; email: string;
   phone: string | null; website: string | null; description: string; coverage_areas: string[];
   portfolio_urls: string[]; pricing_info: string | null; status: string; admin_notes: string | null;
-  created_at: string;
+  services: string[]; created_at: string;
 };
 
 function AdminProvidersPage() {
@@ -73,6 +74,11 @@ function AdminProvidersPage() {
                     p.status === "suspended" ? "bg-secondary" : "bg-amber-500/20 text-amber-700 dark:text-amber-300"
                   }`}>{p.status}</span>
                 </div>
+                {p.services && p.services.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {p.services.map((s) => <span key={s} className="text-[11px] bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+                  </div>
+                )}
                 <p className="text-sm whitespace-pre-wrap mb-2">{p.description}</p>
                 {p.coverage_areas.length > 0 && (
                   <div className="text-xs text-muted-foreground mb-2"><strong>Zones :</strong> {p.coverage_areas.join(", ")}</div>

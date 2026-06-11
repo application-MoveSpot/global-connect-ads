@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataire/")({
   component: ProviderDashboard,
@@ -146,9 +147,9 @@ function ProfilePreview({ profile }: { profile: Profile }) {
       )}
       {arr(profile.services) && (
         <div className="mt-3">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Services</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Rôles / prestations</div>
           <div className="flex flex-wrap gap-1">
-            {profile.services!.map((s) => <span key={s} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{s}</span>)}
+            {profile.services!.map((s) => <span key={s} className="text-xs bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
           </div>
         </div>
       )}

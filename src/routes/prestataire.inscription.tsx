@@ -6,6 +6,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/ProviderPortfolioUploader";
 import { verifyWebsite } from "@/lib/website-verify.functions";
+import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
@@ -33,6 +34,9 @@ function ProviderSignupPage() {
   const [pricingInfo, setPricingInfo] = useState("");
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [phone, setPhone] = useState("");
+  const [services, setServices] = useState<ProviderServiceKey[]>(["covering_vehicule"]);
+  const toggleService = (k: ProviderServiceKey) =>
+    setServices((prev) => (prev.includes(k) ? prev.filter((s) => s !== k) : [...prev, k]));
   const [website, setWebsite] = useState("");
   const [websiteCheck, setWebsiteCheck] = useState<{ ok: boolean; title?: string | null; warnings?: string[] } | null>(null);
   const [verifyingSite, setVerifyingSite] = useState(false);
@@ -78,6 +82,7 @@ function ProviderSignupPage() {
     const companyTrim = company.trim();
     const fullNameTrim = fullName.trim();
     if (companyTrim.length < 2) { setError("Nom de l'entreprise invalide."); return; }
+    if (services.length === 0) { setError("Sélectionnez au moins un type de prestation."); return; }
     if (!siretCheck.verified) { setError("Veuillez vérifier le SIRET de votre entreprise."); return; }
     const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
     const denom = siretCheck.denomination ? norm(siretCheck.denomination) : "";
@@ -115,7 +120,7 @@ function ProviderSignupPage() {
       user_id: sess.session.user.id,
       company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
       phone: phoneTrim, website: websiteValue,
-      description, services: ["covering_vehicule"],
+      description, services,
       coverage_areas: coverageList, portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
     });
@@ -185,6 +190,23 @@ function ProviderSignupPage() {
                   )}
                 </div>
               )}
+            </Field>
+            <Field label="Types de prestations proposées">
+              <p className="text-xs text-muted-foreground mb-2">Cochez tout ce que vous proposez. Vous pouvez cumuler plusieurs rôles.</p>
+              <div className="space-y-2">
+                {PROVIDER_SERVICES.map((s) => {
+                  const checked = services.includes(s.key);
+                  return (
+                    <label key={s.key} className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition ${checked ? "border-primary bg-primary/5" : "border-border hover:bg-secondary/50"}`}>
+                      <input type="checkbox" checked={checked} onChange={() => toggleService(s.key)} className="mt-0.5" />
+                      <div>
+                        <div className="text-sm font-medium">{s.label}</div>
+                        <div className="text-xs text-muted-foreground">{s.description}</div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
             </Field>
             <Field label="Description de votre activité">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={4}

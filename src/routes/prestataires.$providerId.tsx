@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataires/$providerId")({
   component: ProviderDetailPage,
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/prestataires/$providerId")({
 type Provider = {
   user_id: string; company: string; full_name: string; email: string; phone: string | null;
   website: string | null; description: string; coverage_areas: string[]; portfolio_urls: string[];
-  pricing_info: string | null; logo_url: string | null;
+  pricing_info: string | null; logo_url: string | null; services: string[];
 };
 
 function ProviderDetailPage() {
@@ -35,7 +36,7 @@ function ProviderDetailPage() {
     (async () => {
       const [{ data: p }, { data: sess }] = await Promise.all([
         supabase.from("provider_profiles")
-          .select("user_id, company, full_name, email, phone, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url")
+          .select("user_id, company, full_name, email, phone, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url, services")
           .eq("user_id", providerId).eq("status", "approved").maybeSingle(),
         supabase.auth.getSession(),
       ]);
@@ -97,6 +98,11 @@ function ProviderDetailPage() {
             <h1 className="font-display text-3xl font-bold">{provider.company}</h1>
             <p className="text-sm text-muted-foreground">Contact : {provider.full_name}</p>
             {provider.website && <a href={provider.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">{provider.website}</a>}
+            {provider.services && provider.services.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {provider.services.map((s) => <span key={s} className="text-xs bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+              </div>
+            )}
           </div>
         </div>
 

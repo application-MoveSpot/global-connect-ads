@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
+import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataires/")({
   component: ProvidersDirectory,
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/prestataires/")({
 type Provider = {
   user_id: string; company: string; full_name: string; description: string;
   coverage_areas: string[]; pricing_info: string | null; logo_url: string | null; website: string | null;
+  services: string[];
 };
 
 function ProvidersDirectory() {
@@ -26,7 +28,7 @@ function ProvidersDirectory() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from("provider_profiles")
-        .select("user_id, company, full_name, description, coverage_areas, pricing_info, logo_url, website")
+        .select("user_id, company, full_name, description, coverage_areas, pricing_info, logo_url, website, services")
         .eq("status", "approved").order("created_at", { ascending: false });
       setProviders((data as Provider[]) ?? []);
       setLoading(false);
@@ -51,8 +53,8 @@ function ProvidersDirectory() {
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="font-display text-3xl font-bold mb-2">Prestataires impression covering</h1>
-        <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot pour habiller vos véhicules publicitaires.</p>
+        <h1 className="font-display text-3xl font-bold mb-2">Prestataires MoveSpot</h1>
+        <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.</p>
 
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher (société, zone, expertise…)"
           className="w-full rounded-full border border-border bg-card px-5 py-3 mb-6" />
@@ -81,6 +83,11 @@ function ProvidersDirectory() {
                     <div className="text-xs text-muted-foreground truncate">Contact : {p.full_name}</div>
                   </div>
                 </div>
+                {p.services && p.services.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {p.services.map((s) => <span key={s} className="text-[10px] bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{p.description}</p>
                 {p.coverage_areas.length > 0 && (
                   <div className="flex flex-wrap gap-1">
