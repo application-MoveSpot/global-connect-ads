@@ -120,7 +120,7 @@ function ProviderSignupPage() {
       user_id: sess.session.user.id,
       company: companyTrim, siret: siretCheck.siret, full_name: fullNameTrim, email,
       phone: phoneTrim, website: websiteValue,
-      description, services: ["covering_vehicule"],
+      description, services,
       coverage_areas: coverageList, portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
     });
