@@ -6,6 +6,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/ProviderPortfolioUploader";
 import { verifyWebsite } from "@/lib/website-verify.functions";
+import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
