@@ -12,7 +12,7 @@ type Provider = {
   user_id: string; company: string; siret: string | null; full_name: string; email: string;
   phone: string | null; website: string | null; description: string; coverage_areas: string[];
   portfolio_urls: string[]; pricing_info: string | null; status: string; admin_notes: string | null;
-  created_at: string;
+  services: string[]; created_at: string;
 };
 
 function AdminProvidersPage() {
