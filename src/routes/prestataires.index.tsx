@@ -83,6 +83,11 @@ function ProvidersDirectory() {
                     <div className="text-xs text-muted-foreground truncate">Contact : {p.full_name}</div>
                   </div>
                 </div>
+                {p.services && p.services.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {p.services.map((s) => <span key={s} className="text-[10px] bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{p.description}</p>
                 {p.coverage_areas.length > 0 && (
                   <div className="flex flex-wrap gap-1">
