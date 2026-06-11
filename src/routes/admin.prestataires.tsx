@@ -74,6 +74,11 @@ function AdminProvidersPage() {
                     p.status === "suspended" ? "bg-secondary" : "bg-amber-500/20 text-amber-700 dark:text-amber-300"
                   }`}>{p.status}</span>
                 </div>
+                {p.services && p.services.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {p.services.map((s) => <span key={s} className="text-[11px] bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+                  </div>
+                )}
                 <p className="text-sm whitespace-pre-wrap mb-2">{p.description}</p>
                 {p.coverage_areas.length > 0 && (
                   <div className="text-xs text-muted-foreground mb-2"><strong>Zones :</strong> {p.coverage_areas.join(", ")}</div>
