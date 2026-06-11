@@ -50,7 +50,18 @@ export const estimateVehicle = createServerFn({ method: "POST" })
 
 Analyse ce véhicule proposé sur MoveSpot et :
 1. Vérifie que la/les photo(s) correspondent au type déclaré "${data.type}" et à l'état déclaré "${data.condition}".
-2. Détecte INDÉPENDAMMENT si la/les photo(s) ont été générées ou retouchées par une IA (artefacts de diffusion, incohérences anatomiques/perspectives, textures lissées, ombres incohérentes, watermarks IA). Sois strict.
+
+   RÈGLES IMPORTANTES de correspondance type/photo :
+   - Type "taxi" : accepte AUSSI les VTC (Uber, Bolt, Heetch, etc.). Un VTC est une berline standard sans lumineux ni licence visible (Peugeot 508, Mercedes Classe E, Tesla Model 3, Toyota Prius, etc.). NE refuse PAS une berline propre sous prétexte qu'il manque le lumineux "TAXI" : c'est probablement un VTC, ce qui est valide sur MoveSpot.
+   - Type "voiture" : toute voiture particulière convient.
+   - Type "van" / "food_truck" : exige un utilitaire/camion aménagé reconnaissable.
+   - Marque "ne correspond pas" UNIQUEMENT si la photo montre un véhicule clairement d'une autre catégorie (ex: scooter déclaré comme food truck).
+
+2. Détecte INDÉPENDAMMENT si la/les photo(s) ont été générées ou retouchées par une IA. Sois STRICT mais JUSTE :
+   - Indices IA : artefacts de diffusion, textures plastiques/lissées anormalement, plaques d'immatriculation illisibles ou incohérentes, reflets/ombres physiquement impossibles, perspectives déformées, détails flous au mauvais endroit, watermarks IA.
+   - NE classe PAS comme IA une photo authentique simplement parce qu'elle est nette, bien éclairée ou en studio. Une photo pro reste une photo réelle.
+   - En cas de doute raisonnable sur l'authenticité → ai_generated_detected: false, mais signale-le dans recommendation.
+
 3. Estime une fourchette de prix par jour réaliste en € (marché FR) selon type, état, surface, km/jour et zones.
 4. Estime les impressions/jour réalistes (vues humaines uniques) selon km/jour, type et zones.
 5. Donne une courte recommandation au propriétaire (rappelle aussi la législation de propriété intellectuelle : photos personnelles, pas de droits tiers violés).
@@ -69,13 +80,14 @@ Réponds UNIQUEMENT en JSON strict :
   "suggested_price_max": number,
   "estimated_impressions_per_day": number,
   "photo_match": "ok" | "doubtful" | "mismatch" | "unverified",
-  "photo_notes": "court commentaire en français sur la cohérence photo/déclaration",
+  "photo_notes": "court commentaire en français sur la cohérence photo/déclaration (mentionne explicitement si tu acceptes au titre du VTC)",
   "condition_alert": "alerte si l'état réel sur la photo semble pire que déclaré, sinon null",
   "ai_generated_detected": boolean,
-  "ai_generated_notes": "explication courte en français (indices visuels) si suspicion d'image IA, sinon vide",
+  "ai_generated_notes": "explication courte en français (indices visuels précis) si suspicion d'image IA, sinon vide",
   "recommendation": "1-2 phrases en français"
 }`,
       },
+
     ];
     for (const url of data.photo_urls.slice(0, 3)) {
       content.push({ type: "image_url", image_url: { url } });
