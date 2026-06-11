@@ -82,6 +82,7 @@ function ProviderSignupPage() {
     const companyTrim = company.trim();
     const fullNameTrim = fullName.trim();
     if (companyTrim.length < 2) { setError("Nom de l'entreprise invalide."); return; }
+    if (services.length === 0) { setError("Sélectionnez au moins un type de prestation."); return; }
     if (!siretCheck.verified) { setError("Veuillez vérifier le SIRET de votre entreprise."); return; }
     const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
     const denom = siretCheck.denomination ? norm(siretCheck.denomination) : "";
