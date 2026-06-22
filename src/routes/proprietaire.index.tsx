@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
 import { MobilityMap } from "@/components/MobilityMap";
+import { OwnerConnectCard } from "@/components/OwnerConnectCard";
 
 export const Route = createFileRoute("/proprietaire/")({
   component: DashboardPage,
