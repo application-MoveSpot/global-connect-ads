@@ -98,7 +98,9 @@ function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <OwnerConnectCard />
+
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex gap-2 flex-wrap">
             <Tab active={tab === "vehicles"} onClick={() => setTab("vehicles")} count={vehicles.length}>Mes véhicules</Tab>
