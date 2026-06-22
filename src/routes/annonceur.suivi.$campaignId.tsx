@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Radio } from "lucide-react";
+import { MapPin, Radio, CreditCard } from "lucide-react";
+import { CampaignPaymentCheckout } from "@/components/CampaignPaymentCheckout";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
