@@ -26,10 +26,12 @@ export const createOwnerConnectOnboarding = createServerFn({ method: "POST" })
       const { supabase, userId } = context;
       const { data: profile } = await supabase
         .from("owner_profiles")
-        .select("id, stripe_connect_account_id, full_name, email")
+        .select("id, stripe_connect_account_id, full_name")
         .eq("user_id", userId)
         .maybeSingle();
       if (!profile) return { error: "Profil propriétaire introuvable." };
+      const { data: userData } = await supabase.auth.getUser();
+      const email = userData.user?.email ?? undefined;
 
       const stripe = createStripeClient(data.environment as StripeEnv);
       let accountId = profile.stripe_connect_account_id;
@@ -38,7 +40,8 @@ export const createOwnerConnectOnboarding = createServerFn({ method: "POST" })
         const account = await stripe.accounts.create({
           type: "express",
           country: "FR",
-          email: profile.email ?? undefined,
+          email,
+
           capabilities: {
             transfers: { requested: true },
             card_payments: { requested: true },
