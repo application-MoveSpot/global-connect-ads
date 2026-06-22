@@ -26,6 +26,12 @@ type Request = {
   estimated_impressions_per_day: number | null;
   days_count: number | null;
   creative_files: string[] | null;
+  total_price: number | null;
+  payment_status: string | null;
+  payout_status: string | null;
+  end_date: string | null;
+  owner_amount_cents: number | null;
+  platform_fee_cents: number | null;
 };
 
 type Vehicle = {
