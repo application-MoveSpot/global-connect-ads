@@ -141,6 +141,24 @@ function SuiviPage() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-4 p-4">
+        {campaign?.status === "approved" && campaign.payment_status !== "paid" && campaign.total_price && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Paiement de la campagne</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Total : <strong>{Number(campaign.total_price).toFixed(2)} €</strong> (prix par jour × durée). MoveSpot conserve 30 % et reverse 70 % au propriétaire à la fin de la diffusion.
+              </p>
+              <CampaignPaymentCheckout campaignRequestId={campaignId} totalPriceEur={Number(campaign.total_price)} />
+            </CardContent>
+          </Card>
+        )}
+        {campaign?.payment_status === "paid" && (
+          <Card>
+            <CardContent className="py-4 text-sm text-emerald-700">✅ Campagne payée. Votre diffusion est confirmée.</CardContent>
+          </Card>
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
