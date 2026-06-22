@@ -38,6 +38,18 @@ function SuiviPage() {
     queryFn: () => fetchPositions({ data: { campaignRequestId: campaignId } }),
     refetchInterval: 30_000,
   });
+  const { data: campaign } = useQuery({
+    queryKey: ["campaign-meta", campaignId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("campaign_requests")
+        .select("id, status, payment_status, total_price")
+        .eq("id", campaignId)
+        .maybeSingle();
+      return data;
+    },
+    refetchInterval: 10_000,
+  });
 
   useEffect(() => {
     if (posData?.positions) setPositions(posData.positions as Position[]);
