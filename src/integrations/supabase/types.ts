@@ -188,10 +188,14 @@ export type Database = {
           estimated_impressions_per_day: number | null
           id: string
           message: string
+          owner_amount_cents: number | null
           owner_response: string
           paid_amount_cents: number | null
           paid_at: string | null
           payment_status: string
+          payout_status: string
+          payout_transferred_at: string | null
+          platform_fee_cents: number | null
           route_pois: string[] | null
           route_waypoints: string[] | null
           route_zones: string[] | null
@@ -201,6 +205,9 @@ export type Database = {
           spot_price: number | null
           start_date: string | null
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
           total_price: number | null
           updated_at: string
           user_id: string | null
@@ -219,10 +226,14 @@ export type Database = {
           estimated_impressions_per_day?: number | null
           id?: string
           message: string
+          owner_amount_cents?: number | null
           owner_response?: string
           paid_amount_cents?: number | null
           paid_at?: string | null
           payment_status?: string
+          payout_status?: string
+          payout_transferred_at?: string | null
+          platform_fee_cents?: number | null
           route_pois?: string[] | null
           route_waypoints?: string[] | null
           route_zones?: string[] | null
@@ -232,6 +243,9 @@ export type Database = {
           spot_price?: number | null
           start_date?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
           total_price?: number | null
           updated_at?: string
           user_id?: string | null
@@ -250,10 +264,14 @@ export type Database = {
           estimated_impressions_per_day?: number | null
           id?: string
           message?: string
+          owner_amount_cents?: number | null
           owner_response?: string
           paid_amount_cents?: number | null
           paid_at?: string | null
           payment_status?: string
+          payout_status?: string
+          payout_transferred_at?: string | null
+          platform_fee_cents?: number | null
           route_pois?: string[] | null
           route_waypoints?: string[] | null
           route_zones?: string[] | null
@@ -263,6 +281,9 @@ export type Database = {
           spot_price?: number | null
           start_date?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
           total_price?: number | null
           updated_at?: string
           user_id?: string | null
@@ -424,6 +445,10 @@ export type Database = {
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
+          stripe_charges_enabled: boolean
+          stripe_connect_account_id: string | null
+          stripe_onboarding_completed_at: string | null
+          stripe_payouts_enabled: boolean
           updated_at: string
           user_id: string
         }
@@ -438,6 +463,10 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_connect_account_id?: string | null
+          stripe_onboarding_completed_at?: string | null
+          stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id: string
         }
@@ -452,6 +481,10 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_connect_account_id?: string | null
+          stripe_onboarding_completed_at?: string | null
+          stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
         }
