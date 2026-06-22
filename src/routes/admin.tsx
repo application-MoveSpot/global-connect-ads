@@ -284,6 +284,9 @@ function AdminPage() {
                       </button>
                     </div>
                   )}
+                  {r.status === "approved" && r.payment_status === "paid" && (
+                    <PayoutBlock req={r} onDone={() => load(filter)} />
+                  )}
                 </div>
               ))}
             </div>
