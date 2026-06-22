@@ -8,7 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Radio } from "lucide-react";
+import { MapPin, Radio, CreditCard } from "lucide-react";
+import { CampaignPaymentCheckout } from "@/components/CampaignPaymentCheckout";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
@@ -36,6 +37,18 @@ function SuiviPage() {
     queryKey: ["campaign-positions", campaignId],
     queryFn: () => fetchPositions({ data: { campaignRequestId: campaignId } }),
     refetchInterval: 30_000,
+  });
+  const { data: campaign } = useQuery({
+    queryKey: ["campaign-meta", campaignId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("campaign_requests")
+        .select("id, status, payment_status, total_price")
+        .eq("id", campaignId)
+        .maybeSingle();
+      return data;
+    },
+    refetchInterval: 10_000,
   });
 
   useEffect(() => {
@@ -128,6 +141,24 @@ function SuiviPage() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-4 p-4">
+        {campaign?.status === "approved" && campaign.payment_status !== "paid" && campaign.total_price && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Paiement de la campagne</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Total : <strong>{Number(campaign.total_price).toFixed(2)} €</strong> (prix par jour × durée). MoveSpot conserve 30 % et reverse 70 % au propriétaire à la fin de la diffusion.
+              </p>
+              <CampaignPaymentCheckout campaignRequestId={campaignId} totalPriceEur={Number(campaign.total_price)} />
+            </CardContent>
+          </Card>
+        )}
+        {campaign?.payment_status === "paid" && (
+          <Card>
+            <CardContent className="py-4 text-sm text-emerald-700">✅ Campagne payée. Votre diffusion est confirmée.</CardContent>
+          </Card>
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
