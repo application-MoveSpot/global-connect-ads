@@ -125,6 +125,13 @@ function DevenirPartenaire() {
         <Link to="/proprietaire/inscription" className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
           Commencer maintenant
         </Link>
+        <p className="text-sm text-muted-foreground mt-8">
+          Vous êtes apporteur d'affaires, agence ou revendeur ?{" "}
+          <Link to="/partenaire/inscription" className="underline hover:text-foreground">
+            Rejoignez le programme partenaire
+          </Link>
+          .
+        </p>
       </section>
 
       <footer className="border-t border-border">
