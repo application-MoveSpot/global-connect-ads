@@ -18,6 +18,7 @@ function ProviderDetailPage() {
   const { providerId } = Route.useParams();
   const navigate = useNavigate();
   const [provider, setProvider] = useState<Provider | null>(null);
+  const [portfolioSigned, setPortfolioSigned] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -40,11 +41,23 @@ function ProviderDetailPage() {
           .eq("user_id", providerId).eq("status", "approved").maybeSingle(),
         supabase.auth.getSession(),
       ]);
-      setProvider(p as Provider | null);
+      const prov = p as Provider | null;
+      setProvider(prov);
       setAuthed(!!sess.session);
+      if (prov && prov.portfolio_urls?.length) {
+        const paths = prov.portfolio_urls.filter((u) => !/^https?:\/\//i.test(u));
+        const fullUrls = prov.portfolio_urls.filter((u) => /^https?:\/\//i.test(u));
+        let signed: string[] = [];
+        if (paths.length) {
+          const { data } = await supabase.storage.from("provider-portfolio").createSignedUrls(paths, 3600);
+          signed = (data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[];
+        }
+        setPortfolioSigned([...fullUrls, ...signed]);
+      }
       setLoading(false);
     })();
   }, [providerId]);
+
 
   const submitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
