@@ -15,12 +15,35 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin" });
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return;
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") return;
+      navigate({ to: "/admin" });
     });
   }, [navigate]);
+
+  const checkMfaThenGo = async () => {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totp = factors?.totp?.find((f) => f.status === "verified");
+      if (totp) {
+        const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: totp.id });
+        if (chErr || !ch) {
+          setError(chErr?.message ?? "Erreur MFA");
+          return;
+        }
+        setMfa({ factorId: totp.id, challengeId: ch.id });
+        return;
+      }
+    }
+    navigate({ to: "/admin" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,10 +60,31 @@ function AuthPage() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
-      else navigate({ to: "/admin" });
+      else await checkMfaThenGo();
     }
     setLoading(false);
   };
+
+  const submitMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfa) return;
+    setError("");
+    setLoading(true);
+    const { error } = await supabase.auth.mfa.verify({
+      factorId: mfa.factorId,
+      challengeId: mfa.challengeId,
+      code: mfaCode,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setMfa(null);
+    setMfaCode("");
+    navigate({ to: "/admin" });
+  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
