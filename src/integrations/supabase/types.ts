@@ -116,6 +116,65 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_transfer_requests: {
+        Row: {
+          admin_notes: string | null
+          amount_cents: number
+          campaign_request_id: string | null
+          confirmed_by: string | null
+          created_at: string
+          currency: string
+          expires_at: string
+          id: string
+          purpose: string
+          received_at: string | null
+          reference: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_cents: number
+          campaign_request_id?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          purpose: string
+          received_at?: string | null
+          reference: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_cents?: number
+          campaign_request_id?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          currency?: string
+          expires_at?: string
+          id?: string
+          purpose?: string
+          received_at?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_transfer_requests_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brief_proposals: {
         Row: {
           brief_id: string
@@ -433,13 +492,70 @@ export type Database = {
         }
         Relationships: []
       }
+      owner_payouts: {
+        Row: {
+          amount_cents: number
+          bic_snapshot: string | null
+          campaign_request_ids: string[]
+          created_at: string
+          currency: string
+          holder_snapshot: string | null
+          iban_snapshot: string | null
+          id: string
+          marked_paid_by: string | null
+          notes: string | null
+          owner_id: string
+          paid_at: string | null
+          sepa_batch_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          bic_snapshot?: string | null
+          campaign_request_ids?: string[]
+          created_at?: string
+          currency?: string
+          holder_snapshot?: string | null
+          iban_snapshot?: string | null
+          id?: string
+          marked_paid_by?: string | null
+          notes?: string | null
+          owner_id: string
+          paid_at?: string | null
+          sepa_batch_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          bic_snapshot?: string | null
+          campaign_request_ids?: string[]
+          created_at?: string
+          currency?: string
+          holder_snapshot?: string | null
+          iban_snapshot?: string | null
+          id?: string
+          marked_paid_by?: string | null
+          notes?: string | null
+          owner_id?: string
+          paid_at?: string | null
+          sepa_batch_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       owner_profiles: {
         Row: {
+          account_holder: string | null
+          bic: string | null
           bio: string | null
           city: string | null
           company: string | null
           created_at: string
           full_name: string
+          iban: string | null
           id: string
           phone: string | null
           siret: string | null
@@ -453,11 +569,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_holder?: string | null
+          bic?: string | null
           bio?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
           full_name: string
+          iban?: string | null
           id?: string
           phone?: string | null
           siret?: string | null
@@ -471,11 +590,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_holder?: string | null
+          bic?: string | null
           bio?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
           full_name?: string
+          iban?: string | null
           id?: string
           phone?: string | null
           siret?: string | null
@@ -952,6 +1074,10 @@ export type Database = {
         }
         Returns: string
       }
+      confirm_bank_transfer: {
+        Args: { p_admin_notes?: string; p_request_id: string }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -960,6 +1086,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      generate_transfer_reference: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
