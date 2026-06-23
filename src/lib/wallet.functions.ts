@@ -108,12 +108,17 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
       p_campaign_request_id: campaign.id,
     });
 
+    const ownerAmountCents = Math.round(amountCents * 0.7);
+    const platformFeeCents = amountCents - ownerAmountCents;
+
     await supabaseAdmin
       .from("campaign_requests")
       .update({
         payment_status: "paid",
         paid_at: new Date().toISOString(),
         paid_amount_cents: amountCents,
+        owner_amount_cents: ownerAmountCents,
+        platform_fee_cents: platformFeeCents,
       } as never)
       .eq("id", campaign.id);
 
