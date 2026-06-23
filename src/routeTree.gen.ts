@@ -36,6 +36,8 @@ import { Route as PrestataireInscriptionRouteImport } from './routes/prestataire
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
+import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
+import { Route as AdminReversementsRouteImport } from './routes/admin.reversements'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
@@ -47,7 +49,6 @@ import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const SecuriteRoute = SecuriteRouteImport.update({
   id: '/securite',
@@ -184,6 +185,16 @@ const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
   path: '/annonceur/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVirementsRoute = AdminVirementsRouteImport.update({
+  id: '/virements',
+  path: '/virements',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReversementsRoute = AdminReversementsRouteImport.update({
+  id: '/reversements',
+  path: '/reversements',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
   id: '/prestataires',
   path: '/prestataires',
@@ -244,12 +255,6 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -268,6 +273,8 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/reversements': typeof AdminReversementsRoute
+  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -289,7 +296,6 @@ export interface FileRoutesByFullPath {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -309,6 +315,8 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/reversements': typeof AdminReversementsRoute
+  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -330,7 +338,6 @@ export interface FileRoutesByTo {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs': typeof ProprietaireBriefsIndexRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -351,6 +358,8 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/reversements': typeof AdminReversementsRoute
+  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -372,7 +381,6 @@ export interface FileRoutesById {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -394,6 +402,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/securite'
     | '/admin/prestataires'
+    | '/admin/reversements'
+    | '/admin/virements'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -415,7 +425,6 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
-    | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -435,6 +444,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/securite'
     | '/admin/prestataires'
+    | '/admin/reversements'
+    | '/admin/virements'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -456,7 +467,6 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs'
     | '/proprietaire/briefs'
-    | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -476,6 +486,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/securite'
     | '/admin/prestataires'
+    | '/admin/reversements'
+    | '/admin/virements'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -497,7 +509,6 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
-    | '/api/public/payments/webhook'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -536,7 +547,6 @@ export interface RootRouteChildren {
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   AnnonceurBriefsIndexRoute: typeof AnnonceurBriefsIndexRoute
   ProprietaireBriefsIndexRoute: typeof ProprietaireBriefsIndexRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -731,6 +741,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/virements': {
+      id: '/admin/virements'
+      path: '/virements'
+      fullPath: '/admin/virements'
+      preLoaderRoute: typeof AdminVirementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reversements': {
+      id: '/admin/reversements'
+      path: '/reversements'
+      fullPath: '/admin/reversements'
+      preLoaderRoute: typeof AdminReversementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/prestataires': {
       id: '/admin/prestataires'
       path: '/prestataires'
@@ -808,22 +832,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 interface AdminRouteChildren {
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+  AdminReversementsRoute: typeof AdminReversementsRoute
+  AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminPrestatairesRoute: AdminPrestatairesRoute,
+  AdminReversementsRoute: AdminReversementsRoute,
+  AdminVirementsRoute: AdminVirementsRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -876,7 +897,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   AnnonceurBriefsIndexRoute: AnnonceurBriefsIndexRoute,
   ProprietaireBriefsIndexRoute: ProprietaireBriefsIndexRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
