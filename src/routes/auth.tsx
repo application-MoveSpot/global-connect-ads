@@ -93,10 +93,41 @@ function AuthPage() {
           <LogoLink />
         </div>
         <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
-        <h1 className="font-display text-3xl font-bold mt-4 mb-2">{mode === "signin" ? "Connexion admin" : "Créer un compte"}</h1>
+        <h1 className="font-display text-3xl font-bold mt-4 mb-2">
+          {mfa ? "Vérification 2FA" : mode === "signin" ? "Connexion admin" : "Créer un compte"}
+        </h1>
         <p className="text-sm text-muted-foreground mb-6">
-          {mode === "signin" ? "Accédez au dashboard MoveSpot." : "Le premier compte créé devient automatiquement admin."}
+          {mfa
+            ? "Saisissez le code à 6 chiffres affiché dans votre application Authenticator."
+            : mode === "signin"
+              ? "Accédez au dashboard MoveSpot."
+              : "Le premier compte créé devient automatiquement admin."}
         </p>
+
+        {mfa ? (
+          <form onSubmit={submitMfa} className="space-y-4">
+            <input
+              autoFocus
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="123456"
+              className="w-full rounded-lg bg-input border border-border px-4 py-3 text-lg font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+            <button type="submit" disabled={loading || mfaCode.length !== 6}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+              {loading ? "..." : "Vérifier"}
+            </button>
+            <button type="button" onClick={async () => { await supabase.auth.signOut(); setMfa(null); setMfaCode(""); setError(""); }}
+              className="w-full text-sm text-muted-foreground hover:text-foreground">
+              Annuler et se déconnecter
+            </button>
+          </form>
+        ) : (
+        <>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1.5">Email</label>
