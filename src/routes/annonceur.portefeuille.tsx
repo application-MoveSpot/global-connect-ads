@@ -4,13 +4,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { getMyWallet } from "@/lib/wallet.functions";
+import { listMyTransfers, cancelMyTransfer } from "@/lib/bank-transfers.functions";
 import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
 
-type Search = { session_id?: string; topup?: string };
+type Search = { topup?: string };
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   validateSearch: (s: Record<string, unknown>): Search => ({
-    session_id: typeof s.session_id === "string" ? s.session_id : undefined,
     topup: typeof s.topup === "string" ? s.topup : undefined,
   }),
   component: WalletPage,
@@ -22,21 +22,37 @@ function fmt(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
 
+type Transfer = {
+  id: string;
+  reference: string;
+  amount_cents: number;
+  status: string;
+  purpose: string;
+  expires_at: string;
+  created_at: string;
+  received_at: string | null;
+};
+
 function WalletPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/annonceur/portefeuille" });
   const fetchWallet = useServerFn(getMyWallet);
+  const fetchTransfers = useServerFn(listMyTransfers);
+  const cancel = useServerFn(cancelMyTransfer);
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<{ balance_cents: number; transactions: any[] } | null>(null);
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [amount, setAmount] = useState<number>(100);
   const [showCheckout, setShowCheckout] = useState<boolean>(search.topup === "1");
 
   const refresh = async () => {
     try {
-      const w = await fetchWallet();
+      const [w, t] = await Promise.all([fetchWallet(), fetchTransfers()]);
       setWallet({ balance_cents: w.balance_cents, transactions: w.transactions });
+      setTransfers(t as Transfer[]);
     } catch {
       setWallet({ balance_cents: 0, transactions: [] });
+      setTransfers([]);
     }
   };
 
@@ -46,26 +62,19 @@ function WalletPage() {
       if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
       await refresh();
       setLoading(false);
-      // If returning from Stripe, refresh every 2s for ~20s until balance updates
-      if (search.session_id) {
-        const startBalance = (await fetchWallet()).balance_cents;
-        for (let i = 0; i < 10; i++) {
-          await new Promise((r) => setTimeout(r, 2000));
-          const w = await fetchWallet();
-          if (w.balance_cents !== startBalance) {
-            setWallet({ balance_cents: w.balance_cents, transactions: w.transactions });
-            break;
-          }
-        }
-        navigate({ to: "/annonceur/portefeuille", replace: true });
-      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onCancel = async (id: string) => {
+    if (!confirm("Annuler cette demande de virement ?")) return;
+    await cancel({ data: { id } });
+    await refresh();
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
-  const returnUrl = `${window.location.origin}/annonceur/portefeuille?session_id={CHECKOUT_SESSION_ID}`;
+  const pending = transfers.filter((t) => t.status === "pending");
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,7 +88,7 @@ function WalletPage() {
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section>
           <h1 className="font-display text-3xl font-bold mb-2">Mon portefeuille</h1>
-          <p className="text-sm text-muted-foreground">Crédits prépayés utilisables pour vos campagnes.</p>
+          <p className="text-sm text-muted-foreground">Crédits prépayés utilisables instantanément pour vos campagnes.</p>
         </section>
 
         <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/15 to-card p-8">
@@ -89,11 +98,28 @@ function WalletPage() {
             {!showCheckout && (
               <button onClick={() => setShowCheckout(true)}
                 className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90">
-                + Recharger
+                + Recharger par virement
               </button>
             )}
           </div>
         </section>
+
+        {pending.length > 0 && (
+          <section className="rounded-2xl border border-amber-300 bg-amber-50/40 dark:bg-amber-950/10 p-6">
+            <h2 className="font-display text-xl font-semibold mb-3">Virements en attente de réception</h2>
+            <div className="space-y-2">
+              {pending.map((t) => (
+                <div key={t.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm">
+                  <div className="font-mono">{t.reference}</div>
+                  <div className="font-semibold">{fmt(t.amount_cents)}</div>
+                  <div className="text-xs text-muted-foreground">Créé le {new Date(t.created_at).toLocaleDateString("fr-FR")}</div>
+                  <button onClick={() => onCancel(t.id)} className="text-xs text-destructive hover:underline">Annuler</button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">Dès réception du virement (1-2 jours ouvrés), votre solde est crédité automatiquement.</p>
+          </section>
+        )}
 
         {showCheckout && (
           <section className="rounded-2xl border border-border bg-card p-6">
@@ -106,21 +132,21 @@ function WalletPage() {
                 </button>
               ))}
               <div className="flex items-center gap-2">
-                <input type="number" min={10} max={5000} value={amount}
-                  onChange={(e) => setAmount(Math.max(10, Math.min(5000, Number(e.target.value) || 0)))}
+                <input type="number" min={50} max={50000} value={amount}
+                  onChange={(e) => setAmount(Math.max(50, Math.min(50000, Number(e.target.value) || 0)))}
                   className="w-28 rounded-lg border border-border bg-card px-3 py-2 text-sm" />
                 <span className="text-sm">€</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-4">Montant : 10 € minimum, 5 000 € maximum par recharge. Paiement sécurisé Stripe.</p>
-            <WalletTopupCheckout amountEuros={amount} returnUrl={returnUrl} />
+            <p className="text-xs text-muted-foreground mb-4">Montant : 50 € minimum, 50 000 € maximum par recharge. Paiement par virement bancaire SEPA.</p>
+            <WalletTopupCheckout amountEuros={amount} onCreated={refresh} />
             <button onClick={() => setShowCheckout(false)}
-              className="mt-4 text-xs text-muted-foreground hover:text-foreground">Annuler</button>
+              className="mt-4 text-xs text-muted-foreground hover:text-foreground">Fermer</button>
           </section>
         )}
 
         <section>
-          <h2 className="font-display text-xl font-semibold mb-3">Historique</h2>
+          <h2 className="font-display text-xl font-semibold mb-3">Historique du portefeuille</h2>
           {(!wallet?.transactions || wallet.transactions.length === 0) ? (
             <div className="rounded-xl border border-dashed border-border bg-card/30 p-8 text-center text-muted-foreground text-sm">
               Aucun mouvement pour le moment.

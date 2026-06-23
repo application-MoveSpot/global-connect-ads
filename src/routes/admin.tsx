@@ -4,9 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
-import { useServerFn } from "@tanstack/react-start";
-import { transferCampaignPayout } from "@/lib/payments.functions";
-import { getStripeEnvironment } from "@/lib/stripe";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -414,25 +412,10 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${map[status] ?? ""}`}>{label[status] ?? status}</span>;
 }
 
-function PayoutBlock({ req, onDone }: { req: Request; onDone: () => void }) {
-  const transfer = useServerFn(transferCampaignPayout);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+function PayoutBlock({ req }: { req: Request; onDone: () => void }) {
   const endDate = req.end_date ? new Date(req.end_date) : null;
   const campaignEnded = endDate ? endDate <= new Date() : false;
   const alreadyDone = req.payout_status === "transferred";
-
-  const onTransfer = async () => {
-    setLoading(true); setError(null);
-    try {
-      const env = getStripeEnvironment();
-      const res = await transfer({ data: { campaignRequestId: req.id, environment: env } });
-      if ("error" in res) throw new Error(res.error);
-      onDone();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
-    } finally { setLoading(false); }
-  };
 
   return (
     <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs space-y-2">
@@ -443,17 +426,12 @@ function PayoutBlock({ req, onDone }: { req: Request; onDone: () => void }) {
       </div>
       {alreadyDone ? (
         <div className="text-emerald-700">✅ Reversement effectué</div>
+      ) : campaignEnded ? (
+        <Link to="/admin/reversements" className="inline-block rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold">
+          Gérer dans Reversements →
+        </Link>
       ) : (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onTransfer}
-            disabled={loading || !campaignEnded}
-            className="rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
-          >
-            {loading ? "Reversement…" : campaignEnded ? "Reverser au propriétaire" : "En attente fin de campagne"}
-          </button>
-          {error && <span className="text-destructive">{error}</span>}
-        </div>
+        <div className="text-muted-foreground">En attente fin de campagne</div>
       )}
     </div>
   );

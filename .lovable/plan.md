@@ -1,71 +1,75 @@
-# Brief annonceur + droit de suivi
 
-## Réponse à ta question
+## Objectif
 
-**Oui, l'annonceur a le droit de suivre le véhicule pendant toute la durée payée de sa campagne** (ex. 24h, 3 jours, etc.). C'est même un argument commercial fort : il paye pour de la visibilité mobile, il doit pouvoir vérifier que le véhicule a bien circulé dans les zones convenues.
+Supprimer Stripe et reconstruire dans l'app tout ce qu'un compte bancaire CA seul ne sait pas faire : encaissement traçable, rapprochement automatique, débit récurrent, et reversement aux propriétaires.
 
-On l'inscrit dès maintenant comme règle métier, même si le tracking GPS temps réel sera branché plus tard :
+## Ce qui change pour l'utilisateur final
 
-- **Pendant** une `campaign_request` au statut `approved` et dont la période `[start_date, end_date]` couvre aujourd'hui → l'annonceur voit la position live + un historique du trajet du jour.
-- **Après** `end_date` → accès à un récapitulatif (trace GPS, km parcourus, zones traversées, heures actives) pendant 30 jours, puis purge RGPD.
-- **Hors période** → aucun accès aux positions (le propriétaire reste maître de sa vie privée le reste du temps).
+**Annonceur qui paie une campagne :**
+1. Recharge son wallet (montant libre, min 50€) → l'app affiche le **RIB CA + une référence unique** (ex. `MS-A4F2-9K1`) à mettre obligatoirement dans le libellé du virement.
+2. Reçoit un email avec RIB, référence, montant, et instructions.
+3. Sous 1-2 jours ouvrés, dès que toi tu valides la réception, le wallet est crédité automatiquement.
+4. Les campagnes sont ensuite payées **instantanément** depuis le wallet (zéro friction côté client une fois la 1re recharge faite).
 
-Ces règles seront portées par les policies RLS sur la future table `vehicle_positions`. Je les documente dans `.lovable/plan.md` pour quand on implémentera le tracking.
+**Propriétaire de véhicule :**
+1. Renseigne son IBAN dans son profil.
+2. À la fin de chaque campagne, l'app calcule sa part et l'ajoute à son "solde à verser".
+3. Toi tu déclenches les paiements 1× par semaine depuis `/admin/payouts` → l'app génère un **fichier SEPA XML (pain.001)** ou un CSV → tu l'importes dans le portail CA → tous les propriétaires sont payés en 1 clic.
 
-## Partie à construire maintenant : flux « Brief annonceur »
+**Toi (admin) :**
+- `/admin/transfers` : liste des virements attendus avec montant, référence, date, ancienneté. Bouton "Confirmer reçu" → crédite automatiquement le wallet + envoie l'email de confirmation. Tu fais ça 1× par jour (5 min).
+- `/admin/payouts` : liste des propriétaires avec solde dû. Bouton "Générer fichier SEPA" → tu l'importes dans CA → bouton "Marquer comme payés".
 
-### 1. Base de données (1 migration)
+## Architecture technique
 
-**Enum** `brief_status` : `open`, `closed`, `fulfilled`, `cancelled`
-**Enum** `proposal_status` : `pending`, `accepted`, `rejected`, `withdrawn`
+**Tables à créer/modifier :**
+- `bank_transfer_requests` (nouveau) : id, user_id, reference (unique), amount_cents, status (`pending`/`received`/`expired`/`cancelled`), created_at, received_at, confirmed_by_admin, purpose (`wallet_topup`/`campaign_direct`)
+- `owner_payouts` (nouveau) : id, owner_id, amount_cents, status (`pending`/`paid`), campaign_request_ids[], created_at, paid_at, sepa_batch_id
+- `owner_profiles` : ajouter `iban`, `bic`, `account_holder` (chiffrés via policy RLS stricte)
+- `wallets` / `wallet_transactions` : conservés tels quels (juste nouvelle source `bank_transfer`)
 
-**Table `advertiser_briefs`** :
-- `id`, `advertiser_id` (→ auth.users), `title`, `description`
-- `vehicle_types` (text[]) — types souhaités (food_truck, van, taxi, scooter, sac_a_dos_lcd, sac_a_dos_affiche, autre)
-- `zones` (text[]), `start_date`, `end_date`, `days_count`
-- `budget_max` (numeric, optionnel), `audience_target` (text)
-- `creative_files` (text[]) — uploads bucket `campaign-creatives`
-- `status` (brief_status, default `open`), `created_at`, `updated_at`
+**Code à supprimer :**
+- `src/lib/payments.functions.ts` (Stripe checkouts)
+- `src/routes/api/stripe/webhook.ts`
+- `src/lib/stripe.server.ts`
+- Composants : `WalletTopupCheckout`, `CampaignPaymentCheckout`, `OwnerConnectCard`, tout bouton "Payer par carte"
 
-**Table `brief_proposals`** :
-- `id`, `brief_id` (→ advertiser_briefs), `vehicle_id` (→ vehicles), `owner_id`
-- `price_per_day` (numeric), `message` (text)
-- `status` (proposal_status, default `pending`), `created_at`
+**Code à créer :**
+- `src/lib/bank-transfers.functions.ts` : créer une demande de virement (génère référence), lister/confirmer (admin), annuler (user)
+- `src/lib/owner-payouts.functions.ts` : calculer soldes dus, générer SEPA XML, marquer payés
+- `src/components/BankTransferInstructions.tsx` : affiche RIB + référence + bouton "copier" + alerte délai
+- `src/routes/_authenticated/admin/transfers.tsx` : back-office rapprochement
+- `src/routes/_authenticated/admin/payouts.tsx` : back-office reversements
+- `src/routes/_authenticated/wallet.tsx` : remplacer le bouton Stripe par "Recharger par virement"
+- `src/components/OwnerBankAccountForm.tsx` : remplace `OwnerConnectCard`
+- Email templates : `bank-transfer-instructions`, `bank-transfer-received`, `payout-sent`
 
-**RLS** :
-- `advertiser_briefs` : annonceur CRUD ses briefs ; propriétaires lisent ceux `open` dont le `vehicle_types` recoupe leurs véhicules approuvés ; admin tout.
-- `brief_proposals` : propriétaire crée/lit/retire ses propositions ; annonceur propriétaire du brief lit/accepte/refuse ; admin tout.
-- `GRANT` standards (`authenticated`, `service_role`).
+**Sécurité :**
+- RIB CA lu uniquement côté serveur (secrets `CA_IBAN`/`CA_BIC`/`CA_ACCOUNT_HOLDER` déjà en place), jamais bundle client.
+- IBAN propriétaires : colonne accessible uniquement par le propriétaire lui-même et l'admin (RLS).
+- Référence virement : 8 caractères alphanumériques, unique, expire après 30 jours sans virement reçu.
+- Tous les écrans `/admin/*` gated par `has_role(uid, 'admin')`.
 
-**Trigger** : quand une proposition passe en `accepted` → créer automatiquement une `campaign_request` liée (statut soumis aux règles existantes `auto_validate_campaign_request`) et passer le brief en `fulfilled`.
+## Limitations assumées
 
-### 2. Server functions (`src/lib/briefs.functions.ts`)
+- Délai 1-2 jours ouvrés entre virement annonceur et activation wallet (incompressible sans Stripe).
+- Pas de paiement CB → certains annonceurs occasionnels seront perdus.
+- Rapprochement manuel par toi (5 min/jour). Automatisable plus tard si tu actives l'API CashlessBanking de CA (option payante côté CA, à voir dans 6 mois si volume le justifie).
+- Reversement propriétaires : tu valides la génération SEPA et tu fais l'upload toi-même dans le portail CA (sécurité : aucune app ne doit pouvoir initier des virements sortants à ta place).
 
-Toutes protégées par `requireSupabaseAuth`, validation Zod :
-- `createBrief`, `listMyBriefs`, `cancelBrief` (annonceur)
-- `listOpenBriefsForOwner` (propriétaires éligibles)
-- `submitProposal`, `withdrawProposal` (propriétaire)
-- `acceptProposal`, `rejectProposal` (annonceur)
+## Ordre d'implémentation
 
-### 3. Pages frontend
+1. Migration DB (tables + RLS + grants)
+2. Server functions virements + payouts
+3. UI annonceur (recharge wallet par virement)
+4. UI propriétaire (form IBAN)
+5. Back-office admin (transfers + payouts)
+6. Emails (3 templates)
+7. Suppression code Stripe
+8. Test bout-en-bout
 
-**Côté annonceur** :
-- `/annonceur/briefs/nouveau` — formulaire (titre, types, zones, dates, budget optionnel, créa, audience)
-- `/annonceur/briefs` — liste de mes briefs avec nb de propositions reçues
-- `/annonceur/briefs/$briefId` — détail brief + liste des propositions (accepter/refuser)
-- Ajouter bouton « + Nouveau brief » sur `/annonceur` à côté de « + Nouvelle campagne »
+## À confirmer avant de démarrer
 
-**Côté propriétaire** :
-- Nouvel onglet « Briefs ouverts » sur `/proprietaire` listant les briefs compatibles avec mes véhicules approuvés
-- `/proprietaire/briefs/$briefId` — détail + bouton « Proposer un véhicule » (choix du véhicule + prix + message)
-- Section « Mes propositions » avec statut
-
-### 4. Header
-
-Ajouter dans le menu annonceur connecté : lien « Mes briefs ».
-
-## Hors scope (pour plus tard)
-
-- Tracking GPS temps réel (`vehicle_positions` + app mobile propriétaire + Realtime). Les règles d'accès annonceur ci-dessus seront appliquées à ce moment-là.
-- Notifications email automatiques sur nouvelle proposition / acceptation (à brancher quand on activera les app emails sur ces événements).
-- Paiement automatisé via Stripe à l'acceptation (déjà hors scope dans le plan global).
+- Validation du plan global.
+- Tu veux **garder le wallet** (recharge 1 fois, débit auto par campagne) ou **virement direct par campagne** (chaque campagne = un nouveau virement avec sa propre référence) ? Le wallet réduit fortement la friction client mais demande qu'ils avancent l'argent.
+- Format de reversement aux propriétaires : **SEPA XML pain.001** (1 clic dans CA mais format technique) ou **CSV simple** (lisible mais saisie manuelle dans CA) ?
