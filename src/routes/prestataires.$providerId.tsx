@@ -3,10 +3,33 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { providerServiceLabel } from "@/lib/provider-services";
+import { getProviderPublicMeta } from "@/lib/provider-public.functions";
 
 export const Route = createFileRoute("/prestataires/$providerId")({
+  loader: async ({ params }) =>
+    getProviderPublicMeta({ data: { providerId: params.providerId } }).catch(() => null),
+  head: ({ params, loaderData }) => {
+    const url = `https://move-spot.com/prestataires/${params.providerId}`;
+    const name = loaderData?.name ?? "Prestataire";
+    const title = `${name} — Prestataire habillage véhicule | MoveSpot`;
+    const description =
+      loaderData?.description ??
+      "Prestataire MoveSpot — covering, habillage véhicule, supports publicitaires.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "profile" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ProviderDetailPage,
 });
+
 
 type Provider = {
   user_id: string; company: string; full_name: string; email: string; phone: string | null;
