@@ -1120,6 +1120,7 @@ export type Database = {
         | "advertiser"
         | "driver"
         | "provider"
+        | "partner"
       brief_status: "open" | "closed" | "fulfilled" | "cancelled"
       proposal_status: "pending" | "accepted" | "rejected" | "withdrawn"
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
@@ -1264,7 +1265,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "owner", "advertiser", "driver", "provider"],
+      app_role: [
+        "admin",
+        "user",
+        "owner",
+        "advertiser",
+        "driver",
+        "provider",
+        "partner",
+      ],
       brief_status: ["open", "closed", "fulfilled", "cancelled"],
       proposal_status: ["pending", "accepted", "rejected", "withdrawn"],
       vehicle_condition: ["excellent", "bon", "moyen", "mauvais"],
