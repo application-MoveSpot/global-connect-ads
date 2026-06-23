@@ -7,6 +7,12 @@ import { SiretField, type SiretCheck } from "@/components/SiretField";
 type Search = { redirect?: string };
 
 export const Route = createFileRoute("/partenaire/inscription")({
+  head: () => ({
+    meta: [
+      { title: "Inscription partenaire — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
   }),

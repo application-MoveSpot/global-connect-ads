@@ -9,6 +9,12 @@ import { verifyWebsite } from "@/lib/website-verify.functions";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataire/inscription")({
+  head: () => ({
+    meta: [
+      { title: "Inscription prestataire — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: ProviderSignupPage,
 });
 

@@ -5,6 +5,12 @@ import { LogoLink } from "@/components/LogoLink";
 import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/admin/prestataires")({
+  head: () => ({
+    meta: [
+      { title: "Admin · Prestataires — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AdminProvidersPage,
 });
 

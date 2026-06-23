@@ -6,6 +6,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { estimateVehicle } from "@/lib/vehicle-estimate.functions";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
+  head: () => ({
+    meta: [
+      { title: "Ajouter un véhicule — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: NewVehiclePage,
 });
 

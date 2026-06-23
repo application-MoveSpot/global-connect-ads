@@ -5,6 +5,12 @@ import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 
 export const Route = createFileRoute("/proprietaire/inscription")({
+  head: () => ({
+    meta: [
+      { title: "Inscription propriétaire — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: InscriptionPage,
 });
 

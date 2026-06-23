@@ -5,6 +5,12 @@ import { lovable } from "@/integrations/lovable";
 import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Connexion — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AuthPage,
 });
 

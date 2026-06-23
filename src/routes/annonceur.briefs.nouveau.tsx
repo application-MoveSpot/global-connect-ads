@@ -5,6 +5,12 @@ import { LogoLink } from "@/components/LogoLink";
 import { findForbiddenKeyword } from "@/lib/forbidden-keywords";
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
+  head: () => ({
+    meta: [
+      { title: "Nouveau brief — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: NewBriefPage,
 });
 
