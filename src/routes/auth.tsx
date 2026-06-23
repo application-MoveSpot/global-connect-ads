@@ -179,7 +179,10 @@ function AuthPage() {
           className="w-full text-sm text-muted-foreground hover:text-foreground mt-4">
           {mode === "signin" ? "Pas encore de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}
         </button>
+        </>
+        )}
       </div>
     </div>
+
   );
 }
