@@ -18,6 +18,7 @@ function ProviderDetailPage() {
   const { providerId } = Route.useParams();
   const navigate = useNavigate();
   const [provider, setProvider] = useState<Provider | null>(null);
+  const [portfolioSigned, setPortfolioSigned] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -40,11 +41,23 @@ function ProviderDetailPage() {
           .eq("user_id", providerId).eq("status", "approved").maybeSingle(),
         supabase.auth.getSession(),
       ]);
-      setProvider(p as Provider | null);
+      const prov = p as Provider | null;
+      setProvider(prov);
       setAuthed(!!sess.session);
+      if (prov && prov.portfolio_urls?.length) {
+        const paths = prov.portfolio_urls.filter((u) => !/^https?:\/\//i.test(u));
+        const fullUrls = prov.portfolio_urls.filter((u) => /^https?:\/\//i.test(u));
+        let signed: string[] = [];
+        if (paths.length) {
+          const { data } = await supabase.storage.from("provider-portfolio").createSignedUrls(paths, 3600);
+          signed = (data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[];
+        }
+        setPortfolioSigned([...fullUrls, ...signed]);
+      }
       setLoading(false);
     })();
   }, [providerId]);
+
 
   const submitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,16 +140,19 @@ function ProviderDetailPage() {
           )}
         </section>
 
-        {provider.portfolio_urls.length > 0 && (
+        {portfolioSigned.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-6 mb-4">
-            <h2 className="font-semibold mb-2">Portfolio</h2>
-            <ul className="text-sm space-y-1">
-              {provider.portfolio_urls.map((u) => (
-                <li key={u}><a href={u} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{u}</a></li>
+            <h2 className="font-semibold mb-3">Portfolio</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {portfolioSigned.map((u) => (
+                <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-border bg-secondary hover:opacity-90">
+                  <img src={u} alt="Portfolio" className="w-full h-full object-cover" loading="lazy" />
+                </a>
               ))}
-            </ul>
+            </div>
           </section>
         )}
+
 
         {sent ? (
           <div className="rounded-2xl border border-signal/40 bg-signal/10 p-6 text-sm">
