@@ -197,6 +197,8 @@ function AdminPage() {
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>Demandes{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
             <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>Véhicules{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
             <a href="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">Prestataires →</a>
+            <a href="/admin/virements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-primary/50 bg-primary/10 text-primary hover:bg-primary/20">💰 Virements reçus →</a>
+            <a href="/admin/reversements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-primary/50 bg-primary/10 text-primary hover:bg-primary/20">📤 Reversements →</a>
           </div>
           <div className="flex gap-2">
             <a
