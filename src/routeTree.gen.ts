@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SecuriteRouteImport } from './routes/securite'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
 import { Route as PitchRouteImport } from './routes/pitch'
@@ -48,6 +49,11 @@ import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.b
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const SecuriteRoute = SecuriteRouteImport.update({
+  id: '/securite',
+  path: '/securite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/securite': typeof SecuriteRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -300,6 +307,7 @@ export interface FileRoutesByTo {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/securite': typeof SecuriteRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -341,6 +349,7 @@ export interface FileRoutesById {
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/securite': typeof SecuriteRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -383,6 +392,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/securite'
     | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -423,6 +433,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/securite'
     | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -463,6 +474,7 @@ export interface FileRouteTypes {
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
+    | '/securite'
     | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -504,6 +516,7 @@ export interface RootRouteChildren {
   PitchRoute: typeof PitchRoute
   PrevisionnelRoute: typeof PrevisionnelRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SecuriteRoute: typeof SecuriteRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
@@ -529,6 +542,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/securite': {
+      id: '/securite'
+      path: '/securite'
+      fullPath: '/securite'
+      preLoaderRoute: typeof SecuriteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -836,6 +856,7 @@ const rootRouteChildren: RootRouteChildren = {
   PitchRoute: PitchRoute,
   PrevisionnelRoute: PrevisionnelRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SecuriteRoute: SecuriteRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
