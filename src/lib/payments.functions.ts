@@ -165,17 +165,21 @@ export const createCampaignCheckout = createServerFn({ method: "POST" })
         ui_mode: "embedded_page",
         return_url: data.returnUrl,
         customer: customerId,
+        customer_update: { address: "auto", name: "auto" },
         line_items: [{
           price_data: {
             currency: "eur",
             product_data: {
               name: `Campagne MoveSpot — ${campaign.spot_name ?? "véhicule"}`,
               description: `${campaign.days_count ?? 1} jour(s) de diffusion`,
+              tax_code: "txcd_20030000", // Advertising services
             },
             unit_amount: amountCents,
+            tax_behavior: "exclusive",
           },
           quantity: 1,
         }],
+        managed_payments: { enabled: true },
         payment_intent_data: {
           description: `Campagne MoveSpot ${campaign.id}`,
           metadata: {
@@ -190,8 +194,10 @@ export const createCampaignCheckout = createServerFn({ method: "POST" })
           userId,
           platform_fee_cents: String(platformFeeCents),
           owner_amount_cents: String(ownerAmountCents),
+          managed_payments: "true",
         },
-      });
+      } as import("stripe").Stripe.Checkout.SessionCreateParams);
+
 
       await supabase
         .from("campaign_requests")
