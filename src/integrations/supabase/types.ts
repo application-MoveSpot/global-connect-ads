@@ -612,6 +612,54 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_profiles: {
+        Row: {
+          city: string | null
+          company: string | null
+          created_at: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          referral_code: string | null
+          siret: string | null
+          siret_denomination: string | null
+          siret_verified_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          referral_code?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          referral_code?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       provider_profiles: {
         Row: {
           admin_notes: string | null
