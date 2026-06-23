@@ -7,6 +7,12 @@ import { listPendingTransfersAdmin, confirmTransferAdmin } from "@/lib/bank-tran
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/virements")({
+  head: () => ({
+    meta: [
+      { title: "Admin · Virements — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AdminTransfersPage,
 });
 

@@ -7,6 +7,12 @@ import { CreativeFiles } from "@/components/CreativeFiles";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin")({
+  head: () => ({
+    meta: [
+      { title: "Administration — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AdminPage,
 });
 

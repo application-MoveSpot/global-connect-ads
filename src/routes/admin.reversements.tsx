@@ -8,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/admin/reversements")({
+  head: () => ({
+    meta: [
+      { title: "Admin · Reversements — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AdminPayoutsPage,
 });
 

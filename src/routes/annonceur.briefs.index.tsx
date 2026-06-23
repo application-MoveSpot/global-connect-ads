@@ -4,6 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/annonceur/briefs/")({
+  head: () => ({
+    meta: [
+      { title: "Mes briefs — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: BriefsListPage,
 });
 

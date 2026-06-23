@@ -8,6 +8,12 @@ import { MobilityMap } from "@/components/MobilityMap";
 import { OwnerConnectCard } from "@/components/OwnerConnectCard";
 
 export const Route = createFileRoute("/proprietaire/")({
+  head: () => ({
+    meta: [
+      { title: "Espace propriétaire — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: DashboardPage,
 });
 

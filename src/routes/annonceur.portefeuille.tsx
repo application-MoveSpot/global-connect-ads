@@ -10,6 +10,12 @@ import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
 type Search = { topup?: string };
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
+  head: () => ({
+    meta: [
+      { title: "Mon portefeuille — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     topup: typeof s.topup === "string" ? s.topup : undefined,
   }),

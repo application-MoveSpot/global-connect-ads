@@ -4,6 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/partenaire/")({
+  head: () => ({
+    meta: [
+      { title: "Espace partenaire — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: PartenaireDashboard,
 });
 

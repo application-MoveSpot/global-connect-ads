@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /annonceur
+Disallow: /proprietaire
+Disallow: /prestataire
+Disallow: /partenaire
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /lovable/
+
+Sitemap: https://move-spot.com/sitemap.xml

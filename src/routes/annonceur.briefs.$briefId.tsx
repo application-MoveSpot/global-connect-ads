@@ -5,6 +5,12 @@ import { LogoLink } from "@/components/LogoLink";
 import { CreativeFiles } from "@/components/CreativeFiles";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
+  head: () => ({
+    meta: [
+      { title: "Détail du brief — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: BriefDetailPage,
 });
 

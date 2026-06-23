@@ -5,6 +5,12 @@ import { LogoLink } from "@/components/LogoLink";
 import { providerServiceLabel } from "@/lib/provider-services";
 
 export const Route = createFileRoute("/prestataire/")({
+  head: () => ({
+    meta: [
+      { title: "Espace prestataire — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: ProviderDashboard,
 });
 

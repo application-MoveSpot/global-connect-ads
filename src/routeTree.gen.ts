@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SecuriteRouteImport } from './routes/securite'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
@@ -52,6 +53,11 @@ import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.b
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SecuriteRoute = SecuriteRouteImport.update({
   id: '/securite',
   path: '/securite',
@@ -284,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/reversements': typeof AdminReversementsRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/reversements': typeof AdminReversementsRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -373,6 +381,7 @@ export interface FileRoutesById {
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/reversements': typeof AdminReversementsRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
+    | '/sitemap.xml'
     | '/admin/prestataires'
     | '/admin/reversements'
     | '/admin/virements'
@@ -463,6 +473,7 @@ export interface FileRouteTypes {
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
+    | '/sitemap.xml'
     | '/admin/prestataires'
     | '/admin/reversements'
     | '/admin/virements'
@@ -507,6 +518,7 @@ export interface FileRouteTypes {
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
+    | '/sitemap.xml'
     | '/admin/prestataires'
     | '/admin/reversements'
     | '/admin/virements'
@@ -552,6 +564,7 @@ export interface RootRouteChildren {
   PrevisionnelRoute: typeof PrevisionnelRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecuriteRoute: typeof SecuriteRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
@@ -578,6 +591,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/securite': {
       id: '/securite'
       path: '/securite'
@@ -918,6 +938,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrevisionnelRoute: PrevisionnelRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SecuriteRoute: SecuriteRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,

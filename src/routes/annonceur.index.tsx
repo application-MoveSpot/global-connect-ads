@@ -33,6 +33,12 @@ type Req = {
 type Profile = { full_name: string; company: string | null };
 
 export const Route = createFileRoute("/annonceur/")({
+  head: () => ({
+    meta: [
+      { title: "Espace annonceur — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AnnonceurDashboard,
 });
 
