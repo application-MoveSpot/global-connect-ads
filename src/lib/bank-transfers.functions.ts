@@ -172,7 +172,7 @@ export const confirmTransferAdmin = createServerFn({ method: "POST" })
     const { supabase } = context;
     const { data: result, error } = await supabase.rpc("confirm_bank_transfer", {
       p_request_id: data.id,
-      p_admin_notes: data.notes ?? null,
+      p_admin_notes: data.notes,
     });
     if (error) throw new Error(error.message);
     return { id: result };
