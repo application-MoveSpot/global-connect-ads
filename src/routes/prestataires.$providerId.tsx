@@ -140,16 +140,19 @@ function ProviderDetailPage() {
           )}
         </section>
 
-        {provider.portfolio_urls.length > 0 && (
+        {portfolioSigned.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-6 mb-4">
-            <h2 className="font-semibold mb-2">Portfolio</h2>
-            <ul className="text-sm space-y-1">
-              {provider.portfolio_urls.map((u) => (
-                <li key={u}><a href={u} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">{u}</a></li>
+            <h2 className="font-semibold mb-3">Portfolio</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {portfolioSigned.map((u) => (
+                <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-border bg-secondary hover:opacity-90">
+                  <img src={u} alt="Portfolio" className="w-full h-full object-cover" loading="lazy" />
+                </a>
               ))}
-            </ul>
+            </div>
           </section>
         )}
+
 
         {sent ? (
           <div className="rounded-2xl border border-signal/40 bg-signal/10 p-6 text-sm">
