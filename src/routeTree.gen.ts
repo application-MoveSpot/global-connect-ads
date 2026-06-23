@@ -27,12 +27,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
 import { Route as PrestatairesIndexRouteImport } from './routes/prestataires.index'
 import { Route as PrestataireIndexRouteImport } from './routes/prestataire.index'
+import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as ProprietaireTrackingRouteImport } from './routes/proprietaire.tracking'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
 import { Route as ProprietaireFlotteRouteImport } from './routes/proprietaire.flotte'
 import { Route as PrestatairesProviderIdRouteImport } from './routes/prestataires.$providerId'
 import { Route as PrestataireInscriptionRouteImport } from './routes/prestataire.inscription'
+import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.inscription'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
@@ -140,6 +142,11 @@ const PrestataireIndexRoute = PrestataireIndexRouteImport.update({
   path: '/prestataire/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartenaireIndexRoute = PartenaireIndexRouteImport.update({
+  id: '/partenaire/',
+  path: '/partenaire/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnonceurIndexRoute = AnnonceurIndexRouteImport.update({
   id: '/annonceur/',
   path: '/annonceur/',
@@ -168,6 +175,11 @@ const PrestatairesProviderIdRoute = PrestatairesProviderIdRouteImport.update({
 const PrestataireInscriptionRoute = PrestataireInscriptionRouteImport.update({
   id: '/prestataire/inscription',
   path: '/prestataire/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartenaireInscriptionRoute = PartenaireInscriptionRouteImport.update({
+  id: '/partenaire/inscription',
+  path: '/partenaire/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
@@ -278,12 +290,14 @@ export interface FileRoutesByFullPath {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
+  '/partenaire/': typeof PartenaireIndexRoute
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
@@ -320,12 +334,14 @@ export interface FileRoutesByTo {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur': typeof AnnonceurIndexRoute
+  '/partenaire': typeof PartenaireIndexRoute
   '/prestataire': typeof PrestataireIndexRoute
   '/prestataires': typeof PrestatairesIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
@@ -363,12 +379,14 @@ export interface FileRoutesById {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
+  '/partenaire/': typeof PartenaireIndexRoute
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
@@ -407,12 +425,14 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
+    | '/partenaire/'
     | '/prestataire/'
     | '/prestataires/'
     | '/proprietaire/'
@@ -449,12 +469,14 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur'
+    | '/partenaire'
     | '/prestataire'
     | '/prestataires'
     | '/proprietaire'
@@ -491,12 +513,14 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
+    | '/partenaire/'
     | '/prestataire/'
     | '/prestataires/'
     | '/proprietaire/'
@@ -531,12 +555,14 @@ export interface RootRouteChildren {
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
+  PartenaireInscriptionRoute: typeof PartenaireInscriptionRoute
   PrestataireInscriptionRoute: typeof PrestataireInscriptionRoute
   PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
   ProprietaireFlotteRoute: typeof ProprietaireFlotteRouteWithChildren
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
+  PartenaireIndexRoute: typeof PartenaireIndexRoute
   PrestataireIndexRoute: typeof PrestataireIndexRoute
   PrestatairesIndexRoute: typeof PrestatairesIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
@@ -678,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrestataireIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partenaire/': {
+      id: '/partenaire/'
+      path: '/partenaire'
+      fullPath: '/partenaire/'
+      preLoaderRoute: typeof PartenaireIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/annonceur/': {
       id: '/annonceur/'
       path: '/annonceur'
@@ -718,6 +751,13 @@ declare module '@tanstack/react-router' {
       path: '/prestataire/inscription'
       fullPath: '/prestataire/inscription'
       preLoaderRoute: typeof PrestataireInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partenaire/inscription': {
+      id: '/partenaire/inscription'
+      path: '/partenaire/inscription'
+      fullPath: '/partenaire/inscription'
+      preLoaderRoute: typeof PartenaireInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/faq-chat': {
@@ -881,12 +921,14 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
+  PartenaireInscriptionRoute: PartenaireInscriptionRoute,
   PrestataireInscriptionRoute: PrestataireInscriptionRoute,
   PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
   ProprietaireFlotteRoute: ProprietaireFlotteRouteWithChildren,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
+  PartenaireIndexRoute: PartenaireIndexRoute,
   PrestataireIndexRoute: PrestataireIndexRoute,
   PrestatairesIndexRoute: PrestatairesIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,
@@ -902,13 +944,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
