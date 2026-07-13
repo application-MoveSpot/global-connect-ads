@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/wallet.functions";
+import { createWalletTopupCheckout } from "@/lib/payments.functions";
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPaid }: Props) {
   const fetchWallet = useServerFn(getMyWallet);
   const payWithWallet = useServerFn(payCampaignWithWallet);
+  const topup = useServerFn(createWalletTopupCheckout);
 
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,6 +25,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
 
   const neededCents = Math.round(totalPriceEur * 100);
   const enough = balance !== null && balance >= neededCents;
+  const missingEur = enough ? 0 : Math.max(10, Math.ceil((neededCents - (balance ?? 0)) / 100));
 
   const onPayWallet = async () => {
     setLoading(true); setError(null);
@@ -32,6 +35,17 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
     } finally { setLoading(false); }
+  };
+
+  const onTopup = async () => {
+    setLoading(true); setError(null);
+    try {
+      const { url } = await topup({ data: { amountEuros: missingEur, returnUrl: window.location.href } });
+      if (url) window.location.href = url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur");
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,8 +59,11 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
           {loading ? "Paiement…" : `Payer ${totalPriceEur.toFixed(2)} € avec mon portefeuille`}
         </Button>
       ) : (
-        <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-muted-foreground">
-          Solde insuffisant. Le paiement par carte bancaire est en cours de migration vers Stripe et sera disponible sous peu.
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">Solde insuffisant. Rechargez par carte pour compléter le paiement.</p>
+          <Button onClick={onTopup} disabled={loading}>
+            {loading ? "Redirection…" : `Recharger ${missingEur} € par carte`}
+          </Button>
         </div>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
