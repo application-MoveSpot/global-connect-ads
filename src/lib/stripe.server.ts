@@ -14,6 +14,10 @@ export function getConnectionApiKey(env: StripeEnv): string {
   return env === "sandbox" ? getEnv("STRIPE_SANDBOX_API_KEY") : getEnv("STRIPE_LIVE_API_KEY");
 }
 
+export function getDefaultStripeEnvironment(): StripeEnv {
+  return process.env.STRIPE_LIVE_API_KEY ? "live" : "sandbox";
+}
+
 export function createStripeClient(env: StripeEnv): Stripe {
   const connectionApiKey = getConnectionApiKey(env);
   const lovableApiKey = getEnv("LOVABLE_API_KEY");
