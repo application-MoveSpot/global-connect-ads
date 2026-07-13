@@ -51,7 +51,6 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
           <p className="text-sm text-muted-foreground">Solde insuffisant. Rechargez par carte pour compléter le paiement.</p>
           <WalletTopupCheckout
             amountEuros={missingEur}
-            returnUrl={window.location.href}
             disabled={loading}
             buttonLabel={`Recharger ${missingEur} € par carte`}
           />
