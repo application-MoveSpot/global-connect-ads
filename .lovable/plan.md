@@ -1,75 +1,81 @@
+# Migration vers Stripe + Stripe Connect
 
-## Objectif
+## Contexte important — décision technique
 
-Supprimer Stripe et reconstruire dans l'app tout ce qu'un compte bancaire CA seul ne sait pas faire : encaissement traçable, rapprochement automatique, débit récurrent, et reversement aux propriétaires.
+Le Stripe intégré « seamless » de Lovable (sans clé API) **ne supporte pas Stripe Connect** (comptes Express, transferts vers propriétaires, onboarding KYC). Pour reverser automatiquement aux propriétaires, on a **deux options** :
 
-## Ce qui change pour l'utilisateur final
+- **A. Stripe BYOK (Bring Your Own Key)** — vous créez un compte Stripe, vous fournissez votre clé secrète, Connect est activé. C'est la seule option compatible avec des transferts automatiques marketplace en France.
+- **B. Stripe intégré seamless pour l'encaissement + reversement manuel** — CB via Lovable pour les annonceurs, mais on garde IBAN propriétaire + export SEPA côté admin pour les reversements.
 
-**Annonceur qui paie une campagne :**
-1. Recharge son wallet (montant libre, min 50€) → l'app affiche le **RIB CA + une référence unique** (ex. `MS-A4F2-9K1`) à mettre obligatoirement dans le libellé du virement.
-2. Reçoit un email avec RIB, référence, montant, et instructions.
-3. Sous 1-2 jours ouvrés, dès que toi tu valides la réception, le wallet est crédité automatiquement.
-4. Les campagnes sont ensuite payées **instantanément** depuis le wallet (zéro friction côté client une fois la 1re recharge faite).
+**Je pars sur A (BYOK + Connect)** puisque vous avez demandé Connect. Vous devrez :
+1. Créer un compte Stripe sur stripe.com (10 min)
+2. Activer Connect (Settings → Connect → Get started, choisir "Platform or marketplace")
+3. Me fournir votre `STRIPE_SECRET_KEY` (sk_test_… en test, puis sk_live_… en prod) via l'outil de secret sécurisé
+4. Configurer le webhook Stripe vers `/api/public/stripe/webhook` (je vous donnerai l'URL exacte)
 
-**Propriétaire de véhicule :**
-1. Renseigne son IBAN dans son profil.
-2. À la fin de chaque campagne, l'app calcule sa part et l'ajoute à son "solde à verser".
-3. Toi tu déclenches les paiements 1× par semaine depuis `/admin/payouts` → l'app génère un **fichier SEPA XML (pain.001)** ou un CSV → tu l'importes dans le portail CA → tous les propriétaires sont payés en 1 clic.
+## Ce qui est supprimé
 
-**Toi (admin) :**
-- `/admin/transfers` : liste des virements attendus avec montant, référence, date, ancienneté. Bouton "Confirmer reçu" → crédite automatiquement le wallet + envoie l'email de confirmation. Tu fais ça 1× par jour (5 min).
-- `/admin/payouts` : liste des propriétaires avec solde dû. Bouton "Générer fichier SEPA" → tu l'importes dans CA → bouton "Marquer comme payés".
+**Tables DB** (via migration DROP) :
+- `bank_transfer_requests`
+- `owner_payouts`
+- Fonctions `generate_transfer_reference`, `confirm_bank_transfer`
+- Colonnes IBAN/BIC/holder sur `owner_profiles` (remplacées par `stripe_account_id`)
 
-## Architecture technique
+**Fichiers code supprimés** :
+- `src/lib/bank-transfers.functions.ts`
+- `src/lib/owner-payouts.functions.ts`
+- `src/components/BankTransferInstructions.tsx`
+- `src/components/OwnerBankAccountForm.tsx` + shim `OwnerConnectCard.tsx` refait pour Stripe Connect
+- `src/routes/admin.virements.tsx`
+- `src/routes/admin.reversements.tsx`
+- Secrets `CA_IBAN`, `CA_BIC`, `CA_ACCOUNT_HOLDER` (à supprimer après migration)
 
-**Tables à créer/modifier :**
-- `bank_transfer_requests` (nouveau) : id, user_id, reference (unique), amount_cents, status (`pending`/`received`/`expired`/`cancelled`), created_at, received_at, confirmed_by_admin, purpose (`wallet_topup`/`campaign_direct`)
-- `owner_payouts` (nouveau) : id, owner_id, amount_cents, status (`pending`/`paid`), campaign_request_ids[], created_at, paid_at, sepa_batch_id
-- `owner_profiles` : ajouter `iban`, `bic`, `account_holder` (chiffrés via policy RLS stricte)
-- `wallets` / `wallet_transactions` : conservés tels quels (juste nouvelle source `bank_transfer`)
+## Ce qui est créé
 
-**Code à supprimer :**
-- `src/lib/payments.functions.ts` (Stripe checkouts)
-- `src/routes/api/stripe/webhook.ts`
-- `src/lib/stripe.server.ts`
-- Composants : `WalletTopupCheckout`, `CampaignPaymentCheckout`, `OwnerConnectCard`, tout bouton "Payer par carte"
+**DB** :
+- Ajout `stripe_account_id`, `stripe_charges_enabled`, `stripe_payouts_enabled` sur `owner_profiles`
+- Ajout `stripe_payment_intent_id`, `stripe_checkout_session_id`, `stripe_transfer_id` sur `campaign_requests`
+- Table `stripe_events` pour idempotence webhook
 
-**Code à créer :**
-- `src/lib/bank-transfers.functions.ts` : créer une demande de virement (génère référence), lister/confirmer (admin), annuler (user)
-- `src/lib/owner-payouts.functions.ts` : calculer soldes dus, générer SEPA XML, marquer payés
-- `src/components/BankTransferInstructions.tsx` : affiche RIB + référence + bouton "copier" + alerte délai
-- `src/routes/_authenticated/admin/transfers.tsx` : back-office rapprochement
-- `src/routes/_authenticated/admin/payouts.tsx` : back-office reversements
-- `src/routes/_authenticated/wallet.tsx` : remplacer le bouton Stripe par "Recharger par virement"
-- `src/components/OwnerBankAccountForm.tsx` : remplace `OwnerConnectCard`
-- Email templates : `bank-transfer-instructions`, `bank-transfer-received`, `payout-sent`
+**Code** :
+- `src/lib/stripe.server.ts` — client Stripe BYOK (sk_test/sk_live selon env)
+- `src/lib/payments.functions.ts` :
+  - `createWalletTopupCheckout` — Stripe Checkout session pour recharger le wallet (CB, Apple Pay, etc.)
+  - `createCampaignCheckout` — Checkout session pour paiement direct campagne
+  - `createConnectOnboardingLink` — génère l'URL d'onboarding Express pour un propriétaire
+  - `getConnectAccountStatus` — statut KYC/payouts
+  - `transferToOwner` — déclenche un `transfers.create` vers le compte Connect du propriétaire (70%)
+- `src/routes/api/public/stripe/webhook.ts` — reçoit :
+  - `checkout.session.completed` → crédite wallet ou marque campagne payée
+  - `account.updated` → met à jour `charges_enabled/payouts_enabled` du propriétaire
+  - `payment_intent.payment_failed` → log
+- `src/components/StripeCheckoutButton.tsx` (Embedded Checkout côté annonceur)
+- `src/components/OwnerStripeConnectCard.tsx` — bouton "Connecter mon compte bancaire via Stripe" + affichage statut KYC
+- `src/routes/proprietaire.paiements.tsx` (remplace l'ancien form IBAN)
 
-**Sécurité :**
-- RIB CA lu uniquement côté serveur (secrets `CA_IBAN`/`CA_BIC`/`CA_ACCOUNT_HOLDER` déjà en place), jamais bundle client.
-- IBAN propriétaires : colonne accessible uniquement par le propriétaire lui-même et l'admin (RLS).
-- Référence virement : 8 caractères alphanumériques, unique, expire après 30 jours sans virement reçu.
-- Tous les écrans `/admin/*` gated par `has_role(uid, 'admin')`.
+**Flux modifiés** :
+- `annonceur.portefeuille.tsx` → recharge par CB via Stripe Checkout (fini le RIB)
+- `CampaignPaymentCheckout.tsx` → si wallet insuffisant, propose recharge CB
+- `wallet.functions.ts::payCampaignWithWallet` → après paiement wallet, déclenche automatiquement `transfers.create` vers le propriétaire (70% du montant)
+- `admin.tsx` PayoutBlock → bouton "Reverser au propriétaire" appelle maintenant `transferToOwner` (Stripe API) au lieu de la logique SEPA
 
-## Limitations assumées
+## Ordre d'exécution
 
-- Délai 1-2 jours ouvrés entre virement annonceur et activation wallet (incompressible sans Stripe).
-- Pas de paiement CB → certains annonceurs occasionnels seront perdus.
-- Rapprochement manuel par toi (5 min/jour). Automatisable plus tard si tu actives l'API CashlessBanking de CA (option payante côté CA, à voir dans 6 mois si volume le justifie).
-- Reversement propriétaires : tu valides la génération SEPA et tu fais l'upload toi-même dans le portail CA (sécurité : aucune app ne doit pouvoir initier des virements sortants à ta place).
+1. **Vous** : créez compte Stripe + activez Connect + me donnez la clé secrète
+2. **Moi** : migration DB (drop old + add stripe cols)
+3. **Moi** : `stripe.server.ts` + server functions Stripe
+4. **Moi** : webhook + composants UI
+5. **Moi** : suppression du code virement bancaire
+6. **Vous** : configurez webhook URL dans dashboard Stripe
+7. **Test bout-en-bout** en mode test Stripe (cartes 4242…)
 
-## Ordre d'implémentation
+## Points d'attention
 
-1. Migration DB (tables + RLS + grants)
-2. Server functions virements + payouts
-3. UI annonceur (recharge wallet par virement)
-4. UI propriétaire (form IBAN)
-5. Back-office admin (transfers + payouts)
-6. Emails (3 templates)
-7. Suppression code Stripe
-8. Test bout-en-bout
+- **Existant en cours** : les rechargements wallet déjà crédités et les campagnes déjà payées ne sont pas impactés (on garde `wallets`/`wallet_transactions`).
+- **Propriétaires actuels** : ils devront tous refaire un onboarding Stripe Connect (KYC : pièce d'identité, IBAN, adresse). Impossible d'importer les IBAN existants — Stripe exige son propre KYC.
+- **Frais Stripe** : ~1.5% + 0.25€ par transaction CB EU + ~0.25€ par transfer vers propriétaire (Stripe Connect). À intégrer dans votre marge 30%.
+- **Test mode** : tout se fait en `sk_test_…` d'abord. Passage en prod = juste changer la clé secrète.
 
-## À confirmer avant de démarrer
+---
 
-- Validation du plan global.
-- Tu veux **garder le wallet** (recharge 1 fois, débit auto par campagne) ou **virement direct par campagne** (chaque campagne = un nouveau virement avec sa propre référence) ? Le wallet réduit fortement la friction client mais demande qu'ils avancent l'argent.
-- Format de reversement aux propriétaires : **SEPA XML pain.001** (1 clic dans CA mais format technique) ou **CSV simple** (lisible mais saisie manuelle dans CA) ?
+**Confirmez-vous ce plan et êtes-vous prêt à créer le compte Stripe + activer Connect ?** Dès que vous me dites OK et que la clé est fournie, je lance la migration et le code.
