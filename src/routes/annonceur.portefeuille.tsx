@@ -78,11 +78,35 @@ function WalletPage() {
           <div className="font-display text-5xl font-bold mt-2">{fmt(wallet?.balance_cents ?? 0)}</div>
         </section>
 
-        <section className="rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-6">
-          <h2 className="font-display text-xl font-semibold mb-2">Recharge — migration en cours</h2>
-          <p className="text-sm text-muted-foreground">
-            Nous migrons les paiements vers Stripe. La recharge par carte bancaire sera disponible sous peu.
-          </p>
+        <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
+          <h2 className="font-display text-xl font-semibold">Recharger par carte bancaire</h2>
+          <p className="text-sm text-muted-foreground">Paiement sécurisé via Stripe. Le solde est crédité instantanément.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            {[50, 100, 250, 500, 1000].map((v) => (
+              <button
+                key={v}
+                onClick={() => setAmount(v)}
+                className={`px-3 py-1.5 rounded-lg text-sm border ${amount === v ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"}`}
+              >
+                {v} €
+              </button>
+            ))}
+            <input
+              type="number"
+              min={10}
+              value={amount}
+              onChange={(e) => setAmount(Math.max(10, Number(e.target.value) || 0))}
+              className="w-28 px-3 py-1.5 rounded-lg border border-border bg-background text-sm"
+            />
+          </div>
+          <button
+            onClick={startTopup}
+            disabled={topupLoading || amount < 10}
+            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
+          >
+            {topupLoading ? "Redirection…" : `Recharger ${amount} €`}
+          </button>
+          {topupError && <p className="text-sm text-destructive">{topupError}</p>}
         </section>
 
         <section>
