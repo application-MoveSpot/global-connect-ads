@@ -433,9 +433,7 @@ function PayoutBlock({ req }: { req: Request; onDone: () => void }) {
       {alreadyDone ? (
         <div className="text-emerald-700">✅ Reversement effectué</div>
       ) : campaignEnded ? (
-        <Link to="/admin/reversements" className="inline-block rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold">
-          Gérer dans Reversements →
-        </Link>
+        <div className="text-muted-foreground">Reversement Stripe Connect — migration en cours</div>
       ) : (
         <div className="text-muted-foreground">En attente fin de campagne</div>
       )}
