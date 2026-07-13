@@ -87,17 +87,13 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
             amount_cents: String(amountCents),
           },
         },
-      } as never);
+      } as Stripe.Checkout.SessionCreateParams);
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
       return { error: getStripeErrorMessage(error) };
     }
   });
-
-function getDefaultStripeEnvironment(): StripeEnv {
-  return process.env.STRIPE_LIVE_API_KEY ? "live" : "sandbox";
-}
 
 // ================== OWNER — Stripe Connect Express onboarding ==================
 const OnboardingInput = z.object({ returnUrl: z.string().url() });
@@ -107,7 +103,7 @@ export const createConnectOnboardingLink = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof OnboardingInput>) => OnboardingInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { createStripeClient } = await import("./stripe.server");
+    const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
     const stripe = createStripeClient(getDefaultStripeEnvironment());
 
     const { data: profile, error } = await supabase
@@ -164,7 +160,7 @@ export const getConnectAccountStatus = createServerFn({ method: "GET" })
     }
 
     // Refresh live status from Stripe
-    const { createStripeClient } = await import("./stripe.server");
+    const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
     const stripe = createStripeClient(getDefaultStripeEnvironment());
     try {
       const acc = await stripe.accounts.retrieve(profile.stripe_account_id);
@@ -234,7 +230,7 @@ export const transferToOwner = createServerFn({ method: "POST" })
     if (!owner?.stripe_account_id) throw new Error("Le propriétaire n'a pas connecté son compte Stripe");
     if (!owner.stripe_payouts_enabled) throw new Error("Le compte Stripe du propriétaire n'est pas encore actif");
 
-    const { createStripeClient } = await import("./stripe.server");
+    const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
     const stripe = createStripeClient(getDefaultStripeEnvironment());
     const transfer = await stripe.transfers.create({
       amount: campaign.owner_amount_cents,
