@@ -23,8 +23,23 @@ function fmt(cents: number) {
 function WalletPage() {
   const navigate = useNavigate();
   const fetchWallet = useServerFn(getMyWallet);
+  const topup = useServerFn(createWalletTopupCheckout);
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<{ balance_cents: number; transactions: any[] } | null>(null);
+  const [amount, setAmount] = useState<number>(100);
+  const [topupLoading, setTopupLoading] = useState(false);
+  const [topupError, setTopupError] = useState<string | null>(null);
+
+  const startTopup = async () => {
+    setTopupLoading(true); setTopupError(null);
+    try {
+      const { url } = await topup({ data: { amountEuros: amount, returnUrl: window.location.origin + "/annonceur/portefeuille" } });
+      if (url) window.location.href = url;
+    } catch (e) {
+      setTopupError(e instanceof Error ? e.message : "Erreur");
+      setTopupLoading(false);
+    }
+  };
 
   useEffect(() => {
     (async () => {
