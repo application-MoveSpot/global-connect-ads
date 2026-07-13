@@ -21,14 +21,16 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
           return new Response(`Signature invalide: ${e instanceof Error ? e.message : "?"}`, { status: 400 });
         }
 
-        // Idempotence
+        // Idempotence — table PK `id` = event id
         const { data: seen } = await supabaseAdmin
           .from("stripe_events")
           .select("id")
-          .eq("event_id", event.id)
+          .eq("id", event.id)
           .maybeSingle();
         if (seen) return Response.json({ received: true, duplicate: true });
-        await supabaseAdmin.from("stripe_events").insert({ event_id: event.id, type: event.type } as never);
+        await supabaseAdmin
+          .from("stripe_events")
+          .insert({ id: event.id, type: event.type, payload: event as never } as never);
 
         try {
           switch (event.type) {
