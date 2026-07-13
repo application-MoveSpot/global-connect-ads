@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { getMyWallet } from "@/lib/wallet.functions";
+import { createWalletTopupCheckout } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({
