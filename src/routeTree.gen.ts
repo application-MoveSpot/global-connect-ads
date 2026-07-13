@@ -39,8 +39,6 @@ import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.i
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
-import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
-import { Route as AdminReversementsRouteImport } from './routes/admin.reversements'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
@@ -203,16 +201,6 @@ const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
   path: '/annonceur/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminVirementsRoute = AdminVirementsRouteImport.update({
-  id: '/virements',
-  path: '/virements',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminReversementsRoute = AdminReversementsRouteImport.update({
-  id: '/reversements',
-  path: '/reversements',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
   id: '/prestataires',
   path: '/prestataires',
@@ -292,8 +280,6 @@ export interface FileRoutesByFullPath {
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
-  '/admin/reversements': typeof AdminReversementsRoute
-  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -337,8 +323,6 @@ export interface FileRoutesByTo {
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
-  '/admin/reversements': typeof AdminReversementsRoute
-  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -383,8 +367,6 @@ export interface FileRoutesById {
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
-  '/admin/reversements': typeof AdminReversementsRoute
-  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -430,8 +412,6 @@ export interface FileRouteTypes {
     | '/securite'
     | '/sitemap.xml'
     | '/admin/prestataires'
-    | '/admin/reversements'
-    | '/admin/virements'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -475,8 +455,6 @@ export interface FileRouteTypes {
     | '/securite'
     | '/sitemap.xml'
     | '/admin/prestataires'
-    | '/admin/reversements'
-    | '/admin/virements'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -520,8 +498,6 @@ export interface FileRouteTypes {
     | '/securite'
     | '/sitemap.xml'
     | '/admin/prestataires'
-    | '/admin/reversements'
-    | '/admin/virements'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -801,20 +777,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/virements': {
-      id: '/admin/virements'
-      path: '/virements'
-      fullPath: '/admin/virements'
-      preLoaderRoute: typeof AdminVirementsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/reversements': {
-      id: '/admin/reversements'
-      path: '/reversements'
-      fullPath: '/admin/reversements'
-      preLoaderRoute: typeof AdminReversementsRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/prestataires': {
       id: '/admin/prestataires'
       path: '/prestataires'
@@ -897,14 +859,10 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
-  AdminReversementsRoute: typeof AdminReversementsRoute
-  AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminPrestatairesRoute: AdminPrestatairesRoute,
-  AdminReversementsRoute: AdminReversementsRoute,
-  AdminVirementsRoute: AdminVirementsRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
