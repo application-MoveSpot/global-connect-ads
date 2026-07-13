@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createWalletTopupCheckout } from "@/lib/payments.functions";
-import { getStripe, getStripeEnvironment } from "@/lib/stripe";
+import { getPaymentClientToken, getStripe, getStripeEnvironment } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -51,6 +51,11 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
 
   const showCheckout = () => {
     setError(null);
+    if (!getPaymentClientToken()) {
+      setError("Le paiement live n'est pas configuré. Terminez le passage en live dans Payments.");
+      setOpen(true);
+      return;
+    }
     setCheckoutKey((key) => key + 1);
     setOpen(true);
   };
@@ -70,11 +75,13 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
               <DialogDescription>Paiement sécurisé par carte bancaire.</DialogDescription>
             </DialogHeader>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <div key={checkoutKey} className="min-h-[560px]">
-              <EmbeddedCheckoutProvider stripe={getStripe()} options={checkoutOptions}>
-                <EmbeddedCheckout />
-              </EmbeddedCheckoutProvider>
-            </div>
+            {!error ? (
+              <div key={checkoutKey} className="min-h-[560px]">
+                <EmbeddedCheckoutProvider stripe={getStripe()} options={checkoutOptions}>
+                  <EmbeddedCheckout />
+                </EmbeddedCheckoutProvider>
+              </div>
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>
