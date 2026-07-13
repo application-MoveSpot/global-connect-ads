@@ -1,25 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getStripe } from "@/lib/stripe.server";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { type StripeEnv, verifyWebhook } from "@/lib/stripe.server";
 import type Stripe from "stripe";
 
 export const Route = createFileRoute("/api/public/stripe/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env.STRIPE_WEBHOOK_SECRET;
-        if (!secret) return new Response("Webhook secret non configuré", { status: 500 });
-        const sig = request.headers.get("stripe-signature");
-        if (!sig) return new Response("Signature manquante", { status: 400 });
-        const body = await request.text();
+        const rawEnv = new URL(request.url).searchParams.get("env");
+        if (rawEnv !== "sandbox" && rawEnv !== "live") {
+          return Response.json({ received: true, ignored: "invalid env" });
+        }
 
-        const stripe = getStripe();
-        let event: Stripe.Event;
+        let event: { id: string; type: string; data: { object: unknown } };
         try {
-          event = await stripe.webhooks.constructEventAsync(body, sig, secret);
+          event = await verifyWebhook(request, rawEnv as StripeEnv);
         } catch (e) {
           return new Response(`Signature invalide: ${e instanceof Error ? e.message : "?"}`, { status: 400 });
         }
+
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         // Idempotence — table PK `id` = event id
         const { data: seen } = await supabaseAdmin
