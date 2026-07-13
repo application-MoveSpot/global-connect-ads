@@ -87,7 +87,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
             amount_cents: String(amountCents),
           },
         },
-      } as Stripe.Checkout.SessionCreateParams);
+      } as never);
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
