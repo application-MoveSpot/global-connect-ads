@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { getMyWallet } from "@/lib/wallet.functions";
-import { createWalletTopupCheckout } from "@/lib/payments.functions";
+import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({
@@ -23,23 +24,9 @@ function fmt(cents: number) {
 function WalletPage() {
   const navigate = useNavigate();
   const fetchWallet = useServerFn(getMyWallet);
-  const topup = useServerFn(createWalletTopupCheckout);
   const [loading, setLoading] = useState(true);
   const [wallet, setWallet] = useState<{ balance_cents: number; transactions: any[] } | null>(null);
   const [amount, setAmount] = useState<number>(100);
-  const [topupLoading, setTopupLoading] = useState(false);
-  const [topupError, setTopupError] = useState<string | null>(null);
-
-  const startTopup = async () => {
-    setTopupLoading(true); setTopupError(null);
-    try {
-      const { url } = await topup({ data: { amountEuros: amount, returnUrl: window.location.origin + "/annonceur/portefeuille" } });
-      if (url) window.location.href = url;
-    } catch (e) {
-      setTopupError(e instanceof Error ? e.message : "Erreur");
-      setTopupLoading(false);
-    }
-  };
 
   useEffect(() => {
     (async () => {
@@ -60,6 +47,7 @@ function WalletPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
@@ -99,14 +87,10 @@ function WalletPage() {
               className="w-28 px-3 py-1.5 rounded-lg border border-border bg-background text-sm"
             />
           </div>
-          <button
-            onClick={startTopup}
-            disabled={topupLoading || amount < 10}
-            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50"
-          >
-            {topupLoading ? "Redirection…" : `Recharger ${amount} €`}
-          </button>
-          {topupError && <p className="text-sm text-destructive">{topupError}</p>}
+          <WalletTopupCheckout
+            amountEuros={amount}
+            buttonLabel={`Recharger ${amount} €`}
+          />
         </section>
 
         <section>

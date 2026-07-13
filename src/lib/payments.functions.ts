@@ -6,49 +6,92 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const TopupInput = z.object({
   amountEuros: z.number().min(10).max(50000),
   returnUrl: z.string().url(),
+  environment: z.enum(["sandbox", "live"]),
 });
+
+type CheckoutSessionResult =
+  | { clientSecret: string; id: string }
+  | { error: string };
 
 export const createWalletTopupCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof TopupInput>) => TopupInput.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
     const { userId, supabase } = context;
-    const { getStripe } = await import("./stripe.server");
-    const stripe = getStripe();
-    const amountCents = Math.round(data.amountEuros * 100);
+    const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
 
-    const { data: userRow } = await supabase.auth.getUser();
-    const email = userRow.user?.email ?? undefined;
+    try {
+      const stripe = createStripeClient(data.environment);
+      const amountCents = Math.round(data.amountEuros * 100);
+      const { data: userRow } = await supabase.auth.getUser();
+      const email = userRow.user?.email ?? undefined;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [{
-        price_data: {
-          currency: "eur",
-          product_data: { name: "Recharge portefeuille MoveSpot" },
-          unit_amount: amountCents,
-        },
-        quantity: 1,
-      }],
-      customer_email: email,
-      success_url: `${data.returnUrl}?topup=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${data.returnUrl}?topup=cancel`,
-      metadata: {
-        kind: "wallet_topup",
-        user_id: userId,
-        amount_cents: String(amountCents),
-      },
-      payment_intent_data: {
+      const resolveOrCreateCustomer = async (options: { email?: string; userId: string }) => {
+        if (!/^[a-zA-Z0-9_-]+$/.test(options.userId)) throw new Error("Utilisateur invalide");
+
+        const found = await stripe.customers.search({
+          query: `metadata['userId']:'${options.userId}'`,
+          limit: 1,
+        });
+        if (found.data.length) return found.data[0].id;
+
+        if (options.email) {
+          const existing = await stripe.customers.list({ email: options.email, limit: 1 });
+          if (existing.data.length) {
+            const customer = existing.data[0];
+            if (customer.metadata?.userId !== options.userId) {
+              await stripe.customers.update(customer.id, {
+                metadata: { ...customer.metadata, userId: options.userId },
+              });
+            }
+            return customer.id;
+          }
+        }
+
+        const created = await stripe.customers.create({
+          ...(options.email && { email: options.email }),
+          metadata: { userId: options.userId },
+        });
+        return created.id;
+      };
+
+      const customerId = await resolveOrCreateCustomer({ email, userId });
+      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        ui_mode: "embedded_page",
+        return_url: returnUrl,
+        customer: customerId,
+        line_items: [{
+          price_data: {
+            currency: "eur",
+            product_data: { name: "Recharge portefeuille MoveSpot" },
+            unit_amount: amountCents,
+          },
+          quantity: 1,
+        }],
         metadata: {
           kind: "wallet_topup",
           user_id: userId,
+          userId,
           amount_cents: String(amountCents),
         },
-      },
-    });
+        payment_intent_data: {
+          description: "Recharge portefeuille MoveSpot",
+          metadata: {
+            kind: "wallet_topup",
+            user_id: userId,
+            userId,
+            amount_cents: String(amountCents),
+          },
+        },
+      } as never);
 
-    return { url: session.url, id: session.id };
+      return { clientSecret: session.client_secret ?? "", id: session.id };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
   });
 
 // ================== OWNER — Stripe Connect Express onboarding ==================
@@ -59,8 +102,8 @@ export const createConnectOnboardingLink = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof OnboardingInput>) => OnboardingInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { getStripe } = await import("./stripe.server");
-    const stripe = getStripe();
+    const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
+    const stripe = createStripeClient(getDefaultStripeEnvironment());
 
     const { data: profile, error } = await supabase
       .from("owner_profiles")
@@ -116,8 +159,8 @@ export const getConnectAccountStatus = createServerFn({ method: "GET" })
     }
 
     // Refresh live status from Stripe
-    const { getStripe } = await import("./stripe.server");
-    const stripe = getStripe();
+    const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
+    const stripe = createStripeClient(getDefaultStripeEnvironment());
     try {
       const acc = await stripe.accounts.retrieve(profile.stripe_account_id);
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -186,8 +229,8 @@ export const transferToOwner = createServerFn({ method: "POST" })
     if (!owner?.stripe_account_id) throw new Error("Le propriétaire n'a pas connecté son compte Stripe");
     if (!owner.stripe_payouts_enabled) throw new Error("Le compte Stripe du propriétaire n'est pas encore actif");
 
-    const { getStripe } = await import("./stripe.server");
-    const stripe = getStripe();
+    const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
+    const stripe = createStripeClient(getDefaultStripeEnvironment());
     const transfer = await stripe.transfers.create({
       amount: campaign.owner_amount_cents,
       currency: "eur",

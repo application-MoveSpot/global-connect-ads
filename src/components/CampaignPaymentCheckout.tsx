@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/wallet.functions";
-import { createWalletTopupCheckout } from "@/lib/payments.functions";
 import { Button } from "@/components/ui/button";
+import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
 
 type Props = {
   campaignRequestId: string;
@@ -13,7 +13,6 @@ type Props = {
 export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPaid }: Props) {
   const fetchWallet = useServerFn(getMyWallet);
   const payWithWallet = useServerFn(payCampaignWithWallet);
-  const topup = useServerFn(createWalletTopupCheckout);
 
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,17 +36,6 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
     } finally { setLoading(false); }
   };
 
-  const onTopup = async () => {
-    setLoading(true); setError(null);
-    try {
-      const { url } = await topup({ data: { amountEuros: missingEur, returnUrl: window.location.href } });
-      if (url) window.location.href = url;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-border bg-secondary/30 p-3 text-sm">
@@ -61,9 +49,11 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
       ) : (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Solde insuffisant. Rechargez par carte pour compléter le paiement.</p>
-          <Button onClick={onTopup} disabled={loading}>
-            {loading ? "Redirection…" : `Recharger ${missingEur} € par carte`}
-          </Button>
+          <WalletTopupCheckout
+            amountEuros={missingEur}
+            disabled={loading}
+            buttonLabel={`Recharger ${missingEur} € par carte`}
+          />
         </div>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}

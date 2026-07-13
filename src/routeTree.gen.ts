@@ -51,6 +51,7 @@ import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.b
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -267,6 +268,12 @@ const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   path: '/api/public/stripe/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -309,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -353,6 +361,7 @@ export interface FileRoutesByTo {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs': typeof ProprietaireBriefsIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -398,6 +407,7 @@ export interface FileRoutesById {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
+    | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
@@ -488,6 +499,7 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs'
     | '/proprietaire/briefs'
+    | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
   id:
@@ -532,6 +544,7 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
+    | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
@@ -574,6 +587,7 @@ export interface RootRouteChildren {
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   AnnonceurBriefsIndexRoute: typeof AnnonceurBriefsIndexRoute
   ProprietaireBriefsIndexRoute: typeof ProprietaireBriefsIndexRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
@@ -874,6 +888,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -938,6 +959,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   AnnonceurBriefsIndexRoute: AnnonceurBriefsIndexRoute,
   ProprietaireBriefsIndexRoute: ProprietaireBriefsIndexRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
