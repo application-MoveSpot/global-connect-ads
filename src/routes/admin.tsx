@@ -418,10 +418,23 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${map[status] ?? ""}`}>{label[status] ?? status}</span>;
 }
 
-function PayoutBlock({ req }: { req: Request; onDone: () => void }) {
+function PayoutBlock({ req, onDone }: { req: Request; onDone: () => void }) {
   const endDate = req.end_date ? new Date(req.end_date) : null;
   const campaignEnded = endDate ? endDate <= new Date() : false;
   const alreadyDone = req.payout_status === "transferred";
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const doTransfer = async () => {
+    setLoading(true); setError(null);
+    try {
+      const { transferToOwner } = await import("@/lib/payments.functions");
+      await transferToOwner({ data: { campaignRequestId: req.id } });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur");
+    } finally { setLoading(false); }
+  };
 
   return (
     <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs space-y-2">
@@ -431,9 +444,18 @@ function PayoutBlock({ req }: { req: Request; onDone: () => void }) {
         <span>À reverser : {((req.owner_amount_cents ?? 0) / 100).toFixed(2)} €</span>
       </div>
       {alreadyDone ? (
-        <div className="text-emerald-700">✅ Reversement effectué</div>
+        <div className="text-emerald-700">✅ Reversement effectué (Stripe Connect)</div>
       ) : campaignEnded ? (
-        <div className="text-muted-foreground">Reversement Stripe Connect — migration en cours</div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={doTransfer}
+            disabled={loading}
+            className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground font-semibold text-xs disabled:opacity-50"
+          >
+            {loading ? "Transfert…" : "Reverser au propriétaire"}
+          </button>
+          {error && <span className="text-destructive">{error}</span>}
+        </div>
       ) : (
         <div className="text-muted-foreground">En attente fin de campagne</div>
       )}
