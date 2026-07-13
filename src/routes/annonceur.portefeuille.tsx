@@ -89,7 +89,6 @@ function WalletPage() {
           </div>
           <WalletTopupCheckout
             amountEuros={amount}
-            returnUrl={`${window.location.origin}/annonceur/portefeuille`}
             buttonLabel={`Recharger ${amount} €`}
           />
         </section>
