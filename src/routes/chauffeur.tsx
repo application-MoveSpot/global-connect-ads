@@ -66,27 +66,33 @@ function DriverPage() {
       if (navigator.wakeLock) wakeLockRef.current = await navigator.wakeLock.request("screen");
     } catch {}
 
+    const buffer = new GpsBatchBuffer(
+      async (points) => {
+        await pushBatch({ data: { token: tokenRef.current, points } });
+      },
+      (r) => {
+        if (r.sent > 0) setCount((c) => c + r.sent);
+        setPending(r.pending);
+        if (r.failed) toast("Réseau indisponible — points conservés hors ligne");
+      },
+      `movespot_gps_buffer_driver`,
+    );
+    bufferRef.current = buffer;
+    buffer.start();
+    setPending(buffer.pending);
+
     watchIdRef.current = navigator.geolocation.watchPosition(
-      async (pos) => {
-        const now = Date.now();
-        if (now - lastSentRef.current < 20_000) return; // throttle ~20s
-        lastSentRef.current = now;
-        try {
-          await push({
-            data: {
-              token: tokenRef.current,
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              accuracy: pos.coords.accuracy ?? null,
-              speed: pos.coords.speed ?? null,
-              heading: pos.coords.heading ?? null,
-            },
-          });
-          setCount((c) => c + 1);
-          setLastPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        } catch (e: any) {
-          console.error(e);
-        }
+      (pos) => {
+        const added = buffer.add({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+          speed: pos.coords.speed ?? null,
+          heading: pos.coords.heading ?? null,
+          recordedAt: new Date().toISOString(),
+        });
+        if (added) setPending(buffer.pending);
+        setLastPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       (err) => toast.error(`GPS : ${err.message}`),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 },
@@ -100,6 +106,7 @@ function DriverPage() {
     watchIdRef.current = null;
     if (wakeLockRef.current) { try { wakeLockRef.current.release(); } catch {} }
     wakeLockRef.current = null;
+    void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
     setState("ready");
     toast("Suivi arrêté");
   };
