@@ -30,6 +30,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
+import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.essai-active'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
@@ -163,6 +164,11 @@ const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
 const AnnonceurIndexRoute = AnnonceurIndexRouteImport.update({
   id: '/annonceur/',
   path: '/annonceur/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnonceurEssaiActiveRoute = AnnonceurEssaiActiveRouteImport.update({
+  id: '/annonceur/essai-active',
+  path: '/annonceur/essai-active',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -379,6 +386,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -430,6 +438,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
@@ -482,6 +491,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
+    | '/annonceur/essai-active'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -532,6 +542,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
+    | '/annonceur/essai-active'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -582,6 +593,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
+    | '/annonceur/essai-active'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
@@ -632,6 +644,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  AnnonceurEssaiActiveRoute: typeof AnnonceurEssaiActiveRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
@@ -807,6 +820,13 @@ declare module '@tanstack/react-router' {
       path: '/annonceur'
       fullPath: '/annonceur/'
       preLoaderRoute: typeof AnnonceurIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceur/essai-active': {
+      id: '/annonceur/essai-active'
+      path: '/annonceur/essai-active'
+      fullPath: '/annonceur/essai-active'
+      preLoaderRoute: typeof AnnonceurEssaiActiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/annonceur/inscription': {
@@ -1045,6 +1065,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  AnnonceurEssaiActiveRoute: AnnonceurEssaiActiveRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
