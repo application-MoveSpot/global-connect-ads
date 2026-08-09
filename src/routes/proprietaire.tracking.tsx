@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getOwnerVehiclesForTracking,
   getActiveCampaignForVehicle,
-  pushPosition,
+  pushPositionBatch,
 } from "@/lib/tracking.functions";
+import { GpsBatchBuffer } from "@/lib/gps-buffer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -29,7 +30,7 @@ function TrackingPage() {
   const navigate = useNavigate();
   const fetchVehicles = useServerFn(getOwnerVehiclesForTracking);
   const fetchCampaign = useServerFn(getActiveCampaignForVehicle);
-  const sendPosition = useServerFn(pushPosition);
+  const sendPositionBatch = useServerFn(pushPositionBatch);
 
   const [authReady, setAuthReady] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
@@ -41,11 +42,11 @@ function TrackingPage() {
   const [online, setOnline] = useState(true);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
+  const [pending, setPending] = useState(0);
 
   const watchIdRef = useRef<number | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-  const lastSendRef = useRef<number>(0);
-  const SEND_INTERVAL_MS = 20_000;
+  const bufferRef = useRef<GpsBatchBuffer | null>(null);
 
   const { data: vehiclesData } = useQuery({
     queryKey: ["tracking-vehicles"],
@@ -125,29 +126,36 @@ function TrackingPage() {
 
     const campaignRequestId = campaignData?.campaign?.id ?? null;
 
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      async (pos) => {
-        const now = Date.now();
-        setLastCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
-        if (now - lastSendRef.current < SEND_INTERVAL_MS) return;
-        lastSendRef.current = now;
-        try {
-          await sendPosition({
-            data: {
-              vehicleId,
-              campaignRequestId,
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              accuracy: pos.coords.accuracy ?? null,
-              speed: pos.coords.speed ?? null,
-              heading: pos.coords.heading ?? null,
-            },
-          });
-          setLastSent(new Date());
-        } catch (e) {
+    const buffer = new GpsBatchBuffer(
+      async (points) => {
+        await sendPositionBatch({ data: { vehicleId, campaignRequestId, points } });
+      },
+      (r) => {
+        setPending(r.pending);
+        if (r.failed) {
           setErrorCount((c) => c + 1);
-          console.error("pushPosition error", e);
+        } else {
+          setLastSent(new Date());
         }
+      },
+      `movespot_gps_buffer_${vehicleId}`,
+    );
+    bufferRef.current = buffer;
+    buffer.start();
+    setPending(buffer.pending);
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setLastCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
+        const added = buffer.add({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+          speed: pos.coords.speed ?? null,
+          heading: pos.coords.heading ?? null,
+          recordedAt: new Date().toISOString(),
+        });
+        if (added) setPending(buffer.pending);
       },
       (err) => {
         toast.error(`GPS : ${err.message}`);
@@ -165,9 +173,10 @@ function TrackingPage() {
       watchIdRef.current = null;
     }
     releaseWakeLock();
+    void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
     setTracking(false);
     setStartedAt(null);
-    toast.success("Suivi GPS arrêté");
+    toast.success("Suivi GPS arrêté — dernier lot envoyé");
   }
 
   useEffect(() => {
@@ -253,8 +262,12 @@ function TrackingPage() {
                   <span className="font-mono">{hh}:{mm}:{ss}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Dernière position</span>
+                  <span className="text-muted-foreground">Dernier lot envoyé</span>
                   <span className="font-mono">{lastSent ? lastSent.toLocaleTimeString("fr-FR") : "—"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Points en attente</span>
+                  <span className="font-mono">{pending}</span>
                 </div>
                 {lastCoords && (
                   <div className="flex justify-between text-xs">
@@ -273,7 +286,8 @@ function TrackingPage() {
               <ul className="list-disc space-y-1 pl-4">
                 <li>Gardez le téléphone branché et l'écran allumé (verrouillé d'écran maintenu auto).</li>
                 <li>Ajoutez l'application à l'écran d'accueil pour un usage type appli.</li>
-                <li>Une position est envoyée toutes les ~20 secondes.</li>
+                <li>Les points sont collectés tous les 10 m et envoyés par lot toutes les 5 minutes.</li>
+                <li>Hors réseau (zone blanche), les points sont conservés et renvoyés au cycle suivant.</li>
               </ul>
             </div>
           </CardContent>

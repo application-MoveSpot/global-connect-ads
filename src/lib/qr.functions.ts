@@ -105,3 +105,59 @@ export const pushPositionWithToken = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ── Public: push a batch of positions with a signed driver token ──────────────
+export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z.object({
+      token: z.string().min(10).max(2000),
+      points: z
+        .array(
+          z.object({
+            lat: z.number().min(-90).max(90),
+            lng: z.number().min(-180).max(180),
+            accuracy: z.number().nullable().optional(),
+            speed: z.number().nullable().optional(),
+            heading: z.number().nullable().optional(),
+            recordedAt: z.string().min(10),
+          }),
+        )
+        .min(1)
+        .max(500),
+    }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { verifyQrToken } = await import("@/lib/qr-sign.server");
+    const payload = await verifyQrToken(data.token);
+    if (!payload) throw new Error("Token invalide.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: camp } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("id")
+      .eq("vehicle_id", payload.v)
+      .eq("status", "approved")
+      .lte("start_date", today)
+      .gte("end_date", today)
+      .order("start_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const rows = data.points.map((p) => ({
+      vehicle_id: payload.v,
+      owner_id: payload.o,
+      campaign_request_id: camp?.id ?? null,
+      lat: p.lat,
+      lng: p.lng,
+      accuracy: p.accuracy ?? null,
+      speed: p.speed ?? null,
+      heading: p.heading ?? null,
+      recorded_at: p.recordedAt,
+    }));
+
+    const { error } = await supabaseAdmin.from("vehicle_positions").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true, inserted: rows.length };
+  });

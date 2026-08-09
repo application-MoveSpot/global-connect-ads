@@ -31,6 +31,45 @@ export const pushPosition = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const BatchSchema = z.object({
+  vehicleId: z.string().uuid(),
+  campaignRequestId: z.string().uuid().nullable().optional(),
+  points: z
+    .array(
+      z.object({
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+        accuracy: z.number().nullable().optional(),
+        speed: z.number().nullable().optional(),
+        heading: z.number().nullable().optional(),
+        recordedAt: z.string().min(10),
+      }),
+    )
+    .min(1)
+    .max(500),
+});
+
+export const pushPositionBatch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => BatchSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const rows = data.points.map((p) => ({
+      vehicle_id: data.vehicleId,
+      campaign_request_id: data.campaignRequestId ?? null,
+      owner_id: userId,
+      lat: p.lat,
+      lng: p.lng,
+      accuracy: p.accuracy ?? null,
+      speed: p.speed ?? null,
+      heading: p.heading ?? null,
+      recorded_at: p.recordedAt,
+    }));
+    const { error } = await supabase.from("vehicle_positions").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true, inserted: rows.length };
+  });
+
 export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ vehicleId: z.string().uuid() }).parse(input))

@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { verifyDriverToken, pushPositionWithToken } from "@/lib/qr.functions";
+import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr.functions";
+import { GpsBatchBuffer } from "@/lib/gps-buffer";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/chauffeur")({
@@ -15,18 +16,20 @@ type Vehicle = { id: string; name: string; type: string; format: string | null }
 function DriverPage() {
   const { t } = Route.useSearch();
   const verify = useServerFn(verifyDriverToken);
-  const push = useServerFn(pushPositionWithToken);
+  const pushBatch = useServerFn(pushPositionBatchWithToken);
 
   const [state, setState] = useState<"verifying" | "ready" | "invalid" | "tracking">("verifying");
   const [error, setError] = useState<string | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [count, setCount] = useState(0);
+  const [pending, setPending] = useState(0);
   const [lastPos, setLastPos] = useState<{ lat: number; lng: number } | null>(null);
 
   const watchIdRef = useRef<number | null>(null);
-  const lastSentRef = useRef<number>(0);
   const wakeLockRef = useRef<any>(null);
   const tokenRef = useRef<string>(t);
+  const bufferRef = useRef<GpsBatchBuffer | null>(null);
+
 
   useEffect(() => {
     const stored = typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
@@ -63,27 +66,33 @@ function DriverPage() {
       if (navigator.wakeLock) wakeLockRef.current = await navigator.wakeLock.request("screen");
     } catch {}
 
+    const buffer = new GpsBatchBuffer(
+      async (points) => {
+        await pushBatch({ data: { token: tokenRef.current, points } });
+      },
+      (r) => {
+        if (r.sent > 0) setCount((c) => c + r.sent);
+        setPending(r.pending);
+        if (r.failed) toast("Réseau indisponible — points conservés hors ligne");
+      },
+      `movespot_gps_buffer_driver`,
+    );
+    bufferRef.current = buffer;
+    buffer.start();
+    setPending(buffer.pending);
+
     watchIdRef.current = navigator.geolocation.watchPosition(
-      async (pos) => {
-        const now = Date.now();
-        if (now - lastSentRef.current < 20_000) return; // throttle ~20s
-        lastSentRef.current = now;
-        try {
-          await push({
-            data: {
-              token: tokenRef.current,
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              accuracy: pos.coords.accuracy ?? null,
-              speed: pos.coords.speed ?? null,
-              heading: pos.coords.heading ?? null,
-            },
-          });
-          setCount((c) => c + 1);
-          setLastPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        } catch (e: any) {
-          console.error(e);
-        }
+      (pos) => {
+        const added = buffer.add({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+          speed: pos.coords.speed ?? null,
+          heading: pos.coords.heading ?? null,
+          recordedAt: new Date().toISOString(),
+        });
+        if (added) setPending(buffer.pending);
+        setLastPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       (err) => toast.error(`GPS : ${err.message}`),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 },
@@ -97,6 +106,7 @@ function DriverPage() {
     watchIdRef.current = null;
     if (wakeLockRef.current) { try { wakeLockRef.current.release(); } catch {} }
     wakeLockRef.current = null;
+    void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
     setState("ready");
     toast("Suivi arrêté");
   };
@@ -146,6 +156,7 @@ function DriverPage() {
                     <span className="font-semibold text-signal">EN COURS</span>
                   </div>
                   <div className="text-sm text-muted-foreground">{count} position(s) envoyée(s)</div>
+                  <div className="text-xs text-muted-foreground">{pending} en attente d'envoi (lot toutes les 5 min)</div>
                   {lastPos && (
                     <div className="text-[10px] font-mono mt-1 text-muted-foreground">
                       {lastPos.lat.toFixed(5)}, {lastPos.lng.toFixed(5)}
