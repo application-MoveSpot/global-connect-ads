@@ -42,11 +42,11 @@ function TrackingPage() {
   const [online, setOnline] = useState(true);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
+  const [pending, setPending] = useState(0);
 
   const watchIdRef = useRef<number | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-  const lastSendRef = useRef<number>(0);
-  const SEND_INTERVAL_MS = 20_000;
+  const bufferRef = useRef<GpsBatchBuffer | null>(null);
 
   const { data: vehiclesData } = useQuery({
     queryKey: ["tracking-vehicles"],
