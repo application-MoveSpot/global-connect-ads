@@ -126,29 +126,36 @@ function TrackingPage() {
 
     const campaignRequestId = campaignData?.campaign?.id ?? null;
 
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      async (pos) => {
-        const now = Date.now();
-        setLastCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
-        if (now - lastSendRef.current < SEND_INTERVAL_MS) return;
-        lastSendRef.current = now;
-        try {
-          await sendPosition({
-            data: {
-              vehicleId,
-              campaignRequestId,
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              accuracy: pos.coords.accuracy ?? null,
-              speed: pos.coords.speed ?? null,
-              heading: pos.coords.heading ?? null,
-            },
-          });
-          setLastSent(new Date());
-        } catch (e) {
+    const buffer = new GpsBatchBuffer(
+      async (points) => {
+        await sendPositionBatch({ data: { vehicleId, campaignRequestId, points } });
+      },
+      (r) => {
+        setPending(r.pending);
+        if (r.failed) {
           setErrorCount((c) => c + 1);
-          console.error("pushPosition error", e);
+        } else {
+          setLastSent(new Date());
         }
+      },
+      `movespot_gps_buffer_${vehicleId}`,
+    );
+    bufferRef.current = buffer;
+    buffer.start();
+    setPending(buffer.pending);
+
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setLastCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
+        const added = buffer.add({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+          speed: pos.coords.speed ?? null,
+          heading: pos.coords.heading ?? null,
+          recordedAt: new Date().toISOString(),
+        });
+        if (added) setPending(buffer.pending);
       },
       (err) => {
         toast.error(`GPS : ${err.message}`);
