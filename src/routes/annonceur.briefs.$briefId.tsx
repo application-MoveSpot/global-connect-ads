@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { CreativeFiles } from "@/components/CreativeFiles";
+import { CampaignTrialCheckout } from "@/components/CampaignTrialCheckout";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
