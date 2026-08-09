@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://phononlhfyljhhhvlmrm.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "movespot",
+      "version": "0.1.0",
+      "title": "MoveSpot"
+    },
+    "tools": [
+      {
+        "name": "list_my_vehicles",
+        "title": "Lister mes véhicules",
+        "description": "Liste les véhicules publicitaires du propriétaire connecté (type, état, zones, prix/jour, statut de modération).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "description": "Nombre maximum de véhicules à retourner (défaut 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_campaigns",
+        "title": "Lister mes campagnes",
+        "description": "Liste les demandes de campagne visibles par l'utilisateur connecté (dates, statut, paiement, montants).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Filtrer sur un statut exact (ex: pending, accepted, rejected)."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Nombre maximum de campagnes (défaut 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_briefs",
+        "title": "Lister mes briefs",
+        "description": "Liste les briefs publicitaires visibles par l'utilisateur connecté (titre, zones, budget, dates, statut).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "description": "Nombre maximum de briefs (défaut 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_wallet_balance",
+        "title": "Solde du portefeuille",
+        "description": "Retourne le solde du portefeuille MoveSpot de l'utilisateur connecté et ses dernières transactions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "transactions_limit": {
+              "type": "integer",
+              "description": "Nombre de transactions récentes à inclure (défaut 10)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_providers",
+        "title": "Rechercher des prestataires",
+        "description": "Recherche dans l'annuaire MoveSpot des prestataires approuvés (covering, production vidéo, création graphique).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Texte recherché dans le nom de société ou la description."
+            },
+            "service": {
+              "type": "string",
+              "description": "Service recherché, par exemple covering, video ou graphisme."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Nombre maximum de résultats (défaut 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

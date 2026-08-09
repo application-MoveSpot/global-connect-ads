@@ -23,7 +23,7 @@ export default defineTool({
     const supabase = supabaseForUser(ctx);
     let request = supabase
       .from("provider_profiles")
-      .select("user_id, company, city:coverage_areas, description, services, pricing_info, website, status")
+      .select("user_id, company, coverage_areas, description, services, pricing_info, website, status")
       .eq("status", "approved")
       .limit(Math.min(Math.max(limit ?? 20, 1), 100));
 
