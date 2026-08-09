@@ -65,7 +65,8 @@ function AuthPage() {
         return;
       }
     }
-    navigate({ to: "/admin" });
+    goNext();
+
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,10 +77,11 @@ function AuthPage() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/admin` },
+        options: { emailRedirectTo: `${window.location.origin}${next ?? "/admin"}` },
       });
       if (error) setError(error.message);
-      else navigate({ to: "/admin" });
+      else goNext();
+
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
@@ -105,7 +107,8 @@ function AuthPage() {
     }
     setMfa(null);
     setMfaCode("");
-    navigate({ to: "/admin" });
+    goNext();
+
   };
 
 
