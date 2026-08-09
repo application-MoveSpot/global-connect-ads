@@ -5,6 +5,9 @@ import { lovable } from "@/integrations/lovable";
 import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Connexion — MoveSpot" },
@@ -16,6 +19,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,14 +28,27 @@ function AuthPage() {
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
 
+  const goNext = () => {
+    if (next) {
+      window.location.href = next;
+      return;
+    }
+    navigate({ to: "/admin" });
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) return;
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") return;
+      if (next) {
+        window.location.href = next;
+        return;
+      }
       navigate({ to: "/admin" });
     });
-  }, [navigate]);
+  }, [navigate, next]);
+
 
   const checkMfaThenGo = async () => {
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -48,7 +65,8 @@ function AuthPage() {
         return;
       }
     }
-    navigate({ to: "/admin" });
+    goNext();
+
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,10 +77,11 @@ function AuthPage() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/admin` },
+        options: { emailRedirectTo: `${window.location.origin}${next ?? "/admin"}` },
       });
       if (error) setError(error.message);
-      else navigate({ to: "/admin" });
+      else goNext();
+
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
@@ -88,7 +107,8 @@ function AuthPage() {
     }
     setMfa(null);
     setMfaCode("");
-    navigate({ to: "/admin" });
+    goNext();
+
   };
 
 
@@ -170,10 +190,11 @@ function AuthPage() {
           type="button"
           onClick={async () => {
             const result = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: `${window.location.origin}/admin`,
+              redirect_uri: `${window.location.origin}${next ?? "/admin"}`,
             });
             if (result.error) setError(result.error.message);
-            else if (!result.redirected) navigate({ to: "/admin" });
+            else if (!result.redirected) goNext();
+
           }}
           className="w-full rounded-lg border border-border bg-card hover:bg-secondary py-3 font-semibold flex items-center justify-center gap-2 transition"
         >

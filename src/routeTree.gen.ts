@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
@@ -40,6 +41,8 @@ import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
@@ -49,6 +52,8 @@ import { Route as ProprietaireBriefsBriefIdRouteImport } from './routes/propriet
 import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur.suivi.$campaignId'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -81,6 +86,11 @@ const PitchRoute = PitchRouteImport.update({
 const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   id: '/mentions-legales',
   path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevenirPartenaireRoute = DevenirPartenaireRouteImport.update({
@@ -208,6 +218,18 @@ const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
   path: '/prestataires',
   getParentRoute: () => AdminRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProprietaireBriefsIndexRoute = ProprietaireBriefsIndexRouteImport.update({
   id: '/proprietaire/briefs/',
   path: '/proprietaire/briefs/',
@@ -257,6 +279,17 @@ const AnnonceurBriefsBriefIdRoute = AnnonceurBriefsBriefIdRouteImport.update({
   path: '/annonceur/briefs/$briefId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -286,12 +319,15 @@ export interface FileRoutesByFullPath {
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -307,6 +343,8 @@ export interface FileRoutesByFullPath {
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
@@ -331,12 +369,15 @@ export interface FileRoutesByTo {
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -352,6 +393,8 @@ export interface FileRoutesByTo {
   '/prestataire': typeof PrestataireIndexRoute
   '/prestataires': typeof PrestatairesIndexRoute
   '/proprietaire': typeof ProprietaireIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
@@ -377,12 +420,15 @@ export interface FileRoutesById {
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -398,6 +444,8 @@ export interface FileRoutesById {
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
   '/proprietaire/': typeof ProprietaireIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
@@ -424,12 +472,15 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/mcp'
     | '/mentions-legales'
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -445,6 +496,8 @@ export interface FileRouteTypes {
     | '/prestataire/'
     | '/prestataires/'
     | '/proprietaire/'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
@@ -469,12 +522,15 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/mcp'
     | '/mentions-legales'
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -490,6 +546,8 @@ export interface FileRouteTypes {
     | '/prestataire'
     | '/prestataires'
     | '/proprietaire'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
@@ -514,12 +572,15 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/mcp'
     | '/mentions-legales'
     | '/pitch'
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -535,6 +596,8 @@ export interface FileRouteTypes {
     | '/prestataire/'
     | '/prestataires/'
     | '/proprietaire/'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
@@ -560,12 +623,15 @@ export interface RootRouteChildren {
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
+  McpRoute: typeof McpRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   PitchRoute: typeof PitchRoute
   PrevisionnelRoute: typeof PrevisionnelRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecuriteRoute: typeof SecuriteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
@@ -580,6 +646,8 @@ export interface RootRouteChildren {
   PrestataireIndexRoute: typeof PrestataireIndexRoute
   PrestatairesIndexRoute: typeof PrestatairesIndexRoute
   ProprietaireIndexRoute: typeof ProprietaireIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
   AnnonceurSuiviCampaignIdRoute: typeof AnnonceurSuiviCampaignIdRoute
@@ -634,6 +702,13 @@ declare module '@tanstack/react-router' {
       path: '/mentions-legales'
       fullPath: '/mentions-legales'
       preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/devenir-partenaire': {
@@ -811,6 +886,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPrestatairesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proprietaire/briefs/': {
       id: '/proprietaire/briefs/'
       path: '/proprietaire/briefs'
@@ -874,6 +963,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurBriefsBriefIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -932,12 +1035,16 @@ const rootRouteChildren: RootRouteChildren = {
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
   DevenirPartenaireRoute: DevenirPartenaireRoute,
+  McpRoute: McpRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   PitchRoute: PitchRoute,
   PrevisionnelRoute: PrevisionnelRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SecuriteRoute: SecuriteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
@@ -952,6 +1059,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrestataireIndexRoute: PrestataireIndexRoute,
   PrestatairesIndexRoute: PrestatairesIndexRoute,
   ProprietaireIndexRoute: ProprietaireIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
   AnnonceurSuiviCampaignIdRoute: AnnonceurSuiviCampaignIdRoute,
