@@ -112,6 +112,40 @@ function BriefDetailPage() {
           <CreativeFiles paths={brief.creative_files} />
         </section>
 
+        {acceptedProposals.length > 0 && (
+          <section className="rounded-2xl border border-primary/40 bg-primary/5 p-6 mb-6">
+            <h2 className="font-display text-2xl font-bold">Récapitulatif du devis</h2>
+            <p className="text-sm text-muted-foreground mt-1">Configuration de campagne validée.</p>
+
+            <dl className="mt-4 space-y-1.5 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Véhicules retenus</dt>
+                <dd className="font-semibold">{acceptedProposals.length}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Durée</dt>
+                <dd className="font-semibold">{brief.days_count ?? 0} jour(s)</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">Prix moyen / véhicule / jour</dt>
+                <dd className="font-semibold">{avgPricePerDay.toFixed(2)} €</dd>
+              </div>
+              <div className="flex justify-between gap-4 border-t border-border pt-2 mt-2">
+                <dt className="font-semibold">Total estimé de la campagne</dt>
+                <dd className="font-display text-lg font-bold text-primary">{estimatedTotal.toFixed(2)} €</dd>
+              </div>
+            </dl>
+
+            <div className="mt-5">
+              <CampaignTrialCheckout campaignRequestId={brief.id} vehicleQuantity={acceptedProposals.length} />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Aucun prélèvement pendant 14 jours · annulation possible à tout moment pendant l'essai.
+              </p>
+            </div>
+          </section>
+        )}
+
+
         {brief.status === "open" && (
           <button onClick={cancelBrief} className="mb-6 text-xs text-destructive hover:underline">Annuler ce brief</button>
         )}
