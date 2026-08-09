@@ -11,10 +11,9 @@ export const getProviderPublicMeta = createServerFn({ method: "GET" })
       { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
     );
     const { data: row } = await supabase
-      .from("provider_profiles")
+      .from("public_provider_profiles")
       .select("user_id, company, full_name, description, services, coverage_areas")
       .eq("user_id", data.providerId)
-      .eq("status", "approved")
       .maybeSingle();
     if (!row) return null;
     const name = row.company || row.full_name || "Prestataire";
