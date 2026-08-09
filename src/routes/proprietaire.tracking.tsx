@@ -286,7 +286,8 @@ function TrackingPage() {
               <ul className="list-disc space-y-1 pl-4">
                 <li>Gardez le téléphone branché et l'écran allumé (verrouillé d'écran maintenu auto).</li>
                 <li>Ajoutez l'application à l'écran d'accueil pour un usage type appli.</li>
-                <li>Une position est envoyée toutes les ~20 secondes.</li>
+                <li>Les points sont collectés tous les 10 m et envoyés par lot toutes les 5 minutes.</li>
+                <li>Hors réseau (zone blanche), les points sont conservés et renvoyés au cycle suivant.</li>
               </ul>
             </div>
           </CardContent>
