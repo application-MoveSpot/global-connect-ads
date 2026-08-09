@@ -190,10 +190,11 @@ function AuthPage() {
           type="button"
           onClick={async () => {
             const result = await lovable.auth.signInWithOAuth("google", {
-              redirect_uri: `${window.location.origin}/admin`,
+              redirect_uri: `${window.location.origin}${next ?? "/admin"}`,
             });
             if (result.error) setError(result.error.message);
-            else if (!result.redirected) navigate({ to: "/admin" });
+            else if (!result.redirected) goNext();
+
           }}
           className="w-full rounded-lg border border-border bg-card hover:bg-secondary py-3 font-semibold flex items-center justify-center gap-2 transition"
         >
