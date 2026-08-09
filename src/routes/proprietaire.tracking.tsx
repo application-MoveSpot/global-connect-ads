@@ -262,8 +262,12 @@ function TrackingPage() {
                   <span className="font-mono">{hh}:{mm}:{ss}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Dernière position</span>
+                  <span className="text-muted-foreground">Dernier lot envoyé</span>
                   <span className="font-mono">{lastSent ? lastSent.toLocaleTimeString("fr-FR") : "—"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Points en attente</span>
+                  <span className="font-mono">{pending}</span>
                 </div>
                 {lastCoords && (
                   <div className="flex justify-between text-xs">
