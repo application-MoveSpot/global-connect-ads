@@ -30,7 +30,7 @@ function TrackingPage() {
   const navigate = useNavigate();
   const fetchVehicles = useServerFn(getOwnerVehiclesForTracking);
   const fetchCampaign = useServerFn(getActiveCampaignForVehicle);
-  const sendPosition = useServerFn(pushPosition);
+  const sendPositionBatch = useServerFn(pushPositionBatch);
 
   const [authReady, setAuthReady] = useState(false);
   const [vehicleId, setVehicleId] = useState<string>("");
