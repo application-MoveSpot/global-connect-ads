@@ -1016,7 +1016,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_provider_profiles: {
+        Row: {
+          company: string | null
+          coverage_areas: string[] | null
+          created_at: string | null
+          description: string | null
+          full_name: string | null
+          logo_url: string | null
+          portfolio_urls: string[] | null
+          pricing_info: string | null
+          services: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          company?: string | null
+          coverage_areas?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          full_name?: string | null
+          logo_url?: string | null
+          portfolio_urls?: string[] | null
+          pricing_info?: string | null
+          services?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          company?: string | null
+          coverage_areas?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          full_name?: string | null
+          logo_url?: string | null
+          portfolio_urls?: string[] | null
+          pricing_info?: string | null
+          services?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       apply_wallet_transaction: {

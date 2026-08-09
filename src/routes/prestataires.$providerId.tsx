@@ -32,7 +32,7 @@ export const Route = createFileRoute("/prestataires/$providerId")({
 
 
 type Provider = {
-  user_id: string; company: string; full_name: string; email: string; phone: string | null;
+  user_id: string; company: string; full_name: string;
   website: string | null; description: string; coverage_areas: string[]; portfolio_urls: string[];
   pricing_info: string | null; logo_url: string | null; services: string[];
 };
@@ -59,9 +59,9 @@ function ProviderDetailPage() {
   useEffect(() => {
     (async () => {
       const [{ data: p }, { data: sess }] = await Promise.all([
-        supabase.from("provider_profiles")
-          .select("user_id, company, full_name, email, phone, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url, services")
-          .eq("user_id", providerId).eq("status", "approved").maybeSingle(),
+        supabase.from("public_provider_profiles")
+          .select("user_id, company, full_name, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url, services")
+          .eq("user_id", providerId).maybeSingle(),
         supabase.auth.getSession(),
       ]);
       const prov = p as Provider | null;

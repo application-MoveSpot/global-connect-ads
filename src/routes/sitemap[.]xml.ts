@@ -40,9 +40,8 @@ export const Route = createFileRoute("/sitemap.xml")({
             { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
           );
           const { data } = await supabase
-            .from("provider_profiles")
-            .select("user_id, updated_at")
-            .eq("status", "approved");
+            .from("public_provider_profiles")
+            .select("user_id, updated_at");
           if (data) {
             dynamicEntries = data.map((p) => ({
               path: `/prestataires/${p.user_id}`,
