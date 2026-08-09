@@ -156,6 +156,7 @@ function DriverPage() {
                     <span className="font-semibold text-signal">EN COURS</span>
                   </div>
                   <div className="text-sm text-muted-foreground">{count} position(s) envoyée(s)</div>
+                  <div className="text-xs text-muted-foreground">{pending} en attente d'envoi (lot toutes les 5 min)</div>
                   {lastPos && (
                     <div className="text-[10px] font-mono mt-1 text-muted-foreground">
                       {lastPos.lat.toFixed(5)}, {lastPos.lng.toFixed(5)}
