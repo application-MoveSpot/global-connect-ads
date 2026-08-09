@@ -71,6 +71,16 @@ function BriefDetailPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  const acceptedProposals = proposals.filter((p) => p.status === "accepted");
+  const avgPricePerDay = acceptedProposals.length
+    ? acceptedProposals.reduce((s, p) => s + Number(p.price_per_day ?? 0), 0) / acceptedProposals.length
+    : 0;
+  const estimatedTotal = acceptedProposals.reduce(
+    (s, p) => s + Number(p.price_per_day ?? 0) * (brief?.days_count ?? 0),
+    0,
+  );
+
+
   const respond = async (id: string, status: "accepted" | "rejected") => {
     await supabase.from("brief_proposals").update({ status }).eq("id", id);
     await load();
