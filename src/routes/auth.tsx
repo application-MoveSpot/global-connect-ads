@@ -5,6 +5,9 @@ import { lovable } from "@/integrations/lovable";
 import { LogoLink } from "@/components/LogoLink";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Connexion — MoveSpot" },
@@ -16,6 +19,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,14 +28,27 @@ function AuthPage() {
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
 
+  const goNext = () => {
+    if (next) {
+      window.location.href = next;
+      return;
+    }
+    navigate({ to: "/admin" });
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) return;
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") return;
+      if (next) {
+        window.location.href = next;
+        return;
+      }
       navigate({ to: "/admin" });
     });
-  }, [navigate]);
+  }, [navigate, next]);
+
 
   const checkMfaThenGo = async () => {
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
