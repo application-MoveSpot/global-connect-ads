@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getOwnerVehiclesForTracking,
   getActiveCampaignForVehicle,
-  pushPosition,
+  pushPositionBatch,
 } from "@/lib/tracking.functions";
+import { GpsBatchBuffer } from "@/lib/gps-buffer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
