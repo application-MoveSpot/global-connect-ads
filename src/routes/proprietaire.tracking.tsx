@@ -173,9 +173,10 @@ function TrackingPage() {
       watchIdRef.current = null;
     }
     releaseWakeLock();
+    void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
     setTracking(false);
     setStartedAt(null);
-    toast.success("Suivi GPS arrêté");
+    toast.success("Suivi GPS arrêté — dernier lot envoyé");
   }
 
   useEffect(() => {
