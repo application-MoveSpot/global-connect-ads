@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { verifyDriverToken, pushPositionWithToken } from "@/lib/qr.functions";
+import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr.functions";
+import { GpsBatchBuffer } from "@/lib/gps-buffer";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/chauffeur")({
@@ -15,18 +16,20 @@ type Vehicle = { id: string; name: string; type: string; format: string | null }
 function DriverPage() {
   const { t } = Route.useSearch();
   const verify = useServerFn(verifyDriverToken);
-  const push = useServerFn(pushPositionWithToken);
+  const pushBatch = useServerFn(pushPositionBatchWithToken);
 
   const [state, setState] = useState<"verifying" | "ready" | "invalid" | "tracking">("verifying");
   const [error, setError] = useState<string | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [count, setCount] = useState(0);
+  const [pending, setPending] = useState(0);
   const [lastPos, setLastPos] = useState<{ lat: number; lng: number } | null>(null);
 
   const watchIdRef = useRef<number | null>(null);
-  const lastSentRef = useRef<number>(0);
   const wakeLockRef = useRef<any>(null);
   const tokenRef = useRef<string>(t);
+  const bufferRef = useRef<GpsBatchBuffer | null>(null);
+
 
   useEffect(() => {
     const stored = typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
