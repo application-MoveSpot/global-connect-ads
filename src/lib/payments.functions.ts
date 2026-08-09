@@ -250,3 +250,88 @@ export const transferToOwner = createServerFn({ method: "POST" })
 
     return { ok: true, transferId: transfer.id };
   });
+
+// ================== ADVERTISER — Campaign subscription (essai 14 j, N véhicules) ==================
+// Équivalent applicatif du payload Make/Stripe : mode subscription, quantité = nb de véhicules,
+// essai gratuit de 14 jours, metadata campagne. Checkout intégré (pas de redirection).
+const SubscriptionInput = z.object({
+  priceId: z.string().regex(/^[a-zA-Z0-9_-]+$/),
+  vehicleQuantity: z.number().int().min(1).max(500),
+  campaignRequestId: z.string().uuid().nullable().optional(),
+  trialPeriodDays: z.number().int().min(0).max(60).default(14),
+  returnUrl: z.string().url(),
+  environment: z.enum(["sandbox", "live"]),
+});
+
+export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.input<typeof SubscriptionInput>) => SubscriptionInput.parse(d))
+  .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
+    const { userId, supabase } = context;
+    const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
+
+    try {
+      const stripe = createStripeClient(data.environment);
+      const { data: userRow } = await supabase.auth.getUser();
+      const email = userRow.user?.email ?? undefined;
+
+      // Customer porteur de metadata.userId (recherchable ensuite)
+      let customerId: string | undefined;
+      const found = await stripe.customers.search({
+        query: `metadata['userId']:'${userId}'`,
+        limit: 1,
+      });
+      if (found.data.length) {
+        customerId = found.data[0].id;
+      } else if (email) {
+        const existing = await stripe.customers.list({ email, limit: 1 });
+        if (existing.data.length) {
+          customerId = existing.data[0].id;
+          if (existing.data[0].metadata?.userId !== userId) {
+            await stripe.customers.update(customerId, {
+              metadata: { ...existing.data[0].metadata, userId },
+            });
+          }
+        }
+      }
+      if (!customerId) {
+        const created = await stripe.customers.create({
+          ...(email && { email }),
+          metadata: { userId },
+        });
+        customerId = created.id;
+      }
+
+      // priceId lisible → price Stripe via lookup_key
+      const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
+      if (!prices.data.length) return { error: "Tarif introuvable" };
+      const price = prices.data[0];
+
+      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
+      const meta: Record<string, string> = {
+        kind: "campaign_subscription",
+        userId,
+        user_id: userId,
+        vehicle_quantity: String(data.vehicleQuantity),
+        is_free_trial: data.trialPeriodDays > 0 ? "true" : "false",
+        ...(data.campaignRequestId ? { campaign_id: data.campaignRequestId } : {}),
+      };
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        ui_mode: "embedded_page",
+        return_url: returnUrl,
+        customer: customerId,
+        line_items: [{ price: price.id, quantity: data.vehicleQuantity }],
+        metadata: meta,
+        subscription_data: {
+          ...(data.trialPeriodDays > 0 ? { trial_period_days: data.trialPeriodDays } : {}),
+          metadata: meta,
+        },
+      } as never);
+
+      return { clientSecret: session.client_secret ?? "", id: session.id };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });
