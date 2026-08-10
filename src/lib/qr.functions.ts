@@ -159,5 +159,15 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
 
     const { error } = await supabaseAdmin.from("vehicle_positions").insert(rows);
     if (error) throw new Error(error.message);
+
+    // Met à jour les métriques de couverture de la campagne (zone PostGIS)
+    if (camp?.id) {
+      await supabaseAdmin.rpc("record_campaign_gps_batch", {
+        p_campaign_id: camp.id,
+        p_points: data.points as never,
+      });
+    }
+
     return { ok: true, inserted: rows.length };
   });
+
