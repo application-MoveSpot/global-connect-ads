@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { findForbiddenKeyword } from "@/lib/forbidden-keywords";
+import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/ZonePolygonDraw";
+import { estimateZoneBudget } from "@/lib/zone-budget";
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
@@ -36,6 +38,7 @@ function NewBriefPage() {
   const [description, setDescription] = useState("");
   const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
   const [zones, setZones] = useState("");
+  const [zonePolygon, setZonePolygon] = useState<ZonePolygon | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [budget, setBudget] = useState("");
@@ -57,6 +60,11 @@ function NewBriefPage() {
       setUserId(sess.session.user.id);
     })();
   }, [navigate]);
+
+  const estimatedDays =
+    startDate && endDate && endDate >= startDate
+      ? Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000) + 1
+      : 0;
 
   const toggleType = (v: string) => {
     setVehicleTypes((cur) => cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]);
@@ -105,6 +113,8 @@ function NewBriefPage() {
       budget_max: budget ? Number(budget) : null,
       audience_target: audience || null,
       creative_files: uploadedPaths,
+      zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
+      zone_area_km2: zonePolygon?.areaKm2 ?? null,
     }]).select("id").single();
 
     setLoading(false);
@@ -151,6 +161,22 @@ function NewBriefPage() {
             <textarea value={zones} onChange={(e) => setZones(e.target.value)} rows={3}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               placeholder="Paris 11e&#10;Bastille&#10;République" />
+          </Field>
+
+          <Field label="Zone de ciblage sur la carte (optionnel)">
+            <ZonePolygonDraw onChange={setZonePolygon} />
+            {zonePolygon && estimatedDays > 0 && (
+              <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
+                <p className="font-medium">Budget estimé pour cette zone</p>
+                <p className="mt-1 text-muted-foreground">
+                  {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
+                  <strong className="text-foreground">
+                    {estimateZoneBudget(zonePolygon.areaKm2, estimatedDays).total.toLocaleString("fr-FR")} €
+                  </strong>{" "}
+                  ({estimateZoneBudget(zonePolygon.areaKm2, estimatedDays).perDay} €/jour)
+                </p>
+              </div>
+            )}
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
