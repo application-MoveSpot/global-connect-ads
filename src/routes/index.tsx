@@ -94,14 +94,14 @@ function Index() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-signal opacity-75 animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
             </span>
-            Aperçu démo · projet en construction
+            Plateforme en ligne · suivi GPS & paiements actifs
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
             Vos pubs roulent,<br />
             <span className="bg-gradient-signal bg-clip-text text-transparent">vos ventes décollent.</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
-            MoveSpot est la marketplace qui met en relation <strong className="text-foreground">annonceurs</strong> et <strong className="text-foreground">propriétaires de véhicules</strong> — food trucks, vans, taxis, scooters de livraison — pour louer des espaces publicitaires mobiles à la journée.
+            MoveSpot est la marketplace qui met en relation <strong className="text-foreground">annonceurs</strong> et <strong className="text-foreground">propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Vous dessinez votre zone, le budget se calcule au km², et chaque kilomètre diffusé est prouvé par GPS.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
@@ -111,6 +111,41 @@ function Index() {
               Voir le pitch
             </a>
           </div>
+          <dl className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
+            {[
+              { k: "1,80 €", v: "par km² et par jour (2,70 € en grande agglomération)" },
+              { k: "10 €", v: "budget minimum pour lancer une campagne" },
+              { k: "70 / 30", v: "reversé aux partenaires / commission MoveSpot" },
+              { k: "14 j", v: "d'essai gratuit sur les campagnes par abonnement" },
+            ].map((s) => (
+              <div key={s.k} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-4">
+                <dt className="font-display text-2xl font-bold">{s.k}</dt>
+                <dd className="mt-1 text-xs text-muted-foreground">{s.v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* Ce qui est en place */}
+      <section className="max-w-7xl mx-auto px-6 pt-4 pb-8">
+        <div className="text-xs uppercase tracking-widest text-primary mb-2">● Ce qui est en place</div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold">Une plateforme complète, déjà opérationnelle</h2>
+        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { t: "Zones dessinées sur carte", d: "Vous tracez votre polygone de diffusion ; la surface et le budget se calculent automatiquement, avec majoration en zone dense." },
+            { t: "Preuve de diffusion", d: "Positions GPS envoyées par lots puis agrégées : kilomètres réels, minutes actives et taux de couverture de votre zone." },
+            { t: "Paiements souples", d: "Carte bancaire, abonnement avec essai de 14 jours, portefeuille prépayé ou virement bancaire pour les budgets B2B." },
+            { t: "Confiance vérifiée", d: "SIRET contrôlé, QR véhicules signés, pose validée sur 4 photos, double authentification et modération humaine." },
+          ].map((c) => (
+            <div key={c.t} className="rounded-2xl border border-border bg-card p-5">
+              <h3 className="font-display font-bold">{c.t}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{c.d}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6">
+          <Link to="/comment-ca-marche" className="text-sm text-primary hover:underline">Voir le parcours complet →</Link>
         </div>
       </section>
 
@@ -120,9 +155,10 @@ function Index() {
           <div>
             <div className="text-xs uppercase tracking-widest text-primary mb-2">● Aperçu</div>
             <h2 className="font-display text-4xl font-bold">Véhicules en circulation</h2>
-            <p className="text-muted-foreground mt-2">Aperçu illustratif des flux de véhicules — données réelles branchées progressivement.</p>
+            <p className="text-muted-foreground mt-2">Aperçu des flux de véhicules. Sur une campagne active, cette carte affiche les positions réelles, les kilomètres parcourus et la part du trajet réalisée dans votre zone.</p>
           </div>
         </div>
+
         <MobilityMap />
       </section>
 
