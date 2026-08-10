@@ -21,11 +21,11 @@ function MentionsLegales() {
 
       <LegalSection title="Éditeur du site">
         <p>
-          La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>Garry PALERME</strong>,
-          entrepreneur individuel exerçant sous le nom commercial <strong>RAKOUN KLUB</strong>.
+          La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>RAKOUN KLUB</strong>,
+          entreprise individuelle.
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Dénomination</strong> : Garry PALERME (RAKOUN KLUB)</li>
+          <li><strong>Dénomination</strong> : RAKOUN KLUB</li>
           <li><strong>Forme juridique</strong> : Entrepreneur individuel</li>
           <li><strong>Adresse postale de l'entreprise</strong> : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault (Guadeloupe, France)</li>
           <li><strong>SIREN</strong> : 804 671 444</li>
@@ -69,14 +69,14 @@ function MentionsLegales() {
 
       <LegalSection title="Propriété intellectuelle">
         <p>
-          Le nom commercial <strong>MoveSpot</strong> est exploité par Garry PALERME, entrepreneur
-          individuel, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
+          Le nom commercial <strong>MoveSpot</strong> est exploité par RAKOUN KLUB, entreprise
+          individuelle, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
           d'un dépôt de marque auprès de l'INPI : son usage commercial est légal, mais ne confère
           pas de droit exclusif au titre du droit des marques.
         </p>
         <p>
           Les contenus éditoriaux propres au Site (textes, choix graphiques, identité visuelle,
-          structure des pages) sont la propriété de Garry PALERME / MoveSpot et sont protégés par
+          structure des pages) sont la propriété de RAKOUN KLUB / MoveSpot et sont protégés par
           le droit d'auteur dès leur création (article L.111-1 du Code de la propriété intellectuelle).
         </p>
         <p>

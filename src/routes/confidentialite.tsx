@@ -28,7 +28,7 @@ function Privacy() {
 
       <LegalSection title="2. Responsable du traitement">
         <p>
-          Le responsable du traitement est Garry PALERME, entrepreneur individuel exploitant MoveSpot (voir les{" "}
+          Le responsable du traitement est RAKOUN KLUB, entreprise individuelle exploitant MoveSpot (voir les{" "}
           <a href="/mentions-legales" className="text-primary hover:underline">mentions légales</a>).
           Pour toute question relative à vos données, contactez-nous à
           <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.
