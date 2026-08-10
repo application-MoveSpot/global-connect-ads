@@ -28,6 +28,15 @@ export const Route = createFileRoute("/chauffeur/inscription")({
   component: ChauffeurInscription,
 });
 
+const VEHICLE_KINDS = [
+  ["micro_mobility", "Micro-mobilité (vélo, triporteur, scooter)"],
+  ["voiture", "Voiture"],
+  ["utilitaire", "Utilitaire / camion"],
+  ["walker", "Walker (sac à dos publicitaire)"],
+] as const;
+
+type VehicleKind = (typeof VEHICLE_KINDS)[number][0];
+
 function ChauffeurInscription() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
@@ -38,6 +47,8 @@ function ChauffeurInscription() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
+  const [vehicleKind, setVehicleKind] = useState<VehicleKind>("voiture");
+  const [vehiclePlate, setVehiclePlate] = useState("");
   const [hasCompany, setHasCompany] = useState(false);
   const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [error, setError] = useState("");
