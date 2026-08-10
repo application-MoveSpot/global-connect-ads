@@ -589,6 +589,69 @@ export type Database = {
         }
         Relationships: []
       }
+      payee_profiles: {
+        Row: {
+          city: string | null
+          created_at: string
+          full_name: string
+          id: string
+          kind: string
+          notes: string | null
+          phone: string | null
+          siret: string | null
+          siret_denomination: string | null
+          siret_verified_at: string | null
+          status: string
+          stripe_account_id: string | null
+          stripe_charges_enabled: boolean
+          stripe_details_submitted: boolean
+          stripe_onboarding_completed_at: string | null
+          stripe_payouts_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
+          status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_details_submitted?: boolean
+          stripe_onboarding_completed_at?: string | null
+          stripe_payouts_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
+          status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_details_submitted?: boolean
+          stripe_onboarding_completed_at?: string | null
+          stripe_payouts_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       provider_profiles: {
         Row: {
           admin_notes: string | null
