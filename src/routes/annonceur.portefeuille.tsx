@@ -6,6 +6,8 @@ import { LogoLink } from "@/components/LogoLink";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { BankTransferPanel } from "@/components/BankTransferPanel";
+
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({
