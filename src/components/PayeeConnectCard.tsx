@@ -60,7 +60,7 @@ export function PayeeConnectCard() {
             covering). MoveSpot ne stocke jamais vos coordonnées bancaires : elles restent chez Stripe.
           </p>
           <Button onClick={start} disabled={loading}>
-            {loading ? "Chargement…" : "Lier mon IBAN via Stripe"}
+            {loading ? "Chargement…" : "Configurer mes virements bancaires"}
           </Button>
         </>
       )}

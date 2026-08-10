@@ -28,6 +28,15 @@ export const Route = createFileRoute("/chauffeur/inscription")({
   component: ChauffeurInscription,
 });
 
+const VEHICLE_KINDS = [
+  ["micro_mobility", "Micro-mobilité (vélo, triporteur, scooter)"],
+  ["voiture", "Voiture"],
+  ["utilitaire", "Utilitaire / camion"],
+  ["walker", "Walker (sac à dos publicitaire)"],
+] as const;
+
+type VehicleKind = (typeof VEHICLE_KINDS)[number][0];
+
 function ChauffeurInscription() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
@@ -38,6 +47,8 @@ function ChauffeurInscription() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
+  const [vehicleKind, setVehicleKind] = useState<VehicleKind>("voiture");
+  const [vehiclePlate, setVehiclePlate] = useState("");
   const [hasCompany, setHasCompany] = useState(false);
   const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [error, setError] = useState("");
@@ -114,6 +125,8 @@ function ChauffeurInscription() {
       full_name: fullName,
       phone: phone || null,
       city: city || null,
+      vehicle_kind: kind === "installer" ? null : vehicleKind,
+      vehicle_plate: kind === "installer" ? null : vehiclePlate || null,
     };
     if (hasCompany) {
       payload.siret = siret.siret;
@@ -184,6 +197,28 @@ function ChauffeurInscription() {
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
               <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} />
               <Input label="Ville / zone d'intervention" value={city} onChange={setCity} />
+
+              {kind !== "installer" && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
+                    <select
+                      value={vehicleKind}
+                      onChange={(e) => setVehicleKind(e.target.value as VehicleKind)}
+                      className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {VEHICLE_KINDS.map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {vehicleKind !== "walker" && (
+                    <Input label="Immatriculation" value={vehiclePlate} onChange={setVehiclePlate} />
+                  )}
+                </>
+              )}
+
+
 
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input type="checkbox" checked={hasCompany} onChange={(e) => setHasCompany(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-border" />

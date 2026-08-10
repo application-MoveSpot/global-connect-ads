@@ -3,6 +3,14 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type PayeeKind = "driver" | "installer" | "both";
+export type VehicleKind = "micro_mobility" | "voiture" | "utilitaire" | "walker";
+
+export const VEHICLE_KIND_LABEL: Record<VehicleKind, string> = {
+  micro_mobility: "Micro-mobilité (vélo, triporteur, scooter)",
+  voiture: "Voiture",
+  utilitaire: "Utilitaire / camion",
+  walker: "Walker (sac à dos publicitaire)",
+};
 
 export type PayeeProfile = {
   id: string;
@@ -12,11 +20,18 @@ export type PayeeProfile = {
   city: string | null;
   siret: string | null;
   status: string;
+  vehicle_kind: VehicleKind | null;
+  vehicle_plate: string | null;
+  certification_status: string;
+  certification_notes: string | null;
   stripe_account_id: string | null;
   stripe_charges_enabled: boolean;
   stripe_payouts_enabled: boolean;
   stripe_details_submitted: boolean;
 };
+
+const PROFILE_COLUMNS =
+  "id, kind, full_name, phone, city, siret, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted";
 
 export const getPayeeProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -24,12 +39,36 @@ export const getPayeeProfile = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data } = await supabase
       .from("payee_profiles")
-      .select(
-        "id, kind, full_name, phone, city, siret, status, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted",
-      )
+      .select(PROFILE_COLUMNS)
       .eq("user_id", userId)
       .maybeSingle();
     return { profile: (data as PayeeProfile | null) ?? null };
+  });
+
+export const getPayeeEarnings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data } = await supabase
+      .from("payee_earnings")
+      .select("id, amount_cents, currency, description, status, paid_at, created_at")
+      .eq("payee_user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    const rows = (data ?? []) as {
+      id: string;
+      amount_cents: number;
+      currency: string;
+      description: string | null;
+      status: string;
+      paid_at: string | null;
+      created_at: string;
+    }[];
+
+    const totalCents = rows.reduce((s, r) => s + r.amount_cents, 0);
+    const paidCents = rows.filter((r) => r.status === "paid").reduce((s, r) => s + r.amount_cents, 0);
+    return { rows, totalCents, paidCents, pendingCents: totalCents - paidCents };
   });
 
 const SignupInput = z.object({
@@ -38,6 +77,8 @@ const SignupInput = z.object({
   phone: z.string().max(30).optional().nullable(),
   city: z.string().max(120).optional().nullable(),
   siret: z.string().max(20).optional().nullable(),
+  vehicleKind: z.enum(["micro_mobility", "voiture", "utilitaire", "walker"]).optional().nullable(),
+  vehiclePlate: z.string().max(20).optional().nullable(),
 });
 
 export const createPayeeProfile = createServerFn({ method: "POST" })
@@ -55,6 +96,8 @@ export const createPayeeProfile = createServerFn({ method: "POST" })
           phone: data.phone ?? null,
           city: data.city ?? null,
           siret: data.siret ?? null,
+          vehicle_kind: data.vehicleKind ?? null,
+          vehicle_plate: data.vehiclePlate ?? null,
         } as never,
         { onConflict: "user_id" },
       )
@@ -98,7 +141,7 @@ export const createPayeeOnboardingLink = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin
         .from("payee_profiles")
-        .update({ stripe_account_id: accountId } as never)
+        .update({ stripe_account_id: accountId, stripe_connect_account_id: accountId } as never)
         .eq("user_id", userId);
     }
 

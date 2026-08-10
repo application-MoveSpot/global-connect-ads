@@ -589,8 +589,60 @@ export type Database = {
         }
         Relationships: []
       }
+      payee_earnings: {
+        Row: {
+          amount_cents: number
+          campaign_request_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          paid_at: string | null
+          payee_user_id: string
+          status: string
+          stripe_transfer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          campaign_request_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          paid_at?: string | null
+          payee_user_id: string
+          status?: string
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          campaign_request_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          paid_at?: string | null
+          payee_user_id?: string
+          status?: string
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payee_earnings_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payee_profiles: {
         Row: {
+          certification_notes: string | null
+          certification_status: string
           city: string | null
           created_at: string
           full_name: string
@@ -604,13 +656,18 @@ export type Database = {
           status: string
           stripe_account_id: string | null
           stripe_charges_enabled: boolean
+          stripe_connect_account_id: string | null
           stripe_details_submitted: boolean
           stripe_onboarding_completed_at: string | null
           stripe_payouts_enabled: boolean
           updated_at: string
           user_id: string
+          vehicle_kind: string | null
+          vehicle_plate: string | null
         }
         Insert: {
+          certification_notes?: string | null
+          certification_status?: string
           city?: string | null
           created_at?: string
           full_name: string
@@ -624,13 +681,18 @@ export type Database = {
           status?: string
           stripe_account_id?: string | null
           stripe_charges_enabled?: boolean
+          stripe_connect_account_id?: string | null
           stripe_details_submitted?: boolean
           stripe_onboarding_completed_at?: string | null
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id: string
+          vehicle_kind?: string | null
+          vehicle_plate?: string | null
         }
         Update: {
+          certification_notes?: string | null
+          certification_status?: string
           city?: string | null
           created_at?: string
           full_name?: string
@@ -644,11 +706,14 @@ export type Database = {
           status?: string
           stripe_account_id?: string | null
           stripe_charges_enabled?: boolean
+          stripe_connect_account_id?: string | null
           stripe_details_submitted?: boolean
           stripe_onboarding_completed_at?: string | null
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
+          vehicle_kind?: string | null
+          vehicle_plate?: string | null
         }
         Relationships: []
       }
