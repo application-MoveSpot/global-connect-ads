@@ -69,14 +69,14 @@ function MentionsLegales() {
 
       <LegalSection title="Propriété intellectuelle">
         <p>
-          Le nom commercial <strong>MoveSpot</strong> est exploité par Garry PALERME, entrepreneur
-          individuel, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
+          Le nom commercial <strong>MoveSpot</strong> est exploité par RAKOUN KLUB, entreprise
+          individuelle, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
           d'un dépôt de marque auprès de l'INPI : son usage commercial est légal, mais ne confère
           pas de droit exclusif au titre du droit des marques.
         </p>
         <p>
           Les contenus éditoriaux propres au Site (textes, choix graphiques, identité visuelle,
-          structure des pages) sont la propriété de Garry PALERME / MoveSpot et sont protégés par
+          structure des pages) sont la propriété de RAKOUN KLUB / MoveSpot et sont protégés par
           le droit d'auteur dès leur création (article L.111-1 du Code de la propriété intellectuelle).
         </p>
         <p>

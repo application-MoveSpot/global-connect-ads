@@ -9,7 +9,7 @@ MoveSpot est une marketplace française de publicité mobile qui met en relation
 - des PROPRIÉTAIRES de véhicules (food trucks, vans, taxis/VTC, scooters de livraison, voitures, vélos cargo, vélos remorques, triporteurs, tutuks, flottes d'entreprise)
 - avec des ANNONCEURS qui veulent diffuser leur publicité sur ces véhicules en mouvement.
 
-ÉDITEUR : MoveSpot est édité par Garry PALERME, entrepreneur individuel (SIRET 804 671 444 00052, RCS Pointe-à-Pitre). TVA non applicable (franchise en base, art. 293 B CGI). Contact : contact@notify.move-spot.com.
+ÉDITEUR : MoveSpot est édité par RAKOUN KLUB, entreprise individuelle (SIRET 804 671 444 00052, RCS Pointe-à-Pitre). TVA non applicable (franchise en base, art. 293 B CGI). Contact : contact@notify.move-spot.com.
 
 POUR LES PROPRIÉTAIRES :
 1. Inscription en 2 minutes sur /proprietaire/inscription
