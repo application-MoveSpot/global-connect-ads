@@ -47,7 +47,7 @@ export function Viewer360({ src, kind = "image", className }: Props) {
         geometry.scale(-1, 1, 1);
 
         let videoEl: HTMLVideoElement | null = null;
-        let texture: THREE.Texture;
+        let texture: import("three").Texture;
         if (kind === "video") {
           videoEl = document.createElement("video");
           videoEl.src = src;
