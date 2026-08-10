@@ -165,19 +165,34 @@ function NewBriefPage() {
 
           <Field label="Zone de ciblage sur la carte (optionnel)">
             <ZonePolygonDraw onChange={setZonePolygon} />
-            {zonePolygon && estimatedDays > 0 && (
-              <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
-                <p className="font-medium">Budget estimé pour cette zone</p>
-                <p className="mt-1 text-muted-foreground">
-                  {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
-                  <strong className="text-foreground">
-                    {estimateZoneBudget(zonePolygon.areaKm2, estimatedDays).total.toLocaleString("fr-FR")} €
-                  </strong>{" "}
-                  ({estimateZoneBudget(zonePolygon.areaKm2, estimatedDays).perDay} €/jour)
-                </p>
-              </div>
-            )}
+            {zonePolygon && estimatedDays > 0 && (() => {
+              const est = estimateZoneBudget(
+                zonePolygon.areaKm2,
+                estimatedDays,
+                1,
+                zonePolygon.coordinates as [number, number][],
+              );
+              return (
+                <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
+                  <p className="font-medium">Budget estimé pour cette zone</p>
+                  <p className="mt-1 text-muted-foreground">
+                    {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
+                    <strong className="text-foreground">
+                      {est.total.toLocaleString("fr-FR")} €
+                    </strong>{" "}
+                    ({est.perDay} €/jour · {est.ratePerKm2PerDay} €/km²/jour)
+                  </p>
+                  {est.denseMetro && (
+                    <p className="mt-2 text-xs text-foreground">
+                      🏙️ Zone dense détectée ({est.denseMetro}) : coefficient ×{est.multiplier} appliqué
+                      pour forte visibilité.
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </Field>
+
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Date de début">
