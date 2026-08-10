@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Viewer360 } from "@/components/Viewer360";
 
 type Props = { paths: string[] | null | undefined };
 
@@ -7,6 +8,8 @@ type SignedFile = { path: string; url: string; name: string; isImage: boolean; i
 
 export function CreativeFiles({ paths }: Props) {
   const [files, setFiles] = useState<SignedFile[]>([]);
+  const [view360, setView360] = useState<SignedFile | null>(null);
+
 
   useEffect(() => {
     if (!paths || paths.length === 0) { setFiles([]); return; }
