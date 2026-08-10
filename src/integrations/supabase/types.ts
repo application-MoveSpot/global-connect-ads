@@ -222,6 +222,53 @@ export type Database = {
           },
         ]
       }
+      campaign_metrics: {
+        Row: {
+          active_minutes: number
+          campaign_request_id: string
+          created_at: string
+          day: string
+          distance_traveled_in_zone_m: number
+          distance_traveled_m: number
+          id: string
+          points_in_zone: number
+          points_total: number
+          updated_at: string
+        }
+        Insert: {
+          active_minutes?: number
+          campaign_request_id: string
+          created_at?: string
+          day?: string
+          distance_traveled_in_zone_m?: number
+          distance_traveled_m?: number
+          id?: string
+          points_in_zone?: number
+          points_total?: number
+          updated_at?: string
+        }
+        Update: {
+          active_minutes?: number
+          campaign_request_id?: string
+          created_at?: string
+          day?: string
+          distance_traveled_in_zone_m?: number
+          distance_traveled_m?: number
+          id?: string
+          points_in_zone?: number
+          points_total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_metrics_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_requests: {
         Row: {
           admin_notes: string | null
@@ -1293,6 +1340,15 @@ export type Database = {
           message: Json
           msg_id: number
           read_ct: number
+        }[]
+      }
+      record_campaign_gps_batch: {
+        Args: { p_campaign_id: string; p_points: Json }
+        Returns: {
+          active_minutes: number
+          distance_in_zone_m: number
+          points_in_zone: number
+          points_total: number
         }[]
       }
     }
