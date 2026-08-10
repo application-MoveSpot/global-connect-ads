@@ -61,13 +61,14 @@ const slides: Slide[] = [
     body: (
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          L'idée : une carte des hubs de mobilité partagée, où chaque emplacement devient
-          réservable à la journée par les commerces du coin.
+          MoveSpot transforme les véhicules du quotidien — taxis, VTC, vans, food trucks, scooters de
+          livraison — en supports publicitaires géolocalisés, réservables à la zone et à la journée.
         </p>
         <ul className="space-y-3 text-muted-foreground">
           {[
-            "Visualisation de la mobilité autour de l'annonceur",
-            "Réservation simple, à la journée, sans intermédiaire",
+            "L'annonceur cible une zone qu'il dessine lui-même sur la carte",
+            "Le budget se calcule au km², pondéré par la densité de l'agglomération",
+            "Diffusion prouvée par GPS : km réels, minutes actives, couverture de zone",
             "Charte éditoriale stricte : pas de politique, religion ou contenu violent",
           ].map((l) => (
             <li key={l} className="flex items-start gap-3">
@@ -79,6 +80,7 @@ const slides: Slide[] = [
       </div>
     ),
   },
+
   {
     kicker: "04 · Produit",
     title: <>Du polygone à la preuve.</>,
