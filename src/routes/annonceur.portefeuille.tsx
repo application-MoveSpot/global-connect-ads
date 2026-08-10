@@ -6,6 +6,8 @@ import { LogoLink } from "@/components/LogoLink";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { BankTransferPanel } from "@/components/BankTransferPanel";
+
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({
@@ -92,6 +94,11 @@ function WalletPage() {
             buttonLabel={`Recharger ${amount} €`}
           />
         </section>
+
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <BankTransferPanel />
+        </section>
+
 
         <section>
           <h2 className="font-display text-xl font-semibold mb-3">Historique du portefeuille</h2>

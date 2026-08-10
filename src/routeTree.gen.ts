@@ -29,6 +29,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
+import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.essai-active'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
@@ -159,6 +160,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
 const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
   id: '/prestataires',
   path: '/prestataires',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminVirementsRoute = AdminVirementsRouteImport.update({
+  id: '/virements',
+  path: '/virements',
   getParentRoute: () => AdminRoute,
 } as any)
 const AnnonceurIndexRoute = AnnonceurIndexRouteImport.update({
@@ -335,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -386,6 +393,7 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -438,6 +446,7 @@ export interface FileRoutesById {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
@@ -491,6 +500,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
+    | '/admin/virements'
     | '/annonceur/essai-active'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -542,6 +552,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
+    | '/admin/virements'
     | '/annonceur/essai-active'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/prestataires'
+    | '/admin/virements'
     | '/annonceur/essai-active'
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
@@ -815,6 +827,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPrestatairesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/virements': {
+      id: '/admin/virements'
+      path: '/virements'
+      fullPath: '/admin/virements'
+      preLoaderRoute: typeof AdminVirementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/annonceur/': {
       id: '/annonceur/'
       path: '/annonceur'
@@ -1023,10 +1042,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+  AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminPrestatairesRoute: AdminPrestatairesRoute,
+  AdminVirementsRoute: AdminVirementsRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

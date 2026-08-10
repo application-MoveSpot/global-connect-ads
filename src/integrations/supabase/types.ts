@@ -116,6 +116,48 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_transfer_requests: {
+        Row: {
+          admin_notes: string | null
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          receipt_path: string | null
+          reference: string
+          reviewed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          receipt_path?: string | null
+          reference: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          receipt_path?: string | null
+          reference?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       brief_proposals: {
         Row: {
           brief_id: string
