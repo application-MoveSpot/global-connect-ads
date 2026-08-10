@@ -47,17 +47,23 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
             }
             case "account.updated": {
               const a = event.data.object as Stripe.Account;
-              await supabaseAdmin
-                .from("owner_profiles")
-                .update({
-                  stripe_charges_enabled: a.charges_enabled,
-                  stripe_payouts_enabled: a.payouts_enabled,
-                  stripe_details_submitted: a.details_submitted,
-                  stripe_onboarding_completed_at: a.details_submitted ? new Date().toISOString() : null,
-                } as never)
-                .eq("stripe_account_id", a.id);
+              const fullyEnabled = Boolean(a.charges_enabled && a.payouts_enabled);
+              const patch = {
+                stripe_charges_enabled: Boolean(a.charges_enabled),
+                stripe_payouts_enabled: Boolean(a.payouts_enabled),
+                stripe_details_submitted: Boolean(a.details_submitted),
+                stripe_onboarding_completed_at: fullyEnabled ? new Date().toISOString() : null,
+              } as never;
+
+              await supabaseAdmin.from("owner_profiles").update(patch).eq("stripe_account_id", a.id);
+              await supabaseAdmin.from("owner_profiles").update(patch).eq("stripe_connect_account_id", a.id);
+              await supabaseAdmin.from("payee_profiles").update(patch).eq("stripe_account_id", a.id);
+              await supabaseAdmin.from("payee_profiles").update(patch).eq("stripe_connect_account_id", a.id);
+
+              console.info("[stripe] account.updated", a.id, { fullyEnabled });
               break;
             }
+
             case "payment_intent.payment_failed": {
               console.warn("[stripe] payment_intent.payment_failed", event.data.object);
               break;
