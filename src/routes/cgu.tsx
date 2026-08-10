@@ -96,7 +96,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Rôle de la plateforme — simple intermédiaire">
+      <LegalSection title="10. Rôle de la plateforme — simple intermédiaire">
         <p>
           MoveSpot est un intermédiaire numérique de mise en relation entre annonceurs, propriétaires de véhicules,
           chauffeurs et poseurs certifiés. MoveSpot ne possède aucun véhicule, aucun matériel d'affichage et n'exerce
@@ -111,7 +111,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Obligations des chauffeurs">
+      <LegalSection title="11. Obligations des chauffeurs">
         <p>Le chauffeur participant à une campagne s'engage à :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
@@ -126,7 +126,7 @@ function CGU() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="13. Flux financiers et reversements">
+      <LegalSection title="12. Flux financiers et reversements">
         <p>
           Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les budgets B2B) et
           conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à l'exécution de la campagne. MoveSpot
@@ -142,7 +142,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="14. Droit applicable et juridiction">
+      <LegalSection title="13. Droit applicable et juridiction">
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.
