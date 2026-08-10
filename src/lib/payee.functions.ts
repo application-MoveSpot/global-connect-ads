@@ -141,7 +141,7 @@ export const createPayeeOnboardingLink = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin
         .from("payee_profiles")
-        .update({ stripe_account_id: accountId } as never)
+        .update({ stripe_account_id: accountId, stripe_connect_account_id: accountId } as never)
         .eq("user_id", userId);
     }
 
