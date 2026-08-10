@@ -6,7 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const TopupInput = z.object({
   amountEuros: z.number().min(10).max(50000),
   returnUrl: z.string().url(),
-  environment: z.enum(["sandbox", "live"]),
+  environment: z.enum(["sandbox", "live"]).optional(),
 });
 
 type CheckoutSessionResult =
@@ -21,7 +21,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
     const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
 
     try {
-      const stripe = createStripeClient(data.environment);
+      const stripe = createStripeClient();
       const amountCents = Math.round(data.amountEuros * 100);
       const { data: userRow } = await supabase.auth.getUser();
       const email = userRow.user?.email ?? undefined;
@@ -260,7 +260,7 @@ const SubscriptionInput = z.object({
   campaignRequestId: z.string().uuid().nullable().optional(),
   trialPeriodDays: z.number().int().min(0).max(60).default(14),
   returnUrl: z.string().url(),
-  environment: z.enum(["sandbox", "live"]),
+  environment: z.enum(["sandbox", "live"]).optional(),
 });
 
 export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST" })
@@ -271,7 +271,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
     const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
 
     try {
-      const stripe = createStripeClient(data.environment);
+      const stripe = createStripeClient();
       const { data: userRow } = await supabase.auth.getUser();
       const email = userRow.user?.email ?? undefined;
 

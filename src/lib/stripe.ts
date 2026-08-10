@@ -1,31 +1,24 @@
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
+import { getStripePublicConfig, type StripePublicConfig } from "./stripe-config.functions";
 
 export type StripeEnv = "sandbox" | "live";
 
-const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN;
+let configPromise: Promise<StripePublicConfig> | null = null;
 
-function paymentsEnvironment(): StripeEnv {
-  if (clientToken?.startsWith("pk_test_")) return "sandbox";
-  if (clientToken?.startsWith("pk_live_")) return "live";
-  throw new Error(
-    "Le paiement Stripe n'est pas configuré pour cette version. Terminez le passage en live dans l'onglet Payments.",
-  );
+export function getPaymentsConfig(): Promise<StripePublicConfig> {
+  if (!configPromise) {
+    configPromise = getStripePublicConfig().catch(() => ({ publishableKey: null, environment: null }));
+  }
+  return configPromise;
 }
 
 let stripePromise: Promise<Stripe | null> | null = null;
 
 export function getStripe(): Promise<Stripe | null> {
   if (!stripePromise) {
-    paymentsEnvironment();
-    stripePromise = loadStripe(clientToken as string);
+    stripePromise = getPaymentsConfig().then((config) =>
+      config.publishableKey ? loadStripe(config.publishableKey) : null,
+    );
   }
   return stripePromise;
-}
-
-export function getStripeEnvironment(): StripeEnv {
-  return paymentsEnvironment();
-}
-
-export function getPaymentClientToken() {
-  return clientToken as string | undefined;
 }
