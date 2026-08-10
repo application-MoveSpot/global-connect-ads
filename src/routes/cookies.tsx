@@ -41,6 +41,18 @@ function Cookies() {
               <td className="p-3">Non requis</td>
             </tr>
             <tr>
+              <td className="p-3">Authentification</td>
+              <td className="p-3">Maintien de la session connectée et de l'authentification à deux facteurs (TOTP)</td>
+              <td className="p-3">Jusqu'à 30 jours</td>
+              <td className="p-3">Non requis</td>
+            </tr>
+            <tr>
+              <td className="p-3">Stockage local technique</td>
+              <td className="p-3">Mémoire tampon des positions GPS du chauffeur avant envoi par lots (aucune lecture publicitaire)</td>
+              <td className="p-3">Jusqu'à l'envoi</td>
+              <td className="p-3">Non requis</td>
+            </tr>
+            <tr>
               <td className="p-3">Préférences</td>
               <td className="p-3">Mémorisation de la langue et des choix d'affichage</td>
               <td className="p-3">12 mois</td>
@@ -54,11 +66,18 @@ function Cookies() {
             </tr>
             <tr>
               <td className="p-3">Tiers (cartographie)</td>
-              <td className="p-3">Affichage de la carte interactive (Mapbox)</td>
+              <td className="p-3">Affichage des cartes interactives et du dessin de zone (Mapbox)</td>
               <td className="p-3">Variable</td>
               <td className="p-3">Requis</td>
             </tr>
+            <tr>
+              <td className="p-3">Tiers (paiement)</td>
+              <td className="p-3">Sécurisation du tunnel de paiement et prévention de la fraude (Stripe)</td>
+              <td className="p-3">Variable</td>
+              <td className="p-3">Non requis (nécessaire au paiement)</td>
+            </tr>
           </tbody>
+
         </table>
       </LegalSection>
 
