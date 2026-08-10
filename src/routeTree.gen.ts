@@ -27,6 +27,7 @@ import { Route as SecuriteRouteImport } from './routes/securite'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
@@ -154,6 +155,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
   id: '/prestataires',
   path: '/prestataires',
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
@@ -460,6 +468,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
@@ -516,6 +525,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/virements'
     | '/annonceur/essai-active'
@@ -570,6 +580,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/virements'
     | '/annonceur/essai-active'
@@ -624,6 +635,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/virements'
     | '/annonceur/essai-active'
@@ -838,6 +850,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/.well-known/oauth-protected-resource'
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/prestataires': {
       id: '/admin/prestataires'
@@ -1081,11 +1100,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
   AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
   AdminPrestatairesRoute: AdminPrestatairesRoute,
   AdminVirementsRoute: AdminVirementsRoute,
 }
