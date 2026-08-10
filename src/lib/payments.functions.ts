@@ -58,7 +58,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       const customerId = await resolveOrCreateCustomer({ email, userId });
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
 
-      const session = await stripe.checkout.sessions.create({
+      const sessionParams = {
         mode: "payment",
         ui_mode: "embedded_page",
         return_url: returnUrl,
@@ -86,13 +86,29 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
             amount_cents: String(amountCents),
           },
         },
-      } as never);
+      } as Record<string, unknown>;
+
+      // Paiement en cryptomonnaie (USDC) via Stripe, si activé sur le compte.
+      // Si Stripe refuse la méthode (non activée / devise non supportée), on retombe
+      // automatiquement sur les méthodes de paiement classiques.
+      let session;
+      try {
+        session = await stripe.checkout.sessions.create({
+          ...sessionParams,
+          payment_method_types: ["card", "crypto"],
+        } as never);
+      } catch (cryptoError) {
+        const message = getStripeErrorMessage(cryptoError);
+        if (!/crypto/i.test(message)) throw cryptoError;
+        session = await stripe.checkout.sessions.create(sessionParams as never);
+      }
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
       return { error: getStripeErrorMessage(error) };
     }
   });
+
 
 // ================== OWNER — Stripe Connect Express onboarding ==================
 const OnboardingInput = z.object({ returnUrl: z.string().url() });
