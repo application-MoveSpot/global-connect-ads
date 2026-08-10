@@ -35,6 +35,7 @@ import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.ess
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
+import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
 import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
 import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.inscription'
 import { Route as PrestataireIndexRouteImport } from './routes/prestataire.index'
@@ -192,6 +193,11 @@ const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   path: '/api/faq-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChauffeurInscriptionRoute = ChauffeurInscriptionRouteImport.update({
+  id: '/inscription',
+  path: '/inscription',
+  getParentRoute: () => ChauffeurRoute,
+} as any)
 const PartenaireIndexRoute = PartenaireIndexRouteImport.update({
   id: '/partenaire/',
   path: '/partenaire/',
@@ -326,7 +332,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/chauffeur': typeof ChauffeurRoute
+  '/chauffeur': typeof ChauffeurRouteWithChildren
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
@@ -346,6 +352,7 @@ export interface FileRoutesByFullPath {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
@@ -378,7 +385,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/chauffeur': typeof ChauffeurRoute
+  '/chauffeur': typeof ChauffeurRouteWithChildren
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
@@ -398,6 +405,7 @@ export interface FileRoutesByTo {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
@@ -431,7 +439,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/chauffeur': typeof ChauffeurRoute
+  '/chauffeur': typeof ChauffeurRouteWithChildren
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
@@ -451,6 +459,7 @@ export interface FileRoutesById {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
@@ -505,6 +514,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/chauffeur/inscription'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
@@ -557,6 +567,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/chauffeur/inscription'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
@@ -609,6 +620,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/chauffeur/inscription'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
@@ -642,7 +654,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
-  ChauffeurRoute: typeof ChauffeurRoute
+  ChauffeurRoute: typeof ChauffeurRouteWithChildren
   CommentCaMarcheRoute: typeof CommentCaMarcheRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
@@ -869,6 +881,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFaqChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chauffeur/inscription': {
+      id: '/chauffeur/inscription'
+      path: '/inscription'
+      fullPath: '/chauffeur/inscription'
+      preLoaderRoute: typeof ChauffeurInscriptionRouteImport
+      parentRoute: typeof ChauffeurRoute
+    }
     '/partenaire/': {
       id: '/partenaire/'
       path: '/partenaire'
@@ -1052,6 +1071,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface ChauffeurRouteChildren {
+  ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
+}
+
+const ChauffeurRouteChildren: ChauffeurRouteChildren = {
+  ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
+}
+
+const ChauffeurRouteWithChildren = ChauffeurRoute._addFileChildren(
+  ChauffeurRouteChildren,
+)
+
 interface ProprietaireFlotteRouteChildren {
   ProprietaireFlotteImportRoute: typeof ProprietaireFlotteImportRoute
   ProprietaireFlotteQrRoute: typeof ProprietaireFlotteQrRoute
@@ -1071,7 +1102,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CguRoute: CguRoute,
   CgvRoute: CgvRoute,
-  ChauffeurRoute: ChauffeurRoute,
+  ChauffeurRoute: ChauffeurRouteWithChildren,
   CommentCaMarcheRoute: CommentCaMarcheRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
