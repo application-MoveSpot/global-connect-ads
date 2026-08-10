@@ -5,16 +5,20 @@ export const Route = createFileRoute("/mentions-legales")({
   head: () => ({
     meta: [
       { title: "Mentions légales — MoveSpot" },
-      { name: "description", content: "Mentions légales de la plateforme MoveSpot : éditeur, hébergement, propriété intellectuelle et coordonnées." },
+      { name: "description", content: "Mentions légales MoveSpot : éditeur, SIRET, hébergement, services tiers (paiement, cartographie) et propriété intellectuelle." },
+      { property: "og:title", content: "Mentions légales — MoveSpot" },
+      { property: "og:description", content: "Éditeur, coordonnées, hébergeur et services tiers de la plateforme MoveSpot." },
       { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/mentions-legales" }],
   }),
   component: MentionsLegales,
 });
 
 function MentionsLegales() {
   return (
-    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="30 mai 2026">
+    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="11 août 2026">
+
       <LegalSection title="Éditeur du site">
         <p>
           La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>Garry PALERME</strong>,
@@ -100,11 +104,39 @@ function MentionsLegales() {
         </p>
       </LegalSection>
 
+      <LegalSection title="Services tiers utilisés par le Site">
+        <ul className="list-disc pl-6 space-y-2">
+          <li><strong>Paiements</strong> : Stripe Payments Europe, Ltd. — paiements par carte, abonnements, comptes de paiement partenaires (Stripe Connect) et reversements.</li>
+          <li><strong>Virements bancaires</strong> : établissement bancaire de MoveSpot, pour les règlements B2B entrants et les virements SEPA sortants.</li>
+          <li><strong>Cartographie</strong> : Mapbox — affichage des cartes, dessin des zones de diffusion et vues 3D.</li>
+          <li><strong>Vérification d'entreprise</strong> : API publiques françaises « Annuaire des Entreprises » / INSEE Sirene.</li>
+          <li><strong>Infrastructure applicative</strong> : base de données, authentification (dont double authentification TOTP) et stockage de fichiers hébergés dans l'Union européenne.</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="Médiation de la consommation">
+        <p>
+          Conformément à l'article L.612-1 du Code de la consommation, tout consommateur peut recourir gratuitement à
+          un médiateur de la consommation en vue de la résolution amiable d'un litige. Pour toute demande, écrivez à{" "}
+          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">contact@notify.move-spot.com</a>
+          {" "}afin d'obtenir les coordonnées du médiateur compétent.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Signalement de contenu">
+        <p>
+          Tout contenu publicitaire diffusé via la Plateforme peut être signalé à l'adresse{" "}
+          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">contact@notify.move-spot.com</a>.
+          MoveSpot procède à un examen humain et peut suspendre la campagne concernée.
+        </p>
+      </LegalSection>
+
       <LegalSection title="Crédits">
         <p>
           Conception et développement du Site : <strong>MoveSpot</strong>.
         </p>
       </LegalSection>
+
     </LegalPage>
   );
 }

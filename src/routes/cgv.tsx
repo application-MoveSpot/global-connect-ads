@@ -5,99 +5,148 @@ export const Route = createFileRoute("/cgv")({
   head: () => ({
     meta: [
       { title: "Conditions Générales de Vente — MoveSpot" },
-      { name: "description", content: "Conditions Générales de Vente MoveSpot : modalités de réservation et de paiement des emplacements publicitaires." },
+      { name: "description", content: "Conditions Générales de Vente MoveSpot : devis cartographique, paiement par carte, portefeuille, virement bancaire B2B et reversements aux partenaires." },
+      { property: "og:title", content: "Conditions Générales de Vente — MoveSpot" },
+      { property: "og:description", content: "Modalités de commande, de paiement et d'annulation des campagnes de publicité mobile MoveSpot." },
       { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/cgv" }],
   }),
   component: CGV,
 });
 
 function CGV() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="30 mai 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="11 août 2026">
       <LegalSection title="1. Objet">
         <p>
-          Les présentes Conditions Générales de Vente (« CGV ») régissent les relations contractuelles entre la
-          société MoveSpot et tout client (ci-après « l'Annonceur ») souhaitant réserver un ou plusieurs emplacements
-          publicitaires sur les hubs de mobilité référencés sur la Plateforme.
+          Les présentes Conditions Générales de Vente (« CGV ») régissent les relations contractuelles entre MoveSpot
+          et tout client (ci-après « l'Annonceur ») souhaitant diffuser une campagne de publicité mobile sur les
+          véhicules référencés sur la Plateforme.
         </p>
       </LegalSection>
 
       <LegalSection title="2. Description des services">
         <p>
-          MoveSpot propose la commercialisation d'emplacements publicitaires physiques et numériques au sein de hubs
-          de mobilité internationaux (stations de vélos, scooters, automobiles partagées). Chaque emplacement est
-          décrit avec son format, sa localisation, son volume d'impressions estimé et son tarif journalier.
+          MoveSpot est une marketplace de publicité mobile : elle met en relation des annonceurs avec des
+          propriétaires de véhicules, des chauffeurs et des prestataires certifiés (pose de covering, production
+          vidéo, création graphique). Chaque campagne est définie par une zone géographique, une période de diffusion,
+          un type de véhicule et un budget.
+        </p>
+        <p>
+          La diffusion est mesurée par géolocalisation : distance parcourue, minutes actives et part du trajet
+          réalisée dans la zone de ciblage sont restituées à l'annonceur dans son tableau de suivi.
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Commande">
+      <LegalSection title="3. Commande et devis">
         <p>
-          La commande s'effectue via le formulaire de réservation disponible sur la Plateforme. Toute commande
-          implique l'acceptation sans réserve des présentes CGV. L'Annonceur recevra une confirmation de demande à
-          l'adresse email renseignée. La validation définitive intervient après vérification du contenu publicitaire
-          par MoveSpot, dans un délai de 24 heures ouvrées.
+          L'Annonceur crée un brief depuis son espace, dessine sa zone de diffusion sur la carte et obtient un
+          récapitulatif de devis. La commande est validée par l'acceptation de ce devis puis par le règlement.
+          Toute commande implique l'acceptation sans réserve des présentes CGV.
+        </p>
+        <p>
+          La validation définitive de la campagne intervient après contrôle du contenu publicitaire par MoveSpot,
+          dans un délai indicatif de 24 heures ouvrées.
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Prix et modalités de paiement">
+      <LegalSection title="4. Prix">
         <p>
-          Les prix sont indiqués en euros, hors taxes, et s'entendent par jour de diffusion et par emplacement. La
-          TVA applicable au jour de la commande est ajoutée lors de la facturation.
-        </p>
-        <p>
-          Le paiement s'effectue à la confirmation de la campagne, par carte bancaire ou virement. Aucune diffusion
-          ne sera engagée avant réception complète du paiement.
+          Le budget est calculé automatiquement à partir de la surface réelle de la zone dessinée : 1,80 € par km² et
+          par jour, porté à 2,70 € par km² et par jour (coefficient de densité 1,5×) dans les grandes agglomérations.
+          Un montant plancher de 10 € s'applique par campagne. Les prix sont exprimés hors taxes ; la TVA applicable
+          au jour de la commande est ajoutée lors de la facturation.
         </p>
       </LegalSection>
 
-      <LegalSection title="5. Validation du contenu publicitaire">
+      <LegalSection title="5. Modalités de paiement">
+        <p>Trois modes de règlement sont proposés :</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Carte bancaire (et moyens équivalents)</strong> via notre prestataire de paiement Stripe, en
+            paiement unique ou par abonnement. Certaines campagnes peuvent être proposées avec une période d'essai
+            gratuite de 14 jours, à l'issue de laquelle l'abonnement est automatiquement facturé sauf résiliation
+            avant son terme.
+          </li>
+          <li>
+            <strong>Portefeuille MoveSpot</strong> : l'Annonceur approvisionne un solde prépayé et l'utilise pour
+            régler ses campagnes. Le solde est utilisable sur la Plateforme et n'est pas rémunéré.
+          </li>
+          <li>
+            <strong>Virement bancaire</strong>, réservé aux budgets professionnels (B2B). La demande est instruite par
+            MoveSpot, qui communique les coordonnées bancaires et une référence de paiement ; la campagne est activée
+            après constatation effective de l'encaissement.
+          </li>
+        </ul>
         <p>
-          Conformément à la charte de contenu de MoveSpot, sont refusées toutes campagnes à caractère religieux ou
-          de fêtes religieuses, sexistes, pornographiques, ou incitant à la violence. En cas de refus, l'Annonceur en
-          est informé par email et peut soumettre un nouveau contenu, sans frais supplémentaires.
-        </p>
-        <p>
-          MoveSpot conserve un pouvoir discrétionnaire d'appréciation et peut refuser toute campagne sans avoir à
-          motiver sa décision au-delà de la charte.
+          Aucune diffusion n'est engagée avant réception complète du paiement ou, dans le cas d'un essai, avant
+          l'enregistrement d'un moyen de paiement valide.
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Annulation et remboursement">
+      <LegalSection title="6. Commission et reversements">
         <p>
-          L'Annonceur peut annuler sa commande sans frais jusqu'à 72 heures avant la date de diffusion prévue.
-          Passé ce délai, 50 % du montant total reste dû. Aucun remboursement n'est possible une fois la diffusion
-          commencée, sauf défaillance technique imputable à MoveSpot.
+          MoveSpot prélève une commission d'intermédiation de 30 % du montant hors taxes. Les 70 % restants sont
+          répartis entre le propriétaire du véhicule, le chauffeur et, le cas échéant, le prestataire de pose. Les
+          reversements sont effectués vers les comptes de paiement des bénéficiaires (Stripe Connect Express) ou par
+          virement SEPA, après validation des métriques de campagne et finalisation de leur vérification d'identité et
+          de leur IBAN.
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Responsabilité de l'Annonceur">
+      <LegalSection title="7. Validation du contenu et de la pose">
+        <p>
+          Conformément à la charte de contenu de MoveSpot, sont refusées toutes campagnes à caractère religieux ou de
+          fêtes religieuses, politique ou électoral, sexistes, pornographiques, ou incitant à la violence, ainsi que
+          les messages privés à caractère célébratoire individuel. En cas de refus, l'Annonceur en est informé par
+          email et peut soumettre un nouveau contenu, sans frais supplémentaires.
+        </p>
+        <p>
+          La pose du support sur le véhicule fait l'objet d'un contrôle sur la base de quatre photographies (avant,
+          côtés, arrière) transmises via la Plateforme. La diffusion facturable ne démarre qu'après approbation de la
+          pose.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="8. Annulation et remboursement">
+        <p>
+          L'Annonceur peut annuler sa commande sans frais jusqu'à 72 heures avant la date de diffusion prévue. Passé
+          ce délai, 50 % du montant total reste dû. Aucun remboursement n'est possible une fois la diffusion
+          commencée, sauf défaillance technique imputable à MoveSpot. En cas d'annulation avant diffusion, le montant
+          peut, au choix de l'Annonceur, être recrédité sur son portefeuille MoveSpot ou remboursé selon le moyen de
+          paiement d'origine.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="9. Responsabilité de l'Annonceur">
         <p>
           L'Annonceur garantit qu'il détient l'ensemble des droits nécessaires sur les éléments fournis (images,
-          textes, marques) et qu'il respecte la législation applicable en matière de publicité. Il garantit MoveSpot
-          contre tout recours de tiers lié à sa campagne.
+          textes, marques, vidéos) et qu'il respecte la législation applicable en matière de publicité. Il garantit
+          MoveSpot contre tout recours de tiers lié à sa campagne.
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Responsabilité de MoveSpot">
+      <LegalSection title="10. Responsabilité de MoveSpot">
         <p>
-          MoveSpot s'engage à mettre en œuvre tous les moyens raisonnables pour assurer la bonne diffusion des
-          campagnes. Sa responsabilité est limitée au montant effectivement payé par l'Annonceur pour la campagne
-          concernée. MoveSpot ne saurait être tenue responsable des indisponibilités liées à des cas de force majeure.
+          MoveSpot agit en qualité d'intermédiaire et met en œuvre tous les moyens raisonnables pour assurer la bonne
+          exécution des campagnes. Sa responsabilité est limitée au montant effectivement payé par l'Annonceur pour la
+          campagne concernée. MoveSpot n'est pas responsable de l'état des véhicules, de la qualité de pose réalisée
+          par un prestataire indépendant, ni des indisponibilités liées à des cas de force majeure.
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Données personnelles">
+      <LegalSection title="11. Données personnelles">
         <p>
           Les données collectées dans le cadre de la commande sont traitées conformément à notre
           <a href="/confidentialite" className="text-primary hover:underline"> Politique de confidentialité</a>.
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Droit applicable et litiges">
+      <LegalSection title="12. Droit applicable et litiges">
         <p>
           Les présentes CGV sont soumises au droit français. À défaut de résolution amiable, tout litige sera porté
-          devant les tribunaux compétents du ressort du siège social de MoveSpot.
+          devant les tribunaux compétents du ressort du siège de MoveSpot.
         </p>
       </LegalSection>
     </LegalPage>

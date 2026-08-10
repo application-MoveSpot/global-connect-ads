@@ -5,16 +5,20 @@ export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
       { title: "Politique relative aux cookies — MoveSpot" },
-      { name: "description", content: "Comment MoveSpot utilise les cookies et traceurs, et comment gérer vos préférences." },
+      { name: "description", content: "Comment MoveSpot utilise les cookies et traceurs (session, cartographie Mapbox, paiement Stripe) et comment gérer vos préférences." },
+      { property: "og:title", content: "Politique relative aux cookies — MoveSpot" },
+      { property: "og:description", content: "Cookies et traceurs utilisés par MoveSpot, durées de conservation et gestion du consentement." },
       { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/cookies" }],
   }),
+
   component: Cookies,
 });
 
 function Cookies() {
   return (
-    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="30 mai 2026">
+    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="11 août 2026">
       <LegalSection title="1. Qu'est-ce qu'un cookie ?">
         <p>
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) lors de
@@ -41,6 +45,18 @@ function Cookies() {
               <td className="p-3">Non requis</td>
             </tr>
             <tr>
+              <td className="p-3">Authentification</td>
+              <td className="p-3">Maintien de la session connectée et de l'authentification à deux facteurs (TOTP)</td>
+              <td className="p-3">Jusqu'à 30 jours</td>
+              <td className="p-3">Non requis</td>
+            </tr>
+            <tr>
+              <td className="p-3">Stockage local technique</td>
+              <td className="p-3">Mémoire tampon des positions GPS du chauffeur avant envoi par lots (aucune lecture publicitaire)</td>
+              <td className="p-3">Jusqu'à l'envoi</td>
+              <td className="p-3">Non requis</td>
+            </tr>
+            <tr>
               <td className="p-3">Préférences</td>
               <td className="p-3">Mémorisation de la langue et des choix d'affichage</td>
               <td className="p-3">12 mois</td>
@@ -54,11 +70,18 @@ function Cookies() {
             </tr>
             <tr>
               <td className="p-3">Tiers (cartographie)</td>
-              <td className="p-3">Affichage de la carte interactive (Mapbox)</td>
+              <td className="p-3">Affichage des cartes interactives et du dessin de zone (Mapbox)</td>
               <td className="p-3">Variable</td>
               <td className="p-3">Requis</td>
             </tr>
+            <tr>
+              <td className="p-3">Tiers (paiement)</td>
+              <td className="p-3">Sécurisation du tunnel de paiement et prévention de la fraude (Stripe)</td>
+              <td className="p-3">Variable</td>
+              <td className="p-3">Non requis (nécessaire au paiement)</td>
+            </tr>
           </tbody>
+
         </table>
       </LegalSection>
 

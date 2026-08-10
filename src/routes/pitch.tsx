@@ -61,13 +61,14 @@ const slides: Slide[] = [
     body: (
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          L'idée : une carte des hubs de mobilité partagée, où chaque emplacement devient
-          réservable à la journée par les commerces du coin.
+          MoveSpot transforme les véhicules du quotidien — taxis, VTC, vans, food trucks, scooters de
+          livraison — en supports publicitaires géolocalisés, réservables à la zone et à la journée.
         </p>
         <ul className="space-y-3 text-muted-foreground">
           {[
-            "Visualisation de la mobilité autour de l'annonceur",
-            "Réservation simple, à la journée, sans intermédiaire",
+            "L'annonceur cible une zone qu'il dessine lui-même sur la carte",
+            "Le budget se calcule au km², pondéré par la densité de l'agglomération",
+            "Diffusion prouvée par GPS : km réels, minutes actives, couverture de zone",
             "Charte éditoriale stricte : pas de politique, religion ou contenu violent",
           ].map((l) => (
             <li key={l} className="flex items-start gap-3">
@@ -79,15 +80,17 @@ const slides: Slide[] = [
       </div>
     ),
   },
+
   {
     kicker: "04 · Produit",
-    title: <>Réserver un spot, en quelques clics.</>,
+    title: <>Du polygone à la preuve.</>,
     body: (
-      <div className="grid md:grid-cols-3 gap-6 max-w-5xl">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl">
         {[
-          { step: "1", t: "L'annonceur explore la carte et choisit un hub." },
-          { step: "2", t: "Il sélectionne ses dates et soumet sa création." },
-          { step: "3", t: "MoveSpot valide le contenu puis lance la diffusion." },
+          { step: "1", t: "L'annonceur dessine sa zone sur la carte : le budget se calcule automatiquement au km²." },
+          { step: "2", t: "Il valide le devis et paie par carte, portefeuille prépayé ou virement B2B." },
+          { step: "3", t: "MoveSpot modère la création, le véhicule, puis contrôle la pose sur 4 photos." },
+          { step: "4", t: "Le chauffeur roule : GPS agrégé, km réels et taux de couverture de zone en direct." },
         ].map((s) => (
           <div key={s.step} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6">
             <div className="h-10 w-10 rounded-full bg-gradient-signal flex items-center justify-center font-display font-bold text-primary-foreground shadow-glow">{s.step}</div>
@@ -98,7 +101,26 @@ const slides: Slide[] = [
     ),
   },
   {
-    kicker: "05 · Marché",
+    kicker: "05 · Ce qui tourne déjà",
+    title: <>Une plateforme, pas une maquette.</>,
+    body: (
+      <div className="grid md:grid-cols-2 gap-4 max-w-5xl">
+        {[
+          { t: "Zones & géo", d: "Dessin de polygones Mapbox, validation des positions en base par PostGIS, budget pondéré par densité." },
+          { t: "Suivi temps réel", d: "Relevés GPS mis en tampon puis envoyés par lots, agrégés en distance, minutes actives et couverture." },
+          { t: "Paiements", d: "Carte et abonnements (essai 14 jours), portefeuille prépayé, virement bancaire B2B, reversements partenaires automatisés." },
+          { t: "Confiance", d: "SIRET vérifié, QR véhicules signés, contrôle de pose en 4 photos, double authentification, modération humaine." },
+        ].map((c) => (
+          <div key={c.t} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
+            <div className="text-xs uppercase tracking-widest text-primary">{c.t}</div>
+            <p className="mt-2 text-muted-foreground">{c.d}</p>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    kicker: "06 · Marché",
     title: <>Un terrain à structurer.</>,
     body: (
       <p className="slide-body-lg text-muted-foreground max-w-3xl">
@@ -109,35 +131,43 @@ const slides: Slide[] = [
     ),
   },
   {
-    kicker: "06 · Modèle envisagé",
-    title: <>Simple, à la journée.</>,
+    kicker: "07 · Modèle",
+    title: <>Au km², sans engagement.</>,
     body: (
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          Tarification journalière par emplacement, sans engagement. MoveSpot se rémunère
-          via une commission sur chaque campagne diffusée.
+          Le prix suit la surface réellement couverte : 1,80 € par km² et par jour, 2,70 € dans les
+          grandes agglomérations. MoveSpot prélève 30 % de commission d'intermédiation, 70 % vont au
+          propriétaire, au chauffeur et au poseur.
         </p>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">Annonceur</div>
-            <p className="mt-2 text-muted-foreground">Paie à la journée, sans engagement.</p>
+            <p className="mt-2 text-muted-foreground">Paie sa zone et ses jours, sans engagement.</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
+            <div className="text-xs uppercase tracking-widest text-primary">Partenaires</div>
+            <p className="mt-2 text-muted-foreground">70 % reversés après validation des métriques.</p>
           </div>
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">MoveSpot</div>
-            <p className="mt-2 text-muted-foreground">Commission + validation éditoriale.</p>
+            <p className="mt-2 text-muted-foreground">30 % de commission + modération éditoriale.</p>
           </div>
         </div>
       </div>
     ),
   },
+
   {
-    kicker: "07 · Pourquoi MoveSpot",
+    kicker: "08 · Pourquoi MoveSpot",
     title: <>Une approche claire dès le départ.</>,
     body: (
       <ul className="space-y-3 text-muted-foreground max-w-3xl">
         {[
           "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
-          "Un outil simple et accessible : un commerçant peut réserver un véhicule, pour une journée, sans budget minimum ni jargon publicitaire.",
+          "Des preuves plutôt que des promesses : chaque euro facturé s'appuie sur des kilomètres réellement parcourus dans la zone.",
+          "Un outil simple et accessible : un commerçant peut lancer une campagne dès 10 €, sans jargon publicitaire.",
+          "Un écosystème de prestataires spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
           "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (
           <li key={l} className="flex items-start gap-3">
@@ -150,7 +180,8 @@ const slides: Slide[] = [
   },
 
   {
-    kicker: "08 · Appel",
+    kicker: "09 · Appel",
+
     title: <>Rejoignez le mouvement.</>,
     body: (
       <div className="space-y-6 max-w-3xl">
