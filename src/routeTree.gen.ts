@@ -14,7 +14,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as CgvRouteImport } from './routes/cgv'
-import { Route as ChauffeurRouteImport } from './routes/chauffeur'
 import { Route as CommentCaMarcheRouteImport } from './routes/comment-ca-marche'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CookiesRouteImport } from './routes/cookies'
@@ -35,6 +34,7 @@ import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.ess
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
+import { Route as ChauffeurIndexRouteImport } from './routes/chauffeur.index'
 import { Route as ChauffeurEspaceRouteImport } from './routes/chauffeur.espace'
 import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
 import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
@@ -85,11 +85,6 @@ const CguRoute = CguRouteImport.update({
 const CgvRoute = CgvRouteImport.update({
   id: '/cgv',
   path: '/cgv',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChauffeurRoute = ChauffeurRouteImport.update({
-  id: '/chauffeur',
-  path: '/chauffeur',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommentCaMarcheRoute = CommentCaMarcheRouteImport.update({
@@ -194,15 +189,20 @@ const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   path: '/api/faq-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChauffeurIndexRoute = ChauffeurIndexRouteImport.update({
+  id: '/chauffeur/',
+  path: '/chauffeur/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChauffeurEspaceRoute = ChauffeurEspaceRouteImport.update({
-  id: '/espace',
-  path: '/espace',
-  getParentRoute: () => ChauffeurRoute,
+  id: '/chauffeur/espace',
+  path: '/chauffeur/espace',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ChauffeurInscriptionRoute = ChauffeurInscriptionRouteImport.update({
-  id: '/inscription',
-  path: '/inscription',
-  getParentRoute: () => ChauffeurRoute,
+  id: '/chauffeur/inscription',
+  path: '/chauffeur/inscription',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PartenaireIndexRoute = PartenaireIndexRouteImport.update({
   id: '/partenaire/',
@@ -338,7 +338,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/chauffeur': typeof ChauffeurRouteWithChildren
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
@@ -367,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
+  '/chauffeur/': typeof ChauffeurIndexRoute
   '/partenaire/': typeof PartenaireIndexRoute
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
@@ -392,7 +392,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/chauffeur': typeof ChauffeurRouteWithChildren
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
@@ -421,6 +420,7 @@ export interface FileRoutesByTo {
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur': typeof AnnonceurIndexRoute
+  '/chauffeur': typeof ChauffeurIndexRoute
   '/partenaire': typeof PartenaireIndexRoute
   '/prestataire': typeof PrestataireIndexRoute
   '/prestataires': typeof PrestatairesIndexRoute
@@ -447,7 +447,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/chauffeur': typeof ChauffeurRouteWithChildren
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
@@ -476,6 +475,7 @@ export interface FileRoutesById {
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
+  '/chauffeur/': typeof ChauffeurIndexRoute
   '/partenaire/': typeof PartenaireIndexRoute
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
@@ -503,7 +503,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cgu'
     | '/cgv'
-    | '/chauffeur'
     | '/comment-ca-marche'
     | '/confidentialite'
     | '/cookies'
@@ -532,6 +531,7 @@ export interface FileRouteTypes {
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
+    | '/chauffeur/'
     | '/partenaire/'
     | '/prestataire/'
     | '/prestataires/'
@@ -557,7 +557,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cgu'
     | '/cgv'
-    | '/chauffeur'
     | '/comment-ca-marche'
     | '/confidentialite'
     | '/cookies'
@@ -586,6 +585,7 @@ export interface FileRouteTypes {
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur'
+    | '/chauffeur'
     | '/partenaire'
     | '/prestataire'
     | '/prestataires'
@@ -611,7 +611,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cgu'
     | '/cgv'
-    | '/chauffeur'
     | '/comment-ca-marche'
     | '/confidentialite'
     | '/cookies'
@@ -640,6 +639,7 @@ export interface FileRouteTypes {
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
+    | '/chauffeur/'
     | '/partenaire/'
     | '/prestataire/'
     | '/prestataires/'
@@ -666,7 +666,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
-  ChauffeurRoute: typeof ChauffeurRouteWithChildren
   CommentCaMarcheRoute: typeof CommentCaMarcheRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
@@ -684,6 +683,8 @@ export interface RootRouteChildren {
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
+  ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
+  ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
   PartenaireInscriptionRoute: typeof PartenaireInscriptionRoute
   PrestataireInscriptionRoute: typeof PrestataireInscriptionRoute
   PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
@@ -691,6 +692,7 @@ export interface RootRouteChildren {
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
+  ChauffeurIndexRoute: typeof ChauffeurIndexRoute
   PartenaireIndexRoute: typeof PartenaireIndexRoute
   PrestataireIndexRoute: typeof PrestataireIndexRoute
   PrestatairesIndexRoute: typeof PrestatairesIndexRoute
@@ -744,13 +746,6 @@ declare module '@tanstack/react-router' {
       path: '/cgv'
       fullPath: '/cgv'
       preLoaderRoute: typeof CgvRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chauffeur': {
-      id: '/chauffeur'
-      path: '/chauffeur'
-      fullPath: '/chauffeur'
-      preLoaderRoute: typeof ChauffeurRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comment-ca-marche': {
@@ -893,19 +888,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFaqChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chauffeur/': {
+      id: '/chauffeur/'
+      path: '/chauffeur'
+      fullPath: '/chauffeur/'
+      preLoaderRoute: typeof ChauffeurIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chauffeur/espace': {
       id: '/chauffeur/espace'
-      path: '/espace'
+      path: '/chauffeur/espace'
       fullPath: '/chauffeur/espace'
       preLoaderRoute: typeof ChauffeurEspaceRouteImport
-      parentRoute: typeof ChauffeurRoute
+      parentRoute: typeof rootRouteImport
     }
     '/chauffeur/inscription': {
       id: '/chauffeur/inscription'
-      path: '/inscription'
+      path: '/chauffeur/inscription'
       fullPath: '/chauffeur/inscription'
       preLoaderRoute: typeof ChauffeurInscriptionRouteImport
-      parentRoute: typeof ChauffeurRoute
+      parentRoute: typeof rootRouteImport
     }
     '/partenaire/': {
       id: '/partenaire/'
@@ -1090,20 +1092,6 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface ChauffeurRouteChildren {
-  ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
-  ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
-}
-
-const ChauffeurRouteChildren: ChauffeurRouteChildren = {
-  ChauffeurEspaceRoute: ChauffeurEspaceRoute,
-  ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
-}
-
-const ChauffeurRouteWithChildren = ChauffeurRoute._addFileChildren(
-  ChauffeurRouteChildren,
-)
-
 interface ProprietaireFlotteRouteChildren {
   ProprietaireFlotteImportRoute: typeof ProprietaireFlotteImportRoute
   ProprietaireFlotteQrRoute: typeof ProprietaireFlotteQrRoute
@@ -1123,7 +1111,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CguRoute: CguRoute,
   CgvRoute: CgvRoute,
-  ChauffeurRoute: ChauffeurRouteWithChildren,
   CommentCaMarcheRoute: CommentCaMarcheRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
@@ -1142,6 +1129,8 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
+  ChauffeurEspaceRoute: ChauffeurEspaceRoute,
+  ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
   PartenaireInscriptionRoute: PartenaireInscriptionRoute,
   PrestataireInscriptionRoute: PrestataireInscriptionRoute,
   PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
@@ -1149,6 +1138,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
+  ChauffeurIndexRoute: ChauffeurIndexRoute,
   PartenaireIndexRoute: PartenaireIndexRoute,
   PrestataireIndexRoute: PrestataireIndexRoute,
   PrestatairesIndexRoute: PrestatairesIndexRoute,

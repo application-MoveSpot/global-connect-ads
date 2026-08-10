@@ -5,7 +5,7 @@ import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr.function
 import { GpsBatchBuffer } from "@/lib/gps-buffer";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/chauffeur")({
+export const Route = createFileRoute("/chauffeur/")({
   head: () => ({ meta: [{ title: "Chauffeur — MoveSpot" }, { name: "robots", content: "noindex" }] }),
   validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : "" }),
   component: DriverPage,
