@@ -67,7 +67,7 @@ function ChauffeurEspace() {
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <div className="flex items-center justify-between">
           <LogoLink />
-          <Link to="/chauffeur" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+          <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
             Suivi GPS →
           </Link>
         </div>
@@ -97,7 +97,7 @@ function ChauffeurEspace() {
           <p className="text-sm text-muted-foreground">
             Scannez le QR code collé dans le véhicule pour démarrer le suivi d'une campagne.
           </p>
-          <Link to="/chauffeur" className="inline-block text-sm font-semibold text-primary hover:underline">
+          <Link to="/chauffeur" search={{ t: "" }} className="inline-block text-sm font-semibold text-primary hover:underline">
             Ouvrir le suivi GPS →
           </Link>
         </div>
