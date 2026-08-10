@@ -93,6 +93,11 @@ function WalletPage() {
           />
         </section>
 
+        <section className="rounded-2xl border border-border bg-card p-6">
+          <BankTransferPanel />
+        </section>
+
+
         <section>
           <h2 className="font-display text-xl font-semibold mb-3">Historique du portefeuille</h2>
           {(!wallet?.transactions || wallet.transactions.length === 0) ? (
