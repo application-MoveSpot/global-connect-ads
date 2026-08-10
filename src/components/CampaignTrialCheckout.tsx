@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createCampaignSubscriptionCheckout } from "@/lib/payments.functions";
-import { getPaymentClientToken, getStripe, getStripeEnvironment } from "@/lib/stripe";
+import { getPaymentsConfig, getStripe } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -46,7 +46,6 @@ export function CampaignTrialCheckout({
           campaignRequestId: campaignRequestId ?? null,
           trialPeriodDays,
           returnUrl: `${window.location.origin}/annonceur/essai-active`,
-          environment: getStripeEnvironment(),
         },
       });
 
@@ -62,10 +61,11 @@ export function CampaignTrialCheckout({
 
   const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
 
-  const showCheckout = () => {
+  const showCheckout = async () => {
     setError(null);
-    if (!getPaymentClientToken()) {
-      setError("Le paiement n'est pas encore configuré. Terminez la configuration Stripe dans Payments.");
+    const config = await getPaymentsConfig();
+    if (!config.publishableKey) {
+      setError("Le paiement par carte n'est pas encore configuré. Ajoutez vos clés Stripe pour l'activer.");
       setOpen(true);
       return;
     }
