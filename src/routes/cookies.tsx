@@ -5,10 +5,14 @@ export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
       { title: "Politique relative aux cookies — MoveSpot" },
-      { name: "description", content: "Comment MoveSpot utilise les cookies et traceurs, et comment gérer vos préférences." },
+      { name: "description", content: "Comment MoveSpot utilise les cookies et traceurs (session, cartographie Mapbox, paiement Stripe) et comment gérer vos préférences." },
+      { property: "og:title", content: "Politique relative aux cookies — MoveSpot" },
+      { property: "og:description", content: "Cookies et traceurs utilisés par MoveSpot, durées de conservation et gestion du consentement." },
       { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/cookies" }],
   }),
+
   component: Cookies,
 });
 
