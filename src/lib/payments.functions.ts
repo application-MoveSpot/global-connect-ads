@@ -6,7 +6,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const TopupInput = z.object({
   amountEuros: z.number().min(10).max(50000),
   returnUrl: z.string().url(),
-  environment: z.enum(["sandbox", "live"]),
+  environment: z.enum(["sandbox", "live"]).optional(),
 });
 
 type CheckoutSessionResult =
