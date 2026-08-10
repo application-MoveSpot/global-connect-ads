@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.is_point_in_campaign_zone(uuid, double precision, double precision) FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.is_point_in_campaign_zone(uuid, double precision, double precision) TO service_role;
