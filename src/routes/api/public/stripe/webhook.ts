@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { type StripeEnv, verifyWebhook } from "@/lib/stripe.server";
+import { verifyWebhook } from "@/lib/stripe.server";
 import type Stripe from "stripe";
 
 export const Route = createFileRoute("/api/public/stripe/webhook")({
