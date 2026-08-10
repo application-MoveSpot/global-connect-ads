@@ -30,6 +30,8 @@ export type Database = {
           title: string
           updated_at: string
           vehicle_types: Database["public"]["Enums"]["vehicle_type"][]
+          zone_area_km2: number | null
+          zone_polygon: unknown
           zones: string[]
         }
         Insert: {
@@ -47,6 +49,8 @@ export type Database = {
           title: string
           updated_at?: string
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
+          zone_area_km2?: number | null
+          zone_polygon?: unknown
           zones?: string[]
         }
         Update: {
@@ -64,6 +68,8 @@ export type Database = {
           title?: string
           updated_at?: string
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
+          zone_area_km2?: number | null
+          zone_polygon?: unknown
           zones?: string[]
         }
         Relationships: []
@@ -255,6 +261,8 @@ export type Database = {
           updated_at: string
           user_id: string | null
           vehicle_id: string | null
+          zone_area_km2: number | null
+          zone_polygon: unknown
         }
         Insert: {
           admin_notes?: string | null
@@ -294,6 +302,8 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
+          zone_area_km2?: number | null
+          zone_polygon?: unknown
         }
         Update: {
           admin_notes?: string | null
@@ -333,6 +343,8 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
+          zone_area_km2?: number | null
+          zone_polygon?: unknown
         }
         Relationships: [
           {
@@ -1260,6 +1272,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_point_in_campaign_zone: {
+        Args: { p_campaign_id: string; p_lat: number; p_lng: number }
         Returns: boolean
       }
       move_to_dlq: {
