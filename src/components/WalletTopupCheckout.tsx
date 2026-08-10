@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createWalletTopupCheckout } from "@/lib/payments.functions";
-import { getPaymentClientToken, getStripe, getStripeEnvironment } from "@/lib/stripe";
+import { getPaymentsConfig, getStripe } from "@/lib/stripe";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
