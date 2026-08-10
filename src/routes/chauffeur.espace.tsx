@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { PayeeConnectCard } from "@/components/PayeeConnectCard";
+import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payee.functions";
 
 type Profile = {
   id: string;
@@ -11,6 +13,10 @@ type Profile = {
   phone: string | null;
   city: string | null;
   status: string;
+  vehicle_kind: VehicleKind | null;
+  vehicle_plate: string | null;
+  certification_status: string;
+  certification_notes: string | null;
 };
 
 const KIND_LABEL: Record<Profile["kind"], string> = {
@@ -18,6 +24,15 @@ const KIND_LABEL: Record<Profile["kind"], string> = {
   installer: "Poseur covering",
   both: "Chauffeur & poseur",
 };
+
+const CERTIF: Record<string, { label: string; className: string }> = {
+  pending: { label: "⏳ En attente de certification", className: "text-amber-500" },
+  certified: { label: "✅ Certifié MoveSpot", className: "text-emerald-500" },
+  rejected: { label: "⛔ Certification refusée", className: "text-destructive" },
+};
+
+const eur = (cents: number) => (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+
 
 export const Route = createFileRoute("/chauffeur/espace")({
   head: () => ({
