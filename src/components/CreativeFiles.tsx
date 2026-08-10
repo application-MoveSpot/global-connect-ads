@@ -67,11 +67,29 @@ export function CreativeFiles({ paths }: Props) {
             )}
             <div className="flex items-center justify-between gap-2 px-2 py-1">
               <span className="truncate text-[10px] text-muted-foreground">{f.name}</span>
-              <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline shrink-0">Ouvrir</a>
+              <div className="flex items-center gap-2 shrink-0">
+                {(f.isImage || f.isVideo) && (
+                  <button
+                    type="button"
+                    onClick={() => setView360((c) => (c?.path === f.path ? null : f))}
+                    className="text-[10px] text-primary hover:underline"
+                  >
+                    {view360?.path === f.path ? "Fermer 360°" : "Vue 360°"}
+                  </button>
+                )}
+                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline">Ouvrir</a>
+              </div>
             </div>
           </div>
         ))}
       </div>
+      {view360 && (
+        <div className="space-y-1">
+          <div className="text-[10px] text-muted-foreground">Projection de pose 360° — {view360.name}</div>
+          <Viewer360 src={view360.url} kind={view360.isVideo ? "video" : "image"} />
+        </div>
+      )}
     </div>
+
   );
 }
