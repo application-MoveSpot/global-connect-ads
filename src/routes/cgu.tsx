@@ -96,7 +96,53 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Droit applicable et juridiction">
+      <LegalSection title="11. Rôle de la plateforme — simple intermédiaire">
+        <p>
+          MoveSpot est un intermédiaire numérique de mise en relation entre annonceurs, propriétaires de véhicules,
+          chauffeurs et poseurs certifiés. MoveSpot ne possède aucun véhicule, aucun matériel d'affichage et n'exerce
+          aucune activité de transport ni de pose de covering.
+        </p>
+        <p>
+          En conséquence, MoveSpot est totalement exonérée de responsabilité concernant l'état mécanique, l'entretien,
+          l'assurance ou la conformité réglementaire des véhicules, ainsi que concernant les défauts de pose, de
+          décollement, de bullage ou de dégradation du vinyle publicitaire. Ces responsabilités relèvent exclusivement
+          des propriétaires de véhicules et des poseurs certifiés, qui agissent en tant que professionnels
+          indépendants.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="12. Obligations des chauffeurs">
+        <p>Le chauffeur participant à une campagne s'engage à :</p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            activer et maintenir actif le module de géolocalisation en arrière-plan pendant l'ensemble de ses heures de
+            conduite déclarées ; toute période non couverte par des relevés GPS n'est pas comptabilisée et ne donne
+            lieu à aucune rémunération ;
+          </li>
+          <li>ne pas altérer, falsifier ou simuler les données de géolocalisation transmises à la Plateforme ;</li>
+          <li>respecter le code de la route et l'ensemble de la réglementation applicable à son activité ;</li>
+          <li>maintenir le visuel publicitaire propre, visible et intact pendant toute la durée de la campagne ;</li>
+          <li>signaler sans délai tout sinistre, retrait ou dégradation du support publicitaire.</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="13. Flux financiers et reversements">
+        <p>
+          Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les budgets B2B) et
+          conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à l'exécution de la campagne. MoveSpot
+          prélève une commission d'intermédiation de 30 % du montant hors taxes ; 70 % sont destinés au propriétaire du
+          véhicule, au chauffeur et, le cas échéant, au poseur certifié.
+        </p>
+        <p>
+          Les gains sont cumulés sur le compte du bénéficiaire et deviennent exigibles après validation des métriques
+          de campagne (distance parcourue dans la zone de ciblage, minutes actives et taux de couverture). Le
+          reversement est conditionné à la finalisation de l'inscription Stripe Connect du bénéficiaire (identité
+          vérifiée et IBAN valide). En cas d'anomalie de suivi, de fraude présumée ou de non-respect des obligations
+          ci-dessus, MoveSpot peut suspendre le reversement le temps de l'instruction du dossier.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="14. Droit applicable et juridiction">
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.
