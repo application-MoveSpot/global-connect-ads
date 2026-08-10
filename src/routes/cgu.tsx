@@ -142,12 +142,66 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="13. Droit applicable et juridiction">
+      <LegalSection title="13. Calcul du budget et zones de diffusion">
+        <p>
+          L'annonceur définit sa zone de diffusion en dessinant un polygone sur la carte interactive. Le budget
+          indicatif est calculé automatiquement à partir de la surface réelle de la zone (base de 1,80 € par km² et
+          par jour), majorée d'un coefficient de densité de 1,5× (soit 2,70 € par km² et par jour) pour les grandes
+          agglomérations. Un montant plancher de 10 € par campagne s'applique.
+        </p>
+        <p>
+          Ce montant est un devis indicatif calculé par la Plateforme ; il est présenté à l'annonceur pour validation
+          avant tout paiement et ne constitue pas une garantie de volume d'impressions.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="14. Mesure de performance et preuve de diffusion">
+        <p>
+          Les relevés de géolocalisation transmis par les chauffeurs sont agrégés (distance parcourue, minutes
+          actives, part du trajet effectuée à l'intérieur de la zone de ciblage) et restitués à l'annonceur dans son
+          tableau de suivi de campagne. Ces métriques constituent la base contractuelle de la facturation et des
+          reversements.
+        </p>
+        <p>
+          Les positions sont mises en mémoire tampon sur le terminal du chauffeur puis envoyées par lots afin de
+          limiter la consommation de données ; une interruption de réseau n'entraîne donc pas de perte de relevés,
+          mais l'absence prolongée de relevés rend la période concernée non comptabilisable.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="15. Validation de la pose du support publicitaire">
+        <p>
+          Après pose du covering, quatre photographies du véhicule (face avant, côté gauche, côté droit, face
+          arrière) doivent être transmises via la Plateforme. La campagne passe alors au statut « en attente de
+          validation ». MoveSpot peut approuver ou refuser la pose ; en cas de refus motivé, une nouvelle pose
+          conforme est requise avant tout démarrage de la diffusion et de la rémunération.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="16. Sécurité des comptes">
+        <p>
+          La Plateforme met à disposition une authentification à deux facteurs (application d'authentification / TOTP)
+          activable depuis l'espace « Sécurité ». Son activation est fortement recommandée pour tout compte associé à
+          des flux financiers. L'utilisateur demeure responsable de la conservation de ses codes et de son secret
+          d'authentification.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="17. Intégrations et accès automatisés">
+        <p>
+          MoveSpot expose des intégrations pour agents et outils tiers permettant, après autorisation explicite de
+          l'utilisateur, la consultation en lecture de ses propres données (flotte, briefs, campagnes, solde de
+          portefeuille). Aucun accès n'est accordé sans consentement, et l'utilisateur peut le révoquer à tout moment.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="18. Droit applicable et juridiction">
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.
         </p>
       </LegalSection>
+
     </LegalPage>
   );
 }
