@@ -1,14 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/mapbox.functions";
 import type { FleetPoint } from "@/lib/admin.functions";
+import { Button } from "@/components/ui/button";
 
 export default function FleetMap({ points }: { points: FleetPoint[] }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const rafRef = useRef<number | null>(null);
   const [token, setToken] = useState("");
+  const [immersive, setImmersive] = useState(false);
+  const [orbit, setOrbit] = useState(false);
 
   useEffect(() => {
     getMapboxToken()
@@ -19,15 +23,51 @@ export default function FleetMap({ points }: { points: FleetPoint[] }) {
   useEffect(() => {
     if (!token || !container.current || mapRef.current) return;
     mapboxgl.accessToken = token;
-    mapRef.current = new mapboxgl.Map({
+    const map = new mapboxgl.Map({
       container: container.current,
       style: "mapbox://styles/mapbox/dark-v11",
       center: [2.35, 46.6],
       zoom: 4.2,
+      pitch: 0,
+      bearing: 0,
+      antialias: true,
     });
-    mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    mapRef.current = map;
+    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), "top-right");
+
+    map.on("load", () => {
+      // Relief 3D
+      if (!map.getSource("mapbox-dem")) {
+        map.addSource("mapbox-dem", {
+          type: "raster-dem",
+          url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+          tileSize: 512,
+          maxzoom: 14,
+        });
+      }
+      // Bâtiments extrudés
+      if (!map.getLayer("movespot-3d-buildings")) {
+        map.addLayer({
+          id: "movespot-3d-buildings",
+          source: "composite",
+          "source-layer": "building",
+          filter: ["==", ["get", "extrude"], "true"],
+          type: "fill-extrusion",
+          minzoom: 14,
+          paint: {
+            "fill-extrusion-color": "#1f2937",
+            "fill-extrusion-height": ["get", "height"],
+            "fill-extrusion-base": ["get", "min_height"],
+            "fill-extrusion-opacity": 0.75,
+          },
+        });
+      }
+    });
+
     return () => {
-      mapRef.current?.remove();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      map.remove();
       mapRef.current = null;
     };
   }, [token]);
@@ -57,8 +97,54 @@ export default function FleetMap({ points }: { points: FleetPoint[] }) {
       markersRef.current.push(marker);
       bounds.extend([p.lng, p.lat]);
     }
-    map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 600 });
-  }, [points, token]);
+    if (!immersive) map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 600 });
+  }, [points, token, immersive]);
+
+  const stopOrbit = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+  }, []);
+
+  const toggleImmersive = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (immersive) {
+      stopOrbit();
+      setOrbit(false);
+      map.setTerrain(null);
+      map.easeTo({ pitch: 0, bearing: 0, zoom: 4.2, duration: 1500 });
+      setImmersive(false);
+      return;
+    }
+    const target = points[0] ? ([points[0].lng, points[0].lat] as [number, number]) : map.getCenter();
+    if (map.getSource("mapbox-dem")) map.setTerrain({ source: "mapbox-dem", exaggeration: 1.3 });
+    map.easeTo({
+      center: target,
+      pitch: 60, // Incline la carte pour révéler les bâtiments et le relief 3D
+      bearing: 180,
+      zoom: 15.5, // Zoom rapproché pour voir la flotte en ville
+      duration: 2000,
+    });
+    setImmersive(true);
+  }, [immersive, points, stopOrbit]);
+
+  const toggleOrbit = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (orbit) {
+      stopOrbit();
+      setOrbit(false);
+      return;
+    }
+    setOrbit(true);
+    const step = () => {
+      const m = mapRef.current;
+      if (!m) return;
+      m.setBearing((m.getBearing() + 0.12) % 360); // effet 360°
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+  }, [orbit, stopOrbit]);
 
   if (!token) {
     return (
@@ -68,5 +154,23 @@ export default function FleetMap({ points }: { points: FleetPoint[] }) {
     );
   }
 
-  return <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />;
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" size="sm" variant={immersive ? "default" : "outline"} onClick={toggleImmersive}>
+          {immersive ? "Vue plane" : "Vue immersive 3D"}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={orbit ? "default" : "outline"}
+          onClick={toggleOrbit}
+          disabled={!immersive}
+        >
+          {orbit ? "Stopper la rotation" : "Rotation 360°"}
+        </Button>
+      </div>
+      <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />
+    </div>
+  );
 }
