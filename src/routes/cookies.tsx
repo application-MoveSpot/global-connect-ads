@@ -14,7 +14,7 @@ export const Route = createFileRoute("/cookies")({
 
 function Cookies() {
   return (
-    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="30 mai 2026">
+    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="11 août 2026">
       <LegalSection title="1. Qu'est-ce qu'un cookie ?">
         <p>
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) lors de
