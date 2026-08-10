@@ -198,6 +198,28 @@ function ChauffeurInscription() {
               <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} />
               <Input label="Ville / zone d'intervention" value={city} onChange={setCity} />
 
+              {kind !== "installer" && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
+                    <select
+                      value={vehicleKind}
+                      onChange={(e) => setVehicleKind(e.target.value as VehicleKind)}
+                      className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                      {VEHICLE_KINDS.map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {vehicleKind !== "walker" && (
+                    <Input label="Immatriculation" value={vehiclePlate} onChange={setVehiclePlate} />
+                  )}
+                </>
+              )}
+
+
+
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input type="checkbox" checked={hasCompany} onChange={(e) => setHasCompany(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-border" />
                 <span>Je suis auto-entrepreneur / société (avec SIRET)</span>
