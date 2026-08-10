@@ -22,16 +22,14 @@ function MentionsLegales() {
       <LegalSection title="Éditeur du site">
         <p>
           La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>Garry PALERME</strong>,
-          entrepreneur individuel exerçant sous le nom commercial <strong>RAKOUN KLUB</strong>,
-          et exploitant l'enseigne <strong>MOVESPOT</strong>.
+          entrepreneur individuel exerçant sous le nom commercial <strong>RAKOUN KLUB</strong>.
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li><strong>Dénomination</strong> : Garry PALERME (RAKOUN KLUB)</li>
-          <li><strong>Enseigne</strong> : MOVESPOT</li>
           <li><strong>Forme juridique</strong> : Entrepreneur individuel</li>
-          <li><strong>Adresse</strong> : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault</li>
+          <li><strong>Adresse postale de l'entreprise</strong> : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault (Guadeloupe, France)</li>
           <li><strong>SIREN</strong> : 804 671 444</li>
-          <li><strong>SIRET (établissement MoveSpot)</strong> : 804 671 444 00052</li>
+          <li><strong>SIRET</strong> : 804 671 444 00052</li>
           <li><strong>RCS</strong> : 804 671 444 R.C.S. Pointe-à-Pitre</li>
           <li><strong>Code APE</strong> : 47.91B — Vente à distance sur catalogue spécialisé</li>
           <li><strong>TVA</strong> : TVA non applicable, article 293 B du CGI (franchise en base de TVA)</li>
