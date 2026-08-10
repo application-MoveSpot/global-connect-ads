@@ -35,6 +35,7 @@ import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.ess
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
+import { Route as ChauffeurEspaceRouteImport } from './routes/chauffeur.espace'
 import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
 import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
 import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.inscription'
@@ -192,6 +193,11 @@ const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   id: '/api/faq-chat',
   path: '/api/faq-chat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ChauffeurEspaceRoute = ChauffeurEspaceRouteImport.update({
+  id: '/espace',
+  path: '/espace',
+  getParentRoute: () => ChauffeurRoute,
 } as any)
 const ChauffeurInscriptionRoute = ChauffeurInscriptionRouteImport.update({
   id: '/inscription',
@@ -352,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByTo {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
@@ -459,6 +467,7 @@ export interface FileRoutesById {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
@@ -514,6 +523,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
@@ -567,6 +577,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
@@ -881,6 +893,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFaqChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chauffeur/espace': {
+      id: '/chauffeur/espace'
+      path: '/espace'
+      fullPath: '/chauffeur/espace'
+      preLoaderRoute: typeof ChauffeurEspaceRouteImport
+      parentRoute: typeof ChauffeurRoute
+    }
     '/chauffeur/inscription': {
       id: '/chauffeur/inscription'
       path: '/inscription'
@@ -1072,10 +1091,12 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface ChauffeurRouteChildren {
+  ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
   ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
 }
 
 const ChauffeurRouteChildren: ChauffeurRouteChildren = {
+  ChauffeurEspaceRoute: ChauffeurEspaceRoute,
   ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
 }
 
@@ -1148,3 +1169,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

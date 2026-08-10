@@ -34,7 +34,7 @@ export const Route = createFileRoute("/chauffeur/espace")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: ChauffeurEspace;
+  component: ChauffeurEspace,
 });
 
 function ChauffeurEspace() {
