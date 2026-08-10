@@ -67,8 +67,55 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
     }));
     const { error } = await supabase.from("vehicle_positions").insert(rows);
     if (error) throw new Error(error.message);
-    return { ok: true, inserted: rows.length };
+
+    // Agrégation des métriques de couverture (distance en zone, minutes actives)
+    let metrics: {
+      points_total: number;
+      points_in_zone: number;
+      distance_in_zone_m: number;
+      active_minutes: number;
+    } | null = null;
+    if (data.campaignRequestId) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: m } = await supabaseAdmin.rpc("record_campaign_gps_batch", {
+        p_campaign_id: data.campaignRequestId,
+        p_points: data.points as never,
+      });
+      metrics = (Array.isArray(m) ? m[0] : m) ?? null;
+    }
+
+    return { ok: true, inserted: rows.length, metrics };
   });
+
+export const getCampaignMetrics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ campaignRequestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: rows, error } = await supabase
+      .from("campaign_metrics")
+      .select(
+        "day, distance_traveled_m, distance_traveled_in_zone_m, active_minutes, points_total, points_in_zone",
+      )
+      .eq("campaign_request_id", data.campaignRequestId)
+      .order("day", { ascending: true });
+    if (error) throw new Error(error.message);
+    const days = rows ?? [];
+    const totals = days.reduce(
+      (acc, d) => ({
+        distanceM: acc.distanceM + (d.distance_traveled_m ?? 0),
+        distanceInZoneM: acc.distanceInZoneM + (d.distance_traveled_in_zone_m ?? 0),
+        activeMinutes: acc.activeMinutes + (d.active_minutes ?? 0),
+        pointsTotal: acc.pointsTotal + (d.points_total ?? 0),
+        pointsInZone: acc.pointsInZone + (d.points_in_zone ?? 0),
+      }),
+      { distanceM: 0, distanceInZoneM: 0, activeMinutes: 0, pointsTotal: 0, pointsInZone: 0 },
+    );
+    const coverageRate =
+      totals.distanceM > 0 ? totals.distanceInZoneM / totals.distanceM : null;
+    return { days, totals, coverageRate };
+  });
+
 
 export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { getCampaignPositions } from "@/lib/tracking.functions";
+import { getCampaignPositions, getCampaignMetrics } from "@/lib/tracking.functions";
 import { getMapboxToken } from "@/lib/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import mapboxgl from "mapbox-gl";
@@ -25,6 +25,7 @@ function SuiviPage() {
   const { campaignId } = Route.useParams();
   const fetchPositions = useServerFn(getCampaignPositions);
   const fetchToken = useServerFn(getMapboxToken);
+  const fetchMetrics = useServerFn(getCampaignMetrics);
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -37,6 +38,11 @@ function SuiviPage() {
     queryKey: ["campaign-positions", campaignId],
     queryFn: () => fetchPositions({ data: { campaignRequestId: campaignId } }),
     refetchInterval: 30_000,
+  });
+  const { data: metrics } = useQuery({
+    queryKey: ["campaign-metrics", campaignId],
+    queryFn: () => fetchMetrics({ data: { campaignRequestId: campaignId } }),
+    refetchInterval: 60_000,
   });
   const { data: campaign } = useQuery({
     queryKey: ["campaign-meta", campaignId],
@@ -157,6 +163,39 @@ function SuiviPage() {
         {campaign?.payment_status === "paid" && (
           <Card>
             <CardContent className="py-4 text-sm text-emerald-700">✅ Campagne payée. Votre diffusion est confirmée.</CardContent>
+          </Card>
+        )}
+        {metrics && metrics.totals.pointsTotal > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" /> Couverture de la zone ciblée
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                <Stat
+                  label="Taux de couverture"
+                  value={metrics.coverageRate != null ? `${Math.round(metrics.coverageRate * 100)} %` : "—"}
+                />
+                <Stat
+                  label="Distance en zone"
+                  value={`${(metrics.totals.distanceInZoneM / 1000).toFixed(1)} km`}
+                />
+                <Stat
+                  label="Distance totale"
+                  value={`${(metrics.totals.distanceM / 1000).toFixed(1)} km`}
+                />
+                <Stat
+                  label="Minutes actives"
+                  value={`${metrics.totals.activeMinutes} min`}
+                />
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                {metrics.totals.pointsInZone} point(s) GPS sur {metrics.totals.pointsTotal} relevés à
+                l'intérieur de votre zone de ciblage, cumulés sur {metrics.days.length} jour(s) de diffusion.
+              </p>
+            </CardContent>
           </Card>
         )}
         <Card>
