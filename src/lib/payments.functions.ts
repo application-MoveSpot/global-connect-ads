@@ -7,6 +7,7 @@ const TopupInput = z.object({
   amountEuros: z.number().min(10).max(50000),
   returnUrl: z.string().url(),
   environment: z.enum(["sandbox", "live"]).optional(),
+  campaignBriefId: z.string().uuid().nullable().optional(),
 });
 
 type CheckoutSessionResult =
@@ -78,6 +79,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
           user_id: userId,
           userId,
           amount_cents: String(amountCents),
+          ...(data.campaignBriefId ? { campaign_brief_id: data.campaignBriefId } : {}),
         },
         payment_intent_data: {
           description: "Recharge portefeuille MoveSpot",
@@ -86,6 +88,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
             user_id: userId,
             userId,
             amount_cents: String(amountCents),
+            ...(data.campaignBriefId ? { campaign_brief_id: data.campaignBriefId } : {}),
           },
         },
       } as Record<string, unknown>;

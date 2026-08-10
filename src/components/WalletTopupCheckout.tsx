@@ -19,9 +19,10 @@ type Props = {
   buttonLabel?: string;
   disabled?: boolean;
   className?: string;
+  campaignBriefId?: string | null;
 };
 
-export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disabled, className }: Props) {
+export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disabled, className, campaignBriefId }: Props) {
   const createTopup = useServerFn(createWalletTopupCheckout);
   const [open, setOpen] = useState(false);
   const [checkoutKey, setCheckoutKey] = useState(0);
@@ -33,6 +34,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
         data: {
           amountEuros,
           returnUrl: returnUrl ?? window.location.href,
+          campaignBriefId: campaignBriefId ?? null,
         },
       });
 
@@ -44,7 +46,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
       setError(message);
       throw e;
     }
-  }, [amountEuros, createTopup, returnUrl]);
+  }, [amountEuros, campaignBriefId, createTopup, returnUrl]);
 
   const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
 
