@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { findForbiddenKeyword } from "@/lib/forbidden-keywords";
 import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/ZonePolygonDraw";
 import { estimateZoneBudget } from "@/lib/zone-budget";
+import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
@@ -46,6 +47,7 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -119,6 +121,16 @@ function NewBriefPage() {
 
     setLoading(false);
     if (insErr) { setError(insErr.message); return; }
+
+    // Budget calculé depuis la zone dessinée → tunnel de paiement Stripe
+    const computed = zonePolygon
+      ? estimateZoneBudget(zonePolygon.areaKm2, days, 1, zonePolygon.coordinates as [number, number][]).total
+      : 0;
+    if (computed > 0) {
+      setCreated({ id: data!.id, amount: Math.max(10, Math.round(computed)) });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     navigate({ to: "/annonceur/briefs/$briefId", params: { briefId: data!.id } });
   };
 
@@ -131,6 +143,31 @@ function NewBriefPage() {
         </div>
       </header>
       <main className="max-w-3xl mx-auto px-4 py-8">
+        {created && (
+          <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/5 p-6">
+            <h2 className="font-display text-2xl font-bold">Récapitulatif du devis</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Brief enregistré. Montant calculé d'après la zone dessinée et la durée de campagne :{" "}
+              <strong className="text-foreground">{created.amount.toLocaleString("fr-FR")} €</strong>{" "}
+              (facturé en USD pendant la phase de test crypto).
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <WalletTopupCheckout
+                amountEuros={created.amount}
+                campaignBriefId={created.id}
+                buttonLabel="Valider et Payer la Campagne"
+              />
+              <Link
+                to="/annonceur/briefs/$briefId"
+                params={{ briefId: created.id }}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Payer plus tard → voir le brief
+              </Link>
+            </div>
+          </div>
+        )}
+
         <h1 className="font-display text-3xl font-bold mb-2">Publier un brief</h1>
         <p className="text-sm text-muted-foreground mb-8">Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.</p>
 
