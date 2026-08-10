@@ -65,7 +65,9 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         customer: customerId,
         line_items: [{
           price_data: {
-            currency: "eur",
+            // TEMPORAIRE : devise USD pour tester l'affichage du paiement Crypto (USDC).
+            // Repasser en "eur" après le test.
+            currency: "usd",
             product_data: { name: "Recharge portefeuille MoveSpot" },
             unit_amount: amountCents,
           },
