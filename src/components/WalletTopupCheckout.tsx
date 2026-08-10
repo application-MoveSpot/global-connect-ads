@@ -33,7 +33,6 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
         data: {
           amountEuros,
           returnUrl: returnUrl ?? window.location.href,
-          environment: getStripeEnvironment(),
         },
       });
 
@@ -49,10 +48,11 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
 
   const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
 
-  const showCheckout = () => {
+  const showCheckout = async () => {
     setError(null);
-    if (!getPaymentClientToken()) {
-      setError("Le paiement live n'est pas configuré. Terminez le passage en live dans Payments.");
+    const config = await getPaymentsConfig();
+    if (!config.publishableKey) {
+      setError("Le paiement par carte n'est pas encore configuré. Ajoutez vos clés Stripe pour l'activer.");
       setOpen(true);
       return;
     }
