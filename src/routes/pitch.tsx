@@ -157,13 +157,15 @@ const slides: Slide[] = [
   },
 
   {
-    kicker: "07 · Pourquoi MoveSpot",
+    kicker: "08 · Pourquoi MoveSpot",
     title: <>Une approche claire dès le départ.</>,
     body: (
       <ul className="space-y-3 text-muted-foreground max-w-3xl">
         {[
           "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
-          "Un outil simple et accessible : un commerçant peut réserver un véhicule, pour une journée, sans budget minimum ni jargon publicitaire.",
+          "Des preuves plutôt que des promesses : chaque euro facturé s'appuie sur des kilomètres réellement parcourus dans la zone.",
+          "Un outil simple et accessible : un commerçant peut lancer une campagne dès 10 €, sans jargon publicitaire.",
+          "Un écosystème de prestataires spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
           "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (
           <li key={l} className="flex items-start gap-3">
@@ -176,7 +178,8 @@ const slides: Slide[] = [
   },
 
   {
-    kicker: "08 · Appel",
+    kicker: "09 · Appel",
+
     title: <>Rejoignez le mouvement.</>,
     body: (
       <div className="space-y-6 max-w-3xl">
