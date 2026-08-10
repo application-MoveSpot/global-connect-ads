@@ -282,6 +282,10 @@ export type Database = {
           end_date: string | null
           estimated_impressions_per_day: number | null
           id: string
+          installation_notes: string | null
+          installation_photos: Json | null
+          installation_reviewed_at: string | null
+          installation_status: string
           message: string
           owner_amount_cents: number | null
           owner_response: string
@@ -323,6 +327,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_notes?: string | null
+          installation_photos?: Json | null
+          installation_reviewed_at?: string | null
+          installation_status?: string
           message: string
           owner_amount_cents?: number | null
           owner_response?: string
@@ -364,6 +372,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_notes?: string | null
+          installation_photos?: Json | null
+          installation_reviewed_at?: string | null
+          installation_status?: string
           message?: string
           owner_amount_cents?: number | null
           owner_response?: string
