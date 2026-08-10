@@ -54,7 +54,9 @@ export const Route = createFileRoute("/chauffeur/espace")({
 
 function ChauffeurEspace() {
   const navigate = useNavigate();
+  const fetchEarnings = useServerFn(getPayeeEarnings);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [earnings, setEarnings] = useState<{ totalCents: number; paidCents: number; pendingCents: number } | null>(null);
   const [state, setState] = useState<"loading" | "ready">("loading");
 
   useEffect(() => {
@@ -63,12 +65,15 @@ function ChauffeurEspace() {
       if (!sess.session) { navigate({ to: "/chauffeur/inscription" }); return; }
       const { data } = await supabase
         .from("payee_profiles")
-        .select("id, kind, full_name, phone, city, status")
+        .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes")
         .eq("user_id", sess.session.user.id)
         .maybeSingle();
       if (!data) { navigate({ to: "/chauffeur/inscription" }); return; }
       setProfile(data as Profile);
       setState("ready");
+      fetchEarnings()
+        .then((e) => setEarnings({ totalCents: e.totalCents, paidCents: e.paidCents, pendingCents: e.pendingCents }))
+        .catch(() => setEarnings({ totalCents: 0, paidCents: 0, pendingCents: 0 }));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -76,6 +81,8 @@ function ChauffeurEspace() {
   if (state === "loading") {
     return <div className="min-h-screen bg-background p-8 text-muted-foreground">Chargement…</div>;
   }
+
+  const certif = CERTIF[profile?.certification_status ?? "pending"] ?? CERTIF["pending"]!;
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -95,7 +102,34 @@ function ChauffeurEspace() {
           </p>
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Certification</p>
+            <p className={`mt-2 text-sm font-semibold ${certif.className}`}>{certif.label}</p>
+            {profile?.certification_notes && (
+              <p className="mt-1 text-xs text-muted-foreground">{profile.certification_notes}</p>
+            )}
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Véhicule</p>
+            <p className="mt-2 text-sm font-semibold">
+              {profile?.vehicle_kind ? VEHICLE_KIND_LABEL[profile.vehicle_kind] : "Non renseigné"}
+            </p>
+            {profile?.vehicle_plate && (
+              <p className="mt-1 text-xs text-muted-foreground">Immat. {profile.vehicle_plate}</p>
+            )}
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Gains cumulés</p>
+            <p className="mt-2 text-2xl font-bold">{eur(earnings?.totalCents ?? 0)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {eur(earnings?.paidCents ?? 0)} versés · {eur(earnings?.pendingCents ?? 0)} en attente
+            </p>
+          </div>
+        </div>
+
         <PayeeConnectCard />
+
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
           <h3 className="font-display text-lg font-semibold">Comment vous êtes payé</h3>
