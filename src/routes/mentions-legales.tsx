@@ -5,16 +5,20 @@ export const Route = createFileRoute("/mentions-legales")({
   head: () => ({
     meta: [
       { title: "Mentions légales — MoveSpot" },
-      { name: "description", content: "Mentions légales de la plateforme MoveSpot : éditeur, hébergement, propriété intellectuelle et coordonnées." },
+      { name: "description", content: "Mentions légales MoveSpot : éditeur, SIRET, hébergement, services tiers (paiement, cartographie) et propriété intellectuelle." },
+      { property: "og:title", content: "Mentions légales — MoveSpot" },
+      { property: "og:description", content: "Éditeur, coordonnées, hébergeur et services tiers de la plateforme MoveSpot." },
       { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/mentions-legales" }],
   }),
   component: MentionsLegales,
 });
 
 function MentionsLegales() {
   return (
-    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="30 mai 2026">
+    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="11 août 2026">
+
       <LegalSection title="Éditeur du site">
         <p>
           La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>Garry PALERME</strong>,
