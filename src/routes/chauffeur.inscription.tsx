@@ -125,6 +125,8 @@ function ChauffeurInscription() {
       full_name: fullName,
       phone: phone || null,
       city: city || null,
+      vehicle_kind: kind === "installer" ? null : vehicleKind,
+      vehicle_plate: kind === "installer" ? null : vehiclePlate || null,
     };
     if (hasCompany) {
       payload.siret = siret.siret;
