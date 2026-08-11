@@ -18,6 +18,7 @@ type TransferRow = {
   receipt_path: string | null;
   admin_notes: string | null;
   created_at: string;
+  campaign_request_id: string | null;
 };
 
 const statusLabel: Record<string, string> = {
@@ -31,7 +32,20 @@ function fmt(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
 
-export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
+export function BankTransferPanel({
+  onCredited,
+  campaignRequestId,
+  title = "Recharger par virement bancaire",
+  subtitle,
+  fixedAmountEuros,
+}: {
+  onCredited?: () => void;
+  /** Si fourni, le virement validé règle directement cette campagne. */
+  campaignRequestId?: string;
+  title?: string;
+  subtitle?: string;
+  fixedAmountEuros?: number;
+}) {
   const fetchDetails = useServerFn(getBankDetails);
   const createRequest = useServerFn(createBankTransferRequest);
   const attachReceipt = useServerFn(attachBankTransferReceipt);
@@ -39,13 +53,13 @@ export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
 
   const [details, setDetails] = useState<BankDetails | null>(null);
   const [rows, setRows] = useState<TransferRow[]>([]);
-  const [amount, setAmount] = useState(500);
+  const [amount, setAmount] = useState(fixedAmountEuros ?? 500);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reload = async () => {
     const list = (await fetchList()) as TransferRow[];
-    setRows(list);
+    setRows(campaignRequestId ? list.filter((r) => r.campaign_request_id === campaignRequestId) : list);
   };
 
   useEffect(() => {
@@ -58,7 +72,7 @@ export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
     setBusy(true);
     setError(null);
     try {
-      await createRequest({ data: { amountEuros: amount } });
+      await createRequest({ data: { amountEuros: amount, campaignRequestId } });
       await reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
@@ -98,27 +112,30 @@ export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-display text-xl font-semibold">Recharger par virement bancaire</h2>
+        <h2 className="font-display text-xl font-semibold">{title}</h2>
         <p className="text-sm text-muted-foreground">
-          Recommandé pour les gros budgets. Le solde est crédité après vérification du virement par notre équipe
-          (généralement sous 1 à 2 jours ouvrés).
+          {subtitle ??
+            "Recommandé pour les gros budgets. Le solde est crédité après vérification du virement par notre équipe (généralement sous 1 à 2 jours ouvrés)."}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {[500, 1000, 2500, 5000].map((v) => (
-          <button
-            key={v}
-            onClick={() => setAmount(v)}
-            className={`rounded-lg border px-3 py-1.5 text-sm ${amount === v ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"}`}
-          >
-            {v} €
-          </button>
-        ))}
+        {fixedAmountEuros == null
+          ? [500, 1000, 2500, 5000].map((v) => (
+              <button
+                key={v}
+                onClick={() => setAmount(v)}
+                className={`rounded-lg border px-3 py-1.5 text-sm ${amount === v ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"}`}
+              >
+                {v} €
+              </button>
+            ))
+          : null}
         <input
           type="number"
           min={10}
           value={amount}
+          readOnly={fixedAmountEuros != null}
           onChange={(e) => setAmount(Math.max(10, Number(e.target.value) || 0))}
           className="w-28 rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
         />
@@ -126,6 +143,7 @@ export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
           Obtenir mes instructions de virement
         </Button>
       </div>
+
 
       {details?.iban ? (
         <div className="rounded-xl border border-border bg-secondary/30 p-4 text-sm space-y-2">

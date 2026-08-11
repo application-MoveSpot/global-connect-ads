@@ -17,7 +17,10 @@ export const getBankDetails = createServerFn({ method: "GET" })
     bic: process.env["CA_BIC"] ?? "",
   }));
 
-const CreateInput = z.object({ amountEuros: z.number().min(10).max(200000) });
+const CreateInput = z.object({
+  amountEuros: z.number().min(10).max(200000),
+  campaignRequestId: z.string().uuid().optional(),
+});
 
 export const createBankTransferRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -32,6 +35,7 @@ export const createBankTransferRequest = createServerFn({ method: "POST" })
         user_id: userId,
         amount_cents: Math.round(data.amountEuros * 100),
         reference,
+        campaign_request_id: data.campaignRequestId ?? null,
       } as never)
       .select("id, reference, amount_cents, status, created_at")
       .single();
@@ -68,7 +72,9 @@ export const listMyBankTransfers = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data } = await supabase
       .from("bank_transfer_requests")
-      .select("id, reference, amount_cents, status, receipt_path, admin_notes, created_at")
+      .select(
+        "id, reference, amount_cents, status, receipt_path, admin_notes, created_at, campaign_request_id",
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -86,7 +92,9 @@ export const listBankTransfersForAdmin = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("bank_transfer_requests")
-      .select("id, user_id, reference, amount_cents, status, receipt_path, admin_notes, created_at")
+      .select(
+        "id, user_id, reference, amount_cents, status, receipt_path, admin_notes, created_at, campaign_request_id",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
 
@@ -120,11 +128,14 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("bank_transfer_requests")
-      .select("id, user_id, amount_cents, status, reference")
+      .select("id, user_id, amount_cents, status, reference, campaign_request_id")
       .eq("id", data.requestId)
       .single();
     if (error || !row) throw new Error("Demande introuvable");
     if (row.status === "approved") return { ok: true, alreadyDone: true };
+
+    let campaignSettled = false;
+    let campaignError: string | null = null;
 
     if (data.approve) {
       const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
@@ -132,18 +143,38 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
         p_kind: "topup",
         p_amount_cents: row.amount_cents,
         p_description: `Virement bancaire validé — réf. ${row.reference}`,
+        p_campaign_request_id: row.campaign_request_id ?? undefined,
       });
       if (rpcError) throw new Error(rpcError.message);
+
+      // Virement rattaché à une campagne → on règle immédiatement la campagne
+      // (débit du portefeuille, passage en "payée", répartition 70/30 propriétaire).
+      if (row.campaign_request_id) {
+        try {
+          const { settleCampaignFromWallet } = await import("@/lib/campaign-settlement.server");
+          const result = await settleCampaignFromWallet({
+            campaignRequestId: row.campaign_request_id,
+            description: `Paiement campagne par virement bancaire — réf. ${row.reference}`,
+          });
+          campaignSettled = !result.alreadyPaid;
+        } catch (e) {
+          campaignError = e instanceof Error ? e.message : "Règlement de la campagne échoué";
+        }
+      }
     }
 
     await supabaseAdmin
       .from("bank_transfer_requests")
       .update({
         status: data.approve ? "approved" : "rejected",
-        admin_notes: data.notes ?? null,
+        admin_notes: campaignError
+          ? `${data.notes ? `${data.notes} — ` : ""}⚠️ Solde crédité mais campagne non réglée : ${campaignError}`
+          : data.notes ?? null,
         reviewed_at: new Date().toISOString(),
       } as never)
       .eq("id", row.id);
 
-    return { ok: true };
+    if (campaignError) throw new Error(`Solde crédité, mais la campagne n'a pas pu être réglée : ${campaignError}`);
+
+    return { ok: true, campaignSettled };
   });

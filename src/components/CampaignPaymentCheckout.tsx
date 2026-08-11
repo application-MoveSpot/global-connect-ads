@@ -3,6 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/wallet.functions";
 import { Button } from "@/components/ui/button";
 import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
+import { BankTransferPanel } from "@/components/BankTransferPanel";
+
 
 type Props = {
   campaignRequestId: string;
@@ -56,6 +58,20 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
           />
         </div>
       )}
+
+      <details className="rounded-lg border border-border p-3">
+        <summary className="cursor-pointer text-sm font-medium">Payer cette campagne par virement bancaire</summary>
+        <div className="pt-4">
+          <BankTransferPanel
+            campaignRequestId={campaignRequestId}
+            fixedAmountEuros={Math.max(10, Math.ceil(totalPriceEur))}
+            title="Virement bancaire pour cette campagne"
+            subtitle="Effectuez le virement avec la référence indiquée, puis téléversez votre reçu. Dès validation par notre équipe, la campagne est automatiquement marquée comme payée — aucun autre paiement n'est nécessaire."
+            onCredited={onPaid}
+          />
+        </div>
+      </details>
+
       {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );

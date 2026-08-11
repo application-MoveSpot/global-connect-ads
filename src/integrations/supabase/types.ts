@@ -126,6 +126,7 @@ export type Database = {
         Row: {
           admin_notes: string | null
           amount_cents: number
+          campaign_request_id: string | null
           created_at: string
           currency: string
           id: string
@@ -139,6 +140,7 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           amount_cents: number
+          campaign_request_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -152,6 +154,7 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           amount_cents?: number
+          campaign_request_id?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -162,7 +165,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bank_transfer_requests_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       brief_proposals: {
         Row: {
@@ -1322,6 +1333,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
