@@ -152,9 +152,11 @@ function NewVehiclePage() {
     }
     if (estimate && estimate.suggested_price_max > 0 && Number(price) > estimate.suggested_price_max * 0.7) {
       const maxAcceptable = Math.floor(estimate.suggested_price_max * 0.7);
-      setError(`⛔ Prix refusé : MoveSpot doit conserver au moins 30 % de marge sur le prix de marché estimé. Prix max acceptable : ${maxAcceptable} €/jour (estimation IA : ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j). Référez-vous à l'estimation IA ci-dessus.`);
+      const minAcceptable = Math.floor(estimate.suggested_price_min * 0.7);
+      setError(`⛔ Prix trop élevé : la fourchette IA ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j est le prix payé par l'annonceur. Votre rémunération de propriétaire correspond à 70 % de ce montant, soit ${minAcceptable}–${maxAcceptable} €/jour. Saisissez au maximum ${maxAcceptable} €/jour (bouton « Utiliser ${maxAcceptable} €/j » dans l'encart Estimation IA).`);
       return;
     }
+
     setLoading(true);
     try {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
@@ -280,8 +282,22 @@ function NewVehiclePage() {
             <Field label="Zones desservies" value={zones} onChange={setZones} placeholder="Paris 11e, Bastille, République (séparés par virgules)" />
             <div>
               <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
-              <p className="text-xs text-muted-foreground mt-1.5">À renseigner manuellement. MoveSpot doit conserver au moins 30 % de marge : votre prix ne peut pas dépasser 70 % du prix max estimé par l'IA.</p>
+
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Indiquez <strong className="text-foreground">votre rémunération nette de propriétaire</strong>, pas le prix
+                payé par l'annonceur. L'estimation IA affiche le prix de marché annonceur ; votre prix correspond à 70 % de
+                celui-ci (MoveSpot conserve 30 % de commission).
+                {estimate && estimate.suggested_price_max > 0 && (
+                  <>
+                    {" "}Fourchette conseillée pour vous :{" "}
+                    <strong className="text-foreground">
+                      {Math.floor(estimate.suggested_price_min * 0.7)}–{Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                    </strong>.
+                  </>
+                )}
+              </p>
             </div>
+
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
@@ -306,7 +322,7 @@ function NewVehiclePage() {
                 <div className="space-y-2 text-sm mt-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">Prix conseillé</div>
+                      <div className="text-[11px] text-muted-foreground uppercase">Prix marché annonceur</div>
                       <div className="font-semibold">{estimate.suggested_price_min}–{estimate.suggested_price_max} €/j</div>
                     </div>
                     <div className="rounded-lg bg-card p-2.5">
@@ -314,6 +330,7 @@ function NewVehiclePage() {
                       <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString("fr-FR")} /j</div>
                     </div>
                   </div>
+
                   <div className={`rounded-lg p-2.5 text-xs ${
                     estimate.photo_match === "ok" ? "bg-signal/10 text-signal" :
                     estimate.photo_match === "doubtful" ? "bg-yellow-500/10 text-yellow-600" :
@@ -338,13 +355,27 @@ function NewVehiclePage() {
                     </div>
                   )}
                   {estimate.suggested_price_max > 0 && (
-                    <div className="rounded-lg bg-card p-2.5 text-xs">
-                      <strong>Plafond MoveSpot (marge 30 %) :</strong> {Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                    <div className="rounded-lg border border-primary/30 bg-primary/5 p-2.5 text-xs">
+                      <div>
+                        <strong>Votre rémunération propriétaire (70 %) :</strong>{" "}
+                        {Math.floor(estimate.suggested_price_min * 0.7)}–{Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                      </div>
+                      <div className="mt-1 text-muted-foreground">
+                        MoveSpot conserve 30 % de commission d'intermédiation. Saisissez un prix dans cette fourchette.
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setPrice(String(Math.floor(estimate.suggested_price_max * 0.7))); setError(""); }}
+                        className="mt-2 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 font-medium hover:bg-primary/90 transition"
+                      >
+                        Utiliser {Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                      </button>
                     </div>
                   )}
                   {estimate.recommendation && (
                     <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
                   )}
+
                 </div>
               )}
             </div>
