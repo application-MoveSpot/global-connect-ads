@@ -84,12 +84,8 @@ export function BookingForm({ spot, onClose }: Props) {
     ? Math.round(spot.kmPerDay * 1000 * formatMultiplier * mobilityMultiplier * hoursMultiplier)
     : null;
 
-  useEffect(() => {
-    if (suggestedImpressions) {
-      setImpressions(String(suggestedImpressions));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suggestedImpressions]);
+
+
 
 
   useEffect(() => {
