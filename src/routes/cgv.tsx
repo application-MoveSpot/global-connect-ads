@@ -51,14 +51,31 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Prix">
+      <LegalSection title="4. Tarifs et taxes">
         <p>
           Le budget est calculé automatiquement à partir de la surface réelle de la zone dessinée : 1,80 € par km² et
           par jour, porté à 2,70 € par km² et par jour (coefficient de densité 1,5×) dans les grandes agglomérations.
-          Un montant plancher de 10 € s'applique par campagne. Les prix sont exprimés hors taxes ; la TVA applicable
-          au jour de la commande est ajoutée lors de la facturation.
+          Un montant plancher de 10 € s'applique par campagne.
         </p>
+        <p>
+          Les prix de nos services sont indiqués en euros hors taxes (HT). La TVA applicable est celle en vigueur au
+          jour de la commande et dépend de la localisation géographique de l'Annonceur, conformément aux règles de
+          territorialité de la TVA (Départements d'Outre-Mer).
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            Pour les Annonceurs situés en <strong>Guadeloupe, Martinique et Réunion</strong>, le taux de TVA local de
+            8,5 % est appliqué lors de la facturation.
+          </li>
+          <li>
+            Pour les Annonceurs situés en <strong>France métropolitaine ou hors de l'Union européenne</strong>, les
+            prestations sont exonérées de TVA en application de l'article 259 B du Code général des impôts (CGI). La
+            facture porte la mention « TVA non applicable — art. 259 B du CGI » et l'Annonceur procède à
+            l'autoliquidation de la taxe si applicable.
+          </li>
+        </ul>
       </LegalSection>
+
 
       <LegalSection title="5. Modalités de paiement">
         <p>Trois modes de règlement sont proposés :</p>
