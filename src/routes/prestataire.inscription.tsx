@@ -189,6 +189,14 @@ function ProviderSignupPage() {
           </form>
         ) : (
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
+            {sessionEmail && (
+              <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
+                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                  se déconnecter pour créer un autre compte
+                </button>
+              </div>
+            )}
             <Input label="Société (raison sociale ou nom commercial)" value={company} onChange={setCompany} required placeholder="Raison sociale, ou nom commercial pour une entreprise individuelle" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom et prénom du responsable / contact principal" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" hint="Ce nom sera affiché comme interlocuteur commercial sur votre fiche publique." />
