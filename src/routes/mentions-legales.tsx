@@ -109,12 +109,14 @@ function MentionsLegales() {
 
       <LegalSection title="Services tiers utilisés par le Site">
         <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Paiements</strong> : Stripe Payments Europe, Ltd. — paiements par carte, abonnements, comptes de paiement partenaires (Stripe Connect) et reversements.</li>
+          <li><strong>Paiements</strong> : Stripe Payments Europe, Ltd. — paiements par carte, abonnements mensuels par véhicule, paiement en cryptomonnaie (USDC) lorsqu'il est disponible, comptes de paiement partenaires (Stripe Connect) et reversements.</li>
           <li><strong>Virements bancaires</strong> : établissement bancaire de MoveSpot, pour les règlements B2B entrants et les virements SEPA sortants.</li>
           <li><strong>Cartographie</strong> : Mapbox — affichage des cartes, dessin des zones de diffusion et vues 3D.</li>
           <li><strong>Vérification d'entreprise</strong> : API publiques françaises « Annuaire des Entreprises » / INSEE Sirene.</li>
+          <li><strong>Emails transactionnels</strong> : envoi des notifications de compte et de campagne depuis le domaine <strong>notify.move-spot.com</strong>, avec gestion des désinscriptions.</li>
           <li><strong>Infrastructure applicative</strong> : base de données, authentification (dont double authentification TOTP) et stockage de fichiers hébergés dans l'Union européenne.</li>
         </ul>
+
       </LegalSection>
 
       <LegalSection title="Médiation de la consommation">

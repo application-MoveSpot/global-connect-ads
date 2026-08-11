@@ -108,8 +108,10 @@ const slides: Slide[] = [
         {[
           { t: "Zones & géo", d: "Dessin de polygones Mapbox, validation des positions en base par PostGIS, budget pondéré par densité." },
           { t: "Suivi temps réel", d: "Relevés GPS mis en tampon puis envoyés par lots, agrégés en distance, minutes actives et couverture." },
-          { t: "Paiements", d: "Carte et abonnements (essai 14 jours), portefeuille prépayé, virement bancaire B2B, reversements partenaires automatisés." },
+          { t: "Paiements", d: "Carte, abonnements par véhicule (Starter 29 € / Standard 42 € / Pro 59 €, essai 14 jours), portefeuille prépayé, USDC, virement B2B, reversements automatisés." },
+          { t: "Automatisation", d: "Emails transactionnels déclenchés par la base : campagne activée, virement validé, avec désinscription conforme." },
           { t: "Confiance", d: "SIRET vérifié, QR véhicules signés, contrôle de pose en 4 photos, double authentification, modération humaine." },
+
         ].map((c) => (
           <div key={c.t} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">{c.t}</div>
@@ -137,9 +139,11 @@ const slides: Slide[] = [
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
           Le prix suit la surface réellement couverte : 1,80 € par km² et par jour, 2,70 € dans les
-          grandes agglomérations. MoveSpot prélève 30 % de commission d'intermédiation, 70 % vont au
-          propriétaire, au chauffeur et au poseur.
+          grandes agglomérations. Pour les campagnes récurrentes, trois formules d'abonnement mensuel par véhicule —
+          Starter 29 €, Standard 42 €, Pro 59 € — pour un panier moyen de 42,50 €. MoveSpot prélève 30 % de commission
+          d'intermédiation, 70 % vont au propriétaire, au chauffeur et au poseur.
         </p>
+
         <div className="grid md:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">Annonceur</div>

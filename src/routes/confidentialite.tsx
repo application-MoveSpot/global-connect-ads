@@ -122,7 +122,30 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Accès par des agents et outils tiers">
+      <LegalSection title="9. Notifications par email">
+        <p>
+          Deux catégories d'emails sont émises depuis le domaine <strong>notify.move-spot.com</strong> :
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Emails de service</strong> (base légale : exécution du contrat) — activation de campagne,
+            confirmation de virement reçu, décisions de modération, alertes de sécurité. Ils ne comportent aucun
+            contenu publicitaire et ne sont pas soumis au consentement.
+          </li>
+          <li>
+            <strong>Emails d'information commerciale</strong> (base légale : consentement) — envoyés uniquement après
+            accord, avec un lien de désinscription dans chaque message et une page{" "}
+            <a href="/unsubscribe" className="text-primary hover:underline">de désinscription</a> accessible à tout
+            moment. Une adresse désinscrite est inscrite dans une liste de suppression qui bloque tout envoi ultérieur.
+          </li>
+        </ul>
+        <p>
+          Nos emails n'intègrent pas de pixel de traçage publicitaire. Les journaux d'expédition (statut de remise,
+          erreurs) sont conservés 12 mois maximum à des fins de délivrabilité.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="10. Accès par des agents et outils tiers">
         <p>
           La Plateforme propose des intégrations permettant à des applications ou agents tiers de consulter, en
           lecture seule, vos propres données (flotte, briefs, campagnes, solde). Cet accès n'est possible qu'après
@@ -130,7 +153,8 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Transferts hors UE">
+
+      <LegalSection title="11. Transferts hors UE">
         <p>
           Certains de nos prestataires peuvent traiter des données en dehors de l'Union européenne. Dans ce cas, nous
           nous assurons que des garanties appropriées sont mises en place (clauses contractuelles types de la
@@ -138,7 +162,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Vos droits">
+      <LegalSection title="12. Vos droits">
         <p>Conformément au RGPD, vous disposez des droits suivants :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>Droit d'accès, de rectification et d'effacement de vos données ;</li>
@@ -155,7 +179,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Sécurité">
+      <LegalSection title="13. Sécurité">
         <p>
           MoveSpot met en œuvre des mesures techniques et organisationnelles appropriées : chiffrement des échanges
           (HTTPS/TLS), cloisonnement des accès par règles de sécurité au niveau de la base de données, séparation des
@@ -165,7 +189,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="13. Modifications">
+      <LegalSection title="14. Modifications">
         <p>
           La présente politique peut être mise à jour à tout moment. Toute modification substantielle vous sera
           notifiée par email ou via la Plateforme.
