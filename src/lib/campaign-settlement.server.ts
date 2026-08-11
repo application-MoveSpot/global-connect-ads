@@ -1,6 +1,11 @@
 /**
  * Règlement d'une campagne depuis le portefeuille (source unique de vérité).
  * Débite le solde annonceur, marque la campagne payée et calcule la répartition 70/30.
+ *
+ * Le débit du portefeuille et le passage en "payée" sont effectués dans une
+ * unique transaction Postgres (RPC `settle_campaign_from_wallet`) : si l'un des
+ * deux échoue, l'autre est annulé — impossible de débiter sans marquer payé
+ * (ce qui provoquerait un double débit si l'annonceur retentait le paiement).
  */
 export async function settleCampaignFromWallet(params: {
   campaignRequestId: string;
@@ -11,41 +16,21 @@ export async function settleCampaignFromWallet(params: {
 
   const { data: campaign, error } = await supabaseAdmin
     .from("campaign_requests")
-    .select("id, user_id, total_price, status, payment_status, spot_name, company, email, start_date, end_date")
+    .select("id, spot_name, company, email, start_date, end_date")
     .eq("id", params.campaignRequestId)
     .maybeSingle();
   if (error || !campaign) throw new Error("Campagne introuvable");
-  if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
-  if (!campaign.user_id) throw new Error("Campagne sans annonceur identifié");
-  if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
 
-
-  const amountCents = Math.round(Number(campaign.total_price) * 100);
-
-  const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
-    p_user_id: campaign.user_id,
-    p_kind: "campaign_debit",
-    p_amount_cents: -amountCents,
-    p_description: params.description ?? `Paiement campagne — ${campaign.spot_name}`,
-    p_campaign_request_id: campaign.id,
-  });
+  const { data: settlement, error: rpcError } = await supabaseAdmin
+    .rpc("settle_campaign_from_wallet", {
+      p_campaign_request_id: params.campaignRequestId,
+      p_description: params.description,
+    })
+    .single();
   if (rpcError) throw new Error(rpcError.message);
+  if (!settlement || settlement.already_paid) return { ok: true, alreadyPaid: true };
 
-  const ownerAmountCents = Math.round(amountCents * 0.7);
-  const platformFeeCents = amountCents - ownerAmountCents;
-
-  const { error: upErr } = await supabaseAdmin
-    .from("campaign_requests")
-    .update({
-      payment_status: "paid",
-      paid_at: new Date().toISOString(),
-      paid_amount_cents: amountCents,
-      owner_amount_cents: ownerAmountCents,
-      platform_fee_cents: platformFeeCents,
-      payout_status: "pending",
-    } as never)
-    .eq("id", campaign.id);
-  if (upErr) throw new Error(upErr.message);
+  const amountCents = Number(settlement.amount_cents);
 
   // Notification automatique de l'annonceur — n'interrompt jamais le règlement.
   if (campaign.email) {
