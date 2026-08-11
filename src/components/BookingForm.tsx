@@ -196,10 +196,11 @@ export function BookingForm({ spot, onClose }: Props) {
       total_price: totalPrice,
       daily_start_time: dailyStart,
       daily_end_time: dailyEnd,
-      route_zones: splitLines(zones),
-      route_waypoints: splitLines(waypoints),
-      route_pois: splitLines(pois),
-      estimated_impressions_per_day: impressions ? Math.max(0, parseInt(impressions, 10)) || null : null,
+      route_zones: itinerary.zones.slice(0, 50),
+      route_waypoints: itinerary.waypoints.slice(0, 50),
+      route_pois: itinerary.pois.slice(0, 50),
+      estimated_impressions_per_day: itinerary.impressionsPerDay || suggestedImpressions || null,
+
       creative_files: uploadedPaths,
     });
     if (error) {
