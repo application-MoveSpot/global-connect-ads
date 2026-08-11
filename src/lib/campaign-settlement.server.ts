@@ -11,13 +11,14 @@ export async function settleCampaignFromWallet(params: {
 
   const { data: campaign, error } = await supabaseAdmin
     .from("campaign_requests")
-    .select("id, user_id, total_price, status, payment_status, spot_name")
+    .select("id, user_id, total_price, status, payment_status, spot_name, company, email, start_date, end_date")
     .eq("id", params.campaignRequestId)
     .maybeSingle();
   if (error || !campaign) throw new Error("Campagne introuvable");
   if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
   if (!campaign.user_id) throw new Error("Campagne sans annonceur identifié");
   if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
+
 
   const amountCents = Math.round(Number(campaign.total_price) * 100);
 
@@ -46,5 +47,29 @@ export async function settleCampaignFromWallet(params: {
     .eq("id", campaign.id);
   if (upErr) throw new Error(upErr.message);
 
+  // Notification automatique de l'annonceur — n'interrompt jamais le règlement.
+  if (campaign.email) {
+    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+    const fmtDate = (d: string | null) =>
+      d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
+    await sendAppEmailSafe({
+      templateName: "campaign-activated",
+      recipientEmail: campaign.email,
+      idempotencyKey: `campaign-activated-${campaign.id}`,
+      templateData: {
+        company: campaign.company ?? undefined,
+        campaignName: campaign.spot_name ?? undefined,
+        startDate: fmtDate(campaign.start_date),
+        endDate: fmtDate(campaign.end_date),
+        amount: (amountCents / 100).toLocaleString("fr-FR", {
+          style: "currency",
+          currency: "EUR",
+        }),
+        trackingUrl: `https://move-spot.com/annonceur/suivi/${campaign.id}`,
+      },
+    });
+  }
+
   return { ok: true, amountCents };
 }
+
