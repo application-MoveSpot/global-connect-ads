@@ -156,8 +156,6 @@ export function BookingForm({ spot, onClose }: Props) {
       return;
     }
     setStatus("loading");
-    const splitLines = (s: string) =>
-      s.split(/\r?\n|,/).map((v) => v.trim()).filter(Boolean).slice(0, 50);
 
     // Upload creative files first
     const uploadedPaths: string[] = [];
