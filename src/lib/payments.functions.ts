@@ -354,6 +354,20 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
       if (!prices.data.length) return { error: "Tarif introuvable" };
       const price = prices.data[0];
 
+      // Traitement fiscal selon la localisation de l'annonceur
+      const { determineTaxBehavior } = await import("./tax");
+      const tax = determineTaxBehavior(
+        data.billingCountry ?? "",
+        data.billingPostalCode ?? "",
+      );
+      if (data.billingCountry) {
+        try {
+          await stripe.customers.update(customerId, { tax_exempt: tax.exempt } as never);
+        } catch {
+          // non bloquant
+        }
+      }
+
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
       const meta: Record<string, string> = {
         kind: "campaign_subscription",
@@ -361,8 +375,11 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
         user_id: userId,
         vehicle_quantity: String(data.vehicleQuantity),
         is_free_trial: data.trialPeriodDays > 0 ? "true" : "false",
+        tax_treatment: tax.description || "n/a",
+        tax_rate: String(tax.rate),
         ...(data.campaignRequestId ? { campaign_id: data.campaignRequestId } : {}),
       };
+
 
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
