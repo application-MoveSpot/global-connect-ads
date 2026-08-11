@@ -17,7 +17,10 @@ export const getBankDetails = createServerFn({ method: "GET" })
     bic: process.env["CA_BIC"] ?? "",
   }));
 
-const CreateInput = z.object({ amountEuros: z.number().min(10).max(200000) });
+const CreateInput = z.object({
+  amountEuros: z.number().min(10).max(200000),
+  campaignRequestId: z.string().uuid().optional(),
+});
 
 export const createBankTransferRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -32,6 +35,7 @@ export const createBankTransferRequest = createServerFn({ method: "POST" })
         user_id: userId,
         amount_cents: Math.round(data.amountEuros * 100),
         reference,
+        campaign_request_id: data.campaignRequestId ?? null,
       } as never)
       .select("id, reference, amount_cents, status, created_at")
       .single();
