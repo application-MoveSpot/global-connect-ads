@@ -1375,15 +1375,6 @@ export type Database = {
           points_total: number
         }[]
       }
-      settle_campaign_from_wallet: {
-        Args: { p_campaign_request_id: string; p_description?: string }
-        Returns: {
-          already_paid: boolean
-          amount_cents: number
-          owner_amount_cents: number
-          platform_fee_cents: number
-        }[]
-      }
     }
     Enums: {
       app_role:
