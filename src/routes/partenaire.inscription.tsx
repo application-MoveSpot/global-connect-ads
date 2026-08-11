@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SignedInBanner } from "@/components/SignedInBanner";
 import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 
@@ -163,6 +164,7 @@ function PartenaireInscription() {
         ) : (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil partenaire</h1>
+            <SignedInBanner onSignedOut={() => setStep("auth")} />
             <p className="text-sm text-muted-foreground mb-6">Quelques infos pour finaliser votre inscription.</p>
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
