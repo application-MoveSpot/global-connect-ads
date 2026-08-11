@@ -3,6 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
+import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
+
 
 type Props = {
   spot: Spot | null;
