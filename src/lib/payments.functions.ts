@@ -8,7 +8,10 @@ const TopupInput = z.object({
   returnUrl: z.string().url(),
   environment: z.enum(["sandbox", "live"]).optional(),
   campaignBriefId: z.string().uuid().nullable().optional(),
+  billingCountry: z.string().min(2).max(2).optional(),
+  billingPostalCode: z.string().max(12).optional(),
 });
+
 
 type CheckoutSessionResult =
   | { clientSecret: string; id: string }
