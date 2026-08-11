@@ -92,7 +92,9 @@ export const listBankTransfersForAdmin = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("bank_transfer_requests")
-      .select("id, user_id, reference, amount_cents, status, receipt_path, admin_notes, created_at")
+      .select(
+        "id, user_id, reference, amount_cents, status, receipt_path, admin_notes, created_at, campaign_request_id",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
 
