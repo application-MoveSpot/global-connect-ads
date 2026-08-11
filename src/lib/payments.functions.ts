@@ -379,11 +379,12 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
         tax_treatment: tax.description,
         tax_mention: tax.invoiceMention,
         tax_rate: String(tax.rate),
-        ...(data.campaignRequestId ? { campaign_id: data.campaignRequestId } : {}),
+        ...(data.campaignRequestId
+          ? { campaign_id: data.campaignRequestId, campaign_brief_id: data.campaignRequestId }
+          : {}),
       };
 
-
-      const session = await stripe.checkout.sessions.create({
+      const baseParams = {
         mode: "subscription",
         ui_mode: "embedded_page",
         return_url: returnUrl,
@@ -394,7 +395,22 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
           ...(data.trialPeriodDays > 0 ? { trial_period_days: data.trialPeriodDays } : {}),
           metadata: meta,
         },
-      } as never);
+      } as Record<string, unknown>;
+
+      // Conformité fiscale automatisée (TVA 8,5 % DOM vs exonération art. 259 B)
+      // + collecte du numéro de TVA intracommunautaire (autoliquidation UE).
+      let session;
+      try {
+        session = await stripe.checkout.sessions.create({
+          ...baseParams,
+          automatic_tax: { enabled: true },
+          tax_id_collection: { enabled: true },
+        } as never);
+      } catch (taxError) {
+        // Stripe Tax non activé sur le compte : on retombe sur la session simple.
+        console.warn("[subscription] automatic_tax indisponible, fallback", taxError);
+        session = await stripe.checkout.sessions.create(baseParams as never);
+      }
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
