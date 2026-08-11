@@ -176,5 +176,37 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
 
     if (campaignError) throw new Error(`Solde crédité, mais la campagne n'a pas pu être réglée : ${campaignError}`);
 
+    // Confirmation automatique au client (réception du virement).
+    if (data.approve) {
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(row.user_id);
+      const recipient = authUser?.user?.email;
+      if (recipient) {
+        let campaignName: string | undefined;
+        if (row.campaign_request_id) {
+          const { data: camp } = await supabaseAdmin
+            .from("campaign_requests")
+            .select("spot_name")
+            .eq("id", row.campaign_request_id)
+            .maybeSingle();
+          campaignName = camp?.spot_name ?? undefined;
+        }
+        const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+        await sendAppEmailSafe({
+          templateName: "bank-transfer-approved",
+          recipientEmail: recipient,
+          idempotencyKey: `bank-transfer-approved-${row.id}`,
+          templateData: {
+            reference: row.reference,
+            amount: (row.amount_cents / 100).toLocaleString("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+            }),
+            campaignName,
+          },
+        });
+      }
+    }
+
     return { ok: true, campaignSettled };
   });
+
