@@ -1,18 +1,29 @@
 // Règles de TVA MoveSpot (éditeur établi en Guadeloupe — DOM).
-// - Annonceur en France métropolitaine ou hors UE : exonération, art. 259 B du CGI
-//   (autoliquidation par le preneur) → tax_behavior "unspecified" + exempt "reverse".
-// - Annonceur en Guadeloupe / Martinique / Réunion : TVA locale 8,5 % en sus du HT.
+// - Guadeloupe / Martinique / Réunion : TVA locale 8,5 % en sus du HT.
+// - France métropolitaine : exonération, art. 259 B du CGI.
+// - Union européenne (hors France) : hors taxes, autoliquidation par le preneur
+//   (art. 196 de la Directive 2006/112/CE).
+// - Reste du monde : exonération, art. 259 B du CGI.
 
 export type TaxDecision = {
   tax_behavior: "exclusive" | "inclusive" | "unspecified";
   exempt: "none" | "exempt" | "reverse";
+  /** Libellé court du traitement fiscal. */
   description: string;
+  /** Mention légale à faire figurer sur la facture. */
+  invoiceMention: string;
   /** Taux appliqué, 0 si exonéré. */
   rate: number;
 };
 
 /** Départements d'Outre-Mer où la TVA locale de 8,5 % s'applique. */
 const DOM_VAT_PREFIXES = ["971", "972", "974"]; // Guadeloupe, Martinique, Réunion
+
+/** États membres de l'Union européenne (hors FR). */
+const EU_COUNTRIES = [
+  "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "GR", "HR", "HU",
+  "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+];
 
 export function determineTaxBehavior(
   advertiserCountry: string,
@@ -26,6 +37,7 @@ export function determineTaxBehavior(
       tax_behavior: "exclusive",
       exempt: "none",
       description: "TVA locale DOM - 8,5%",
+      invoiceMention: "TVA locale DOM 8,5 %",
       rate: 8.5,
     };
   }
@@ -36,15 +48,27 @@ export function determineTaxBehavior(
       tax_behavior: "unspecified",
       exempt: "reverse",
       description: "Exonération de TVA - Article 259 B du CGI",
+      invoiceMention: "TVA non applicable — art. 259 B du CGI",
       rate: 0,
     };
   }
 
-  // Hors France (UE B2B et hors UE) : exonération / autoliquidation.
+  if (EU_COUNTRIES.includes(country)) {
+    return {
+      tax_behavior: "unspecified",
+      exempt: "reverse",
+      description: "Autoliquidation UE - Directive 2006/112/CE",
+      invoiceMention: "Autoliquidation — art. 196 de la Directive 2006/112/CE",
+      rate: 0,
+    };
+  }
+
+  // Reste du monde (hors UE)
   return {
     tax_behavior: "unspecified",
     exempt: "reverse",
     description: "Exonération de TVA - Article 259 B du CGI",
+    invoiceMention: "Exonération de TVA — article 259 B du CGI",
     rate: 0,
   };
 }
