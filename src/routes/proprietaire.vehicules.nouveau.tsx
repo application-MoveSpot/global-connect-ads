@@ -322,7 +322,7 @@ function NewVehiclePage() {
                 <div className="space-y-2 text-sm mt-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">Prix conseillé</div>
+                      <div className="text-[11px] text-muted-foreground uppercase">Prix marché annonceur</div>
                       <div className="font-semibold">{estimate.suggested_price_min}–{estimate.suggested_price_max} €/j</div>
                     </div>
                     <div className="rounded-lg bg-card p-2.5">
@@ -330,6 +330,7 @@ function NewVehiclePage() {
                       <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString("fr-FR")} /j</div>
                     </div>
                   </div>
+
                   <div className={`rounded-lg p-2.5 text-xs ${
                     estimate.photo_match === "ok" ? "bg-signal/10 text-signal" :
                     estimate.photo_match === "doubtful" ? "bg-yellow-500/10 text-yellow-600" :
