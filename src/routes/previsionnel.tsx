@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import PrevisionnelFormules from "@/components/PrevisionnelFormules";
 
 export const Route = createFileRoute("/previsionnel")({
   component: PrevisionnelPage,
@@ -271,6 +272,11 @@ function PrevisionnelPage() {
               ))}
             </tbody>
           </table>
+        </section>
+
+        <section className="mb-10 avoid-break">
+          <h2 className="font-display text-2xl font-bold mb-4">Formules d'abonnement</h2>
+          <PrevisionnelFormules />
         </section>
 
         <section className="mb-10 avoid-break">
