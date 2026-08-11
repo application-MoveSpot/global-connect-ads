@@ -85,15 +85,18 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         customer: customerId,
         line_items: [{
           price_data: {
-            // TEMPORAIRE : devise USD pour tester l'affichage du paiement Crypto (USDC).
-            // Repasser en "eur" après le test.
-            currency: "usd",
-            product_data: { name: "Recharge portefeuille MoveSpot" },
+            // Facturation en euros (règles fiscales MoveSpot Guadeloupe / art. 259 B CGI).
+            currency: "eur",
+            product_data: {
+              name: "Recharge portefeuille MoveSpot",
+              description: "Crédit publicitaire pour campagnes ponctuelles",
+            },
             unit_amount: amountCents,
             tax_behavior: tax.tax_behavior,
           },
           quantity: 1,
         }],
+
         metadata: {
           kind: "wallet_topup",
           user_id: userId,
