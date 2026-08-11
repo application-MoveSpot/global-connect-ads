@@ -49,6 +49,7 @@ function ProviderSignupPage() {
   const callVerifyWebsite = useServerFn(verifyWebsite);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -60,23 +61,49 @@ function ProviderSignupPage() {
           .eq("user_id", data.session.user.id)
           .maybeSingle();
         if (existing) navigate({ to: "/prestataire" });
-        else { setEmail(data.session.user.email ?? ""); setStep("profile"); }
+        else {
+          setEmail(data.session.user.email ?? "");
+          setSessionEmail(data.session.user.email ?? null);
+          setStep("profile");
+        }
       }
     })();
   }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSessionEmail(null);
+    setStep("auth");
+    setMode("signup");
+    setError("");
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); setLoading(true);
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email, password,
         options: { emailRedirectTo: `${window.location.origin}/prestataire/inscription` },
       });
       if (error) { setError(error.message); setLoading(false); return; }
+      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+        setMode("signin");
+        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setLoading(false);
+        return;
+      }
+      if (!signUpData.session) {
+        setMode("signin");
+        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setLoading(false);
+        return;
+      }
+      setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
+      setSessionEmail(signInData.session?.user.email ?? null);
     }
     setStep("profile"); setLoading(false);
   };
@@ -162,6 +189,14 @@ function ProviderSignupPage() {
           </form>
         ) : (
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
+            {sessionEmail && (
+              <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
+                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                  se déconnecter pour créer un autre compte
+                </button>
+              </div>
+            )}
             <Input label="Société (raison sociale ou nom commercial)" value={company} onChange={setCompany} required placeholder="Raison sociale, ou nom commercial pour une entreprise individuelle" />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input label="Nom et prénom du responsable / contact principal" value={fullName} onChange={setFullName} required placeholder="Ex. Marie Dupont" hint="Ce nom sera affiché comme interlocuteur commercial sur votre fiche publique." />

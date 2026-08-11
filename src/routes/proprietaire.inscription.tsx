@@ -28,6 +28,7 @@ function InscriptionPage() {
   const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -41,26 +42,49 @@ function InscriptionPage() {
         if (existing) {
           navigate({ to: "/proprietaire" });
         } else {
+          setSessionEmail(data.session.user.email ?? null);
           setStep("profile");
         }
       }
     })();
   }, [navigate]);
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSessionEmail(null);
+    setStep("auth");
+    setMode("signup");
+    setError("");
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/proprietaire/inscription` },
       });
       if (error) { setError(error.message); setLoading(false); return; }
+      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+        setMode("signin");
+        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setLoading(false);
+        return;
+      }
+      if (!signUpData.session) {
+        setMode("signin");
+        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setLoading(false);
+        return;
+      }
+      setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
+      setSessionEmail(signInData.session?.user.email ?? null);
     }
     setStep("profile");
     setLoading(false);
@@ -129,6 +153,14 @@ function InscriptionPage() {
         ) : (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil</h1>
+            {sessionEmail && (
+              <div className="mb-4 rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
+                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                  se déconnecter pour créer un autre compte
+                </button>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mb-6">Quelques infos pour vous identifier auprès des annonceurs.</p>
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />

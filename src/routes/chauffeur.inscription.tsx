@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SignedInBanner } from "@/components/SignedInBanner";
 import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 
@@ -176,6 +177,7 @@ function ChauffeurInscription() {
         ) : (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil prestataire</h1>
+            <SignedInBanner onSignedOut={() => setStep("auth")} />
             <p className="text-sm text-muted-foreground mb-6">Étape 1/2 — vos informations. Étape 2 : liaison de votre IBAN via Stripe.</p>
             <form onSubmit={handleProfile} className="space-y-4">
               <div>

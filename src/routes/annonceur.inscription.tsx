@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SignedInBanner } from "@/components/SignedInBanner";
 import { LogoLink } from "@/components/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/SiretField";
 
@@ -179,6 +180,7 @@ function AnnonceurInscription() {
         ) : (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil annonceur</h1>
+            <SignedInBanner onSignedOut={() => setStep("auth")} />
             <p className="text-sm text-muted-foreground mb-6">Choisissez le type de compte qui vous correspond.</p>
 
             <div className="grid grid-cols-2 gap-2 mb-6 p-1 rounded-lg bg-secondary">
