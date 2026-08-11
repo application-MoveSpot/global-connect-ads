@@ -21,16 +21,21 @@ export async function settleCampaignFromWallet(params: {
     .maybeSingle();
   if (error || !campaign) throw new Error("Campagne introuvable");
 
-  const { data: settlement, error: rpcError } = await supabaseAdmin
-    .rpc("settle_campaign_from_wallet", {
+  const { data: settlement, error: rpcError } = await (supabaseAdmin.rpc as unknown as (
+    fn: string,
+    args: Record<string, unknown>,
+  ) => PromiseLike<{ data: { already_paid?: boolean; amount_cents?: number } | null; error: { message: string } | null }>)(
+    "settle_campaign_from_wallet",
+    {
       p_campaign_request_id: params.campaignRequestId,
       p_description: params.description,
-    })
-    .single();
+    },
+  );
   if (rpcError) throw new Error(rpcError.message);
-  if (!settlement || settlement.already_paid) return { ok: true, alreadyPaid: true };
+  const row = Array.isArray(settlement) ? settlement[0] : settlement;
+  if (!row || row.already_paid) return { ok: true, alreadyPaid: true };
 
-  const amountCents = Number(settlement.amount_cents);
+  const amountCents = Number(row.amount_cents);
 
   // Notification automatique de l'annonceur — n'interrompt jamais le règlement.
   if (campaign.email) {
