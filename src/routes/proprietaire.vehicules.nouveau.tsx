@@ -152,9 +152,11 @@ function NewVehiclePage() {
     }
     if (estimate && estimate.suggested_price_max > 0 && Number(price) > estimate.suggested_price_max * 0.7) {
       const maxAcceptable = Math.floor(estimate.suggested_price_max * 0.7);
-      setError(`⛔ Prix refusé : MoveSpot doit conserver au moins 30 % de marge sur le prix de marché estimé. Prix max acceptable : ${maxAcceptable} €/jour (estimation IA : ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j). Référez-vous à l'estimation IA ci-dessus.`);
+      const minAcceptable = Math.floor(estimate.suggested_price_min * 0.7);
+      setError(`⛔ Prix trop élevé : la fourchette IA ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j est le prix payé par l'annonceur. Votre rémunération de propriétaire correspond à 70 % de ce montant, soit ${minAcceptable}–${maxAcceptable} €/jour. Saisissez au maximum ${maxAcceptable} €/jour (bouton « Utiliser ${maxAcceptable} €/j » dans l'encart Estimation IA).`);
       return;
     }
+
     setLoading(true);
     try {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
