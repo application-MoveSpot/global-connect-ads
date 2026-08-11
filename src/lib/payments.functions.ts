@@ -62,6 +62,24 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       const customerId = await resolveOrCreateCustomer({ email, userId });
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
 
+      const customerId = await resolveOrCreateCustomer({ email, userId });
+
+      // Traitement fiscal selon la localisation de l'annonceur (DOM 8,5 % vs art. 259 B CGI)
+      const { determineTaxBehavior } = await import("./tax");
+      const tax = determineTaxBehavior(
+        data.billingCountry ?? "",
+        data.billingPostalCode ?? "",
+      );
+      if (data.billingCountry) {
+        try {
+          await stripe.customers.update(customerId, { tax_exempt: tax.exempt } as never);
+        } catch {
+          // non bloquant
+        }
+      }
+
+      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
+
       const sessionParams = {
         mode: "payment",
         ui_mode: "embedded_page",
@@ -74,6 +92,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
             currency: "usd",
             product_data: { name: "Recharge portefeuille MoveSpot" },
             unit_amount: amountCents,
+            tax_behavior: tax.tax_behavior,
           },
           quantity: 1,
         }],
@@ -82,10 +101,13 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
           user_id: userId,
           userId,
           amount_cents: String(amountCents),
+          tax_treatment: tax.description || "n/a",
+          tax_rate: String(tax.rate),
           ...(data.campaignBriefId ? { campaign_brief_id: data.campaignBriefId } : {}),
         },
         payment_intent_data: {
-          description: "Recharge portefeuille MoveSpot",
+          description: `Recharge portefeuille MoveSpot${tax.description ? ` — ${tax.description}` : ""}`,
+
           metadata: {
             kind: "wallet_topup",
             user_id: userId,
