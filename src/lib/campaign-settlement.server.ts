@@ -11,13 +11,14 @@ export async function settleCampaignFromWallet(params: {
 
   const { data: campaign, error } = await supabaseAdmin
     .from("campaign_requests")
-    .select("id, user_id, total_price, status, payment_status, spot_name")
+    .select("id, user_id, total_price, status, payment_status, spot_name, company, email, start_date, end_date")
     .eq("id", params.campaignRequestId)
     .maybeSingle();
   if (error || !campaign) throw new Error("Campagne introuvable");
   if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
   if (!campaign.user_id) throw new Error("Campagne sans annonceur identifié");
   if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
+
 
   const amountCents = Math.round(Number(campaign.total_price) * 100);
 
