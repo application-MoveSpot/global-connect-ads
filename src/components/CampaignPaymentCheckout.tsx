@@ -3,6 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/wallet.functions";
 import { Button } from "@/components/ui/button";
 import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
+import { BankTransferPanel } from "@/components/BankTransferPanel";
+
 
 type Props = {
   campaignRequestId: string;
