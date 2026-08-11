@@ -8,7 +8,10 @@ const TopupInput = z.object({
   returnUrl: z.string().url(),
   environment: z.enum(["sandbox", "live"]).optional(),
   campaignBriefId: z.string().uuid().nullable().optional(),
+  billingCountry: z.string().min(2).max(2).optional(),
+  billingPostalCode: z.string().max(12).optional(),
 });
+
 
 type CheckoutSessionResult =
   | { clientSecret: string; id: string }
@@ -57,6 +60,22 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       };
 
       const customerId = await resolveOrCreateCustomer({ email, userId });
+
+
+      // Traitement fiscal selon la localisation de l'annonceur (DOM 8,5 % vs art. 259 B CGI)
+      const { determineTaxBehavior } = await import("./tax");
+      const tax = determineTaxBehavior(
+        data.billingCountry ?? "",
+        data.billingPostalCode ?? "",
+      );
+      if (data.billingCountry) {
+        try {
+          await stripe.customers.update(customerId, { tax_exempt: tax.exempt } as never);
+        } catch {
+          // non bloquant
+        }
+      }
+
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
 
       const sessionParams = {
@@ -71,6 +90,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
             currency: "usd",
             product_data: { name: "Recharge portefeuille MoveSpot" },
             unit_amount: amountCents,
+            tax_behavior: tax.tax_behavior,
           },
           quantity: 1,
         }],
@@ -79,10 +99,13 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
           user_id: userId,
           userId,
           amount_cents: String(amountCents),
+          tax_treatment: tax.description || "n/a",
+          tax_rate: String(tax.rate),
           ...(data.campaignBriefId ? { campaign_brief_id: data.campaignBriefId } : {}),
         },
         payment_intent_data: {
-          description: "Recharge portefeuille MoveSpot",
+          description: `Recharge portefeuille MoveSpot${tax.description ? ` — ${tax.description}` : ""}`,
+
           metadata: {
             kind: "wallet_topup",
             user_id: userId,
@@ -282,6 +305,9 @@ const SubscriptionInput = z.object({
   trialPeriodDays: z.number().int().min(0).max(60).default(14),
   returnUrl: z.string().url(),
   environment: z.enum(["sandbox", "live"]).optional(),
+  billingCountry: z.string().min(2).max(2).optional(),
+  billingPostalCode: z.string().max(12).optional(),
+
 });
 
 export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST" })
@@ -328,6 +354,20 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
       if (!prices.data.length) return { error: "Tarif introuvable" };
       const price = prices.data[0];
 
+      // Traitement fiscal selon la localisation de l'annonceur
+      const { determineTaxBehavior } = await import("./tax");
+      const tax = determineTaxBehavior(
+        data.billingCountry ?? "",
+        data.billingPostalCode ?? "",
+      );
+      if (data.billingCountry) {
+        try {
+          await stripe.customers.update(customerId, { tax_exempt: tax.exempt } as never);
+        } catch {
+          // non bloquant
+        }
+      }
+
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
       const meta: Record<string, string> = {
         kind: "campaign_subscription",
@@ -335,8 +375,11 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
         user_id: userId,
         vehicle_quantity: String(data.vehicleQuantity),
         is_free_trial: data.trialPeriodDays > 0 ? "true" : "false",
+        tax_treatment: tax.description || "n/a",
+        tax_rate: String(tax.rate),
         ...(data.campaignRequestId ? { campaign_id: data.campaignRequestId } : {}),
       };
+
 
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
