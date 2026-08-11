@@ -97,30 +97,6 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
     if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
     if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
 
-    const amountCents = Math.round(Number(campaign.total_price) * 100);
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.rpc("apply_wallet_transaction", {
-      p_user_id: userId,
-      p_kind: "campaign_debit",
-      p_amount_cents: -amountCents,
-      p_description: `Paiement campagne — ${campaign.spot_name}`,
-      p_campaign_request_id: campaign.id,
-    });
-
-    const ownerAmountCents = Math.round(amountCents * 0.7);
-    const platformFeeCents = amountCents - ownerAmountCents;
-
-    await supabaseAdmin
-      .from("campaign_requests")
-      .update({
-        payment_status: "paid",
-        paid_at: new Date().toISOString(),
-        paid_amount_cents: amountCents,
-        owner_amount_cents: ownerAmountCents,
-        platform_fee_cents: platformFeeCents,
-      } as never)
-      .eq("id", campaign.id);
-
-    return { ok: true, amountCents };
+    const { settleCampaignFromWallet } = await import("@/lib/campaign-settlement.server");
+    return settleCampaignFromWallet({ campaignRequestId: campaign.id });
   });
