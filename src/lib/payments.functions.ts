@@ -60,9 +60,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       };
 
       const customerId = await resolveOrCreateCustomer({ email, userId });
-      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
 
-      const customerId = await resolveOrCreateCustomer({ email, userId });
 
       // Traitement fiscal selon la localisation de l'annonceur (DOM 8,5 % vs art. 259 B CGI)
       const { determineTaxBehavior } = await import("./tax");
