@@ -128,11 +128,14 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("bank_transfer_requests")
-      .select("id, user_id, amount_cents, status, reference")
+      .select("id, user_id, amount_cents, status, reference, campaign_request_id")
       .eq("id", data.requestId)
       .single();
     if (error || !row) throw new Error("Demande introuvable");
     if (row.status === "approved") return { ok: true, alreadyDone: true };
+
+    let campaignSettled = false;
+    let campaignError: string | null = null;
 
     if (data.approve) {
       const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
@@ -140,18 +143,38 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
         p_kind: "topup",
         p_amount_cents: row.amount_cents,
         p_description: `Virement bancaire validé — réf. ${row.reference}`,
+        p_campaign_request_id: row.campaign_request_id ?? undefined,
       });
       if (rpcError) throw new Error(rpcError.message);
+
+      // Virement rattaché à une campagne → on règle immédiatement la campagne
+      // (débit du portefeuille, passage en "payée", répartition 70/30 propriétaire).
+      if (row.campaign_request_id) {
+        try {
+          const { settleCampaignFromWallet } = await import("@/lib/campaign-settlement.server");
+          const result = await settleCampaignFromWallet({
+            campaignRequestId: row.campaign_request_id,
+            description: `Paiement campagne par virement bancaire — réf. ${row.reference}`,
+          });
+          campaignSettled = !result.alreadyPaid;
+        } catch (e) {
+          campaignError = e instanceof Error ? e.message : "Règlement de la campagne échoué";
+        }
+      }
     }
 
     await supabaseAdmin
       .from("bank_transfer_requests")
       .update({
         status: data.approve ? "approved" : "rejected",
-        admin_notes: data.notes ?? null,
+        admin_notes: campaignError
+          ? `${data.notes ? `${data.notes} — ` : ""}⚠️ Solde crédité mais campagne non réglée : ${campaignError}`
+          : data.notes ?? null,
         reviewed_at: new Date().toISOString(),
       } as never)
       .eq("id", row.id);
 
-    return { ok: true };
+    if (campaignError) throw new Error(`Solde crédité, mais la campagne n'a pas pu être réglée : ${campaignError}`);
+
+    return { ok: true, campaignSettled };
   });
