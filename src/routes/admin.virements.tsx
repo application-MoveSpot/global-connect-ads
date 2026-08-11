@@ -24,6 +24,7 @@ type Row = {
   receipt_url: string | null;
   admin_notes: string | null;
   created_at: string;
+  campaign_request_id: string | null;
 };
 
 function fmt(cents: number) {
@@ -95,6 +96,13 @@ function AdminBankTransfers() {
                     <div className="text-xs text-muted-foreground">
                       {new Date(row.created_at).toLocaleString("fr-FR")} — statut : {row.status}
                     </div>
+                    {row.campaign_request_id ? (
+                      <div className="text-xs text-primary">
+                        Paiement de campagne — la validation marquera la campagne comme payée
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground">Recharge de portefeuille</div>
+                    )}
                     {row.admin_notes ? (
                       <div className="text-xs text-muted-foreground">Note : {row.admin_notes}</div>
                     ) : null}
