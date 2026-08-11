@@ -72,7 +72,9 @@ export const listMyBankTransfers = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data } = await supabase
       .from("bank_transfer_requests")
-      .select("id, reference, amount_cents, status, receipt_path, admin_notes, created_at")
+      .select(
+        "id, reference, amount_cents, status, receipt_path, admin_notes, created_at, campaign_request_id",
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(50);
