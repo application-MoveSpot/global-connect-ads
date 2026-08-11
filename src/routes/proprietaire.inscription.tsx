@@ -153,6 +153,14 @@ function InscriptionPage() {
         ) : (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil</h1>
+            {sessionEmail && (
+              <div className="mb-4 rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
+                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                  se déconnecter pour créer un autre compte
+                </button>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mb-6">Quelques infos pour vous identifier auprès des annonceurs.</p>
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
