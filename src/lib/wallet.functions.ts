@@ -66,13 +66,20 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
       .single();
     if (rErr || !refundRow) throw new Error(rErr?.message ?? "Création remboursement échouée");
 
-    await supabaseAdmin.rpc("apply_wallet_transaction", {
+    const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
       p_user_id: campaign.user_id,
       p_kind: "refund",
       p_amount_cents: amountCents,
       p_description: `Remboursement — ${data.reason}`,
       p_campaign_request_id: campaign.id,
     });
+    if (rpcError) {
+      await supabaseAdmin
+        .from("refunds")
+        .update({ status: "failed", notes: rpcError.message } as never)
+        .eq("id", refundRow.id);
+      throw new Error(`Crédit du portefeuille échoué : ${rpcError.message}`);
+    }
     await supabaseAdmin.from("refunds").update({ status: "succeeded" } as never).eq("id", refundRow.id);
 
     return { ok: true, refundId: refundRow.id };
