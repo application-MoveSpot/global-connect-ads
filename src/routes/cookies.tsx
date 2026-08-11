@@ -113,6 +113,16 @@ function Cookies() {
         </p>
       </LegalSection>
 
+      <LegalSection title="6. Emails : aucun pixel de traçage">
+        <p>
+          Les emails envoyés par MoveSpot depuis le domaine <strong>notify.move-spot.com</strong> ne contiennent aucun
+          pixel espion ni traceur publicitaire. Les emails d'information commerciale comportent un lien de
+          désinscription qui fonctionne sans cookie, via la page{" "}
+          <a href="/unsubscribe" className="text-primary hover:underline">de désinscription</a>.
+        </p>
+      </LegalSection>
+
+
       <LegalSection title="6. Contact">
         <p>
           Pour toute question relative à cette politique cookies, contactez-nous à
