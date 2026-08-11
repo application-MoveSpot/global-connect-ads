@@ -149,7 +149,6 @@ function NewBriefPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               Brief enregistré. Montant calculé d'après la zone dessinée et la durée de campagne :{" "}
               <strong className="text-foreground">{created.amount.toLocaleString("fr-FR")} €</strong>{" "}
-              (facturé en USD pendant la phase de test crypto).
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <WalletTopupCheckout

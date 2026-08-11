@@ -65,7 +65,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
   return (
     <>
       <Button onClick={showCheckout} disabled={disabled || amountEuros < 10} className={className}>
-        {buttonLabel ?? `Recharger ${amountEuros} $ (test USD)`}
+        {buttonLabel ?? `Recharger ${amountEuros} €`}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
