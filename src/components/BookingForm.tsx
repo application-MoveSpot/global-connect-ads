@@ -365,72 +365,17 @@ export function BookingForm({ spot, onClose }: Props) {
               </div>
 
 
-              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
-                <div className="text-sm font-semibold">Itinéraire de diffusion <span className="text-muted-foreground font-normal">(optionnel)</span></div>
-                <div>
-                  <label className="block text-xs font-medium mb-1 text-muted-foreground">Zones / quartiers ciblés</label>
-                  <textarea
-                    value={zones}
-                    onChange={(e) => setZones(e.target.value)}
-                    rows={2}
-                    placeholder="Ex: Bastille, République, Le Marais"
-                    className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1 text-muted-foreground">Étapes du parcours (une par ligne)</label>
-                  <textarea
-                    value={waypoints}
-                    onChange={(e) => setWaypoints(e.target.value)}
-                    rows={3}
-                    placeholder={"Départ : Place de la Bastille\nGare de Lyon\nArrivée : Place de la République"}
-                    className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1 text-muted-foreground">Points d'intérêt à couvrir</label>
-                  <textarea
-                    value={pois}
-                    onChange={(e) => setPois(e.target.value)}
-                    rows={2}
-                    placeholder="Ex: Centre commercial Beaugrenelle, Université Sorbonne"
-                    className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                </div>
-                <p className="text-[11px] text-muted-foreground">Le propriétaire utilisera ces indications pour planifier la tournée. La validation reste automatique si les dates et le véhicule sont libres.</p>
-              </div>
+              <ItineraryPlanner
+                multiplier={formatMultiplier * mobilityMultiplier * hoursMultiplier}
+                onChange={setItinerary}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Le propriétaire utilisera ces indications pour planifier la tournée. La validation reste automatique si les dates et le véhicule sont libres.
+                {suggestedImpressions && itinerary.impressionsPerDay === 0
+                  ? ` À défaut d'itinéraire, l'estimation du véhicule est utilisée (${suggestedImpressions.toLocaleString("fr-FR")} vues/jour).`
+                  : ""}
+              </p>
 
-              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-2">
-                <div className="flex items-baseline justify-between gap-2">
-                  <div className="text-sm font-semibold">Impressions estimées / jour</div>
-                  {suggestedImpressions && (
-                    <button
-                      type="button"
-                      onClick={() => setImpressions(String(suggestedImpressions))}
-                      className="text-[11px] text-primary hover:underline"
-                    >
-                      Recalculer ({suggestedImpressions.toLocaleString("fr-FR")})
-                    </button>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={0}
-                    step={500}
-                    value={impressions}
-                    onChange={(e) => setImpressions(e.target.value)}
-                    placeholder="ex : 30000"
-                    className="flex-1 rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  />
-                  <span className="text-xs text-muted-foreground">vues/jour</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {suggestedImpressions
-                    ? <>Recalculée automatiquement : <strong>{spot.kmPerDay} km/jour</strong> × format <strong>{spot.format ?? "standard"}</strong> × mobilité <strong>{spot.vehicleType ?? "véhicule"}</strong> × plage horaire <strong>{hoursPerDay.toFixed(1)}h</strong>. Modifiable selon vos hypothèses.</>
-                    : "Aucune donnée de distance pour ce véhicule. Saisissez votre propre estimation."}
-                </p>
-              </div>
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
