@@ -112,27 +112,30 @@ export function BankTransferPanel({
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="font-display text-xl font-semibold">Recharger par virement bancaire</h2>
+        <h2 className="font-display text-xl font-semibold">{title}</h2>
         <p className="text-sm text-muted-foreground">
-          Recommandé pour les gros budgets. Le solde est crédité après vérification du virement par notre équipe
-          (généralement sous 1 à 2 jours ouvrés).
+          {subtitle ??
+            "Recommandé pour les gros budgets. Le solde est crédité après vérification du virement par notre équipe (généralement sous 1 à 2 jours ouvrés)."}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {[500, 1000, 2500, 5000].map((v) => (
-          <button
-            key={v}
-            onClick={() => setAmount(v)}
-            className={`rounded-lg border px-3 py-1.5 text-sm ${amount === v ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"}`}
-          >
-            {v} €
-          </button>
-        ))}
+        {fixedAmountEuros == null
+          ? [500, 1000, 2500, 5000].map((v) => (
+              <button
+                key={v}
+                onClick={() => setAmount(v)}
+                className={`rounded-lg border px-3 py-1.5 text-sm ${amount === v ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"}`}
+              >
+                {v} €
+              </button>
+            ))
+          : null}
         <input
           type="number"
           min={10}
           value={amount}
+          readOnly={fixedAmountEuros != null}
           onChange={(e) => setAmount(Math.max(10, Number(e.target.value) || 0))}
           className="w-28 rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
         />
@@ -140,6 +143,7 @@ export function BankTransferPanel({
           Obtenir mes instructions de virement
         </Button>
       </div>
+
 
       {details?.iban ? (
         <div className="rounded-xl border border-border bg-secondary/30 p-4 text-sm space-y-2">
