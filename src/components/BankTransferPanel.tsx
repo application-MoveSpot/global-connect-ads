@@ -72,7 +72,7 @@ export function BankTransferPanel({
     setBusy(true);
     setError(null);
     try {
-      await createRequest({ data: { amountEuros: amount } });
+      await createRequest({ data: { amountEuros: amount, campaignRequestId } });
       await reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
