@@ -38,6 +38,7 @@ import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as ChauffeurIndexRouteImport } from './routes/chauffeur.index'
 import { Route as ChauffeurEspaceRouteImport } from './routes/chauffeur.espace'
 import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
 import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.inscription'
 import { Route as PrestataireIndexRouteImport } from './routes/prestataire.index'
@@ -54,6 +55,7 @@ import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.bri
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
 import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur.suivi.$campaignId'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as ProprietaireBriefsBriefIdRouteImport } from './routes/proprietaire.briefs.$briefId'
 import { Route as ProprietaireFlotteImportRouteImport } from './routes/proprietaire.flotte.import'
@@ -62,6 +64,8 @@ import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/propr
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -210,6 +214,11 @@ const ChauffeurInscriptionRoute = ChauffeurInscriptionRouteImport.update({
   path: '/chauffeur/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartenaireIndexRoute = PartenaireIndexRouteImport.update({
   id: '/partenaire/',
   path: '/partenaire/',
@@ -292,6 +301,11 @@ const AnnonceurSuiviCampaignIdRoute =
     path: '/annonceur/suivi/$campaignId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProprietaireBriefsIndexRoute = ProprietaireBriefsIndexRouteImport.update({
   id: '/proprietaire/briefs/',
   path: '/proprietaire/briefs/',
@@ -337,6 +351,18 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -366,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
@@ -383,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
   '/proprietaire/flotte/qr': typeof ProprietaireFlotteQrRoute
@@ -392,6 +420,8 @@ export interface FileRoutesByFullPath {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -421,6 +451,7 @@ export interface FileRoutesByTo {
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
@@ -438,6 +469,7 @@ export interface FileRoutesByTo {
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
   '/proprietaire/flotte/qr': typeof ProprietaireFlotteQrRoute
@@ -447,6 +479,8 @@ export interface FileRoutesByTo {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -477,6 +511,7 @@ export interface FileRoutesById {
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
@@ -494,6 +529,7 @@ export interface FileRoutesById {
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
   '/proprietaire/flotte/qr': typeof ProprietaireFlotteQrRoute
@@ -503,6 +539,8 @@ export interface FileRoutesById {
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -534,6 +572,7 @@ export interface FileRouteTypes {
     | '/api/faq-chat'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
+    | '/email/unsubscribe'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
@@ -551,6 +590,7 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
+    | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
     | '/proprietaire/flotte/qr'
@@ -560,6 +600,8 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -589,6 +631,7 @@ export interface FileRouteTypes {
     | '/api/faq-chat'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
+    | '/email/unsubscribe'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
@@ -606,6 +649,7 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
+    | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
     | '/proprietaire/flotte/qr'
@@ -615,6 +659,8 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -644,6 +690,7 @@ export interface FileRouteTypes {
     | '/api/faq-chat'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
+    | '/email/unsubscribe'
     | '/partenaire/inscription'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
@@ -661,6 +708,7 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
+    | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
     | '/proprietaire/flotte/qr'
@@ -670,6 +718,8 @@ export interface FileRouteTypes {
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -697,6 +747,7 @@ export interface RootRouteChildren {
   ApiFaqChatRoute: typeof ApiFaqChatRoute
   ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
   ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PartenaireInscriptionRoute: typeof PartenaireInscriptionRoute
   PrestataireInscriptionRoute: typeof PrestataireInscriptionRoute
   PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
@@ -714,6 +765,7 @@ export interface RootRouteChildren {
   AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
   AnnonceurSuiviCampaignIdRoute: typeof AnnonceurSuiviCampaignIdRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ProprietaireBriefsBriefIdRoute: typeof ProprietaireBriefsBriefIdRoute
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   AnnonceurBriefsIndexRoute: typeof AnnonceurBriefsIndexRoute
@@ -721,6 +773,8 @@ export interface RootRouteChildren {
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -928,6 +982,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChauffeurInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partenaire/': {
       id: '/partenaire/'
       path: '/partenaire'
@@ -1040,6 +1101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurSuiviCampaignIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proprietaire/briefs/': {
       id: '/proprietaire/briefs/'
       path: '/proprietaire/briefs'
@@ -1094,6 +1162,20 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/queue/process'
       fullPath: '/lovable/email/queue/process'
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1152,6 +1234,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiFaqChatRoute: ApiFaqChatRoute,
   ChauffeurEspaceRoute: ChauffeurEspaceRoute,
   ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PartenaireInscriptionRoute: PartenaireInscriptionRoute,
   PrestataireInscriptionRoute: PrestataireInscriptionRoute,
   PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
@@ -1169,6 +1252,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
   AnnonceurSuiviCampaignIdRoute: AnnonceurSuiviCampaignIdRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ProprietaireBriefsBriefIdRoute: ProprietaireBriefsBriefIdRoute,
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   AnnonceurBriefsIndexRoute: AnnonceurBriefsIndexRoute,
@@ -1176,6 +1260,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
