@@ -47,5 +47,29 @@ export async function settleCampaignFromWallet(params: {
     .eq("id", campaign.id);
   if (upErr) throw new Error(upErr.message);
 
+  // Notification automatique de l'annonceur — n'interrompt jamais le règlement.
+  if (campaign.email) {
+    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+    const fmtDate = (d: string | null) =>
+      d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
+    await sendAppEmailSafe({
+      templateName: "campaign-activated",
+      recipientEmail: campaign.email,
+      idempotencyKey: `campaign-activated-${campaign.id}`,
+      templateData: {
+        company: campaign.company ?? undefined,
+        campaignName: campaign.spot_name ?? undefined,
+        startDate: fmtDate(campaign.start_date),
+        endDate: fmtDate(campaign.end_date),
+        amount: (amountCents / 100).toLocaleString("fr-FR", {
+          style: "currency",
+          currency: "EUR",
+        }),
+        trackingUrl: `https://move-spot.com/annonceur/suivi/${campaign.id}`,
+      },
+    });
+  }
+
   return { ok: true, amountCents };
 }
+
