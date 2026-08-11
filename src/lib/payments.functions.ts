@@ -305,6 +305,9 @@ const SubscriptionInput = z.object({
   trialPeriodDays: z.number().int().min(0).max(60).default(14),
   returnUrl: z.string().url(),
   environment: z.enum(["sandbox", "live"]).optional(),
+  billingCountry: z.string().min(2).max(2).optional(),
+  billingPostalCode: z.string().max(12).optional(),
+
 });
 
 export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST" })
