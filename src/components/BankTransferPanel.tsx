@@ -18,6 +18,7 @@ type TransferRow = {
   receipt_path: string | null;
   admin_notes: string | null;
   created_at: string;
+  campaign_request_id: string | null;
 };
 
 const statusLabel: Record<string, string> = {
@@ -31,7 +32,20 @@ function fmt(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 }
 
-export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
+export function BankTransferPanel({
+  onCredited,
+  campaignRequestId,
+  title = "Recharger par virement bancaire",
+  subtitle,
+  fixedAmountEuros,
+}: {
+  onCredited?: () => void;
+  /** Si fourni, le virement validé règle directement cette campagne. */
+  campaignRequestId?: string;
+  title?: string;
+  subtitle?: string;
+  fixedAmountEuros?: number;
+}) {
   const fetchDetails = useServerFn(getBankDetails);
   const createRequest = useServerFn(createBankTransferRequest);
   const attachReceipt = useServerFn(attachBankTransferReceipt);
@@ -39,13 +53,13 @@ export function BankTransferPanel({ onCredited }: { onCredited?: () => void }) {
 
   const [details, setDetails] = useState<BankDetails | null>(null);
   const [rows, setRows] = useState<TransferRow[]>([]);
-  const [amount, setAmount] = useState(500);
+  const [amount, setAmount] = useState(fixedAmountEuros ?? 500);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reload = async () => {
     const list = (await fetchList()) as TransferRow[];
-    setRows(list);
+    setRows(campaignRequestId ? list.filter((r) => r.campaign_request_id === campaignRequestId) : list);
   };
 
   useEffect(() => {
