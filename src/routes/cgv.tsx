@@ -58,6 +58,40 @@ function CGV() {
           Un montant plancher de 10 € s'applique par campagne.
         </p>
         <p>
+          Pour les campagnes récurrentes, MoveSpot propose un abonnement mensuel par véhicule selon trois formules :
+        </p>
+        <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
+          <thead className="bg-secondary/50">
+            <tr>
+              <th className="text-left p-3 font-medium">Formule</th>
+              <th className="text-left p-3 font-medium">Prix mensuel HT / véhicule</th>
+              <th className="text-left p-3 font-medium">Périmètre</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            <tr>
+              <td className="p-3">Starter</td>
+              <td className="p-3">29 €</td>
+              <td className="p-3">Zone unique, suivi GPS et métriques de base</td>
+            </tr>
+            <tr>
+              <td className="p-3">Standard</td>
+              <td className="p-3">42 €</td>
+              <td className="p-3">Multi-zones, contrôle de pose, suivi détaillé</td>
+            </tr>
+            <tr>
+              <td className="p-3">Pro</td>
+              <td className="p-3">59 €</td>
+              <td className="p-3">Multi-zones étendues, priorité de modération, reporting avancé</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          L'abonnement est reconductible mensuellement et résiliable à tout moment depuis l'espace annonceur ; la
+          résiliation prend effet à la fin de la période en cours, sans remboursement au prorata.
+        </p>
+
+        <p>
           Les prix de nos services sont indiqués en euros hors taxes (HT). La TVA applicable est ajoutée lors de la
           facturation selon les règles de territorialité en vigueur :
         </p>
@@ -85,7 +119,7 @@ function CGV() {
 
 
       <LegalSection title="5. Modalités de paiement">
-        <p>Trois modes de règlement sont proposés :</p>
+        <p>Les modes de règlement suivants sont proposés :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
             <strong>Carte bancaire (et moyens équivalents)</strong> via notre prestataire de paiement Stripe, en
@@ -94,13 +128,18 @@ function CGV() {
             avant son terme.
           </li>
           <li>
-            <strong>Portefeuille MoveSpot</strong> : l'Annonceur approvisionne un solde prépayé et l'utilise pour
-            régler ses campagnes. Le solde est utilisable sur la Plateforme et n'est pas rémunéré.
+            <strong>Portefeuille MoveSpot</strong> : l'Annonceur approvisionne un solde prépayé en euros et l'utilise
+            pour régler ses campagnes. Le solde est utilisable sur la Plateforme et n'est pas rémunéré.
+          </li>
+          <li>
+            <strong>Cryptomonnaie (USDC)</strong> : proposée, lorsque disponible, pour le rechargement du
+            portefeuille via Stripe. La conversion est opérée par le prestataire de paiement ; si ce moyen n'est pas
+            disponible pour la devise ou le pays concerné, le paiement par carte est proposé automatiquement.
           </li>
           <li>
             <strong>Virement bancaire</strong>, réservé aux budgets professionnels (B2B). La demande est instruite par
             MoveSpot, qui communique les coordonnées bancaires et une référence de paiement ; la campagne est activée
-            après constatation effective de l'encaissement.
+            après constatation effective de l'encaissement, confirmée à l'Annonceur par email.
           </li>
         </ul>
         <p>
@@ -108,6 +147,7 @@ function CGV() {
           l'enregistrement d'un moyen de paiement valide.
         </p>
       </LegalSection>
+
 
       <LegalSection title="6. Commission et reversements">
         <p>
