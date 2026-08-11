@@ -202,7 +202,24 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="18. Droit applicable et juridiction">
+      <LegalSection title="18. Notifications et communications">
+        <p>
+          MoveSpot adresse à l'utilisateur des <strong>emails de service</strong> liés à l'exécution du contrat :
+          activation d'une campagne, confirmation de réception d'un virement, décision de modération d'une création ou
+          d'un véhicule, alertes de sécurité du compte. Ces messages sont nécessaires au fonctionnement du service et
+          ne peuvent pas être désactivés tant que le compte est actif.
+        </p>
+        <p>
+          Les emails d'information commerciale sont distincts et n'ont lieu qu'avec consentement. Chacun comporte un
+          lien de désinscription immédiate, également accessible depuis la page{" "}
+          <a href="/unsubscribe" className="text-primary hover:underline">de désinscription</a>. Les emails sont
+          expédiés depuis le domaine <strong>notify.move-spot.com</strong> : tout message présenté comme provenant de
+          MoveSpot depuis une autre adresse doit être considéré comme suspect.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="19. Droit applicable et juridiction">
+
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.
