@@ -58,22 +58,29 @@ function CGV() {
           Un montant plancher de 10 € s'applique par campagne.
         </p>
         <p>
-          Les prix de nos services sont indiqués en euros hors taxes (HT). La TVA applicable est celle en vigueur au
-          jour de la commande et dépend de la localisation géographique de l'Annonceur, conformément aux règles de
-          territorialité de la TVA (Départements d'Outre-Mer).
+          Les prix de nos services sont indiqués en euros hors taxes (HT). La TVA applicable est ajoutée lors de la
+          facturation selon les règles de territorialité en vigueur :
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
-            Pour les Annonceurs situés en <strong>Guadeloupe, Martinique et Réunion</strong>, le taux de TVA local de
-            8,5 % est appliqué lors de la facturation.
+            <strong>Guadeloupe &amp; DOM (Martinique, Réunion)</strong> : le taux de TVA local de 8,5 % est appliqué à
+            la facturation.
           </li>
           <li>
-            Pour les Annonceurs situés en <strong>France métropolitaine ou hors de l'Union européenne</strong>, les
-            prestations sont exonérées de TVA en application de l'article 259 B du Code général des impôts (CGI). La
-            facture porte la mention « TVA non applicable — art. 259 B du CGI » et l'Annonceur procède à
-            l'autoliquidation de la taxe si applicable.
+            <strong>France métropolitaine</strong> : prestation exonérée de TVA (art. 259 B du CGI). La facture porte la
+            mention « TVA non applicable — art. 259 B du CGI ».
+          </li>
+          <li>
+            <strong>Union européenne (hors France)</strong> : facturation hors taxes. L'Annonceur professionnel est
+            redevable de la TVA dans son pays (mécanisme de l'autoliquidation). La facture porte la mention
+            « Autoliquidation — art. 196 de la Directive 2006/112/CE ».
+          </li>
+          <li>
+            <strong>Reste du monde (hors UE)</strong> : prestation exonérée de TVA (art. 259 B du CGI). La facture porte
+            la mention « Exonération de TVA — article 259 B du CGI ».
           </li>
         </ul>
+
       </LegalSection>
 
 
