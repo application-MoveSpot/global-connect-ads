@@ -282,8 +282,23 @@ function NewVehiclePage() {
             <Field label="Zones desservies" value={zones} onChange={setZones} placeholder="Paris 11e, Bastille, République (séparés par virgules)" />
             <div>
               <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
-              <p className="text-xs text-muted-foreground mt-1.5">À renseigner manuellement. MoveSpot doit conserver au moins 30 % de marge : votre prix ne peut pas dépasser 70 % du prix max estimé par l'IA.</p>
+            <div>
+              <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Indiquez <strong className="text-foreground">votre rémunération nette de propriétaire</strong>, pas le prix
+                payé par l'annonceur. L'estimation IA affiche le prix de marché annonceur ; votre prix correspond à 70 % de
+                celui-ci (MoveSpot conserve 30 % de commission).
+                {estimate && estimate.suggested_price_max > 0 && (
+                  <>
+                    {" "}Fourchette conseillée pour vous :{" "}
+                    <strong className="text-foreground">
+                      {Math.floor(estimate.suggested_price_min * 0.7)}–{Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                    </strong>.
+                  </>
+                )}
+              </p>
             </div>
+
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
