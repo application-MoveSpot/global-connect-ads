@@ -120,20 +120,21 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         },
       } as Record<string, unknown>;
 
-      // Paiement en cryptomonnaie (USDC) via Stripe, si activé sur le compte.
-      // Si Stripe refuse la méthode (non activée / devise non supportée), on retombe
-      // automatiquement sur les méthodes de paiement classiques.
+      // Paiement en cryptomonnaie (USDC) proposé si Stripe l'accepte avec l'euro ;
+      // sinon repli automatique sur les moyens de paiement classiques (carte).
       let session;
       try {
         session = await stripe.checkout.sessions.create({
           ...sessionParams,
           payment_method_types: ["card", "crypto"],
         } as never);
-      } catch (cryptoError) {
-        const message = getStripeErrorMessage(cryptoError);
-        if (!/crypto/i.test(message)) throw cryptoError;
-        session = await stripe.checkout.sessions.create(sessionParams as never);
+      } catch {
+        session = await stripe.checkout.sessions.create({
+          ...sessionParams,
+          payment_method_types: ["card"],
+        } as never);
       }
+
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
