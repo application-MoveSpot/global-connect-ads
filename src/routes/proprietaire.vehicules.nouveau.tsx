@@ -282,8 +282,7 @@ function NewVehiclePage() {
             <Field label="Zones desservies" value={zones} onChange={setZones} placeholder="Paris 11e, Bastille, République (séparés par virgules)" />
             <div>
               <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
-            <div>
-              <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
+
               <p className="text-xs text-muted-foreground mt-1.5">
                 Indiquez <strong className="text-foreground">votre rémunération nette de propriétaire</strong>, pas le prix
                 payé par l'annonceur. L'estimation IA affiche le prix de marché annonceur ; votre prix correspond à 70 % de
