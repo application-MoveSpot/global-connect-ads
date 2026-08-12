@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { providerServiceLabel } from "@/lib/provider-services";
+import { StatusHistory } from "@/components/StatusHistory";
 
 export const Route = createFileRoute("/admin/prestataires")({
   head: () => ({
@@ -96,6 +97,13 @@ function AdminProvidersPage() {
                   </div>
                 )}
                 {p.admin_notes && <div className="rounded-lg bg-secondary p-2 text-xs mb-2"><strong>Note :</strong> {p.admin_notes}</div>}
+                <div className="mb-2">
+                  <StatusHistory
+                    entityType="provider_status"
+                    entityId={p.user_id}
+                    statusLabel={{ pending: "En attente", approved: "Approuvée", rejected: "Refusée", suspended: "Suspendue" }}
+                  />
+                </div>
                 <div className="flex flex-wrap gap-2 pt-2">
                   {p.status !== "approved" && (
                     <button onClick={() => setStatus(p.user_id, "approved")} className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-3 py-1.5 text-sm font-semibold hover:bg-signal/30">✓ Approuver</button>

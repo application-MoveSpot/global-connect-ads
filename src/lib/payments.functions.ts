@@ -421,3 +421,59 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
       return { error: getStripeErrorMessage(error) };
     }
   });
+
+// Vérifie côté serveur qu'une session de checkout d'abonnement a bien abouti à une
+// subscription Stripe active/en essai, et met à jour campaign_requests en conséquence
+// (le webhook fait la même chose de façon asynchrone ; cet appel évite d'afficher un
+// écran de succès à l'annonceur avant que la subscription existe réellement).
+const VerifySubscriptionInput = z.object({ sessionId: z.string().min(5) });
+
+export const verifyCampaignSubscriptionSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.infer<typeof VerifySubscriptionInput>) => VerifySubscriptionInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
+
+    try {
+      const stripe = createStripeClient();
+      const session = await stripe.checkout.sessions.retrieve(data.sessionId, {
+        expand: ["subscription"],
+      });
+
+      if (session.metadata?.userId !== userId && session.metadata?.user_id !== userId) {
+        return { error: "Cette session ne vous appartient pas" };
+      }
+
+      const subscription = session.subscription && typeof session.subscription !== "string" ? session.subscription : null;
+      const campaignRequestId = session.metadata?.campaign_id ?? null;
+      const status = subscription?.status ?? (session.status === "complete" ? "active" : "pending");
+
+      if (subscription) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const patch = {
+          stripe_subscription_id: subscription.id,
+          subscription_customer_id:
+            typeof subscription.customer === "string" ? subscription.customer : (subscription.customer?.id ?? null),
+          subscription_status: subscription.status,
+          subscription_current_period_end: (subscription as unknown as { current_period_end?: number })
+            .current_period_end
+            ? new Date(
+                (subscription as unknown as { current_period_end: number }).current_period_end * 1000,
+              ).toISOString()
+            : null,
+        } as never;
+        if (campaignRequestId) {
+          await supabaseAdmin.from("campaign_requests").update(patch).eq("id", campaignRequestId);
+        }
+      }
+
+      return {
+        status,
+        campaignRequestId,
+        trialEnd: subscription?.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+      };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });

@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/LogoLink";
+import { verifyCampaignSubscriptionSession } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/annonceur/essai-active")({
   head: () => ({
@@ -26,8 +29,33 @@ export const Route = createFileRoute("/annonceur/essai-active")({
   component: TrialActivatedPage,
 });
 
+type VerifyState =
+  | { phase: "checking" }
+  | { phase: "ok"; status: string; trialEnd: string | null }
+  | { phase: "error"; message: string };
+
 function TrialActivatedPage() {
   const { session_id: sessionId } = Route.useSearch();
+  const verifySession = useServerFn(verifyCampaignSubscriptionSession);
+  const [state, setState] = useState<VerifyState>({ phase: "checking" });
+
+  useEffect(() => {
+    if (!sessionId) {
+      setState({ phase: "error", message: "Référence de souscription manquante." });
+      return;
+    }
+    verifySession({ data: { sessionId } })
+      .then((r) => {
+        if ("error" in r) {
+          setState({ phase: "error", message: r.error || "Impossible de vérifier votre abonnement." });
+          return;
+        }
+        setState({ phase: "ok", status: r.status, trialEnd: r.trialEnd ?? null });
+      })
+      .catch(() => setState({ phase: "error", message: "Impossible de vérifier votre abonnement." }));
+  }, [sessionId, verifySession]);
+
+  const active = state.phase === "ok" && (state.status === "trialing" || state.status === "active");
 
   return (
     <div className="min-h-screen bg-background">
@@ -41,32 +69,60 @@ function TrialActivatedPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-16">
-        <div className="rounded-2xl border border-signal/40 bg-signal/10 p-8 text-center">
-          <div className="text-4xl mb-4" aria-hidden="true">
-            🎉
+        {state.phase === "checking" ? (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            Vérification de votre abonnement auprès de Stripe…
           </div>
-          <h1 className="font-display text-3xl font-bold">Félicitations, votre essai gratuit est activé !</h1>
-          <p className="mt-3 text-muted-foreground">Votre campagne est en cours de déploiement.</p>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/annonceur"
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              Suivre ma campagne
-            </Link>
-            <Link
-              to="/annonceur/briefs"
-              className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary/50"
-            >
-              Mes briefs
-            </Link>
+        ) : state.phase === "error" ? (
+          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-8 text-center">
+            <div className="text-4xl mb-4" aria-hidden="true">
+              ⚠️
+            </div>
+            <h1 className="font-display text-2xl font-bold">Votre abonnement n'a pas pu être confirmé</h1>
+            <p className="mt-3 text-sm text-muted-foreground">{state.message}</p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/annonceur"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Retour au tableau de bord
+              </Link>
+            </div>
           </div>
+        ) : (
+          <div className="rounded-2xl border border-signal/40 bg-signal/10 p-8 text-center">
+            <div className="text-4xl mb-4" aria-hidden="true">
+              {active ? "🎉" : "⏳"}
+            </div>
+            <h1 className="font-display text-3xl font-bold">
+              {active ? "Félicitations, votre essai gratuit est activé !" : "Votre abonnement est en cours de traitement"}
+            </h1>
+            <p className="mt-3 text-muted-foreground">
+              {active
+                ? "Votre campagne est en cours de déploiement."
+                : "Stripe finalise la souscription — actualisez cette page dans quelques instants."}
+            </p>
 
-          {sessionId ? (
-            <p className="mt-6 text-xs text-muted-foreground break-all">Référence de souscription : {sessionId}</p>
-          ) : null}
-        </div>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/annonceur"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Suivre ma campagne
+              </Link>
+              <Link
+                to="/annonceur/briefs"
+                className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary/50"
+              >
+                Mes briefs
+              </Link>
+            </div>
+
+            {sessionId ? (
+              <p className="mt-6 text-xs text-muted-foreground break-all">Référence de souscription : {sessionId}</p>
+            ) : null}
+          </div>
+        )}
 
         <div className="mt-6 rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
           <p className="font-semibold text-foreground mb-1">Et maintenant ?</p>

@@ -12,6 +12,7 @@ import {
   InstallationPhotoGrid,
   parseInstallationPhotos,
 } from "@/components/InstallationPhotoGrid";
+import { StatusHistory } from "@/components/StatusHistory";
 
 type Props = {
   campaignRequestId: string;
@@ -89,6 +90,20 @@ export function InstallationPhotosPanel({
           Motif MoveSpot : {installationNotes}
         </p>
       ) : null}
+
+      <div className="mb-3">
+        <StatusHistory
+          entityType="campaign_installation"
+          entityId={campaignRequestId}
+          statusLabel={{
+            pending: "Pose non transmise",
+            pending_approval: "En attente de validation",
+            approved: "Pose validée",
+            rejected: "Pose refusée",
+          }}
+          triggerLabel="Historique des poses / refus"
+        />
+      </div>
 
       {existing ? (
         <div className="mb-3">
