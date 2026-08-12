@@ -85,7 +85,7 @@ function HowItWorks() {
             <Step n={1} title="À la zone et au jour">1,80 €/km²/jour, 2,70 € dans les grandes agglomérations, minimum 10 € par campagne. Le devis se calcule pendant que vous dessinez.</Step>
             <Step n={2} title="Ou par abonnement">Trois formules mensuelles par véhicule : Starter 29 €, Standard 42 €, Pro 59 € — avec 14 jours d'essai gratuit et résiliation à tout moment.</Step>
             <Step n={3} title="Le moyen qui vous arrange">Carte bancaire, portefeuille prépayé, cryptomonnaie (USDC) ou virement bancaire pour les budgets B2B.</Step>
-            <Step n={4} title="Tenu informé par email">Campagne activée, virement reçu, décision de modération : chaque étape déclenche un email automatique.</Step>
+            <Step n={4} title="Tenu informé par email">Campagne activée, virement reçu, décision de modération : chaque étape déclenche un email automatique. Dès qu'un virement est validé, la campagne passe en « payée » et la rémunération du propriétaire est enregistrée.</Step>
           </div>
         </section>
 
@@ -99,6 +99,7 @@ function HowItWorks() {
             <li>✅ <strong>Positions GPS</strong> visibles par l'annonceur uniquement pendant la fenêtre de campagne approuvée (RLS Postgres)</li>
             <li>✅ <strong>Double authentification (TOTP)</strong> disponible sur tous les comptes</li>
             <li>✅ <strong>Conformité RGPD</strong> : les positions sont liées au véhicule, pas à l'identité du chauffeur</li>
+            <li>✅ <strong>Mises à jour sans coupure</strong> : les nouvelles versions se chargent sans vous déconnecter</li>
           </ul>
         </section>
 
