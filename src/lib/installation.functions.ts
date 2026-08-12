@@ -19,7 +19,36 @@ const photosSchema = z.object({
   rear: z.string().min(1),
 });
 
-/** Le propriétaire du véhicule transmet les 4 vues après pose du covering. */
+/** Poses à réaliser : campagnes approuvées dont la pose n'est pas encore validée. */
+export const listInstallationJobs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: payee } = await context.supabase
+      .from("payee_profiles")
+      .select("id, kind, certification_status")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    const isInstaller =
+      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+    if (!isInstaller) return { jobs: [], isInstaller: false as const };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("campaign_requests")
+      .select(
+        "id, spot_name, spot_location, company, start_date, end_date, installation_photos, installation_status, installation_notes",
+      )
+      .eq("status", "approved")
+      .neq("installation_status", "approved")
+      .order("start_date", { ascending: true })
+      .limit(100);
+    if (error) throw new Error(error.message);
+
+    return { jobs: data ?? [], isInstaller: true as const };
+  });
+
+/** Le poseur certifié (ou le propriétaire / un admin) transmet les 4 vues après pose du covering. */
 export const submitInstallationPhotos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
@@ -58,8 +87,16 @@ export const submitInstallationPhotos = createServerFn({ method: "POST" })
       _role: "admin",
     });
 
-    if (!isAdmin && (!owner || owner.id !== vehicle.owner_id)) {
-      throw new Error("Seul le propriétaire du véhicule peut transmettre la pose");
+    const { data: payee } = await context.supabase
+      .from("payee_profiles")
+      .select("kind, certification_status")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const isCertifiedInstaller =
+      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+
+    if (!isAdmin && !isCertifiedInstaller && (!owner || owner.id !== vehicle.owner_id)) {
+      throw new Error("Seul le poseur certifié (ou le propriétaire du véhicule) peut transmettre la pose");
     }
 
     const { error } = await supabaseAdmin

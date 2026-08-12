@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { PayeeConnectCard } from "@/components/PayeeConnectCard";
+import { InstallationJobsPanel } from "@/components/InstallationJobsPanel";
 import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payee.functions";
 
 type Profile = {
@@ -129,6 +130,8 @@ function ChauffeurEspace() {
         </div>
 
         <PayeeConnectCard />
+
+        {profile && (profile.kind === "installer" || profile.kind === "both") ? <InstallationJobsPanel /> : null}
 
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
