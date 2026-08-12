@@ -24,7 +24,7 @@ export const adminListBriefsAndCampaigns = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("campaign_requests")
         .select(
-          "id, spot_name, company, email, status, payment_status, total_price, start_date, end_date, days_count, zone_area_km2, creative_files, created_at",
+          "id, spot_name, company, email, status, payment_status, total_price, start_date, end_date, days_count, zone_area_km2, creative_files, created_at, installation_photos, installation_status, installation_notes, installation_reviewed_at",
         )
         .order("created_at", { ascending: false })
         .limit(100),
