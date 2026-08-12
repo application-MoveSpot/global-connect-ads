@@ -318,11 +318,7 @@ export type Database = {
           status: string
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
-          stripe_subscription_id: string | null
           stripe_transfer_id: string | null
-          subscription_current_period_end: string | null
-          subscription_customer_id: string | null
-          subscription_status: string | null
           total_price: number | null
           updated_at: string
           user_id: string | null
@@ -367,11 +363,7 @@ export type Database = {
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
-          stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
-          subscription_current_period_end?: string | null
-          subscription_customer_id?: string | null
-          subscription_status?: string | null
           total_price?: number | null
           updated_at?: string
           user_id?: string | null
@@ -416,11 +408,7 @@ export type Database = {
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
-          stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
-          subscription_current_period_end?: string | null
-          subscription_customer_id?: string | null
-          subscription_status?: string | null
           total_price?: number | null
           updated_at?: string
           user_id?: string | null
@@ -1008,39 +996,6 @@ export type Database = {
           processed_at?: string | null
           received_at?: string
           type?: string
-        }
-        Relationships: []
-      }
-      status_history: {
-        Row: {
-          actor_id: string | null
-          created_at: string
-          entity_id: string
-          entity_type: string
-          id: string
-          new_status: string
-          previous_status: string | null
-          reason: string | null
-        }
-        Insert: {
-          actor_id?: string | null
-          created_at?: string
-          entity_id: string
-          entity_type: string
-          id?: string
-          new_status: string
-          previous_status?: string | null
-          reason?: string | null
-        }
-        Update: {
-          actor_id?: string | null
-          created_at?: string
-          entity_id?: string
-          entity_type?: string
-          id?: string
-          new_status?: string
-          previous_status?: string | null
-          reason?: string | null
         }
         Relationships: []
       }
