@@ -47,7 +47,7 @@ function CGU() {
         </p>
         <p>
           Les mises à jour courantes de la Plateforme sont conçues pour s'effectuer sans interruption de session,
-          conformément aux disptions de l'article 20 « Continuité de service lors des mises à jour ».
+          conformément aux dispositions de l'article 20 « Continuité de service lors des mises à jour ».
         </p>
         <p>
           Indépendamment de ces mises à jour courantes, MoveSpot se réserve le droit de suspendre, interrompre ou
