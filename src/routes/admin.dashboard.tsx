@@ -44,6 +44,8 @@ function AdminDashboard() {
   const [ready, setReady] = useState(false);
 
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
+  const listInstallations = useServerFn(adminListInstallations);
+  const reviewInstallation = useServerFn(adminReviewInstallation);
   const listPoseurs = useServerFn(adminListPoseurs);
   const fleet = useServerFn(adminFleetLatestPositions);
   const approveCampaign = useServerFn(adminApproveCampaign);
