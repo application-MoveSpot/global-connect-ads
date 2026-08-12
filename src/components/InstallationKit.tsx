@@ -14,7 +14,8 @@ type Props = {
  */
 export function InstallationKit({ campaignRequestId, creativeFiles }: Props) {
   const [qrImg, setQrImg] = useState<string | null>(null);
-  const qrUrl = `https://move-spot.com/?utm_source=qr_vehicule&utm_campaign=${campaignRequestId}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://move-spot.com";
+  const qrUrl = `${origin}/c/${campaignRequestId}?utm_source=qr_vehicule`;
 
   useEffect(() => {
     QRCode.toDataURL(qrUrl, { width: 320, margin: 1 })
