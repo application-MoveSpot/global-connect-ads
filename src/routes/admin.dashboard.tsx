@@ -79,6 +79,23 @@ function AdminDashboard() {
     enabled: ready && tab === "poseurs",
     retry: false,
   });
+  const installationsQuery = useQuery({
+    queryKey: ["admin-installations"],
+    queryFn: () => listInstallations(),
+    enabled: ready && tab === "poses",
+    retry: false,
+  });
+  const reviewMut = useMutation({
+    mutationFn: (v: { id: string; approve: boolean; notes?: string }) =>
+      reviewInstallation({
+        data: { campaignRequestId: v.id, approve: v.approve, notes: v.notes },
+      }),
+    onSuccess: (_d, v) => {
+      toast.success(v.approve ? "Pose validée — diffusion autorisée." : "Pose refusée.");
+      qc.invalidateQueries({ queryKey: ["admin-installations"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const fleetQuery = useQuery({
     queryKey: ["admin-fleet"],
     queryFn: () => fleet(),
