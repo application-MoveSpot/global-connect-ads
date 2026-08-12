@@ -46,8 +46,13 @@ function CGU() {
           à l'accès au service (matériel, logiciels, connexion Internet) sont à la charge exclusive de l'utilisateur.
         </p>
         <p>
-          MoveSpot se réserve le droit de suspendre, interrompre ou limiter l'accès à tout ou partie du service, sans
-          préavis ni indemnité, notamment pour des raisons de maintenance ou de mise à jour.
+          Les mises à jour courantes de la Plateforme sont conçues pour s'effectuer sans interruption de session,
+          conformément aux dispositions de l'article 20 « Continuité de service lors des mises à jour ».
+        </p>
+        <p>
+          Indépendamment de ces mises à jour courantes, MoveSpot se réserve le droit de suspendre, interrompre ou
+          limiter temporairement l'accès à tout ou partie du service, sans préavis ni indemnité, en cas de maintenance
+          exceptionnelle, d'incident technique, de force majeure ou pour des motifs de sécurité.
         </p>
       </LegalSection>
 
