@@ -36,6 +36,7 @@ import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.ess
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
+import { Route as CCampaignIdRouteImport } from './routes/c.$campaignId'
 import { Route as ChauffeurIndexRouteImport } from './routes/chauffeur.index'
 import { Route as ChauffeurEspaceRouteImport } from './routes/chauffeur.espace'
 import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
@@ -203,6 +204,11 @@ const AnnonceurPortefeuilleRoute = AnnonceurPortefeuilleRouteImport.update({
 const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   id: '/api/faq-chat',
   path: '/api/faq-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CCampaignIdRoute = CCampaignIdRouteImport.update({
+  id: '/c/$campaignId',
+  path: '/c/$campaignId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChauffeurIndexRoute = ChauffeurIndexRouteImport.update({
@@ -397,6 +403,7 @@ export interface FileRoutesByFullPath {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/c/$campaignId': typeof CCampaignIdRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -457,6 +464,7 @@ export interface FileRoutesByTo {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/c/$campaignId': typeof CCampaignIdRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -518,6 +526,7 @@ export interface FileRoutesById {
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/c/$campaignId': typeof CCampaignIdRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -580,6 +589,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/c/$campaignId'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
@@ -640,6 +650,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/c/$campaignId'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
@@ -700,6 +711,7 @@ export interface FileRouteTypes {
     | '/annonceur/inscription'
     | '/annonceur/portefeuille'
     | '/api/faq-chat'
+    | '/c/$campaignId'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
@@ -758,6 +770,7 @@ export interface RootRouteChildren {
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
+  CCampaignIdRoute: typeof CCampaignIdRoute
   ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
   ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -979,6 +992,13 @@ declare module '@tanstack/react-router' {
       path: '/api/faq-chat'
       fullPath: '/api/faq-chat'
       preLoaderRoute: typeof ApiFaqChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/c/$campaignId': {
+      id: '/c/$campaignId'
+      path: '/c/$campaignId'
+      fullPath: '/c/$campaignId'
+      preLoaderRoute: typeof CCampaignIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chauffeur/': {
@@ -1253,6 +1273,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
+  CCampaignIdRoute: CCampaignIdRoute,
   ChauffeurEspaceRoute: ChauffeurEspaceRoute,
   ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
