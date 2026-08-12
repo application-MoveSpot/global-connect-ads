@@ -13,8 +13,11 @@ import {
   adminCertifyPoseur,
   adminFleetLatestPositions,
   adminListBriefsAndCampaigns,
+  adminListInstallations,
   adminListPoseurs,
+  adminReviewInstallation,
 } from "@/lib/admin.functions";
+import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/InstallationPhotoGrid";
 
 const FleetMap = lazy(() => import("@/components/FleetMap"));
 
