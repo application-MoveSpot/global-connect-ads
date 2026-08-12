@@ -35,7 +35,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "poseurs" | "fleet";
+type Tab = "briefs" | "poses" | "poseurs" | "fleet";
 
 function AdminDashboard() {
   const navigate = useNavigate();
