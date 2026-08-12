@@ -183,13 +183,16 @@ function CGU() {
 
       <LegalSection title="15. Validation de la pose du support publicitaire">
         <p>
-          Après pose du covering, le poseur certifié MoveSpot transmet lui-même, depuis son espace prestataire de
-          la Plateforme, quatre photographies du véhicule (face avant, côté gauche, côté droit, face arrière). Le
-          propriétaire du véhicule ou MoveSpot peuvent y procéder à titre subsidiaire. La campagne passe alors au
-          statut « en attente de validation ». MoveSpot peut approuver ou refuser la pose ; en cas de refus motivé, une nouvelle pose
-          conforme est requise avant tout démarrage de la diffusion et de la rémunération.
+          La pose du covering est réalisée exclusivement par un poseur professionnel certifié MoveSpot. Ni le
+          chauffeur ni le propriétaire du véhicule ne peuvent procéder eux-mêmes à la pose. Après pose, le poseur
+          certifié transmet lui-même, depuis son espace prestataire de la Plateforme, quatre photographies du
+          véhicule (face avant, côté gauche, côté droit, face arrière). MoveSpot peut y procéder à titre
+          subsidiaire en cas d'empêchement technique du poseur. La campagne passe alors au statut « en attente de
+          validation ». MoveSpot peut approuver ou refuser la pose ; en cas de refus motivé, une nouvelle pose
+          conforme par un poseur certifié est requise avant tout démarrage de la diffusion et de la rémunération.
         </p>
       </LegalSection>
+
 
       <LegalSection title="16. Sécurité des comptes">
         <p>
