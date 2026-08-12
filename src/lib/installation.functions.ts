@@ -48,7 +48,7 @@ export const listInstallationJobs = createServerFn({ method: "GET" })
     return { jobs: data ?? [], isInstaller: true as const };
   });
 
-/** Le poseur certifié (ou le propriétaire / un admin) transmet les 4 vues après pose du covering. */
+/** Seul un poseur certifié MoveSpot (ou un admin, à titre subsidiaire) transmet les 4 vues après pose. */
 export const submitInstallationPhotos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
@@ -69,19 +69,6 @@ export const submitInstallationPhotos = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!campaign?.vehicle_id) throw new Error("Campagne ou véhicule introuvable");
 
-    const { data: vehicle } = await supabaseAdmin
-      .from("vehicles")
-      .select("id, owner_id")
-      .eq("id", campaign.vehicle_id)
-      .maybeSingle();
-    if (!vehicle) throw new Error("Véhicule introuvable");
-
-    const { data: owner } = await supabaseAdmin
-      .from("owner_profiles")
-      .select("id")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
@@ -95,9 +82,12 @@ export const submitInstallationPhotos = createServerFn({ method: "POST" })
     const isCertifiedInstaller =
       !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
 
-    if (!isAdmin && !isCertifiedInstaller && (!owner || owner.id !== vehicle.owner_id)) {
-      throw new Error("Seul le poseur certifié (ou le propriétaire du véhicule) peut transmettre la pose");
+    if (!isAdmin && !isCertifiedInstaller) {
+      throw new Error(
+        "Seul un poseur professionnel certifié MoveSpot peut transmettre les photos de pose (MoveSpot à titre subsidiaire).",
+      );
     }
+
 
     const { error } = await supabaseAdmin
       .from("campaign_requests")
