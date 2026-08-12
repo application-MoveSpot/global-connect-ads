@@ -245,6 +245,32 @@ function AdminDashboard() {
           )
         ) : null}
 
+        {tab === "poses" ? (
+          installationsQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Photos transmises par les poseurs certifiés. La diffusion et la rémunération ne
+                démarrent qu'après votre validation.
+              </p>
+              {(installationsQuery.data?.installations ?? []).map((i) => (
+                <InstallationReviewCard
+                  key={i.id}
+                  item={i}
+                  onReview={(approve, notes) => reviewMut.mutate({ id: i.id, approve, notes })}
+                  pending={reviewMut.isPending}
+                />
+              ))}
+              {(installationsQuery.data?.installations ?? []).length === 0 ? (
+                <Empty>Aucune pose transmise pour le moment.</Empty>
+              ) : null}
+            </div>
+          )
+        ) : null}
+
+
+
         {tab === "poseurs" ? (
           poseursQuery.isLoading ? (
             <Skeleton />
