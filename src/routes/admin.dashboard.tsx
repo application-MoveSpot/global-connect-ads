@@ -129,7 +129,8 @@ function AdminDashboard() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const error = briefsQuery.error ?? poseursQuery.error ?? fleetQuery.error;
+  const error =
+    briefsQuery.error ?? installationsQuery.error ?? poseursQuery.error ?? fleetQuery.error;
 
   return (
     <div className="min-h-screen bg-background">
@@ -148,6 +149,7 @@ function AdminDashboard() {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
           <TabBtn active={tab === "briefs"} onClick={() => setTab("briefs")}>Briefs & Campagnes</TabBtn>
+          <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>Poses à valider</TabBtn>
           <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>Certifications poseurs</TabBtn>
           <TabBtn active={tab === "fleet"} onClick={() => setTab("fleet")}>Suivi flotte</TabBtn>
         </div>
