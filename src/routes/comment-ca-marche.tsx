@@ -49,7 +49,7 @@ function HowItWorks() {
         <section className="mb-12">
           <h2 className="font-display text-2xl font-bold mb-4">🎯 Annonceur (entreprise ou particulier)</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <Step n={1} title="Je crée un brief">Format, ville, dates, zones à couvrir, budget — en quelques minutes. Pas besoin d'avoir un véhicule en tête.</Step>
+            <Step n={1} title="Je crée un brief">Format, ville, dates et budget en quelques minutes. Je saisis mes étapes : l'itinéraire, les quartiers traversés, les points d'intérêt et les impressions estimées par jour se calculent automatiquement.</Step>
             <Step n={2} title="Je reçois des propositions">Les propriétaires de véhicules dont la flotte correspond au brief proposent leur prix.</Step>
             <Step n={3} title="J'accepte une offre">Un clic crée la campagne, valide les dates et déclenche la production de l'habillage.</Step>
             <Step n={4} title="Je suis en direct">Carte temps réel : positions GPS, kilomètres parcourus, zones réellement traversées. Plus de promesses, des preuves.</Step>
