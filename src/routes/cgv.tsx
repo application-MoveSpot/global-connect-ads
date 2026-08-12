@@ -17,7 +17,7 @@ export const Route = createFileRoute("/cgv")({
 
 function CGV() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="11 août 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="12 août 2026">
       <LegalSection title="1. Objet">
         <p>
           Les présentes Conditions Générales de Vente (« CGV ») régissent les relations contractuelles entre MoveSpot
@@ -44,6 +44,12 @@ function CGV() {
           L'Annonceur crée un brief depuis son espace, dessine sa zone de diffusion sur la carte et obtient un
           récapitulatif de devis. La commande est validée par l'acceptation de ce devis puis par le règlement.
           Toute commande implique l'acceptation sans réserve des présentes CGV.
+        </p>
+        <p>
+          Les étapes de l'itinéraire saisies par l'Annonceur sont géocodées automatiquement : la Plateforme calcule le
+          tracé, les quartiers traversés, les points d'intérêt à proximité et une estimation d'impressions
+          quotidiennes. Ces éléments sont fournis à titre indicatif pour le dimensionnement de la campagne et ne
+          constituent pas un engagement de résultat sur le volume d'impressions.
         </p>
         <p>
           La validation définitive de la campagne intervient après contrôle du contenu publicitaire par MoveSpot,
@@ -138,8 +144,9 @@ function CGV() {
           </li>
           <li>
             <strong>Virement bancaire</strong>, réservé aux budgets professionnels (B2B). La demande est instruite par
-            MoveSpot, qui communique les coordonnées bancaires et une référence de paiement ; la campagne est activée
-            après constatation effective de l'encaissement, confirmée à l'Annonceur par email.
+            MoveSpot, qui communique les coordonnées bancaires et une référence de paiement. Dès validation de
+            l'encaissement par MoveSpot, la campagne rattachée est automatiquement marquée comme réglée, la
+            répartition 70 / 30 est enregistrée au profit des bénéficiaires et l'Annonceur en est informé par email.
           </li>
         </ul>
         <p>

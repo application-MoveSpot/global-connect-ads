@@ -17,7 +17,7 @@ export const Route = createFileRoute("/confidentialite")({
 
 function Privacy() {
   return (
-    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="11 août 2026">
+    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="12 août 2026">
       <LegalSection title="1. Préambule">
         <p>
           MoveSpot accorde une importance particulière à la protection des données personnelles. La présente politique
@@ -41,7 +41,7 @@ function Privacy() {
           <li><strong>Données d'identification</strong> : nom, prénom, dénomination ou nom du chef d'entreprise, fonction, SIREN/SIRET.</li>
           <li><strong>Données de contact</strong> : adresse email, téléphone, adresse de correspondance.</li>
           <li><strong>Données de compte et de sécurité</strong> : identifiants, journaux de connexion, secret d'authentification à deux facteurs (TOTP) et facteurs enregistrés.</li>
-          <li><strong>Données de campagne</strong> : brief, zone de diffusion dessinée, créations publicitaires, vidéos, dates.</li>
+          <li><strong>Données de campagne</strong> : brief, zone de diffusion dessinée, étapes d'itinéraire saisies (adresses ou lieux, transmises au service de cartographie pour géocodage et calcul de trajet), créations publicitaires, vidéos, dates.</li>
           <li><strong>Données de véhicule et de pose</strong> : caractéristiques, photographies du véhicule et photographies de contrôle de pose (avant, côtés, arrière).</li>
           <li><strong>Données de géolocalisation</strong> : positions GPS horodatées transmises pendant les périodes de conduite déclarées, et métriques agrégées (distance, minutes actives, taux de couverture de zone).</li>
           <li><strong>Données de paiement</strong> : historique de transactions, solde de portefeuille, statut du compte de paiement et références de virement. Les numéros de carte ne sont jamais traités ni stockés par MoveSpot.</li>
@@ -106,7 +106,7 @@ function Privacy() {
           <li><strong>Hébergement, base de données, authentification et stockage de fichiers</strong> — infrastructure cloud de la Plateforme (Union européenne).</li>
           <li><strong>Stripe</strong> — paiements par carte, abonnements, comptes de paiement partenaires et reversements.</li>
           <li><strong>Établissement bancaire</strong> — traitement des virements entrants B2B et des virements SEPA sortants.</li>
-          <li><strong>Mapbox</strong> — affichage cartographique et fonds de carte.</li>
+          <li><strong>Mapbox</strong> — affichage cartographique, fonds de carte, géocodage des adresses d'itinéraire, calcul de trajet et détection des points d'intérêt.</li>
           <li><strong>API publiques françaises</strong> (Annuaire des Entreprises / INSEE Sirene) — vérification des identités d'entreprise.</li>
           <li><strong>Service d'envoi d'emails transactionnels</strong> — notifications de compte et de campagne.</li>
           <li><strong>Fournisseur de modèles d'IA</strong> — assistance conversationnelle et analyse automatisée de photos de véhicules ; aucune donnée n'est utilisée pour entraîner des modèles.</li>
@@ -186,6 +186,11 @@ function Privacy() {
           rôles utilisateurs, authentification à deux facteurs (TOTP) disponible pour tous les comptes, stockage des
           fichiers sensibles dans des espaces privés accessibles uniquement via des liens temporaires signés,
           signature cryptographique des QR codes véhicules, sauvegardes régulières et audits de sécurité.
+        </p>
+        <p>
+          Votre session est conservée localement sur votre terminal (stockage du navigateur) et son jeton est
+          renouvelé automatiquement : les mises à jour de la Plateforme n'entraînent ni perte de session ni
+          transmission supplémentaire de données. La déconnexion supprime ces éléments de votre terminal.
         </p>
       </LegalSection>
 

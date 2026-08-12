@@ -87,7 +87,7 @@ const slides: Slide[] = [
     body: (
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl">
         {[
-          { step: "1", t: "L'annonceur dessine sa zone sur la carte : le budget se calcule automatiquement au km²." },
+          { step: "1", t: "L'annonceur dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls." },
           { step: "2", t: "Il valide le devis et paie par carte, portefeuille prépayé ou virement B2B." },
           { step: "3", t: "MoveSpot modère la création, le véhicule, puis contrôle la pose sur 4 photos." },
           { step: "4", t: "Le chauffeur roule : GPS agrégé, km réels et taux de couverture de zone en direct." },
@@ -106,11 +106,11 @@ const slides: Slide[] = [
     body: (
       <div className="grid md:grid-cols-2 gap-4 max-w-5xl">
         {[
-          { t: "Zones & géo", d: "Dessin de polygones Mapbox, validation des positions en base par PostGIS, budget pondéré par densité." },
+          { t: "Zones & géo", d: "Polygones Mapbox, itinéraire automatisé (géocodage, quartiers, points d'intérêt, impressions estimées), positions validées en base par PostGIS, budget pondéré par densité." },
           { t: "Suivi temps réel", d: "Relevés GPS mis en tampon puis envoyés par lots, agrégés en distance, minutes actives et couverture." },
-          { t: "Paiements", d: "Carte, abonnements par véhicule (Starter 29 € / Standard 42 € / Pro 59 €, essai 14 jours), portefeuille prépayé, USDC, virement B2B, reversements automatisés." },
+          { t: "Paiements", d: "Carte, abonnements par véhicule (Starter 29 € / Standard 42 € / Pro 59 €, essai 14 jours), portefeuille prépayé, USDC, virement B2B validé en un clic qui règle la campagne et déclenche la répartition 70 / 30." },
           { t: "Automatisation", d: "Emails transactionnels déclenchés par la base : campagne activée, virement validé, avec désinscription conforme." },
-          { t: "Confiance", d: "SIRET vérifié, QR véhicules signés, contrôle de pose en 4 photos, double authentification, modération humaine." },
+          { t: "Confiance", d: "SIRET vérifié, QR véhicules signés, contrôle de pose en 4 photos, double authentification, modération humaine, sessions préservées à chaque mise à jour." },
 
         ].map((c) => (
           <div key={c.t} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">

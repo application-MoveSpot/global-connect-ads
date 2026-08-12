@@ -49,7 +49,7 @@ function HowItWorks() {
         <section className="mb-12">
           <h2 className="font-display text-2xl font-bold mb-4">🎯 Annonceur (entreprise ou particulier)</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <Step n={1} title="Je crée un brief">Format, ville, dates, zones à couvrir, budget — en quelques minutes. Pas besoin d'avoir un véhicule en tête.</Step>
+            <Step n={1} title="Je crée un brief">Format, ville, dates et budget en quelques minutes. Je saisis mes étapes : l'itinéraire, les quartiers traversés, les points d'intérêt et les impressions estimées par jour se calculent automatiquement.</Step>
             <Step n={2} title="Je reçois des propositions">Les propriétaires de véhicules dont la flotte correspond au brief proposent leur prix.</Step>
             <Step n={3} title="J'accepte une offre">Un clic crée la campagne, valide les dates et déclenche la production de l'habillage.</Step>
             <Step n={4} title="Je suis en direct">Carte temps réel : positions GPS, kilomètres parcourus, zones réellement traversées. Plus de promesses, des preuves.</Step>
@@ -85,7 +85,7 @@ function HowItWorks() {
             <Step n={1} title="À la zone et au jour">1,80 €/km²/jour, 2,70 € dans les grandes agglomérations, minimum 10 € par campagne. Le devis se calcule pendant que vous dessinez.</Step>
             <Step n={2} title="Ou par abonnement">Trois formules mensuelles par véhicule : Starter 29 €, Standard 42 €, Pro 59 € — avec 14 jours d'essai gratuit et résiliation à tout moment.</Step>
             <Step n={3} title="Le moyen qui vous arrange">Carte bancaire, portefeuille prépayé, cryptomonnaie (USDC) ou virement bancaire pour les budgets B2B.</Step>
-            <Step n={4} title="Tenu informé par email">Campagne activée, virement reçu, décision de modération : chaque étape déclenche un email automatique.</Step>
+            <Step n={4} title="Tenu informé par email">Campagne activée, virement reçu, décision de modération : chaque étape déclenche un email automatique. Dès qu'un virement est validé, la campagne passe en « payée » et la rémunération du propriétaire est enregistrée.</Step>
           </div>
         </section>
 
@@ -99,6 +99,7 @@ function HowItWorks() {
             <li>✅ <strong>Positions GPS</strong> visibles par l'annonceur uniquement pendant la fenêtre de campagne approuvée (RLS Postgres)</li>
             <li>✅ <strong>Double authentification (TOTP)</strong> disponible sur tous les comptes</li>
             <li>✅ <strong>Conformité RGPD</strong> : les positions sont liées au véhicule, pas à l'identité du chauffeur</li>
+            <li>✅ <strong>Mises à jour sans coupure</strong> : les nouvelles versions se chargent sans vous déconnecter</li>
           </ul>
         </section>
 

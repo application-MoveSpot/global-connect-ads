@@ -18,7 +18,7 @@ export const Route = createFileRoute("/cookies")({
 
 function Cookies() {
   return (
-    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="11 août 2026">
+    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="12 août 2026">
       <LegalSection title="1. Qu'est-ce qu'un cookie ?">
         <p>
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) lors de
@@ -54,6 +54,12 @@ function Cookies() {
               <td className="p-3">Stockage local technique</td>
               <td className="p-3">Mémoire tampon des positions GPS du chauffeur avant envoi par lots (aucune lecture publicitaire)</td>
               <td className="p-3">Jusqu'à l'envoi</td>
+              <td className="p-3">Non requis</td>
+            </tr>
+            <tr>
+              <td className="p-3">Stockage local de session</td>
+              <td className="p-3">Conservation du jeton de connexion afin que les mises à jour de l'application ne déconnectent pas l'utilisateur</td>
+              <td className="p-3">Jusqu'à déconnexion</td>
               <td className="p-3">Non requis</td>
             </tr>
             <tr>
@@ -123,7 +129,7 @@ function Cookies() {
       </LegalSection>
 
 
-      <LegalSection title="6. Contact">
+      <LegalSection title="7. Contact">
         <p>
           Pour toute question relative à cette politique cookies, contactez-nous à
           <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.
