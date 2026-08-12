@@ -362,3 +362,72 @@ function Empty({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+type InstallationItem = {
+  id: string;
+  spot_name: string;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+  installation_photos: unknown;
+  installation_status: string | null;
+  installation_notes: string | null;
+};
+
+function InstallationReviewCard({
+  item,
+  onReview,
+  pending,
+}: {
+  item: InstallationItem;
+  onReview: (approve: boolean, notes?: string) => void;
+  pending: boolean;
+}) {
+  const [notes, setNotes] = useState("");
+  const photos = parseInstallationPhotos(item.installation_photos);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="font-semibold">{item.spot_name}</p>
+          <p className="text-sm text-muted-foreground">
+            {item.company} · {item.start_date ?? "—"} → {item.end_date ?? "—"}
+          </p>
+        </div>
+        <span className="text-xs font-semibold text-muted-foreground">
+          Statut pose : {item.installation_status ?? "pending"}
+        </span>
+      </div>
+
+      {photos ? <InstallationPhotoGrid photos={photos} /> : (
+        <p className="text-sm text-muted-foreground">Aucune photo disponible.</p>
+      )}
+
+      {item.installation_notes ? (
+        <p className="mt-3 text-xs text-muted-foreground">Note : {item.installation_notes}</p>
+      ) : null}
+
+      {item.installation_status !== "approved" ? (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Button onClick={() => onReview(true)} disabled={pending}>
+            Approuver la pose
+          </Button>
+          <input
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Motif de refus (obligatoire)"
+            className="flex-1 min-w-[200px] rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          />
+          <Button
+            variant="outline"
+            onClick={() => onReview(false, notes)}
+            disabled={pending || !notes.trim()}
+          >
+            Refuser
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
