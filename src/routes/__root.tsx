@@ -86,6 +86,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <AppUpdateGuard />
       <Outlet />
     </QueryClientProvider>
   );
