@@ -17,7 +17,7 @@ export const Route = createFileRoute("/mentions-legales")({
 
 function MentionsLegales() {
   return (
-    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="11 août 2026">
+    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="12 août 2026">
 
       <LegalSection title="Éditeur du site">
         <p>

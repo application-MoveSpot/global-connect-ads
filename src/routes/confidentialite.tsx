@@ -17,7 +17,7 @@ export const Route = createFileRoute("/confidentialite")({
 
 function Privacy() {
   return (
-    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="11 août 2026">
+    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="12 août 2026">
       <LegalSection title="1. Préambule">
         <p>
           MoveSpot accorde une importance particulière à la protection des données personnelles. La présente politique

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/cgv")({
 
 function CGV() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="11 août 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="12 août 2026">
       <LegalSection title="1. Objet">
         <p>
           Les présentes Conditions Générales de Vente (« CGV ») régissent les relations contractuelles entre MoveSpot
