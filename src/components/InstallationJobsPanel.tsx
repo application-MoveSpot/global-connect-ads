@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { listInstallationJobs } from "@/lib/installation.functions";
 import { InstallationPhotosPanel } from "@/components/InstallationPhotosPanel";
+import { InstallationKit } from "@/components/InstallationKit";
 
 type Job = {
   id: string;
@@ -13,6 +14,7 @@ type Job = {
   installation_photos: unknown;
   installation_status: string | null;
   installation_notes: string | null;
+  creative_files: string[] | null;
 };
 
 const fr = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
@@ -79,6 +81,7 @@ export function InstallationJobsPanel() {
               {job.spot_location ? (
                 <p className="mb-2 text-xs text-muted-foreground">Zone : {job.spot_location}</p>
               ) : null}
+              <InstallationKit campaignRequestId={job.id} creativeFiles={job.creative_files} />
               <InstallationPhotosPanel
                 campaignRequestId={job.id}
                 installationPhotos={job.installation_photos}

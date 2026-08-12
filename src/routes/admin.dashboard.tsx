@@ -18,6 +18,7 @@ import {
   adminReviewInstallation,
 } from "@/lib/admin.functions";
 import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/InstallationPhotoGrid";
+import { StatusHistory } from "@/components/StatusHistory";
 
 const FleetMap = lazy(() => import("@/components/FleetMap"));
 
@@ -184,6 +185,13 @@ function AdminDashboard() {
                             {c.total_price ? `${c.total_price} €` : "montant non défini"} ·{" "}
                             {c.creative_files?.length ?? 0} visuel(s)
                           </p>
+                          <div className="mt-2">
+                            <StatusHistory
+                              entityType="campaign_status"
+                              entityId={c.id}
+                              statusLabel={{ pending: "En attente", approved: "Validée", rejected: "Refusée" }}
+                            />
+                          </div>
                         </div>
                         {c.status !== "approved" ? (
                           <Button
@@ -293,6 +301,13 @@ function AdminDashboard() {
                         Certification : {p.certification_status} · Statut : {p.status} · Virements
                         Stripe : {p.stripe_payouts_enabled ? "actifs" : "inactifs"}
                       </p>
+                      <div className="mt-2">
+                        <StatusHistory
+                          entityType="payee_certification"
+                          entityId={p.id}
+                          statusLabel={{ pending: "En attente", certified: "Certifié", rejected: "Refusé" }}
+                        />
+                      </div>
                     </div>
                     {p.certification_status !== "certified" ? (
                       <Button onClick={() => certifyMut.mutate(p.id)} disabled={certifyMut.isPending}>
@@ -407,6 +422,19 @@ function InstallationReviewCard({
       {item.installation_notes ? (
         <p className="mt-3 text-xs text-muted-foreground">Note : {item.installation_notes}</p>
       ) : null}
+
+      <div className="mt-3">
+        <StatusHistory
+          entityType="campaign_installation"
+          entityId={item.id}
+          statusLabel={{
+            pending: "Pose non transmise",
+            pending_approval: "En attente de validation",
+            approved: "Pose validée",
+            rejected: "Pose refusée",
+          }}
+        />
+      </div>
 
       {item.installation_status !== "approved" ? (
         <div className="mt-4 flex flex-wrap items-center gap-2">

@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { FAQChatbot } from "@/components/FAQChatbot";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
+import { StatusHistory } from "@/components/StatusHistory";
 import { MobilityMap } from "@/components/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
 import { payCampaignWithWallet, getMyWallet } from "@/lib/wallet.functions";
@@ -28,6 +29,7 @@ type Req = {
   creative_files: string[] | null;
   total_price: number | null;
   payment_status: string;
+  subscription_status: string | null;
 };
 
 type Profile = { full_name: string; company: string | null };
@@ -56,7 +58,7 @@ function AnnonceurDashboard() {
     const [{ data: reqs }, w] = await Promise.all([
       supabase
         .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status, subscription_status")
         .eq("user_id", userId)
         .order("created_at", { ascending: false }),
       walletFn(),
@@ -177,11 +179,18 @@ function AnnonceurDashboard() {
                     <strong>Motif :</strong> {r.admin_notes}
                   </div>
                 )}
+                <StatusHistory
+                  entityType="campaign_status"
+                  entityId={r.id}
+                  statusLabel={{ pending: "En attente", approved: "Validée", rejected: "Refusée" }}
+                  triggerLabel="Historique de la demande"
+                />
                 <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
                 <CreativeFiles paths={r.creative_files} />
                 {r.status === "approved" && (
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <PaymentBadge status={r.payment_status} />
+                    {r.subscription_status && <SubscriptionBadge status={r.subscription_status} />}
                     {r.payment_status !== "paid" && r.total_price != null && (
                       <button
                         onClick={() => handlePay(r)}
@@ -242,5 +251,19 @@ function PaymentBadge({ status }: { status: string }) {
     partial_refund: { label: "Remb. partiel", cls: "bg-secondary text-foreground" },
   };
   const s = map[status] ?? map.unpaid;
+  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+}
+
+function SubscriptionBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    trialing: { label: "Essai gratuit en cours", cls: "bg-signal/20 text-signal" },
+    active: { label: "Abonnement actif", cls: "bg-signal/20 text-signal" },
+    past_due: { label: "Paiement échoué", cls: "bg-destructive/20 text-destructive" },
+    unpaid: { label: "Impayé", cls: "bg-destructive/20 text-destructive" },
+    canceled: { label: "Abonnement résilié", cls: "bg-secondary text-foreground" },
+    incomplete: { label: "Souscription en cours", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+  };
+  const s = map[status];
+  if (!s) return null;
   return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
 }

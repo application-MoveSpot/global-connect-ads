@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { providerServiceLabel } from "@/lib/provider-services";
+import { StatusHistory } from "@/components/StatusHistory";
 
 export const Route = createFileRoute("/prestataire/")({
   head: () => ({
@@ -99,6 +100,13 @@ function ProviderDashboard() {
             ⛔ Fiche refusée. {profile.admin_notes && <span>Motif : {profile.admin_notes}</span>}
           </div>
         )}
+        <div className="mb-6">
+          <StatusHistory
+            entityType="provider_status"
+            entityId={profile.user_id}
+            statusLabel={{ pending: "En attente", approved: "Approuvée", rejected: "Refusée" }}
+          />
+        </div>
 
         <ProfilePreview profile={profile} />
 

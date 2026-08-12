@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { PayeeConnectCard } from "@/components/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/InstallationJobsPanel";
+import { StatusHistory } from "@/components/StatusHistory";
 import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payee.functions";
 
 type Profile = {
@@ -109,6 +110,15 @@ function ChauffeurEspace() {
             <p className={`mt-2 text-sm font-semibold ${certif.className}`}>{certif.label}</p>
             {profile?.certification_notes && (
               <p className="mt-1 text-xs text-muted-foreground">{profile.certification_notes}</p>
+            )}
+            {profile && (
+              <div className="mt-2">
+                <StatusHistory
+                  entityType="payee_certification"
+                  entityId={profile.id}
+                  statusLabel={{ pending: "En attente", certified: "Certifié", rejected: "Refusé" }}
+                />
+              </div>
             )}
           </div>
           <div className="rounded-2xl border border-border bg-card p-5">

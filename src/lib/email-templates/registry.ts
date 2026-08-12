@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import { template as campaignActivatedTemplate } from './campaign-activated'
 import { template as bankTransferApprovedTemplate } from './bank-transfer-approved'
+import { template as installationJobAvailableTemplate } from './installation-job-available'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -18,4 +19,5 @@ export interface TemplateEntry {
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'campaign-activated': campaignActivatedTemplate,
   'bank-transfer-approved': bankTransferApprovedTemplate,
+  'installation-job-available': installationJobAvailableTemplate,
 }

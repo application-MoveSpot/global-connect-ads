@@ -50,7 +50,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const { data: campaign, error } = await supabaseAdmin
       .from("campaign_requests")
       .update({
         status: data.approve ? "approved" : "rejected",
@@ -59,10 +59,57 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
           ? "✅ Visuel et zone de ciblage approuvés par MoveSpot — recherche de chauffeurs lancée."
           : "⛔ Visuel ou zone refusés par MoveSpot.",
       } as never)
-      .eq("id", data.campaignRequestId);
-    if (error) throw new Error(error.message);
+      .eq("id", data.campaignRequestId)
+      .select("spot_name, company, start_date, end_date")
+      .single();
+    if (error || !campaign) throw new Error(error?.message ?? "Campagne introuvable");
+
+    if (data.approve) {
+      // Notifie les poseurs certifiés qu'une nouvelle pose (avec son kit affiche/vidéo/QR) est
+      // disponible dans leur espace. Best-effort : ne doit jamais faire échouer l'approbation.
+      notifyCertifiedInstallers(campaign).catch((e) => console.error("notifyCertifiedInstallers failed", e));
+    }
+
     return { ok: true };
   });
+
+async function notifyCertifiedInstallers(campaign: {
+  spot_name: string;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+}) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: installers } = await supabaseAdmin
+    .from("payee_profiles")
+    .select("user_id, full_name")
+    .in("kind", ["installer", "both"])
+    .eq("certification_status", "certified");
+  if (!installers?.length) return;
+
+  const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+  const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
+
+  await Promise.all(
+    installers.map(async (installer) => {
+      const { data: userRow } = await supabaseAdmin.auth.admin.getUserById(installer.user_id);
+      const email = userRow?.user?.email;
+      if (!email) return;
+      await sendAppEmailSafe({
+        templateName: "installation-job-available",
+        recipientEmail: email,
+        templateData: {
+          fullName: installer.full_name,
+          spotName: campaign.spot_name,
+          company: campaign.company,
+          startDate: fmtDate(campaign.start_date),
+          endDate: fmtDate(campaign.end_date),
+          spaceUrl: "https://move-spot.com/chauffeur/espace",
+        },
+      });
+    }),
+  );
+}
 
 export const adminApproveBrief = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

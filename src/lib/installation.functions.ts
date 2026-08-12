@@ -37,7 +37,7 @@ export const listInstallationJobs = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("campaign_requests")
       .select(
-        "id, spot_name, spot_location, company, start_date, end_date, installation_photos, installation_status, installation_notes",
+        "id, spot_name, spot_location, company, start_date, end_date, installation_photos, installation_status, installation_notes, creative_files",
       )
       .eq("status", "approved")
       .neq("installation_status", "approved")
