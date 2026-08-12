@@ -183,9 +183,10 @@ function CGU() {
 
       <LegalSection title="15. Validation de la pose du support publicitaire">
         <p>
-          Après pose du covering, quatre photographies du véhicule (face avant, côté gauche, côté droit, face
-          arrière) doivent être transmises via la Plateforme. La campagne passe alors au statut « en attente de
-          validation ». MoveSpot peut approuver ou refuser la pose ; en cas de refus motivé, une nouvelle pose
+          Après pose du covering, le poseur certifié MoveSpot transmet lui-même, depuis son espace prestataire de
+          la Plateforme, quatre photographies du véhicule (face avant, côté gauche, côté droit, face arrière). Le
+          propriétaire du véhicule ou MoveSpot peuvent y procéder à titre subsidiaire. La campagne passe alors au
+          statut « en attente de validation ». MoveSpot peut approuver ou refuser la pose ; en cas de refus motivé, une nouvelle pose
           conforme est requise avant tout démarrage de la diffusion et de la rémunération.
         </p>
       </LegalSection>
