@@ -218,7 +218,31 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="19. Droit applicable et juridiction">
+      <LegalSection title="19. Planification automatique de l'itinéraire">
+        <p>
+          Lors de la création d'un brief, l'annonceur saisit des étapes (adresses ou lieux). La Plateforme les
+          géocode automatiquement, calcule le tracé routier, identifie les quartiers traversés et les points
+          d'intérêt situés à proximité du trajet, puis en déduit une estimation d'impressions quotidiennes
+          (distance × densité de trafic × coefficients de format, de mobilité et de plage horaire).
+        </p>
+        <p>
+          Cette estimation est une <strong>projection statistique indicative</strong> destinée au dimensionnement de
+          la campagne. Elle ne constitue ni un engagement de résultat, ni une garantie de volume d'impressions ou de
+          passage effectif par les étapes indiquées, l'itinéraire réel dépendant de la circulation et de l'activité
+          du chauffeur.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="20. Continuité de service lors des mises à jour">
+        <p>
+          La Plateforme est mise à jour en continu. Ces mises à jour sont conçues pour ne pas interrompre la session
+          de l'utilisateur : le rechargement d'une nouvelle version de l'application s'effectue de façon transparente
+          et la session connectée est préservée. Une reconnexion peut toutefois rester nécessaire en cas d'expiration
+          normale du jeton d'authentification ou de déconnexion volontaire.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="21. Droit applicable et juridiction">
 
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
