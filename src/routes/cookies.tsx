@@ -57,6 +57,12 @@ function Cookies() {
               <td className="p-3">Non requis</td>
             </tr>
             <tr>
+              <td className="p-3">Stockage local de session</td>
+              <td className="p-3">Conservation du jeton de connexion afin que les mises à jour de l'application ne déconnectent pas l'utilisateur</td>
+              <td className="p-3">Jusqu'à déconnexion</td>
+              <td className="p-3">Non requis</td>
+            </tr>
+            <tr>
               <td className="p-3">Préférences</td>
               <td className="p-3">Mémorisation de la langue et des choix d'affichage</td>
               <td className="p-3">12 mois</td>
@@ -123,7 +129,7 @@ function Cookies() {
       </LegalSection>
 
 
-      <LegalSection title="6. Contact">
+      <LegalSection title="7. Contact">
         <p>
           Pour toute question relative à cette politique cookies, contactez-nous à
           <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.

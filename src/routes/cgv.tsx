@@ -46,6 +46,12 @@ function CGV() {
           Toute commande implique l'acceptation sans réserve des présentes CGV.
         </p>
         <p>
+          Les étapes de l'itinéraire saisies par l'Annonceur sont géocodées automatiquement : la Plateforme calcule le
+          tracé, les quartiers traversés, les points d'intérêt à proximité et une estimation d'impressions
+          quotidiennes. Ces éléments sont fournis à titre indicatif pour le dimensionnement de la campagne et ne
+          constituent pas un engagement de résultat sur le volume d'impressions.
+        </p>
+        <p>
           La validation définitive de la campagne intervient après contrôle du contenu publicitaire par MoveSpot,
           dans un délai indicatif de 24 heures ouvrées.
         </p>
@@ -138,8 +144,9 @@ function CGV() {
           </li>
           <li>
             <strong>Virement bancaire</strong>, réservé aux budgets professionnels (B2B). La demande est instruite par
-            MoveSpot, qui communique les coordonnées bancaires et une référence de paiement ; la campagne est activée
-            après constatation effective de l'encaissement, confirmée à l'Annonceur par email.
+            MoveSpot, qui communique les coordonnées bancaires et une référence de paiement. Dès validation de
+            l'encaissement par MoveSpot, la campagne rattachée est automatiquement marquée comme réglée, la
+            répartition 70 / 30 est enregistrée au profit des bénéficiaires et l'Annonceur en est informé par email.
           </li>
         </ul>
         <p>
