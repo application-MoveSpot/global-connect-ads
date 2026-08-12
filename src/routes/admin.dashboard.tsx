@@ -13,8 +13,11 @@ import {
   adminCertifyPoseur,
   adminFleetLatestPositions,
   adminListBriefsAndCampaigns,
+  adminListInstallations,
   adminListPoseurs,
+  adminReviewInstallation,
 } from "@/lib/admin.functions";
+import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/InstallationPhotoGrid";
 
 const FleetMap = lazy(() => import("@/components/FleetMap"));
 
@@ -32,7 +35,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "poseurs" | "fleet";
+type Tab = "briefs" | "poses" | "poseurs" | "fleet";
 
 function AdminDashboard() {
   const navigate = useNavigate();

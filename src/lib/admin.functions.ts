@@ -24,7 +24,7 @@ export const adminListBriefsAndCampaigns = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("campaign_requests")
         .select(
-          "id, spot_name, company, email, status, payment_status, total_price, start_date, end_date, days_count, zone_area_km2, creative_files, created_at",
+          "id, spot_name, company, email, status, payment_status, total_price, start_date, end_date, days_count, zone_area_km2, creative_files, created_at, installation_photos, installation_status, installation_notes, installation_reviewed_at",
         )
         .order("created_at", { ascending: false })
         .limit(100),
@@ -202,3 +202,59 @@ export type FleetPoint = {
   speed: number | null;
   recordedAt: string;
 };
+
+// ============ Onglet Poses à valider ============
+export const adminListInstallations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("campaign_requests")
+      .select(
+        "id, spot_name, company, email, start_date, end_date, status, payment_status, installation_photos, installation_status, installation_notes, installation_reviewed_at, created_at",
+      )
+      .not("installation_photos", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(200);
+    return { installations: data ?? [] };
+  });
+
+export const adminReviewInstallation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        campaignRequestId: z.string().uuid(),
+        approve: z.boolean(),
+        notes: z.string().max(500).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    if (!data.approve && !data.notes?.trim()) {
+      throw new Error("Un motif de refus est obligatoire");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        installation_status: data.approve ? "approved" : "rejected",
+        installation_notes: data.approve
+          ? (data.notes ?? "✅ Pose conforme validée par MoveSpot.")
+          : data.notes!,
+        installation_reviewed_at: new Date().toISOString(),
+      } as never)
+      .eq("id", data.campaignRequestId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
