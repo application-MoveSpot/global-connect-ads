@@ -44,6 +44,8 @@ function AdminDashboard() {
   const [ready, setReady] = useState(false);
 
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
+  const listInstallations = useServerFn(adminListInstallations);
+  const reviewInstallation = useServerFn(adminReviewInstallation);
   const listPoseurs = useServerFn(adminListPoseurs);
   const fleet = useServerFn(adminFleetLatestPositions);
   const approveCampaign = useServerFn(adminApproveCampaign);
@@ -76,6 +78,23 @@ function AdminDashboard() {
     queryFn: () => listPoseurs(),
     enabled: ready && tab === "poseurs",
     retry: false,
+  });
+  const installationsQuery = useQuery({
+    queryKey: ["admin-installations"],
+    queryFn: () => listInstallations(),
+    enabled: ready && tab === "poses",
+    retry: false,
+  });
+  const reviewMut = useMutation({
+    mutationFn: (v: { id: string; approve: boolean; notes?: string }) =>
+      reviewInstallation({
+        data: { campaignRequestId: v.id, approve: v.approve, notes: v.notes },
+      }),
+    onSuccess: (_d, v) => {
+      toast.success(v.approve ? "Pose validée — diffusion autorisée." : "Pose refusée.");
+      qc.invalidateQueries({ queryKey: ["admin-installations"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
   const fleetQuery = useQuery({
     queryKey: ["admin-fleet"],
@@ -110,7 +129,8 @@ function AdminDashboard() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const error = briefsQuery.error ?? poseursQuery.error ?? fleetQuery.error;
+  const error =
+    briefsQuery.error ?? installationsQuery.error ?? poseursQuery.error ?? fleetQuery.error;
 
   return (
     <div className="min-h-screen bg-background">
@@ -129,6 +149,7 @@ function AdminDashboard() {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
           <TabBtn active={tab === "briefs"} onClick={() => setTab("briefs")}>Briefs & Campagnes</TabBtn>
+          <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>Poses à valider</TabBtn>
           <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>Certifications poseurs</TabBtn>
           <TabBtn active={tab === "fleet"} onClick={() => setTab("fleet")}>Suivi flotte</TabBtn>
         </div>
@@ -224,6 +245,32 @@ function AdminDashboard() {
           )
         ) : null}
 
+        {tab === "poses" ? (
+          installationsQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Photos transmises par les poseurs certifiés. La diffusion et la rémunération ne
+                démarrent qu'après votre validation.
+              </p>
+              {(installationsQuery.data?.installations ?? []).map((i) => (
+                <InstallationReviewCard
+                  key={i.id}
+                  item={i}
+                  onReview={(approve, notes) => reviewMut.mutate({ id: i.id, approve, notes })}
+                  pending={reviewMut.isPending}
+                />
+              ))}
+              {(installationsQuery.data?.installations ?? []).length === 0 ? (
+                <Empty>Aucune pose transmise pour le moment.</Empty>
+              ) : null}
+            </div>
+          )
+        ) : null}
+
+
+
         {tab === "poseurs" ? (
           poseursQuery.isLoading ? (
             <Skeleton />
@@ -312,6 +359,75 @@ function Empty({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
       {children}
+    </div>
+  );
+}
+
+type InstallationItem = {
+  id: string;
+  spot_name: string;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+  installation_photos: unknown;
+  installation_status: string | null;
+  installation_notes: string | null;
+};
+
+function InstallationReviewCard({
+  item,
+  onReview,
+  pending,
+}: {
+  item: InstallationItem;
+  onReview: (approve: boolean, notes?: string) => void;
+  pending: boolean;
+}) {
+  const [notes, setNotes] = useState("");
+  const photos = parseInstallationPhotos(item.installation_photos);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="font-semibold">{item.spot_name}</p>
+          <p className="text-sm text-muted-foreground">
+            {item.company} · {item.start_date ?? "—"} → {item.end_date ?? "—"}
+          </p>
+        </div>
+        <span className="text-xs font-semibold text-muted-foreground">
+          Statut pose : {item.installation_status ?? "pending"}
+        </span>
+      </div>
+
+      {photos ? <InstallationPhotoGrid photos={photos} /> : (
+        <p className="text-sm text-muted-foreground">Aucune photo disponible.</p>
+      )}
+
+      {item.installation_notes ? (
+        <p className="mt-3 text-xs text-muted-foreground">Note : {item.installation_notes}</p>
+      ) : null}
+
+      {item.installation_status !== "approved" ? (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Button onClick={() => onReview(true)} disabled={pending}>
+            Approuver la pose
+          </Button>
+          <input
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Motif de refus (obligatoire)"
+            className="flex-1 min-w-[200px] rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          />
+          <Button
+            variant="outline"
+            onClick={() => onReview(false, notes)}
+            disabled={pending || !notes.trim()}
+          >
+            Refuser
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }
