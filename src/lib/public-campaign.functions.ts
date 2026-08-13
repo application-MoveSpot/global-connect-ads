@@ -2,6 +2,26 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 /**
+ * Périodes déjà réservées (status=approved) pour un véhicule donné, à partir
+ * d'aujourd'hui. Utilisé par BookingForm pour prévenir les conflits de dates
+ * avant soumission. Ne remonte aucune donnée sensible : uniquement start_date/end_date.
+ */
+export const getVehicleBookedPeriods = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ vehicleId: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: bookings } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("start_date, end_date")
+      .eq("vehicle_id", data.vehicleId)
+      .eq("status", "approved")
+      .gte("end_date", today)
+      .order("start_date");
+    return (bookings ?? []) as Array<{ start_date: string; end_date: string }>;
+  });
+
+/**
  * Fiche publique minimale d'une campagne — utilisée par la page /c/$campaignId que le
  * QR code du kit poseur fait scanner aux passants. Ne remonte volontairement que le
  * strict nécessaire (aucune donnée de contact, tarif ou trajet) : c'est un appel service
