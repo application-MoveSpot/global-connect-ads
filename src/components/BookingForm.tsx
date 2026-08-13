@@ -5,6 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
 import { getVehicleBookedPeriods } from "@/lib/public-campaign.functions";
+import type { DateRange } from "react-day-picker";
+import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { fr } from "date-fns/locale";
 
 type BookedPeriod = { start_date: string; end_date: string };
 type DateConflict = {
@@ -37,6 +41,20 @@ function fmtDate(iso: string): string {
   return iso.split("-").reverse().join("/");
 }
 
+function BookingDayButton({ modifiers, onClick, className, ...props }: React.ComponentProps<typeof CalendarDayButton>) {
+  const isBooked = !!modifiers?.booked;
+  return (
+    <CalendarDayButton
+      modifiers={modifiers}
+      onClick={isBooked ? (e) => { e.preventDefault(); e.stopPropagation(); } : onClick}
+      className={cn(
+        className,
+        isBooked && "!bg-red-100 dark:!bg-red-950/40 !text-red-600 dark:!text-red-400 line-through !cursor-not-allowed hover:!bg-red-100 dark:hover:!bg-red-950/40",
+      )}
+      {...props}
+    />
+  );
+}
 
 type Props = {
   spot: Spot | null;
@@ -87,6 +105,14 @@ export function BookingForm({ spot, onClose }: Props) {
   })();
 
   const totalPrice = spot ? daysCount * spot.price : 0;
+
+  const bookedModifiers = bookedPeriods.map((p) => ({
+    from: new Date(p.start_date + "T00:00:00"),
+    to: new Date(p.end_date + "T00:00:00"),
+  }));
+  const calRange: DateRange | undefined = startDate
+    ? { from: new Date(startDate + "T00:00:00"), to: endDate ? new Date(endDate + "T00:00:00") : undefined }
+    : undefined;
 
   const MAX_FILES = 5;
   const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -154,6 +180,26 @@ export function BookingForm({ spot, onClose }: Props) {
   const goSignIn = () => {
     onClose();
     navigate({ to: "/annonceur/inscription", search: { redirect: window.location.pathname + "#spots" } });
+  };
+
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    setDateConflict(null);
+    setStatus("idle");
+    if (!range?.from) return;
+    const fromISO = toISO(range.from);
+    const endISO = range.to ? toISO(range.to) : fromISO;
+    const days = range.to ? Math.round((range.to.getTime() - range.from.getTime()) / 86400000) + 1 : 1;
+    const conflict = checkDateOverlap(fromISO, endISO, bookedPeriods);
+    if (conflict) {
+      setDateConflict({
+        conflictStart: conflict.start_date,
+        conflictEnd: conflict.end_date,
+        suggestion: nextAvailableSlot(days, bookedPeriods, minStart),
+      });
+      return;
+    }
+    setStartDate(fromISO);
+    setEndDate(endISO);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -394,26 +440,31 @@ export function BookingForm({ spot, onClose }: Props) {
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="text-sm font-semibold">📅 Période de diffusion</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Date de début</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      min={toISO(minStart)}
-                      onChange={(e) => { setStartDate(e.target.value); setStatus("idle"); setDateConflict(null); }}
-                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Date de fin</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      min={startDate || toISO(minStart)}
-                      onChange={(e) => { setEndDate(e.target.value); setStatus("idle"); setDateConflict(null); }}
-                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                    />
+                <div className="flex flex-col items-center gap-2">
+                  <Calendar
+                    mode="range"
+                    locale={fr}
+                    selected={calRange}
+                    onSelect={handleRangeSelect}
+                    disabled={{ before: minStart }}
+                    modifiers={{ booked: bookedModifiers }}
+                    components={{ DayButton: BookingDayButton }}
+                    numberOfMonths={1}
+                    className="rounded-lg border border-border self-center"
+                  />
+                  <div className="flex items-center gap-4 text-[11px] text-muted-foreground self-start">
+                    <span className="flex items-center gap-1.5">
+                      <span className="inline-block h-3 w-3 rounded-sm bg-primary" />
+                      Sélectionnée
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="inline-block h-3 w-3 rounded-sm bg-red-200 dark:bg-red-900" />
+                      Réservée
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="inline-block h-3 w-3 rounded-sm bg-muted opacity-50" />
+                      Non disponible
+                    </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -488,17 +539,6 @@ export function BookingForm({ spot, onClose }: Props) {
                       </div>
                     )}
                   </div>
-                )}
-
-                {/* Booked-periods hint */}
-                {bookedPeriods.length > 0 && !dateConflict && (
-                  <p className="text-[11px] text-muted-foreground">
-                    <span className="font-medium">Déjà réservé : </span>
-                    {bookedPeriods.slice(0, 4).map((b, i) => (
-                      <span key={i}>{i > 0 ? " · " : ""}{fmtDate(b.start_date)}–{fmtDate(b.end_date)}</span>
-                    ))}
-                    {bookedPeriods.length > 4 && ` et ${bookedPeriods.length - 4} autre(s)`}
-                  </p>
                 )}
 
                 <p className="text-[11px] text-muted-foreground">
