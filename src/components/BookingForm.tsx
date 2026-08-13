@@ -4,7 +4,6 @@ import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
-import { getVehicleBookedPeriods } from "@/lib/public-campaign.functions";
 import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -80,6 +79,8 @@ export function BookingForm({ spot, onClose }: Props) {
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
   const [bookedPeriods, setBookedPeriods] = useState<BookedPeriod[]>([]);
+  const [periodsLoading, setPeriodsLoading] = useState(false);
+  const [periodsError, setPeriodsError] = useState(false);
   const [dateConflict, setDateConflict] = useState<DateConflict | null>(null);
 
   // Calendrier de réservation : min 3 jours d'avance, durée 1 à 30 jours
@@ -167,12 +168,20 @@ export function BookingForm({ spot, onClose }: Props) {
     })();
   }, [spot]);
 
-  // Load already-booked date ranges for this vehicle
+  // Load already-booked date ranges via the SECURITY DEFINER RPC (bypasses RLS,
+  // returns only start_date/end_date — no sensitive data exposed).
   useEffect(() => {
     if (!spot?.vehicleId) { setBookedPeriods([]); return; }
-    getVehicleBookedPeriods({ data: { vehicleId: spot.vehicleId } })
-      .then(setBookedPeriods)
-      .catch(() => setBookedPeriods([]));
+    setPeriodsLoading(true);
+    setPeriodsError(false);
+    supabase
+      .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
+      .then(({ data, error }) => {
+        if (error) { setPeriodsError(true); setBookedPeriods([]); }
+        else setBookedPeriods((data ?? []) as BookedPeriod[]);
+      })
+      .catch(() => setPeriodsError(true))
+      .finally(() => setPeriodsLoading(false));
   }, [spot?.vehicleId]);
 
   if (!spot) return null;
@@ -241,6 +250,13 @@ export function BookingForm({ spot, onClose }: Props) {
     if (dailyEnd <= dailyStart) {
       setStatus("rejected");
       setReason("L'heure de fin de diffusion doit être après l'heure de début.");
+      return;
+    }
+
+    // Block if availability couldn't be verified (RPC failed)
+    if (periodsError || periodsLoading) {
+      setStatus("rejected");
+      setReason("Impossible de vérifier les disponibilités du véhicule. Veuillez rafraîchir la page avant de soumettre.");
       return;
     }
 
@@ -315,15 +331,22 @@ export function BookingForm({ spot, onClose }: Props) {
     if (created?.status === "rejected" && created.admin_notes?.includes("réservé")) {
       setStatus("idle");
       if (spot.vehicleId) {
-        // Refresh booked periods so the UI shows the new blocker
-        getVehicleBookedPeriods({ data: { vehicleId: spot.vehicleId } })
-          .then((fresh) => {
-            setBookedPeriods(fresh);
-            const conflict = checkDateOverlap(startDate, endDate, fresh);
+        // Refresh booked periods via RPC so the calendar immediately shows the new blocker
+        supabase
+          .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
+          .then(({ data: fresh, error: rpcErr }) => {
+            if (rpcErr || !fresh) {
+              setStatus("rejected");
+              setReason("Ces dates viennent d'être réservées. Veuillez rafraîchir la page.");
+              return;
+            }
+            const freshPeriods = fresh as BookedPeriod[];
+            setBookedPeriods(freshPeriods);
+            const conflict = checkDateOverlap(startDate, endDate, freshPeriods);
             setDateConflict({
               conflictStart: conflict?.start_date ?? startDate,
               conflictEnd: conflict?.end_date ?? endDate,
-              suggestion: nextAvailableSlot(daysCount, fresh, minStart),
+              suggestion: nextAvailableSlot(daysCount, freshPeriods, minStart),
             });
           })
           .catch(() => {
@@ -439,7 +462,15 @@ export function BookingForm({ spot, onClose }: Props) {
               </div>
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
-                <div className="text-sm font-semibold">📅 Période de diffusion</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold">📅 Période de diffusion</div>
+                  {periodsLoading && (
+                    <span className="text-[11px] text-muted-foreground animate-pulse">Chargement des disponibilités…</span>
+                  )}
+                  {periodsError && (
+                    <span className="text-[11px] text-destructive font-medium">⚠ Disponibilités non chargées — rafraîchissez</span>
+                  )}
+                </div>
                 <div className="flex flex-col items-center gap-2">
                   <Calendar
                     mode="range"
@@ -613,7 +644,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
               )}
 
-              <button type="submit" disabled={status === "loading" || !accepted || !!dateConflict} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
+              <button type="submit" disabled={status === "loading" || !accepted || !!dateConflict || periodsLoading || periodsError} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
                 {status === "loading" ? "Envoi..." : "Soumettre la campagne"}
               </button>
             </div>
