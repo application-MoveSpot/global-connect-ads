@@ -4,6 +4,38 @@ import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
+import { getVehicleBookedPeriods } from "@/lib/public-campaign.functions";
+
+type BookedPeriod = { start_date: string; end_date: string };
+type DateConflict = {
+  conflictStart: string;
+  conflictEnd: string;
+  suggestion: { start: string; end: string } | null;
+};
+
+function checkDateOverlap(start: string, end: string, periods: BookedPeriod[]): BookedPeriod | null {
+  return periods.find((p) => p.start_date <= end && p.end_date >= start) ?? null;
+}
+
+function nextAvailableSlot(days: number, periods: BookedPeriod[], earliest: Date): { start: string; end: string } {
+  const sorted = [...periods].sort((a, b) => a.start_date.localeCompare(b.start_date));
+  const toISO = (d: Date) => d.toISOString().slice(0, 10);
+  const addDays = (d: Date, n: number) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+  let candidateStart = new Date(earliest);
+  for (const p of sorted) {
+    const pStart = new Date(p.start_date);
+    const candidateEnd = addDays(candidateStart, days - 1);
+    if (candidateEnd < pStart) break;
+    const after = new Date(p.end_date);
+    after.setDate(after.getDate() + 1);
+    if (after > candidateStart) candidateStart = after;
+  }
+  return { start: toISO(candidateStart), end: toISO(addDays(candidateStart, days - 1)) };
+}
+
+function fmtDate(iso: string): string {
+  return iso.split("-").reverse().join("/");
+}
 
 
 type Props = {
@@ -29,6 +61,8 @@ export function BookingForm({ spot, onClose }: Props) {
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [reason, setReason] = useState("");
+  const [bookedPeriods, setBookedPeriods] = useState<BookedPeriod[]>([]);
+  const [dateConflict, setDateConflict] = useState<DateConflict | null>(null);
 
   // Calendrier de réservation : min 3 jours d'avance, durée 1 à 30 jours
   const MIN_LEAD_DAYS = 3;
@@ -107,6 +141,14 @@ export function BookingForm({ spot, onClose }: Props) {
     })();
   }, [spot]);
 
+  // Load already-booked date ranges for this vehicle
+  useEffect(() => {
+    if (!spot?.vehicleId) { setBookedPeriods([]); return; }
+    getVehicleBookedPeriods({ data: { vehicleId: spot.vehicleId } })
+      .then(setBookedPeriods)
+      .catch(() => setBookedPeriods([]));
+  }, [spot?.vehicleId]);
+
   if (!spot) return null;
 
   const goSignIn = () => {
@@ -155,6 +197,20 @@ export function BookingForm({ spot, onClose }: Props) {
       setReason("L'heure de fin de diffusion doit être après l'heure de début.");
       return;
     }
+
+    // Pre-check: dates already booked?
+    if (bookedPeriods.length > 0) {
+      const conflict = checkDateOverlap(startDate, endDate, bookedPeriods);
+      if (conflict) {
+        setDateConflict({
+          conflictStart: conflict.start_date,
+          conflictEnd: conflict.end_date,
+          suggestion: nextAvailableSlot(daysCount, bookedPeriods, minStart),
+        });
+        return;
+      }
+    }
+    setDateConflict(null);
     setStatus("loading");
 
     // Upload creative files first
@@ -176,34 +232,65 @@ export function BookingForm({ spot, onClose }: Props) {
       }
     }
 
-    const { error } = await supabase.from("campaign_requests").insert({
-      user_id: auth.userId,
-      spot_id: String(spot.id),
-      vehicle_id: spot.vehicleId ?? null,
-      spot_name: spot.name,
-      spot_location: spot.location,
-      spot_price: spot.price,
-      company: auth.profile.company ?? auth.profile.full_name,
-      email: auth.profile.email,
-      message,
-      start_date: startDate,
-      end_date: endDate,
-      days_count: daysCount,
-      total_price: totalPrice,
-      daily_start_time: dailyStart,
-      daily_end_time: dailyEnd,
-      route_zones: itinerary.zones.slice(0, 50),
-      route_waypoints: itinerary.waypoints.slice(0, 50),
-      route_pois: itinerary.pois.slice(0, 50),
-      estimated_impressions_per_day: itinerary.impressionsPerDay || suggestedImpressions || null,
+    const { data: created, error } = await supabase
+      .from("campaign_requests")
+      .insert({
+        user_id: auth.userId,
+        spot_id: String(spot.id),
+        vehicle_id: spot.vehicleId ?? null,
+        spot_name: spot.name,
+        spot_location: spot.location,
+        spot_price: spot.price,
+        company: auth.profile.company ?? auth.profile.full_name,
+        email: auth.profile.email,
+        message,
+        start_date: startDate,
+        end_date: endDate,
+        days_count: daysCount,
+        total_price: totalPrice,
+        daily_start_time: dailyStart,
+        daily_end_time: dailyEnd,
+        route_zones: itinerary.zones.slice(0, 50),
+        route_waypoints: itinerary.waypoints.slice(0, 50),
+        route_pois: itinerary.pois.slice(0, 50),
+        estimated_impressions_per_day: itinerary.impressionsPerDay || suggestedImpressions || null,
+        creative_files: uploadedPaths,
+      })
+      .select("id, status, admin_notes")
+      .single();
 
-      creative_files: uploadedPaths,
-    });
     if (error) {
       setStatus("rejected");
       setReason("Erreur lors de l'envoi. Veuillez réessayer.");
       return;
     }
+
+    // TOCTOU: dates were grabbed by someone else between our pre-check and our insert
+    if (created?.status === "rejected" && created.admin_notes?.includes("réservé")) {
+      setStatus("idle");
+      if (spot.vehicleId) {
+        // Refresh booked periods so the UI shows the new blocker
+        getVehicleBookedPeriods({ data: { vehicleId: spot.vehicleId } })
+          .then((fresh) => {
+            setBookedPeriods(fresh);
+            const conflict = checkDateOverlap(startDate, endDate, fresh);
+            setDateConflict({
+              conflictStart: conflict?.start_date ?? startDate,
+              conflictEnd: conflict?.end_date ?? endDate,
+              suggestion: nextAvailableSlot(daysCount, fresh, minStart),
+            });
+          })
+          .catch(() => {
+            setStatus("rejected");
+            setReason("Ces dates viennent d'être réservées. Choisissez d'autres dates.");
+          });
+      } else {
+        setStatus("rejected");
+        setReason("Ces dates viennent d'être réservées. Choisissez d'autres dates.");
+      }
+      return;
+    }
+
     setStatus("success");
   };
 
@@ -314,7 +401,7 @@ export function BookingForm({ spot, onClose }: Props) {
                       type="date"
                       value={startDate}
                       min={toISO(minStart)}
-                      onChange={(e) => { setStartDate(e.target.value); setStatus("idle"); }}
+                      onChange={(e) => { setStartDate(e.target.value); setStatus("idle"); setDateConflict(null); }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
@@ -324,7 +411,7 @@ export function BookingForm({ spot, onClose }: Props) {
                       type="date"
                       value={endDate}
                       min={startDate || toISO(minStart)}
-                      onChange={(e) => { setEndDate(e.target.value); setStatus("idle"); }}
+                      onChange={(e) => { setEndDate(e.target.value); setStatus("idle"); setDateConflict(null); }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
@@ -356,6 +443,64 @@ export function BookingForm({ spot, onClose }: Props) {
                     <span>Total estimé : <strong>{totalPrice.toLocaleString("fr-FR")} €</strong></span>
                   </div>
                 )}
+                {/* Conflict banner */}
+                {dateConflict && (
+                  <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 p-3 space-y-2.5">
+                    <div className="flex items-start gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                        <path fillRule="evenodd" d="M6.701 2.25c.577-1 2.02-1 2.598 0l5.196 9a1.5 1.5 0 0 1-1.299 2.25H2.804a1.5 1.5 0 0 1-1.3-2.25l5.197-9ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                          Ces dates sont déjà réservées
+                        </p>
+                        <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                          Ce véhicule est déjà occupé du{" "}
+                          <strong>{fmtDate(dateConflict.conflictStart)}</strong> au{" "}
+                          <strong>{fmtDate(dateConflict.conflictEnd)}</strong>.
+                          Votre message et vos visuels sont conservés — seules les dates doivent changer.
+                        </p>
+                      </div>
+                    </div>
+                    {dateConflict.suggestion && (
+                      <div>
+                        <p className="text-xs font-medium text-amber-800 dark:text-amber-300 mb-1.5">
+                          Première disponibilité suggérée :
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStartDate(dateConflict.suggestion!.start);
+                            setEndDate(dateConflict.suggestion!.end);
+                            setDateConflict(null);
+                          }}
+                          className="flex w-full items-center justify-between rounded-lg border border-amber-400 bg-white dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                        >
+                          <span>
+                            {fmtDate(dateConflict.suggestion.start)}{" "}→{" "}
+                            {fmtDate(dateConflict.suggestion.end)}
+                            {daysCount > 0 && (
+                              <span className="ml-1.5 text-xs opacity-70">({daysCount} jour{daysCount > 1 ? "s" : ""})</span>
+                            )}
+                          </span>
+                          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Choisir →</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Booked-periods hint */}
+                {bookedPeriods.length > 0 && !dateConflict && (
+                  <p className="text-[11px] text-muted-foreground">
+                    <span className="font-medium">Déjà réservé : </span>
+                    {bookedPeriods.slice(0, 4).map((b, i) => (
+                      <span key={i}>{i > 0 ? " · " : ""}{fmtDate(b.start_date)}–{fmtDate(b.end_date)}</span>
+                    ))}
+                    {bookedPeriods.length > 4 && ` et ${bookedPeriods.length - 4} autre(s)`}
+                  </p>
+                )}
+
                 <p className="text-[11px] text-muted-foreground">
                   Réservation possible à partir de <strong>{MIN_LEAD_DAYS} jours</strong> et jusqu'à <strong>{MAX_DURATION_DAYS} jours</strong> consécutifs. Les dates passées ou déjà réservées sont automatiquement refusées.
                 </p>
