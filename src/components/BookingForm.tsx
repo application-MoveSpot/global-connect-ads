@@ -618,7 +618,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
               )}
 
-              <button type="submit" disabled={status === "loading"} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+              <button type="submit" disabled={status === "loading" || !accepted} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
                 {status === "loading" ? "Envoi..." : "Soumettre la campagne"}
               </button>
             </div>
