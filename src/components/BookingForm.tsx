@@ -496,20 +496,15 @@ export function BookingForm({ spot, onClose }: Props) {
                 )}
                 {/* Conflict banner */}
                 {dateConflict && (
-                  <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 p-3 space-y-2.5">
+                  <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 space-y-2.5">
                     <div className="flex items-start gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
-                        <path fillRule="evenodd" d="M6.701 2.25c.577-1 2.02-1 2.598 0l5.196 9a1.5 1.5 0 0 1-1.299 2.25H2.804a1.5 1.5 0 0 1-1.3-2.25l5.197-9ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
-                      </svg>
                       <div>
-                        <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                          Ces dates sont déjà réservées
+                        <p className="text-sm font-semibold text-destructive">
+                          ⛔ Refus automatique — Le véhicule est déjà réservé sur la période du{" "}
+                          {fmtDate(dateConflict.conflictStart)} au {fmtDate(dateConflict.conflictEnd)}.
                         </p>
-                        <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                          Ce véhicule est déjà occupé du{" "}
-                          <strong>{fmtDate(dateConflict.conflictStart)}</strong> au{" "}
-                          <strong>{fmtDate(dateConflict.conflictEnd)}</strong>.
-                          Votre message et vos visuels sont conservés — seules les dates doivent changer.
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Votre message et vos visuels sont conservés — choisissez simplement d'autres dates.
                         </p>
                       </div>
                     </div>
@@ -618,7 +613,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
               )}
 
-              <button type="submit" disabled={status === "loading" || !accepted} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
+              <button type="submit" disabled={status === "loading" || !accepted || !!dateConflict} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
                 {status === "loading" ? "Envoi..." : "Soumettre la campagne"}
               </button>
             </div>
