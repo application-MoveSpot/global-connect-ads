@@ -111,9 +111,10 @@ export function BookingForm({ spot, onClose }: Props) {
     from: new Date(p.start_date + "T00:00:00"),
     to: new Date(p.end_date + "T00:00:00"),
   }));
-  const calRange: DateRange | undefined = startDate
-    ? { from: new Date(startDate + "T00:00:00"), to: endDate ? new Date(endDate + "T00:00:00") : undefined }
-    : undefined;
+  const [calRange, setCalRange] = useState<DateRange | undefined>({
+    from: new Date(toISO(defaultStart) + "T00:00:00"),
+    to: new Date(toISO(defaultEnd) + "T00:00:00"),
+  });
 
   const MAX_FILES = 5;
   const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -192,12 +193,16 @@ export function BookingForm({ spot, onClose }: Props) {
   };
 
   const handleRangeSelect = (range: DateRange | undefined) => {
+    // Always update the visual calendar state so react-day-picker can show
+    // the in-progress selection (from only, no to yet) without resetting.
+    setCalRange(range);
     setDateConflict(null);
     setStatus("idle");
-    if (!range?.from) return;
+    // Only validate and commit once the user has picked both dates.
+    if (!range?.from || !range?.to) return;
     const fromISO = toISO(range.from);
-    const endISO = range.to ? toISO(range.to) : fromISO;
-    const days = range.to ? Math.round((range.to.getTime() - range.from.getTime()) / 86400000) + 1 : 1;
+    const endISO = toISO(range.to);
+    const days = Math.round((range.to.getTime() - range.from.getTime()) / 86400000) + 1;
     const conflict = checkDateOverlap(fromISO, endISO, bookedPeriods);
     if (conflict) {
       setDateConflict({
@@ -547,8 +552,14 @@ export function BookingForm({ spot, onClose }: Props) {
                         <button
                           type="button"
                           onClick={() => {
-                            setStartDate(dateConflict.suggestion!.start);
-                            setEndDate(dateConflict.suggestion!.end);
+                            const s = dateConflict.suggestion!.start;
+                            const e = dateConflict.suggestion!.end;
+                            setStartDate(s);
+                            setEndDate(e);
+                            setCalRange({
+                              from: new Date(s + "T00:00:00"),
+                              to: new Date(e + "T00:00:00"),
+                            });
                             setDateConflict(null);
                           }}
                           className="flex w-full items-center justify-between rounded-lg border border-amber-400 bg-white dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
