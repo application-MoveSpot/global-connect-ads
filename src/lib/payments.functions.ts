@@ -80,7 +80,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
 
       const sessionParams = {
         mode: "payment",
-        ui_mode: "embedded_page",
+        ui_mode: "embedded",
         return_url: returnUrl,
         customer: customerId,
         line_items: [{
@@ -390,7 +390,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "embedded_page",
+        ui_mode: "embedded",
         return_url: returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: data.vehicleQuantity }],
