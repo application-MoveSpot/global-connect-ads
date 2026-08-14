@@ -1,17 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getDrivingRules } from "./driving-rules";
 
-// Retourne "HH:MM" en heure locale France pour un timestamp ISO donné.
-// Nécessaire pour comparer aux daily_start_time / daily_end_time stockés sans timezone.
-function localTimeFrance(isoTs: string): string {
-  const date = new Date(isoTs);
+// Retourne "HH:MM" dans le fuseau IANA indiqué pour comparer aux plages horaires
+// stockées sans timezone dans daily_start_time / daily_end_time.
+function localTime(isoTs: string, timezone: string): string {
   const parts = new Intl.DateTimeFormat("fr-FR", {
-    timeZone: "Europe/Paris",
+    timeZone: timezone,
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-  }).formatToParts(date);
+  }).formatToParts(new Date(isoTs));
   const h = parts.find((p) => p.type === "hour")?.value ?? "00";
   const m = parts.find((p) => p.type === "minute")?.value ?? "00";
   return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
@@ -23,9 +23,10 @@ function isWithinDailyWindow(
   isoTs: string,
   dailyStartTime: string | null,
   dailyEndTime: string | null,
+  timezone = "Europe/Paris",
 ): boolean {
   if (!dailyStartTime || !dailyEndTime) return true;
-  const t = localTimeFrance(isoTs);
+  const t = localTime(isoTs, timezone);
   return t >= dailyStartTime && t <= dailyEndTime;
 }
 
@@ -44,9 +45,24 @@ export const pushPosition = createServerFn({ method: "POST" })
   .inputValidator((input) => PositionSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Même protection que pushPositionBatch : on ne taggue le point avec la
+    // campagne que si l'heure courante est dans la plage horaire déclarée.
+    let campaignRequestId = data.campaignRequestId ?? null;
+    if (campaignRequestId) {
+      const { data: cr } = await supabase
+        .from("campaign_requests")
+        .select("daily_start_time, daily_end_time, timezone")
+        .eq("id", campaignRequestId)
+        .maybeSingle();
+      if (!isWithinDailyWindow(new Date().toISOString(), cr?.daily_start_time ?? null, cr?.daily_end_time ?? null, cr?.timezone ?? "Europe/Paris")) {
+        campaignRequestId = null;
+      }
+    }
+
     const { error } = await supabase.from("vehicle_positions").insert({
       vehicle_id: data.vehicleId,
-      campaign_request_id: data.campaignRequestId ?? null,
+      campaign_request_id: campaignRequestId,
       owner_id: userId,
       lat: data.lat,
       lng: data.lng,
@@ -85,14 +101,14 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
     // Récupère la plage horaire de la campagne pour ne taguer les points
     // qu'à l'intérieur de la fenêtre déclarée (RGPD – minimisation des données,
     // Directive plateforme 2024/2831 – protection des travailleurs).
-    let campaignWindow: { daily_start_time: string | null; daily_end_time: string | null } | null = null;
+    let campaignWindow: { daily_start_time: string | null; daily_end_time: string | null; timezone: string } | null = null;
     if (data.campaignRequestId) {
       const { data: cr } = await supabase
         .from("campaign_requests")
-        .select("daily_start_time, daily_end_time")
+        .select("daily_start_time, daily_end_time, timezone")
         .eq("id", data.campaignRequestId)
         .maybeSingle();
-      campaignWindow = cr ?? null;
+      campaignWindow = cr ? { ...cr, timezone: cr.timezone ?? "Europe/Paris" } : null;
     }
 
     const rows = data.points.map((p) => {
@@ -102,6 +118,7 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
           p.recordedAt,
           campaignWindow?.daily_start_time ?? null,
           campaignWindow?.daily_end_time ?? null,
+          campaignWindow?.timezone ?? "Europe/Paris",
         );
       return {
         vehicle_id: data.vehicleId,
@@ -133,6 +150,7 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
           p.recordedAt,
           campaignWindow?.daily_start_time ?? null,
           campaignWindow?.daily_end_time ?? null,
+          campaignWindow?.timezone ?? "Europe/Paris",
         ),
       );
       if (inWindowPoints.length > 0) {
@@ -186,7 +204,7 @@ export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
     const today = new Date().toISOString().slice(0, 10);
     const { data: rows, error } = await supabase
       .from("campaign_requests")
-      .select("id, start_date, end_date, spot_name, company, daily_start_time, daily_end_time")
+      .select("id, start_date, end_date, spot_name, company, daily_start_time, daily_end_time, country_code, timezone")
       .eq("vehicle_id", data.vehicleId)
       .eq("status", "approved")
       .lte("start_date", today)
@@ -203,6 +221,7 @@ export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
         new Date().toISOString(),
         campaign.daily_start_time,
         campaign.daily_end_time,
+        campaign.timezone ?? "Europe/Paris",
       )
     ) {
       return { campaign: null };
@@ -253,4 +272,115 @@ export const getAdvertiserActiveCampaigns = createServerFn({ method: "GET" })
       .order("start_date", { ascending: false });
     if (error) throw new Error(error.message);
     return { campaigns: data ?? [] };
+  });
+
+// ─── Analyse des pauses conducteur ───────────────────────────────────────────
+// Seuil de détection d'un arrêt : gap de 10+ min entre deux points GPS consécutifs
+// (le GpsBatchBuffer n'envoie un nouveau point que si le véhicule a bougé de 10 m+,
+// donc un gap temporel = véhicule immobile sur cette durée).
+// BREAK_MIN et MAX_CONTINUOUS_MIN sont désormais dérivés du country_code via getDrivingRules.
+const STOP_THRESHOLD_MIN = 10;
+
+export type DrivingBlock = {
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  breakAfterMinutes: number | null; // null = dernier bloc (encore en cours)
+  breakAdequate: boolean;
+};
+
+export type PauseAnalysis = {
+  blocks: DrivingBlock[];
+  violations: { blockStart: string; blockEnd: string; durationMinutes: number }[];
+  totalDrivingMinutes: number;
+  longestBlockMinutes: number;
+};
+
+function analyzeDrivingBlocks(
+  points: { recorded_at: string; speed: number | null }[],
+  countryCode = "EU",
+): PauseAnalysis {
+  if (points.length < 2) {
+    return { blocks: [], violations: [], totalDrivingMinutes: 0, longestBlockMinutes: 0 };
+  }
+
+  const rules = getDrivingRules(countryCode);
+  const BREAK_MIN = rules.breakMin;
+  const MAX_CONTINUOUS_MIN = rules.maxContinuousMin;
+
+  const sorted = [...points].sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+  const blocks: DrivingBlock[] = [];
+  let blockStart = sorted[0].recorded_at;
+  let blockEnd = sorted[0].recorded_at;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const gapMin = (new Date(sorted[i].recorded_at).getTime() - new Date(sorted[i - 1].recorded_at).getTime()) / 60_000;
+    if (gapMin >= STOP_THRESHOLD_MIN) {
+      const durationMinutes = Math.round(
+        (new Date(blockEnd).getTime() - new Date(blockStart).getTime()) / 60_000,
+      );
+      blocks.push({
+        startTime: blockStart,
+        endTime: blockEnd,
+        durationMinutes,
+        breakAfterMinutes: Math.round(gapMin),
+        breakAdequate: gapMin >= BREAK_MIN,
+      });
+      blockStart = sorted[i].recorded_at;
+    }
+    blockEnd = sorted[i].recorded_at;
+  }
+
+  // Dernier bloc (en cours ou terminé sans arrêt détecté)
+  const lastDuration = Math.round(
+    (new Date(blockEnd).getTime() - new Date(blockStart).getTime()) / 60_000,
+  );
+  blocks.push({
+    startTime: blockStart,
+    endTime: blockEnd,
+    durationMinutes: lastDuration,
+    breakAfterMinutes: null,
+    breakAdequate: false,
+  });
+
+  const violations = blocks
+    .filter((b) => b.durationMinutes > MAX_CONTINUOUS_MIN && !b.breakAdequate)
+    .map((b) => ({ blockStart: b.startTime, blockEnd: b.endTime, durationMinutes: b.durationMinutes }));
+
+  return {
+    blocks,
+    violations,
+    totalDrivingMinutes: blocks.reduce((s, b) => s + b.durationMinutes, 0),
+    longestBlockMinutes: blocks.reduce((m, b) => Math.max(m, b.durationMinutes), 0),
+  };
+}
+
+export const getCampaignPauseAlerts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ campaignRequestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const [{ data: campaignMeta }, { data: rows, error }] = await Promise.all([
+      supabase
+        .from("campaign_requests")
+        .select("country_code")
+        .eq("id", data.campaignRequestId)
+        .maybeSingle(),
+      supabase
+        .from("vehicle_positions")
+        .select("recorded_at, speed")
+        .eq("campaign_request_id", data.campaignRequestId)
+        .gte("recorded_at", todayStart.toISOString())
+        .order("recorded_at", { ascending: true })
+        .limit(2000),
+    ]);
+
+    if (error) throw new Error(error.message);
+    if (!rows || rows.length < 2) return { analysis: null, hasViolation: false };
+
+    const analysis = analyzeDrivingBlocks(rows, campaignMeta?.country_code ?? "EU");
+    return { analysis, hasViolation: analysis.violations.length > 0 };
   });
