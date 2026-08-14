@@ -555,6 +555,11 @@ export function BookingForm({ spot, onClose }: Props) {
                     <span>Total estimé : <strong>{totalPrice.toLocaleString("fr-FR")} €</strong></span>
                   </div>
                 )}
+                {daysCount > 6 && (
+                  <div className="rounded-md border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+                    <strong>Repos hebdomadaire</strong> — Cette campagne couvre {Math.floor(daysCount / 7)} semaine{Math.floor(daysCount / 7) > 1 ? "s" : ""} complète{Math.floor(daysCount / 7) > 1 ? "s" : ""}. La Directive 2003/88/CE impose au conducteur au minimum 1 jour de repos par période de 7 jours. Pensez à convenir avec le propriétaire d'un jour off par semaine.
+                  </div>
+                )}
                 {/* Conflict banner */}
                 {dateConflict && (
                   <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 space-y-2.5">

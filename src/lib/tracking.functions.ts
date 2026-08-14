@@ -44,9 +44,24 @@ export const pushPosition = createServerFn({ method: "POST" })
   .inputValidator((input) => PositionSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Même protection que pushPositionBatch : on ne taggue le point avec la
+    // campagne que si l'heure courante est dans la plage horaire déclarée.
+    let campaignRequestId = data.campaignRequestId ?? null;
+    if (campaignRequestId) {
+      const { data: cr } = await supabase
+        .from("campaign_requests")
+        .select("daily_start_time, daily_end_time")
+        .eq("id", campaignRequestId)
+        .maybeSingle();
+      if (!isWithinDailyWindow(new Date().toISOString(), cr?.daily_start_time ?? null, cr?.daily_end_time ?? null)) {
+        campaignRequestId = null;
+      }
+    }
+
     const { error } = await supabase.from("vehicle_positions").insert({
       vehicle_id: data.vehicleId,
-      campaign_request_id: data.campaignRequestId ?? null,
+      campaign_request_id: campaignRequestId,
       owner_id: userId,
       lat: data.lat,
       lng: data.lng,
