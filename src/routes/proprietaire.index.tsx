@@ -6,6 +6,7 @@ import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
 import { MobilityMap } from "@/components/MobilityMap";
 import { OwnerConnectCard } from "@/components/OwnerConnectCard";
+import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 export const Route = createFileRoute("/proprietaire/")({
   head: () => ({
@@ -142,22 +143,7 @@ function DashboardPage() {
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
               {vehicles.map((v) => (
-                <div key={v.id} className="rounded-2xl border border-border bg-card p-6">
-                  {v.photos && v.photos[0] && (
-                    <img src={v.photos[0]} alt={v.name} className="w-full h-40 object-cover rounded-lg mb-4" />
-                  )}
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="font-display text-lg font-bold">{v.name}</h3>
-                    <StatusBadge status={v.status} />
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-3">{v.type} · {v.format_publicitaire}</div>
-                  <div className="font-display text-xl font-bold text-primary">{v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span></div>
-                  {v.admin_notes && (
-                    <div className="mt-3 text-xs rounded-lg bg-secondary/40 p-3 border border-border">
-                      <strong>Note admin :</strong> {v.admin_notes}
-                    </div>
-                  )}
-                </div>
+                <OwnerVehicleCard key={v.id} v={v} />
               ))}
             </div>
           )
@@ -228,6 +214,28 @@ function Empty({ msg, children }: { msg: string; children?: React.ReactNode }) {
     <div className="rounded-2xl border border-border bg-card p-12 text-center">
       <p className="text-muted-foreground mb-4">{msg}</p>
       {children}
+    </div>
+  );
+}
+
+function OwnerVehicleCard({ v }: { v: { id: string; name: string; type: string; format_publicitaire: string | null; price_per_day: number; status: string; photos: string[] | null; admin_notes: string | null } }) {
+  const photoUrls = useVehiclePhotoUrls(v.photos);
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      {photoUrls[0] && (
+        <img src={photoUrls[0]} alt={v.name} className="w-full h-40 object-cover rounded-lg mb-4" />
+      )}
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h3 className="font-display text-lg font-bold">{v.name}</h3>
+        <StatusBadge status={v.status} />
+      </div>
+      <div className="text-xs text-muted-foreground mb-3">{v.type} · {v.format_publicitaire}</div>
+      <div className="font-display text-xl font-bold text-primary">{v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span></div>
+      {v.admin_notes && (
+        <div className="mt-3 text-xs rounded-lg bg-secondary/40 p-3 border border-border">
+          <strong>Note admin :</strong> {v.admin_notes}
+        </div>
+      )}
     </div>
   );
 }

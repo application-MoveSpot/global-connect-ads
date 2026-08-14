@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/LogoLink";
 import { CreativeFiles } from "@/components/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/CampaignTrialCheckout";
+import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
@@ -172,7 +173,7 @@ function BriefDetailPage() {
               return (
                 <div key={p.id} className="rounded-xl border border-border bg-card p-5">
                   <div className="flex items-start gap-4">
-                    {v?.photos?.[0] && <img src={v.photos[0]} alt={v.name} className="w-24 h-24 object-cover rounded-lg flex-shrink-0" />}
+                    {v?.photos?.[0] && <VehicleThumb src={v.photos[0]} alt={v.name} className="w-24 h-24 object-cover rounded-lg flex-shrink-0" />}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -207,6 +208,12 @@ function BriefDetailPage() {
       </main>
     </div>
   );
+}
+
+function VehicleThumb({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [url] = useVehiclePhotoUrls([src]);
+  if (!url) return null;
+  return <img src={url} alt={alt} className={className} />;
 }
 
 function StatusBadge({ status }: { status: string }) {
