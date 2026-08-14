@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+import { RefreshCw, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
@@ -147,11 +148,47 @@ function BriefDetailPage() {
               </div>
             </dl>
 
-            <div className="mt-5">
-              <CampaignTrialCheckout campaignRequestId={brief.id} vehicleQuantity={acceptedProposals.length} />
-              <p className="mt-2 text-xs text-muted-foreground">
-                Aucun prélèvement pendant 14 jours · annulation possible à tout moment pendant l'essai.
+            <div className="mt-5 space-y-4">
+              <p className="text-sm font-semibold text-foreground">
+                Comment souhaitez-vous activer cette campagne ?
               </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-primary bg-primary/5 p-4 ring-1 ring-primary/30">
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <RefreshCw className="h-5 w-5 text-primary" />
+                    <span className="font-semibold text-sm">Abonnement mensuel</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    14 jours d'essai gratuit pour{" "}
+                    <strong>{acceptedProposals.length} véhicule{acceptedProposals.length > 1 ? "s" : ""}</strong>.
+                    Aucun prélèvement pendant l'essai · résiliable à tout moment.
+                  </p>
+                  <CampaignTrialCheckout
+                    campaignRequestId={brief.id}
+                    vehicleQuantity={acceptedProposals.length}
+                    buttonLabel="Activer l'essai gratuit de 14 jours"
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <Wallet className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-semibold text-sm">Portefeuille prépayé</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    Rechargez votre portefeuille et payez vos campagnes en une fois,
+                    sans abonnement. Idéal pour les budgets B2B ou les campagnes ponctuelles.
+                  </p>
+                  <Link
+                    to="/annonceur/portefeuille"
+                    className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
+                  >
+                    Gérer mon portefeuille →
+                  </Link>
+                </div>
+              </div>
             </div>
           </section>
         )}
