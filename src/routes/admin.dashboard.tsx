@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
+import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
 import {
   adminApproveBrief,
@@ -17,10 +17,10 @@ import {
   adminListPoseurs,
   adminReviewInstallation,
 } from "@/lib/admin.functions";
-import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/InstallationPhotoGrid";
-import { StatusHistory } from "@/components/StatusHistory";
+import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
+import { StatusHistory } from "@/components/shared/StatusHistory";
 
-const FleetMap = lazy(() => import("@/components/FleetMap"));
+const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
 
 export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { getDrivingRules } from "./driving-rules";
+import { getDrivingRules } from "@/lib/fleet/driving-rules";
 
 // Retourne "HH:MM" dans le fuseau IANA indiqué pour comparer aux plages horaires
 // stockées sans timezone dans daily_start_time / daily_end_time.

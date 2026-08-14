@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { LogoLink } from "@/components/LogoLink";
-import { getPublicCampaignInfo } from "@/lib/public-campaign.functions";
+import { LogoLink } from "@/components/app/LogoLink";
+import { getPublicCampaignInfo } from "@/lib/campaigns/public-campaign.functions";
 
 export const Route = createFileRoute("/c/$campaignId")({
   head: () => ({

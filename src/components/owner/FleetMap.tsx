@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { getMapboxToken } from "@/lib/mapbox.functions";
+import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import type { FleetPoint } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 

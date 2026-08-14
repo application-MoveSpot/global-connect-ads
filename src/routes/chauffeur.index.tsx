@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr.functions";
-import { GpsBatchBuffer } from "@/lib/gps-buffer";
+import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr/qr.functions";
+import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/chauffeur/")({

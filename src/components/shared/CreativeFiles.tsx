@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Viewer360 } from "@/components/Viewer360";
+import { Viewer360 } from "@/components/shared/Viewer360";
 
 type Props = { paths: string[] | null | undefined };
 

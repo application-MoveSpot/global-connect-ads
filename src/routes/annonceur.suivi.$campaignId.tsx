@@ -2,14 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { getCampaignPositions, getCampaignMetrics, getCampaignPauseAlerts } from "@/lib/tracking.functions";
-import { getMapboxToken } from "@/lib/mapbox.functions";
+import { getCampaignPositions, getCampaignMetrics, getCampaignPauseAlerts } from "@/lib/tracking/tracking.functions";
+import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard } from "lucide-react";
-import { CampaignPaymentCheckout } from "@/components/CampaignPaymentCheckout";
+import { CampaignPaymentCheckout } from "@/components/advertiser/CampaignPaymentCheckout";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),

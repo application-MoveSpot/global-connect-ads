@@ -4,7 +4,7 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import area from "@turf/area";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
-import { getMapboxToken } from "@/lib/mapbox.functions";
+import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 
 export type ZonePolygon = {
   /** Coordonnées GeoJSON (anneau extérieur fermé) */

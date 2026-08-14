@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import QRCode from "qrcode";
-import { getFleetOverview } from "@/lib/fleet.functions";
-import { generateVehicleQrToken } from "@/lib/qr.functions";
-import { LogoLink } from "@/components/LogoLink";
+import { getFleetOverview } from "@/lib/fleet/fleet.functions";
+import { generateVehicleQrToken } from "@/lib/qr/qr.functions";
+import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/proprietaire/flotte/qr")({

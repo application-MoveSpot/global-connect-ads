@@ -133,6 +133,6 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
     if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
     if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
 
-    const { settleCampaignFromWallet } = await import("@/lib/campaign-settlement.server");
+    const { settleCampaignFromWallet } = await import("@/lib/campaigns/campaign-settlement.server");
     return settleCampaignFromWallet({ campaignRequestId: campaign.id });
   });

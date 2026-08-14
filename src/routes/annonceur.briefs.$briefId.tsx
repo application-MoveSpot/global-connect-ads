@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { CreativeFiles } from "@/components/CreativeFiles";
-import { CampaignTrialCheckout } from "@/components/CampaignTrialCheckout";
+import { LogoLink } from "@/components/app/LogoLink";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
+import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({

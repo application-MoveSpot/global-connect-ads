@@ -1,7 +1,7 @@
 import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { AppUpdateGuard } from "@/components/AppUpdateGuard";
+import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {

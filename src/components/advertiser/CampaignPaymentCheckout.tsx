@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getMyWallet, payCampaignWithWallet } from "@/lib/wallet.functions";
+import { getMyWallet, payCampaignWithWallet } from "@/lib/payments/wallet.functions";
 import { Button } from "@/components/ui/button";
-import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
-import { BankTransferPanel } from "@/components/BankTransferPanel";
+import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
+import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
 
 
 type Props = {

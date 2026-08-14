@@ -2,11 +2,11 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { SiretField, type SiretCheck } from "@/components/SiretField";
-import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/ProviderPortfolioUploader";
-import { verifyWebsite } from "@/lib/website-verify.functions";
-import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/provider-services";
+import { LogoLink } from "@/components/app/LogoLink";
+import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
+import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/provider/ProviderPortfolioUploader";
+import { verifyWebsite } from "@/lib/providers/website-verify.functions";
+import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   head: () => ({

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LegalPage, LegalSection } from "@/components/LegalPage";
+import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
 export const Route = createFileRoute("/cgu")({
   head: () => ({

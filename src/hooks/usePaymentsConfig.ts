@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getPaymentsConfig } from "@/lib/stripe";
-import type { StripePublicConfig } from "@/lib/stripe-config.functions";
+import { getPaymentsConfig } from "@/lib/payments/stripe";
+import type { StripePublicConfig } from "@/lib/payments/stripe-config.functions";
 
 export function usePaymentsConfig() {
   const [config, setConfig] = useState<StripePublicConfig | null>(null);
