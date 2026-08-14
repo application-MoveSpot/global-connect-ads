@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
+import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({

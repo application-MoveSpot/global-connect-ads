@@ -7,7 +7,7 @@ import {
   getBankDetails,
   listMyBankTransfers,
   type BankDetails,
-} from "@/lib/bank-transfers.functions";
+} from "@/lib/payments/bank-transfers.functions";
 import { Button } from "@/components/ui/button";
 
 type TransferRow = {

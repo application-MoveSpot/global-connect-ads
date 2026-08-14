@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { MobilityMap } from "@/components/MobilityMap";
-import { AdSpots, type Spot } from "@/components/AdSpots";
-import { BookingForm } from "@/components/BookingForm";
+import { MobilityMap } from "@/components/shared/MobilityMap";
+import { AdSpots, type Spot } from "@/components/shared/AdSpots";
+import { BookingForm } from "@/components/shared/BookingForm";
 import logo from "@/assets/movespot-logo.png";
 
 export const Route = createFileRoute("/")({

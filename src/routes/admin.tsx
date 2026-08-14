@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { RouteSummary } from "@/components/RouteSummary";
-import { CreativeFiles } from "@/components/CreativeFiles";
+import { LogoLink } from "@/components/app/LogoLink";
+import { RouteSummary } from "@/components/shared/RouteSummary";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { Link } from "@tanstack/react-router";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
@@ -433,7 +433,7 @@ function PayoutBlock({ req, onDone }: { req: Request; onDone: () => void }) {
   const doTransfer = async () => {
     setLoading(true); setError(null);
     try {
-      const { transferToOwner } = await import("@/lib/payments.functions");
+      const { transferToOwner } = await import("@/lib/payments/payments.functions");
       await transferToOwner({ data: { campaignRequestId: req.id } });
       onDone();
     } catch (e) {

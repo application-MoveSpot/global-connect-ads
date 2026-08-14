@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { findForbiddenKeyword } from "@/lib/forbidden-keywords";
-import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/ZonePolygonDraw";
-import { estimateZoneBudget } from "@/lib/zone-budget";
-import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
+import { LogoLink } from "@/components/app/LogoLink";
+import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
+import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZonePolygonDraw";
+import { estimateZoneBudget } from "@/lib/geo/zone-budget";
+import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({

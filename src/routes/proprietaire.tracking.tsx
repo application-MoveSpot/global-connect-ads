@@ -6,13 +6,13 @@ import {
   getOwnerVehiclesForTracking,
   getActiveCampaignForVehicle,
   pushPositionBatch,
-} from "@/lib/tracking.functions";
-import { GpsBatchBuffer } from "@/lib/gps-buffer";
+} from "@/lib/tracking/tracking.functions";
+import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
-import { getDrivingRules } from "@/lib/driving-rules";
+import { getDrivingRules } from "@/lib/fleet/driving-rules";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 

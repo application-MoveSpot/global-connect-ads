@@ -2,11 +2,11 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useCallback, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { getMyWallet, getWalletTransactions } from "@/lib/wallet.functions";
-import { WalletTopupCheckout } from "@/components/WalletTopupCheckout";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { BankTransferPanel } from "@/components/BankTransferPanel";
+import { LogoLink } from "@/components/app/LogoLink";
+import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
+import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
+import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
+import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({

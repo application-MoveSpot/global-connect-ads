@@ -2,11 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { PayeeConnectCard } from "@/components/PayeeConnectCard";
-import { InstallationJobsPanel } from "@/components/InstallationJobsPanel";
-import { StatusHistory } from "@/components/StatusHistory";
-import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payee.functions";
+import { LogoLink } from "@/components/app/LogoLink";
+import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
+import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
+import { StatusHistory } from "@/components/shared/StatusHistory";
+import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payments/payee.functions";
 
 type Profile = {
   id: string;

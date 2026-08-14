@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { createPayeeOnboardingLink, getPayeeConnectStatus } from "@/lib/payee.functions";
+import { createConnectOnboardingLink, getConnectAccountStatus } from "@/lib/payments/payments.functions";
 import { Button } from "@/components/ui/button";
 
 type Status = { connected: boolean; charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean };
@@ -18,16 +18,16 @@ function StripeTrustBadge() {
   );
 }
 
-export function PayeeConnectCard() {
-  const fetchStatus = useServerFn(getPayeeConnectStatus);
-  const createLink = useServerFn(createPayeeOnboardingLink);
+export function OwnerConnectCard() {
+  const fetchStatus = useServerFn(getConnectAccountStatus);
+  const createLink = useServerFn(createConnectOnboardingLink);
   const [status, setStatus] = useState<Status | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchStatus()
-      .then((s) => setStatus(s as Status))
+      .then(setStatus)
       .catch(() => setStatus({ connected: false, charges_enabled: false, payouts_enabled: false, details_submitted: false }));
   }, [fetchStatus]);
 
@@ -63,7 +63,7 @@ export function PayeeConnectCard() {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 shrink-0">
               <path fillRule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clipRule="evenodd" />
             </svg>
-            Compte Stripe actif — vos prestations sont reversées automatiquement sur votre IBAN.
+            Compte Stripe actif — vous recevez automatiquement 70 % de chaque campagne validée sur vos véhicules.
           </div>
           <Button variant="outline" size="sm" onClick={start} disabled={loading}>
             {loading ? "Chargement…" : "Mettre à jour mes informations bancaires"}
@@ -85,7 +85,7 @@ export function PayeeConnectCard() {
       ) : (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Liez votre compte bancaire en quelques minutes pour recevoir automatiquement vos reversements dès qu'une prestation est validée.
+            Connectez votre compte bancaire pour recevoir automatiquement <strong>70 %</strong> de chaque campagne publicitaire validée sur vos véhicules, sans aucune démarche manuelle.
           </p>
           <div className="flex flex-col gap-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
@@ -98,11 +98,11 @@ export function PayeeConnectCard() {
             </div>
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border text-[11px] font-semibold">3</span>
-              Reversements automatiques à chaque campagne validée
+              Reversements automatiques à chaque campagne validée (70 %)
             </div>
           </div>
           <Button onClick={start} disabled={loading}>
-            {loading ? "Chargement…" : "Configurer mes virements bancaires"}
+            {loading ? "Chargement…" : "Connecter mon compte via Stripe"}
           </Button>
           <StripeTrustBadge />
         </div>

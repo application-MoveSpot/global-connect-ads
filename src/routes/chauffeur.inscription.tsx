@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SignedInBanner } from "@/components/SignedInBanner";
-import { LogoLink } from "@/components/LogoLink";
-import { SiretField, type SiretCheck } from "@/components/SiretField";
+import { SignedInBanner } from "@/components/app/SignedInBanner";
+import { LogoLink } from "@/components/app/LogoLink";
+import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 
 type Kind = "driver" | "installer" | "both";
 

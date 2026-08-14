@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { providerServiceLabel } from "@/lib/provider-services";
+import { LogoLink } from "@/components/app/LogoLink";
+import { providerServiceLabel } from "@/lib/providers/provider-services";
 
 export const Route = createFileRoute("/prestataires/")({
   component: ProvidersDirectory,

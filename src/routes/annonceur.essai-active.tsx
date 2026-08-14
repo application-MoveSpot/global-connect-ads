@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { LogoLink } from "@/components/LogoLink";
-import { verifyCampaignSubscriptionSession } from "@/lib/payments.functions";
+import { LogoLink } from "@/components/app/LogoLink";
+import { verifyCampaignSubscriptionSession } from "@/lib/payments/payments.functions";
 
 export const Route = createFileRoute("/annonceur/essai-active")({
   head: () => ({

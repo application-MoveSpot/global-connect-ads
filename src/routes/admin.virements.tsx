@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { listBankTransfersForAdmin, reviewBankTransfer } from "@/lib/bank-transfers.functions";
-import { LogoLink } from "@/components/LogoLink";
+import { listBankTransfersForAdmin, reviewBankTransfer } from "@/lib/payments/bank-transfers.functions";
+import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/virements")({

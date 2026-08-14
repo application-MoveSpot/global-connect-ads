@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import PrevisionnelFormules from "@/components/PrevisionnelFormules";
+import PrevisionnelFormules from "@/components/shared/PrevisionnelFormules";
 
 export const Route = createFileRoute("/previsionnel")({
   component: PrevisionnelPage,

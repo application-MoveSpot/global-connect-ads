@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
+import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
-import { estimateVehicle } from "@/lib/vehicle-estimate.functions";
+import { estimateVehicle } from "@/lib/fleet/vehicle-estimate.functions";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   head: () => ({

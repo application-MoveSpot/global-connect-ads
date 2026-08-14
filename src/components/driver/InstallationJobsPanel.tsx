@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { listInstallationJobs } from "@/lib/installation.functions";
-import { InstallationPhotosPanel } from "@/components/InstallationPhotosPanel";
-import { InstallationKit } from "@/components/InstallationKit";
+import { listInstallationJobs } from "@/lib/providers/installation.functions";
+import { InstallationPhotosPanel } from "@/components/driver/InstallationPhotosPanel";
+import { InstallationKit } from "@/components/driver/InstallationKit";
 
 type Job = {
   id: string;

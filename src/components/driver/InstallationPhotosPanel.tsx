@@ -7,12 +7,12 @@ import {
   INSTALLATION_VIEW_LABEL,
   submitInstallationPhotos,
   type InstallationView,
-} from "@/lib/installation.functions";
+} from "@/lib/providers/installation.functions";
 import {
   InstallationPhotoGrid,
   parseInstallationPhotos,
-} from "@/components/InstallationPhotoGrid";
-import { StatusHistory } from "@/components/StatusHistory";
+} from "@/components/driver/InstallationPhotoGrid";
+import { StatusHistory } from "@/components/shared/StatusHistory";
 
 type Props = {
   campaignRequestId: string;

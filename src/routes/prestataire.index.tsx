@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { providerServiceLabel } from "@/lib/provider-services";
-import { StatusHistory } from "@/components/StatusHistory";
+import { LogoLink } from "@/components/app/LogoLink";
+import { providerServiceLabel } from "@/lib/providers/provider-services";
+import { StatusHistory } from "@/components/shared/StatusHistory";
 
 export const Route = createFileRoute("/prestataire/")({
   head: () => ({

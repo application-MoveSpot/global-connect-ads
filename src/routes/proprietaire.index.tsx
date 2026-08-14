@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { RouteSummary } from "@/components/RouteSummary";
-import { CreativeFiles } from "@/components/CreativeFiles";
-import { MobilityMap } from "@/components/MobilityMap";
-import { OwnerConnectCard } from "@/components/OwnerConnectCard";
+import { LogoLink } from "@/components/app/LogoLink";
+import { RouteSummary } from "@/components/shared/RouteSummary";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
+import { MobilityMap } from "@/components/shared/MobilityMap";
+import { OwnerConnectCard } from "@/components/owner/OwnerConnectCard";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 export const Route = createFileRoute("/proprietaire/")({
