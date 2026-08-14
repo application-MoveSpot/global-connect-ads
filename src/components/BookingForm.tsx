@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
+import { COUNTRY_OPTIONS } from "@/lib/driving-rules";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
 import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
@@ -103,6 +104,10 @@ export function BookingForm({ spot, onClose }: Props) {
 
   const [dailyStart, setDailyStart] = useState<string>("08:00");
   const [dailyEnd, setDailyEnd] = useState<string>("20:00");
+
+  const DEFAULT_COUNTRY = COUNTRY_OPTIONS[0]; // France métropolitaine
+  const [countryKey, setCountryKey] = useState<string>(DEFAULT_COUNTRY.label);
+  const selectedCountry = COUNTRY_OPTIONS.find((c) => c.label === countryKey) ?? DEFAULT_COUNTRY;
 
   const daysCount = (() => {
     if (!startDate || !endDate) return 0;
@@ -338,6 +343,8 @@ export function BookingForm({ spot, onClose }: Props) {
         total_price: totalPrice,
         daily_start_time: dailyStart,
         daily_end_time: dailyEnd,
+        country_code: selectedCountry.code,
+        timezone: selectedCountry.timezone,
         route_zones: itinerary.zones.slice(0, 50),
         route_waypoints: itinerary.waypoints.slice(0, 50),
         route_pois: itinerary.pois.slice(0, 50),
@@ -485,6 +492,22 @@ export function BookingForm({ spot, onClose }: Props) {
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Pays / Territoire de diffusion</label>
+                <select
+                  value={countryKey}
+                  onChange={(e) => setCountryKey(e.target.value)}
+                  className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  {COUNTRY_OPTIONS.map((c) => (
+                    <option key={c.label} value={c.label}>{c.label}</option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Détermine le fuseau horaire des plages de diffusion et la réglementation applicable aux pauses conducteur.
+                </p>
               </div>
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">

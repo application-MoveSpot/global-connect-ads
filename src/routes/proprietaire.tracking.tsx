@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
+import { getDrivingRules } from "@/lib/driving-rules";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -207,6 +208,10 @@ function TrackingPage() {
 
   const vehicles = vehiclesData?.vehicles ?? [];
   const campaign = campaignData?.campaign ?? null;
+  const drivingRules = getDrivingRules(campaign?.country_code ?? "EU");
+  const warnMin = drivingRules.maxContinuousMin - 30;
+  const alertMin = drivingRules.maxContinuousMin;
+  const requiredBreakMin = drivingRules.breakMin + 1;
   const elapsed = startedAt ? Math.floor((Date.now() - startedAt.getTime()) / 1000) : 0;
   const hh = String(Math.floor(elapsed / 3600)).padStart(2, "0");
   const mm = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
@@ -274,28 +279,28 @@ function TrackingPage() {
               </Button>
             )}
 
-            {/* Alerte pause conducteur CE 561/2006 Art.7 */}
-            {tracking && continuousDrivingMin >= 240 && (
+            {/* Alerte pause conducteur (règles selon la zone réglementaire de la campagne) */}
+            {tracking && continuousDrivingMin >= warnMin && (
               <div className={`rounded-md border p-3 text-sm flex gap-2 items-start ${
-                continuousDrivingMin >= 270
+                continuousDrivingMin >= alertMin
                   ? "border-destructive/60 bg-destructive/10 text-destructive"
                   : "border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300"
               }`}>
                 <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
-                  {continuousDrivingMin >= 270 ? (
+                  {continuousDrivingMin >= alertMin ? (
                     <>
                       <p className="font-semibold">Pause obligatoire dépassée</p>
                       <p className="text-xs mt-0.5">
                         {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite continue
-                        — 45 min de repos requis (Règlement CE 561/2006).
+                        — {requiredBreakMin} min de repos requis.
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold">Pause recommandée dans {270 - continuousDrivingMin} min</p>
+                      <p className="font-semibold">Pause recommandée dans {alertMin - continuousDrivingMin} min</p>
                       <p className="text-xs mt-0.5">
-                        {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite — la pause de 45 min sera obligatoire à 4h30.
+                        {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite — la pause de {requiredBreakMin} min sera obligatoire à {Math.floor(alertMin / 60)}h{String(alertMin % 60).padStart(2, "0")}.
                       </p>
                     </>
                   )}
@@ -325,7 +330,7 @@ function TrackingPage() {
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Conduite continue</span>
-                  <span className={`font-mono ${continuousDrivingMin >= 270 ? "text-destructive font-bold" : continuousDrivingMin >= 240 ? "text-amber-600" : ""}`}>
+                  <span className={`font-mono ${continuousDrivingMin >= alertMin ? "text-destructive font-bold" : continuousDrivingMin >= warnMin ? "text-amber-600" : ""}`}>
                     {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")}
                   </span>
                 </div>
