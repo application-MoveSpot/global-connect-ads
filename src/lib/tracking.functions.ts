@@ -269,3 +269,104 @@ export const getAdvertiserActiveCampaigns = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return { campaigns: data ?? [] };
   });
+
+// ─── Analyse des pauses conducteur (Règlement CE 561/2006 Art.7) ────────────
+// Seuil de détection d'un arrêt : gap de 10+ min entre deux points GPS consécutifs
+// (le GpsBatchBuffer n'envoie un nouveau point que si le véhicule a bougé de 10 m+,
+// donc un gap temporel = véhicule immobile sur cette durée).
+const STOP_THRESHOLD_MIN = 10;    // minutes de gap = arrêt détecté
+const BREAK_MIN = 44;             // pause ≥ 44 min = pause réglementaire (45 min légales)
+const MAX_CONTINUOUS_MIN = 270;   // 4h30 = seuil légal de conduite continue
+
+export type DrivingBlock = {
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  breakAfterMinutes: number | null; // null = dernier bloc (encore en cours)
+  breakAdequate: boolean;
+};
+
+export type PauseAnalysis = {
+  blocks: DrivingBlock[];
+  violations: { blockStart: string; blockEnd: string; durationMinutes: number }[];
+  totalDrivingMinutes: number;
+  longestBlockMinutes: number;
+};
+
+function analyzeDrivingBlocks(
+  points: { recorded_at: string; speed: number | null }[],
+): PauseAnalysis {
+  if (points.length < 2) {
+    return { blocks: [], violations: [], totalDrivingMinutes: 0, longestBlockMinutes: 0 };
+  }
+
+  const sorted = [...points].sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+  const blocks: DrivingBlock[] = [];
+  let blockStart = sorted[0].recorded_at;
+  let blockEnd = sorted[0].recorded_at;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const gapMin = (new Date(sorted[i].recorded_at).getTime() - new Date(sorted[i - 1].recorded_at).getTime()) / 60_000;
+    if (gapMin >= STOP_THRESHOLD_MIN) {
+      const durationMinutes = Math.round(
+        (new Date(blockEnd).getTime() - new Date(blockStart).getTime()) / 60_000,
+      );
+      blocks.push({
+        startTime: blockStart,
+        endTime: blockEnd,
+        durationMinutes,
+        breakAfterMinutes: Math.round(gapMin),
+        breakAdequate: gapMin >= BREAK_MIN,
+      });
+      blockStart = sorted[i].recorded_at;
+    }
+    blockEnd = sorted[i].recorded_at;
+  }
+
+  // Dernier bloc (en cours ou terminé sans arrêt détecté)
+  const lastDuration = Math.round(
+    (new Date(blockEnd).getTime() - new Date(blockStart).getTime()) / 60_000,
+  );
+  blocks.push({
+    startTime: blockStart,
+    endTime: blockEnd,
+    durationMinutes: lastDuration,
+    breakAfterMinutes: null,
+    breakAdequate: false,
+  });
+
+  // Violations : bloc > 4h30 sans pause adéquate ensuite (ou bloc en cours > 4h30)
+  const violations = blocks
+    .filter((b) => b.durationMinutes > MAX_CONTINUOUS_MIN && !b.breakAdequate)
+    .map((b) => ({ blockStart: b.startTime, blockEnd: b.endTime, durationMinutes: b.durationMinutes }));
+
+  return {
+    blocks,
+    violations,
+    totalDrivingMinutes: blocks.reduce((s, b) => s + b.durationMinutes, 0),
+    longestBlockMinutes: blocks.reduce((m, b) => Math.max(m, b.durationMinutes), 0),
+  };
+}
+
+export const getCampaignPauseAlerts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ campaignRequestId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const { data: rows, error } = await supabase
+      .from("vehicle_positions")
+      .select("recorded_at, speed")
+      .eq("campaign_request_id", data.campaignRequestId)
+      .gte("recorded_at", todayStart.toISOString())
+      .order("recorded_at", { ascending: true })
+      .limit(2000);
+
+    if (error) throw new Error(error.message);
+    if (!rows || rows.length < 2) return { analysis: null, hasViolation: false };
+
+    const analysis = analyzeDrivingBlocks(rows);
+    return { analysis, hasViolation: analysis.violations.length > 0 };
+  });

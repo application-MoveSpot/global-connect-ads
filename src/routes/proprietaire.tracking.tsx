@@ -11,7 +11,7 @@ import { GpsBatchBuffer } from "@/lib/gps-buffer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
+import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -43,6 +43,9 @@ function TrackingPage() {
   const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [tick, setTick] = useState(0);
   const [pending, setPending] = useState(0);
+  // Suivi pause conducteur (Règlement CE 561/2006 Art.7)
+  const [lastStopAt, setLastStopAt] = useState<Date | null>(null);
+  const [continuousDrivingMin, setContinuousDrivingMin] = useState(0);
 
   const watchIdRef = useRef<number | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
@@ -92,9 +95,15 @@ function TrackingPage() {
 
   useEffect(() => {
     if (!tracking) return;
-    const i = setInterval(() => setTick((t) => t + 1), 1000);
+    const i = setInterval(() => {
+      setTick((t) => t + 1);
+      // Recalcule la durée de conduite continue depuis la dernière pause détectée
+      if (lastStopAt) {
+        setContinuousDrivingMin(Math.floor((Date.now() - lastStopAt.getTime()) / 60_000));
+      }
+    }, 1000);
     return () => clearInterval(i);
-  }, [tracking]);
+  }, [tracking, lastStopAt]);
 
   async function acquireWakeLock() {
     try {
@@ -116,6 +125,8 @@ function TrackingPage() {
       toast.error("Sélectionnez un véhicule");
       return;
     }
+    setLastStopAt(new Date()); // le véhicule démarre à l'arrêt
+    setContinuousDrivingMin(0);
     if (!("geolocation" in navigator)) {
       toast.error("Géolocalisation non supportée sur cet appareil");
       return;
@@ -147,11 +158,17 @@ function TrackingPage() {
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         setLastCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
+        // Détection d'arrêt : vitesse < 2 m/s (≈ 7 km/h) ou inconnue = véhicule stoppé/au pas
+        const speedMs = pos.coords.speed;
+        if (speedMs === null || speedMs < 2) {
+          setLastStopAt(new Date());
+          setContinuousDrivingMin(0);
+        }
         const added = buffer.add({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: pos.coords.accuracy ?? null,
-          speed: pos.coords.speed ?? null,
+          speed: speedMs ?? null,
           heading: pos.coords.heading ?? null,
           recordedAt: new Date().toISOString(),
         });
@@ -176,6 +193,8 @@ function TrackingPage() {
     void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
     setTracking(false);
     setStartedAt(null);
+    setLastStopAt(null);
+    setContinuousDrivingMin(0);
     toast.success("Suivi GPS arrêté — dernier lot envoyé");
   }
 
@@ -255,6 +274,35 @@ function TrackingPage() {
               </Button>
             )}
 
+            {/* Alerte pause conducteur CE 561/2006 Art.7 */}
+            {tracking && continuousDrivingMin >= 240 && (
+              <div className={`rounded-md border p-3 text-sm flex gap-2 items-start ${
+                continuousDrivingMin >= 270
+                  ? "border-destructive/60 bg-destructive/10 text-destructive"
+                  : "border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300"
+              }`}>
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+                <div>
+                  {continuousDrivingMin >= 270 ? (
+                    <>
+                      <p className="font-semibold">Pause obligatoire dépassée</p>
+                      <p className="text-xs mt-0.5">
+                        {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite continue
+                        — 45 min de repos requis (Règlement CE 561/2006).
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold">Pause recommandée dans {270 - continuousDrivingMin} min</p>
+                      <p className="text-xs mt-0.5">
+                        {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite — la pause de 45 min sera obligatoire à 4h30.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
             {tracking && (
               <div className="space-y-2 rounded-md border border-green-500/30 bg-green-500/5 p-3 text-sm">
                 <div className="flex justify-between">
@@ -275,6 +323,12 @@ function TrackingPage() {
                     <span className="font-mono">{lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)} (±{Math.round(lastCoords.acc ?? 0)}m)</span>
                   </div>
                 )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Conduite continue</span>
+                  <span className={`font-mono ${continuousDrivingMin >= 270 ? "text-destructive font-bold" : continuousDrivingMin >= 240 ? "text-amber-600" : ""}`}>
+                    {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")}
+                  </span>
+                </div>
                 {errorCount > 0 && (
                   <p className="text-xs text-destructive">{errorCount} erreur(s) d'envoi</p>
                 )}
