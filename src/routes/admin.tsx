@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/LogoLink";
 import { RouteSummary } from "@/components/RouteSummary";
 import { CreativeFiles } from "@/components/CreativeFiles";
 import { Link } from "@tanstack/react-router";
+import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -315,7 +316,8 @@ function AdminPage() {
 function VehicleCard({ v, onUpdate }: { v: Vehicle; onUpdate: (id: string, status: "approved" | "rejected", note?: string) => Promise<void> }) {
   const [note, setNote] = useState(v.admin_notes ?? "");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const photos = v.photos ?? [];
+  const photoUrls = useVehiclePhotoUrls(v.photos);
+  const photos = photoUrls;
   const ai = v.ai_verification;
   const matchColor = ai?.photo_match === "ok" ? "bg-signal/20 text-signal"
     : ai?.photo_match === "doubtful" ? "bg-yellow-500/15 text-yellow-600"
