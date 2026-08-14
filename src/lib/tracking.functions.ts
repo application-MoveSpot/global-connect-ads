@@ -2,6 +2,33 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Retourne "HH:MM" en heure locale France pour un timestamp ISO donné.
+// Nécessaire pour comparer aux daily_start_time / daily_end_time stockés sans timezone.
+function localTimeFrance(isoTs: string): string {
+  const date = new Date(isoTs);
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: "Europe/Paris",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const h = parts.find((p) => p.type === "hour")?.value ?? "00";
+  const m = parts.find((p) => p.type === "minute")?.value ?? "00";
+  return `${h.padStart(2, "0")}:${m.padStart(2, "0")}`;
+}
+
+// Vérifie qu'un timestamp tombe dans la plage horaire quotidienne d'une campagne.
+// Si aucune plage n'est définie on laisse passer (comportement sans restriction).
+function isWithinDailyWindow(
+  isoTs: string,
+  dailyStartTime: string | null,
+  dailyEndTime: string | null,
+): boolean {
+  if (!dailyStartTime || !dailyEndTime) return true;
+  const t = localTimeFrance(isoTs);
+  return t >= dailyStartTime && t <= dailyEndTime;
+}
+
 const PositionSchema = z.object({
   vehicleId: z.string().uuid(),
   campaignRequestId: z.string().uuid().nullable().optional(),
@@ -54,21 +81,46 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
   .inputValidator((input) => BatchSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const rows = data.points.map((p) => ({
-      vehicle_id: data.vehicleId,
-      campaign_request_id: data.campaignRequestId ?? null,
-      owner_id: userId,
-      lat: p.lat,
-      lng: p.lng,
-      accuracy: p.accuracy ?? null,
-      speed: p.speed ?? null,
-      heading: p.heading ?? null,
-      recorded_at: p.recordedAt,
-    }));
+
+    // Récupère la plage horaire de la campagne pour ne taguer les points
+    // qu'à l'intérieur de la fenêtre déclarée (RGPD – minimisation des données,
+    // Directive plateforme 2024/2831 – protection des travailleurs).
+    let campaignWindow: { daily_start_time: string | null; daily_end_time: string | null } | null = null;
+    if (data.campaignRequestId) {
+      const { data: cr } = await supabase
+        .from("campaign_requests")
+        .select("daily_start_time, daily_end_time")
+        .eq("id", data.campaignRequestId)
+        .maybeSingle();
+      campaignWindow = cr ?? null;
+    }
+
+    const rows = data.points.map((p) => {
+      const inWindow =
+        !data.campaignRequestId ||
+        isWithinDailyWindow(
+          p.recordedAt,
+          campaignWindow?.daily_start_time ?? null,
+          campaignWindow?.daily_end_time ?? null,
+        );
+      return {
+        vehicle_id: data.vehicleId,
+        // Hors plage : on stocke le point (usage flotte du propriétaire) mais
+        // sans l'associer à la campagne → les déplacements privés restent privés.
+        campaign_request_id: inWindow ? (data.campaignRequestId ?? null) : null,
+        owner_id: userId,
+        lat: p.lat,
+        lng: p.lng,
+        accuracy: p.accuracy ?? null,
+        speed: p.speed ?? null,
+        heading: p.heading ?? null,
+        recorded_at: p.recordedAt,
+      };
+    });
     const { error } = await supabase.from("vehicle_positions").insert(rows);
     if (error) throw new Error(error.message);
 
-    // Agrégation des métriques de couverture (distance en zone, minutes actives)
+    // Agrégation des métriques de couverture : uniquement les points dans la plage
     let metrics: {
       points_total: number;
       points_in_zone: number;
@@ -76,12 +128,21 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
       active_minutes: number;
     } | null = null;
     if (data.campaignRequestId) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: m } = await supabaseAdmin.rpc("record_campaign_gps_batch", {
-        p_campaign_id: data.campaignRequestId,
-        p_points: data.points as never,
-      });
-      metrics = (Array.isArray(m) ? m[0] : m) ?? null;
+      const inWindowPoints = data.points.filter((p) =>
+        isWithinDailyWindow(
+          p.recordedAt,
+          campaignWindow?.daily_start_time ?? null,
+          campaignWindow?.daily_end_time ?? null,
+        ),
+      );
+      if (inWindowPoints.length > 0) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: m } = await supabaseAdmin.rpc("record_campaign_gps_batch", {
+          p_campaign_id: data.campaignRequestId,
+          p_points: inWindowPoints as never,
+        });
+        metrics = (Array.isArray(m) ? m[0] : m) ?? null;
+      }
     }
 
     return { ok: true, inserted: rows.length, metrics };
@@ -125,7 +186,7 @@ export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
     const today = new Date().toISOString().slice(0, 10);
     const { data: rows, error } = await supabase
       .from("campaign_requests")
-      .select("id, start_date, end_date, spot_name, company")
+      .select("id, start_date, end_date, spot_name, company, daily_start_time, daily_end_time")
       .eq("vehicle_id", data.vehicleId)
       .eq("status", "approved")
       .lte("start_date", today)
@@ -133,7 +194,20 @@ export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
       .order("start_date", { ascending: false })
       .limit(1);
     if (error) throw new Error(error.message);
-    return { campaign: rows?.[0] ?? null };
+    const campaign = rows?.[0] ?? null;
+    // Ne retourner la campagne (et donc n'activer le tag GPS) que si on est
+    // dans la plage horaire quotidienne déclarée par l'annonceur.
+    if (
+      campaign &&
+      !isWithinDailyWindow(
+        new Date().toISOString(),
+        campaign.daily_start_time,
+        campaign.daily_end_time,
+      )
+    ) {
+      return { campaign: null };
+    }
+    return { campaign };
   });
 
 export const getOwnerVehiclesForTracking = createServerFn({ method: "GET" })

@@ -95,6 +95,12 @@ export function BookingForm({ spot, onClose }: Props) {
   const [endDate, setEndDate] = useState<string>(toISO(defaultEnd));
 
   // Plage horaire de diffusion (par défaut 08:00 → 20:00, soit 12h)
+  // Limites : 06:00 min, 22:00 max, 10h/jour max (Règlement CE 561/2006 + droit au repos DUDH Art.24)
+  const DAILY_START_MIN = "06:00";
+  const DAILY_END_MAX = "22:00";
+  const MAX_HOURS_PER_DAY = 10;
+  const MIN_HOURS_PER_DAY = 1;
+
   const [dailyStart, setDailyStart] = useState<string>("08:00");
   const [dailyEnd, setDailyEnd] = useState<string>("20:00");
 
@@ -247,9 +253,29 @@ export function BookingForm({ spot, onClose }: Props) {
       setReason(`La durée maximale d'une campagne est de ${MAX_DURATION_DAYS} jours.`);
       return;
     }
+    if (dailyStart < DAILY_START_MIN) {
+      setStatus("rejected");
+      setReason(`L'heure de début ne peut pas être avant ${DAILY_START_MIN} (respect du repos nocturne des conducteurs).`);
+      return;
+    }
+    if (dailyEnd > DAILY_END_MAX) {
+      setStatus("rejected");
+      setReason(`L'heure de fin ne peut pas dépasser ${DAILY_END_MAX} (protection des conducteurs — travail de nuit).`);
+      return;
+    }
     if (dailyEnd <= dailyStart) {
       setStatus("rejected");
       setReason("L'heure de fin de diffusion doit être après l'heure de début.");
+      return;
+    }
+    if (hoursPerDay > MAX_HOURS_PER_DAY) {
+      setStatus("rejected");
+      setReason(`La durée de diffusion ne peut pas dépasser ${MAX_HOURS_PER_DAY}h/jour (Règlement CE 561/2006 sur la conduite).`);
+      return;
+    }
+    if (hoursPerDay < MIN_HOURS_PER_DAY) {
+      setStatus("rejected");
+      setReason(`La durée de diffusion doit être d'au moins ${MIN_HOURS_PER_DAY}h/jour.`);
       return;
     }
 
@@ -504,6 +530,8 @@ export function BookingForm({ spot, onClose }: Props) {
                     <input
                       type="time"
                       value={dailyStart}
+                      min={DAILY_START_MIN}
+                      max={DAILY_END_MAX}
                       onChange={(e) => { setDailyStart(e.target.value); setStatus("idle"); }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
@@ -513,6 +541,8 @@ export function BookingForm({ spot, onClose }: Props) {
                     <input
                       type="time"
                       value={dailyEnd}
+                      min={DAILY_START_MIN}
+                      max={DAILY_END_MAX}
                       onChange={(e) => { setDailyEnd(e.target.value); setStatus("idle"); }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
@@ -569,6 +599,9 @@ export function BookingForm({ spot, onClose }: Props) {
 
                 <p className="text-[11px] text-muted-foreground">
                   Réservation possible à partir de <strong>{MIN_LEAD_DAYS} jours</strong> et jusqu'à <strong>{MAX_DURATION_DAYS} jours</strong> consécutifs. Les dates passées ou déjà réservées sont automatiquement refusées.
+                </p>
+                <p className="text-[11px] text-amber-700 dark:text-amber-400">
+                  ⚖ Plage autorisée : <strong>{DAILY_START_MIN} – {DAILY_END_MAX}</strong>, maximum <strong>{MAX_HOURS_PER_DAY}h/jour</strong>. Le suivi GPS s'active et se coupe automatiquement selon cette fenêtre — les déplacements hors plage ne sont jamais transmis à l'annonceur.
                 </p>
               </div>
 
