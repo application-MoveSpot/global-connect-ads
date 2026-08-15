@@ -34,11 +34,14 @@ export function OwnerConnectCard() {
   const start = async () => {
     setLoading(true);
     setError(null);
+    const newTab = window.open("", "_blank", "noopener,noreferrer");
     try {
       const returnUrl = window.top !== window ? window.top?.location.href ?? window.location.href : window.location.href;
       const { url } = await createLink({ data: { returnUrl } });
-      window.open(url, "_blank", "noopener");
+      if (newTab) newTab.location.href = url;
+      else window.location.href = url;
     } catch (e) {
+      newTab?.close();
       setError(e instanceof Error ? e.message : "Erreur");
       setLoading(false);
     }
