@@ -35,8 +35,9 @@ export function PayeeConnectCard() {
     setLoading(true);
     setError(null);
     try {
-      const { url } = await createLink({ data: { returnUrl: window.location.href } });
-      window.location.href = url;
+      const returnUrl = window.top !== window ? window.top?.location.href ?? window.location.href : window.location.href;
+      const { url } = await createLink({ data: { returnUrl } });
+      window.open(url, "_blank", "noopener");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
       setLoading(false);
