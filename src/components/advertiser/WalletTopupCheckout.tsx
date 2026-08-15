@@ -75,7 +75,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
             <DialogHeader>
               <DialogTitle>Recharge portefeuille</DialogTitle>
               <DialogDescription>
-                Paiement sécurisé par carte bancaire ou en cryptomonnaie (USDC), si activé sur votre compte Stripe.
+                Paiement sécurisé par carte bancaire via Stripe.
               </DialogDescription>
 
             </DialogHeader>
