@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { importVehiclesCSV } from "@/lib/fleet-import.functions";
-import { LogoLink } from "@/components/LogoLink";
+import { importVehiclesCSV } from "@/lib/fleet/fleet-import.functions";
+import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/proprietaire/flotte/import")({

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
-import { FORBIDDEN_KEYWORDS } from "@/lib/forbidden-keywords";
+import { FORBIDDEN_KEYWORDS } from "@/lib/campaigns/forbidden-keywords";
+import { COUNTRY_OPTIONS } from "@/lib/fleet/driving-rules";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
 import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
@@ -95,8 +96,18 @@ export function BookingForm({ spot, onClose }: Props) {
   const [endDate, setEndDate] = useState<string>(toISO(defaultEnd));
 
   // Plage horaire de diffusion (par défaut 08:00 → 20:00, soit 12h)
+  // Limites : 06:00 min, 22:00 max, 10h/jour max (Règlement CE 561/2006 + droit au repos DUDH Art.24)
+  const DAILY_START_MIN = "06:00";
+  const DAILY_END_MAX = "22:00";
+  const MAX_HOURS_PER_DAY = 10;
+  const MIN_HOURS_PER_DAY = 1;
+
   const [dailyStart, setDailyStart] = useState<string>("08:00");
   const [dailyEnd, setDailyEnd] = useState<string>("20:00");
+
+  const DEFAULT_COUNTRY = COUNTRY_OPTIONS[0]; // France métropolitaine
+  const [countryKey, setCountryKey] = useState<string>(DEFAULT_COUNTRY.label);
+  const selectedCountry = COUNTRY_OPTIONS.find((c) => c.label === countryKey) ?? DEFAULT_COUNTRY;
 
   const daysCount = (() => {
     if (!startDate || !endDate) return 0;
@@ -252,9 +263,29 @@ export function BookingForm({ spot, onClose }: Props) {
       setReason(`La durée maximale d'une campagne est de ${MAX_DURATION_DAYS} jours.`);
       return;
     }
+    if (dailyStart < DAILY_START_MIN) {
+      setStatus("rejected");
+      setReason(`L'heure de début ne peut pas être avant ${DAILY_START_MIN} (respect du repos nocturne des conducteurs).`);
+      return;
+    }
+    if (dailyEnd > DAILY_END_MAX) {
+      setStatus("rejected");
+      setReason(`L'heure de fin ne peut pas dépasser ${DAILY_END_MAX} (protection des conducteurs — travail de nuit).`);
+      return;
+    }
     if (dailyEnd <= dailyStart) {
       setStatus("rejected");
       setReason("L'heure de fin de diffusion doit être après l'heure de début.");
+      return;
+    }
+    if (hoursPerDay > MAX_HOURS_PER_DAY) {
+      setStatus("rejected");
+      setReason(`La durée de diffusion ne peut pas dépasser ${MAX_HOURS_PER_DAY}h/jour (Règlement CE 561/2006 sur la conduite).`);
+      return;
+    }
+    if (hoursPerDay < MIN_HOURS_PER_DAY) {
+      setStatus("rejected");
+      setReason(`La durée de diffusion doit être d'au moins ${MIN_HOURS_PER_DAY}h/jour.`);
       return;
     }
 
@@ -317,6 +348,8 @@ export function BookingForm({ spot, onClose }: Props) {
         total_price: totalPrice,
         daily_start_time: dailyStart,
         daily_end_time: dailyEnd,
+        country_code: selectedCountry.code,
+        timezone: selectedCountry.timezone,
         route_zones: itinerary.zones.slice(0, 50),
         route_waypoints: itinerary.waypoints.slice(0, 50),
         route_pois: itinerary.pois.slice(0, 50),
@@ -466,6 +499,22 @@ export function BookingForm({ spot, onClose }: Props) {
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Pays / Territoire de diffusion</label>
+                <select
+                  value={countryKey}
+                  onChange={(e) => setCountryKey(e.target.value)}
+                  className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  {COUNTRY_OPTIONS.map((c) => (
+                    <option key={c.label} value={c.label}>{c.label}</option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Détermine le fuseau horaire des plages de diffusion et la réglementation applicable aux pauses conducteur.
+                </p>
+              </div>
+
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-semibold">📅 Période de diffusion</div>
@@ -509,6 +558,8 @@ export function BookingForm({ spot, onClose }: Props) {
                     <input
                       type="time"
                       value={dailyStart}
+                      min={DAILY_START_MIN}
+                      max={DAILY_END_MAX}
                       onChange={(e) => { setDailyStart(e.target.value); setStatus("idle"); }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
@@ -518,6 +569,8 @@ export function BookingForm({ spot, onClose }: Props) {
                     <input
                       type="time"
                       value={dailyEnd}
+                      min={DAILY_START_MIN}
+                      max={DAILY_END_MAX}
                       onChange={(e) => { setDailyEnd(e.target.value); setStatus("idle"); }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
@@ -528,6 +581,11 @@ export function BookingForm({ spot, onClose }: Props) {
                     <span><strong>{daysCount}</strong> jour{daysCount > 1 ? "s" : ""} · <strong>{hoursPerDay.toFixed(1)}h</strong>/jour</span>
                     <span className="opacity-80">·</span>
                     <span>Total estimé : <strong>{totalPrice.toLocaleString("fr-FR")} €</strong></span>
+                  </div>
+                )}
+                {daysCount > 6 && (
+                  <div className="rounded-md border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+                    <strong>Repos hebdomadaire</strong> — Cette campagne couvre {Math.floor(daysCount / 7)} semaine{Math.floor(daysCount / 7) > 1 ? "s" : ""} complète{Math.floor(daysCount / 7) > 1 ? "s" : ""}. La Directive 2003/88/CE impose au conducteur au minimum 1 jour de repos par période de 7 jours. Pensez à convenir avec le propriétaire d'un jour off par semaine.
                   </div>
                 )}
                 {/* Conflict banner */}
@@ -580,6 +638,9 @@ export function BookingForm({ spot, onClose }: Props) {
 
                 <p className="text-[11px] text-muted-foreground">
                   Réservation possible à partir de <strong>{MIN_LEAD_DAYS} jours</strong> et jusqu'à <strong>{MAX_DURATION_DAYS} jours</strong> consécutifs. Les dates passées ou déjà réservées sont automatiquement refusées.
+                </p>
+                <p className="text-[11px] text-amber-700 dark:text-amber-400">
+                  ⚖ Plage autorisée : <strong>{DAILY_START_MIN} – {DAILY_END_MAX}</strong>, maximum <strong>{MAX_HOURS_PER_DAY}h/jour</strong>. Le suivi GPS s'active et se coupe automatiquement selon cette fenêtre — les déplacements hors plage ne sont jamais transmis à l'annonceur.
                 </p>
               </div>
 

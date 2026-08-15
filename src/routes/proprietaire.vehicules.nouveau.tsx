@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
+import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
-import { estimateVehicle } from "@/lib/vehicle-estimate.functions";
+import { estimateVehicle } from "@/lib/fleet/vehicle-estimate.functions";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   head: () => ({
@@ -95,15 +95,22 @@ function NewVehiclePage() {
 
   const uploadPhotos = async (): Promise<string[]> => {
     if (!userId) return [];
-    const urls: string[] = [];
+    const paths: string[] = [];
     for (const file of files.slice(0, 5)) {
       const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file);
       if (upErr) throw new Error(`Upload : ${upErr.message}`);
-      const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
-      urls.push(pub.publicUrl);
+      paths.push(path);
     }
-    return urls;
+    return paths;
+  };
+
+  const pathsToSignedUrls = async (paths: string[]): Promise<string[]> => {
+    const needSign = paths.filter((p) => !p.startsWith("http"));
+    if (needSign.length === 0) return paths;
+    const { data } = await supabase.storage.from("vehicle-photos").createSignedUrls(needSign, 3600);
+    let idx = 0;
+    return paths.map((p) => (p.startsWith("http") ? p : (data?.[idx++]?.signedUrl ?? "")));
   };
 
   const runEstimate = async () => {
@@ -118,7 +125,8 @@ function NewVehiclePage() {
     }
     setEstimating(true);
     try {
-      const urls = estimate?.uploaded_urls ?? (await uploadPhotos());
+      const paths = estimate?.uploaded_urls ?? (await uploadPhotos());
+      const signedUrls = await pathsToSignedUrls(paths);
       const res = await callEstimate({
         data: {
           type,
@@ -127,10 +135,10 @@ function NewVehiclePage() {
           km_per_day: km ? Number(km) : null,
           zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
           price_per_day: price ? Number(price) : null,
-          photo_urls: urls,
+          photo_urls: signedUrls,
         },
       });
-      setEstimate({ ...res, uploaded_urls: urls });
+      setEstimate({ ...res, uploaded_urls: paths });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur estimation");
     } finally {

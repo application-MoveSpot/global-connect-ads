@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { verifySiret } from "@/lib/siret.functions";
+import { verifySiret } from "@/lib/providers/siret.functions";
 
 export type SiretCheck = {
   siret: string;

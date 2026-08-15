@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { CreativeFiles } from "@/components/CreativeFiles";
+import { LogoLink } from "@/components/app/LogoLink";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
 
 export const Route = createFileRoute("/proprietaire/briefs/$briefId")({
   head: () => ({

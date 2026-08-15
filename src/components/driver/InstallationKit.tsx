@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
-import { CreativeFiles } from "@/components/CreativeFiles";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
 
 type Props = {
   campaignRequestId: string;

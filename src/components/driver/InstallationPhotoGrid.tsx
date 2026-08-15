@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { INSTALLATION_VIEWS, INSTALLATION_VIEW_LABEL, type InstallationView } from "@/lib/installation.functions";
+import { INSTALLATION_VIEWS, INSTALLATION_VIEW_LABEL, type InstallationView } from "@/lib/providers/installation.functions";
 
 export type InstallationPhotos = Partial<Record<InstallationView, string>> & { submitted_at?: string };
 

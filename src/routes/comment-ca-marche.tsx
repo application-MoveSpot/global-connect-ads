@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LogoLink } from "@/components/LogoLink";
+import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/comment-ca-marche")({
   head: () => ({
@@ -84,7 +84,7 @@ function HowItWorks() {
           <div className="grid md:grid-cols-2 gap-4">
             <Step n={1} title="À la zone et au jour">1,80 €/km²/jour, 2,70 € dans les grandes agglomérations, minimum 10 € par campagne. Le devis se calcule pendant que vous dessinez.</Step>
             <Step n={2} title="Ou par abonnement">Trois formules mensuelles par véhicule : Starter 29 €, Standard 42 €, Pro 59 € — avec 14 jours d'essai gratuit et résiliation à tout moment.</Step>
-            <Step n={3} title="Le moyen qui vous arrange">Carte bancaire, portefeuille prépayé, cryptomonnaie (USDC) ou virement bancaire pour les budgets B2B.</Step>
+            <Step n={3} title="Le moyen qui vous arrange">Carte bancaire, portefeuille prépayé ou virement bancaire pour les budgets B2B.</Step>
             <Step n={4} title="Tenu informé par email">Campagne activée, virement reçu, décision de modération : chaque étape déclenche un email automatique. Dès qu'un virement est validé, la campagne passe en « payée » et la rémunération du propriétaire est enregistrée.</Step>
           </div>
         </section>

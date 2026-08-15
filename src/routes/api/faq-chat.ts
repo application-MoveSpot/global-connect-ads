@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { createLovableAiGatewayProvider } from "@/lib/ai/ai-gateway.server";
 
 type ChatRequestBody = { messages?: unknown; audience?: "proprietaire" | "annonceur" };
 

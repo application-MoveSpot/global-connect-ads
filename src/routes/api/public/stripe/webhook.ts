@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { verifyWebhook } from "@/lib/stripe.server";
+import { verifyWebhook } from "@/lib/payments/stripe.server";
 
 export const Route = createFileRoute("/api/public/stripe/webhook")({
   server: {
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
           .insert({ id: event.id, type: event.type, payload: event as never } as never);
 
         try {
-          const { handleStripeEvent } = await import("@/lib/stripe-webhook-handlers.server");
+          const { handleStripeEvent } = await import("@/lib/payments/stripe-webhook-handlers.server");
           await handleStripeEvent(event, supabaseAdmin);
           return Response.json({ received: true });
         } catch (e) {

@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
-import { createWalletTopupCheckout } from "@/lib/payments.functions";
-import { getPaymentsConfig, getStripe } from "@/lib/stripe";
+import { createWalletTopupCheckout } from "@/lib/payments/payments.functions";
+import { getPaymentsConfig, getStripe } from "@/lib/payments/stripe";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
 
 type Props = {
   amountEuros: number;
@@ -75,7 +75,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
             <DialogHeader>
               <DialogTitle>Recharge portefeuille</DialogTitle>
               <DialogDescription>
-                Paiement sécurisé par carte bancaire ou en cryptomonnaie (USDC), si activé sur votre compte Stripe.
+                Paiement sécurisé par carte bancaire via Stripe.
               </DialogDescription>
 
             </DialogHeader>

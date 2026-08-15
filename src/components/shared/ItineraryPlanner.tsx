@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { getMapboxToken } from "@/lib/mapbox.functions";
+import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 
 export type ItineraryData = {
   /** Étapes saisies (adresses résolues) */

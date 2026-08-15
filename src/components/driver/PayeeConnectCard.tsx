@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { createPayeeOnboardingLink, getPayeeConnectStatus } from "@/lib/payee.functions";
+import { createPayeeOnboardingLink, getPayeeConnectStatus } from "@/lib/payments/payee.functions";
 import { Button } from "@/components/ui/button";
 
 type Status = { connected: boolean; charges_enabled: boolean; payouts_enabled: boolean; details_submitted: boolean };
@@ -34,10 +34,14 @@ export function PayeeConnectCard() {
   const start = async () => {
     setLoading(true);
     setError(null);
+    const newTab = window.open("", "_blank");
     try {
-      const { url } = await createLink({ data: { returnUrl: window.location.href } });
-      window.location.href = url;
+      const returnUrl = window.top !== window ? window.top?.location.href ?? window.location.href : window.location.href;
+      const { url } = await createLink({ data: { returnUrl } });
+      if (newTab) newTab.location.href = url;
+      else window.location.href = url;
     } catch (e) {
+      newTab?.close();
       setError(e instanceof Error ? e.message : "Erreur");
       setLoading(false);
     }

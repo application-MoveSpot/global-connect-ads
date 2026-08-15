@@ -151,7 +151,7 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
       // (débit du portefeuille, passage en "payée", répartition 70/30 propriétaire).
       if (row.campaign_request_id) {
         try {
-          const { settleCampaignFromWallet } = await import("@/lib/campaign-settlement.server");
+          const { settleCampaignFromWallet } = await import("@/lib/campaigns/campaign-settlement.server");
           const result = await settleCampaignFromWallet({
             campaignRequestId: row.campaign_request_id,
             description: `Paiement campagne par virement bancaire — réf. ${row.reference}`,

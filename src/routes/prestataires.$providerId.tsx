@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { providerServiceLabel } from "@/lib/provider-services";
-import { getProviderPublicMeta } from "@/lib/provider-public.functions";
+import { LogoLink } from "@/components/app/LogoLink";
+import { providerServiceLabel } from "@/lib/providers/provider-services";
+import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
 
 export const Route = createFileRoute("/prestataires/$providerId")({
   loader: async ({ params }) =>

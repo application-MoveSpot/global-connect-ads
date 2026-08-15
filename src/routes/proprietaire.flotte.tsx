@@ -9,8 +9,8 @@ import {
   updateDriver,
   deleteDriver,
   assignDriverToVehicle,
-} from "@/lib/fleet.functions";
-import { getMapboxToken } from "@/lib/mapbox.functions";
+} from "@/lib/fleet/fleet.functions";
+import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Truck, Users, Activity, Euro, Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { LogoLink } from "@/components/LogoLink";
+import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/proprietaire/flotte")({
   head: () => ({ meta: [{ title: "Ma flotte — MoveSpot" }] }),

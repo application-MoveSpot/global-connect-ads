@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { SiretField, type SiretCheck } from "@/components/SiretField";
+import { LogoLink } from "@/components/app/LogoLink";
+import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 
 export const Route = createFileRoute("/proprietaire/inscription")({
   head: () => ({

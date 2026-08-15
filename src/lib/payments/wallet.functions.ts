@@ -25,6 +25,35 @@ export const getMyWallet = createServerFn({ method: "GET" })
     };
   });
 
+// ----- Read transactions with filter + pagination -----
+const TxQuerySchema = z.object({
+  kind: z.enum(["all", "topup", "campaign_debit", "refund", "admin_adjustment"]).default("all"),
+  page: z.number().int().min(0).default(0),
+  pageSize: z.number().int().min(1).max(500).default(25),
+});
+
+export const getWalletTransactions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => TxQuerySchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const from = data.page * data.pageSize;
+    const to = from + data.pageSize - 1;
+
+    const base = supabase
+      .from("wallet_transactions")
+      .select("id, kind, amount_cents, currency, description, created_at, campaign_request_id", { count: "exact" })
+      .eq("user_id", userId);
+
+    const filtered = data.kind !== "all" ? base.eq("kind", data.kind) : base;
+    const { data: txs, count, error } = await filtered
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (error) throw new Error(error.message);
+    return { transactions: txs ?? [], total: count ?? 0, page: data.page, pageSize: data.pageSize };
+  });
+
 // ----- Admin: trigger a wallet-credit refund -----
 const RefundInput = z.object({
   campaignRequestId: z.string().uuid(),
@@ -104,6 +133,6 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
     if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
     if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
 
-    const { settleCampaignFromWallet } = await import("@/lib/campaign-settlement.server");
+    const { settleCampaignFromWallet } = await import("@/lib/campaigns/campaign-settlement.server");
     return settleCampaignFromWallet({ campaignRequestId: campaign.id });
   });

@@ -22,7 +22,7 @@ export const generateVehicleQrToken = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!vehicle) throw new Error("Véhicule introuvable ou accès refusé.");
 
-    const { signQrToken } = await import("@/lib/qr-sign.server");
+    const { signQrToken } = await import("@/lib/qr/qr-sign.server");
     const token = await signQrToken({
       k: data.driverId ? "driver" : "vehicle",
       v: vehicle.id,
@@ -38,7 +38,7 @@ export const generateVehicleQrToken = createServerFn({ method: "POST" })
 export const verifyDriverToken = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: z.string().min(10).max(2000) }).parse(input))
   .handler(async ({ data }) => {
-    const { verifyQrToken } = await import("@/lib/qr-sign.server");
+    const { verifyQrToken } = await import("@/lib/qr/qr-sign.server");
     const payload = await verifyQrToken(data.token);
     if (!payload) return { ok: false as const, error: "QR invalide ou expiré." };
 
@@ -73,7 +73,7 @@ export const pushPositionWithToken = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
-    const { verifyQrToken } = await import("@/lib/qr-sign.server");
+    const { verifyQrToken } = await import("@/lib/qr/qr-sign.server");
     const payload = await verifyQrToken(data.token);
     if (!payload) throw new Error("Token invalide.");
 
@@ -127,7 +127,7 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
     }).parse(input),
   )
   .handler(async ({ data }) => {
-    const { verifyQrToken } = await import("@/lib/qr-sign.server");
+    const { verifyQrToken } = await import("@/lib/qr/qr-sign.server");
     const payload = await verifyQrToken(data.token);
     if (!payload) throw new Error("Token invalide.");
 

@@ -1,14 +1,14 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { LogoLink } from "@/components/LogoLink";
-import { FAQChatbot } from "@/components/FAQChatbot";
-import { RouteSummary } from "@/components/RouteSummary";
-import { CreativeFiles } from "@/components/CreativeFiles";
-import { StatusHistory } from "@/components/StatusHistory";
-import { MobilityMap } from "@/components/MobilityMap";
+import { LogoLink } from "@/components/app/LogoLink";
+import { FAQChatbot } from "@/components/app/FAQChatbot";
+import { RouteSummary } from "@/components/shared/RouteSummary";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
+import { StatusHistory } from "@/components/shared/StatusHistory";
+import { MobilityMap } from "@/components/shared/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
-import { payCampaignWithWallet, getMyWallet } from "@/lib/wallet.functions";
+import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
 import { toast } from "sonner";
 
 type Req = {

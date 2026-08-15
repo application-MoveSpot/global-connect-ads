@@ -2,14 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { getCampaignPositions, getCampaignMetrics } from "@/lib/tracking.functions";
-import { getMapboxToken } from "@/lib/mapbox.functions";
+import { getCampaignPositions, getCampaignMetrics, getCampaignPauseAlerts } from "@/lib/tracking/tracking.functions";
+import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Radio, CreditCard } from "lucide-react";
-import { CampaignPaymentCheckout } from "@/components/CampaignPaymentCheckout";
+import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard } from "lucide-react";
+import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
@@ -26,6 +26,7 @@ function SuiviPage() {
   const fetchPositions = useServerFn(getCampaignPositions);
   const fetchToken = useServerFn(getMapboxToken);
   const fetchMetrics = useServerFn(getCampaignMetrics);
+  const fetchPauseAlerts = useServerFn(getCampaignPauseAlerts);
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -44,6 +45,12 @@ function SuiviPage() {
     queryFn: () => fetchMetrics({ data: { campaignRequestId: campaignId } }),
     refetchInterval: 60_000,
   });
+  const { data: pauseData } = useQuery({
+    queryKey: ["campaign-pauses", campaignId],
+    queryFn: () => fetchPauseAlerts({ data: { campaignRequestId: campaignId } }),
+    refetchInterval: 5 * 60_000,
+  });
+
   const { data: campaign } = useQuery({
     queryKey: ["campaign-meta", campaignId],
     queryFn: async () => {
@@ -150,19 +157,80 @@ function SuiviPage() {
         {campaign?.status === "approved" && campaign.payment_status !== "paid" && campaign.total_price && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Paiement de la campagne</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" /> Paiement de la campagne
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Total : <strong>{Number(campaign.total_price).toFixed(2)} €</strong> (prix par jour × durée). MoveSpot conserve 30 % et reverse 70 % au propriétaire à la fin de la diffusion.
+                Total : <strong>{Number(campaign.total_price).toFixed(2)} €</strong> (prix par jour × durée).
+                MoveSpot conserve 30 % et reverse 70 % au propriétaire à la fin de la diffusion.
               </p>
-              <CampaignPaymentCheckout campaignRequestId={campaignId} totalPriceEur={Number(campaign.total_price)} />
+              <PaymentModeSelector
+                campaignRequestId={campaignId}
+                totalPriceEur={Number(campaign.total_price)}
+                vehicleQuantity={1}
+              />
             </CardContent>
           </Card>
         )}
         {campaign?.payment_status === "paid" && (
           <Card>
             <CardContent className="py-4 text-sm text-emerald-700">✅ Campagne payée. Votre diffusion est confirmée.</CardContent>
+          </Card>
+        )}
+        {pauseData && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {pauseData.hasViolation
+                  ? <AlertTriangle className="h-5 w-5 text-destructive" />
+                  : <CheckCircle className="h-5 w-5 text-emerald-600" />}
+                Conformité pauses conducteur (CE 561/2006 Art.7)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pauseData.hasViolation ? (
+                <div className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  <p className="font-semibold">Violation détectée — durée de conduite continue dépassant 4h30 sans pause adéquate</p>
+                </div>
+              ) : (
+                <p className="text-sm text-emerald-700">Aucune violation de pause détectée aujourd'hui.</p>
+              )}
+              {pauseData.analysis && pauseData.analysis.blocks.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Blocs de conduite du jour</p>
+                  <div className="divide-y rounded-md border text-sm">
+                    {pauseData.analysis.blocks.map((b, i) => (
+                      <div key={i} className={`flex items-center justify-between px-3 py-2 ${b.durationMinutes > 270 && !b.breakAdequate ? "bg-destructive/5" : ""}`}>
+                        <div>
+                          <span className="font-mono">
+                            {new Date(b.startTime).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                            {" → "}
+                            {new Date(b.endTime).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          {b.breakAfterMinutes !== null && (
+                            <span className={`ml-2 text-xs ${b.breakAdequate ? "text-emerald-600" : "text-amber-600"}`}>
+                              pause {b.breakAfterMinutes} min {b.breakAdequate ? "✓" : "⚠ insuffisante"}
+                            </span>
+                          )}
+                        </div>
+                        <span className={`font-mono text-xs ${b.durationMinutes > 270 ? "text-destructive font-bold" : b.durationMinutes > 240 ? "text-amber-600" : "text-muted-foreground"}`}>
+                          {Math.floor(b.durationMinutes / 60)}h{String(b.durationMinutes % 60).padStart(2, "0")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total conduite : {Math.floor(pauseData.analysis.totalDrivingMinutes / 60)}h{String(pauseData.analysis.totalDrivingMinutes % 60).padStart(2, "0")} — plus long bloc : {Math.floor(pauseData.analysis.longestBlockMinutes / 60)}h{String(pauseData.analysis.longestBlockMinutes % 60).padStart(2, "0")}.
+                    Données basées sur les points GPS de la campagne aujourd'hui.
+                  </p>
+                </div>
+              )}
+              {pauseData.analysis === null && (
+                <p className="text-xs text-muted-foreground">Pas encore assez de points GPS aujourd'hui pour analyser les pauses.</p>
+              )}
+            </CardContent>
           </Card>
         )}
         {metrics && metrics.totals.pointsTotal > 0 && (

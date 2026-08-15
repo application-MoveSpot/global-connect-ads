@@ -1,10 +1,11 @@
 import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/LogoLink";
-import { RouteSummary } from "@/components/RouteSummary";
-import { CreativeFiles } from "@/components/CreativeFiles";
+import { LogoLink } from "@/components/app/LogoLink";
+import { RouteSummary } from "@/components/shared/RouteSummary";
+import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { Link } from "@tanstack/react-router";
+import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -315,7 +316,8 @@ function AdminPage() {
 function VehicleCard({ v, onUpdate }: { v: Vehicle; onUpdate: (id: string, status: "approved" | "rejected", note?: string) => Promise<void> }) {
   const [note, setNote] = useState(v.admin_notes ?? "");
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const photos = v.photos ?? [];
+  const photoUrls = useVehiclePhotoUrls(v.photos);
+  const photos = photoUrls;
   const ai = v.ai_verification;
   const matchColor = ai?.photo_match === "ok" ? "bg-signal/20 text-signal"
     : ai?.photo_match === "doubtful" ? "bg-yellow-500/15 text-yellow-600"
@@ -431,7 +433,7 @@ function PayoutBlock({ req, onDone }: { req: Request; onDone: () => void }) {
   const doTransfer = async () => {
     setLoading(true); setError(null);
     try {
-      const { transferToOwner } = await import("@/lib/payments.functions");
+      const { transferToOwner } = await import("@/lib/payments/payments.functions");
       await transferToOwner({ data: { campaignRequestId: req.id } });
       onDone();
     } catch (e) {
