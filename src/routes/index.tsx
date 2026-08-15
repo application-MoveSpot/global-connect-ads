@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { MobilityMap } from "@/components/shared/MobilityMap";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { BookingForm } from "@/components/shared/BookingForm";
-import logo from "@/assets/movespot-logo.png";
+import logo from "@/assets/movespot-logo.svg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
