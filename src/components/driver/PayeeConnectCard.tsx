@@ -34,7 +34,7 @@ export function PayeeConnectCard() {
   const start = async () => {
     setLoading(true);
     setError(null);
-    const newTab = window.open("", "_blank", "noopener,noreferrer");
+    const newTab = window.open("", "_blank");
     try {
       const returnUrl = window.top !== window ? window.top?.location.href ?? window.location.href : window.location.href;
       const { url } = await createLink({ data: { returnUrl } });
