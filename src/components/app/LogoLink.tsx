@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/movespot-logo.png";
+import logo from "@/assets/movespot-logo.svg";
 
 export function LogoLink() {
   return (
