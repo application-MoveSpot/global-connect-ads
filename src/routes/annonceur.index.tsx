@@ -6,6 +6,7 @@ import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { StatusHistory } from "@/components/shared/StatusHistory";
+import { CampaignStepper } from "@/components/shared/CampaignStepper";
 import { MobilityMap } from "@/components/shared/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
 import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
@@ -29,6 +30,7 @@ type Req = {
   creative_files: string[] | null;
   total_price: number | null;
   payment_status: string;
+  installation_status: string | null;
   subscription_status: string | null;
 };
 
@@ -58,7 +60,7 @@ function AnnonceurDashboard() {
     const [{ data: reqs }, w] = await Promise.all([
       supabase
         .from("campaign_requests")
-        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status, subscription_status")
+        .select("id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status, installation_status, subscription_status")
         .eq("user_id", userId)
         .order("created_at", { ascending: false }),
       walletFn(),
@@ -174,6 +176,12 @@ function AnnonceurDashboard() {
                     <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("fr-FR")}</span>
                   </div>
                 </div>
+                <CampaignStepper
+                  status={r.status}
+                  paymentStatus={r.payment_status}
+                  installationStatus={r.installation_status}
+                  subscriptionStatus={r.subscription_status}
+                />
                 {r.admin_notes && (
                   <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
                     <strong>Motif :</strong> {r.admin_notes}
