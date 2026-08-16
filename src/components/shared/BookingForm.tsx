@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/campaigns/forbidden-keywords";
 import { COUNTRY_OPTIONS } from "@/lib/fleet/driving-rules";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
+import { notifyCampaignSubmitted } from "@/lib/campaigns/campaign-notifications.server";
 import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -75,6 +77,7 @@ export function BookingForm({ spot, onClose }: Props) {
     waypoints: [], zones: [], pois: [], distanceKm: 0, impressionsPerDay: 0,
   });
 
+  const notifyFn = useServerFn(notifyCampaignSubmitted);
   const [files, setFiles] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
@@ -399,6 +402,10 @@ export function BookingForm({ spot, onClose }: Props) {
     }
 
     setStatus("success");
+    // Notification email best-effort — ne bloque pas l'affichage du succès
+    if (created?.id) {
+      notifyFn({ data: { campaignId: created.id } }).catch(() => {});
+    }
   };
 
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -700,6 +707,8 @@ export function BookingForm({ spot, onClose }: Props) {
               </div>
 
 
+              <ValidationChecklist />
+
               <label className="flex items-start gap-3 text-sm cursor-pointer">
                 <input
                   type="checkbox"
@@ -723,6 +732,43 @@ export function BookingForm({ spot, onClose }: Props) {
           </form>
         )}
       </div>
+    </div>
+  );
+}
+
+function ValidationChecklist() {
+  const [open, setOpen] = useState(false);
+  const items = [
+    { ok: true,  label: "Message décrit clairement l'objectif de la campagne" },
+    { ok: true,  label: "Visuels conformes à la charte (pas d'alcool, tabac, jeux d'argent)" },
+    { ok: true,  label: "Pas de contenu choquant, trompeur ou portant atteinte à des tiers" },
+    { ok: true,  label: "Dates réalistes : minimum 3 jours, maximum 30 jours" },
+    { ok: true,  label: "Itinéraire renseigné avec zones et points de passage" },
+    { ok: true,  label: "Tous les droits sur les visuels sont détenus par l'annonceur" },
+  ];
+  return (
+    <div className="rounded-lg border border-border bg-secondary/30">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-left"
+      >
+        <span>📋 Critères de validation</span>
+        <span className="text-muted-foreground text-xs">{open ? "Masquer" : "Voir les critères"}</span>
+      </button>
+      {open && (
+        <ul className="px-4 pb-4 space-y-2">
+          {items.map((item) => (
+            <li key={item.label} className="flex items-start gap-2 text-xs text-muted-foreground">
+              <span className="text-signal mt-0.5 shrink-0">✓</span>
+              {item.label}
+            </li>
+          ))}
+          <li className="text-xs text-muted-foreground pt-1 border-t border-border mt-2">
+            Notre équipe vérifie chaque demande sous <strong>48h ouvrées</strong>. Vous recevrez un email à chaque étape.
+          </li>
+        </ul>
+      )}
     </div>
   );
 }

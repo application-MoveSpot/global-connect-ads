@@ -50,24 +50,59 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const adminNotes = data.approve
+      ? "✅ Visuel et zone de ciblage approuvés par MoveSpot — recherche de chauffeurs lancée."
+      : "⛔ Visuel ou zone refusés par MoveSpot.";
+
     const { data: campaign, error } = await supabaseAdmin
       .from("campaign_requests")
       .update({
         status: data.approve ? "approved" : "rejected",
         owner_response: data.approve ? "approved" : "rejected",
-        admin_notes: data.approve
-          ? "✅ Visuel et zone de ciblage approuvés par MoveSpot — recherche de chauffeurs lancée."
-          : "⛔ Visuel ou zone refusés par MoveSpot.",
+        admin_notes: adminNotes,
       } as never)
       .eq("id", data.campaignRequestId)
-      .select("spot_name, company, start_date, end_date")
+      .select("spot_name, company, email, start_date, end_date, total_price")
       .single();
     if (error || !campaign) throw new Error(error?.message ?? "Campagne introuvable");
 
+    const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
+    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+
     if (data.approve) {
-      // Notifie les poseurs certifiés qu'une nouvelle pose (avec son kit affiche/vidéo/QR) est
-      // disponible dans leur espace. Best-effort : ne doit jamais faire échouer l'approbation.
+      // Notifie l'annonceur que sa campagne est approuvée et qu'il peut payer
+      if (campaign.email) {
+        sendAppEmailSafe({
+          templateName: "campaign-approved",
+          recipientEmail: campaign.email,
+          templateData: {
+            company: campaign.company,
+            spotName: campaign.spot_name,
+            startDate: fmtDate(campaign.start_date),
+            endDate: fmtDate(campaign.end_date),
+            totalPrice: campaign.total_price != null
+              ? Number(campaign.total_price).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })
+              : undefined,
+            paymentUrl: "https://move-spot.com/annonceur",
+          },
+        }).catch((e) => console.error("campaign-approved email failed", e));
+      }
+      // Notifie les poseurs certifiés
       notifyCertifiedInstallers(campaign).catch((e) => console.error("notifyCertifiedInstallers failed", e));
+    } else {
+      // Notifie l'annonceur du refus avec le motif
+      if (campaign.email) {
+        sendAppEmailSafe({
+          templateName: "campaign-rejected",
+          recipientEmail: campaign.email,
+          templateData: {
+            company: campaign.company,
+            spotName: campaign.spot_name,
+            reason: adminNotes,
+            newCampaignUrl: "https://move-spot.com/",
+          },
+        }).catch((e) => console.error("campaign-rejected email failed", e));
+      }
     }
 
     return { ok: true };
