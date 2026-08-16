@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { FAQChatbot } from "@/components/app/FAQChatbot";
 
 export const Route = createFileRoute("/partenaire/")({
   head: () => ({
@@ -111,11 +112,21 @@ function PartenaireDashboard() {
         <section className="rounded-2xl border border-border bg-card p-6">
           <h2 className="font-display text-xl font-semibold mb-2">Contact MoveSpot</h2>
           <p className="text-sm text-muted-foreground">
-            Une question sur le programme partenaire, vos commissions ou un dossier en cours ?
+            Une question complexe ou un dossier en cours ?
             Écrivez à <a href="mailto:partenaires@move-spot.com" className="underline hover:text-foreground">partenaires@move-spot.com</a>.
           </p>
         </section>
       </main>
+
+      <FAQChatbot
+        audience="partenaire"
+        suggestions={[
+          "Comment sont calculées mes commissions ?",
+          "Quand est-ce que je suis payé ?",
+          "Comment inviter un annonceur avec mon code ?",
+          "Y a-t-il une limite de filleuls ?",
+        ]}
+      />
     </div>
   );
 }

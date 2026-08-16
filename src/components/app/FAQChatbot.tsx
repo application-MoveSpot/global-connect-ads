@@ -3,7 +3,7 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
-  audience: "proprietaire" | "annonceur";
+  audience: "proprietaire" | "annonceur" | "partenaire";
   suggestions?: string[];
 };
 

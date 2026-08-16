@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createLovableAiGatewayProvider } from "@/lib/ai/ai-gateway.server";
 
-type ChatRequestBody = { messages?: unknown; audience?: "proprietaire" | "annonceur" };
+type ChatRequestBody = { messages?: unknown; audience?: "proprietaire" | "annonceur" | "partenaire" };
 
 const KNOWLEDGE_BASE = `
 MoveSpot est une marketplace française de publicité mobile qui met en relation :
@@ -31,7 +31,16 @@ RÉGLEMENTATION (Code de l'environnement, art. L.581-1 et suivants, RLP communal
 - Véhicules à usage principalement publicitaire : circulation/stationnement encadrés (art. R.581-48).
 - MoveSpot vérifie la conformité de chaque campagne.
 
-PAGES UTILES : /devenir-partenaire, /annonceur, /pitch, /cgu, /cgv, /confidentialite, /cookies, /mentions-legales.
+POUR LES PARTENAIRES (apporteurs d'affaires) :
+1. Inscription sur /partenaire/inscription avec code de parrainage attribué par MoveSpot.
+2. Le partenaire recommande MoveSpot à des annonceurs (entreprises qui veulent diffuser leur pub).
+3. Pour chaque campagne lancée par un annonceur apporté, une commission est reversée au partenaire.
+4. Suivi des filleuls et commissions depuis l'espace partenaire : /partenaire.
+5. Paiement des commissions par virement bancaire après validation par MoveSpot.
+6. Pas de limite de filleuls, le programme est ouvert à tous : agents commerciaux, freelances, réseaux d'entreprises.
+7. Contact programme partenaire : partenaires@move-spot.com.
+
+PAGES UTILES : /devenir-partenaire, /annonceur, /pitch, /cgu, /cgv, /confidentialite, /cookies, /mentions-legales, /partenaire/inscription.
 `;
 
 export const Route = createFileRoute("/api/faq-chat")({
@@ -51,7 +60,9 @@ export const Route = createFileRoute("/api/faq-chat")({
             ? "L'utilisateur est sur la page Annonceur (il veut diffuser de la pub)."
             : audience === "proprietaire"
               ? "L'utilisateur est sur la page Devenir partenaire (il possède un véhicule)."
-              : "";
+              : audience === "partenaire"
+                ? "L'utilisateur est un PARTENAIRE apporteur d'affaires MoveSpot (il recommande MoveSpot à des annonceurs et touche des commissions). Oriente tes réponses sur le programme partenaire : commissions, filleuls, paiements, code de parrainage."
+                : "";
 
         const gateway = createLovableAiGatewayProvider(key);
         const result = streamText({
