@@ -1,0 +1,22 @@
+-- =========================================================
+-- Correction avertissement Supabase :
+-- "Les utilisateurs connectés peuvent lister les fichiers
+-- du bucket public via la politique SELECT authenticated"
+--
+-- La migration 20260814110000 avait créé la politique
+-- "Read vehicle photos" (SELECT TO authenticated) pour
+-- permettre au propriétaire, à l'admin et aux annonceurs
+-- de lire les photos via l'API storage.
+--
+-- Or le bucket vehicle-photos est public (rétabli par
+-- 20260816120000) : le CDN Supabase bypasse entièrement
+-- RLS pour les URL publiques. La politique SELECT
+-- authenticated n'est donc pas nécessaire pour afficher
+-- les photos sur la marketplace, et expose la capacité
+-- de lister tous les fichiers du bucket via /storage/v1/.
+--
+-- Correction : supprimer la politique SELECT générale.
+-- L'upload reste protégé par la politique INSERT existante.
+-- =========================================================
+
+DROP POLICY IF EXISTS "Read vehicle photos" ON storage.objects;
