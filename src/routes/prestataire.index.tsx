@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
+import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 
 export const Route = createFileRoute("/prestataire/")({
@@ -122,6 +123,16 @@ function ProviderDashboard() {
           </div>
         )}
       </main>
+
+      <FAQChatbot
+        audience="prestataire"
+        suggestions={[
+          "Combien de temps prend la validation de mon profil ?",
+          "Comment mettre à jour mon portfolio ?",
+          "Pourquoi ma fiche n'apparaît pas dans l'annuaire ?",
+          "Comment répondre à une demande de devis ?",
+        ]}
+      />
     </div>
   );
 }
