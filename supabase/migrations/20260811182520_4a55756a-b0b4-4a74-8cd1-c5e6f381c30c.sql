@@ -1,3 +1,7 @@
+-- DROP requis car le type de retour a changé (4 → 2 colonnes) :
+-- PostgreSQL interdit CREATE OR REPLACE quand la signature de retour diffère.
+DROP FUNCTION IF EXISTS public.settle_campaign_from_wallet(uuid, text);
+
 CREATE OR REPLACE FUNCTION public.settle_campaign_from_wallet(
   p_campaign_request_id uuid,
   p_description text DEFAULT NULL
