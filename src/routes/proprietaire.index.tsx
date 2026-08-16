@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { MobilityMap } from "@/components/shared/MobilityMap";
@@ -197,6 +198,17 @@ function DashboardPage() {
           <MobilityMap />
         </section>
       </main>
+
+      <FAQChatbot
+        audience="proprietaire"
+        suggestions={[
+          "Comment ajouter un nouveau véhicule ?",
+          "Combien de temps prend la validation ?",
+          "Comment connecter Stripe pour recevoir mes paiements ?",
+          "Comment accepter ou refuser une demande de campagne ?",
+          "Comment démarrer le suivi GPS ?",
+        ]}
+      />
     </div>
   );
 }

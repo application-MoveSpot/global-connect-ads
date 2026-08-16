@@ -223,10 +223,11 @@ function AnnonceurDashboard() {
       <FAQChatbot
         audience="annonceur"
         suggestions={[
-          "Comment réserver un emplacement publicitaire ?",
+          "Comment payer ma campagne validée ?",
           "Combien de temps dure la validation de ma campagne ?",
-          "Quelles sont les conditions d'annulation ?",
           "Quels contenus publicitaires sont interdits ?",
+          "Comment recharger mon portefeuille ?",
+          "À quoi sert un brief ?",
         ]}
       />
     </div>

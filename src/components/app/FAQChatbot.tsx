@@ -2,15 +2,132 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 
+export type ChatAudience = "annonceur" | "proprietaire" | "partenaire" | "prestataire";
+
 type Props = {
-  audience: "proprietaire" | "annonceur";
+  audience: ChatAudience;
   suggestions?: string[];
 };
+
+const GREETINGS: Record<ChatAudience, string> = {
+  annonceur:
+    "Bonjour 👋 Je suis votre assistant MoveSpot. Comment puis-je vous aider — campagnes, portefeuille, briefs, ou autre chose ?",
+  proprietaire:
+    "Bonjour 👋 Je suis votre assistant MoveSpot. Besoin d'aide pour vos véhicules, les demandes de campagne, votre flotte ou vos revenus ?",
+  partenaire:
+    "Bonjour 👋 Je suis votre assistant MoveSpot. Une question sur votre espace partenaire ?",
+  prestataire:
+    "Bonjour 👋 Je suis votre assistant MoveSpot. Une question sur votre espace prestataire ou votre profil ?",
+};
+
+// Lightweight markdown renderer — handles **bold**, *italic*, and - lists
+function renderMarkdown(text: string): React.ReactNode[] {
+  const lines = text.split("\n");
+  const result: React.ReactNode[] = [];
+  let listBuffer: string[] = [];
+
+  const flushList = (key: string) => {
+    if (!listBuffer.length) return;
+    result.push(
+      <ul key={key} className="list-disc list-inside space-y-0.5 my-1 pl-0.5">
+        {listBuffer.map((item, i) => (
+          <li key={i} className="leading-relaxed">
+            {renderInline(item)}
+          </li>
+        ))}
+      </ul>
+    );
+    listBuffer = [];
+  };
+
+  lines.forEach((line, idx) => {
+    const listMatch = line.match(/^[-*•]\s+(.+)/);
+    if (listMatch) {
+      listBuffer.push(listMatch[1]);
+    } else {
+      flushList(`list-${idx}`);
+      if (line.trim() === "") {
+        if (result.length > 0) result.push(<span key={`br-${idx}`} className="block h-1" />);
+      } else {
+        result.push(
+          <span key={`line-${idx}`} className="block leading-relaxed">
+            {renderInline(line)}
+          </span>
+        );
+      }
+    }
+  });
+  flushList("list-end");
+  return result;
+}
+
+function renderInline(text: string): React.ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/).map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return (
+        <strong key={i} className="font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    if (part.startsWith("*") && part.endsWith("*"))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
+function IconChat({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function IconClose({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function IconSend({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+}
+
+function AssistantAvatar() {
+  return (
+    <div className="h-7 w-7 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center flex-shrink-0 mt-0.5">
+      <IconChat size={13} className="text-primary" />
+    </div>
+  );
+}
+
+function TypingDots() {
+  return (
+    <div className="flex gap-1 items-center h-4 px-1">
+      {[0, 150, 300].map((delay) => (
+        <span
+          key={delay}
+          className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce"
+          style={{ animationDelay: `${delay}ms` }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function FAQChatbot({ audience, suggestions = [] }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({
@@ -27,6 +144,13 @@ export function FAQChatbot({ audience, suggestions = [] }: Props) {
     }
   }, [messages, isLoading]);
 
+  useEffect(() => {
+    if (open) {
+      const t = setTimeout(() => inputRef.current?.focus(), 120);
+      return () => clearTimeout(t);
+    }
+  }, [open]);
+
   const send = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || isLoading) return;
@@ -36,40 +160,61 @@ export function FAQChatbot({ audience, suggestions = [] }: Props) {
 
   return (
     <>
-      {/* Bouton flottant */}
+      {/* Floating Action Button */}
       <button
         type="button"
-        aria-label={open ? "Fermer l'assistant FAQ" : "Ouvrir l'assistant FAQ"}
+        aria-label={open ? "Fermer l'assistant" : "Ouvrir l'assistant MoveSpot"}
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-glow hover:bg-primary/90 transition flex items-center justify-center text-2xl"
+        className={`fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-elevated transition-all duration-200 flex items-center justify-center ${
+          open
+            ? "bg-secondary border border-border text-foreground"
+            : "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 shadow-glow"
+        }`}
       >
-        {open ? "×" : "💬"}
+        {open ? <IconClose size={18} /> : <IconChat size={22} />}
       </button>
 
-      {/* Panneau */}
+      {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] sm:w-96 max-h-[70vh] rounded-2xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-gradient-hero/40">
-            <div className="font-display font-bold">Assistant MoveSpot</div>
-            <div className="text-xs text-muted-foreground">
-              Posez votre question — réponse instantanée
+        <div className="fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] sm:w-[400px] max-h-[72vh] rounded-2xl border border-border bg-card shadow-elevated flex flex-col overflow-hidden animate-in slide-in-from-bottom-3 duration-200">
+
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary/5 flex-shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <IconChat size={16} className="text-primary" />
+              </div>
+              <div>
+                <div className="font-display font-semibold text-sm leading-tight">Assistant MoveSpot</div>
+                <div className="text-[11px] text-muted-foreground">Réponse instantanée</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-signal animate-pulse" />
+              <span className="text-[11px] text-muted-foreground">En ligne</span>
             </div>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm">
+          {/* Messages */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-sm min-h-0">
+
+            {/* Initial greeting + suggestions */}
             {messages.length === 0 && (
               <div className="space-y-3">
-                <p className="text-muted-foreground">
-                  Bonjour 👋 Je suis l'assistant FAQ de MoveSpot. Comment puis-je vous aider ?
-                </p>
+                <div className="flex gap-2.5">
+                  <AssistantAvatar />
+                  <div className="rounded-2xl rounded-tl-sm bg-secondary px-3.5 py-2.5 text-foreground max-w-[85%] leading-relaxed">
+                    {GREETINGS[audience]}
+                  </div>
+                </div>
                 {suggestions.length > 0 && (
-                  <div className="flex flex-col gap-2">
+                  <div className="pl-9 flex flex-col gap-1.5">
                     {suggestions.map((s) => (
                       <button
                         key={s}
                         type="button"
                         onClick={() => send(s)}
-                        className="text-left rounded-lg border border-border bg-background/50 px-3 py-2 text-xs hover:bg-background transition"
+                        className="text-left rounded-xl border border-border bg-background/60 px-3 py-2 text-xs text-foreground hover:border-primary/40 hover:bg-primary/5 transition-colors"
                       >
                         {s}
                       </button>
@@ -79,65 +224,71 @@ export function FAQChatbot({ audience, suggestions = [] }: Props) {
               </div>
             )}
 
+            {/* Conversation messages */}
             {messages.map((m) => {
-              const text = m.parts
-                .map((p) => (p.type === "text" ? p.text : ""))
-                .join("");
+              const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
               const isUser = m.role === "user";
               return (
-                <div
-                  key={m.id}
-                  className={isUser ? "flex justify-end" : "flex justify-start"}
-                >
+                <div key={m.id} className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+                  {!isUser && <AssistantAvatar />}
                   <div
-                    className={
+                    className={`rounded-2xl px-3.5 py-2.5 max-w-[85%] text-sm ${
                       isUser
-                        ? "rounded-2xl rounded-br-sm bg-primary text-primary-foreground px-3 py-2 max-w-[85%] whitespace-pre-wrap"
-                        : "rounded-2xl rounded-bl-sm bg-muted text-foreground px-3 py-2 max-w-[85%] whitespace-pre-wrap"
-                    }
+                        ? "rounded-tr-sm bg-primary text-primary-foreground"
+                        : "rounded-tl-sm bg-secondary text-foreground"
+                    }`}
                   >
-                    {text}
+                    {isUser ? (
+                      <span className="whitespace-pre-wrap leading-relaxed">{text}</span>
+                    ) : (
+                      <div className="space-y-0.5">{renderMarkdown(text)}</div>
+                    )}
                   </div>
                 </div>
               );
             })}
 
+            {/* Typing indicator */}
             {isLoading && messages[messages.length - 1]?.role === "user" && (
-              <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-sm bg-muted px-3 py-2 text-muted-foreground text-xs">
-                  L'assistant réfléchit…
+              <div className="flex gap-2.5">
+                <AssistantAvatar />
+                <div className="rounded-2xl rounded-tl-sm bg-secondary px-3.5 py-2.5">
+                  <TypingDots />
                 </div>
               </div>
             )}
 
             {error && (
-              <div className="text-xs text-destructive">
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-3 py-2 text-xs text-destructive">
                 Une erreur est survenue. Réessayez dans un instant.
               </div>
             )}
           </div>
 
+          {/* Input */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
             }}
-            className="border-t border-border p-3 flex gap-2"
+            className="border-t border-border p-3 flex gap-2 bg-background/40 flex-shrink-0"
           >
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Votre question…"
-              className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-50"
+              aria-label="Envoyer"
+              className="rounded-full bg-primary text-primary-foreground h-9 w-9 flex items-center justify-center hover:bg-primary/90 transition disabled:opacity-40 flex-shrink-0"
             >
-              Envoyer
+              <IconSend size={15} />
             </button>
           </form>
         </div>
