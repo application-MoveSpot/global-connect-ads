@@ -16,13 +16,17 @@
 -- reservation (booking form).
 -- =========================================================
 
--- 5a. confirm_bank_transfer : admin uniquement, appele via
---     supabaseAdmin (service_role) — jamais depuis le client.
-REVOKE EXECUTE ON FUNCTION public.confirm_bank_transfer(UUID, TEXT) FROM authenticated;
+-- 5a. confirm_bank_transfer : supprimée dans 20260713131441 — skip si absente.
+DO $$ BEGIN
+  REVOKE EXECUTE ON FUNCTION public.confirm_bank_transfer(UUID, TEXT) FROM authenticated;
+EXCEPTION WHEN undefined_function THEN NULL;
+END $$;
 
--- 5b. generate_transfer_reference : trigger uniquement,
---     jamais appele directement par un utilisateur.
-REVOKE EXECUTE ON FUNCTION public.generate_transfer_reference() FROM authenticated;
+-- 5b. generate_transfer_reference : supprimée dans 20260713131441 — skip si absente.
+DO $$ BEGIN
+  REVOKE EXECUTE ON FUNCTION public.generate_transfer_reference() FROM authenticated;
+EXCEPTION WHEN undefined_function THEN NULL;
+END $$;
 
 -- =========================================================
 -- Avertissement 4 : bucket vehicle-photos entierement public
