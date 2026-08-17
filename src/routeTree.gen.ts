@@ -44,6 +44,7 @@ import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe
 import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
 import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.inscription'
 import { Route as PrestataireIndexRouteImport } from './routes/prestataire.index'
+import { Route as PrestataireConnexionRouteImport } from './routes/prestataire.connexion'
 import { Route as PrestataireInscriptionRouteImport } from './routes/prestataire.inscription'
 import { Route as PrestatairesIndexRouteImport } from './routes/prestataires.index'
 import { Route as PrestatairesProviderIdRouteImport } from './routes/prestataires.$providerId'
@@ -57,6 +58,7 @@ import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.bri
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
 import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur.suivi.$campaignId'
+import { Route as ApiAdminSetupStripeProductsRouteImport } from './routes/api/admin/setup-stripe-products'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as ProprietaireBriefsBriefIdRouteImport } from './routes/proprietaire.briefs.$briefId'
@@ -246,6 +248,11 @@ const PrestataireIndexRoute = PrestataireIndexRouteImport.update({
   path: '/prestataire/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrestataireConnexionRoute = PrestataireConnexionRouteImport.update({
+  id: '/prestataire/connexion',
+  path: '/prestataire/connexion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrestataireInscriptionRoute = PrestataireInscriptionRouteImport.update({
   id: '/prestataire/inscription',
   path: '/prestataire/inscription',
@@ -311,6 +318,12 @@ const AnnonceurSuiviCampaignIdRoute =
   AnnonceurSuiviCampaignIdRouteImport.update({
     id: '/annonceur/suivi/$campaignId',
     path: '/annonceur/suivi/$campaignId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminSetupStripeProductsRoute =
+  ApiAdminSetupStripeProductsRouteImport.update({
+    id: '/api/admin/setup-stripe-products',
+    path: '/api/admin/setup-stripe-products',
     getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
@@ -408,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
+  '/prestataire/connexion': typeof PrestataireConnexionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
@@ -424,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
+  '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
@@ -469,6 +484,7 @@ export interface FileRoutesByTo {
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
+  '/prestataire/connexion': typeof PrestataireConnexionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
@@ -485,6 +501,7 @@ export interface FileRoutesByTo {
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
+  '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
@@ -531,6 +548,7 @@ export interface FileRoutesById {
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
+  '/prestataire/connexion': typeof PrestataireConnexionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
@@ -547,6 +565,7 @@ export interface FileRoutesById {
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
+  '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
@@ -594,6 +613,7 @@ export interface FileRouteTypes {
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
     | '/partenaire/inscription'
+    | '/prestataire/connexion'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
     | '/proprietaire/flotte'
@@ -610,6 +630,7 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
+    | '/api/admin/setup-stripe-products'
     | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
@@ -655,6 +676,7 @@ export interface FileRouteTypes {
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
     | '/partenaire/inscription'
+    | '/prestataire/connexion'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
     | '/proprietaire/flotte'
@@ -671,6 +693,7 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
+    | '/api/admin/setup-stripe-products'
     | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
@@ -716,6 +739,7 @@ export interface FileRouteTypes {
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
     | '/partenaire/inscription'
+    | '/prestataire/connexion'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
     | '/proprietaire/flotte'
@@ -732,6 +756,7 @@ export interface FileRouteTypes {
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
     | '/annonceur/suivi/$campaignId'
+    | '/api/admin/setup-stripe-products'
     | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
@@ -775,6 +800,7 @@ export interface RootRouteChildren {
   ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PartenaireInscriptionRoute: typeof PartenaireInscriptionRoute
+  PrestataireConnexionRoute: typeof PrestataireConnexionRoute
   PrestataireInscriptionRoute: typeof PrestataireInscriptionRoute
   PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
   ProprietaireFlotteRoute: typeof ProprietaireFlotteRouteWithChildren
@@ -791,6 +817,7 @@ export interface RootRouteChildren {
   AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
   AnnonceurSuiviCampaignIdRoute: typeof AnnonceurSuiviCampaignIdRoute
+  ApiAdminSetupStripeProductsRoute: typeof ApiAdminSetupStripeProductsRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ProprietaireBriefsBriefIdRoute: typeof ProprietaireBriefsBriefIdRoute
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
@@ -1050,6 +1077,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrestataireIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prestataire/connexion': {
+      id: '/prestataire/connexion'
+      path: '/prestataire/connexion'
+      fullPath: '/prestataire/connexion'
+      preLoaderRoute: typeof PrestataireConnexionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/prestataire/inscription': {
       id: '/prestataire/inscription'
       path: '/prestataire/inscription'
@@ -1139,6 +1173,13 @@ declare module '@tanstack/react-router' {
       path: '/annonceur/suivi/$campaignId'
       fullPath: '/annonceur/suivi/$campaignId'
       preLoaderRoute: typeof AnnonceurSuiviCampaignIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/setup-stripe-products': {
+      id: '/api/admin/setup-stripe-products'
+      path: '/api/admin/setup-stripe-products'
+      fullPath: '/api/admin/setup-stripe-products'
+      preLoaderRoute: typeof ApiAdminSetupStripeProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/suppression': {
@@ -1278,6 +1319,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PartenaireInscriptionRoute: PartenaireInscriptionRoute,
+  PrestataireConnexionRoute: PrestataireConnexionRoute,
   PrestataireInscriptionRoute: PrestataireInscriptionRoute,
   PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
   ProprietaireFlotteRoute: ProprietaireFlotteRouteWithChildren,
@@ -1294,6 +1336,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
   AnnonceurSuiviCampaignIdRoute: AnnonceurSuiviCampaignIdRoute,
+  ApiAdminSetupStripeProductsRoute: ApiAdminSetupStripeProductsRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ProprietaireBriefsBriefIdRoute: ProprietaireBriefsBriefIdRoute,
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
@@ -1308,13 +1351,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
