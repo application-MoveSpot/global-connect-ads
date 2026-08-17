@@ -799,6 +799,63 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_profiles: {
+        Row: {
+          admin_notes: string | null
+          company: string
+          created_at: string
+          description: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_subscription_period_end: string | null
+          stripe_subscription_status: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          company: string
+          created_at?: string
+          description?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          company?: string
+          created_at?: string
+          description?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       provider_profiles: {
         Row: {
           admin_notes: string | null
@@ -815,6 +872,10 @@ export type Database = {
           services: string[]
           siret: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_subscription_period_end: string | null
+          stripe_subscription_status: string | null
           updated_at: string
           user_id: string
           website: string | null
@@ -834,6 +895,10 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -853,6 +918,10 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null

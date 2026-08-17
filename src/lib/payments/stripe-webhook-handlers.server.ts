@@ -9,6 +9,46 @@ import type { Database } from "@/integrations/supabase/types";
 
 type AdminClient = SupabaseClient<Database>;
 
+async function syncProviderSubscription(
+  supabaseAdmin: AdminClient,
+  params: { userId?: string | null; subscriptionId: string; customerId: string | null; status: string; currentPeriodEnd?: number | null },
+) {
+  const patch = {
+    stripe_subscription_id: params.subscriptionId,
+    stripe_customer_id: params.customerId,
+    stripe_subscription_status: params.status,
+    stripe_subscription_period_end: params.currentPeriodEnd
+      ? new Date(params.currentPeriodEnd * 1000).toISOString()
+      : null,
+  } as never;
+
+  if (params.userId) {
+    await supabaseAdmin.from("provider_profiles").update(patch).eq("user_id", params.userId);
+    return;
+  }
+  await supabaseAdmin.from("provider_profiles").update(patch).eq("stripe_subscription_id", params.subscriptionId);
+}
+
+async function syncPartnerSubscription(
+  supabaseAdmin: AdminClient,
+  params: { userId?: string | null; subscriptionId: string; customerId: string | null; status: string; currentPeriodEnd?: number | null },
+) {
+  const patch = {
+    stripe_subscription_id: params.subscriptionId,
+    stripe_customer_id: params.customerId,
+    stripe_subscription_status: params.status,
+    stripe_subscription_period_end: params.currentPeriodEnd
+      ? new Date(params.currentPeriodEnd * 1000).toISOString()
+      : null,
+  } as never;
+
+  if (params.userId) {
+    await supabaseAdmin.from("partner_profiles").update(patch).eq("user_id", params.userId);
+    return;
+  }
+  await supabaseAdmin.from("partner_profiles").update(patch).eq("stripe_subscription_id", params.subscriptionId);
+}
+
 async function syncCampaignSubscription(
   supabaseAdmin: AdminClient,
   params: {
@@ -70,30 +110,87 @@ export async function handleStripeEvent(
           status: s.status === "complete" ? "active" : "incomplete",
         });
       }
+
+      if (s.metadata?.kind === "provider_subscription" && typeof s.subscription === "string") {
+        await syncProviderSubscription(supabaseAdmin, {
+          userId: s.metadata.user_id ?? null,
+          subscriptionId: s.subscription,
+          customerId: typeof s.customer === "string" ? s.customer : (s.customer?.id ?? null),
+          status: s.status === "complete" ? "active" : "incomplete",
+        });
+      }
+
+      if (s.metadata?.kind === "partner_subscription" && typeof s.subscription === "string") {
+        await syncPartnerSubscription(supabaseAdmin, {
+          userId: s.metadata.user_id ?? null,
+          subscriptionId: s.subscription,
+          customerId: typeof s.customer === "string" ? s.customer : (s.customer?.id ?? null),
+          status: s.status === "complete" ? "active" : "incomplete",
+        });
+      }
       break;
     }
 
     case "customer.subscription.created":
     case "customer.subscription.updated": {
       const sub = event.data.object as Stripe.Subscription;
-      await syncCampaignSubscription(supabaseAdmin, {
-        campaignRequestId: sub.metadata?.campaign_id ?? null,
-        subscriptionId: sub.id,
-        customerId: typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null),
-        status: sub.status,
-        currentPeriodEnd: (sub as unknown as { current_period_end?: number }).current_period_end ?? null,
-      });
+      const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end ?? null;
+      const customerId = typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null);
+
+      if (sub.metadata?.kind === "provider_subscription") {
+        await syncProviderSubscription(supabaseAdmin, {
+          userId: sub.metadata?.user_id ?? null,
+          subscriptionId: sub.id,
+          customerId,
+          status: sub.status,
+          currentPeriodEnd: periodEnd,
+        });
+      } else if (sub.metadata?.kind === "partner_subscription") {
+        await syncPartnerSubscription(supabaseAdmin, {
+          userId: sub.metadata?.user_id ?? null,
+          subscriptionId: sub.id,
+          customerId,
+          status: sub.status,
+          currentPeriodEnd: periodEnd,
+        });
+      } else {
+        await syncCampaignSubscription(supabaseAdmin, {
+          campaignRequestId: sub.metadata?.campaign_id ?? null,
+          subscriptionId: sub.id,
+          customerId,
+          status: sub.status,
+          currentPeriodEnd: periodEnd,
+        });
+      }
       break;
     }
 
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
-      await syncCampaignSubscription(supabaseAdmin, {
-        campaignRequestId: sub.metadata?.campaign_id ?? null,
-        subscriptionId: sub.id,
-        customerId: typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null),
-        status: "canceled",
-      });
+      const customerId = typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null);
+
+      if (sub.metadata?.kind === "provider_subscription") {
+        await syncProviderSubscription(supabaseAdmin, {
+          userId: sub.metadata?.user_id ?? null,
+          subscriptionId: sub.id,
+          customerId,
+          status: "canceled",
+        });
+      } else if (sub.metadata?.kind === "partner_subscription") {
+        await syncPartnerSubscription(supabaseAdmin, {
+          userId: sub.metadata?.user_id ?? null,
+          subscriptionId: sub.id,
+          customerId,
+          status: "canceled",
+        });
+      } else {
+        await syncCampaignSubscription(supabaseAdmin, {
+          campaignRequestId: sub.metadata?.campaign_id ?? null,
+          subscriptionId: sub.id,
+          customerId,
+          status: "canceled",
+        });
+      }
       break;
     }
 

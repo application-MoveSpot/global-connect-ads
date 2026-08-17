@@ -412,6 +412,178 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
     }
   });
 
+// ================== PRESTATAIRE — Abonnement mensuel (provider_monthly) ==================
+const ProviderSubscriptionInput = z.object({
+  priceId: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("provider_monthly"),
+  returnUrl: z.string().url(),
+});
+
+export const createProviderSubscriptionCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.input<typeof ProviderSubscriptionInput>) => ProviderSubscriptionInput.parse(d))
+  .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
+    const { userId, supabase } = context;
+    const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
+
+    try {
+      const stripe = createStripeClient();
+      const { data: userRow } = await supabase.auth.getUser();
+      const email = userRow.user?.email ?? undefined;
+
+      // Cherche ou crée le customer Stripe
+      let customerId: string | undefined;
+      const found = await stripe.customers.search({
+        query: `metadata['userId']:'${userId}'`,
+        limit: 1,
+      });
+      if (found.data.length) {
+        customerId = found.data[0].id;
+      } else if (email) {
+        const existing = await stripe.customers.list({ email, limit: 1 });
+        if (existing.data.length) {
+          customerId = existing.data[0].id;
+          if (existing.data[0].metadata?.userId !== userId) {
+            await stripe.customers.update(customerId, { metadata: { ...existing.data[0].metadata, userId } });
+          }
+        }
+      }
+      if (!customerId) {
+        const created = await stripe.customers.create({ ...(email && { email }), metadata: { userId } });
+        customerId = created.id;
+      }
+
+      // Sauvegarde le customer ID dans le profil prestataire
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("provider_profiles")
+        .update({ stripe_customer_id: customerId } as never)
+        .eq("user_id", userId);
+
+      // Résout le tarif via lookup_key
+      const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
+      if (!prices.data.length) return { error: "Tarif prestataire introuvable (lookup key : provider_monthly)" };
+      const price = prices.data[0];
+
+      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
+      const meta: Record<string, string> = {
+        kind: "provider_subscription",
+        userId,
+        user_id: userId,
+      };
+
+      const baseParams = {
+        mode: "subscription",
+        ui_mode: "embedded",
+        return_url: returnUrl,
+        customer: customerId,
+        line_items: [{ price: price.id, quantity: 1 }],
+        metadata: meta,
+        subscription_data: { metadata: meta },
+      } as Record<string, unknown>;
+
+      let session;
+      try {
+        session = await stripe.checkout.sessions.create({
+          ...baseParams,
+          automatic_tax: { enabled: true },
+          tax_id_collection: { enabled: true },
+        } as never);
+      } catch {
+        session = await stripe.checkout.sessions.create(baseParams as never);
+      }
+
+      return { clientSecret: session.client_secret ?? "", id: session.id };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });
+
+// ================== PARTENAIRE — Abonnement mensuel (partner_monthly) ==================
+const PartnerSubscriptionInput = z.object({
+  priceId: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("partner_monthly"),
+  returnUrl: z.string().url(),
+});
+
+export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.input<typeof PartnerSubscriptionInput>) => PartnerSubscriptionInput.parse(d))
+  .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
+    const { userId, supabase } = context;
+    const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
+
+    try {
+      const stripe = createStripeClient();
+      const { data: userRow } = await supabase.auth.getUser();
+      const email = userRow.user?.email ?? undefined;
+
+      // Cherche ou crée le customer Stripe
+      let customerId: string | undefined;
+      const found = await stripe.customers.search({
+        query: `metadata['userId']:'${userId}'`,
+        limit: 1,
+      });
+      if (found.data.length) {
+        customerId = found.data[0].id;
+      } else if (email) {
+        const existing = await stripe.customers.list({ email, limit: 1 });
+        if (existing.data.length) {
+          customerId = existing.data[0].id;
+          if (existing.data[0].metadata?.userId !== userId) {
+            await stripe.customers.update(customerId, { metadata: { ...existing.data[0].metadata, userId } });
+          }
+        }
+      }
+      if (!customerId) {
+        const created = await stripe.customers.create({ ...(email && { email }), metadata: { userId } });
+        customerId = created.id;
+      }
+
+      // Sauvegarde le customer ID dans le profil partenaire
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("partner_profiles")
+        .update({ stripe_customer_id: customerId } as never)
+        .eq("user_id", userId);
+
+      // Résout le tarif via lookup_key
+      const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
+      if (!prices.data.length) return { error: "Tarif partenaire introuvable (lookup key : partner_monthly)" };
+      const price = prices.data[0];
+
+      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
+      const meta: Record<string, string> = {
+        kind: "partner_subscription",
+        userId,
+        user_id: userId,
+      };
+
+      const baseParams = {
+        mode: "subscription",
+        ui_mode: "embedded",
+        return_url: returnUrl,
+        customer: customerId,
+        line_items: [{ price: price.id, quantity: 1 }],
+        metadata: meta,
+        subscription_data: { metadata: meta },
+      } as Record<string, unknown>;
+
+      let session;
+      try {
+        session = await stripe.checkout.sessions.create({
+          ...baseParams,
+          automatic_tax: { enabled: true },
+          tax_id_collection: { enabled: true },
+        } as never);
+      } catch {
+        session = await stripe.checkout.sessions.create(baseParams as never);
+      }
+
+      return { clientSecret: session.client_secret ?? "", id: session.id };
+    } catch (error) {
+      return { error: getStripeErrorMessage(error) };
+    }
+  });
+
 // Vérifie côté serveur qu'une session de checkout d'abonnement a bien abouti à une
 // subscription Stripe active/en essai, et met à jour campaign_requests en conséquence
 // (le webhook fait la même chose de façon asynchrone ; cet appel évite d'afficher un

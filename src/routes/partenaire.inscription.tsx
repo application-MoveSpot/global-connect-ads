@@ -1,11 +1,7 @@
-import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { LogoLink } from "@/components/app/LogoLink";
-import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
-
-type Search = { redirect?: string };
 
 export const Route = createFileRoute("/partenaire/inscription")({
   head: () => ({
@@ -14,33 +10,23 @@ export const Route = createFileRoute("/partenaire/inscription")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
-  }),
-  component: PartenaireInscription,
+  component: PartnerSignupPage,
 });
 
-function PartenaireInscription() {
+function PartnerSignupPage() {
   const navigate = useNavigate();
-  const { redirect } = useSearch({ from: "/partenaire/inscription" });
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
   const [company, setCompany] = useState("");
+  const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [notes, setNotes] = useState("");
-  const [hasCompany, setHasCompany] = useState(false);
-  const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
+  const [website, setWebsite] = useState("");
+  const [description, setDescription] = useState("");
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const goNext = () => {
-    if (redirect) window.location.href = redirect;
-    else navigate({ to: "/partenaire" });
-  };
 
   useEffect(() => {
     (async () => {
@@ -48,28 +34,37 @@ function PartenaireInscription() {
       if (data.session) {
         const { data: existing } = await supabase
           .from("partner_profiles")
-          .select("id")
+          .select("user_id")
           .eq("user_id", data.session.user.id)
           .maybeSingle();
-        if (existing) goNext();
-        else setStep("profile");
+        if (existing) navigate({ to: "/partenaire" });
+        else {
+          setEmail(data.session.user.email ?? "");
+          setSessionEmail(data.session.user.email ?? null);
+          setStep("profile");
+        }
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSessionEmail(null);
+    setStep("auth");
+    setMode("signup");
+    setError("");
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     if (mode === "signup") {
       const { data: signUpData, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email, password,
         options: { emailRedirectTo: `${window.location.origin}/partenaire/inscription` },
       });
       if (error) { setError(error.message); setLoading(false); return; }
-      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+      if (signUpData.user?.identities?.length === 0) {
         setMode("signin");
         setError("Un compte existe déjà avec cet email. Connectez-vous.");
         setLoading(false);
@@ -81,140 +76,127 @@ function PartenaireInscription() {
         setLoading(false);
         return;
       }
+      setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setError(error.message); setLoading(false); return; }
-      const { data: sess } = await supabase.auth.getSession();
-      if (sess.session) {
-        const { data: existing } = await supabase
-          .from("partner_profiles")
-          .select("id")
-          .eq("user_id", sess.session.user.id)
-          .maybeSingle();
-        if (existing) { goNext(); return; }
-      }
+      setSessionEmail(signInData.session?.user.email ?? null);
     }
-    setStep("profile");
-    setLoading(false);
+    setStep("profile"); setLoading(false);
   };
 
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (hasCompany && !siret.verified) {
-      setError("Merci de vérifier votre numéro SIRET avant de continuer.");
-      return;
+    if (company.trim().length < 2) { setError("Nom de l'entreprise invalide."); return; }
+    const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
+    if (!nameRe.test(fullName.trim())) { setError("Indiquez le prénom et le nom du responsable."); return; }
+    if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
+    const phoneTrim = phone.trim();
+    if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) { setError("Numéro de téléphone invalide."); return; }
+    const websiteTrim = website.trim();
+    let websiteValue: string | null = null;
+    if (websiteTrim) {
+      try {
+        const u = new URL(websiteTrim);
+        if (u.protocol !== "https:") { setError("Le site web doit utiliser HTTPS."); return; }
+        websiteValue = u.toString();
+      } catch { setError("URL de site web invalide."); return; }
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
-    const payload: Record<string, unknown> = {
+    const { error } = await supabase.from("partner_profiles").insert({
       user_id: sess.session.user.id,
-      full_name: fullName,
-      phone: phone || null,
-      city: city || null,
-      notes: notes || null,
-    };
-    if (hasCompany) {
-      payload.company = company || siret.denomination;
-      payload.siret = siret.siret;
-      payload.siret_denomination = siret.denomination;
-      payload.siret_verified_at = new Date().toISOString();
-    }
-    const { error } = await supabase.from("partner_profiles").insert(payload as never);
-    if (error) { setError(error.message); setLoading(false); return; }
-    goNext();
+      company: company.trim(),
+      full_name: fullName.trim(),
+      email,
+      phone: phoneTrim || null,
+      website: websiteValue,
+      description: description.trim(),
+    });
+    setLoading(false);
+    if (error) { setError(error.message); return; }
+    navigate({ to: "/partenaire" });
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 flex items-center justify-center">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
-        <div className="mb-4"><LogoLink /></div>
-        <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <LogoLink />
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Accueil</Link>
+        </div>
+      </header>
+      <main className="max-w-2xl mx-auto px-4 py-10">
+        <h1 className="font-display text-3xl font-bold mb-2">Devenir partenaire MoveSpot</h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          En tant que partenaire, référencez des clients, proposez des offres exclusives et développez votre réseau avec MoveSpot.
+        </p>
 
         {step === "auth" ? (
-          <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? "Devenir partenaire" : "Connexion partenaire"}
-            </h1>
-            <p className="text-sm text-muted-foreground mb-6">
-              {mode === "signup"
-                ? "Apporteur d'affaires, agence ou revendeur — rejoignez le programme partenaire MoveSpot."
-                : "Accédez à votre espace partenaire."}
-            </p>
-            <form onSubmit={handleAuth} className="space-y-4">
-              <Input label="Email" type="email" value={email} onChange={setEmail} required />
-              <div>
-                <Input label="Mot de passe" type="password" value={password} onChange={setPassword} required minLength={8} />
-                {mode === "signin" && (
-                  <div className="mt-2 text-right">
-                    <Link to="/reset-password" className="text-xs text-muted-foreground hover:text-foreground underline">Mot de passe oublié ?</Link>
-                  </div>
-                )}
-              </div>
-              {error && <Err msg={error} />}
-              <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-                {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+          <form onSubmit={handleAuth} className="space-y-4 rounded-2xl border border-border bg-card p-6">
+            <div className="flex gap-2 text-sm mb-2">
+              <button type="button" onClick={() => setMode("signup")}
+                className={`px-3 py-1.5 rounded-full ${mode === "signup" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
+                S'inscrire
               </button>
-            </form>
-            <button onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); }} className="w-full text-sm text-muted-foreground hover:text-foreground mt-4">
-              {mode === "signup" ? "Déjà un compte ? Se connecter" : "Pas encore inscrit ? Créer un compte"}
+              <button type="button" onClick={() => setMode("signin")}
+                className={`px-3 py-1.5 rounded-full ${mode === "signin" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
+                J'ai déjà un compte
+              </button>
+            </div>
+            <FormInput label="Email" type="email" value={email} onChange={setEmail} required />
+            <FormInput label="Mot de passe" type="password" value={password} onChange={setPassword} required />
+            {error && <ErrorBox>{error}</ErrorBox>}
+            <button disabled={loading} className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
+              {loading ? "…" : (mode === "signup" ? "Créer mon compte" : "Se connecter")}
             </button>
-          </>
+          </form>
         ) : (
-          <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil partenaire</h1>
-            <SignedInBanner onSignedOut={() => setStep("auth")} />
-            <p className="text-sm text-muted-foreground mb-6">Quelques infos pour finaliser votre inscription.</p>
-            <form onSubmit={handleProfile} className="space-y-4">
-              <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
-
-              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
-                <input type="checkbox" checked={hasCompany} onChange={(e) => setHasCompany(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-border" />
-                <span>Je représente une entreprise / agence (avec SIRET)</span>
-              </label>
-
-              {hasCompany && (
-                <>
-                  <SiretField value={siret} onChange={setSiret} />
-                  <Input label="Nom de l'entreprise / agence" value={company} onChange={setCompany} />
-                </>
-              )}
-
-              <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} />
-              <Input label="Ville" value={city} onChange={setCity} />
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Comment comptez-vous travailler avec MoveSpot ?</label>
-                <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} maxLength={500}
-                  placeholder="Apport d'annonceurs, mise en relation propriétaires, revente d'espaces…"
-                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+          <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
+            {sessionEmail && (
+              <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
+                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                  se déconnecter
+                </button>
               </div>
-
-              {error && <Err msg={error} />}
-              <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-                {loading ? "..." : "Valider mon inscription"}
-              </button>
-            </form>
-          </>
+            )}
+            <FormInput label="Nom de l'entreprise ou structure" value={company} onChange={setCompany} required placeholder="Ex. Agence Marketing Pro" />
+            <FormInput label="Nom et prénom du responsable" value={fullName} onChange={setFullName} required placeholder="Ex. Jean Dupont" />
+            <FormInput label="Téléphone" type="tel" value={phone} onChange={setPhone} placeholder="Ex. +33 6 12 34 56 78" />
+            <FormInput label="Site web (optionnel)" type="url" value={website} onChange={setWebsite} placeholder="https://votresite.fr" />
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Décrivez votre activité et votre intérêt pour le partenariat</label>
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={5}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2"
+                placeholder="Votre secteur d'activité, vos clients cibles, pourquoi vous souhaitez devenir partenaire MoveSpot…" />
+            </div>
+            {error && <ErrorBox>{error}</ErrorBox>}
+            <button disabled={loading} className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
+              {loading ? "Envoi…" : "Soumettre ma candidature"}
+            </button>
+          </form>
         )}
-      </div>
+      </main>
     </div>
   );
 }
 
-function Input({ label, value, onChange, type = "text", required, minLength }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; minLength?: number;
+function FormInput({ label, value, onChange, type = "text", required, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void;
+  type?: string; required?: boolean; placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} minLength={minLength} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
+        className="w-full rounded-lg border border-border bg-background px-3 py-2" />
     </div>
   );
 }
 
-function Err({ msg }: { msg: string }) {
-  return <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{msg}</div>;
+function ErrorBox({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{children}</div>;
 }
