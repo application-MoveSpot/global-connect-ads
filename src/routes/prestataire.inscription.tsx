@@ -28,7 +28,6 @@ Devis personnalisé après réception du brief.`;
 function ProviderSignupPage() {
   const navigate = useNavigate();
   
-  const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,37 +73,28 @@ function ProviderSignupPage() {
     await supabase.auth.signOut();
     setSessionEmail(null);
     setStep("auth");
-    setMode("signup");
     setError("");
   };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); setLoading(true);
-    if (mode === "signup") {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email, password,
-        options: { emailRedirectTo: `${window.location.origin}/prestataire/inscription` },
-      });
-      if (error) { setError(error.message); setLoading(false); return; }
-      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
-        setMode("signin");
-        setError("Un compte existe déjà avec cet email. Connectez-vous.");
-        setLoading(false);
-        return;
-      }
-      if (!signUpData.session) {
-        setMode("signin");
-        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
-        setLoading(false);
-        return;
-      }
-      setSessionEmail(signUpData.session.user.email ?? null);
-    } else {
-      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
-      setSessionEmail(signInData.session?.user.email ?? null);
+    const { data: signUpData, error } = await supabase.auth.signUp({
+      email, password,
+      options: { emailRedirectTo: `${window.location.origin}/prestataire/inscription` },
+    });
+    if (error) { setError(error.message); setLoading(false); return; }
+    if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+      setError("Un compte existe déjà avec cet email.");
+      setLoading(false);
+      return;
     }
+    if (!signUpData.session) {
+      setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+      setLoading(false);
+      return;
+    }
+    setSessionEmail(signUpData.session.user.email ?? null);
     setStep("profile"); setLoading(false);
   };
 
@@ -176,16 +166,29 @@ function ProviderSignupPage() {
 
         {step === "auth" ? (
           <form onSubmit={handleAuth} className="space-y-4 rounded-2xl border border-border bg-card p-6">
-            <div className="flex gap-2 text-sm mb-2">
-              <button type="button" onClick={() => setMode("signup")} className={`px-3 py-1.5 rounded-full ${mode === "signup" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>S'inscrire</button>
-              <button type="button" onClick={() => setMode("signin")} className={`px-3 py-1.5 rounded-full ${mode === "signin" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>J'ai déjà un compte</button>
-            </div>
             <Input label="Email" type="email" value={email} onChange={setEmail} required />
-            <Input label="Mot de passe" type="password" value={password} onChange={setPassword} required />
-            {error && <ErrorBox>{error}</ErrorBox>}
+            <Input label="Mot de passe (min. 8 caractères)" type="password" value={password} onChange={setPassword} required />
+            {error && (
+              <div>
+                <ErrorBox>{error}</ErrorBox>
+                {error.includes("existe déjà") && (
+                  <p className="mt-2 text-sm text-center">
+                    <Link to="/prestataire/connexion" className="font-medium text-primary hover:underline">
+                      → Se connecter à mon espace prestataire
+                    </Link>
+                  </p>
+                )}
+              </div>
+            )}
             <button disabled={loading} className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
-              {loading ? "…" : (mode === "signup" ? "Créer mon compte" : "Se connecter")}
+              {loading ? "…" : "Créer mon compte"}
             </button>
+            <p className="text-center text-sm text-muted-foreground pt-1">
+              Déjà prestataire MoveSpot ?{" "}
+              <Link to="/prestataire/connexion" className="font-medium text-foreground hover:underline">
+                Se connecter
+              </Link>
+            </p>
           </form>
         ) : (
           <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">

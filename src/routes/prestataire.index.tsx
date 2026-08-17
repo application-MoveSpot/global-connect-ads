@@ -41,7 +41,7 @@ function ProviderDashboard() {
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/prestataire/inscription" }); return; }
+    if (!sess.session) { navigate({ to: "/prestataire/connexion" }); return; }
     const { data: p } = await supabase.from("provider_profiles")
       .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end")
       .eq("user_id", sess.session.user.id).maybeSingle();
