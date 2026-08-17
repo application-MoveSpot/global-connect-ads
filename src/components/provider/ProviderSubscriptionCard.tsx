@@ -102,6 +102,16 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
         </div>
       ) : (
         <div className="space-y-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-display text-3xl font-bold">79 €</span>
+            <span className="text-sm text-muted-foreground">HT / mois — sans engagement</span>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>✓ Fiche visible dans l'annuaire prestataires</li>
+            <li>✓ Réception des demandes de devis annonceurs</li>
+            <li>✓ Accès aux campagnes en cours sur votre zone</li>
+            <li>✓ Résiliable à tout moment</li>
+          </ul>
           {subscriptionStatus && subscriptionStatus !== "canceled" && subscriptionStatus !== "incomplete" ? (
             <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
               Votre abonnement est <strong>{STATUS_LABELS[subscriptionStatus]?.label ?? subscriptionStatus}</strong>.
@@ -116,7 +126,7 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
             onClick={handleOpen}
             className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
-            {subscriptionStatus === "past_due" ? "Régulariser mon abonnement" : "S'abonner"}
+            {subscriptionStatus === "past_due" ? "Régulariser mon abonnement" : "S'abonner — 79 € HT/mois"}
           </button>
         </div>
       )}

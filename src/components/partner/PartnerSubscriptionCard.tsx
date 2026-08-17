@@ -102,6 +102,17 @@ export function PartnerSubscriptionCard({ subscriptionStatus, subscriptionPeriod
         </div>
       ) : (
         <div className="space-y-3">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-display text-3xl font-bold">149 €</span>
+            <span className="text-sm text-muted-foreground">HT / mois — sans engagement</span>
+          </div>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>✓ Accès au réseau d'annonceurs et prestataires MoveSpot</li>
+            <li>✓ Outils de gestion et de reporting partenaire</li>
+            <li>✓ Référencement dans l'annuaire partenaires</li>
+            <li>✓ Support dédié et conditions préférentielles</li>
+            <li>✓ Résiliable à tout moment</li>
+          </ul>
           {subscriptionStatus && subscriptionStatus !== "canceled" && subscriptionStatus !== "incomplete" ? (
             <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
               Votre abonnement est <strong>{STATUS_LABELS[subscriptionStatus]?.label ?? subscriptionStatus}</strong>.
@@ -116,7 +127,7 @@ export function PartnerSubscriptionCard({ subscriptionStatus, subscriptionPeriod
             onClick={handleOpen}
             className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
-            {subscriptionStatus === "past_due" ? "Régulariser mon abonnement" : "Devenir partenaire"}
+            {subscriptionStatus === "past_due" ? "Régulariser mon abonnement" : "Devenir partenaire — 149 € HT/mois"}
           </button>
         </div>
       )}
