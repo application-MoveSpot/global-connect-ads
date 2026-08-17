@@ -8,8 +8,9 @@ import { createAPIFileRoute } from "@tanstack/react-start/api";
  */
 export const APIRoute = createAPIFileRoute("/api/admin/setup-stripe-products")({
   GET: async ({ request }) => {
-    // Vérification admin via header secret
-    const authHeader = request.headers.get("x-admin-setup-token");
+    // Vérification admin via header secret ou query param
+    const url = new URL(request.url);
+    const authHeader = request.headers.get("x-admin-setup-token") ?? url.searchParams.get("token");
     const expectedToken = process.env["ADMIN_SETUP_TOKEN"] ?? "movespot-setup-2026";
     if (authHeader !== expectedToken) {
       return new Response(JSON.stringify({ error: "Non autorisé" }), {
