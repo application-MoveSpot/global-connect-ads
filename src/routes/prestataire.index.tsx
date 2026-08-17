@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { StatusHistory } from "@/components/shared/StatusHistory";
+import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscriptionCard";
 
 export const Route = createFileRoute("/prestataire/")({
   head: () => ({
@@ -21,6 +22,8 @@ type Profile = {
   siret: string | null; email: string | null; phone: string | null; website: string | null;
   description: string | null; services: string[] | null; coverage_areas: string[] | null;
   pricing_info: string | null; logo_url: string | null;
+  stripe_subscription_status: string | null;
+  stripe_subscription_period_end: string | null;
 };
 
 type Quote = {
@@ -40,7 +43,7 @@ function ProviderDashboard() {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/prestataire/inscription" }); return; }
     const { data: p } = await supabase.from("provider_profiles")
-      .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url")
+      .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end")
       .eq("user_id", sess.session.user.id).maybeSingle();
     if (!p) { navigate({ to: "/prestataire/inscription" }); return; }
     setProfile(p as Profile);
@@ -108,6 +111,12 @@ function ProviderDashboard() {
             statusLabel={{ pending: "En attente", approved: "Approuvée", rejected: "Refusée" }}
           />
         </div>
+
+        <ProviderSubscriptionCard
+          subscriptionStatus={profile.stripe_subscription_status}
+          subscriptionPeriodEnd={profile.stripe_subscription_period_end}
+          onSuccess={load}
+        />
 
         <ProfilePreview profile={profile} />
 
