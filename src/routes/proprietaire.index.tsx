@@ -1,13 +1,16 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
-import { MobilityMap } from "@/components/shared/MobilityMap";
 import { OwnerConnectCard } from "@/components/owner/OwnerConnectCard";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+
+const MobilityMap = lazy(() =>
+  import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap }))
+);
 
 export const Route = createFileRoute("/proprietaire/")({
   head: () => ({
@@ -195,7 +198,9 @@ function DashboardPage() {
         <section className="mt-12">
           <h2 className="font-display text-2xl font-bold mb-2">Aperçu illustratif des flux de véhicules</h2>
           <p className="text-sm text-muted-foreground mb-4">Visualisation indicative — données réelles branchées progressivement.</p>
-          <MobilityMap />
+          <Suspense fallback={<div className="h-64 rounded-xl bg-secondary/40 animate-pulse" />}>
+            <MobilityMap />
+          </Suspense>
         </section>
       </main>
 

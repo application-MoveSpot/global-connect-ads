@@ -6,6 +6,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { ProviderPortfolioUploader, type PortfolioItem } from "@/components/provider/ProviderPortfolioUploader";
 import { verifyWebsite } from "@/lib/providers/website-verify.functions";
+import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functions";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
 
 export const Route = createFileRoute("/prestataire/inscription")({
@@ -18,12 +19,6 @@ export const Route = createFileRoute("/prestataire/inscription")({
   component: ProviderSignupPage,
 });
 
-const DEFAULT_PRICING = `Tarifs indicatifs (covering véhicule, hors pose) :
-• Stickers / micro-perforé : à partir de 150 € par véhicule
-• Demi-covering (latéraux + arrière) : à partir de 450 €
-• Total covering (véhicule utilitaire) : à partir de 900 €
-• Pose : 80 € / heure, ou forfait selon véhicule
-Devis personnalisé après réception du brief.`;
 
 function ProviderSignupPage() {
   const navigate = useNavigate();
@@ -46,6 +41,13 @@ function ProviderSignupPage() {
   const [websiteCheck, setWebsiteCheck] = useState<{ ok: boolean; title?: string | null; warnings?: string[] } | null>(null);
   const [verifyingSite, setVerifyingSite] = useState(false);
   const callVerifyWebsite = useServerFn(verifyWebsite);
+  const callEstimatePricing = useServerFn(estimateProviderPricing);
+  const [pricingEstimate, setPricingEstimate] = useState<{
+    breakdown: { service: string; label: string; price_min: number; price_max: number; unit: string; notes: string }[];
+    pricing_text: string;
+    recommendation: string;
+  } | null>(null);
+  const [estimatingPricing, setEstimatingPricing] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -263,12 +265,58 @@ function ProviderSignupPage() {
                 placeholder="Paris&#10;Île-de-France&#10;Lyon" />
             </Field>
             <Field label="Indication tarifaire">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-muted-foreground">Vous pouvez générer une grille type puis l'ajuster.</span>
-                <button type="button" onClick={() => setPricingInfo(DEFAULT_PRICING)}
-                  className="text-xs rounded-full border border-border px-2.5 py-1 hover:bg-secondary">
-                  ⚡ Auto-remplir
-                </button>
+              <div className="rounded-xl border border-border bg-secondary/30 p-4 mb-2">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div>
+                    <div className="text-sm font-semibold">Estimation IA des tarifs</div>
+                    <div className="text-xs text-muted-foreground">Basée sur l'étude de marché MoveSpot — ajustez selon votre positionnement.</div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={estimatingPricing || services.length === 0}
+                    onClick={async () => {
+                      setEstimatingPricing(true);
+                      setError("");
+                      try {
+                        const coverageList = coverage.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+                        const res = await callEstimatePricing({
+                          data: { services, coverage_areas: coverageList, company: company.trim() || undefined },
+                        });
+                        setPricingEstimate(res);
+                        if (res.pricing_text) setPricingInfo(res.pricing_text);
+                      } catch (e) {
+                        setError(e instanceof Error ? e.message : "Erreur estimation tarifaire");
+                      } finally {
+                        setEstimatingPricing(false);
+                      }
+                    }}
+                    className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap shrink-0"
+                  >
+                    {estimatingPricing ? "Analyse…" : "✦ Estimer mes tarifs"}
+                  </button>
+                </div>
+                {services.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Sélectionnez au moins un type de prestation ci-dessus pour lancer l'estimation.</p>
+                )}
+                {pricingEstimate && (
+                  <div className="space-y-2 mt-3">
+                    <div className="grid gap-2">
+                      {pricingEstimate.breakdown.map((b) => (
+                        <div key={b.service} className="rounded-lg bg-card p-3">
+                          <div className="text-xs font-semibold text-foreground mb-0.5">{b.label}</div>
+                          <div className="text-sm font-bold text-primary">{b.price_min} – {b.price_max} €</div>
+                          <div className="text-xs text-muted-foreground">{b.unit} · {b.notes}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {pricingEstimate.recommendation && (
+                      <div className="text-xs text-muted-foreground italic rounded-lg bg-primary/5 border border-primary/20 p-2.5">
+                        💡 {pricingEstimate.recommendation}
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">Le texte ci-dessous a été pré-rempli automatiquement — modifiez-le librement.</p>
+                  </div>
+                )}
               </div>
               <textarea value={pricingInfo} onChange={(e) => setPricingInfo(e.target.value)} rows={6} maxLength={1500}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
