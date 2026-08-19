@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
@@ -11,6 +11,11 @@ import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
+import type { VehicleKey, AdFormat } from "@/components/advertiser/VehicleMockup3D";
+
+const VehicleMockup3D = lazy(() =>
+  import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
+);
 
 type BookedPeriod = { start_date: string; end_date: string };
 type DateConflict = {
@@ -69,6 +74,28 @@ type AuthState =
   | { kind: "no-profile"; userId: string; email: string }
   | { kind: "ready"; userId: string; profile: { full_name: string; company: string | null; email: string } };
 
+function spotToVehicleKey(vehicleType: string | null | undefined): VehicleKey {
+  const t = (vehicleType ?? "").toLowerCase();
+  if (t === "van") return "van";
+  if (t === "food_truck") return "food_truck";
+  if (t === "voiture") return "voiture";
+  if (t === "taxi") return "taxi";
+  if (t === "scooter") return "scooter";
+  if (t === "velo_cargo") return "velo_cargo";
+  if (t === "triporteur") return "triporteur";
+  return "autre";
+}
+
+function spotToAdFormat(format: string | null | undefined): AdFormat {
+  const f = (format ?? "").toLowerCase();
+  if (f.includes("demi")) return "demi_covering";
+  if (f.includes("covering")) return "covering_total";
+  if (f.includes("sticker")) return "stickers";
+  if (f.includes("lcd") || f.includes("écran") || f.includes("digital") || f.includes("video") || f.includes("led") || f.includes("screen")) return "video_led";
+  if (f.includes("affiche")) return "affiche";
+  return "covering_total";
+}
+
 export function BookingForm({ spot, onClose }: Props) {
   const navigate = useNavigate();
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
@@ -78,6 +105,8 @@ export function BookingForm({ spot, onClose }: Props) {
   });
 
   const notifyFn = useServerFn(notifyCampaignSubmitted);
+  const [brandColor, setBrandColor] = useState("#3B82F6");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
@@ -504,6 +533,50 @@ export function BookingForm({ spot, onClose }: Props) {
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
+              </div>
+
+              {/* Simulateur 3D — couleur de marque + logo + rendu du véhicule avec overlay pub */}
+              <div className="rounded-lg border border-border bg-secondary/10 p-4 space-y-3">
+                <div className="text-sm font-semibold">🎨 Aperçu publicitaire sur le véhicule</div>
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium">Couleur de marque</label>
+                    <input
+                      type="color"
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer border border-border p-0.5 bg-card"
+                    />
+                    <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium">Logo (optionnel)</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="text-xs"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setLogoUrl(URL.createObjectURL(file));
+                      }}
+                    />
+                    {logoUrl && (
+                      <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
+                    )}
+                  </div>
+                </div>
+                <Suspense fallback={
+                  <div className="h-56 rounded-xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">
+                    Chargement du simulateur…
+                  </div>
+                }>
+                  <VehicleMockup3D
+                    vehicleTypes={[spotToVehicleKey(spot.vehicleType)]}
+                    adFormat={spotToAdFormat(spot.format)}
+                    brandColor={brandColor}
+                    logoUrl={logoUrl}
+                  />
+                </Suspense>
               </div>
 
               <div>
