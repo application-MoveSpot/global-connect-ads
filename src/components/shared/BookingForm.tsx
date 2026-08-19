@@ -83,6 +83,8 @@ function spotToVehicleKey(vehicleType: string | null | undefined): VehicleKey {
   if (t === "scooter") return "scooter";
   if (t === "velo_cargo") return "velo_cargo";
   if (t === "triporteur") return "triporteur";
+  if (t === "sac_a_dos_lcd") return "sac_a_dos_lcd";
+  if (t === "sac_a_dos_affiche") return "sac_a_dos_affiche";
   return "autre";
 }
 
