@@ -254,14 +254,20 @@ function NewBriefPage() {
             </div>
           )}
 
-          <Field label="Zones / quartiers cibles (une par ligne ou séparées par virgule)">
-            <textarea value={zones} onChange={(e) => setZones(e.target.value)} rows={3}
-              className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Paris 11e&#10;Bastille&#10;République" />
+          <Field label="Zone de ciblage sur la carte (optionnel)">
+            <ZonePolygonDraw onChange={(z) => {
+              setZonePolygon(z);
+              if (z?.detectedZones && z.detectedZones.length > 0) {
+                setZones(z.detectedZones.join("\n"));
+              }
+            }} />
           </Field>
 
-          <Field label="Zone de ciblage sur la carte (optionnel)">
-            <ZonePolygonDraw onChange={setZonePolygon} />
+          <Field label="Zones / quartiers cibles">
+            <textarea value={zones} onChange={(e) => setZones(e.target.value)} rows={3}
+              className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+              placeholder="Rempli automatiquement depuis la carte, ou saisissez manuellement" />
+            <p className="text-xs text-muted-foreground mt-1">Rempli automatiquement quand vous dessinez sur la carte — modifiable.</p>
             {zonePolygon && estimatedDays > 0 && (() => {
               const est = estimateZoneBudget(
                 zonePolygon.areaKm2,
