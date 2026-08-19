@@ -17,6 +17,61 @@ export const VEHICLE_FORMATS: Partial<Record<VehicleKey, AdFormat[]>> = {
   sac_a_dos_affiche: ["affiche"],
 };
 
+type AngleConfig = { label: string; angle: number };
+
+const DEFAULT_ANGLES: AngleConfig[] = [
+  { label: "Profil", angle: 0 },
+  { label: "3/4 Av.", angle: 45 },
+  { label: "Face", angle: 90 },
+  { label: "3/4 Ar.", angle: 315 },
+];
+
+// Angles pertinents selon le type de support publicitaire
+export const VEHICLE_ANGLES: Partial<Record<VehicleKey, AngleConfig[]>> = {
+  van: [
+    { label: "Profil", angle: 0 },
+    { label: "3/4 Av.", angle: 45 },
+    { label: "Face", angle: 90 },
+    { label: "Dos", angle: 180 },
+    { label: "3/4 Ar.", angle: 315 },
+  ],
+  food_truck: [
+    { label: "Profil", angle: 0 },
+    { label: "3/4 Av.", angle: 45 },
+    { label: "Face", angle: 90 },
+    { label: "Dos", angle: 180 },
+    { label: "3/4 Ar.", angle: 315 },
+  ],
+  voiture: [
+    { label: "Profil", angle: 0 },
+    { label: "3/4 Av.", angle: 45 },
+    { label: "Face", angle: 90 },
+    { label: "3/4 Ar.", angle: 315 },
+  ],
+  taxi: [
+    { label: "Profil", angle: 0 },
+    { label: "3/4 Av.", angle: 45 },
+    { label: "Face", angle: 90 },
+    { label: "3/4 Ar.", angle: 315 },
+  ],
+  scooter: [
+    { label: "Profil", angle: 0 },
+    { label: "3/4", angle: 50 },
+    { label: "Face", angle: 90 },
+  ],
+  velo_cargo: [
+    { label: "Profil", angle: 0 },
+    { label: "3/4", angle: 45 },
+    { label: "Face", angle: 90 },
+  ],
+  triporteur: [
+    { label: "Profil", angle: 0 },
+    { label: "Face", angle: 90 },
+    { label: "Arrière", angle: 180 },
+  ],
+  // walkers → pas d'angles (géré séparément via isWalker)
+};
+
 const VEHICLE_INFO: Record<VehicleKey, { label: string; icon: string; aspectRatio: number }> = {
   van: { label: "Van", icon: "🚐", aspectRatio: 2.2 },
   food_truck: { label: "Food Truck", icon: "🚚", aspectRatio: 2.0 },
@@ -350,31 +405,38 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
       </div>
 
       {/* Angle indicators (véhicules uniquement) */}
-      {!isWalker && <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 10 }}>
-        {["Profil", "3/4 Av.", "Face", "3/4 Ar."].map((label, i) => {
-          const targetAngle = [0, 45, 90, 315][i];
-          const isActive = Math.abs(((normalized - targetAngle + 360) % 360) - 0) < 25 ||
-            (i === 3 && normalized > 290);
-          return (
-            <button
-              key={label}
-              type="button"
-              onClick={() => { setIsAuto(false); setRotY([0, 45, 90, 315][i]); }}
-              style={{
-                padding: "4px 12px",
-                borderRadius: 999,
-                fontSize: 11,
-                border: "1px solid hsl(var(--border))",
-                background: isActive ? "hsl(var(--primary))" : "hsl(var(--card))",
-                color: isActive ? "hsl(var(--primary-foreground))" : "hsl(var(--foreground))",
-                cursor: "pointer",
-              }}
-            >
-              {label}
-            </button>
-          );
-        })}
-      </div>}
+      {!isWalker && (() => {
+        const angles = VEHICLE_ANGLES[vehicleKey] ?? DEFAULT_ANGLES;
+        return (
+          <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 10, flexWrap: "wrap" }}>
+            {angles.map(({ label, angle }) => {
+              const diff = Math.min(
+                ((normalized - angle + 360) % 360),
+                ((angle - normalized + 360) % 360),
+              );
+              const isActive = diff < 25;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => { setIsAuto(false); setRotY(angle); }}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: 999,
+                    fontSize: 11,
+                    border: "1px solid hsl(var(--border))",
+                    background: isActive ? "hsl(var(--primary))" : "hsl(var(--card))",
+                    color: isActive ? "hsl(var(--primary-foreground))" : "hsl(var(--foreground))",
+                    cursor: "pointer",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Format info */}
       {formatInfo && (
