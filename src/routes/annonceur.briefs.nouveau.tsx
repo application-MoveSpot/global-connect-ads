@@ -1,11 +1,16 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
 import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZonePolygonDraw";
 import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
+import { AD_FORMATS, type AdFormat } from "@/components/advertiser/VehicleMockup3D";
+
+const VehicleMockup3D = lazy(() =>
+  import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
+);
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
@@ -45,6 +50,9 @@ function NewBriefPage() {
   const [budget, setBudget] = useState("");
   const [audience, setAudience] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
+  const [brandColor, setBrandColor] = useState("#3B82F6");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
@@ -117,6 +125,7 @@ function NewBriefPage() {
       creative_files: uploadedPaths,
       zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
       zone_area_km2: zonePolygon?.areaKm2 ?? null,
+      ad_format: adFormat ?? null,
     }]).select("id").single();
 
     setLoading(false);
@@ -192,6 +201,58 @@ function NewBriefPage() {
               ))}
             </div>
           </Field>
+
+          <Field label="Format publicitaire">
+            <div className="flex flex-wrap gap-2">
+              {AD_FORMATS.map((f) => (
+                <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
+                  {f.l}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {/* Prévisualisation 3D — visible dès qu'un type de véhicule ET un format sont sélectionnés */}
+          {vehicleTypes.length > 0 && adFormat && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Couleur de marque</label>
+                  <input
+                    type="color"
+                    value={brandColor}
+                    onChange={(e) => setBrandColor(e.target.value)}
+                    className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-card"
+                  />
+                  <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Logo (optionnel)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="text-xs"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setLogoUrl(URL.createObjectURL(file));
+                    }}
+                  />
+                  {logoUrl && (
+                    <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
+                  )}
+                </div>
+              </div>
+              <Suspense fallback={<div className="h-64 rounded-2xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">Chargement du simulateur…</div>}>
+                <VehicleMockup3D
+                  vehicleTypes={vehicleTypes}
+                  adFormat={adFormat}
+                  brandColor={brandColor}
+                  logoUrl={logoUrl}
+                />
+              </Suspense>
+            </div>
+          )}
 
           <Field label="Zones / quartiers cibles (une par ligne ou séparées par virgule)">
             <textarea value={zones} onChange={(e) => setZones(e.target.value)} rows={3}
