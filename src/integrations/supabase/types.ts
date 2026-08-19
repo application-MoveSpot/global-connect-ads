@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       advertiser_briefs: {
         Row: {
+          ad_format: string | null
           advertiser_id: string
           audience_target: string | null
           budget_max: number | null
@@ -35,6 +36,7 @@ export type Database = {
           zones: string[]
         }
         Insert: {
+          ad_format?: string | null
           advertiser_id: string
           audience_target?: string | null
           budget_max?: number | null
@@ -54,6 +56,7 @@ export type Database = {
           zones?: string[]
         }
         Update: {
+          ad_format?: string | null
           advertiser_id?: string
           audience_target?: string | null
           budget_max?: number | null
