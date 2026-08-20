@@ -6,7 +6,7 @@ import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
 import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZonePolygonDraw";
 import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
-import { AD_FORMATS, type AdFormat } from "@/components/advertiser/VehicleMockup3D";
+import { AD_FORMATS, VEHICLE_FORMATS, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -44,6 +44,7 @@ function NewBriefPage() {
   const [description, setDescription] = useState("");
   const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
   const [zones, setZones] = useState("");
+  const [zoneSearchQuery, setZoneSearchQuery] = useState("");
   const [zonePolygon, setZonePolygon] = useState<ZonePolygon | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -203,14 +204,29 @@ function NewBriefPage() {
           </Field>
 
           <Field label="Format publicitaire">
-            <div className="flex flex-wrap gap-2">
-              {AD_FORMATS.map((f) => (
-                <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
-                  {f.l}
-                </button>
-              ))}
-            </div>
+            {(() => {
+              // Restrict formats based on selected walker types
+              const walkerKey = vehicleTypes.find((v) => VEHICLE_FORMATS[v as VehicleKey]) as VehicleKey | undefined;
+              const allowedFormats = walkerKey ? VEHICLE_FORMATS[walkerKey]! : AD_FORMATS.map((f) => f.v);
+              const visibleFormats = AD_FORMATS.filter((f) => allowedFormats.includes(f.v));
+              return (
+                <>
+                  {walkerKey && (
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Format imposé par le type de support sélectionné.
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {visibleFormats.map((f) => (
+                      <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
+                        {f.l}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </Field>
 
           {/* Prévisualisation 3D — visible dès qu'un type de véhicule ET un format sont sélectionnés */}
@@ -255,18 +271,28 @@ function NewBriefPage() {
           )}
 
           <Field label="Zone de ciblage sur la carte (optionnel)">
-            <ZonePolygonDraw onChange={(z) => {
-              setZonePolygon(z);
-              if (z?.detectedZones && z.detectedZones.length > 0) {
-                setZones(z.detectedZones.join("\n"));
-              }
-            }} />
+            <ZonePolygonDraw
+              searchQuery={zoneSearchQuery}
+              onChange={(z) => {
+                setZonePolygon(z);
+                if (z?.detectedZones && z.detectedZones.length > 0) {
+                  setZones(z.detectedZones.join("\n"));
+                  // Don't update zoneSearchQuery — map-filled text mustn't re-trigger forward geocoding
+                }
+              }}
+            />
           </Field>
 
           <Field label="Zones / quartiers cibles">
-            <textarea value={zones} onChange={(e) => setZones(e.target.value)} rows={3}
+            <textarea
+              value={zones}
+              onChange={(e) => {
+                setZones(e.target.value);
+                setZoneSearchQuery(e.target.value); // only manual typing triggers geocoding
+              }}
+              rows={3}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Rempli automatiquement depuis la carte, ou saisissez manuellement" />
+              placeholder="Tapez un quartier pour centrer la carte, ou dessinez sur la carte" />
             <p className="text-xs text-muted-foreground mt-1">Rempli automatiquement quand vous dessinez sur la carte — modifiable.</p>
             {zonePolygon && estimatedDays > 0 && (() => {
               const est = estimateZoneBudget(
