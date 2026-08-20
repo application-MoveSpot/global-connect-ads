@@ -171,13 +171,20 @@ function CGU() {
         <p>
           Les relevés de géolocalisation transmis par les chauffeurs sont agrégés (distance parcourue, minutes
           actives, part du trajet effectuée à l'intérieur de la zone de ciblage) et restitués à l'annonceur dans son
-          tableau de suivi de campagne. Ces métriques constituent la base contractuelle de la facturation et des
+          tableau de suivi de campagne. Ces métriques, calculées côté serveur, constituent la base contractuelle des
           reversements.
         </p>
         <p>
-          Les positions sont mises en mémoire tampon sur le terminal du chauffeur puis envoyées par lots afin de
-          limiter la consommation de données ; une interruption de réseau n'entraîne donc pas de perte de relevés,
-          mais l'absence prolongée de relevés rend la période concernée non comptabilisable.
+          Les positions sont mises en mémoire tampon sur le terminal du chauffeur (y compris en mémoire locale
+          persistante) puis envoyées par lots au serveur. Ce mécanisme garantit qu'une interruption de réseau
+          temporaire, un rechargement de page lié à une mise à jour de la Plateforme ou une reconnexion normale
+          n'entraîne pas de perte de relevés : les données horodatées sont conservées localement et transmises
+          automatiquement dès le rétablissement de la connexion. La rémunération est donc calculée sur les données
+          effectivement enregistrées sur nos serveurs, indépendamment des interruptions de session.
+        </p>
+        <p>
+          En revanche, une absence prolongée et continue de relevés GPS (appareil éteint, GPS désactivé, zone non
+          couverte sur une longue durée) rend la période concernée non comptabilisable, conformément à l'article 11.
         </p>
       </LegalSection>
 
