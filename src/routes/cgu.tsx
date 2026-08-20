@@ -5,7 +5,7 @@ export const Route = createFileRoute("/cgu")({
   head: () => ({
     meta: [
       { title: "Conditions Générales d'Utilisation — MoveSpot" },
-      { name: "description", content: "CGU MoveSpot : accès au service, charte publicitaire, obligations des chauffeurs, calcul du budget de zone, flux financiers et sécurité des comptes." },
+      { name: "description", content: "CGU MoveSpot : accès au service, charte publicitaire, obligations des chauffeurs, calcul du budget de zone, flux financiers, force majeure et sécurité des comptes." },
       { property: "og:title", content: "Conditions Générales d'Utilisation — MoveSpot" },
       { property: "og:description", content: "Règles d'accès et d'usage de la marketplace de publicité mobile MoveSpot." },
       { name: "robots", content: "index, follow" },
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/cgu")({
 
 function CGU() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="12 août 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="20 août 2026">
       <LegalSection title="1. Objet">
         <p>
           Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités
@@ -171,13 +171,20 @@ function CGU() {
         <p>
           Les relevés de géolocalisation transmis par les chauffeurs sont agrégés (distance parcourue, minutes
           actives, part du trajet effectuée à l'intérieur de la zone de ciblage) et restitués à l'annonceur dans son
-          tableau de suivi de campagne. Ces métriques constituent la base contractuelle de la facturation et des
+          tableau de suivi de campagne. Ces métriques, calculées côté serveur, constituent la base contractuelle des
           reversements.
         </p>
         <p>
-          Les positions sont mises en mémoire tampon sur le terminal du chauffeur puis envoyées par lots afin de
-          limiter la consommation de données ; une interruption de réseau n'entraîne donc pas de perte de relevés,
-          mais l'absence prolongée de relevés rend la période concernée non comptabilisable.
+          Les positions sont mises en mémoire tampon sur le terminal du chauffeur (y compris en mémoire locale
+          persistante) puis envoyées par lots au serveur. Ce mécanisme garantit qu'une interruption de réseau
+          temporaire, un rechargement de page lié à une mise à jour de la Plateforme ou une reconnexion normale
+          n'entraîne pas de perte de relevés : les données horodatées sont conservées localement et transmises
+          automatiquement dès le rétablissement de la connexion. La rémunération est donc calculée sur les données
+          effectivement enregistrées sur nos serveurs, indépendamment des interruptions de session.
+        </p>
+        <p>
+          En revanche, une absence prolongée et continue de relevés GPS (appareil éteint, GPS désactivé, zone non
+          couverte sur une longue durée) rend la période concernée non comptabilisable, conformément à l'article 11.
         </p>
       </LegalSection>
 
@@ -251,8 +258,36 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="21. Droit applicable et juridiction">
+      <LegalSection title="21. Événements extérieurs et force majeure">
+        <p>
+          Certaines situations indépendantes de la volonté du chauffeur ou du propriétaire du véhicule peuvent
+          empêcher ou limiter la circulation dans la zone de ciblage déclarée par l'annonceur. Sont notamment
+          visés :
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>les <strong>travaux de voirie</strong> (chantiers, fermetures de voies, déviations imposées par les autorités) ;</li>
+          <li>les <strong>événements publics</strong> (manifestations, cortèges, rassemblements, barrages de police) ;</li>
+          <li>les <strong>conditions climatiques exceptionnelles</strong> (tempête, inondation, neige rendant la circulation impossible ou dangereuse) ;</li>
+          <li>tout autre <strong>cas de force majeure</strong> au sens du droit français (événement imprévisible, irrésistible et extérieur).</li>
+        </ul>
+        <p>
+          Dans ces situations, le chauffeur ou le propriétaire peut <strong>signaler un obstacle</strong> directement
+          depuis son espace personnel. La période signalée est instruite par MoveSpot ; si l'événement est avéré et
+          documenté (arrêté municipal, capture d'écran, référence presse), les métriques de la période concernée
+          peuvent être <strong>neutralisées</strong> pour le calcul de la rémunération, à la discrétion de MoveSpot.
+        </p>
+        <p>
+          En l'absence de signalement, les périodes non couvertes ou hors zone restent non comptabilisées,
+          conformément à l'article 14. MoveSpot ne peut en aucun cas garantir l'absence d'obstacles extérieurs sur
+          un itinéraire donné, ni la disponibilité permanente de la zone de ciblage choisie par l'annonceur.
+        </p>
+        <p>
+          L'annonceur est informé que la surface de diffusion effective peut être réduite par de tels événements,
+          sans que cela n'ouvre droit à remboursement du budget déjà consommé, sauf accord exprès de MoveSpot.
+        </p>
+      </LegalSection>
 
+      <LegalSection title="22. Droit applicable et juridiction">
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr/qr.functions";
 import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
+import { ObstacleReportDialog } from "@/components/driver/ObstacleReportDialog";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/chauffeur/")({
@@ -169,6 +170,7 @@ function DriverPage() {
                 >
                   ⏹ Arrêter
                 </button>
+                <ObstacleReportDialog token={tokenRef.current} />
                 <p className="text-xs text-muted-foreground text-center">
                   Gardez l'écran allumé et l'app au premier plan. Téléphone branché recommandé.
                 </p>
