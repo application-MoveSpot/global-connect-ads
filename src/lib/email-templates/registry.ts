@@ -5,6 +5,7 @@ import { template as campaignApprovedTemplate } from './campaign-approved'
 import { template as campaignRejectedTemplate } from './campaign-rejected'
 import { template as bankTransferApprovedTemplate } from './bank-transfer-approved'
 import { template as installationJobAvailableTemplate } from './installation-job-available'
+import { template as obstacleReportedTemplate } from './obstacle-reported'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -26,4 +27,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'campaign-rejected': campaignRejectedTemplate,
   'bank-transfer-approved': bankTransferApprovedTemplate,
   'installation-job-available': installationJobAvailableTemplate,
+  'obstacle-reported': obstacleReportedTemplate,
 }
