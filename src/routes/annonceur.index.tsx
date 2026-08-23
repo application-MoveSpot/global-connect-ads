@@ -147,8 +147,8 @@ function AnnonceurDashboard() {
             <Link to="/annonceur/briefs" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition">
               Mes briefs
             </Link>
-            <Link to="/annonceur/preview-3d" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition">
-              🎒 Prévisualisation 3D
+            <Link to="/annonceur/etude-marche" className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition">
+              📊 Étude de marché
             </Link>
             <Link to="/annonceur/briefs/nouveau" className="rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/20 transition">
               + Nouveau brief

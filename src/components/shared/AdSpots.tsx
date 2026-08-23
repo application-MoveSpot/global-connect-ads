@@ -25,8 +25,6 @@ const TYPE_LABELS: Record<string, string> = {
   triporteur: "Triporteur",
   tutuk: "Tutuk",
   voiture: "Voiture",
-  sac_a_dos_lcd: "Autre · Sac à dos LCD (Walker)",
-  sac_a_dos_affiche: "Autre · Sac à dos affiche (Walker)",
   autre: "Autre véhicule",
 };
 
