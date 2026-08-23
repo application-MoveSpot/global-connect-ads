@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre";
+export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "autre";
 export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "video_led" | "affiche";
 
 export const AD_FORMATS: { v: AdFormat; l: string; desc: string }[] = [
@@ -12,10 +12,7 @@ export const AD_FORMATS: { v: AdFormat; l: string; desc: string }[] = [
 ];
 
 // Formats compatibles par type de support (undefined = tous)
-export const VEHICLE_FORMATS: Partial<Record<VehicleKey, AdFormat[]>> = {
-  sac_a_dos_lcd: ["video_led"],
-  sac_a_dos_affiche: ["affiche"],
-};
+export const VEHICLE_FORMATS: Partial<Record<VehicleKey, AdFormat[]>> = {};
 
 type AngleConfig = { label: string; angle: number };
 

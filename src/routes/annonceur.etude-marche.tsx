@@ -56,19 +56,6 @@ const CATALOGUE: VehicleEntry[] = [
     atout: "Grande surface d'affichage (4–6 m²)",
   },
   {
-    key: "sac_a_dos_lcd",
-    emoji: "📺",
-    label: "Sac à dos LCD (Walker)",
-    formats: ["Écran LED 42\"", "Vidéo HD", "Animation dynamique"],
-    prixMin: 25,
-    prixMax: 60,
-    impressionsMin: 1500,
-    impressionsMax: 4000,
-    demandePct: 18,
-    zones: ["Zones piétonnes", "Marchés", "Événements", "Festivals"],
-    atout: "Impact maximal, contenu dynamique, 100 % piéton",
-  },
-  {
     key: "food_truck",
     emoji: "🚚",
     label: "Food truck",
@@ -119,19 +106,6 @@ const CATALOGUE: VehicleEntry[] = [
     demandePct: 4,
     zones: ["Zones piétonnes", "Pistes cyclables", "Marchés"],
     atout: "Image éco-responsable, zones sans voiture",
-  },
-  {
-    key: "sac_a_dos_affiche",
-    emoji: "🎒",
-    label: "Sac à dos affiche (Walker)",
-    formats: ["Panneau A1 recto/verso", "Affiche plastifiée", "QR code"],
-    prixMin: 10,
-    prixMax: 25,
-    impressionsMin: 700,
-    impressionsMax: 1800,
-    demandePct: 3,
-    zones: ["Événements", "Manifestations", "Zones commerçantes"],
-    atout: "Format événementiel agile, déploiement rapide",
   },
   {
     key: "triporteur",
@@ -278,7 +252,7 @@ function EtudeMarche() {
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <p>La publicité Out-of-Home (OOH) représente <strong className="text-foreground">7 Mds €</strong> en France et croît de 6 % par an. Le segment mobile (véhicules, walkers, vélos) est le plus dynamique avec +18 % en 2024.</p>
                   <p>MoveSpot adresse la niche du <strong className="text-foreground">DOOH de proximité</strong> : ciblage géographique précis, contenu dynamique, mesure d'impressions en temps réel.</p>
-                  <p>Le <strong className="text-foreground">sac à dos LCD</strong> et le <strong className="text-foreground">tutuk</strong> sont les formats à plus forte croissance d'intérêt parmi les annonceurs digitaux.</p>
+                  <p>Le <strong className="text-foreground">tutuk</strong> et le <strong className="text-foreground">van utilitaire</strong> sont parmi les formats à plus forte croissance d'intérêt parmi les annonceurs digitaux.</p>
                 </div>
               </div>
 
@@ -288,8 +262,8 @@ function EtudeMarche() {
                   {[
                     { segment: "Commerce local / restaurant", formats: "Van, taxi, sac à dos affiche", budget: "200–800 €/mois" },
                     { segment: "Retail & franchise", formats: "Van, food truck, voiture", budget: "1 000–5 000 €/mois" },
-                    { segment: "Événement & festival", formats: "Sac à dos LCD, tutuk, vélo cargo", budget: "500–3 000 €/événement" },
-                    { segment: "Startup / app mobile", formats: "Scooter, taxi, sac à dos LCD", budget: "1 500–8 000 €/mois" },
+                    { segment: "Événement & festival", formats: "Tutuk, vélo cargo, food truck", budget: "500–3 000 €/événement" },
+                    { segment: "Startup / app mobile", formats: "Scooter, taxi, tutuk", budget: "1 500–8 000 €/mois" },
                     { segment: "Grande marque", formats: "Flotte van + taxi + walker", budget: "10 000 €+/mois" },
                   ].map((p) => (
                     <div key={p.segment} className="flex flex-col gap-0.5 py-2 border-b border-border/50 last:border-0">
@@ -333,7 +307,7 @@ function EtudeMarche() {
                     </div>
                   ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-4">* Les véhicules walker (sac à dos LCD/affiche) et tutuk représentent ensemble 29 % de la demande — la progression la plus rapide du catalogue.</p>
+              <p className="text-xs text-muted-foreground mt-4">* Le tutuk représente 8 % de la demande avec une forte progression sur les marchés touristiques et festifs.</p>
             </div>
 
             {/* Avantages concurrentiels par format */}

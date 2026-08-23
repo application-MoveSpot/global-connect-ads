@@ -32,8 +32,6 @@ const VEHICLE_TYPES: { v: string; l: string }[] = [
   { v: "triporteur", l: "Triporteur" },
   { v: "tutuk", l: "Tutuk" },
   { v: "voiture", l: "Voiture" },
-  { v: "sac_a_dos_lcd", l: "Sac à dos LCD (Walker)" },
-  { v: "sac_a_dos_affiche", l: "Sac à dos affiche (Walker)" },
   { v: "autre", l: "Autre" },
 ];
 
