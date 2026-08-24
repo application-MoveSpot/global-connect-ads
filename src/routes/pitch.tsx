@@ -106,7 +106,7 @@ const slides: Slide[] = [
     body: (
       <div className="grid md:grid-cols-2 gap-4 max-w-5xl">
         {[
-          { t: "Zones & géo", d: "Polygones Mapbox, itinéraire automatisé (géocodage, quartiers, points d'intérêt, impressions estimées), positions validées en base par PostGIS, budget pondéré par densité." },
+          { t: "Zones & géo", d: "Polygones dessinés sur Leaflet / OpenStreetMap, itinéraire automatisé via Mapbox (géocodage, quartiers, points d'intérêt, impressions estimées), positions validées en base par PostGIS, budget pondéré par densité." },
           { t: "Suivi temps réel", d: "Relevés GPS mis en tampon puis envoyés par lots, agrégés en distance, minutes actives et couverture." },
           { t: "Paiements", d: "Carte, abonnements par véhicule (Starter 29 € / Standard 42 € / Pro 59 €, essai 14 jours), portefeuille prépayé, USDC, virement B2B validé en un clic qui règle la campagne et déclenche la répartition 70 / 30." },
           { t: "Automatisation", d: "Emails transactionnels déclenchés par la base : campagne activée, virement validé, avec désinscription conforme." },
