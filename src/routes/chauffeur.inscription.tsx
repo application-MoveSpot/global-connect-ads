@@ -33,7 +33,6 @@ const VEHICLE_KINDS = [
   ["micro_mobility", "Micro-mobilité (vélo, triporteur, scooter)"],
   ["voiture", "Voiture"],
   ["utilitaire", "Utilitaire / camion"],
-  ["walker", "Walker (sac à dos publicitaire)"],
 ] as const;
 
 type VehicleKind = (typeof VEHICLE_KINDS)[number][0];
@@ -214,9 +213,7 @@ function ChauffeurInscription() {
                       ))}
                     </select>
                   </div>
-                  {vehicleKind !== "walker" && (
-                    <Input label="Immatriculation" value={vehiclePlate} onChange={setVehiclePlate} />
-                  )}
+                  <Input label="Immatriculation" value={vehiclePlate} onChange={setVehiclePlate} />
                 </>
               )}
 

@@ -80,9 +80,6 @@ function NewBriefPage() {
     setVehicleTypes((cur) => {
       const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
       // Reset video_led format if no LCD screen remains selected
-      if (adFormat === "video_led" && !next.includes("sac_a_dos_lcd")) {
-        setAdFormat(null);
-      }
       return next;
     });
   };
@@ -233,43 +230,15 @@ function NewBriefPage() {
 
           <Field label="Format publicitaire">
             {(() => {
-              const walkerKey = vehicleTypes.find((v) => VEHICLE_FORMATS[v as VehicleKey]) as VehicleKey | undefined;
-              const hasLcdScreen = vehicleTypes.includes("sac_a_dos_lcd");
-              const hasOnlyRegularVehicles = vehicleTypes.length > 0 && !hasLcdScreen;
-
-              let allowedFormats: AdFormat[];
-              if (walkerKey) {
-                // Walker with fixed format list
-                allowedFormats = VEHICLE_FORMATS[walkerKey]!;
-              } else if (hasOnlyRegularVehicles) {
-                // Regular vehicles can't display video — exclude video_led
-                allowedFormats = AD_FORMATS.map((f) => f.v).filter((v) => v !== "video_led") as AdFormat[];
-              } else {
-                allowedFormats = AD_FORMATS.map((f) => f.v) as AdFormat[];
-              }
-
-              const visibleFormats = AD_FORMATS.filter((f) => allowedFormats.includes(f.v));
               return (
-                <>
-                  {walkerKey && (
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Format imposé par le type de support sélectionné.
-                    </p>
-                  )}
-                  {hasOnlyRegularVehicles && (
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Le format « Écran LED/Vidéo » nécessite un support avec écran intégré (sac à dos LCD). Pour vos véhicules, choisissez parmi les formats ci-dessous.
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {visibleFormats.map((f) => (
-                      <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
-                        {f.l}
-                      </button>
-                    ))}
-                  </div>
-                </>
+                <div className="flex flex-wrap gap-2">
+                  {AD_FORMATS.map((f) => (
+                    <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
+                      {f.l}
+                    </button>
+                  ))}
+                </div>
               );
             })()}
           </Field>

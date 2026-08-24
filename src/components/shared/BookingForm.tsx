@@ -83,8 +83,6 @@ function spotToVehicleKey(vehicleType: string | null | undefined): VehicleKey {
   if (t === "scooter") return "scooter";
   if (t === "velo_cargo") return "velo_cargo";
   if (t === "triporteur") return "triporteur";
-  if (t === "sac_a_dos_lcd") return "sac_a_dos_lcd";
-  if (t === "sac_a_dos_affiche") return "sac_a_dos_affiche";
   return "autre";
 }
 
@@ -93,7 +91,6 @@ function spotToAdFormat(format: string | null | undefined): AdFormat {
   if (f.includes("demi")) return "demi_covering";
   if (f.includes("covering")) return "covering_total";
   if (f.includes("sticker")) return "stickers";
-  if (f.includes("lcd") || f.includes("écran") || f.includes("digital") || f.includes("video") || f.includes("led") || f.includes("screen")) return "video_led";
   if (f.includes("affiche")) return "affiche";
   return "covering_total";
 }

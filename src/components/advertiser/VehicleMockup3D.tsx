@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 
 export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "autre";
-export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "video_led" | "affiche";
+export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "affiche";
 
 export const AD_FORMATS: { v: AdFormat; l: string; desc: string }[] = [
   { v: "covering_total", l: "Covering total", desc: "Habillage complet du véhicule" },
   { v: "demi_covering", l: "Demi-covering", desc: "Moitié inférieure" },
   { v: "stickers", l: "Stickers", desc: "Autocollants ciblés" },
-  { v: "video_led", l: "Écran LED/Vidéo", desc: "Écran numérique" },
   { v: "affiche", l: "Affiche", desc: "Panneau fixe" },
 ];
 
@@ -77,8 +76,6 @@ const VEHICLE_INFO: Record<VehicleKey, { label: string; icon: string; aspectRati
   scooter: { label: "Scooter", icon: "🛵", aspectRatio: 1.2 },
   velo_cargo: { label: "Vélo cargo", icon: "🚲", aspectRatio: 1.6 },
   triporteur: { label: "Triporteur", icon: "🛺", aspectRatio: 1.5 },
-  sac_a_dos_lcd: { label: "Sac à dos LCD", icon: "🎒", aspectRatio: 0.7 },
-  sac_a_dos_affiche: { label: "Sac à dos affiche", icon: "🎒", aspectRatio: 0.7 },
   autre: { label: "Véhicule", icon: "🚗", aspectRatio: 2.0 },
 };
 
@@ -97,9 +94,8 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
   const dragBaseAngle = useRef(0);
   const intervalRef = useRef<number | null>(null);
 
-  const supported: VehicleKey[] = ["van", "food_truck", "voiture", "taxi", "scooter", "velo_cargo", "triporteur", "sac_a_dos_lcd", "sac_a_dos_affiche"];
+  const supported: VehicleKey[] = ["van", "food_truck", "voiture", "taxi", "scooter", "velo_cargo", "triporteur"];
   const vehicleKey: VehicleKey = (supported.find((k) => vehicleTypes.includes(k)) ?? "autre") as VehicleKey;
-  const isWalker = vehicleKey === "sac_a_dos_lcd" || vehicleKey === "sac_a_dos_affiche";
   const info = VEHICLE_INFO[vehicleKey];
 
   useEffect(() => {
@@ -159,8 +155,6 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
         return { top: 55, height: 45, opacity: 0.75 };
       case "stickers":
         return { top: 30, height: 35, opacity: 0.65 };
-      case "video_led":
-        return { top: 28, height: 44, opacity: 0.85 };
       case "affiche":
         return { top: 25, height: 50, opacity: 0.70 };
       default:
@@ -191,8 +185,7 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
             {info.icon} {info.label}
           </div>
         </div>
-        {!isWalker && (
-          <button
+        <button
             type="button"
             onClick={() => setIsAuto((v) => !v)}
             style={{
@@ -208,7 +201,6 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
           >
             {isAuto ? "⏸ Stop" : "▶ Auto 360°"}
           </button>
-        )}
       </div>
 
       {/* 3D Viewport */}
@@ -221,73 +213,18 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
           position: "relative",
           borderRadius: 12,
           background: "hsl(var(--secondary)/20%)",
-          cursor: isWalker ? "default" : isDragging ? "grabbing" : "grab",
+          cursor: isDragging ? "grabbing" : "grab",
           overflow: "hidden",
         }}
-        onMouseDown={isWalker ? undefined : handleMouseDown}
-        onMouseMove={isWalker ? undefined : handleMouseMove}
-        onMouseUp={isWalker ? undefined : handleMouseUp}
-        onMouseLeave={isWalker ? undefined : handleMouseUp}
-        onTouchStart={isWalker ? undefined : handleTouchStart}
-        onTouchMove={isWalker ? undefined : handleTouchMove}
-        onTouchEnd={isWalker ? undefined : () => setIsDragging(false)}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={() => setIsDragging(false)}
       >
-        {isWalker ? (
-          /* Walker SVG */
-          <svg viewBox="0 0 160 150" width="160" height="150" style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.18))" }}>
-            {/* Ground shadow */}
-            <ellipse cx="72" cy="143" rx="28" ry="5" fill="rgba(0,0,0,0.13)" />
-            {/* Head */}
-            <circle cx="72" cy="22" r="13" fill="#d1bfa8" stroke="#b09880" strokeWidth="1.5" />
-            {/* Body */}
-            <rect x="58" y="38" width="26" height="38" rx="5" fill="#6b7280" />
-            {/* Left arm (front) */}
-            <line x1="58" y1="46" x2="42" y2="66" stroke="#6b7280" strokeWidth="7" strokeLinecap="round" />
-            {/* Right arm (back) */}
-            <line x1="84" y1="46" x2="90" y2="68" stroke="#4b5563" strokeWidth="6" strokeLinecap="round" />
-            {/* Left leg */}
-            <line x1="65" y1="76" x2="58" y2="112" stroke="#374151" strokeWidth="8" strokeLinecap="round" />
-            {/* Right leg (slightly offset = walking) */}
-            <line x1="74" y1="76" x2="82" y2="108" stroke="#374151" strokeWidth="8" strokeLinecap="round" />
-            {/* Feet */}
-            <ellipse cx="57" cy="115" rx="9" ry="4" fill="#1f2937" />
-            <ellipse cx="83" cy="111" rx="9" ry="4" fill="#1f2937" />
-
-            {/* Backpack frame */}
-            <rect x="84" y="36" width="36" height="50" rx="5" fill="#e5e7eb" stroke="#d1d5db" strokeWidth="1.5" />
-            {/* Backpack strap */}
-            <line x1="84" y1="42" x2="84" y2="76" stroke="#9ca3af" strokeWidth="3" />
-
-            {/* Screen / affiche on backpack */}
-            <rect
-              x="88" y="40" width="28" height="42" rx="3"
-              fill={brandColor}
-              opacity="0.88"
-            />
-            {vehicleKey === "sac_a_dos_lcd" && (
-              <>
-                {/* LCD glow border */}
-                <rect x="88" y="40" width="28" height="42" rx="3" fill="none" stroke="#fff" strokeWidth="1.5" opacity="0.6" />
-                <rect x="90" y="42" width="24" height="38" rx="2" fill="none" stroke={brandColor} strokeWidth="2" opacity="0.4"
-                  style={{ filter: "blur(2px)" }} />
-                {!logoUrl && (
-                  <text x="102" y="65" textAnchor="middle" fontSize="7" fill="#fff" fontWeight="bold" opacity="0.9">
-                    📺 LED
-                  </text>
-                )}
-              </>
-            )}
-            {vehicleKey === "sac_a_dos_affiche" && !logoUrl && (
-              <text x="102" y="65" textAnchor="middle" fontSize="7" fill="#fff" fontWeight="bold" opacity="0.9">
-                AFFICHE
-              </text>
-            )}
-            {logoUrl && (
-              <image href={logoUrl} x="90" y="42" width="24" height="38" preserveAspectRatio="xMidYMid meet" />
-            )}
-          </svg>
-        ) : (
-          <>
+        <>
             {/* Ground shadow */}
             <div style={{
               position: "absolute",
@@ -356,17 +293,6 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
                         style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }}
                       />
                     )}
-                    {adFormat === "video_led" && !logoUrl && (
-                      <div style={{
-                        fontSize: 10,
-                        color: "#fff",
-                        fontWeight: 700,
-                        textAlign: "center",
-                        textShadow: "0 1px 4px rgba(0,0,0,0.5)",
-                      }}>
-                        📺 ÉCRAN LED
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -397,12 +323,11 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
                 ← Glisser pour tourner →
               </div>
             )}
-          </>
-        )}
+        </>
       </div>
 
-      {/* Angle indicators (véhicules uniquement) */}
-      {!isWalker && (() => {
+      {/* Angle indicators */}
+      {(() => {
         const angles = VEHICLE_ANGLES[vehicleKey] ?? DEFAULT_ANGLES;
         return (
           <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 10, flexWrap: "wrap" }}>
