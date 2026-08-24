@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
 import { FORBIDDEN_KEYWORDS } from "@/lib/campaigns/forbidden-keywords";
+import { detectContact } from "@/lib/moderation/contact-detection";
 import { COUNTRY_OPTIONS } from "@/lib/fleet/driving-rules";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
 import { notifyCampaignSubmitted } from "@/lib/campaigns/campaign-notifications.server";
@@ -266,6 +267,12 @@ export function BookingForm({ spot, onClose }: Props) {
     if (match) {
       setStatus("rejected");
       setReason(`Contenu interdit détecté : « ${match} ». Les publicités religieuses, sexistes, pornographiques ou incitant à la violence ne sont pas acceptées.`);
+      return;
+    }
+    const contactHit = detectContact(message);
+    if (contactHit) {
+      setStatus("rejected");
+      setReason(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté dans le message. Les coordonnées personnelles ne sont pas autorisées — tous les échanges doivent rester sur la plateforme MoveSpot.`);
       return;
     }
     if (!accepted) {
@@ -532,6 +539,11 @@ export function BookingForm({ spot, onClose }: Props) {
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
+                {detectContact(message) && (
+                  <div className="mt-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                    🚫 {detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages. Les échanges doivent rester sur la plateforme.
+                  </div>
+                )}
               </div>
 
               {/* Simulateur 3D — couleur de marque + logo + rendu du véhicule avec overlay pub */}

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { PROVIDER_SERVICES, providerServiceLabel } from "@/lib/providers/provider-services";
 import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
+import { detectContact } from "@/lib/moderation/contact-detection";
 
 const VIDEO_EXTENSIONS = new Set(["mp4", "webm", "mov", "avi", "mkv"]);
 function isVideoUrl(url: string) {
@@ -99,6 +100,8 @@ function ProviderDetailPage() {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
     if (message.trim().length < 20) { setError("Décrivez votre besoin (au moins 20 caractères)."); return; }
+    const contactHit = detectContact(message);
+    if (contactHit) { setError(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.`); return; }
     setSubmitting(true);
     const { error: insErr } = await supabase.from("service_quotes").insert({
       advertiser_id: sess.session.user.id,
@@ -228,6 +231,11 @@ function ProviderDetailPage() {
               <textarea value={message} onChange={(e) => setMessage(e.target.value)} required maxLength={2000} rows={5}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
                 placeholder="Visuel disponible, contraintes, références…" />
+              {detectContact(message) && (
+                <div className="mt-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                  🚫 {detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.
+                </div>
+              )}
             </Field>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
             <div className="rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
