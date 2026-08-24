@@ -14,6 +14,7 @@ import {
   adminFleetLatestPositions,
   adminListBriefsAndCampaigns,
   adminListInstallations,
+  adminListInactiveStripeAccounts,
   adminListPoseurs,
   adminReviewInstallation,
 } from "@/lib/admin.functions";
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "poses" | "poseurs" | "fleet";
+type Tab = "briefs" | "poses" | "poseurs" | "fleet" | "stripe";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ function AdminDashboard() {
   const reviewInstallation = useServerFn(adminReviewInstallation);
   const listPoseurs = useServerFn(adminListPoseurs);
   const fleet = useServerFn(adminFleetLatestPositions);
+  const listInactiveStripe = useServerFn(adminListInactiveStripeAccounts);
   const approveCampaign = useServerFn(adminApproveCampaign);
   const approveBrief = useServerFn(adminApproveBrief);
   const certify = useServerFn(adminCertifyPoseur);
@@ -104,6 +106,12 @@ function AdminDashboard() {
     refetchInterval: 30000,
     retry: false,
   });
+  const stripeQuery = useQuery({
+    queryKey: ["admin-stripe-inactive"],
+    queryFn: () => listInactiveStripe(),
+    enabled: ready && tab === "stripe",
+    retry: false,
+  });
 
   const approveCampaignMut = useMutation({
     mutationFn: (id: string) => approveCampaign({ data: { campaignRequestId: id, approve: true } }),
@@ -131,7 +139,7 @@ function AdminDashboard() {
   });
 
   const error =
-    briefsQuery.error ?? installationsQuery.error ?? poseursQuery.error ?? fleetQuery.error;
+    briefsQuery.error ?? installationsQuery.error ?? poseursQuery.error ?? fleetQuery.error ?? stripeQuery.error;
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,6 +161,16 @@ function AdminDashboard() {
           <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>Poses à valider</TabBtn>
           <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>Certifications poseurs</TabBtn>
           <TabBtn active={tab === "fleet"} onClick={() => setTab("fleet")}>Suivi flotte</TabBtn>
+          <TabBtn active={tab === "stripe"} onClick={() => setTab("stripe")}>
+            Stripe inactifs
+            {(stripeQuery.data
+              ? stripeQuery.data.incomplete.length + stripeQuery.data.neverStarted.length
+              : 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] text-destructive-foreground">
+                {stripeQuery.data!.incomplete.length + stripeQuery.data!.neverStarted.length}
+              </span>
+            )}
+          </TabBtn>
         </div>
 
         {error ? (
@@ -342,6 +360,48 @@ function AdminDashboard() {
             </ClientOnly>
           </div>
         ) : null}
+
+        {tab === "stripe" ? (
+          stripeQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-8">
+              <section>
+                <h2 className="mb-1 font-display text-lg font-bold">
+                  Onboarding incomplet ({stripeQuery.data?.incomplete.length ?? 0})
+                </h2>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Ces prestataires ont démarré la liaison Stripe Express mais n'ont pas finalisé leur onboarding — ils ne peuvent pas encore recevoir de virements.
+                </p>
+                <div className="space-y-3">
+                  {(stripeQuery.data?.incomplete ?? []).map((p) => (
+                    <StripeAccountRow key={p.id} account={p} badge="Onboarding incomplet" badgeColor="amber" />
+                  ))}
+                  {(stripeQuery.data?.incomplete ?? []).length === 0 && (
+                    <Empty>Aucun compte avec onboarding incomplet.</Empty>
+                  )}
+                </div>
+              </section>
+
+              <section>
+                <h2 className="mb-1 font-display text-lg font-bold">
+                  Jamais démarré Stripe — inscrits depuis &gt; 30 j ({stripeQuery.data?.neverStarted.length ?? 0})
+                </h2>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  Ces prestataires sont inscrits depuis plus de 30 jours mais n'ont pas encore lié de compte Stripe Express — aucun reversement ne peut leur être versé.
+                </p>
+                <div className="space-y-3">
+                  {(stripeQuery.data?.neverStarted ?? []).map((p) => (
+                    <StripeAccountRow key={p.id} account={p} badge="Stripe non lié" badgeColor="red" />
+                  ))}
+                  {(stripeQuery.data?.neverStarted ?? []).length === 0 && (
+                    <Empty>Aucun prestataire sans Stripe après 30 jours.</Empty>
+                  )}
+                </div>
+              </section>
+            </div>
+          )
+        ) : null}
       </main>
     </div>
   );
@@ -374,6 +434,64 @@ function Empty({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
       {children}
+    </div>
+  );
+}
+
+type StripeAccount = {
+  id: string;
+  user_id: string;
+  kind: string;
+  full_name: string;
+  phone: string | null;
+  city: string | null;
+  stripe_account_id: string | null;
+  stripe_charges_enabled: boolean | null;
+  stripe_payouts_enabled: boolean | null;
+  status: string;
+  created_at: string;
+};
+
+function StripeAccountRow({
+  account,
+  badge,
+  badgeColor,
+}: {
+  account: StripeAccount;
+  badge: string;
+  badgeColor: "amber" | "red";
+}) {
+  const daysSince = Math.floor(
+    (Date.now() - new Date(account.created_at).getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold">
+            {account.full_name}{" "}
+            <span className="text-xs text-muted-foreground">({account.kind})</span>
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {account.city ?? "—"} · {account.phone ?? "Tél. non renseigné"} · inscrit il y a{" "}
+            {daysSince} j
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Stripe ID : {account.stripe_account_id ?? "aucun"} · Charges :{" "}
+            {account.stripe_charges_enabled ? "✅" : "⛔"} · Virements :{" "}
+            {account.stripe_payouts_enabled ? "✅" : "⛔"}
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+            badgeColor === "amber"
+              ? "bg-amber-500/15 text-amber-400"
+              : "bg-destructive/15 text-destructive"
+          }`}
+        >
+          {badge}
+        </span>
+      </div>
     </div>
   );
 }
