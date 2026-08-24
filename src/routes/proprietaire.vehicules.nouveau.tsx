@@ -335,6 +335,9 @@ function NewVehiclePage() {
                 className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
               {files.length > 0 && <div className="text-xs text-muted-foreground mt-2">{files.length} fichier(s) sélectionné(s)</div>}
               <p className="text-xs text-muted-foreground mt-1.5">Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.</p>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                💡 Les annonceurs utilisent un simulateur 3D pour visualiser leur habillage publicitaire sur votre véhicule à partir de vos photos. Plus elles sont nettes et représentatives, meilleure sera leur prévisualisation — et plus votre véhicule a de chances d'être sélectionné.
+              </p>
             </div>
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4">

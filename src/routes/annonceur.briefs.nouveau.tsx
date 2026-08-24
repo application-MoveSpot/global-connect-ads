@@ -288,6 +288,11 @@ function NewBriefPage() {
                   logoUrl={logoUrl}
                 />
               </Suspense>
+              {vehicleTypes.every((t) => t === "autre") && (
+                <p className="text-xs text-muted-foreground italic px-1">
+                  ℹ️ Aperçu schématique sur un gabarit générique — la forme réelle dépend du véhicule « autre » proposé par le propriétaire. Vous verrez les vraies photos après mise en relation.
+                </p>
+              )}
             </div>
           )}
 
