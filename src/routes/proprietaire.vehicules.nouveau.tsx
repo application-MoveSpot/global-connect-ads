@@ -132,6 +132,7 @@ function NewVehiclePage() {
         data: {
           type,
           condition,
+          ...(type === "autre" && autreDescription.trim() ? { vehicle_description: autreDescription.trim() } : {}),
           surface_m2: surface ? Number(surface) : null,
           km_per_day: km ? Number(km) : null,
           zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
