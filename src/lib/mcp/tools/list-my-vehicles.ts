@@ -18,7 +18,7 @@ export default defineTool({
     const supabase = supabaseForUser(ctx);
     const { data, error } = await supabase
       .from("vehicles")
-      .select("id, name, type, condition, zones, surface_m2, km_per_day, price_per_day, status, created_at")
+      .select("id, name, type, description, condition, zones, surface_m2, km_per_day, price_per_day, status, created_at")
       .order("created_at", { ascending: false })
       .limit(Math.min(Math.max(limit ?? 20, 1), 100));
 
