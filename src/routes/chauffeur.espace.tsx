@@ -19,6 +19,8 @@ type Profile = {
   vehicle_plate: string | null;
   certification_status: string;
   certification_notes: string | null;
+  stripe_account_id: string | null;
+  stripe_payouts_enabled: boolean | null;
 };
 
 const KIND_LABEL: Record<Profile["kind"], string> = {
@@ -67,7 +69,7 @@ function ChauffeurEspace() {
       if (!sess.session) { navigate({ to: "/chauffeur/inscription" }); return; }
       const { data } = await supabase
         .from("payee_profiles")
-        .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes")
+        .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled")
         .eq("user_id", sess.session.user.id)
         .maybeSingle();
       if (!data) { navigate({ to: "/chauffeur/inscription" }); return; }
@@ -104,6 +106,26 @@ function ChauffeurEspace() {
           </p>
         </div>
 
+        {profile && !profile.stripe_payouts_enabled && (
+          <a
+            href="#reversements"
+            className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm no-underline transition hover:opacity-90 ${
+              profile.stripe_account_id
+                ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                : "border-destructive/40 bg-destructive/10 text-destructive"
+            }`}
+          >
+            <span className="mt-0.5 text-base">{profile.stripe_account_id ? "⚠️" : "🔴"}</span>
+            <span>
+              {profile.stripe_account_id
+                ? "Votre onboarding Stripe est incomplet — finalisez la vérification pour recevoir vos reversements."
+                : "Vous n'avez pas encore lié votre IBAN. Sans cette étape, aucun reversement ne peut vous être versé."}
+              {" "}
+              <strong className="underline">Configurer maintenant →</strong>
+            </span>
+          </a>
+        )}
+
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-border bg-card p-5">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Certification</p>
@@ -139,7 +161,9 @@ function ChauffeurEspace() {
           </div>
         </div>
 
-        <PayeeConnectCard />
+        <div id="reversements">
+          <PayeeConnectCard />
+        </div>
 
         {profile && (profile.kind === "installer" || profile.kind === "both") ? <InstallationJobsPanel /> : null}
 

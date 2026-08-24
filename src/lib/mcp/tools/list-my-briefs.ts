@@ -19,7 +19,7 @@ export default defineTool({
     const { data, error } = await supabase
       .from("advertiser_briefs")
       .select(
-        "id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, created_at",
+        "id, title, description, vehicle_types, ad_format, zones, start_date, end_date, days_count, budget_max, status, created_at",
       )
       .order("created_at", { ascending: false })
       .limit(Math.min(Math.max(limit ?? 20, 1), 100));

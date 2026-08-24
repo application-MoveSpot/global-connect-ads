@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { detectContact } from "@/lib/moderation/contact-detection";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 
@@ -79,6 +80,10 @@ function BriefDetailPage() {
     e.preventDefault();
     setError("");
     if (!ownerId || !vehicleId || !price) return;
+    if (message) {
+      const contactHit = detectContact(message);
+      if (contactHit) { setError(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.`); return; }
+    }
     setSubmitting(true);
     const { error: insErr } = await supabase.from("brief_proposals").insert([{
       brief_id: briefId,
@@ -174,8 +179,16 @@ function BriefDetailPage() {
                 <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} maxLength={1000}
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
                   placeholder="Précisions sur zones couvertes, disponibilité, etc." />
+                {detectContact(message) && (
+                  <div className="mt-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                    🚫 {detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.
+                  </div>
+                )}
               </div>
               {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+              <div className="rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
+                ⚠ Tout accord conclu <strong>hors de la plateforme</strong> (paiement direct, contrat privé) n'est pas couvert par les garanties MoveSpot — ni la modération, ni le suivi GPS, ni le reversement sécurisé.
+              </div>
               <button type="submit" disabled={submitting}
                 className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 font-semibold hover:bg-primary/90 disabled:opacity-50">
                 {submitting ? "Envoi…" : "Envoyer ma proposition"}

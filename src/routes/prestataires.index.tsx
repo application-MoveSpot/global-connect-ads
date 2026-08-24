@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
-import { providerServiceLabel } from "@/lib/providers/provider-services";
+import { PROVIDER_SERVICES, providerServiceLabel, type ProviderServiceKey } from "@/lib/providers/provider-services";
 
 export const Route = createFileRoute("/prestataires/")({
   component: ProvidersDirectory,
@@ -24,6 +24,7 @@ function ProvidersDirectory() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [serviceFilter, setServiceFilter] = useState<ProviderServiceKey | "">("");
 
   useEffect(() => {
     (async () => {
@@ -36,6 +37,7 @@ function ProvidersDirectory() {
   }, []);
 
   const filtered = providers.filter((p) => {
+    if (serviceFilter && !p.services?.includes(serviceFilter)) return false;
     if (!q.trim()) return true;
     const s = q.toLowerCase();
     return p.company.toLowerCase().includes(s) || p.description.toLowerCase().includes(s) ||
@@ -57,7 +59,29 @@ function ProvidersDirectory() {
         <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.</p>
 
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher (société, zone, expertise…)"
-          className="w-full rounded-full border border-border bg-card px-5 py-3 mb-6" />
+          className="w-full rounded-full border border-border bg-card px-5 py-3 mb-3" />
+
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            onClick={() => setServiceFilter("")}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition border ${
+              serviceFilter === "" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:bg-secondary"
+            }`}
+          >
+            Tous
+          </button>
+          {PROVIDER_SERVICES.map((s) => (
+            <button
+              key={s.key}
+              onClick={() => setServiceFilter(serviceFilter === s.key ? "" : s.key)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition border ${
+                serviceFilter === s.key ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:bg-secondary"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
 
         {loading ? (
           <div className="text-center text-muted-foreground py-12">Chargement…</div>

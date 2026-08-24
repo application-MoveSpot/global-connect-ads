@@ -27,15 +27,7 @@ const TYPES_VEHICULES = [
   { v: "voiture", l: "Voiture" },
 ];
 const TYPES_AUTRES = [
-  { v: "sac_a_dos_lcd", l: "Sac à dos publicitaire LCD (Walker)" },
-  { v: "sac_a_dos_affiche", l: "Sac à dos publicitaire affiche (Walker)" },
   { v: "autre", l: "Autre" },
-];
-
-const BACKPACK_FORMATS = [
-  { v: "small", l: "Small (~15,6\")", desc: "Format compact, idéal mobilité" },
-  { v: "medium", l: "Medium (~21,5\")", desc: "Bon compromis visibilité / poids" },
-  { v: "large", l: "Large (~27-32\")", desc: "Impact maximal, plein dos" },
 ];
 
 const CONDITIONS = [
@@ -45,15 +37,13 @@ const CONDITIONS = [
   { v: "mauvais", l: "Mauvais", desc: "⛔ Non accepté sur MoveSpot" },
 ];
 
-const isBackpack = (t: string) => t === "sac_a_dos_lcd" || t === "sac_a_dos_affiche";
-
 function NewVehiclePage() {
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
+  const [autreDescription, setAutreDescription] = useState("");
   const [condition, setCondition] = useState<"excellent" | "bon" | "moyen" | "mauvais">("bon");
-  const [backpackFormat, setBackpackFormat] = useState("medium");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [surface, setSurface] = useState("");
@@ -131,6 +121,7 @@ function NewVehiclePage() {
         data: {
           type,
           condition,
+          ...(type === "autre" && autreDescription.trim() ? { vehicle_description: autreDescription.trim() } : {}),
           surface_m2: surface ? Number(surface) : null,
           km_per_day: km ? Number(km) : null,
           zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
@@ -154,6 +145,10 @@ function NewVehiclePage() {
       setError("Les véhicules en mauvais état ne sont pas acceptés.");
       return;
     }
+    if (type === "autre" && !autreDescription.trim()) {
+      setError("Veuillez préciser le type de véhicule dans le champ dédié.");
+      return;
+    }
     if (estimate?.ai_generated_detected) {
       setError("⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.");
       return;
@@ -170,15 +165,13 @@ function NewVehiclePage() {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
       const { error: insErr } = await supabase.from("vehicles").insert({
         owner_id: ownerId,
-        type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
+        type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
         condition,
         name,
-        description: description || null,
-        format_publicitaire: type === "sac_a_dos_lcd"
-          ? `Écran LCD ${backpackFormat}`
-          : type === "sac_a_dos_affiche"
-          ? `Affiche ${backpackFormat}`
-          : null,
+        description: type === "autre" && autreDescription.trim()
+          ? `[Véhicule : ${autreDescription.trim()}]${description ? `\n\n${description}` : ""}`
+          : description || null,
+        format_publicitaire: null,
         surface_m2: surface ? Number(surface) : null,
         km_per_day: km ? Number(km) : null,
         zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
@@ -228,29 +221,19 @@ function NewVehiclePage() {
                 </optgroup>
               </select>
             </div>
-            {isBackpack(type) && (
+            {type === "autre" && (
               <div>
-                <label className="block text-sm font-medium mb-1.5">
-                  {type === "sac_a_dos_lcd" ? "Format de l'écran *" : "Format de l'affiche *"}
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {BACKPACK_FORMATS.map((f) => (
-                    <button type="button" key={f.v} onClick={() => setBackpackFormat(f.v)}
-                      className={`rounded-lg border px-3 py-2.5 text-left transition ${
-                        backpackFormat === f.v
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-input hover:border-primary/40"
-                      }`}>
-                      <div className="text-sm font-semibold">{f.l}</div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5">{f.desc}</div>
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  {type === "sac_a_dos_lcd"
-                    ? "Walker équipé d'un écran LCD diffusant les visuels publicitaires en déplacement (street marketing)."
-                    : "Walker équipé d'un panneau rigide imprimé (affiche papier ou PVC) — solution simple, sans batterie."}
-                </p>
+                <label className="block text-sm font-medium mb-1.5">Précisez le type de véhicule *</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={120}
+                  value={autreDescription}
+                  onChange={(e) => setAutreDescription(e.target.value)}
+                  placeholder="Ex. Rickshaw, bateau fluvial, camion brasserie…"
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">Cette précision est visible par les annonceurs et aide MoveSpot à valider votre véhicule.</p>
               </div>
             )}
             <div>
@@ -313,6 +296,9 @@ function NewVehiclePage() {
                 className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
               {files.length > 0 && <div className="text-xs text-muted-foreground mt-2">{files.length} fichier(s) sélectionné(s)</div>}
               <p className="text-xs text-muted-foreground mt-1.5">Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.</p>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                💡 Les annonceurs utilisent un simulateur 3D pour visualiser leur habillage publicitaire sur votre véhicule à partir de vos photos. Plus elles sont nettes et représentatives, meilleure sera leur prévisualisation — et plus votre véhicule a de chances d'être sélectionné.
+              </p>
             </div>
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4">

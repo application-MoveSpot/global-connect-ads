@@ -285,6 +285,42 @@ export type FleetPoint = {
   recordedAt: string;
 };
 
+export const adminSendStripeReminder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ payeeProfileId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: payee } = await supabaseAdmin
+      .from("payee_profiles")
+      .select("user_id, full_name")
+      .eq("id", data.payeeProfileId)
+      .single();
+    if (!payee) throw new Error("Prestataire introuvable");
+
+    const { data: userRow } = await supabaseAdmin.auth.admin.getUserById(payee.user_id);
+    const email = userRow?.user?.email;
+    if (!email) throw new Error("Email introuvable pour ce prestataire");
+
+    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+    await sendAppEmailSafe({
+      templateName: "stripe-reminder",
+      recipientEmail: email,
+      idempotencyKey: `stripe-reminder-${data.payeeProfileId}-${new Date().toISOString().slice(0, 10)}`,
+      templateData: {
+        fullName: payee.full_name,
+        spaceUrl: "https://move-spot.com/chauffeur/espace",
+      },
+    });
+
+    return { ok: true };
+  });
+
 // ============ Onglet Poses à valider ============
 export const adminListInstallations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -304,6 +340,43 @@ export const adminListInstallations = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(200);
     return { installations: data ?? [] };
+  });
+
+// ============ Onglet Comptes Stripe inactifs ============
+export const adminListInactiveStripeAccounts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Comptes avec Stripe démarré mais onboarding incomplet
+    const { data: incomplete } = await supabaseAdmin
+      .from("payee_profiles")
+      .select("id, user_id, kind, full_name, phone, city, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, status, created_at")
+      .not("stripe_account_id", "is", null)
+      .or("stripe_charges_enabled.eq.false,stripe_payouts_enabled.eq.false")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    // Comptes inscrits depuis > 30 jours sans jamais démarrer Stripe
+    const { data: neverStarted } = await supabaseAdmin
+      .from("payee_profiles")
+      .select("id, user_id, kind, full_name, phone, city, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, status, created_at")
+      .is("stripe_account_id", null)
+      .lt("created_at", thirtyDaysAgo)
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    return {
+      incomplete: incomplete ?? [],
+      neverStarted: neverStarted ?? [],
+    };
   });
 
 export const adminReviewInstallation = createServerFn({ method: "POST" })

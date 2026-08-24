@@ -4,6 +4,7 @@ import { z } from "zod";
 const InputSchema = z.object({
   type: z.string().min(1).max(50),
   condition: z.enum(["excellent", "bon", "moyen", "mauvais"]),
+  vehicle_description: z.string().max(120).optional(),
   surface_m2: z.number().min(0).max(100).nullable().optional(),
   km_per_day: z.number().min(0).max(2000).nullable().optional(),
   zones: z.array(z.string().max(100)).max(20).default([]),
@@ -55,6 +56,7 @@ Analyse ce véhicule proposé sur MoveSpot et :
    - Type "taxi" : accepte AUSSI les VTC (Uber, Bolt, Heetch, etc.). Un VTC est une berline standard sans lumineux ni licence visible (Peugeot 508, Mercedes Classe E, Tesla Model 3, Toyota Prius, etc.). NE refuse PAS une berline propre sous prétexte qu'il manque le lumineux "TAXI" : c'est probablement un VTC, ce qui est valide sur MoveSpot.
    - Type "voiture" : toute voiture particulière convient.
    - Type "van" / "food_truck" : exige un utilitaire/camion aménagé reconnaissable.
+   - Type "autre" : vérifie que la photo est cohérente avec la précision fournie par le propriétaire. Si aucune précision n'est fournie, accepte tout véhicule non standard et note "autre non précisé" dans photo_notes.
    - Marque "ne correspond pas" UNIQUEMENT si la photo montre un véhicule clairement d'une autre catégorie (ex: scooter déclaré comme food truck).
 
 2. Détecte INDÉPENDAMMENT si la/les photo(s) ont été générées ou retouchées par une IA. Sois STRICT mais JUSTE :
@@ -67,7 +69,7 @@ Analyse ce véhicule proposé sur MoveSpot et :
 5. Donne une courte recommandation au propriétaire (rappelle aussi la législation de propriété intellectuelle : photos personnelles, pas de droits tiers violés).
 
 Données déclarées :
-- Type: ${data.type}
+- Type: ${data.type}${data.vehicle_description ? ` (précision propriétaire : "${data.vehicle_description}")` : ""}
 - État déclaré: ${data.condition}
 - Surface publicitaire: ${data.surface_m2 ?? "non renseignée"} m²
 - Km parcourus / jour: ${data.km_per_day ?? "non renseigné"}

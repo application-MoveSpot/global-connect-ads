@@ -18,7 +18,7 @@ export const Route = createFileRoute("/cgu")({
 
 function CGU() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="20 août 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="24 août 2026">
       <LegalSection title="1. Objet">
         <p>
           Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités
@@ -287,7 +287,35 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="22. Droit applicable et juridiction">
+      <LegalSection title="22. Obligation d'exclusivité des transactions sur la Plateforme">
+        <p>
+          Toute relation commerciale entre utilisateurs (annonceur, propriétaire de véhicule, chauffeur, poseur) dont
+          la mise en contact a été réalisée via MoveSpot doit être intégralement conclue et exécutée au sein de la
+          Plateforme. Il est expressément interdit de :
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>convenir d'un paiement direct entre utilisateurs en dehors des circuits de paiement MoveSpot ;</li>
+          <li>conclure un contrat privé relatif à une prestation initiée via MoveSpot ;</li>
+          <li>
+            communiquer des coordonnées personnelles (numéro de téléphone, adresse email, lien vers un réseau social
+            ou une messagerie externe) à des fins de contournement de la Plateforme dans les champs de message.
+          </li>
+        </ul>
+        <p>
+          La Plateforme met en œuvre des moyens techniques de détection automatique de ces comportements dans les
+          champs de messagerie (analyse des messages avant envoi et avant enregistrement en base de données) et se
+          réserve le droit de bloquer ou supprimer tout message contenant de telles coordonnées.
+        </p>
+        <p>
+          Toute violation de la présente obligation expose l'utilisateur fautif à la <strong>suspension immédiate et
+          définitive de son compte MoveSpot</strong>, sans préjudice de dommages et intérêts correspondant au minimum
+          à la commission MoveSpot perdue (30 % du montant hors taxes de la transaction détournée).
+          La commission reste due et exigible même en l'absence de transaction via la Plateforme, dès lors que la
+          mise en relation initiale a été effectuée par son intermédiaire.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="23. Droit applicable et juridiction">
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.

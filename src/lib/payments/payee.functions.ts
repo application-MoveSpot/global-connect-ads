@@ -3,13 +3,12 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type PayeeKind = "driver" | "installer" | "both";
-export type VehicleKind = "micro_mobility" | "voiture" | "utilitaire" | "walker";
+export type VehicleKind = "micro_mobility" | "voiture" | "utilitaire";
 
 export const VEHICLE_KIND_LABEL: Record<VehicleKind, string> = {
   micro_mobility: "Micro-mobilité (vélo, triporteur, scooter)",
   voiture: "Voiture",
   utilitaire: "Utilitaire / camion",
-  walker: "Walker (sac à dos publicitaire)",
 };
 
 export type PayeeProfile = {
@@ -77,7 +76,7 @@ const SignupInput = z.object({
   phone: z.string().max(30).optional().nullable(),
   city: z.string().max(120).optional().nullable(),
   siret: z.string().max(20).optional().nullable(),
-  vehicleKind: z.enum(["micro_mobility", "voiture", "utilitaire", "walker"]).optional().nullable(),
+  vehicleKind: z.enum(["micro_mobility", "voiture", "utilitaire"]).optional().nullable(),
   vehiclePlate: z.string().max(20).optional().nullable(),
 });
 

@@ -49,6 +49,7 @@ function NewBriefPage() {
   const [budget, setBudget] = useState("");
   const [audience, setAudience] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
   const [brandColor, setBrandColor] = useState("#3B82F6");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -76,7 +77,11 @@ function NewBriefPage() {
       : 0;
 
   const toggleType = (v: string) => {
-    setVehicleTypes((cur) => cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]);
+    setVehicleTypes((cur) => {
+      const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
+      // Reset video_led format if no LCD screen remains selected
+      return next;
+    });
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -84,6 +89,10 @@ function NewBriefPage() {
     setError("");
     if (!userId) return;
     if (vehicleTypes.length === 0) { setError("Sélectionnez au moins un type de véhicule."); return; }
+    if (vehicleTypes.includes("autre") && !autreVehicleNote.trim()) {
+      setError("Vous avez sélectionné « Autre » : veuillez préciser le type de véhicule recherché.");
+      return;
+    }
     if (!startDate || !endDate) { setError("Dates obligatoires."); return; }
     if (endDate < startDate) { setError("La date de fin doit être après la date de début."); return; }
     const forbidden = findForbiddenKeyword(`${title} ${description} ${audience}`);
@@ -110,10 +119,14 @@ function NewBriefPage() {
     const end = new Date(endDate);
     const days = Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
 
+    const finalDescription = vehicleTypes.includes("autre") && autreVehicleNote.trim()
+      ? `${description}\n\n[Véhicule autre recherché : ${autreVehicleNote.trim()}]`
+      : description;
+
     const { data, error: insErr } = await supabase.from("advertiser_briefs").insert([{
       advertiser_id: userId,
       title,
-      description,
+      description: finalDescription,
       vehicle_types: vehicleTypes as never,
       zones: zoneList,
       start_date: startDate,
@@ -201,28 +214,31 @@ function NewBriefPage() {
             </div>
           </Field>
 
+          {vehicleTypes.includes("autre") && (
+            <Field label="Précisez le véhicule « Autre » recherché *">
+              <input
+                type="text"
+                maxLength={120}
+                value={autreVehicleNote}
+                onChange={(e) => setAutreVehicleNote(e.target.value)}
+                placeholder="Ex. Rickshaw, bateau fluvial, camion brasserie…"
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Cette précision aide les propriétaires à évaluer si leur véhicule correspond à votre besoin.</p>
+            </Field>
+          )}
+
           <Field label="Format publicitaire">
             {(() => {
-              // Restrict formats based on selected walker types
-              const walkerKey = vehicleTypes.find((v) => VEHICLE_FORMATS[v as VehicleKey]) as VehicleKey | undefined;
-              const allowedFormats = walkerKey ? VEHICLE_FORMATS[walkerKey]! : AD_FORMATS.map((f) => f.v);
-              const visibleFormats = AD_FORMATS.filter((f) => allowedFormats.includes(f.v));
               return (
-                <>
-                  {walkerKey && (
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Format imposé par le type de support sélectionné.
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {visibleFormats.map((f) => (
-                      <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
-                        {f.l}
-                      </button>
-                    ))}
-                  </div>
-                </>
+                <div className="flex flex-wrap gap-2">
+                  {AD_FORMATS.map((f) => (
+                    <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
+                      {f.l}
+                    </button>
+                  ))}
+                </div>
               );
             })()}
           </Field>
@@ -265,6 +281,11 @@ function NewBriefPage() {
                   logoUrl={logoUrl}
                 />
               </Suspense>
+              {vehicleTypes.every((t) => t === "autre") && (
+                <p className="text-xs text-muted-foreground italic px-1">
+                  ℹ️ Aperçu schématique sur un gabarit générique — la forme réelle dépend du véhicule « autre » proposé par le propriétaire. Vous verrez les vraies photos après mise en relation.
+                </p>
+              )}
             </div>
           )}
 
