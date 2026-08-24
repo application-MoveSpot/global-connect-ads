@@ -230,6 +230,9 @@ function ProviderDetailPage() {
                 placeholder="Visuel disponible, contraintes, références…" />
             </Field>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+            <div className="rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
+              ⚠ Tout accord conclu <strong>hors de la plateforme</strong> (paiement direct, contrat privé) n'est pas couvert par les garanties MoveSpot — ni la modération, ni le suivi GPS, ni le reversement sécurisé.
+            </div>
             <div className="flex gap-2">
               <button disabled={submitting} className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 font-semibold hover:bg-primary/90 disabled:opacity-50">
                 {submitting ? "Envoi…" : "Envoyer la demande"}
