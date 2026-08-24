@@ -51,6 +51,7 @@ function ChauffeurInscription() {
   const [vehiclePlate, setVehiclePlate] = useState("");
   const [hasCompany, setHasCompany] = useState(false);
   const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
+  const [acceptedCGU, setAcceptedCGU] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -112,6 +113,10 @@ function ChauffeurInscription() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!acceptedCGU) {
+      setError("Vous devez accepter les CGU MoveSpot pour continuer.");
+      return;
+    }
     if (hasCompany && !siret.verified) {
       setError("Merci de vérifier votre numéro SIRET avant de continuer.");
       return;
@@ -119,6 +124,7 @@ function ChauffeurInscription() {
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
+    const CGU_VERSION = "2026-08-24";
     const payload: Record<string, unknown> = {
       user_id: sess.session.user.id,
       kind,
@@ -127,6 +133,8 @@ function ChauffeurInscription() {
       city: city || null,
       vehicle_kind: kind === "installer" ? null : vehicleKind,
       vehicle_plate: kind === "installer" ? null : vehiclePlate || null,
+      cgu_version: CGU_VERSION,
+      cgu_accepted_at: new Date().toISOString(),
     };
     if (hasCompany) {
       payload.siret = siret.siret;
@@ -222,6 +230,13 @@ function ChauffeurInscription() {
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input type="checkbox" checked={hasCompany} onChange={(e) => setHasCompany(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-border" />
                 <span>Je suis auto-entrepreneur / société (avec SIRET)</span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input type="checkbox" checked={acceptedCGU} onChange={(e) => setAcceptedCGU(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-border" />
+                <span>
+                  J'ai lu et j'accepte les <Link to="/cgu" className="underline hover:text-foreground">Conditions Générales d'Utilisation</Link> MoveSpot, notamment l'<strong>obligation d'exclusivité des transactions sur la plateforme</strong> (art. 22). Je comprends que tout accord conclu hors-plateforme reste soumis à la commission MoveSpot.
+                </span>
               </label>
               {hasCompany && <SiretField value={siret} onChange={setSiret} />}
 

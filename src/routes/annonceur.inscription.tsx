@@ -119,12 +119,15 @@ function AnnonceurInscription() {
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
+    const CGU_VERSION = "2026-08-24";
     const payload: Record<string, unknown> = {
       user_id: sess.session.user.id,
       full_name: fullName,
       phone: phone || null,
       city: city || null,
       account_type: accountType,
+      cgu_version: CGU_VERSION,
+      cgu_accepted_at: new Date().toISOString(),
     };
     if (accountType === "business") {
       payload.company = company || siret.denomination;
@@ -222,7 +225,7 @@ function AnnonceurInscription() {
                 <input type="checkbox" checked={acceptedCharte} onChange={(e) => setAcceptedCharte(e.target.checked)}
                   className="mt-0.5 h-4 w-4 rounded border-border" />
                 <span>
-                  J'ai lu et j'accepte la <Link to="/cgu" className="underline hover:text-foreground">charte de contenu publicitaire</Link> MoveSpot. Je comprends que les contenus religieux, politiques/électoraux, anniversaires personnels, sexistes, pornographiques ou violents sont refusés et ne donnent pas lieu à remboursement.
+                  J'ai lu et j'accepte les <Link to="/cgu" className="underline hover:text-foreground">Conditions Générales d'Utilisation</Link> MoveSpot, notamment la charte de contenu publicitaire et l'<strong>obligation d'exclusivité des transactions sur la plateforme</strong> (art. 22). Je comprends que tout accord conclu hors-plateforme reste soumis à la commission MoveSpot.
                 </span>
               </label>
 
