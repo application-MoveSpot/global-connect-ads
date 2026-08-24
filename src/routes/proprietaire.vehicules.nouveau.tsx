@@ -52,6 +52,7 @@ function NewVehiclePage() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
+  const [autreDescription, setAutreDescription] = useState("");
   const [condition, setCondition] = useState<"excellent" | "bon" | "moyen" | "mauvais">("bon");
   const [backpackFormat, setBackpackFormat] = useState("medium");
   const [name, setName] = useState("");
@@ -154,6 +155,10 @@ function NewVehiclePage() {
       setError("Les véhicules en mauvais état ne sont pas acceptés.");
       return;
     }
+    if (type === "autre" && !autreDescription.trim()) {
+      setError("Veuillez préciser le type de véhicule dans le champ dédié.");
+      return;
+    }
     if (estimate?.ai_generated_detected) {
       setError("⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.");
       return;
@@ -173,7 +178,9 @@ function NewVehiclePage() {
         type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "sac_a_dos_lcd" | "sac_a_dos_affiche" | "autre",
         condition,
         name,
-        description: description || null,
+        description: type === "autre" && autreDescription.trim()
+          ? `[Véhicule : ${autreDescription.trim()}]${description ? `\n\n${description}` : ""}`
+          : description || null,
         format_publicitaire: type === "sac_a_dos_lcd"
           ? `Écran LCD ${backpackFormat}`
           : type === "sac_a_dos_affiche"
@@ -228,6 +235,21 @@ function NewVehiclePage() {
                 </optgroup>
               </select>
             </div>
+            {type === "autre" && (
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Précisez le type de véhicule *</label>
+                <input
+                  type="text"
+                  required
+                  maxLength={120}
+                  value={autreDescription}
+                  onChange={(e) => setAutreDescription(e.target.value)}
+                  placeholder="Ex. Rickshaw, bateau fluvial, camion brasserie…"
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">Cette précision est visible par les annonceurs et aide MoveSpot à valider votre véhicule.</p>
+              </div>
+            )}
             {isBackpack(type) && (
               <div>
                 <label className="block text-sm font-medium mb-1.5">
