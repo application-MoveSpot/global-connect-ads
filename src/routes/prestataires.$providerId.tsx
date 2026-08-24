@@ -2,8 +2,14 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
-import { providerServiceLabel } from "@/lib/providers/provider-services";
+import { PROVIDER_SERVICES, providerServiceLabel } from "@/lib/providers/provider-services";
 import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
+
+const VIDEO_EXTENSIONS = new Set(["mp4", "webm", "mov", "avi", "mkv"]);
+function isVideoUrl(url: string) {
+  const ext = url.split("?")[0].split(".").pop()?.toLowerCase() ?? "";
+  return VIDEO_EXTENSIONS.has(ext);
+}
 
 export const Route = createFileRoute("/prestataires/$providerId")({
   loader: async ({ params }) =>
@@ -53,6 +59,7 @@ function ProviderDetailPage() {
   const [deadline, setDeadline] = useState("");
   const [zone, setZone] = useState("");
   const [message, setMessage] = useState("");
+  const [serviceType, setServiceType] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -67,6 +74,10 @@ function ProviderDetailPage() {
       const prov = p as Provider | null;
       setProvider(prov);
       setAuthed(!!sess.session);
+      if (prov) {
+        const defaultService = prov.services?.[0] ?? "covering_vehicule";
+        setServiceType(defaultService);
+      }
       if (prov && prov.portfolio_urls?.length) {
         const paths = prov.portfolio_urls.filter((u) => !/^https?:\/\//i.test(u));
         const fullUrls = prov.portfolio_urls.filter((u) => /^https?:\/\//i.test(u));
@@ -92,7 +103,7 @@ function ProviderDetailPage() {
     const { error: insErr } = await supabase.from("service_quotes").insert({
       advertiser_id: sess.session.user.id,
       provider_id: providerId,
-      service_type: "covering_vehicule",
+      service_type: serviceType || "covering_vehicule",
       vehicle_type: vehicleType || null,
       format: format || null,
       quantity: quantity ? Number(quantity) : null,
@@ -169,7 +180,11 @@ function ProviderDetailPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {portfolioSigned.map((u) => (
                 <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-border bg-secondary hover:opacity-90">
-                  <img src={u} alt="Portfolio" className="w-full h-full object-cover" loading="lazy" />
+                  {isVideoUrl(u) ? (
+                    <video src={u} className="w-full h-full object-cover" muted playsInline loop />
+                  ) : (
+                    <img src={u} alt="Portfolio" className="w-full h-full object-cover" loading="lazy" />
+                  )}
                 </a>
               ))}
             </div>
@@ -184,6 +199,24 @@ function ProviderDetailPage() {
         ) : showForm ? (
           <form onSubmit={submitQuote} className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <h2 className="font-semibold">Demander un devis</h2>
+            {provider.services && provider.services.length > 1 && (
+              <Field label="Type de prestation">
+                <div className="flex flex-wrap gap-2">
+                  {PROVIDER_SERVICES.filter((s) => provider.services.includes(s.key)).map((s) => (
+                    <button
+                      key={s.key}
+                      type="button"
+                      onClick={() => setServiceType(s.key)}
+                      className={`rounded-full px-4 py-1.5 text-sm font-medium transition border ${
+                        serviceType === s.key ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </Field>
+            )}
             <div className="grid sm:grid-cols-2 gap-3">
               <Input label="Type de véhicule" value={vehicleType} onChange={setVehicleType} placeholder="Ex. Food truck, van" />
               <Input label="Format" value={format} onChange={setFormat} placeholder="Total / demi-covering, stickers…" />
