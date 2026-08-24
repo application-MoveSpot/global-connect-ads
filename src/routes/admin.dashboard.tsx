@@ -17,6 +17,7 @@ import {
   adminListInactiveStripeAccounts,
   adminListPoseurs,
   adminReviewInstallation,
+  adminSendStripeReminder,
 } from "@/lib/admin.functions";
 import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
@@ -106,6 +107,7 @@ function AdminDashboard() {
     refetchInterval: 30000,
     retry: false,
   });
+  const sendReminder = useServerFn(adminSendStripeReminder);
   const stripeQuery = useQuery({
     queryKey: ["admin-stripe-inactive"],
     queryFn: () => listInactiveStripe(),
@@ -375,7 +377,7 @@ function AdminDashboard() {
                 </p>
                 <div className="space-y-3">
                   {(stripeQuery.data?.incomplete ?? []).map((p) => (
-                    <StripeAccountRow key={p.id} account={p} badge="Onboarding incomplet" badgeColor="amber" />
+                    <StripeAccountRow key={p.id} account={p} badge="Onboarding incomplet" badgeColor="amber" onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })} />
                   ))}
                   {(stripeQuery.data?.incomplete ?? []).length === 0 && (
                     <Empty>Aucun compte avec onboarding incomplet.</Empty>
@@ -392,7 +394,7 @@ function AdminDashboard() {
                 </p>
                 <div className="space-y-3">
                   {(stripeQuery.data?.neverStarted ?? []).map((p) => (
-                    <StripeAccountRow key={p.id} account={p} badge="Stripe non lié" badgeColor="red" />
+                    <StripeAccountRow key={p.id} account={p} badge="Stripe non lié" badgeColor="red" onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })} />
                   ))}
                   {(stripeQuery.data?.neverStarted ?? []).length === 0 && (
                     <Empty>Aucun prestataire sans Stripe après 30 jours.</Empty>
@@ -456,11 +458,29 @@ function StripeAccountRow({
   account,
   badge,
   badgeColor,
+  onSendReminder,
 }: {
   account: StripeAccount;
   badge: string;
   badgeColor: "amber" | "red";
+  onSendReminder: () => Promise<unknown>;
 }) {
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleReminder = async () => {
+    setSending(true);
+    try {
+      await onSendReminder();
+      setSent(true);
+      toast.success("Rappel envoyé.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de l'envoi");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const daysSince = Math.floor(
     (Date.now() - new Date(account.created_at).getTime()) / (1000 * 60 * 60 * 24),
   );
@@ -482,15 +502,25 @@ function StripeAccountRow({
             {account.stripe_payouts_enabled ? "✅" : "⛔"}
           </p>
         </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-            badgeColor === "amber"
-              ? "bg-amber-500/15 text-amber-400"
-              : "bg-destructive/15 text-destructive"
-          }`}
-        >
-          {badge}
-        </span>
+        <div className="flex flex-col items-end gap-2">
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              badgeColor === "amber"
+                ? "bg-amber-500/15 text-amber-400"
+                : "bg-destructive/15 text-destructive"
+            }`}
+          >
+            {badge}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReminder}
+            disabled={sending || sent}
+          >
+            {sent ? "Rappel envoyé ✓" : sending ? "Envoi…" : "Envoyer un rappel email"}
+          </Button>
+        </div>
       </div>
     </div>
   );
