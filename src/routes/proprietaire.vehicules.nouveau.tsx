@@ -67,7 +67,35 @@ function NewVehiclePage() {
     recommendation: string;
     uploaded_urls: string[];
   }>(null);
+  const [pastedHint, setPastedHint] = useState(false);
   const callEstimate = useServerFn(estimateVehicle);
+
+  // Coller une image depuis le presse-papier (Ctrl+V) directement dans la zone photos
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      // Ne pas interférer si le focus est dans un champ texte
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) return;
+      const items = Array.from(e.clipboardData?.items ?? []);
+      const imageItems = items.filter((item) => item.type.startsWith("image/"));
+      if (!imageItems.length) return;
+      e.preventDefault();
+      const newFiles = imageItems
+        .map((item) => item.getAsFile())
+        .filter((f): f is File => f !== null)
+        .slice(0, 5);
+      if (!newFiles.length) return;
+      setFiles((prev) => [...prev, ...newFiles].slice(0, 5));
+      setEstimate(null);
+      setPastedHint(true);
+      setTimeout(() => setPastedHint(false), 3000);
+    };
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -293,9 +321,59 @@ function NewVehiclePage() {
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
-              <input type="file" accept="image/*" multiple onChange={(e) => { setFiles(Array.from(e.target.files ?? [])); setEstimate(null); }}
-                className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-primary file:text-primary-foreground hover:file:bg-primary/90" />
-              {files.length > 0 && <div className="text-xs text-muted-foreground mt-2">{files.length} fichier(s) sélectionné(s)</div>}
+              {/* Zone de collage / upload */}
+              <div
+                className="relative rounded-xl border-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/30 transition-colors"
+                onPaste={(e) => {
+                  const items = Array.from(e.clipboardData?.items ?? []);
+                  const imageItems = items.filter((item) => item.type.startsWith("image/"));
+                  if (!imageItems.length) return;
+                  e.preventDefault();
+                  const newFiles = imageItems.map(i => i.getAsFile()).filter((f): f is File => f !== null);
+                  setFiles((prev) => [...prev, ...newFiles].slice(0, 5));
+                  setEstimate(null);
+                  setPastedHint(true);
+                  setTimeout(() => setPastedHint(false), 3000);
+                }}
+              >
+                <label className="flex flex-col items-center justify-center gap-2 py-5 cursor-pointer">
+                  <span className="text-2xl">📷</span>
+                  <span className="text-sm text-muted-foreground font-medium">Choisir des photos</span>
+                  <span className="text-xs text-muted-foreground/70">ou glisser-déposer</span>
+                  <div className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full bg-card border border-border">
+                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">Ctrl</kbd>
+                    <span className="text-[10px] text-muted-foreground">+</span>
+                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">V</kbd>
+                    <span className="text-[10px] text-muted-foreground ml-1">pour coller depuis le presse-papier</span>
+                  </div>
+                  <input type="file" accept="image/*" multiple
+                    onChange={(e) => { setFiles(Array.from(e.target.files ?? [])); setEstimate(null); }}
+                    className="hidden" />
+                </label>
+                {/* Flash de confirmation collage */}
+                {pastedHint && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-primary/10 border-2 border-primary rounded-xl pointer-events-none">
+                    <span className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-full shadow-lg animate-pulse">
+                      ✓ Image collée !
+                    </span>
+                  </div>
+                )}
+              </div>
+              {files.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {files.map((f, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-xs bg-secondary rounded-lg px-2.5 py-1.5">
+                      <span>🖼</span>
+                      <span className="font-medium truncate max-w-[140px]">{f.name || `Image collée ${i + 1}`}</span>
+                      <button
+                        type="button"
+                        onClick={() => { setFiles(prev => prev.filter((_, j) => j !== i)); setEstimate(null); }}
+                        className="text-muted-foreground hover:text-destructive ml-1 transition"
+                      >×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
               <p className="text-xs text-muted-foreground mt-1.5">Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.</p>
               <p className="text-xs text-muted-foreground mt-1.5">
                 💡 Les annonceurs utilisent un simulateur 3D pour visualiser leur habillage publicitaire sur votre véhicule à partir de vos photos. Plus elles sont nettes et représentatives, meilleure sera leur prévisualisation — et plus votre véhicule a de chances d'être sélectionné.

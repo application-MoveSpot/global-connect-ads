@@ -491,6 +491,30 @@ export function CamionLED3DPreview({ screenVideoUrl, logoUrl, className }: Props
     });
   }, [media]);
 
+  // Coller une image/vidéo depuis le presse-papier (Ctrl+V) sur le simulateur 3D
+  const [pasteFlash, setPasteFlash] = useState(false);
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) return;
+      const items = Array.from(e.clipboardData?.items ?? []);
+      const mediaItem = items.find(
+        (item) => item.type.startsWith("image/") || item.type.startsWith("video/")
+      );
+      if (!mediaItem) return;
+      e.preventDefault();
+      const file = mediaItem.getAsFile();
+      if (!file) return;
+      applyFile(file);
+      setPasteFlash(true);
+      setTimeout(() => setPasteFlash(false), 2000);
+    };
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, [applyFile]);
+
   // Fallback CSS si WebGL indisponible
   if (webglFailed) {
     return <CamionLEDCssFallback screenVideoUrl={screenVideoUrl} logoUrl={logoUrl} className={className} />;
@@ -516,6 +540,13 @@ export function CamionLED3DPreview({ screenVideoUrl, logoUrl, className }: Props
           <div className="text-sm font-bold text-white mb-3">
             📺 Prévisualisation 3D 360°
           </div>
+
+          {/* Flash Ctrl+V */}
+          {pasteFlash && (
+            <div className="mb-2 rounded-lg bg-primary/20 border border-primary/40 px-2.5 py-1.5 text-xs text-primary font-semibold text-center animate-pulse">
+              ✓ Visuel collé !
+            </div>
+          )}
 
           {media ? (
             <div className="flex items-start gap-2">
@@ -550,9 +581,14 @@ export function CamionLED3DPreview({ screenVideoUrl, logoUrl, className }: Props
             >
               <Upload size={18} className="text-white/45" />
               <span className="text-xs text-white/55 text-center leading-snug">
-                Glisser ou{" "}
-                <span className="text-primary font-semibold">choisir</span>
+                Glisser, <span className="text-primary font-semibold">choisir</span>
               </span>
+              <div className="flex items-center gap-1 mt-0.5">
+                <kbd className="text-[9px] font-mono bg-white/10 text-white/50 px-1 py-0.5 rounded">Ctrl</kbd>
+                <span className="text-[9px] text-white/30">+</span>
+                <kbd className="text-[9px] font-mono bg-white/10 text-white/50 px-1 py-0.5 rounded">V</kbd>
+                <span className="text-[9px] text-white/30 ml-0.5">coller</span>
+              </div>
               <span className="text-[10px] text-white/28">MP4 · PNG · JPG · WEBM</span>
               <input
                 type="file"
