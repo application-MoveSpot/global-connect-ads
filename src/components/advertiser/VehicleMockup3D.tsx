@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "autre";
 export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "affiche";
@@ -84,15 +84,19 @@ type Props = {
   adFormat: AdFormat | null;
   brandColor: string;
   logoUrl?: string | null;
+  /** URL blob d'un fichier vidéo (MP4/WEBM) à afficher sur l'écran du véhicule */
+  screenVideoUrl?: string | null;
 };
 
-export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }: Props) {
+export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, screenVideoUrl }: Props) {
   const [rotY, setRotY] = useState(0);
   const [isAuto, setIsAuto] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef(0);
   const dragBaseAngle = useRef(0);
   const intervalRef = useRef<number | null>(null);
+  // Élément vidéo stable — jamais recréé par React lors des re-renders de rotation
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const supported: VehicleKey[] = ["van", "food_truck", "voiture", "taxi", "scooter", "velo_cargo", "triporteur"];
   const vehicleKey: VehicleKey = (supported.find((k) => vehicleTypes.includes(k)) ?? "autre") as VehicleKey;
@@ -108,6 +112,33 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [isAuto, isDragging]);
+
+  // Met à jour la source vidéo sans remonter l'élément <video>.
+  // Ce useEffect est le SEUL endroit où screenVideoUrl est appliqué au DOM — jamais dans le JSX —
+  // pour éviter que les re-renders de rotation (30 ms) ne recréent le nœud et ne remettent la
+  // lecture à zéro.
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    if (screenVideoUrl) {
+      vid.src = screenVideoUrl;
+      vid.play().catch(() => {});
+    } else {
+      vid.pause();
+      vid.removeAttribute("src");
+      vid.load();
+    }
+  }, [screenVideoUrl]);
+
+  // Callback ref stable pour l'élément <video> : montage une seule fois,
+  // jamais recréé lors des re-renders de rotation.
+  const videoCallbackRef = useCallback((el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+    if (el && screenVideoUrl) {
+      el.src = screenVideoUrl;
+      el.play().catch(() => {});
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -278,7 +309,7 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
                     left: "5%",
                     right: "5%",
                     height: overlay.height,
-                    background: brandColor,
+                    background: screenVideoUrl ? "#000" : brandColor,
                     opacity: overlay.opacity,
                     borderRadius: 4,
                     display: "flex",
@@ -286,7 +317,24 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl }:
                     justifyContent: "center",
                     overflow: "hidden",
                   }}>
-                    {logoUrl && (
+                    {/*
+                      L'élément <video> est TOUJOURS présent dans le DOM quand screenVideoUrl
+                      est fourni — il n'est jamais retiré lors des re-renders de rotation.
+                      Son src est géré exclusivement par videoCallbackRef + useEffect(screenVideoUrl).
+                    */}
+                    <video
+                      ref={videoCallbackRef}
+                      loop
+                      muted
+                      playsInline
+                      style={{
+                        maxHeight: "100%",
+                        maxWidth: "100%",
+                        objectFit: "cover",
+                        display: screenVideoUrl ? "block" : "none",
+                      }}
+                    />
+                    {!screenVideoUrl && logoUrl && (
                       <img
                         src={logoUrl}
                         alt="logo"

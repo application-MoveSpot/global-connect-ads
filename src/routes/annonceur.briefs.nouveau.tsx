@@ -53,6 +53,7 @@ function NewBriefPage() {
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
   const [brandColor, setBrandColor] = useState("#3B82F6");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [screenVideoUrl, setScreenVideoUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
@@ -258,18 +259,32 @@ function NewBriefPage() {
                   <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Logo (optionnel)</label>
+                  <label className="text-sm font-medium">Visuel (logo ou vidéo)</label>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/mp4,video/webm"
                     className="text-xs"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) setLogoUrl(URL.createObjectURL(file));
+                      if (!file) return;
+                      const url = URL.createObjectURL(file);
+                      if (file.type.startsWith("video/")) {
+                        setScreenVideoUrl(url);
+                        setLogoUrl(null);
+                      } else {
+                        setLogoUrl(url);
+                        setScreenVideoUrl(null);
+                      }
                     }}
                   />
-                  {logoUrl && (
-                    <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
+                  {(logoUrl || screenVideoUrl) && (
+                    <button
+                      type="button"
+                      onClick={() => { setLogoUrl(null); setScreenVideoUrl(null); }}
+                      className="text-xs text-destructive"
+                    >
+                      ✕
+                    </button>
                   )}
                 </div>
               </div>
@@ -279,6 +294,7 @@ function NewBriefPage() {
                   adFormat={adFormat}
                   brandColor={brandColor}
                   logoUrl={logoUrl}
+                  screenVideoUrl={screenVideoUrl}
                 />
               </Suspense>
               {vehicleTypes.every((t) => t === "autre") && (
