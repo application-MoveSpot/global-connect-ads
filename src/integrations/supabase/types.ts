@@ -1469,6 +1469,7 @@ export type Database = {
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
       vehicle_status: "pending" | "approved" | "rejected" | "paused"
       vehicle_type:
+        | "camion_led"
         | "food_truck"
         | "van"
         | "taxi"

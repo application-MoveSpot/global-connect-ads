@@ -77,6 +77,7 @@ type AuthState =
 
 function spotToVehicleKey(vehicleType: string | null | undefined): VehicleKey {
   const t = (vehicleType ?? "").toLowerCase();
+  if (t === "camion_led") return "camion_led";
   if (t === "van") return "van";
   if (t === "food_truck") return "food_truck";
   if (t === "voiture") return "voiture";
@@ -89,6 +90,7 @@ function spotToVehicleKey(vehicleType: string | null | undefined): VehicleKey {
 
 function spotToAdFormat(format: string | null | undefined): AdFormat {
   const f = (format ?? "").toLowerCase();
+  if (f.includes("boxled") || f.includes("led") || f.includes("écran")) return "boxled";
   if (f.includes("demi")) return "demi_covering";
   if (f.includes("covering")) return "covering_total";
   if (f.includes("sticker")) return "stickers";

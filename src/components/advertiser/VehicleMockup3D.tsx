@@ -348,146 +348,230 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
               filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.25))",
             }}>
               {vehicleKey === "camion_led" ? (
-                /* ── Chassis-cabine LED (Sprinter 314 type) ──────────────────────
-                   Cabine : ~32% de la longueur, plus basse que la caisse
-                   Caisse : ~68%, pleine hauteur, panneau LED sur toute la face
-                   Layout miroir quand isFacingBack (vue droite / arrière)         */
+                /* ── Châssis-cabine LED haute fidélité (Sprinter 314 BoxLED) ────
+                   Proportions d'après photo de référence :
+                   • Caisse : 68% largeur, pleine hauteur (105 px)
+                   • Cabine : 33% largeur, démarre 33 px du haut → cab ~30% plus bas
+                   • Cadre chrome haut/bas sur la caisse
+                   • Panneau LED avec effet scanline + lueur électrique
+                   • Feux avant jaune / arrière rouge selon isFacingBack
+                   • Roues jumelées arrière (twin rear) + simple avant           */
                 <>
-                  <div style={{ position: "relative", width: 215, height: 90 }}>
+                  <div style={{ position: "relative", width: 222, height: 105 }}>
 
-                    {/* ── Caisse LED ── */}
+                    {/* ══ CAISSE LED ══ */}
                     <div style={{
                       position: "absolute",
-                      left: isFacingBack ? 0 : "33%",
-                      right: isFacingBack ? "33%" : 0,
+                      left: isFacingBack ? 0 : "32%",
+                      right: isFacingBack ? "32%" : 0,
                       top: 0,
-                      height: 82,
-                      background: "#0c0c0c",
-                      border: "2px solid #1e1e1e",
-                      borderRadius: isFacingBack ? "2px 1px 1px 2px" : "1px 3px 3px 1px",
-                      overflow: "hidden",
+                      height: 105,
+                      background: "linear-gradient(180deg, #131313 0%, #0a0a0a 60%, #0d0d0d 100%)",
+                      border: "1.5px solid #222",
+                      borderRadius: isFacingBack ? "3px 2px 2px 3px" : "2px 4px 4px 2px",
+                      zIndex: 1,
                     }}>
-                      {/* Cadre aluminium intérieur (profil de la dalle LED) */}
+                      {/* Rail chrome supérieur */}
                       <div style={{
                         position: "absolute",
-                        inset: "4px 3px 10px 3px",
-                        background: screenVideoUrl
-                          ? "#000"
-                          : adFormat === "boxled"
-                            ? (logoUrl ? brandColor : "#060d1a")
-                            : "#111",
+                        top: 0, left: 0, right: 0, height: 5,
+                        background: "linear-gradient(180deg, #666 0%, #3a3a3a 100%)",
+                        borderRadius: "inherit",
+                      }} />
+                      {/* Rail chrome inférieur */}
+                      <div style={{
+                        position: "absolute",
+                        bottom: 0, left: 0, right: 0, height: 6,
+                        background: "linear-gradient(180deg, #2e2e2e 0%, #555 60%, #3a3a3a 100%)",
+                      }} />
+                      {/* Panneau LED (dalle intérieure) */}
+                      <div style={{
+                        position: "absolute",
+                        inset: "6px 5px 17px 5px",
+                        background: screenVideoUrl ? "#000" :
+                          adFormat === "boxled" ? "#030812" : "#0a0a0a",
                         borderRadius: 1,
+                        overflow: "hidden",
                         boxShadow: adFormat === "boxled"
-                          ? "inset 0 0 0 1px rgba(80,140,255,0.25), 0 0 10px 2px rgba(50,120,255,0.18)"
-                          : undefined,
+                          ? "inset 0 0 0 1px rgba(50,120,255,0.35), 0 0 22px 5px rgba(30,100,255,0.12)"
+                          : "inset 0 0 0 1px rgba(255,255,255,0.03)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        overflow: "hidden",
                       }}>
+                        {/* Scanlines effet LED (visible si vide + boxled) */}
+                        {adFormat === "boxled" && !screenVideoUrl && (
+                          <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,40,160,0.07) 3px, rgba(0,40,160,0.07) 4px)",
+                            pointerEvents: "none",
+                          }} />
+                        )}
                         {adFormat === "boxled" && !screenVideoUrl && logoUrl && (
-                          <img src={logoUrl} alt="logo"
-                            style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }} />
+                          <img src={logoUrl} alt=""
+                            style={{ maxHeight: "90%", maxWidth: "90%", objectFit: "contain", position: "relative", zIndex: 1 }} />
                         )}
                         {adFormat === "boxled" && !screenVideoUrl && !logoUrl && (
-                          <span style={{ fontSize: 6.5, color: "rgba(100,160,255,0.5)", textAlign: "center", lineHeight: 1.4, letterSpacing: "0.04em" }}>
-                            LED IP67{"\n"}3200×1920 px
-                          </span>
+                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+                            <div style={{ fontSize: 7.5, fontWeight: 700, color: "rgba(80,150,255,0.65)", letterSpacing: "0.1em", lineHeight: 1.7 }}>ÉCRAN LED IP67</div>
+                            <div style={{ fontSize: 5.5, color: "rgba(60,120,220,0.4)", letterSpacing: "0.08em" }}>3200 × 1920 px</div>
+                          </div>
                         )}
                       </div>
-                      {/* Lisse basse (seuil structural de caisse) */}
+                      {/* Seuil structurel de caisse (marche chassis) */}
                       <div style={{
                         position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: 8,
-                        background: "#181818",
-                        borderTop: "1px solid #333",
+                        bottom: 6, left: 0, right: 0, height: 8,
+                        background: "linear-gradient(180deg, #1c1c1c 0%, #2a2a2a 60%, #1a1a1a 100%)",
+                        borderTop: "1px solid #3a3a3a",
                       }} />
+                      {/* Rivets d'angle structurels */}
+                      {[{t:2,l:4},{t:2,r:4},{b:14,l:4},{b:14,r:4}].map((p, i) => (
+                        <div key={i} style={{
+                          position: "absolute",
+                          top: p.t, bottom: p.b, left: p.l, right: p.r,
+                          width: 3, height: 3, borderRadius: "50%",
+                          background: "#444",
+                        }} />
+                      ))}
                     </div>
 
-                    {/* ── Cabine ── */}
+                    {/* ══ CABINE ══ */}
                     <div style={{
                       position: "absolute",
-                      left: isFacingBack ? "69%" : 0,
-                      width: "33%",
-                      top: 20,
-                      height: 62,
-                      background: "#111",
-                      border: "2px solid #1e1e1e",
-                      borderRadius: isFacingBack ? "1px 5px 4px 1px" : "5px 1px 1px 5px",
-                      overflow: "hidden",
+                      left: isFacingBack ? "70%" : 0,
+                      width: "32%",
+                      top: 33,
+                      height: 72,
+                      background: "linear-gradient(160deg, #151515 0%, #0c0c0c 100%)",
+                      border: "1.5px solid #1e1e1e",
+                      borderRadius: isFacingBack ? "2px 7px 5px 2px" : "7px 2px 2px 5px",
+                      zIndex: 2,
+                      overflow: "visible",
                     }}>
-                      {/* Pare-brise / vitre arrière */}
+                      {/* Toit arrondi cab (dépasse vers le haut) */}
                       <div style={{
                         position: "absolute",
-                        top: 5,
-                        left: isFacingBack ? 4 : 5,
-                        right: isFacingBack ? 5 : 4,
-                        height: 18,
-                        background: "rgba(80,140,220,0.12)",
-                        borderRadius: isFacingBack ? "2px 4px 0 0" : "4px 2px 0 0",
-                        border: "1px solid rgba(255,255,255,0.07)",
+                        top: -9, height: 14,
+                        left: isFacingBack ? 0 : 3,
+                        right: isFacingBack ? 3 : 0,
+                        background: "#121212",
+                        border: "1.5px solid #1e1e1e",
+                        borderBottom: "none",
+                        borderRadius: isFacingBack ? "2px 9px 0 0" : "9px 2px 0 0",
                       }} />
-                      {/* Rétroviseur (côté profil seulement) */}
-                      {!isFacingBack && (
-                        <div style={{
-                          position: "absolute",
-                          right: -5,
-                          top: 20,
-                          width: 6,
-                          height: 9,
-                          background: "#1a1a1a",
-                          borderRadius: "0 2px 2px 0",
-                          border: "1px solid #2a2a2a",
-                        }} />
-                      )}
+                      {/* Pare-brise */}
+                      <div style={{
+                        position: "absolute",
+                        top: 4,
+                        left: isFacingBack ? 7 : 5,
+                        right: isFacingBack ? 5 : 7,
+                        height: 25,
+                        background: "linear-gradient(140deg, rgba(90,140,230,0.18) 0%, rgba(60,100,200,0.07) 100%)",
+                        border: "1px solid rgba(100,160,255,0.12)",
+                        borderRadius: isFacingBack ? "1px 5px 0 0" : "5px 1px 0 0",
+                      }} />
+                      {/* Vitre de porte */}
+                      <div style={{
+                        position: "absolute",
+                        top: 35,
+                        left: isFacingBack ? 10 : 8,
+                        right: isFacingBack ? 8 : 10,
+                        height: 15,
+                        background: "rgba(70,110,190,0.07)",
+                        border: "0.5px solid rgba(100,150,255,0.07)",
+                        borderRadius: 1,
+                      }} />
+                      {/* Ligne de porte */}
+                      <div style={{
+                        position: "absolute",
+                        top: 31, bottom: 2,
+                        left: isFacingBack ? 8 : 6,
+                        right: isFacingBack ? 6 : 8,
+                        border: "0.5px solid rgba(255,255,255,0.04)",
+                        borderRadius: 2,
+                      }} />
+                      {/* Rétroviseur extérieur */}
+                      <div style={{
+                        position: "absolute",
+                        left: isFacingBack ? "auto" : -7,
+                        right: isFacingBack ? -7 : "auto",
+                        top: 16, width: 9, height: 11,
+                        background: "linear-gradient(135deg, #1e1e1e, #111)",
+                        border: "1px solid #2a2a2a",
+                        borderRadius: isFacingBack ? "2px 0 0 2px" : "0 2px 2px 0",
+                      }} />
+                      {/* Feu avant (jaune) ou arrière (rouge) */}
+                      <div style={{
+                        position: "absolute",
+                        top: 36,
+                        left: isFacingBack ? "auto" : 0,
+                        right: isFacingBack ? 0 : "auto",
+                        width: 4, height: 12,
+                        background: isFacingBack
+                          ? "linear-gradient(180deg, rgba(255,50,50,0.85), rgba(255,80,80,0.35))"
+                          : "linear-gradient(180deg, rgba(255,210,60,0.85), rgba(255,190,40,0.3))",
+                        borderRadius: isFacingBack ? "0 1px 1px 0" : "1px 0 0 1px",
+                      }} />
                     </div>
 
-                    {/* Vidéo : couvre exactement le panneau LED de la caisse.
-                        Toujours dans le DOM (visibility, jamais display:none)
-                        pour que le ref ne soit jamais null et que Chrome autorise l'autoplay. */}
+                    {/* Vidéo — toujours dans le DOM, positionnée sur la dalle LED */}
                     <video
                       key="camion-led-screen"
                       ref={videoCallbackRef}
                       loop playsInline
                       style={{
                         position: "absolute",
-                        left: isFacingBack ? "3px" : "calc(33% + 3px)",
-                        right: isFacingBack ? "calc(33% + 3px)" : "3px",
-                        top: "4px",
-                        height: "68px",
+                        left: isFacingBack ? "5px" : "calc(32% + 5px)",
+                        right: isFacingBack ? "calc(32% + 5px)" : "5px",
+                        top: "6px",
+                        height: "82px",
                         objectFit: "cover",
                         visibility: (adFormat === "boxled" && !!screenVideoUrl) ? "visible" : "hidden",
                         opacity: (adFormat === "boxled" && !!screenVideoUrl) ? 1 : 0,
                         pointerEvents: "none",
-                        zIndex: 3,
+                        zIndex: 5,
                         borderRadius: "1px",
                       }}
                     />
                   </div>
 
-                  {/* Roues camion (avant sous cabine, arrière double sous caisse) */}
-                  <div style={{ position: "relative", width: 215, height: 28, marginTop: 1 }}>
-                    {/* Roue avant */}
+                  {/* ══ TRAIN ROULANT (essieu + roues) ══ */}
+                  <div style={{ position: "relative", width: 222, height: 32, marginTop: 2 }}>
+                    {/* Essieu chassis visible */}
                     <div style={{
                       position: "absolute",
-                      left: isFacingBack ? 155 : 20,
-                      width: 28, height: 28, borderRadius: "50%",
-                      background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
-                      border: "2.5px solid #2d2d4e",
-                      boxShadow: "inset 0 0 0 5px #2d2d4e, inset 0 0 0 7px #3a3a5c",
+                      left: isFacingBack ? 12 : 48,
+                      right: isFacingBack ? 48 : 12,
+                      top: "50%",
+                      height: 3,
+                      transform: "translateY(-50%)",
+                      background: "linear-gradient(90deg, #1e1e1e 0%, #303030 50%, #1e1e1e 100%)",
+                      zIndex: 0,
                     }} />
-                    {/* Roue arrière (jumelée — Sprinter 314) */}
+                    {/* Roue avant (simple) */}
+                    <div style={{
+                      position: "absolute",
+                      left: isFacingBack ? 166 : 18,
+                      width: 32, height: 32,
+                      borderRadius: "50%",
+                      background: "radial-gradient(circle at 38% 34%, #505070 0%, #2e2e4a 40%, #1a1a2e 100%)",
+                      border: "2.5px solid #252540",
+                      boxShadow: "inset 0 0 0 7px #22223d, inset 0 0 0 9px #3a3a58, 0 2px 5px rgba(0,0,0,0.55)",
+                      zIndex: 1,
+                    }} />
+                    {/* Roues arrière jumelées */}
                     {[0, 1].map((i) => (
                       <div key={i} style={{
                         position: "absolute",
-                        left: isFacingBack ? (4 + i * 9) : (154 + i * 9),
-                        width: 24, height: 28, borderRadius: "50%",
-                        background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
-                        border: "2.5px solid #2d2d4e",
-                        boxShadow: "inset 0 0 0 4px #2d2d4e, inset 0 0 0 6px #3a3a5c",
+                        left: isFacingBack ? (2 + i * 12) : (160 + i * 12),
+                        width: 28, height: 32,
+                        borderRadius: "50%",
+                        background: "radial-gradient(circle at 38% 34%, #505070 0%, #2e2e4a 40%, #1a1a2e 100%)",
+                        border: "2.5px solid #252540",
+                        boxShadow: "inset 0 0 0 5px #22223d, inset 0 0 0 7px #3a3a58, 0 2px 5px rgba(0,0,0,0.55)",
+                        zIndex: 1,
                       }} />
                     ))}
                   </div>

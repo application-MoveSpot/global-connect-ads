@@ -30,6 +30,7 @@ type VehicleEntry = {
 };
 
 const CATALOGUE: VehicleEntry[] = [
+  { key: "camion_led", emoji: "📺", label: "Camion LED (BoxLED)", formats: ["Vidéo MP4 plein écran", "Image JPEG/PNG dynamique", "Flux HTML5 temps réel"], prixMin: 150, prixMax: 800, impressionsMin: 5000, impressionsMax: 20000, demandePct: 25, zones: ["Centre-ville", "Événementiel", "Grands axes", "Zones à fort trafic"], atout: "3 faces écran LED IP67 haute luminosité (3200×1920 px) — visibilité maximale jour et nuit" },
   { key: "taxi", emoji: "🚕", label: "Taxi / VTC", formats: ["Covering total", "Totem toit", "Stickers latéraux"], prixMin: 15, prixMax: 35, impressionsMin: 800, impressionsMax: 2000, demandePct: 28, zones: ["Centre-ville", "Aéroports", "Gares"], atout: "Haute mobilité, présence 24h/24" },
   { key: "van", emoji: "🚐", label: "Van utilitaire", formats: ["Covering flancs", "Covering arrière", "Bâche intégrale"], prixMin: 20, prixMax: 45, impressionsMin: 1200, impressionsMax: 3000, demandePct: 22, zones: ["Artères urbaines", "Zones commerciales", "Périphérie"], atout: "Grande surface d'affichage (4–6 m²)" },
   { key: "food_truck", emoji: "🚚", label: "Food truck", formats: ["Covering carrosserie", "Enseigne lumineuse", "Vitrage"], prixMin: 12, prixMax: 28, impressionsMin: 600, impressionsMax: 1800, demandePct: 10, zones: ["Événementiel", "Marchés", "Quartiers d'affaires"], atout: "Audience captive + temps de contact élevé" },

@@ -16,6 +16,7 @@ export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
 });
 
 const TYPES_VEHICULES = [
+  { v: "camion_led", l: "📺 Camion LED", tip: "Fourgon publicitaire numérique — 3 faces écran LED IP67 (3200×1920 px). Format boxled exclusivement." },
   { v: "food_truck", l: "Food truck" },
   { v: "van", l: "Van utilitaire" },
   { v: "taxi", l: "Taxi / VTC" },
@@ -165,13 +166,13 @@ function NewVehiclePage() {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
       const { error: insErr } = await supabase.from("vehicles").insert({
         owner_id: ownerId,
-        type: type as "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
+        type: type as "camion_led" | "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
         condition,
         name,
         description: type === "autre" && autreDescription.trim()
           ? `[Véhicule : ${autreDescription.trim()}]${description ? `\n\n${description}` : ""}`
           : description || null,
-        format_publicitaire: null,
+        format_publicitaire: type === "camion_led" ? "boxled" : null,
         surface_m2: surface ? Number(surface) : null,
         km_per_day: km ? Number(km) : null,
         zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
