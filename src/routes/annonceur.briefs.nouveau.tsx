@@ -221,6 +221,8 @@ function NewBriefPage() {
             <div className="flex flex-wrap gap-2">
               {VEHICLE_TYPES.map((t) => {
                 const blockedByBoxled = adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(t.v as VehicleKey);
+                const isCamionLed = t.v === "camion_led";
+                const isSelected = vehicleTypes.includes(t.v);
                 return (
                   <button
                     type="button"
@@ -231,12 +233,29 @@ function NewBriefPage() {
                     className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
                       blockedByBoxled
                         ? "opacity-40 cursor-not-allowed bg-card border-border"
-                        : vehicleTypes.includes(t.v)
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-card border-border hover:bg-secondary"
+                        : isSelected && isCamionLed
+                          ? "border-blue-500 font-semibold"
+                          : isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : isCamionLed
+                              ? "border-blue-500/50 hover:border-blue-500"
+                              : "bg-card border-border hover:bg-secondary"
                     }`}
+                    style={isCamionLed ? {
+                      background: isSelected
+                        ? "linear-gradient(135deg, #1a3a8f, #0f2060)"
+                        : "linear-gradient(135deg, rgba(15,25,70,0.6), rgba(10,15,40,0.8))",
+                      color: isSelected ? "#fff" : "rgba(120,170,255,0.9)",
+                      boxShadow: isSelected ? "0 0 14px 2px rgba(40,100,255,0.25)" : undefined,
+                    } : undefined}
                   >
                     {t.l}
+                    {isCamionLed && !isSelected && (
+                      <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded"
+                        style={{ background: "rgba(60,120,255,0.2)", color: "rgba(100,160,255,0.9)" }}>
+                        NEW
+                      </span>
+                    )}
                   </button>
                 );
               })}
