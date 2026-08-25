@@ -9,7 +9,11 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:e2e": "node node_modules/@playwright/test/cli.js test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "node node_modules/@playwright/test/cli.js show-report e2e/report",
+    "test:e2e:list": "node node_modules/@playwright/test/cli.js test --list"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
