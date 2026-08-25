@@ -1,17 +1,38 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "autre";
-export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "affiche";
+export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "affiche" | "boxled";
 
 export const AD_FORMATS: { v: AdFormat; l: string; desc: string }[] = [
   { v: "covering_total", l: "Covering total", desc: "Habillage complet du véhicule" },
   { v: "demi_covering", l: "Demi-covering", desc: "Moitié inférieure" },
   { v: "stickers", l: "Stickers", desc: "Autocollants ciblés" },
   { v: "affiche", l: "Affiche", desc: "Panneau fixe" },
+  { v: "boxled", l: "Écran LED/Vidéo", desc: "Fourgon publicitaire numérique (3 faces LED)" },
 ];
 
-// Formats compatibles par type de support (undefined = tous)
-export const VEHICLE_FORMATS: Partial<Record<VehicleKey, AdFormat[]>> = {};
+/**
+ * BoxLED = fourgon/van publicitaire numérique intégrant un écran géant LED sur 3 faces.
+ * Incompatible avec food_truck (cuisine mobile) et les deux-roues/cargo qui n'existent
+ * pas en version BoxLED de série.
+ */
+export const BOXLED_INCOMPATIBLE: VehicleKey[] = [
+  "food_truck", "scooter", "velo_cargo", "triporteur",
+];
+
+/** Retourne true si la combinaison véhicule × format est invalide. */
+export function isFormatIncompatible(vehicleTypes: string[], format: AdFormat): boolean {
+  if (format !== "boxled") return false;
+  return vehicleTypes.some((t) => BOXLED_INCOMPATIBLE.includes(t as VehicleKey));
+}
+
+// Formats compatibles par type de support (undefined = tous) — utilisé côté propriétaire
+export const VEHICLE_FORMATS: Partial<Record<VehicleKey, AdFormat[]>> = {
+  food_truck:  ["covering_total", "demi_covering", "stickers", "affiche"],
+  scooter:     ["stickers", "affiche"],
+  velo_cargo:  ["stickers", "affiche"],
+  triporteur:  ["stickers", "affiche"],
+};
 
 type AngleConfig = { label: string; angle: number };
 

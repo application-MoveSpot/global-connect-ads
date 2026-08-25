@@ -6,7 +6,7 @@ import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
 import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZonePolygonDraw";
 import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
-import { AD_FORMATS, VEHICLE_FORMATS, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
+import { AD_FORMATS, BOXLED_INCOMPATIBLE, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -80,7 +80,10 @@ function NewBriefPage() {
   const toggleType = (v: string) => {
     setVehicleTypes((cur) => {
       const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
-      // Reset video_led format if no LCD screen remains selected
+      // Si boxled est actif et que le nouveau set de véhicules le rend incompatible, on désélectionne boxled.
+      if (adFormat === "boxled" && isFormatIncompatible(next, "boxled")) {
+        setAdFormat(null);
+      }
       return next;
     });
   };
@@ -206,13 +209,33 @@ function NewBriefPage() {
 
           <Field label="Types de véhicules recherchés">
             <div className="flex flex-wrap gap-2">
-              {VEHICLE_TYPES.map((t) => (
-                <button type="button" key={t.v} onClick={() => toggleType(t.v)}
-                  className={`px-3 py-1.5 rounded-full text-sm border ${vehicleTypes.includes(t.v) ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
-                  {t.l}
-                </button>
-              ))}
+              {VEHICLE_TYPES.map((t) => {
+                const blockedByBoxled = adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(t.v as VehicleKey);
+                return (
+                  <button
+                    type="button"
+                    key={t.v}
+                    disabled={blockedByBoxled}
+                    title={blockedByBoxled ? "Incompatible avec le format Écran LED/Vidéo (BoxLED)" : undefined}
+                    onClick={() => toggleType(t.v)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                      blockedByBoxled
+                        ? "opacity-40 cursor-not-allowed bg-card border-border"
+                        : vehicleTypes.includes(t.v)
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card border-border hover:bg-secondary"
+                    }`}
+                  >
+                    {t.l}
+                  </button>
+                );
+              })}
             </div>
+            {adFormat === "boxled" && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                ⚠️ Le format <strong>Écran LED/Vidéo (BoxLED)</strong> est réservé aux fourgons publicitaires numériques. Food truck, scooter, vélo cargo et triporteur sont incompatibles.
+              </p>
+            )}
           </Field>
 
           {vehicleTypes.includes("autre") && (
@@ -230,18 +253,37 @@ function NewBriefPage() {
           )}
 
           <Field label="Format publicitaire">
-            {(() => {
-              return (
-                <div className="flex flex-wrap gap-2">
-                  {AD_FORMATS.map((f) => (
-                    <button type="button" key={f.v} onClick={() => setAdFormat((cur) => cur === f.v ? null : f.v)}
-                      className={`px-3 py-1.5 rounded-full text-sm border transition-all ${adFormat === f.v ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-secondary"}`}>
-                      {f.l}
-                    </button>
-                  ))}
-                </div>
-              );
-            })()}
+            <div className="flex flex-wrap gap-2">
+              {AD_FORMATS.map((f) => {
+                const incompatible = f.v === "boxled" && vehicleTypes.length > 0 && isFormatIncompatible(vehicleTypes, "boxled");
+                return (
+                  <button
+                    type="button"
+                    key={f.v}
+                    disabled={incompatible}
+                    title={incompatible ? "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux fourgons publicitaires" : f.desc}
+                    onClick={() => {
+                      if (incompatible) return;
+                      setAdFormat((cur) => cur === f.v ? null : f.v);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                      incompatible
+                        ? "opacity-40 cursor-not-allowed bg-card border-border line-through"
+                        : adFormat === f.v
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card border-border hover:bg-secondary"
+                    }`}
+                  >
+                    {f.l}
+                  </button>
+                );
+              })}
+            </div>
+            {isFormatIncompatible(vehicleTypes, "boxled") && vehicleTypes.length > 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                ⚠️ <strong>Écran LED/Vidéo (BoxLED)</strong> non disponible : un ou plusieurs véhicules sélectionnés (food truck, scooter, vélo cargo, triporteur) n'existent pas en version BoxLED de série.
+              </p>
+            )}
           </Field>
 
           {/* Prévisualisation 3D — visible dès qu'un type de véhicule ET un format sont sélectionnés */}
