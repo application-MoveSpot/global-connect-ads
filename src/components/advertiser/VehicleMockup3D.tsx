@@ -342,105 +342,230 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
               position: "relative",
               transform: `scaleX(${scaleX})`,
               transition: isDragging ? "none" : "transform 0.05s linear",
-              filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.2))",
+              filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.25))",
             }}>
-              {/* Main body */}
-              <div style={{
-                width: 200,
-                height: 90,
-                borderRadius: vehicleKey === "voiture" || vehicleKey === "taxi" ? "30px 30px 10px 10px" : "8px 8px 6px 6px",
-                background: isFacingBack ? "hsl(var(--secondary))" : "hsl(var(--card))",
-                border: "2px solid hsl(var(--border))",
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Windows area */}
-                {!isFacingBack && (
-                  <div style={{
-                    position: "absolute",
-                    top: 8,
-                    left: vehicleKey === "scooter" ? "20%" : "15%",
-                    right: "15%",
-                    height: vehicleKey === "voiture" || vehicleKey === "taxi" ? 38 : 32,
-                    borderRadius: vehicleKey === "voiture" || vehicleKey === "taxi" ? "20px 20px 0 0" : "6px 6px 0 0",
-                    background: "hsl(var(--primary)/15%)",
-                    border: "1.5px solid hsl(var(--border))",
-                  }} />
-                )}
+              {vehicleKey === "camion_led" ? (
+                /* ── Chassis-cabine LED (Sprinter 314 type) ──────────────────────
+                   Cabine : ~32% de la longueur, plus basse que la caisse
+                   Caisse : ~68%, pleine hauteur, panneau LED sur toute la face
+                   Layout miroir quand isFacingBack (vue droite / arrière)         */
+                <>
+                  <div style={{ position: "relative", width: 215, height: 90 }}>
 
-                {/* Ad overlay (fond couleur + logo) */}
-                {overlay && (
-                  <div style={{
-                    position: "absolute",
-                    top: overlay.top,
-                    left: "5%",
-                    right: "5%",
-                    height: overlay.height,
-                    background: screenVideoUrl ? "#000" : overlay.isLed ? "#050a14" : brandColor,
-                    opacity: overlay.opacity,
-                    borderRadius: overlay.isLed ? 2 : 4,
-                    // Bordure lumineuse simulant la dalle LED (spec IP67 haute luminosité)
-                    boxShadow: overlay.isLed ? "0 0 0 1.5px #1a3a6a, 0 0 8px 1px rgba(60,140,255,0.35)" : undefined,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    zIndex: 1,
-                  }}>
-                    {!screenVideoUrl && logoUrl && (
-                      <img
-                        src={logoUrl}
-                        alt="logo"
-                        style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }}
-                      />
-                    )}
-                    {/* Badge résolution pour camion_led sans média */}
-                    {overlay.isLed && !screenVideoUrl && !logoUrl && (
-                      <span style={{ fontSize: 7, color: "rgba(100,160,255,0.6)", letterSpacing: "0.05em", textAlign: "center", lineHeight: 1.3 }}>
-                        LED 3 faces{"\n"}3200×1920 px
-                      </span>
-                    )}
+                    {/* ── Caisse LED ── */}
+                    <div style={{
+                      position: "absolute",
+                      left: isFacingBack ? 0 : "33%",
+                      right: isFacingBack ? "33%" : 0,
+                      top: 0,
+                      height: 82,
+                      background: "#0c0c0c",
+                      border: "2px solid #1e1e1e",
+                      borderRadius: isFacingBack ? "2px 1px 1px 2px" : "1px 3px 3px 1px",
+                      overflow: "hidden",
+                    }}>
+                      {/* Cadre aluminium intérieur (profil de la dalle LED) */}
+                      <div style={{
+                        position: "absolute",
+                        inset: "4px 3px 10px 3px",
+                        background: screenVideoUrl
+                          ? "#000"
+                          : adFormat === "boxled"
+                            ? (logoUrl ? brandColor : "#060d1a")
+                            : "#111",
+                        borderRadius: 1,
+                        boxShadow: adFormat === "boxled"
+                          ? "inset 0 0 0 1px rgba(80,140,255,0.25), 0 0 10px 2px rgba(50,120,255,0.18)"
+                          : undefined,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                      }}>
+                        {adFormat === "boxled" && !screenVideoUrl && logoUrl && (
+                          <img src={logoUrl} alt="logo"
+                            style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }} />
+                        )}
+                        {adFormat === "boxled" && !screenVideoUrl && !logoUrl && (
+                          <span style={{ fontSize: 6.5, color: "rgba(100,160,255,0.5)", textAlign: "center", lineHeight: 1.4, letterSpacing: "0.04em" }}>
+                            LED IP67{"\n"}3200×1920 px
+                          </span>
+                        )}
+                      </div>
+                      {/* Lisse basse (seuil structural de caisse) */}
+                      <div style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: 8,
+                        background: "#181818",
+                        borderTop: "1px solid #333",
+                      }} />
+                    </div>
+
+                    {/* ── Cabine ── */}
+                    <div style={{
+                      position: "absolute",
+                      left: isFacingBack ? "69%" : 0,
+                      width: "33%",
+                      top: 20,
+                      height: 62,
+                      background: "#111",
+                      border: "2px solid #1e1e1e",
+                      borderRadius: isFacingBack ? "1px 5px 4px 1px" : "5px 1px 1px 5px",
+                      overflow: "hidden",
+                    }}>
+                      {/* Pare-brise / vitre arrière */}
+                      <div style={{
+                        position: "absolute",
+                        top: 5,
+                        left: isFacingBack ? 4 : 5,
+                        right: isFacingBack ? 5 : 4,
+                        height: 18,
+                        background: "rgba(80,140,220,0.12)",
+                        borderRadius: isFacingBack ? "2px 4px 0 0" : "4px 2px 0 0",
+                        border: "1px solid rgba(255,255,255,0.07)",
+                      }} />
+                      {/* Rétroviseur (côté profil seulement) */}
+                      {!isFacingBack && (
+                        <div style={{
+                          position: "absolute",
+                          right: -5,
+                          top: 20,
+                          width: 6,
+                          height: 9,
+                          background: "#1a1a1a",
+                          borderRadius: "0 2px 2px 0",
+                          border: "1px solid #2a2a2a",
+                        }} />
+                      )}
+                    </div>
+
+                    {/* Vidéo : couvre exactement le panneau LED de la caisse */}
+                    <video
+                      ref={videoCallbackRef}
+                      loop muted playsInline
+                      style={{
+                        position: "absolute",
+                        left: isFacingBack ? "3px" : "calc(33% + 3px)",
+                        right: isFacingBack ? "calc(33% + 3px)" : "3px",
+                        top: "4px",
+                        height: 68,
+                        objectFit: "cover",
+                        display: (adFormat === "boxled" && screenVideoUrl) ? "block" : "none",
+                        zIndex: 3,
+                        borderRadius: 1,
+                      }}
+                    />
                   </div>
-                )}
 
-                {/*
-                  <video> TOUJOURS dans le DOM (hors du bloc {overlay && ...}) :
-                  - videoRef reste populé quelle que soit la sélection d'adFormat
-                  - useEffect([screenVideoUrl]) peut appliquer la source dès l'upload,
-                    même si l'utilisateur n'a pas encore choisi un format publicitaire
-                  - display:none le cache visuellement sans démonter le nœud
-                */}
-                <video
-                  ref={videoCallbackRef}
-                  loop
-                  muted
-                  playsInline
-                  style={{
-                    position: "absolute",
-                    top: overlay ? overlay.top : 0,
-                    left: "5%",
-                    right: "5%",
-                    height: overlay ? overlay.height : 0,
-                    maxWidth: "90%",
-                    objectFit: "cover",
-                    display: (overlay && screenVideoUrl) ? "block" : "none",
-                    zIndex: 2,
-                    borderRadius: 4,
-                  }}
-                />
-              </div>
+                  {/* Roues camion (avant sous cabine, arrière double sous caisse) */}
+                  <div style={{ position: "relative", width: 215, height: 28, marginTop: 1 }}>
+                    {/* Roue avant */}
+                    <div style={{
+                      position: "absolute",
+                      left: isFacingBack ? 155 : 20,
+                      width: 28, height: 28, borderRadius: "50%",
+                      background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
+                      border: "2.5px solid #2d2d4e",
+                      boxShadow: "inset 0 0 0 5px #2d2d4e, inset 0 0 0 7px #3a3a5c",
+                    }} />
+                    {/* Roue arrière (jumelée — Sprinter 314) */}
+                    {[0, 1].map((i) => (
+                      <div key={i} style={{
+                        position: "absolute",
+                        left: isFacingBack ? (4 + i * 9) : (154 + i * 9),
+                        width: 24, height: 28, borderRadius: "50%",
+                        background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
+                        border: "2.5px solid #2d2d4e",
+                        boxShadow: "inset 0 0 0 4px #2d2d4e, inset 0 0 0 6px #3a3a5c",
+                      }} />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                /* ── Véhicule standard (van, voiture, scooter…) ── */
+                <>
+                  <div style={{
+                    width: 200,
+                    height: 90,
+                    borderRadius: vehicleKey === "voiture" || vehicleKey === "taxi" ? "30px 30px 10px 10px" : "8px 8px 6px 6px",
+                    background: isFacingBack ? "hsl(var(--secondary))" : "hsl(var(--card))",
+                    border: "2px solid hsl(var(--border))",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}>
+                    {/* Windows area */}
+                    {!isFacingBack && (
+                      <div style={{
+                        position: "absolute",
+                        top: 8,
+                        left: vehicleKey === "scooter" ? "20%" : "15%",
+                        right: "15%",
+                        height: vehicleKey === "voiture" || vehicleKey === "taxi" ? 38 : 32,
+                        borderRadius: vehicleKey === "voiture" || vehicleKey === "taxi" ? "20px 20px 0 0" : "6px 6px 0 0",
+                        background: "hsl(var(--primary)/15%)",
+                        border: "1.5px solid hsl(var(--border))",
+                      }} />
+                    )}
 
-              {/* Wheels */}
-              <div style={{ display: "flex", justifyContent: "space-between", paddingLeft: 20, paddingRight: 20, marginTop: 2 }}>
-                {[0, 1].map((i) => (
-                  <div key={i} style={{
-                    width: 36, height: 36, borderRadius: "50%",
-                    background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
-                    border: "3px solid #2d2d4e",
-                    boxShadow: "inset 0 0 0 6px #2d2d4e, inset 0 0 0 8px #3a3a5c",
-                  }} />
-                ))}
-              </div>
+                    {/* Ad overlay (fond couleur + logo) */}
+                    {overlay && (
+                      <div style={{
+                        position: "absolute",
+                        top: overlay.top,
+                        left: "5%",
+                        right: "5%",
+                        height: overlay.height,
+                        background: screenVideoUrl ? "#000" : brandColor,
+                        opacity: overlay.opacity,
+                        borderRadius: 4,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                        zIndex: 1,
+                      }}>
+                        {!screenVideoUrl && logoUrl && (
+                          <img src={logoUrl} alt="logo"
+                            style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }} />
+                        )}
+                      </div>
+                    )}
+
+                    {/* <video> toujours dans le DOM — stable face aux re-renders de rotation */}
+                    <video
+                      ref={videoCallbackRef}
+                      loop muted playsInline
+                      style={{
+                        position: "absolute",
+                        top: overlay ? overlay.top : 0,
+                        left: "5%",
+                        right: "5%",
+                        height: overlay ? overlay.height : 0,
+                        maxWidth: "90%",
+                        objectFit: "cover",
+                        display: (overlay && screenVideoUrl) ? "block" : "none",
+                        zIndex: 2,
+                        borderRadius: 4,
+                      }}
+                    />
+                  </div>
+
+                  {/* Wheels */}
+                  <div style={{ display: "flex", justifyContent: "space-between", paddingLeft: 20, paddingRight: 20, marginTop: 2 }}>
+                    {[0, 1].map((i) => (
+                      <div key={i} style={{
+                        width: 36, height: 36, borderRadius: "50%",
+                        background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
+                        border: "3px solid #2d2d4e",
+                        boxShadow: "inset 0 0 0 6px #2d2d4e, inset 0 0 0 8px #3a3a5c",
+                      }} />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Hint */}
