@@ -97,6 +97,10 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
   const intervalRef = useRef<number | null>(null);
   // Élément vidéo stable — jamais recréé par React lors des re-renders de rotation
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  // Ref miroir de la prop — mis à jour à chaque render sans useEffect, permet aux
+  // callbacks stables ([] deps) de toujours lire la valeur courante sans closure périmée.
+  const screenVideoUrlRef = useRef(screenVideoUrl);
+  screenVideoUrlRef.current = screenVideoUrl;
 
   const supported: VehicleKey[] = ["van", "food_truck", "voiture", "taxi", "scooter", "velo_cargo", "triporteur"];
   const vehicleKey: VehicleKey = (supported.find((k) => vehicleTypes.includes(k)) ?? "autre") as VehicleKey;
@@ -132,10 +136,12 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
 
   // Callback ref stable pour l'élément <video> : montage une seule fois,
   // jamais recréé lors des re-renders de rotation.
+  // Lit screenVideoUrlRef.current (toujours à jour) plutôt que la prop directement
+  // pour éviter la closure périmée sur la valeur initiale null.
   const videoCallbackRef = useCallback((el: HTMLVideoElement | null) => {
     videoRef.current = el;
-    if (el && screenVideoUrl) {
-      el.src = screenVideoUrl;
+    if (el && screenVideoUrlRef.current) {
+      el.src = screenVideoUrlRef.current;
       el.play().catch(() => {});
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -301,7 +307,7 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                   }} />
                 )}
 
-                {/* Ad overlay */}
+                {/* Ad overlay (fond couleur + logo) */}
                 {overlay && (
                   <div style={{
                     position: "absolute",
@@ -316,24 +322,8 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                     alignItems: "center",
                     justifyContent: "center",
                     overflow: "hidden",
+                    zIndex: 1,
                   }}>
-                    {/*
-                      L'élément <video> est TOUJOURS présent dans le DOM quand screenVideoUrl
-                      est fourni — il n'est jamais retiré lors des re-renders de rotation.
-                      Son src est géré exclusivement par videoCallbackRef + useEffect(screenVideoUrl).
-                    */}
-                    <video
-                      ref={videoCallbackRef}
-                      loop
-                      muted
-                      playsInline
-                      style={{
-                        maxHeight: "100%",
-                        maxWidth: "100%",
-                        objectFit: "cover",
-                        display: screenVideoUrl ? "block" : "none",
-                      }}
-                    />
                     {!screenVideoUrl && logoUrl && (
                       <img
                         src={logoUrl}
@@ -343,6 +333,32 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                     )}
                   </div>
                 )}
+
+                {/*
+                  <video> TOUJOURS dans le DOM (hors du bloc {overlay && ...}) :
+                  - videoRef reste populé quelle que soit la sélection d'adFormat
+                  - useEffect([screenVideoUrl]) peut appliquer la source dès l'upload,
+                    même si l'utilisateur n'a pas encore choisi un format publicitaire
+                  - display:none le cache visuellement sans démonter le nœud
+                */}
+                <video
+                  ref={videoCallbackRef}
+                  loop
+                  muted
+                  playsInline
+                  style={{
+                    position: "absolute",
+                    top: overlay ? overlay.top : 0,
+                    left: "5%",
+                    right: "5%",
+                    height: overlay ? overlay.height : 0,
+                    maxWidth: "90%",
+                    objectFit: "cover",
+                    display: (overlay && screenVideoUrl) ? "block" : "none",
+                    zIndex: 2,
+                    borderRadius: 4,
+                  }}
+                />
               </div>
 
               {/* Wheels */}
