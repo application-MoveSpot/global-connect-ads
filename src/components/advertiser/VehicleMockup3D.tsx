@@ -192,13 +192,16 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
   // pour éviter la closure périmée sur la valeur initiale null.
   const videoCallbackRef = useCallback((el: HTMLVideoElement | null) => {
     videoRef.current = el;
-    if (el) {
-      el.muted = true; // propriété DOM — React ne la propage pas toujours depuis l'attribut JSX
-      if (screenVideoUrlRef.current) {
-        el.src = screenVideoUrlRef.current;
-        el.load();
-        el.play().catch(() => {});
-      }
+    if (!el) return;
+    // Propriétés DOM — React ne propage pas toujours "muted" via l'attribut JSX.
+    // Sans el.muted = true, Chrome refuse play() en iframe (politique autoplay).
+    el.muted = true;
+    el.loop = true;
+    el.playsInline = true;
+    if (screenVideoUrlRef.current) {
+      el.src = screenVideoUrlRef.current;
+      el.load(); // obligatoire quand src est assigné par code (pas via le rendu React)
+      el.play().catch(() => {});
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -442,20 +445,25 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                       )}
                     </div>
 
-                    {/* Vidéo : couvre exactement le panneau LED de la caisse */}
+                    {/* Vidéo : couvre exactement le panneau LED de la caisse.
+                        Toujours dans le DOM (visibility, jamais display:none)
+                        pour que le ref ne soit jamais null et que Chrome autorise l'autoplay. */}
                     <video
+                      key="camion-led-screen"
                       ref={videoCallbackRef}
-                      loop muted playsInline
+                      loop playsInline
                       style={{
                         position: "absolute",
                         left: isFacingBack ? "3px" : "calc(33% + 3px)",
                         right: isFacingBack ? "calc(33% + 3px)" : "3px",
                         top: "4px",
-                        height: 68,
+                        height: "68px",
                         objectFit: "cover",
-                        display: (adFormat === "boxled" && screenVideoUrl) ? "block" : "none",
+                        visibility: (adFormat === "boxled" && !!screenVideoUrl) ? "visible" : "hidden",
+                        opacity: (adFormat === "boxled" && !!screenVideoUrl) ? 1 : 0,
+                        pointerEvents: "none",
                         zIndex: 3,
-                        borderRadius: 1,
+                        borderRadius: "1px",
                       }}
                     />
                   </div>
@@ -534,10 +542,13 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                       </div>
                     )}
 
-                    {/* <video> toujours dans le DOM — stable face aux re-renders de rotation */}
+                    {/* <video> toujours dans le DOM — stable face aux re-renders de rotation.
+                        visibility/opacity plutôt que display:none → Chrome peut autoplayer
+                        même quand l'élément n'est pas visuellement actif. */}
                     <video
+                      key="standard-screen"
                       ref={videoCallbackRef}
-                      loop muted playsInline
+                      loop playsInline
                       style={{
                         position: "absolute",
                         top: overlay ? overlay.top : 0,
@@ -546,9 +557,11 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                         height: overlay ? overlay.height : 0,
                         maxWidth: "90%",
                         objectFit: "cover",
-                        display: (overlay && screenVideoUrl) ? "block" : "none",
+                        visibility: (!!overlay && !!screenVideoUrl) ? "visible" : "hidden",
+                        opacity: (!!overlay && !!screenVideoUrl) ? 1 : 0,
+                        pointerEvents: "none",
                         zIndex: 2,
-                        borderRadius: 4,
+                        borderRadius: "4px",
                       }}
                     />
                   </div>
