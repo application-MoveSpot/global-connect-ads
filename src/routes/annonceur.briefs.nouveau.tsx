@@ -209,36 +209,46 @@ function NewBriefPage() {
         <h1 className="font-display text-3xl font-bold mb-2">Publier un brief</h1>
         <p className="text-sm text-muted-foreground mb-6">Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.</p>
 
-        {/* Bandeau découverte Camion LED */}
-        <div className="mb-8 rounded-xl border border-blue-500/30 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, rgba(10,20,60,0.95), rgba(5,10,35,0.98))" }}>
-          <div className="flex items-start gap-4 p-4">
-            {/* Mini silhouette SVG BoxLED */}
-            <div className="shrink-0 w-16 h-10 relative" style={{ filter: "drop-shadow(0 0 6px rgba(40,120,255,0.5))" }}>
-              <svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                {/* Caisse LED */}
-                <rect x="22" y="2" width="40" height="28" rx="1" fill="#0a1840" stroke="#1e40af" strokeWidth="0.8"/>
-                <rect x="24" y="4" width="36" height="24" rx="0.5" fill="#1d4ed8" opacity="0.3"/>
-                <text x="42" y="19" textAnchor="middle" fill="rgba(147,197,253,0.9)" fontSize="7" fontWeight="bold">LED</text>
-                {/* Cabine */}
-                <rect x="2" y="10" width="20" height="20" rx="2" fill="#0f172a" stroke="#334155" strokeWidth="0.8"/>
-                <rect x="4" y="12" width="16" height="8" rx="1" fill="#1e293b" stroke="#475569" strokeWidth="0.5"/>
-                {/* Roues */}
-                <circle cx="12" cy="34" r="4" fill="#1e293b" stroke="#475569" strokeWidth="0.8"/>
-                <circle cx="48" cy="34" r="4" fill="#1e293b" stroke="#475569" strokeWidth="0.8"/>
-                <circle cx="56" cy="34" r="4" fill="#1e293b" stroke="#475569" strokeWidth="0.8"/>
-              </svg>
+        {/* ── Showcase Camion LED BoxLED — toujours visible ────────────────── */}
+        <div className="mb-8 rounded-2xl border border-blue-500/30 overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #080e28 0%, #050a1c 100%)" }}>
+          <div className="flex flex-col sm:flex-row items-stretch">
+            {/* Photo réelle */}
+            <div className="sm:w-64 shrink-0 overflow-hidden" style={{ maxHeight: 200 }}>
+              <img
+                src="/camion-led.webp"
+                alt="Camion Écran LED BoxLED"
+                draggable={false}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center right", display: "block", minHeight: 160 }}
+              />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-blue-300 font-bold text-sm">📺 Camion LED publicitaire</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                  style={{ background: "rgba(37,99,235,0.3)", color: "rgba(147,197,253,0.95)" }}>NOUVEAU</span>
+            {/* Infos */}
+            <div className="flex-1 p-5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <span className="font-bold text-white text-base">📺 Camion Écran LED BoxLED</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                    style={{ background: "rgba(37,99,235,0.3)", color: "rgba(147,197,253,0.95)", border: "1px solid rgba(59,130,246,0.3)" }}>
+                    EXCLUSIF MOVESPOT
+                  </span>
+                </div>
+                <p className="text-xs mb-3" style={{ color: "rgba(147,197,253,0.75)", lineHeight: 1.6 }}>
+                  Mercedes Sprinter 314 · 3 faces d'écran LED IP67 actives · 3 200 × 1 920 px ·
+                  Diffusion vidéo MP4, image dynamique ou flux HTML5 · Visibilité jour &amp; nuit ·
+                  Idéal zones haute densité &amp; événementiel
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["5 000–20 000 impressions/j", "150–800 €/sem.", "Centre-ville", "Événementiel", "Grands axes"].map(t => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(30,58,138,0.35)", color: "rgba(147,197,253,0.8)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <p className="text-xs text-blue-200/70 leading-snug">
-                Mercedes Sprinter 314 · Écrans LED 3 faces (IP67) · 5 000–20 000 impressions/jour
-                · Vidéo, image, flux HTML5 · Idéal zones haute densité
-              </p>
+              <div className="mt-3 text-[11px]" style={{ color: "rgba(100,150,255,0.55)" }}>
+                ↓ Sélectionnez ce véhicule ci-dessous pour voir la prévisualisation 3D 360° en temps réel
+              </div>
             </div>
           </div>
         </div>
@@ -272,53 +282,14 @@ function NewBriefPage() {
               }}
             >
               <div className="flex items-stretch gap-0">
-                {/* Illustration miniature du camion LED */}
-                <div className="shrink-0 flex items-center justify-center px-5 py-4"
-                  style={{ background: "rgba(0,0,0,0.35)", minWidth: 130 }}>
-                  <svg width="110" height="64" viewBox="0 0 110 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    {/* Caisse */}
-                    <rect x="2" y="6" width="72" height="46" rx="2" fill="#0a0a14" stroke="#1a1a2a" strokeWidth="1.2"/>
-                    {/* Écran LED face (gauche visible) */}
-                    <rect x="5" y="9" width="66" height="40" rx="1" fill="#03050e"/>
-                    <rect x="5" y="9" width="66" height="40" rx="1" fill="url(#ledGrad)" opacity="0.85"/>
-                    {/* Scanlines */}
-                    {[11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45].map(y =>
-                      <line key={y} x1="5" y1={y} x2="71" y2={y} stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
-                    )}
-                    {/* Rail chrome haut */}
-                    <rect x="2" y="6" width="72" height="3.5" rx="1" fill="#2a2a3a"/>
-                    {/* Rail chrome bas */}
-                    <rect x="2" y="49" width="72" height="3" rx="1" fill="#222230"/>
-                    {/* Cabine */}
-                    <rect x="74" y="20" width="32" height="32" rx="3" fill="#111118" stroke="#1a1a28" strokeWidth="1"/>
-                    {/* Toit cabine */}
-                    <path d="M75 20 Q90 14 105 20" stroke="#141420" strokeWidth="1.5" fill="none"/>
-                    {/* Pare-brise */}
-                    <rect x="78" y="23" width="24" height="14" rx="2" fill="rgba(60,100,200,0.15)" stroke="rgba(80,130,255,0.2)" strokeWidth="0.8"/>
-                    {/* Feu avant */}
-                    <rect x="103" y="36" width="4" height="8" rx="1" fill="#ffe050" opacity="0.9"/>
-                    {/* Sol */}
-                    <rect x="0" y="52" width="110" height="2" rx="1" fill="#181828" opacity="0.6"/>
-                    {/* Roue avant */}
-                    <circle cx="90" cy="57" r="6" fill="#1a1a2e" stroke="#252545" strokeWidth="1.5"/>
-                    <circle cx="90" cy="57" r="3.2" fill="#22223d"/>
-                    {/* Roues arrière jumelées */}
-                    <circle cx="20" cy="57" r="6" fill="#1a1a2e" stroke="#252545" strokeWidth="1.5"/>
-                    <circle cx="20" cy="57" r="3.2" fill="#22223d"/>
-                    <circle cx="33" cy="57" r="5.5" fill="#1a1a2e" stroke="#252545" strokeWidth="1.5"/>
-                    <circle cx="33" cy="57" r="2.8" fill="#22223d"/>
-                    {/* Axe */}
-                    <rect x="25" y="55.5" width="65" height="3" rx="1" fill="#1c1c26" opacity="0.7"/>
-                    {/* Halo LED */}
-                    <rect x="3" y="8" width="68" height="42" rx="1" fill="none" stroke="rgba(59,110,255,0.35)" strokeWidth="1"/>
-                    <defs>
-                      <linearGradient id="ledGrad" x1="0" y1="0" x2="68" y2="42" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stopColor="#1a3aff" stopOpacity="0.55"/>
-                        <stop offset="50%" stopColor="#0d1a8f" stopOpacity="0.25"/>
-                        <stop offset="100%" stopColor="#0a1460" stopOpacity="0.45"/>
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                {/* Photo réelle du camion LED */}
+                <div className="shrink-0 overflow-hidden" style={{ width: 180, minWidth: 180, background: "#000" }}>
+                  <img
+                    src="/camion-led.webp"
+                    alt="Camion Écran LED BoxLED"
+                    draggable={false}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center right", display: "block", minHeight: 140 }}
+                  />
                 </div>
 
                 {/* Infos */}
