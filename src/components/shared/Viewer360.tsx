@@ -11,10 +11,15 @@ type Props = {
  * Visionneuse 360° de pose : la texture est plaquée à l'intérieur d'une sphère
  * inversée, la caméra est au centre. Drag (ou tactile) pour regarder autour,
  * molette / pinch pour zoomer.
+ *
+ * Fallback automatique si WebGL n'est pas disponible :
+ * - image → <img> avec indication "Vue 360°"
+ * - video → <video> lecture normale
  */
 export function Viewer360({ src, kind = "image", className }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [webglFailed, setWebglFailed] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -28,6 +33,14 @@ export function Viewer360({ src, kind = "image", className }: Props) {
         const THREE = await import("three");
         if (disposed || !containerRef.current) return;
 
+        // Test WebGL availability AVANT de créer le renderer
+        const testCanvas = document.createElement("canvas");
+        const webgl = testCanvas.getContext("webgl") ?? testCanvas.getContext("experimental-webgl");
+        if (!webgl) {
+          setWebglFailed(true);
+          return;
+        }
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(
           75,
@@ -37,7 +50,14 @@ export function Viewer360({ src, kind = "image", className }: Props) {
         );
         camera.position.set(0, 0, 0.1);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        let renderer: import("three").WebGLRenderer;
+        try {
+          renderer = new THREE.WebGLRenderer({ antialias: true, failIfMajorPerformanceCaveat: false });
+        } catch {
+          setWebglFailed(true);
+          return;
+        }
+
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
@@ -143,7 +163,8 @@ export function Viewer360({ src, kind = "image", className }: Props) {
           el.remove();
         };
       } catch {
-        setError("Impossible de charger la vue 360°.");
+        // Tentative fallback : peut-être que WebGL a échoué à mi-chemin
+        setWebglFailed(true);
       }
     })();
 
@@ -153,8 +174,38 @@ export function Viewer360({ src, kind = "image", className }: Props) {
     };
   }, [src, kind]);
 
+  const containerClass = className ?? "relative w-full h-72 rounded-xl overflow-hidden bg-black";
+
+  // Fallback plat si WebGL non disponible
+  if (webglFailed) {
+    return (
+      <div className={containerClass + " flex items-center justify-center"}>
+        {kind === "video" ? (
+          <video
+            src={src}
+            controls
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <img
+            src={src}
+            alt="Vue 360°"
+            className="w-full h-full object-contain"
+            draggable={false}
+          />
+        )}
+        <span className="absolute bottom-2 left-2 rounded-full bg-background/80 px-2 py-0.5 text-[10px] text-muted-foreground pointer-events-none">
+          Aperçu plat — WebGL non disponible sur cet appareil
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className={className ?? "relative w-full h-72 rounded-xl overflow-hidden bg-black"}>
+    <div className={containerClass}>
       <div ref={containerRef} className="absolute inset-0" />
       {error ? (
         <p className="absolute inset-0 flex items-center justify-center text-xs text-destructive">{error}</p>

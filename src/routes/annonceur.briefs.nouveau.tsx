@@ -12,6 +12,10 @@ const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
 );
 
+const CamionLED3DPreview = lazy(() =>
+  import("@/components/advertiser/CamionLED3DPreview").then((m) => ({ default: m.CamionLED3DPreview }))
+);
+
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
     meta: [
@@ -393,6 +397,15 @@ function NewBriefPage() {
                   )}
                 </div>
               </div>
+              {vehicleTypes.includes("camion_led") && (
+                <Suspense fallback={<div className="h-[520px] rounded-2xl bg-[#0c0d1a] animate-pulse flex items-center justify-center text-sm text-white/40">Chargement du camion LED 3D…</div>}>
+                  <CamionLED3DPreview
+                    screenVideoUrl={screenVideoUrl}
+                    logoUrl={logoUrl}
+                  />
+                </Suspense>
+              )}
+              {!vehicleTypes.includes("camion_led") && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">Chargement du simulateur…</div>}>
                 <VehicleMockup3D
                   vehicleTypes={vehicleTypes}
@@ -402,6 +415,7 @@ function NewBriefPage() {
                   screenVideoUrl={screenVideoUrl}
                 />
               </Suspense>
+              )}
               {vehicleTypes.every((t) => t === "autre") && (
                 <p className="text-xs text-muted-foreground italic px-1">
                   ℹ️ Aperçu schématique sur un gabarit générique — la forme réelle dépend du véhicule « autre » proposé par le propriétaire. Vous verrez les vraies photos après mise en relation.
