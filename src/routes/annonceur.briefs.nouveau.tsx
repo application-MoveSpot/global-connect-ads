@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
@@ -65,6 +65,7 @@ function NewBriefPage() {
   const [brandColor, setBrandColor] = useState("#3B82F6");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [screenVideoUrl, setScreenVideoUrl] = useState<string | null>(null);
+  const led3dRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
@@ -94,6 +95,8 @@ function NewBriefPage() {
       if (v === "camion_led" && !cur.includes("camion_led")) {
         // Camion LED → format boxled automatique (seul format de série compatible)
         setAdFormat("boxled");
+        // Scroll vers la prévisualisation 3D dès qu'elle apparaît
+        setTimeout(() => led3dRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
       } else if (adFormat === "boxled" && isFormatIncompatible(next, "boxled")) {
         // Un véhicule incompatible ajouté alors que boxled est actif → on réinitialise le format
         setAdFormat(null);
@@ -377,6 +380,59 @@ function NewBriefPage() {
             )}
           </Field>
 
+          {/* ── Prévisualisation 3D Camion LED — apparaît immédiatement après sélection ── */}
+          {vehicleTypes.includes("camion_led") && (
+            <div ref={led3dRef} className="space-y-3 scroll-mt-4">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Couleur de marque</label>
+                  <input
+                    type="color"
+                    value={brandColor}
+                    onChange={(e) => setBrandColor(e.target.value)}
+                    className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-card"
+                  />
+                  <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium">Visuel (logo ou vidéo)</label>
+                  <input
+                    type="file"
+                    accept="image/*,video/mp4,video/webm"
+                    className="text-xs"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const url = URL.createObjectURL(file);
+                      if (file.type.startsWith("video/")) {
+                        setScreenVideoUrl(url);
+                        setLogoUrl(null);
+                      } else {
+                        setLogoUrl(url);
+                        setScreenVideoUrl(null);
+                      }
+                    }}
+                  />
+                  {(logoUrl || screenVideoUrl) && (
+                    <button
+                      type="button"
+                      onClick={() => { setLogoUrl(null); setScreenVideoUrl(null); }}
+                      className="text-xs text-destructive"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+              <Suspense fallback={<div className="h-[520px] rounded-2xl bg-[#0c0d1a] animate-pulse flex items-center justify-center text-sm text-white/40">Chargement du camion LED 3D…</div>}>
+                <CamionLED3DPreview
+                  screenVideoUrl={screenVideoUrl}
+                  logoUrl={logoUrl}
+                />
+              </Suspense>
+            </div>
+          )}
+
           {vehicleTypes.includes("autre") && (
             <Field label="Précisez le véhicule « Autre » recherché *">
               <input
@@ -425,8 +481,8 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {/* Prévisualisation 3D — visible dès qu'un type de véhicule ET un format sont sélectionnés */}
-          {vehicleTypes.length > 0 && adFormat && (
+          {/* Prévisualisation 3D — autres véhicules (hors camion_led géré plus haut) */}
+          {vehicleTypes.length > 0 && adFormat && !vehicleTypes.includes("camion_led") && (
             <div className="space-y-3">
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-2">
@@ -469,15 +525,6 @@ function NewBriefPage() {
                   )}
                 </div>
               </div>
-              {vehicleTypes.includes("camion_led") && (
-                <Suspense fallback={<div className="h-[520px] rounded-2xl bg-[#0c0d1a] animate-pulse flex items-center justify-center text-sm text-white/40">Chargement du camion LED 3D…</div>}>
-                  <CamionLED3DPreview
-                    screenVideoUrl={screenVideoUrl}
-                    logoUrl={logoUrl}
-                  />
-                </Suspense>
-              )}
-              {!vehicleTypes.includes("camion_led") && (
               <Suspense fallback={<div className="h-64 rounded-2xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">Chargement du simulateur…</div>}>
                 <VehicleMockup3D
                   vehicleTypes={vehicleTypes}
@@ -487,7 +534,6 @@ function NewBriefPage() {
                   screenVideoUrl={screenVideoUrl}
                 />
               </Suspense>
-              )}
               {vehicleTypes.every((t) => t === "autre") && (
                 <p className="text-xs text-muted-foreground italic px-1">
                   ℹ️ Aperçu schématique sur un gabarit générique — la forme réelle dépend du véhicule « autre » proposé par le propriétaire. Vous verrez les vraies photos après mise en relation.
