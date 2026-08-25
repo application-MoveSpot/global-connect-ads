@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "leaflet/dist/leaflet.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import type { FleetPoint } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
-
-// mapboxgl.supported() est le vrai test Mapbox (plus fiable qu'un canvas.getContext())
-const WEBGL_OK = mapboxgl.supported({ failIfMajorPerformanceCaveat: false });
 
 // ── Fallback Leaflet (aucune dépendance WebGL) ────────────────────────────────
 function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
@@ -19,7 +15,6 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
 
     import("leaflet").then((mod) => {
       const L = mod.default ?? mod;
-
       // Fix icône cassée dans bundlers
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -60,18 +55,14 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
     return () => { map?.remove(); };
   }, [points]);
 
-  return (
-    <div className="space-y-3">
-      <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />
-    </div>
-  );
+  return <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />;
 }
 
-// ── Carte Mapbox GL 3D (WebGL requis — testé via mapboxgl.supported()) ─────────
+// ── Carte Mapbox GL 3D ────────────────────────────────────────────────────────
 function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
   const container = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const mapRef = useRef<import("mapbox-gl").Map | null>(null);
+  const markersRef = useRef<import("mapbox-gl").Marker[]>([]);
   const rafRef = useRef<number | null>(null);
   const [token, setToken] = useState("");
   const [immersive, setImmersive] = useState(false);
@@ -85,78 +76,83 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
 
   useEffect(() => {
     if (!token || !container.current || mapRef.current) return;
-    mapboxgl.accessToken = token;
-    const map = new mapboxgl.Map({
-      container: container.current,
-      style: "mapbox://styles/mapbox/dark-v11",
-      center: [2.35, 46.6],
-      zoom: 4.2,
-      pitch: 0,
-      bearing: 0,
-      antialias: true,
-    });
-    mapRef.current = map;
-    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), "top-right");
+    import("mapbox-gl").then((mod) => {
+      const mapboxgl = mod.default ?? mod;
+      mapboxgl.accessToken = token;
+      const map = new mapboxgl.Map({
+        container: container.current!,
+        style: "mapbox://styles/mapbox/dark-v11",
+        center: [2.35, 46.6],
+        zoom: 4.2,
+        pitch: 0,
+        bearing: 0,
+        antialias: true,
+      });
+      mapRef.current = map;
+      map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), "top-right");
 
-    map.on("load", () => {
-      if (!map.getSource("mapbox-dem")) {
-        map.addSource("mapbox-dem", {
-          type: "raster-dem",
-          url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-          tileSize: 512,
-          maxzoom: 14,
-        });
-      }
-      if (!map.getLayer("movespot-3d-buildings")) {
-        map.addLayer({
-          id: "movespot-3d-buildings",
-          source: "composite",
-          "source-layer": "building",
-          filter: ["==", ["get", "extrude"], "true"],
-          type: "fill-extrusion",
-          minzoom: 14,
-          paint: {
-            "fill-extrusion-color": "#1f2937",
-            "fill-extrusion-height": ["get", "height"],
-            "fill-extrusion-base": ["get", "min_height"],
-            "fill-extrusion-opacity": 0.75,
-          },
-        });
-      }
+      map.on("load", () => {
+        if (!map.getSource("mapbox-dem")) {
+          map.addSource("mapbox-dem", {
+            type: "raster-dem",
+            url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+            tileSize: 512,
+            maxzoom: 14,
+          });
+        }
+        if (!map.getLayer("movespot-3d-buildings")) {
+          map.addLayer({
+            id: "movespot-3d-buildings",
+            source: "composite",
+            "source-layer": "building",
+            filter: ["==", ["get", "extrude"], "true"],
+            type: "fill-extrusion",
+            minzoom: 14,
+            paint: {
+              "fill-extrusion-color": "#1f2937",
+              "fill-extrusion-height": ["get", "height"],
+              "fill-extrusion-base": ["get", "min_height"],
+              "fill-extrusion-opacity": 0.75,
+            },
+          });
+        }
+      });
     });
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
-      map.remove();
-      mapRef.current = null;
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
   }, [token]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
-    if (points.length === 0) return;
+    import("mapbox-gl").then((mod) => {
+      const mapboxgl = mod.default ?? mod;
+      markersRef.current.forEach((m) => m.remove());
+      markersRef.current = [];
+      if (points.length === 0) return;
 
-    const bounds = new mapboxgl.LngLatBounds();
-    for (const p of points) {
-      const el = document.createElement("div");
-      el.style.cssText =
-        "width:14px;height:14px;border-radius:9999px;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25)";
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat([p.lng, p.lat])
-        .setPopup(
-          new mapboxgl.Popup({ offset: 14 }).setHTML(
-            `<strong>${p.campaignName ?? "Campagne"}</strong><br/>${p.company ?? ""}<br/>${new Date(p.recordedAt).toLocaleString("fr-FR")}`,
-          ),
-        )
-        .addTo(map);
-      markersRef.current.push(marker);
-      bounds.extend([p.lng, p.lat]);
-    }
-    if (!immersive) map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 600 });
+      const bounds = new mapboxgl.LngLatBounds();
+      for (const p of points) {
+        const el = document.createElement("div");
+        el.style.cssText =
+          "width:14px;height:14px;border-radius:9999px;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.25)";
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat([p.lng, p.lat])
+          .setPopup(
+            new mapboxgl.Popup({ offset: 14 }).setHTML(
+              `<strong>${p.campaignName ?? "Campagne"}</strong><br/>${p.company ?? ""}<br/>${new Date(p.recordedAt).toLocaleString("fr-FR")}`,
+            ),
+          )
+          .addTo(map);
+        markersRef.current.push(marker);
+        bounds.extend([p.lng, p.lat]);
+      }
+      if (!immersive) map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 600 });
+    });
   }, [points, token, immersive]);
 
   const stopOrbit = useCallback(() => {
@@ -168,8 +164,7 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
     const map = mapRef.current;
     if (!map) return;
     if (immersive) {
-      stopOrbit();
-      setOrbit(false);
+      stopOrbit(); setOrbit(false);
       map.setTerrain(null);
       map.easeTo({ pitch: 0, bearing: 0, zoom: 4.2, duration: 1500 });
       setImmersive(false);
@@ -218,9 +213,25 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
   );
 }
 
-// ── Export principal : choisit Mapbox ou Leaflet selon support WebGL ──────────
+// ── Export principal : détection WebGL côté client uniquement (SSR-safe) ──────
 export default function FleetMap({ points }: { points: FleetPoint[] }) {
-  // WEBGL_OK évalué au chargement du module — avant tout rendu
-  if (!WEBGL_OK) return <FleetMapLeaflet points={points} />;
-  return <FleetMapMapbox points={points} />;
+  // null = pas encore évalué (SSR ou premier rendu), true/false = résultat client
+  const [webglOk, setWebglOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Exécuté uniquement sur le client, jamais sur le serveur SSR
+    import("mapbox-gl").then((mod) => {
+      const mapboxgl = mod.default ?? mod;
+      setWebglOk(mapboxgl.supported({ failIfMajorPerformanceCaveat: false }));
+    }).catch(() => setWebglOk(false));
+  }, []);
+
+  // SSR / premier rendu → skeleton neutre (évite le flash de contenu)
+  if (webglOk === null) {
+    return <div className="h-[520px] w-full rounded-2xl border border-border bg-card animate-pulse" />;
+  }
+
+  return webglOk
+    ? <FleetMapMapbox points={points} />
+    : <FleetMapLeaflet points={points} />;
 }
