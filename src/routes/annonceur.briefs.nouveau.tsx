@@ -256,10 +256,128 @@ function NewBriefPage() {
           </Field>
 
           <Field label="Types de véhicules recherchés">
+            {/* ── Camion LED BoxLED — carte hero ────────────────────────────── */}
+            <button
+              type="button"
+              onClick={() => toggleType("camion_led")}
+              className="w-full text-left rounded-2xl border-2 transition-all overflow-hidden mb-3 focus:outline-none"
+              style={{
+                borderColor: vehicleTypes.includes("camion_led") ? "#3b6eff" : "rgba(59,110,255,0.25)",
+                background: vehicleTypes.includes("camion_led")
+                  ? "linear-gradient(135deg, #0d1a4a 0%, #091030 100%)"
+                  : "linear-gradient(135deg, rgba(8,12,30,0.9) 0%, rgba(5,8,20,0.95) 100%)",
+                boxShadow: vehicleTypes.includes("camion_led")
+                  ? "0 0 0 1px rgba(59,110,255,0.4), 0 4px 32px rgba(30,80,255,0.18)"
+                  : "0 1px 4px rgba(0,0,0,0.3)",
+              }}
+            >
+              <div className="flex items-stretch gap-0">
+                {/* Illustration miniature du camion LED */}
+                <div className="shrink-0 flex items-center justify-center px-5 py-4"
+                  style={{ background: "rgba(0,0,0,0.35)", minWidth: 130 }}>
+                  <svg width="110" height="64" viewBox="0 0 110 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Caisse */}
+                    <rect x="2" y="6" width="72" height="46" rx="2" fill="#0a0a14" stroke="#1a1a2a" strokeWidth="1.2"/>
+                    {/* Écran LED face (gauche visible) */}
+                    <rect x="5" y="9" width="66" height="40" rx="1" fill="#03050e"/>
+                    <rect x="5" y="9" width="66" height="40" rx="1" fill="url(#ledGrad)" opacity="0.85"/>
+                    {/* Scanlines */}
+                    {[11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45].map(y =>
+                      <line key={y} x1="5" y1={y} x2="71" y2={y} stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"/>
+                    )}
+                    {/* Rail chrome haut */}
+                    <rect x="2" y="6" width="72" height="3.5" rx="1" fill="#2a2a3a"/>
+                    {/* Rail chrome bas */}
+                    <rect x="2" y="49" width="72" height="3" rx="1" fill="#222230"/>
+                    {/* Cabine */}
+                    <rect x="74" y="20" width="32" height="32" rx="3" fill="#111118" stroke="#1a1a28" strokeWidth="1"/>
+                    {/* Toit cabine */}
+                    <path d="M75 20 Q90 14 105 20" stroke="#141420" strokeWidth="1.5" fill="none"/>
+                    {/* Pare-brise */}
+                    <rect x="78" y="23" width="24" height="14" rx="2" fill="rgba(60,100,200,0.15)" stroke="rgba(80,130,255,0.2)" strokeWidth="0.8"/>
+                    {/* Feu avant */}
+                    <rect x="103" y="36" width="4" height="8" rx="1" fill="#ffe050" opacity="0.9"/>
+                    {/* Sol */}
+                    <rect x="0" y="52" width="110" height="2" rx="1" fill="#181828" opacity="0.6"/>
+                    {/* Roue avant */}
+                    <circle cx="90" cy="57" r="6" fill="#1a1a2e" stroke="#252545" strokeWidth="1.5"/>
+                    <circle cx="90" cy="57" r="3.2" fill="#22223d"/>
+                    {/* Roues arrière jumelées */}
+                    <circle cx="20" cy="57" r="6" fill="#1a1a2e" stroke="#252545" strokeWidth="1.5"/>
+                    <circle cx="20" cy="57" r="3.2" fill="#22223d"/>
+                    <circle cx="33" cy="57" r="5.5" fill="#1a1a2e" stroke="#252545" strokeWidth="1.5"/>
+                    <circle cx="33" cy="57" r="2.8" fill="#22223d"/>
+                    {/* Axe */}
+                    <rect x="25" y="55.5" width="65" height="3" rx="1" fill="#1c1c26" opacity="0.7"/>
+                    {/* Halo LED */}
+                    <rect x="3" y="8" width="68" height="42" rx="1" fill="none" stroke="rgba(59,110,255,0.35)" strokeWidth="1"/>
+                    <defs>
+                      <linearGradient id="ledGrad" x1="0" y1="0" x2="68" y2="42" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stopColor="#1a3aff" stopOpacity="0.55"/>
+                        <stop offset="50%" stopColor="#0d1a8f" stopOpacity="0.25"/>
+                        <stop offset="100%" stopColor="#0a1460" stopOpacity="0.45"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+
+                {/* Infos */}
+                <div className="flex-1 py-3.5 px-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold text-white">📺 Camion Écran LED BoxLED</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                        style={{ background: "rgba(59,110,255,0.25)", color: "rgba(130,180,255,0.95)", border: "1px solid rgba(59,110,255,0.3)" }}>
+                        EXCLUSIF
+                      </span>
+                    </div>
+                    <div className="text-[11px] mt-0.5" style={{ color: "rgba(130,170,255,0.7)" }}>
+                      Fourgon publicitaire numérique — 3 faces d'écran LED actives
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {[
+                        "3 faces actives",
+                        "IP67 · Jour & nuit",
+                        "3200 × 1920 px",
+                        "Vidéo MP4 / Image",
+                      ].map(s => (
+                        <span key={s} className="text-[10px] px-2 py-0.5 rounded-full"
+                          style={{ background: "rgba(30,60,180,0.2)", color: "rgba(120,170,255,0.8)", border: "1px solid rgba(59,110,255,0.18)" }}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-2.5">
+                    <span className="text-[10px]" style={{ color: "rgba(90,130,220,0.65)" }}>
+                      150 – 800 € / semaine · 5 000 – 20 000 impressions
+                    </span>
+                    <span
+                      className="text-xs font-semibold px-3 py-1 rounded-full transition-all"
+                      style={vehicleTypes.includes("camion_led") ? {
+                        background: "#3b6eff",
+                        color: "#fff",
+                        boxShadow: "0 0 10px rgba(59,110,255,0.5)",
+                      } : {
+                        background: "rgba(59,110,255,0.12)",
+                        color: "rgba(120,170,255,0.8)",
+                        border: "1px solid rgba(59,110,255,0.25)",
+                      }}
+                    >
+                      {vehicleTypes.includes("camion_led") ? "✓ Sélectionné" : "Sélectionner"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {/* ── Autres types de véhicules ────────────────────────────────── */}
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+              Autres véhicules
+            </div>
             <div className="flex flex-wrap gap-2">
-              {VEHICLE_TYPES.map((t) => {
+              {VEHICLE_TYPES.filter(t => t.v !== "camion_led").map((t) => {
                 const blockedByBoxled = adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(t.v as VehicleKey);
-                const isCamionLed = t.v === "camion_led";
                 const isSelected = vehicleTypes.includes(t.v);
                 return (
                   <button
@@ -271,29 +389,12 @@ function NewBriefPage() {
                     className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
                       blockedByBoxled
                         ? "opacity-40 cursor-not-allowed bg-card border-border"
-                        : isSelected && isCamionLed
-                          ? "border-blue-500 font-semibold"
-                          : isSelected
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : isCamionLed
-                              ? "border-blue-500/50 hover:border-blue-500"
-                              : "bg-card border-border hover:bg-secondary"
+                        : isSelected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card border-border hover:bg-secondary"
                     }`}
-                    style={isCamionLed ? {
-                      background: isSelected
-                        ? "linear-gradient(135deg, #1a3a8f, #0f2060)"
-                        : "linear-gradient(135deg, rgba(15,25,70,0.6), rgba(10,15,40,0.8))",
-                      color: isSelected ? "#fff" : "rgba(120,170,255,0.9)",
-                      boxShadow: isSelected ? "0 0 14px 2px rgba(40,100,255,0.25)" : undefined,
-                    } : undefined}
                   >
                     {t.l}
-                    {isCamionLed && !isSelected && (
-                      <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded"
-                        style={{ background: "rgba(60,120,255,0.2)", color: "rgba(100,160,255,0.9)" }}>
-                        NEW
-                      </span>
-                    )}
                   </button>
                 );
               })}
