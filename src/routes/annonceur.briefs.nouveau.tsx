@@ -6,7 +6,7 @@ import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
 import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZonePolygonDraw";
 import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
-import { AD_FORMATS, BOXLED_INCOMPATIBLE, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
+import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -22,7 +22,14 @@ export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   component: NewBriefPage,
 });
 
-const VEHICLE_TYPES: { v: string; l: string }[] = [
+const VEHICLE_TYPES: { v: string; l: string; tip?: string }[] = [
+  {
+    v: "camion_led",
+    l: "📺 Camion LED",
+    tip: `${CAMION_LED_SPEC.name} — ${CAMION_LED_SPEC.vehicleClass}\n` +
+         `Écrans : ${CAMION_LED_SPEC.screens.activeFaces.join(", ")} · ${CAMION_LED_SPEC.screens.type}\n` +
+         `Résolution : faces ${CAMION_LED_SPEC.screens.resolution.side} · arrière ${CAMION_LED_SPEC.screens.resolution.rear}`,
+  },
   { v: "food_truck", l: "Food truck" },
   { v: "van", l: "Van utilitaire" },
   { v: "taxi", l: "Taxi / VTC" },
@@ -80,8 +87,11 @@ function NewBriefPage() {
   const toggleType = (v: string) => {
     setVehicleTypes((cur) => {
       const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
-      // Si boxled est actif et que le nouveau set de véhicules le rend incompatible, on désélectionne boxled.
-      if (adFormat === "boxled" && isFormatIncompatible(next, "boxled")) {
+      if (v === "camion_led" && !cur.includes("camion_led")) {
+        // Camion LED → format boxled automatique (seul format de série compatible)
+        setAdFormat("boxled");
+      } else if (adFormat === "boxled" && isFormatIncompatible(next, "boxled")) {
+        // Un véhicule incompatible ajouté alors que boxled est actif → on réinitialise le format
         setAdFormat(null);
       }
       return next;
@@ -216,7 +226,7 @@ function NewBriefPage() {
                     type="button"
                     key={t.v}
                     disabled={blockedByBoxled}
-                    title={blockedByBoxled ? "Incompatible avec le format Écran LED/Vidéo (BoxLED)" : undefined}
+                    title={blockedByBoxled ? "Incompatible avec le format Écran LED/Vidéo (BoxLED)" : t.tip}
                     onClick={() => toggleType(t.v)}
                     className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
                       blockedByBoxled

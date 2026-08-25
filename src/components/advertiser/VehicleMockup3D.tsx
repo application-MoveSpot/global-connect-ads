@@ -1,6 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "autre";
+export type VehicleKey = "van" | "food_truck" | "voiture" | "taxi" | "scooter" | "velo_cargo" | "triporteur" | "camion_led" | "autre";
+
+/**
+ * Spécification technique du Camion Écran LED (vtype_boxled_generic).
+ * Source : catalogue MoveSpot "Affichage Mobile — Utilitaire Châssis-Cabine Anonymisé 3.5t".
+ */
+export const CAMION_LED_SPEC = {
+  id: "vtype_boxled_generic",
+  name: "Camion Écran LED — Format Urbain",
+  category: "Affichage Mobile",
+  vehicleClass: "Utilitaire Châssis-Cabine 3.5 t (Permis B)",
+  dimensions: { lengthMm: 5930, widthMm: 2350, heightMm: 3150 },
+  screens: {
+    type: "LED Extérieur Haute Luminosité (IP67)",
+    activeFaces: ["gauche", "droite", "arrière"] as const,
+    formats: ["Vidéo MP4", "Image JPEG/PNG", "Flux Dynamique HTML5"],
+    resolution: { side: "3200×1920 px", rear: "1920×1920 px" },
+  },
+  tags: ["Urbain", "Événementiel", "Centre-ville", "Forte visibilité", "Campagne Vidéo"],
+} as const;
 export type AdFormat = "covering_total" | "demi_covering" | "stickers" | "affiche" | "boxled";
 
 export const AD_FORMATS: { v: AdFormat; l: string; desc: string }[] = [
@@ -28,6 +47,7 @@ export function isFormatIncompatible(vehicleTypes: string[], format: AdFormat): 
 
 // Formats compatibles par type de support (undefined = tous) — utilisé côté propriétaire
 export const VEHICLE_FORMATS: Partial<Record<VehicleKey, AdFormat[]>> = {
+  camion_led:  ["boxled"],    // le camion_led est exclusivement un support BoxLED
   food_truck:  ["covering_total", "demi_covering", "stickers", "affiche"],
   scooter:     ["stickers", "affiche"],
   velo_cargo:  ["stickers", "affiche"],
@@ -86,6 +106,14 @@ export const VEHICLE_ANGLES: Partial<Record<VehicleKey, AngleConfig[]>> = {
     { label: "Face", angle: 90 },
     { label: "Arrière", angle: 180 },
   ],
+  // Camion LED : angles orientés vers les 3 faces d'écran actives (gauche, droite, arrière)
+  camion_led: [
+    { label: "Écran ←", angle: 0 },
+    { label: "3/4 Av.", angle: 45 },
+    { label: "Cabine", angle: 90 },
+    { label: "Écran arr.", angle: 180 },
+    { label: "Écran →", angle: 270 },
+  ],
   // walkers → pas d'angles (géré séparément via isWalker)
 };
 
@@ -97,6 +125,8 @@ const VEHICLE_INFO: Record<VehicleKey, { label: string; icon: string; aspectRati
   scooter: { label: "Scooter", icon: "🛵", aspectRatio: 1.2 },
   velo_cargo: { label: "Vélo cargo", icon: "🚲", aspectRatio: 1.6 },
   triporteur: { label: "Triporteur", icon: "🛺", aspectRatio: 1.5 },
+  // Camion LED : L=5930mm / H_utile≈2650mm → ratio ≈ 2.24 (châssis-cabine 3.5t)
+  camion_led: { label: "Camion LED", icon: "📺", aspectRatio: 2.24 },
   autre: { label: "Véhicule", icon: "🚗", aspectRatio: 2.0 },
 };
 
@@ -123,7 +153,7 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
   const screenVideoUrlRef = useRef(screenVideoUrl);
   screenVideoUrlRef.current = screenVideoUrl;
 
-  const supported: VehicleKey[] = ["van", "food_truck", "voiture", "taxi", "scooter", "velo_cargo", "triporteur"];
+  const supported: VehicleKey[] = ["van", "food_truck", "voiture", "taxi", "scooter", "velo_cargo", "triporteur", "camion_led"];
   const vehicleKey: VehicleKey = (supported.find((k) => vehicleTypes.includes(k)) ?? "autre") as VehicleKey;
   const info = VEHICLE_INFO[vehicleKey];
 
@@ -207,19 +237,24 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
   const scaleX = Math.max(0.1, Math.abs(cosVal));
   const isFacingBack = cosVal < 0;
 
-  // Ad overlay dimensions based on format
+  // Ad overlay dimensions based on format (and vehicle type for boxled)
   const getAdOverlay = () => {
-    const w = 180 * scaleX;
     const h = 80;
     switch (adFormat) {
       case "covering_total":
-        return { top: 20, height: h, opacity: 0.75 };
+        return { top: 20, height: h, opacity: 0.75, isLed: false };
       case "demi_covering":
-        return { top: 55, height: 45, opacity: 0.75 };
+        return { top: 55, height: 45, opacity: 0.75, isLed: false };
       case "stickers":
-        return { top: 30, height: 35, opacity: 0.65 };
+        return { top: 30, height: 35, opacity: 0.65, isLed: false };
       case "affiche":
-        return { top: 25, height: 50, opacity: 0.70 };
+        return { top: 25, height: 50, opacity: 0.70, isLed: false };
+      case "boxled":
+        // Camion LED : panneaux LED pleine hauteur de la caisse (spec IP67 3×faces)
+        // top=8 laisse juste la fenêtre de cabine, height=75 = quasi toute la caisse
+        return vehicleKey === "camion_led"
+          ? { top: 8, height: 75, opacity: 0.95, isLed: true }
+          : { top: 20, height: 60, opacity: 0.85, isLed: true };
       default:
         return null;
     }
@@ -341,9 +376,11 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                     left: "5%",
                     right: "5%",
                     height: overlay.height,
-                    background: screenVideoUrl ? "#000" : brandColor,
+                    background: screenVideoUrl ? "#000" : overlay.isLed ? "#050a14" : brandColor,
                     opacity: overlay.opacity,
-                    borderRadius: 4,
+                    borderRadius: overlay.isLed ? 2 : 4,
+                    // Bordure lumineuse simulant la dalle LED (spec IP67 haute luminosité)
+                    boxShadow: overlay.isLed ? "0 0 0 1.5px #1a3a6a, 0 0 8px 1px rgba(60,140,255,0.35)" : undefined,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -356,6 +393,12 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                         alt="logo"
                         style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }}
                       />
+                    )}
+                    {/* Badge résolution pour camion_led sans média */}
+                    {overlay.isLed && !screenVideoUrl && !logoUrl && (
+                      <span style={{ fontSize: 7, color: "rgba(100,160,255,0.6)", letterSpacing: "0.05em", textAlign: "center", lineHeight: 1.3 }}>
+                        LED 3 faces{"\n"}3200×1920 px
+                      </span>
                     )}
                   </div>
                 )}
