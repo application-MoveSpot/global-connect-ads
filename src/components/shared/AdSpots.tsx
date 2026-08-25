@@ -16,6 +16,7 @@ type Spot = {
 };
 
 const TYPE_LABELS: Record<string, string> = {
+  camion_led: "📺 Camion LED",
   food_truck: "Food truck",
   van: "Van",
   taxi: "Taxi / VTC",
