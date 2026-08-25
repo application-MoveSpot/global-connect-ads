@@ -159,6 +159,68 @@ function AnnonceurDashboard() {
           </div>
         </div>
 
+        {/* ── Card de découverte Camion LED ── */}
+        <div className="mb-8 rounded-2xl overflow-hidden border border-border relative"
+          style={{ background: "linear-gradient(135deg, #0a0a14 0%, #0d1220 60%, #0f0f1a 100%)" }}>
+          {/* Lueur LED décorative */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse 70% 60% at 75% 50%, rgba(40,100,255,0.10) 0%, transparent 70%)" }} />
+          <div className="relative flex flex-col sm:flex-row items-center gap-6 px-6 py-7">
+            {/* Icône silhouette */}
+            <div className="flex-shrink-0 flex items-center justify-center rounded-xl"
+              style={{ width: 90, height: 64, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              {/* Mini silhouette CSS du camion */}
+              <div style={{ position: "relative", width: 82, height: 44 }}>
+                {/* Caisse */}
+                <div style={{ position: "absolute", left: "30%", right: 0, top: 0, height: 40,
+                  background: "#0c0c12", border: "1px solid #1e1e30", borderRadius: "1px 4px 4px 1px" }}>
+                  <div style={{ position: "absolute", inset: "3px 3px 8px 3px",
+                    background: "linear-gradient(135deg, #030a1c, #050d24)",
+                    boxShadow: "0 0 12px 3px rgba(40,100,255,0.25), inset 0 0 0 1px rgba(60,120,255,0.2)" }} />
+                </div>
+                {/* Cab */}
+                <div style={{ position: "absolute", left: 0, width: "31%", top: 13, height: 27,
+                  background: "#0d0d0d", border: "1px solid #1a1a1a", borderRadius: "4px 1px 1px 4px" }}>
+                  <div style={{ position: "absolute", top: 3, left: 3, right: 3, height: 9,
+                    background: "rgba(60,120,220,0.12)", border: "0.5px solid rgba(100,160,255,0.1)", borderRadius: 2 }} />
+                </div>
+                {/* Roues */}
+                {[{l:2},{l:16},{l:55}].map((p,i)=>(
+                  <div key={i} style={{ position: "absolute", bottom: 0, left: p.l,
+                    width: i===0?12:10, height: i===0?12:10, borderRadius: "50%",
+                    background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
+                    border: "1.5px solid #252545" }} />
+                ))}
+              </div>
+            </div>
+            {/* Textes */}
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
+                <span className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                  style={{ background: "rgba(60,120,255,0.15)", color: "rgba(120,170,255,0.9)", border: "1px solid rgba(60,120,255,0.25)" }}>
+                  Nouveau
+                </span>
+              </div>
+              <h2 className="text-lg font-bold text-white mb-1">Camion Écran LED — Affichage Mobile Haute Visibilité</h2>
+              <p className="text-sm mb-3" style={{ color: "rgba(180,200,240,0.7)" }}>
+                3 faces LED IP67 · 3200×1920 px · Vidéo MP4 / Image / Flux HTML5 · Jusqu'à 20 000 contacts/jour
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                <Link to="/annonceur/briefs/nouveau"
+                  className="rounded-full px-5 py-2 text-sm font-semibold transition"
+                  style={{ background: "rgba(60,120,255,0.85)", color: "#fff" }}>
+                  + Créer un brief Camion LED
+                </Link>
+                <Link to="/annonceur/etude-marche"
+                  className="rounded-full px-4 py-2 text-sm font-medium transition"
+                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(180,200,240,0.8)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  Voir les tarifs →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {requests.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center">
             <p className="text-muted-foreground mb-4">Vous n'avez pas encore de campagne.</p>
