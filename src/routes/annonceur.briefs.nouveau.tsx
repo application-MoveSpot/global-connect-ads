@@ -203,7 +203,41 @@ function NewBriefPage() {
         )}
 
         <h1 className="font-display text-3xl font-bold mb-2">Publier un brief</h1>
-        <p className="text-sm text-muted-foreground mb-8">Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.</p>
+        <p className="text-sm text-muted-foreground mb-6">Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.</p>
+
+        {/* Bandeau découverte Camion LED */}
+        <div className="mb-8 rounded-xl border border-blue-500/30 overflow-hidden"
+          style={{ background: "linear-gradient(135deg, rgba(10,20,60,0.95), rgba(5,10,35,0.98))" }}>
+          <div className="flex items-start gap-4 p-4">
+            {/* Mini silhouette SVG BoxLED */}
+            <div className="shrink-0 w-16 h-10 relative" style={{ filter: "drop-shadow(0 0 6px rgba(40,120,255,0.5))" }}>
+              <svg viewBox="0 0 64 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                {/* Caisse LED */}
+                <rect x="22" y="2" width="40" height="28" rx="1" fill="#0a1840" stroke="#1e40af" strokeWidth="0.8"/>
+                <rect x="24" y="4" width="36" height="24" rx="0.5" fill="#1d4ed8" opacity="0.3"/>
+                <text x="42" y="19" textAnchor="middle" fill="rgba(147,197,253,0.9)" fontSize="7" fontWeight="bold">LED</text>
+                {/* Cabine */}
+                <rect x="2" y="10" width="20" height="20" rx="2" fill="#0f172a" stroke="#334155" strokeWidth="0.8"/>
+                <rect x="4" y="12" width="16" height="8" rx="1" fill="#1e293b" stroke="#475569" strokeWidth="0.5"/>
+                {/* Roues */}
+                <circle cx="12" cy="34" r="4" fill="#1e293b" stroke="#475569" strokeWidth="0.8"/>
+                <circle cx="48" cy="34" r="4" fill="#1e293b" stroke="#475569" strokeWidth="0.8"/>
+                <circle cx="56" cy="34" r="4" fill="#1e293b" stroke="#475569" strokeWidth="0.8"/>
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-blue-300 font-bold text-sm">📺 Camion LED publicitaire</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                  style={{ background: "rgba(37,99,235,0.3)", color: "rgba(147,197,253,0.95)" }}>NOUVEAU</span>
+              </div>
+              <p className="text-xs text-blue-200/70 leading-snug">
+                Mercedes Sprinter 314 · Écrans LED 3 faces (IP67) · 5 000–20 000 impressions/jour
+                · Vidéo, image, flux HTML5 · Idéal zones haute densité
+              </p>
+            </div>
+          </div>
+        </div>
 
         <form onSubmit={submit} className="space-y-6">
           <Field label="Titre du brief">
