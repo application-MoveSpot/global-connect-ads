@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { verifyWebhook } from "@/lib/payments/stripe.server";
+import { log } from "@/lib/logger";
 
 export const Route = createFileRoute("/api/public/stripe/webhook")({
   server: {
@@ -28,9 +29,10 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
         try {
           const { handleStripeEvent } = await import("@/lib/payments/stripe-webhook-handlers.server");
           await handleStripeEvent(event, supabaseAdmin);
+          log.info("stripe_webhook_ok", { event_id: event.id, type: event.type });
           return Response.json({ received: true });
         } catch (e) {
-          console.error("[stripe webhook] handler error", e);
+          log.error("stripe_webhook_handler_error", e, { event_id: event.id, type: event.type });
           return new Response("Handler error", { status: 500 });
         }
       },

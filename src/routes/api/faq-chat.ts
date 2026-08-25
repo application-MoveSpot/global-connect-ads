@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createLovableAiGatewayProvider } from "@/lib/ai/ai-gateway.server";
+import { log } from "@/lib/logger";
 import type { ChatAudience } from "@/components/app/FAQChatbot";
 
 type ChatRequestBody = { messages?: unknown; audience?: ChatAudience };
@@ -180,14 +181,18 @@ export const Route = createFileRoute("/api/faq-chat")({
         }
 
         const key = process.env.LOVABLE_API_KEY;
-        if (!key) return new Response("Clé IA manquante", { status: 500 });
+        if (!key) {
+          log.error("faq_chat_missing_key", new Error("LOVABLE_API_KEY not set"));
+          return new Response("Clé IA manquante", { status: 500 });
+        }
 
         const audienceCtx = audience ? AUDIENCE_CONTEXT[audience] : "";
 
-        const gateway = createLovableAiGatewayProvider(key);
-        const result = streamText({
-          model: gateway("google/gemini-3-flash-preview"),
-          system: `Tu es l'assistant officiel de MoveSpot, une marketplace française de publicité mobile sur véhicules.
+        try {
+          const gateway = createLovableAiGatewayProvider(key);
+          const result = streamText({
+            model: gateway("google/gemini-3-flash-preview"),
+            system: `Tu es l'assistant officiel de MoveSpot, une marketplace française de publicité mobile sur véhicules.
 
 RÈGLES ABSOLUES :
 1. Réponds UNIQUEMENT en français.
@@ -203,10 +208,20 @@ ${audienceCtx}
 
 === BASE DE CONNAISSANCES MOVESPOT ===
 ${KNOWLEDGE_BASE}`,
-          messages: await convertToModelMessages(messages as UIMessage[]),
-        });
+            messages: await convertToModelMessages(messages as UIMessage[]),
+            onError: ({ error }) => {
+              log.error("faq_chat_stream_error", error, { audience: audience ?? "unknown" });
+            },
+          });
 
-        return result.toUIMessageStreamResponse();
+          return result.toUIMessageStreamResponse();
+        } catch (err) {
+          log.error("faq_chat_fatal", err, { audience: audience ?? "unknown" });
+          return new Response(
+            JSON.stringify({ error: "Service IA temporairement indisponible" }),
+            { status: 503, headers: { "Content-Type": "application/json" } },
+          );
+        }
       },
     },
   },
