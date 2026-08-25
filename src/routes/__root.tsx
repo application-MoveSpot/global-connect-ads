@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
+import { StatusBanner } from "@/components/app/StatusBanner";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -88,6 +89,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppUpdateGuard />
+      <StatusBanner />
       <Outlet />
     </QueryClientProvider>
   );
