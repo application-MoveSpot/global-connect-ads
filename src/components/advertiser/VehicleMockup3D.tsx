@@ -118,14 +118,15 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
   }, [isAuto, isDragging]);
 
   // Met à jour la source vidéo sans remonter l'élément <video>.
-  // Ce useEffect est le SEUL endroit où screenVideoUrl est appliqué au DOM — jamais dans le JSX —
-  // pour éviter que les re-renders de rotation (30 ms) ne recréent le nœud et ne remettent la
-  // lecture à zéro.
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
     if (screenVideoUrl) {
+      // React écrit l'attribut HTML "muted" mais les navigateurs lisent la propriété DOM.
+      // Sans cette ligne, play() échoue silencieusement (politique autoplay) et le video reste figé.
+      vid.muted = true;
       vid.src = screenVideoUrl;
+      vid.load(); // obligatoire quand src est défini par code (pas via le rendu React)
       vid.play().catch(() => {});
     } else {
       vid.pause();
@@ -140,9 +141,13 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
   // pour éviter la closure périmée sur la valeur initiale null.
   const videoCallbackRef = useCallback((el: HTMLVideoElement | null) => {
     videoRef.current = el;
-    if (el && screenVideoUrlRef.current) {
-      el.src = screenVideoUrlRef.current;
-      el.play().catch(() => {});
+    if (el) {
+      el.muted = true; // propriété DOM — React ne la propage pas toujours depuis l'attribut JSX
+      if (screenVideoUrlRef.current) {
+        el.src = screenVideoUrlRef.current;
+        el.load();
+        el.play().catch(() => {});
+      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
