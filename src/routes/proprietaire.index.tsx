@@ -11,6 +11,7 @@ import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
+import { downloadCsv } from "@/lib/exportCsv";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
@@ -188,6 +189,35 @@ function DashboardPage() {
     navigate({ to: "/" });
   };
 
+  const exportVehiclesCsv = () => {
+    const rows = vehicles.map((v) => ({
+      id: v.id,
+      nom: v.name,
+      type: v.type,
+      format: v.format_publicitaire,
+      prix_par_jour_eur: v.price_per_day,
+      statut: v.status,
+      date_ajout: v.created_at,
+    }));
+    downloadCsv(rows, `movespot-vehicules-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const exportRequestsCsv = () => {
+    const rows = requests.map((r) => ({
+      id: r.id,
+      annonceur: r.company,
+      spot: r.spot_name,
+      statut: r.status,
+      prix_total_eur: r.total_price ?? "",
+      jours: r.days_count ?? "",
+      debut: r.start_date ?? "",
+      fin: r.end_date ?? "",
+      impressions_par_jour: r.estimated_impressions_per_day ?? "",
+      date_reception: r.created_at,
+    }));
+    downloadCsv(rows, `movespot-demandes-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
   if (loading && !loadError)
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
@@ -275,14 +305,34 @@ function DashboardPage() {
               🔳 QR codes véhicules
             </Link>
           </div>
-          {tab === "vehicles" && (
-            <Link
-              to="/proprietaire/vehicules/nouveau"
-              className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
-            >
-              + Ajouter un véhicule
-            </Link>
-          )}
+          <div className="flex gap-2">
+            {tab === "vehicles" && vehicles.length > 0 && (
+              <button
+                type="button"
+                onClick={exportVehiclesCsv}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
+              >
+                ⬇ Export CSV
+              </button>
+            )}
+            {tab === "requests" && requests.length > 0 && (
+              <button
+                type="button"
+                onClick={exportRequestsCsv}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
+              >
+                ⬇ Export CSV
+              </button>
+            )}
+            {tab === "vehicles" && (
+              <Link
+                to="/proprietaire/vehicules/nouveau"
+                className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+              >
+                + Ajouter un véhicule
+              </Link>
+            )}
+          </div>
         </div>
 
         {tab === "vehicles" ? (

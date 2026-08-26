@@ -11,6 +11,7 @@ import { MobilityMap } from "@/components/shared/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
 import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
 import { track } from "@/lib/analytics/track";
+import { downloadCsv } from "@/lib/exportCsv";
 import { toast } from "sonner";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
@@ -149,6 +150,23 @@ function AnnonceurDashboard() {
     };
   }, [userId, reload]);
 
+  const exportCsv = () => {
+    const rows = requests.map((r) => ({
+      id: r.id,
+      spot: r.spot_name,
+      localisation: r.spot_location ?? "",
+      statut: r.status,
+      paiement: r.payment_status,
+      installation: r.installation_status ?? "",
+      prix_total_eur: r.total_price ?? "",
+      prix_par_jour_eur: r.spot_price ?? "",
+      jours: r.days_count ?? "",
+      impressions_par_jour: r.estimated_impressions_per_day ?? "",
+      date_creation: r.created_at,
+    }));
+    downloadCsv(rows, `movespot-campagnes-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
   const handlePay = async (r: Req) => {
     const cents = Math.round(Number(r.total_price ?? 0) * 100);
     if (cents > balanceCents) {
@@ -256,6 +274,15 @@ function AnnonceurDashboard() {
             >
               + Nouvelle campagne
             </Link>
+            {requests.length > 0 && (
+              <button
+                type="button"
+                onClick={exportCsv}
+                className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              >
+                ⬇ Export CSV
+              </button>
+            )}
           </div>
         </div>
 
