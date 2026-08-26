@@ -1,51 +1,30 @@
 import { createServerFn } from "@tanstack/react-start";
-import webpush from "web-push";
-import { createClient } from "@supabase/supabase-js";
 
-let vapidConfigured = false;
-function ensureVapid() {
-  if (vapidConfigured) return;
-  webpush.setVapidDetails(
-    process.env["VAPID_SUBJECT"]!,
-    process.env["VAPID_PUBLIC_KEY"]!,
-    process.env["VAPID_PRIVATE_KEY"]!,
-  );
-  vapidConfigured = true;
-}
-
-const supabaseAdmin = () =>
-  createClient(
-    process.env["SUPABASE_URL"]!,
-    process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
-  );
+const SUPABASE_URL = process.env["SUPABASE_URL"] ?? "";
+const SUPABASE_ANON_KEY = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? "";
+const EDGE_FN_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/send-push` : "";
 
 type PushPayload = { title: string; body?: string; url?: string; tag?: string };
 
-/** Send a push notification to every subscription belonging to a user. */
+/** Send a push notification to every subscription belonging to a user via the Edge Function. */
 export async function sendWebPushToUser(userId: string, payload: PushPayload) {
-  ensureVapid();
-  const db = supabaseAdmin();
-  const { data: subs } = await db
-    .from("push_subscriptions" as never)
-    .select("endpoint, p256dh, auth")
-    .eq("user_id" as never, userId);
-
-  if (!subs || subs.length === 0) return;
-
-  const serialized = JSON.stringify(payload);
-  await Promise.allSettled(
-    (subs as { endpoint: string; p256dh: string; auth: string }[]).map((sub) =>
-      webpush.sendNotification(
-        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        serialized,
-      ).catch(() => {
-        // Subscription may be expired — silently ignore
-      }),
-    ),
-  );
+  if (!EDGE_FN_URL || !SUPABASE_ANON_KEY) return;
+  try {
+    await fetch(EDGE_FN_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ userId, ...payload }),
+    });
+  } catch {
+    // Non-fatal — push is best-effort
+  }
 }
 
-/** TanStack server function callable from the client Realtime callbacks. */
+/** TanStack server function callable from client-side Realtime callbacks. */
 export const sendPushToCurrentUser = createServerFn({ method: "POST" })
   .validator((data: unknown) => data as { userId: string } & PushPayload)
   .handler(async ({ data: { userId, ...payload } }) => {
