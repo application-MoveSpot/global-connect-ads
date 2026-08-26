@@ -76,6 +76,15 @@ function BriefDetailPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Realtime: proposal status changes on this brief (accepted/rejected by advertiser)
+  useEffect(() => {
+    const channel = supabase
+      .channel(`brief-detail-${briefId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `brief_id=eq.${briefId}` }, () => { void load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [briefId, load]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 
@@ -32,36 +32,50 @@ type Proposal = { id: string; brief_id: string; status: string; price_per_day: n
 function OpenBriefsPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [ownerId, setOwnerId] = useState<string | null>(null);
   const [myTypes, setMyTypes] = useState<string[]>([]);
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [myProposals, setMyProposals] = useState<Proposal[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
-      const { data: prof } = await supabase
-        .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
-      if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
+  const load = useCallback(async () => {
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
+    const { data: prof } = await supabase
+      .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
+    if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
+    setOwnerId(prof.id);
 
-      const { data: vs } = await supabase
-        .from("vehicles").select("type").eq("owner_id", prof.id).eq("status", "approved");
-      const types = Array.from(new Set((vs ?? []).map((v) => v.type as string)));
-      setMyTypes(types);
+    const { data: vs } = await supabase
+      .from("vehicles").select("type").eq("owner_id", prof.id).eq("status", "approved");
+    const types = Array.from(new Set((vs ?? []).map((v) => v.type as string)));
+    setMyTypes(types);
 
-      const { data: bs } = await supabase
-        .from("advertiser_briefs").select("*").eq("status", "open").order("created_at", { ascending: false });
-      const all = (bs as Brief[]) ?? [];
-      const eligible = all.filter((b) => b.vehicle_types.some((t) => types.includes(t)));
-      setBriefs(eligible);
+    const { data: bs } = await supabase
+      .from("advertiser_briefs").select("*").eq("status", "open").order("created_at", { ascending: false });
+    const all = (bs as Brief[]) ?? [];
+    const eligible = all.filter((b) => b.vehicle_types.some((t) => types.includes(t)));
+    setBriefs(eligible);
 
-      const { data: ps } = await supabase
-        .from("brief_proposals").select("id, brief_id, status, price_per_day").eq("owner_id", prof.id);
-      setMyProposals((ps as Proposal[]) ?? []);
+    const { data: ps } = await supabase
+      .from("brief_proposals").select("id, brief_id, status, price_per_day").eq("owner_id", prof.id);
+    setMyProposals((ps as Proposal[]) ?? []);
 
-      setLoading(false);
-    })();
+    setLoading(false);
   }, [navigate]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  // Realtime: new briefs + proposal status changes
+  useEffect(() => {
+    if (!ownerId) return;
+    const channel = supabase
+      .channel(`owner-briefs-${ownerId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "advertiser_briefs" }, () => { void load(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "advertiser_briefs" }, () => { void load(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `owner_id=eq.${ownerId}` }, () => { void load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [ownerId, load]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 

@@ -85,6 +85,17 @@ function DashboardPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Realtime: new/updated campaign requests + vehicle status changes
+  useEffect(() => {
+    if (!profile) return;
+    const channel = supabase
+      .channel(`owner-dashboard-${profile.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "campaign_requests" }, () => { void load(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "vehicles", filter: `owner_id=eq.${profile.id}` }, () => { void load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [profile, load]);
+
   const respond = async (id: string, response: "accepted" | "rejected") => {
     await supabase.from("campaign_requests").update({ owner_response: response }).eq("id", id);
     await load();
