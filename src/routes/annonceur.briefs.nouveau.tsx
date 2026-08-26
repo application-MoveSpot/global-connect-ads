@@ -161,8 +161,22 @@ function NewBriefPage() {
       ad_format: adFormat ?? null,
     }]).select("id").single();
 
+    if (insErr) {
+      // Nettoyer les fichiers déjà uploadés pour éviter les orphelins
+      if (uploadedPaths.length > 0) {
+        await supabase.storage.from("campaign-creatives").remove(uploadedPaths);
+      }
+      setLoading(false);
+      // Message clair à la place du message d'erreur brut de la base
+      const isEnumError = insErr.message?.includes("invalid input value for enum") || insErr.message?.includes("vehicle_type");
+      setError(
+        isEnumError
+          ? "Le type de véhicule sélectionné n'est pas encore disponible sur cette version. Veuillez réessayer dans quelques minutes ou contacter le support."
+          : `Erreur lors de la création du brief : ${insErr.message}`
+      );
+      return;
+    }
     setLoading(false);
-    if (insErr) { setError(insErr.message); return; }
 
     // Budget calculé depuis la zone dessinée → tunnel de paiement Stripe
     const computed = zonePolygon
