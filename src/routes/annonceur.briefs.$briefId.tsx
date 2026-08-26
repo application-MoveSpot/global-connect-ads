@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
@@ -85,6 +86,7 @@ function BriefDetailPage() {
 
   const respond = async (id: string, status: "accepted" | "rejected") => {
     await supabase.from("brief_proposals").update({ status }).eq("id", id);
+    void track(`proposal_${status}`, { proposal_id: id, brief_id: briefId });
     await load();
   };
 

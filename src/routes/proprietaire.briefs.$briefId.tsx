@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics/track";
 import { pushNotification } from "@/hooks/useNotifications";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -114,6 +115,7 @@ function BriefDetailPage() {
     }]);
     setSubmitting(false);
     if (insErr) { setError(insErr.message); return; }
+    void track("proposal_sent", { brief_id: briefId, vehicle_id: vehicleId, price_per_day: Number(price) });
     setVehicleId(""); setPrice(""); setMessage("");
     await load();
   };

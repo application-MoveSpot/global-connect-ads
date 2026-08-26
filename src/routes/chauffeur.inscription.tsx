@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics/track";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -177,6 +178,7 @@ function ChauffeurInscription() {
       setLoading(false);
       return;
     }
+    void track("signup_completed", { role: "chauffeur", kind });
     navigate({ to: "/chauffeur/espace" });
   };
 

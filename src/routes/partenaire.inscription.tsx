@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 
@@ -162,6 +163,7 @@ function PartnerSignupPage() {
       setError(error.message);
       return;
     }
+    void track("signup_completed", { role: "partenaire" });
     navigate({ to: "/partenaire" });
   };
 

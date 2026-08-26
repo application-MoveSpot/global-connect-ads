@@ -10,6 +10,7 @@ import { CampaignStepper } from "@/components/shared/CampaignStepper";
 import { MobilityMap } from "@/components/shared/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
 import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
+import { track } from "@/lib/analytics/track";
 import { toast } from "sonner";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
@@ -158,6 +159,7 @@ function AnnonceurDashboard() {
     setPaying(r.id);
     try {
       await payFn({ data: { campaignRequestId: r.id } });
+      void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
       toast.success("Paiement effectué ✓");
       const { data: sess } = await supabase.auth.getSession();
       if (sess.session) await reload(sess.session.user.id);

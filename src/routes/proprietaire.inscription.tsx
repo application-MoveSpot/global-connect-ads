@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
@@ -145,6 +146,7 @@ function InscriptionPage() {
       setLoading(false);
       return;
     }
+    void track("signup_completed", { role: "proprietaire" });
     navigate({ to: "/proprietaire/vehicules/nouveau" });
   };
 
