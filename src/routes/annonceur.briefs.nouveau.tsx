@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
-import { ZonePolygonDraw, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZonePolygonDraw";
+import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
 import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
@@ -559,13 +559,13 @@ function NewBriefPage() {
           )}
 
           <Field label="Zone de ciblage sur la carte (optionnel)">
-            <ZonePolygonDraw
+            <ZoneSelector
               searchQuery={zoneSearchQuery}
+              vehicleTypes={vehicleTypes}
               onChange={(z) => {
                 setZonePolygon(z);
                 if (z?.detectedZones && z.detectedZones.length > 0) {
                   setZones(z.detectedZones.join("\n"));
-                  // Don't update zoneSearchQuery — map-filled text mustn't re-trigger forward geocoding
                 }
               }}
             />
