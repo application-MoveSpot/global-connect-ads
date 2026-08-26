@@ -626,179 +626,69 @@ export type Database = {
         }
         Relationships: []
       }
-      partner_profiles: {
-        Row: {
-          city: string | null
-          company: string | null
-          created_at: string
-          full_name: string
-          id: string
-          notes: string | null
-          phone: string | null
-          referral_code: string | null
-          siret: string | null
-          siret_denomination: string | null
-          siret_verified_at: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          city?: string | null
-          company?: string | null
-          created_at?: string
-          full_name: string
-          id?: string
-          notes?: string | null
-          phone?: string | null
-          referral_code?: string | null
-          siret?: string | null
-          siret_denomination?: string | null
-          siret_verified_at?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          city?: string | null
-          company?: string | null
-          created_at?: string
-          full_name?: string
-          id?: string
-          notes?: string | null
-          phone?: string | null
-          referral_code?: string | null
-          siret?: string | null
-          siret_denomination?: string | null
-          siret_verified_at?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      payee_earnings: {
-        Row: {
-          amount_cents: number
-          campaign_request_id: string | null
-          created_at: string
-          currency: string
-          description: string | null
-          id: string
-          paid_at: string | null
-          payee_user_id: string
-          status: string
-          stripe_transfer_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          amount_cents: number
-          campaign_request_id?: string | null
-          created_at?: string
-          currency?: string
-          description?: string | null
-          id?: string
-          paid_at?: string | null
-          payee_user_id: string
-          status?: string
-          stripe_transfer_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          amount_cents?: number
-          campaign_request_id?: string | null
-          created_at?: string
-          currency?: string
-          description?: string | null
-          id?: string
-          paid_at?: string | null
-          payee_user_id?: string
-          status?: string
-          stripe_transfer_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payee_earnings_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       payee_profiles: {
         Row: {
-          certification_notes: string | null
-          certification_status: string
-          city: string | null
-          created_at: string
-          full_name: string
           id: string
-          kind: string
-          notes: string | null
-          phone: string | null
-          siret: string | null
-          siret_denomination: string | null
-          siret_verified_at: string | null
-          status: string
-          stripe_account_id: string | null
-          stripe_charges_enabled: boolean
-          stripe_connect_account_id: string | null
-          stripe_details_submitted: boolean
-          stripe_onboarding_completed_at: string | null
-          stripe_payouts_enabled: boolean
-          updated_at: string
           user_id: string
+          created_at: string
+          updated_at: string
+          kind: string
+          full_name: string
+          phone: string | null
+          city: string | null
+          status: string
           vehicle_kind: string | null
           vehicle_plate: string | null
+          certification_status: string
+          certification_notes: string | null
+          stripe_account_id: string | null
+          stripe_connect_account_id: string | null
+          stripe_charges_enabled: boolean | null
+          stripe_details_submitted: boolean | null
+          stripe_payouts_enabled: boolean | null
+          stripe_onboarding_completed_at: string | null
         }
         Insert: {
-          certification_notes?: string | null
-          certification_status?: string
-          city?: string | null
-          created_at?: string
-          full_name: string
           id?: string
-          kind?: string
-          notes?: string | null
-          phone?: string | null
-          siret?: string | null
-          siret_denomination?: string | null
-          siret_verified_at?: string | null
-          status?: string
-          stripe_account_id?: string | null
-          stripe_charges_enabled?: boolean
-          stripe_connect_account_id?: string | null
-          stripe_details_submitted?: boolean
-          stripe_onboarding_completed_at?: string | null
-          stripe_payouts_enabled?: boolean
-          updated_at?: string
           user_id: string
+          created_at?: string
+          updated_at?: string
+          kind: string
+          full_name: string
+          phone?: string | null
+          city?: string | null
+          status?: string
           vehicle_kind?: string | null
           vehicle_plate?: string | null
+          certification_status?: string
+          certification_notes?: string | null
+          stripe_account_id?: string | null
+          stripe_connect_account_id?: string | null
+          stripe_charges_enabled?: boolean | null
+          stripe_details_submitted?: boolean | null
+          stripe_payouts_enabled?: boolean | null
+          stripe_onboarding_completed_at?: string | null
         }
         Update: {
-          certification_notes?: string | null
-          certification_status?: string
-          city?: string | null
-          created_at?: string
-          full_name?: string
           id?: string
-          kind?: string
-          notes?: string | null
-          phone?: string | null
-          siret?: string | null
-          siret_denomination?: string | null
-          siret_verified_at?: string | null
-          status?: string
-          stripe_account_id?: string | null
-          stripe_charges_enabled?: boolean
-          stripe_connect_account_id?: string | null
-          stripe_details_submitted?: boolean
-          stripe_onboarding_completed_at?: string | null
-          stripe_payouts_enabled?: boolean
-          updated_at?: string
           user_id?: string
+          created_at?: string
+          updated_at?: string
+          kind?: string
+          full_name?: string
+          phone?: string | null
+          city?: string | null
+          status?: string
           vehicle_kind?: string | null
           vehicle_plate?: string | null
+          certification_status?: string
+          certification_notes?: string | null
+          stripe_account_id?: string | null
+          stripe_connect_account_id?: string | null
+          stripe_charges_enabled?: boolean | null
+          stripe_details_submitted?: boolean | null
+          stripe_payouts_enabled?: boolean | null
+          stripe_onboarding_completed_at?: string | null
         }
         Relationships: []
       }

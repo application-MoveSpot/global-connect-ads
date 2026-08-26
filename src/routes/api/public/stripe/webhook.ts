@@ -5,7 +5,7 @@ import { log } from "@/lib/logger";
 export const Route = createFileRoute("/api/public/stripe/webhook")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async ({ request }: { request: Request }) => {
         let event: { id: string; type: string; data: { object: unknown } };
         try {
           event = await verifyWebhook(request);

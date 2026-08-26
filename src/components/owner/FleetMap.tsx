@@ -70,7 +70,7 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
 
   useEffect(() => {
     getMapboxToken()
-      .then((r) => setToken(r.token))
+      .then((r: { token: string }) => setToken(r.token))
       .catch(() => setToken(""));
   }, []);
 

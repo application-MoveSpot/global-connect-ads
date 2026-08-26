@@ -32,7 +32,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 export const Route = createFileRoute("/proprietaire/flotte")({
   head: () => ({ meta: [{ title: "Ma flotte — MoveSpot" }] }),
   component: FleetPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: Error }) => (
     <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
   ),
 });

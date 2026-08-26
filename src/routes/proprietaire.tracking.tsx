@@ -22,7 +22,7 @@ export const Route = createFileRoute("/proprietaire/tracking")({
     links: [{ rel: "manifest", href: "/manifest.webmanifest" }],
   }),
   component: TrackingPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: Error }) => (
     <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
   ),
 });
@@ -243,7 +243,7 @@ function TrackingPage() {
                   <SelectValue placeholder="Choisir un véhicule" />
                 </SelectTrigger>
                 <SelectContent>
-                  {vehicles.map((v) => (
+                  {vehicles.map((v: any) => (
                     <SelectItem key={v.id} value={v.id}>
                       {v.name} ({v.type})
                     </SelectItem>

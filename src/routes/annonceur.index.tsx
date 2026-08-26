@@ -65,7 +65,7 @@ function AnnonceurDashboard() {
         .order("created_at", { ascending: false }),
       walletFn(),
     ]);
-    setRequests((reqs as Req[]) ?? []);
+    setRequests((reqs as unknown as Req[]) ?? []);
     setBalanceCents(w?.balance_cents ?? 0);
   };
 

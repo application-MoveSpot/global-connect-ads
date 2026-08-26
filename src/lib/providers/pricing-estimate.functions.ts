@@ -83,7 +83,7 @@ Un prestataire souhaite s'inscrire sur MoveSpot (marketplace de publicité mobil
 
 Données du prestataire :
 - Entreprise : ${data.company || "non renseignée"}
-- Services proposés : ${data.services.map((s) => serviceLabels[s]).join(", ")}
+- Services proposés : ${data.services.map((s: string) => serviceLabels[s]).join(", ")}
 - Zones d'intervention : ${zonesStr}
 
 Voici les benchmarks du marché français issus de notre étude de marché :

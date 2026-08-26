@@ -89,7 +89,7 @@ export function BankTransferPanel({
 
   useEffect(() => {
     fetchDetails()
-      .then((d) => { setDetails(d); setDetailsLoaded(true); })
+      .then((d: unknown) => { setDetails(d as BankDetails | null); setDetailsLoaded(true); })
       .catch(() => setDetailsLoaded(true));
     reload().catch(() => setRows([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps

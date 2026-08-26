@@ -220,9 +220,10 @@ export function BookingForm({ spot, onClose }: Props) {
     if (!spot?.vehicleId) { setBookedPeriods([]); return; }
     setPeriodsLoading(true);
     setPeriodsError(false);
-    supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
       .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
-      .then(({ data, error }) => {
+      .then(({ data, error }: { data: BookedPeriod[] | null; error: unknown }) => {
         if (error) { setPeriodsError(true); setBookedPeriods([]); }
         else setBookedPeriods((data ?? []) as BookedPeriod[]);
       })
@@ -388,8 +389,8 @@ export function BookingForm({ spot, onClose }: Props) {
         total_price: totalPrice,
         daily_start_time: dailyStart,
         daily_end_time: dailyEnd,
-        country_code: selectedCountry.code,
-        timezone: selectedCountry.timezone,
+        country_code: selectedCountry.code as never,
+        timezone: selectedCountry.timezone as never,
         route_zones: itinerary.zones.slice(0, 50),
         route_waypoints: itinerary.waypoints.slice(0, 50),
         route_pois: itinerary.pois.slice(0, 50),
@@ -410,9 +411,10 @@ export function BookingForm({ spot, onClose }: Props) {
       setStatus("idle");
       if (spot.vehicleId) {
         // Refresh booked periods via RPC so the calendar immediately shows the new blocker
-        supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase as any)
           .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
-          .then(({ data: fresh, error: rpcErr }) => {
+          .then(({ data: fresh, error: rpcErr }: { data: BookedPeriod[] | null; error: unknown }) => {
             if (rpcErr || !fresh) {
               setStatus("rejected");
               setReason("Ces dates viennent d'être réservées. Veuillez rafraîchir la page.");

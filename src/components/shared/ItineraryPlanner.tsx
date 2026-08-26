@@ -43,7 +43,7 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
   onChangeRef.current = onChange;
 
   useEffect(() => {
-    getMapboxToken().then((r) => setToken(r.token)).catch(() => setToken(""));
+    getMapboxToken().then((r: { token: string }) => setToken(r.token)).catch(() => setToken(""));
   }, []);
 
   const impressionsPerDay = Math.round(distanceKm * BASE_TRAFFIC_DENSITY * multiplier);

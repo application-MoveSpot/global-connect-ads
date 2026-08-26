@@ -8,13 +8,13 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
   }),
-  beforeLoad: async ({ search, location }) => {
+  beforeLoad: async ({ search, location }: { search: Record<string, string>; location: { pathname: string; searchStr: string; search: string } }) => {
     if (!search.authorization_id) throw new Error("authorization_id manquant");
     const { data } = await supabase.auth.getSession();
     const next = location.pathname + location.searchStr;
     if (!data.session) throw redirect({ to: "/auth", search: { next } });
   },
-  loader: async ({ location }) => {
+  loader: async ({ location }: { location: { pathname: string; searchStr: string; search: string } }) => {
     const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;
     const oauth = (supabase.auth as unknown as {
       oauth: {
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     return data;
   },
   component: Consent,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: Error }) => (
     <main className="min-h-screen flex items-center justify-center p-6 text-center">
       <p className="text-sm text-muted-foreground">
         Impossible de charger cette demande d'autorisation : {String((error as Error)?.message ?? error)}

@@ -76,7 +76,7 @@ function ChauffeurEspace() {
       setProfile(data as Profile);
       setState("ready");
       fetchEarnings()
-        .then((e) => setEarnings({ totalCents: e.totalCents, paidCents: e.paidCents, pendingCents: e.pendingCents }))
+        .then((e: any) => setEarnings({ totalCents: e.totalCents, paidCents: e.paidCents, pendingCents: e.pendingCents }))
         .catch(() => setEarnings({ totalCents: 0, paidCents: 0, pendingCents: 0 }));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

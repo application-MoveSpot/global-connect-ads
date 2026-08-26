@@ -145,7 +145,7 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
-    const rows = data.points.map((p) => ({
+    const rows = data.points.map((p: any) => ({
       vehicle_id: payload.v,
       owner_id: payload.o,
       campaign_request_id: camp?.id ?? null,

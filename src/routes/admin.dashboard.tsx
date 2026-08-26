@@ -33,7 +33,7 @@ export const Route = createFileRoute("/admin/dashboard")({
     ],
   }),
   component: AdminDashboard,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: Error }) => (
     <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
   ),
 });
@@ -191,7 +191,7 @@ function AdminDashboard() {
                   Campagnes à modérer ({briefsQuery.data?.campaigns.length ?? 0})
                 </h2>
                 <div className="space-y-3">
-                  {(briefsQuery.data?.campaigns ?? []).map((c) => (
+                  {(briefsQuery.data?.campaigns ?? []).map((c: any) => (
                     <div key={c.id} className="rounded-2xl border border-border bg-card p-5">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -239,7 +239,7 @@ function AdminDashboard() {
                   Briefs annonceurs ({briefsQuery.data?.briefs.length ?? 0})
                 </h2>
                 <div className="space-y-3">
-                  {(briefsQuery.data?.briefs ?? []).map((b) => (
+                  {(briefsQuery.data?.briefs ?? []).map((b: any) => (
                     <div key={b.id} className="rounded-2xl border border-border bg-card p-5">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -282,7 +282,7 @@ function AdminDashboard() {
                 Photos transmises par les poseurs certifiés. La diffusion et la rémunération ne
                 démarrent qu'après votre validation.
               </p>
-              {(installationsQuery.data?.installations ?? []).map((i) => (
+              {(installationsQuery.data?.installations ?? []).map((i: any) => (
                 <InstallationReviewCard
                   key={i.id}
                   item={i}
@@ -304,7 +304,7 @@ function AdminDashboard() {
             <Skeleton />
           ) : (
             <div className="space-y-3">
-              {(poseursQuery.data?.poseurs ?? []).map((p) => (
+              {(poseursQuery.data?.poseurs ?? []).map((p: any) => (
                 <div key={p.id} className="rounded-2xl border border-border bg-card p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -376,7 +376,7 @@ function AdminDashboard() {
                   Ces prestataires ont démarré la liaison Stripe Express mais n'ont pas finalisé leur onboarding — ils ne peuvent pas encore recevoir de virements.
                 </p>
                 <div className="space-y-3">
-                  {(stripeQuery.data?.incomplete ?? []).map((p) => (
+                  {(stripeQuery.data?.incomplete ?? []).map((p: any) => (
                     <StripeAccountRow key={p.id} account={p} badge="Onboarding incomplet" badgeColor="amber" onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })} />
                   ))}
                   {(stripeQuery.data?.incomplete ?? []).length === 0 && (
@@ -393,7 +393,7 @@ function AdminDashboard() {
                   Ces prestataires sont inscrits depuis plus de 30 jours mais n'ont pas encore lié de compte Stripe Express — aucun reversement ne peut leur être versé.
                 </p>
                 <div className="space-y-3">
-                  {(stripeQuery.data?.neverStarted ?? []).map((p) => (
+                  {(stripeQuery.data?.neverStarted ?? []).map((p: any) => (
                     <StripeAccountRow key={p.id} account={p} badge="Stripe non lié" badgeColor="red" onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })} />
                   ))}
                   {(stripeQuery.data?.neverStarted ?? []).length === 0 && (
@@ -425,7 +425,7 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
 function Skeleton() {
   return (
     <div className="space-y-3">
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2].map((i: any) => (
         <div key={i} className="h-24 animate-pulse rounded-2xl border border-border bg-card" />
       ))}
     </div>

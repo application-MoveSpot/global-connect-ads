@@ -26,7 +26,7 @@ export function InstallationJobsPanel() {
 
   const load = useCallback(() => {
     fetchJobs()
-      .then((r) => {
+      .then((r: { isInstaller: boolean; jobs: Job[] | null }) => {
         setIsInstaller(r.isInstaller);
         setJobs((r.jobs ?? []) as Job[]);
       })

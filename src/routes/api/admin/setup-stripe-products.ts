@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/admin/setup-stripe-products")({
   server: {
     handlers: {
-      GET: async ({ request }) => {
+      GET: async ({ request }: { request: Request }) => {
         const url = new URL(request.url);
         const authHeader = request.headers.get("x-admin-setup-token") ?? url.searchParams.get("token");
         const expectedToken = process.env["ADMIN_SETUP_TOKEN"] ?? "movespot-setup-2026";

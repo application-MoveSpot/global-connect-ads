@@ -45,7 +45,7 @@ function TrialActivatedPage() {
       return;
     }
     verifySession({ data: { sessionId } })
-      .then((r) => {
+      .then((r: any) => {
         if ("error" in r) {
           setState({ phase: "error", message: r.error || "Impossible de vérifier votre abonnement." });
           return;

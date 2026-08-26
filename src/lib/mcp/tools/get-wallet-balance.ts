@@ -15,7 +15,7 @@ export default defineTool({
       .describe("Nombre de transactions récentes à inclure (défaut 10)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ transactions_limit }, ctx) => {
+  handler: async ({ transactions_limit }: { transactions_limit?: number }, ctx: import("@lovable.dev/mcp-js").ToolContext) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }
