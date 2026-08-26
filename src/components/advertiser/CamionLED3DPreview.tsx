@@ -21,6 +21,8 @@ type Props = {
   /** URL blob ou distant d'un visuel à pré-charger sur les écrans LED */
   screenVideoUrl?: string | null;
   logoUrl?: string | null;
+  /** URL d'un modèle GLTF/GLB réel. Quand fourni, utilise <model-viewer> au lieu de Three.js */
+  modelSrc?: string | null;
   className?: string;
 };
 
@@ -39,7 +41,161 @@ const C = {
   fog:        0x0c0d1a,
 } as const;
 
-export function CamionLED3DPreview({ screenVideoUrl, logoUrl, className }: Props) {
+export function CamionLED3DPreview({ screenVideoUrl, logoUrl, modelSrc, className }: Props) {
+  if (modelSrc) {
+    return (
+      <CamionLEDModelViewerPreview
+        modelSrc={modelSrc}
+        screenVideoUrl={screenVideoUrl}
+        logoUrl={logoUrl}
+        className={className}
+      />
+    );
+  }
+  return <CamionLEDThreeJSPreview screenVideoUrl={screenVideoUrl} logoUrl={logoUrl} className={className} />;
+}
+
+// ── Matériaux cibles : noms contenant 'caisson' ou 'publicite' (insensible à la casse) ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findAdMaterials(materials: any[]): any[] {
+  return materials.filter((m) => {
+    const n = (m.name ?? "").toLowerCase();
+    return n.includes("caisson") || n.includes("publicite") || n.includes("publicité");
+  });
+}
+
+// ── <model-viewer> avec filtrage par nom de matériel ──────────────────────────────────
+function CamionLEDModelViewerPreview({
+  modelSrc,
+  screenVideoUrl,
+  logoUrl,
+  className,
+}: {
+  modelSrc: string;
+  screenVideoUrl?: string | null;
+  logoUrl?: string | null;
+  className?: string;
+}) {
+  const viewerRef = useRef<HTMLElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "applied" | "no-material" | "error">("idle");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Charge le script <model-viewer> une seule fois
+  useEffect(() => {
+    const scriptId = "mv-script";
+    if (document.getElementById(scriptId)) return;
+    const s = document.createElement("script");
+    s.id = scriptId;
+    s.type = "module";
+    s.src = "https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js";
+    document.head.appendChild(s);
+  }, []);
+
+  // Écoute le chargement du modèle
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el) return;
+    const onLoad = () => setIsLoaded(true);
+    el.addEventListener("load", onLoad);
+    return () => el.removeEventListener("load", onLoad);
+  }, []);
+
+  // Applique la texture uniquement sur les matériaux caisson / publicite
+  useEffect(() => {
+    if (!isLoaded) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const viewer = viewerRef.current as any;
+    if (!viewer?.model) return;
+
+    const activeUrl = screenVideoUrl ?? logoUrl;
+    const adMaterials = findAdMaterials(viewer.model.materials);
+
+    if (!activeUrl) {
+      adMaterials.forEach((mat) => {
+        mat.pbrMetallicRoughness.baseColorTexture.setTexture(null);
+      });
+      setStatus("idle");
+      return;
+    }
+
+    if (!adMaterials.length) {
+      setStatus("no-material");
+      return;
+    }
+
+    setStatus("loading");
+    (viewer.createTexture(activeUrl) as Promise<unknown>).then((tex) => {
+      adMaterials.forEach((mat) => {
+        mat.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+        mat.pbrMetallicRoughness.baseColorTexture.setTexture(tex);
+        mat.setEmissiveFactor([1, 1, 1]);
+        mat.emissiveTexture.setTexture(tex);
+      });
+      setStatus("applied");
+    }).catch(() => setStatus("error"));
+  }, [isLoaded, screenVideoUrl, logoUrl]);
+
+  const statusMsg: Record<typeof status, string> = {
+    idle: "Camion Écran LED — 3D",
+    loading: "⏳ Application du visuel…",
+    applied: `✓ Visuel appliqué (${["caisson","publicite"].join(" / ")})`,
+    "no-material": "⚠ Matériel caisson/publicité introuvable dans le modèle",
+    error: "⚠ Erreur lors du chargement de la texture",
+  };
+
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-border overflow-hidden bg-[#0c0d1a] relative select-none",
+        isFullscreen && "fixed inset-0 z-50 rounded-none border-0",
+        className,
+      )}
+      style={{ height: isFullscreen ? "100dvh" : 520 }}
+    >
+      {/* @ts-expect-error model-viewer est un web component externe */}
+      <model-viewer
+        ref={viewerRef}
+        src={modelSrc}
+        alt="Camion Écran LED 3D"
+        camera-controls=""
+        auto-rotate=""
+        shadow-intensity="1"
+        exposure="0.9"
+        style={{ width: "100%", height: "100%", background: "transparent" }}
+      />
+
+      {/* Statut */}
+      <div className="absolute top-4 left-4 z-10">
+        <div className="rounded-xl bg-black/75 backdrop-blur-md border border-white/10 px-3 py-2 text-xs text-white/60">
+          <div className="text-[10px] font-semibold text-white/45 uppercase tracking-widest mb-0.5">Camion Écran LED</div>
+          <div className={cn("text-sm font-bold", status === "applied" ? "text-green-400" : status === "no-material" || status === "error" ? "text-yellow-400" : "text-white")}>
+            📺 {statusMsg[status]}
+          </div>
+        </div>
+      </div>
+
+      {/* Fullscreen */}
+      <button
+        onClick={() => setIsFullscreen((v) => !v)}
+        className="absolute top-4 right-4 z-10 p-2 rounded-lg bg-black/60 backdrop-blur border border-white/10 text-white/40 hover:text-white/70 hover:bg-black/80 transition"
+        title={isFullscreen ? "Réduire" : "Plein écran"}
+      >
+        <Maximize2 size={14} />
+      </button>
+
+      {/* Watermark */}
+      <div className="absolute bottom-4 right-4 z-10 pointer-events-none">
+        <div className="text-[10px] text-white/18 font-medium tracking-wide">
+          MoveSpot · Camion LED 3D
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Three.js procedural (fallback sans modèle GLTF) ──────────────────────────────────
+function CamionLEDThreeJSPreview({ screenVideoUrl, logoUrl, className }: Omit<Props, "modelSrc">) {
   const mountRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
   const webglReady = useRef(false);
