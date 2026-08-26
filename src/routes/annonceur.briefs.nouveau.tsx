@@ -12,8 +12,8 @@ const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
 );
 
-const CamionLED3DPreview = lazy(() =>
-  import("@/components/advertiser/CamionLED3DPreview").then((m) => ({ default: m.CamionLED3DPreview }))
+const CamionLEDMockupPreview = lazy(() =>
+  import("@/components/advertiser/CamionLEDMockupPreview").then((m) => ({ default: m.CamionLEDMockupPreview }))
 );
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
@@ -439,7 +439,7 @@ function NewBriefPage() {
                 </div>
               </div>
               <Suspense fallback={<div className="h-[520px] rounded-2xl bg-[#0c0d1a] animate-pulse flex items-center justify-center text-sm text-white/40">Chargement du camion LED 3D…</div>}>
-                <CamionLED3DPreview
+                <CamionLEDMockupPreview
                   screenVideoUrl={screenVideoUrl}
                   logoUrl={logoUrl}
                 />
