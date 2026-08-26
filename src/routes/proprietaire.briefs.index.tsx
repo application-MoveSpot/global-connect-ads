@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { NotificationBell } from "@/components/app/NotificationBell";
+import { pushNotification } from "@/hooks/useNotifications";
 
 export const Route = createFileRoute("/proprietaire/briefs/")({
   head: () => ({
@@ -70,9 +72,17 @@ function OpenBriefsPage() {
     if (!ownerId) return;
     const channel = supabase
       .channel(`owner-briefs-${ownerId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "advertiser_briefs" }, () => { void load(); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "advertiser_briefs" }, () => {
+        pushNotification("Nouveau brief publié", "Un brief pourrait correspondre à vos véhicules.");
+        void load();
+      })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "advertiser_briefs" }, () => { void load(); })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `owner_id=eq.${ownerId}` }, () => { void load(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `owner_id=eq.${ownerId}` }, (payload) => {
+        const newStatus = (payload.new as Record<string, unknown>).status as string | undefined;
+        if (newStatus === "accepted") pushNotification("Proposition acceptée !", "Un annonceur a accepté votre proposition.");
+        else if (newStatus === "rejected") pushNotification("Proposition refusée", "Un annonceur a refusé votre proposition.");
+        void load();
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [ownerId, load]);
@@ -84,7 +94,10 @@ function OpenBriefsPage() {
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          </div>
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-8">

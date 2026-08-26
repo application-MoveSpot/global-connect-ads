@@ -7,6 +7,8 @@ import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { OwnerConnectCard } from "@/components/owner/OwnerConnectCard";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+import { NotificationBell } from "@/components/app/NotificationBell";
+import { pushNotification } from "@/hooks/useNotifications";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap }))
@@ -90,8 +92,21 @@ function DashboardPage() {
     if (!profile) return;
     const channel = supabase
       .channel(`owner-dashboard-${profile.id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "campaign_requests" }, () => { void load(); })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "vehicles", filter: `owner_id=eq.${profile.id}` }, () => { void load(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "campaign_requests" }, (payload) => {
+        if ((payload as { eventType?: string }).eventType === "INSERT") {
+          const company = (payload.new as Record<string, unknown>).company as string | undefined;
+          pushNotification("Nouvelle demande de campagne", company ? `${company} souhaite louer un espace publicitaire.` : undefined);
+        }
+        void load();
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "vehicles", filter: `owner_id=eq.${profile.id}` }, (payload) => {
+        const row = payload.new as Record<string, unknown>;
+        const newStatus = row.status as string | undefined;
+        const vName = row.name as string | undefined;
+        if (newStatus === "approved") pushNotification("Véhicule approuvé !", vName ? `${vName} est maintenant visible par les annonceurs.` : undefined);
+        else if (newStatus === "rejected") pushNotification("Véhicule refusé", vName ? `${vName} n'a pas été approuvé. Consultez les notes.` : undefined);
+        void load();
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [profile, load]);
@@ -116,7 +131,10 @@ function DashboardPage() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">Bonjour, {profile?.full_name}</h1>
           </div>
-          <button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">Déconnexion</button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">Déconnexion</button>
+          </div>
         </div>
       </header>
 

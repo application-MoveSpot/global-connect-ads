@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { NotificationBell } from "@/components/app/NotificationBell";
+import { pushNotification } from "@/hooks/useNotifications";
 import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
@@ -101,7 +103,12 @@ function ChauffeurEspace() {
     if (!userId) return;
     const channel = supabase
       .channel(`chauffeur-profile-${profile.id}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "payee_profiles", filter: `user_id=eq.${userId}` }, () => { void loadProfile(userId); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "payee_profiles", filter: `user_id=eq.${userId}` }, (payload) => {
+          const newCertif = (payload.new as Record<string, unknown>).certification_status as string | undefined;
+          if (newCertif === "certified") pushNotification("Certification validée !", "Vous êtes maintenant certifié MoveSpot.");
+          else if (newCertif === "rejected") pushNotification("Certification refusée", "Votre certification a été refusée. Consultez les notes.");
+          void loadProfile(userId);
+        })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,9 +125,12 @@ function ChauffeurEspace() {
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <div className="flex items-center justify-between">
           <LogoLink />
-          <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
-            Suivi GPS →
-          </Link>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+              Suivi GPS →
+            </Link>
+          </div>
         </div>
 
         <div>
