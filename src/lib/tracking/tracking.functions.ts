@@ -111,7 +111,7 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
       campaignWindow = cr ? { ...cr, timezone: cr.timezone ?? "Europe/Paris" } : null;
     }
 
-    const rows = data.points.map((p) => {
+    const rows = data.points.map((p: any) => {
       const inWindow =
         !data.campaignRequestId ||
         isWithinDailyWindow(
@@ -145,7 +145,7 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
       active_minutes: number;
     } | null = null;
     if (data.campaignRequestId) {
-      const inWindowPoints = data.points.filter((p) =>
+      const inWindowPoints = data.points.filter((p: any) =>
         isWithinDailyWindow(
           p.recordedAt,
           campaignWindow?.daily_start_time ?? null,
@@ -181,7 +181,8 @@ export const getCampaignMetrics = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     const days = rows ?? [];
     const totals = days.reduce(
-      (acc, d) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (acc: any, d: any) => ({
         distanceM: acc.distanceM + (d.distance_traveled_m ?? 0),
         distanceInZoneM: acc.distanceInZoneM + (d.distance_traveled_in_zone_m ?? 0),
         activeMinutes: acc.activeMinutes + (d.active_minutes ?? 0),

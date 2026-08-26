@@ -11,7 +11,7 @@ export default defineTool({
     limit: z.number().int().optional().describe("Nombre maximum de véhicules à retourner (défaut 20)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ limit }, ctx) => {
+  handler: async ({ limit }: { limit?: number }, ctx: import("@lovable.dev/mcp-js").ToolContext) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }

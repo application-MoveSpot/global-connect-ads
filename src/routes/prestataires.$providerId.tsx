@@ -13,9 +13,9 @@ function isVideoUrl(url: string) {
 }
 
 export const Route = createFileRoute("/prestataires/$providerId")({
-  loader: async ({ params }) =>
+  loader: async ({ params }: { params: { providerId: string } }) =>
     getProviderPublicMeta({ data: { providerId: params.providerId } }).catch(() => null),
-  head: ({ params, loaderData }) => {
+  head: ({ params, loaderData }: { params: { providerId: string }; loaderData: { name?: string; description?: string } | null }) => {
     const url = `https://move-spot.com/prestataires/${params.providerId}`;
     const name = loaderData?.name ?? "Prestataire";
     const title = `${name} — Prestataire habillage véhicule | MoveSpot`;

@@ -42,7 +42,7 @@ function PartnerDashboard() {
       .eq("user_id", sess.session.user.id)
       .maybeSingle();
     if (!p) { navigate({ to: "/partenaire/inscription" }); return; }
-    setProfile(p as PartnerProfile);
+    setProfile(p as unknown as PartnerProfile);
     setLoading(false);
   }, [navigate]);
 

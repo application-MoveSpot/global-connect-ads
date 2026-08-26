@@ -12,7 +12,7 @@ export default defineTool({
     limit: z.number().int().optional().describe("Nombre maximum de campagnes (défaut 20)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ status, limit }, ctx) => {
+  handler: async ({ status, limit }: { status?: string; limit?: number }, ctx: import("@lovable.dev/mcp-js").ToolContext) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }

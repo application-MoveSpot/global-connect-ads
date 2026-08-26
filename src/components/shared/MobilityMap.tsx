@@ -41,7 +41,7 @@ export function MobilityMap() {
 
   // Load token from server
   useEffect(() => {
-    getMapboxToken().then((res) => setToken(res.token)).catch(() => setToken(""));
+    getMapboxToken().then((res: { token: string }) => setToken(res.token)).catch(() => setToken(""));
   }, []);
 
   // Update vehicle counts

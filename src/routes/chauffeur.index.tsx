@@ -41,7 +41,7 @@ function DriverPage() {
       return;
     }
     tokenRef.current = tok;
-    verify({ data: { token: tok } }).then((r) => {
+    verify({ data: { token: tok } }).then((r: any) => {
       if (r.ok) {
         setVehicle(r.vehicle as Vehicle);
         setState("ready");

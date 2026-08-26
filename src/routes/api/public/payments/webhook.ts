@@ -4,7 +4,7 @@ import { verifyWebhook } from "@/lib/payments/stripe.server";
 export const Route = createFileRoute("/api/public/payments/webhook")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async ({ request }: { request: Request }) => {
         let event: { id: string; type: string; data: { object: unknown } };
         try {
           event = await verifyWebhook(request);

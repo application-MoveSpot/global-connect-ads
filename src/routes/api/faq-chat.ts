@@ -174,7 +174,7 @@ const AUDIENCE_CONTEXT: Record<ChatAudience, string> = {
 export const Route = createFileRoute("/api/faq-chat")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async ({ request }: { request: Request }) => {
         const { messages, audience } = (await request.json()) as ChatRequestBody;
         if (!Array.isArray(messages)) {
           return new Response("Messages requis", { status: 400 });

@@ -27,7 +27,7 @@ export function PayeeConnectCard() {
 
   useEffect(() => {
     fetchStatus()
-      .then((s) => setStatus(s as Status))
+      .then((s: unknown) => setStatus(s as Status))
       .catch(() => setStatus({ connected: false, charges_enabled: false, payouts_enabled: false, details_submitted: false }));
   }, [fetchStatus]);
 

@@ -27,7 +27,7 @@ function PublicCampaignPage() {
 
   useEffect(() => {
     fetchInfo({ data: { campaignRequestId: campaignId } })
-      .then((r) => setState({ loading: false, found: r.found, company: r.company, spotName: r.spotName }))
+      .then((r: { found: boolean; company?: string; spotName?: string }) => setState({ loading: false, found: r.found, company: r.company, spotName: r.spotName }))
       .catch(() => setState({ loading: false, found: false }));
   }, [campaignId, fetchInfo]);
 

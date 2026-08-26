@@ -14,7 +14,7 @@ import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
   component: SuiviPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: Error }) => (
     <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
   ),
 });
@@ -201,7 +201,7 @@ function SuiviPage() {
                 <div className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Blocs de conduite du jour</p>
                   <div className="divide-y rounded-md border text-sm">
-                    {pauseData.analysis.blocks.map((b, i) => (
+                    {pauseData.analysis.blocks.map((b: any, i: number) => (
                       <div key={i} className={`flex items-center justify-between px-3 py-2 ${b.durationMinutes > 270 && !b.breakAdequate ? "bg-destructive/5" : ""}`}>
                         <div>
                           <span className="font-mono">

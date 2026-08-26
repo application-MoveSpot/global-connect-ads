@@ -46,7 +46,7 @@ async function syncPartnerSubscription(
     await supabaseAdmin.from("partner_profiles").update(patch).eq("user_id", params.userId);
     return;
   }
-  await supabaseAdmin.from("partner_profiles").update(patch).eq("stripe_subscription_id", params.subscriptionId);
+  await supabaseAdmin.from("partner_profiles").update(patch).eq("stripe_subscription_id" as never, params.subscriptionId);
 }
 
 async function syncCampaignSubscription(
@@ -74,7 +74,7 @@ async function syncCampaignSubscription(
   }
   // Pas de campagne connue dans les metadata de l'événement (ex. subscription.updated
   // reçu avant le checkout.session.completed) : on retrouve la ligne par l'ID Stripe déjà posé.
-  await supabaseAdmin.from("campaign_requests").update(patch).eq("stripe_subscription_id", params.subscriptionId);
+  await supabaseAdmin.from("campaign_requests").update(patch).eq("stripe_subscription_id" as never, params.subscriptionId);
 }
 
 export async function handleStripeEvent(
@@ -204,7 +204,7 @@ export async function handleStripeEvent(
         await supabaseAdmin
           .from("campaign_requests")
           .update({ subscription_status: "active" } as never)
-          .eq("stripe_subscription_id", subscriptionId);
+          .eq("stripe_subscription_id" as never, subscriptionId);
       }
       break;
     }
@@ -219,7 +219,7 @@ export async function handleStripeEvent(
         await supabaseAdmin
           .from("campaign_requests")
           .update({ subscription_status: "past_due" } as never)
-          .eq("stripe_subscription_id", subscriptionId);
+          .eq("stripe_subscription_id" as never, subscriptionId);
       }
       console.warn("[stripe] invoice.payment_failed", subscriptionId ?? invoice.id);
       break;

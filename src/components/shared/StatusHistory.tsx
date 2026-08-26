@@ -37,13 +37,14 @@ export function StatusHistory({ entityType, entityId, statusLabel, triggerLabel 
     setOpen(next);
     if (next && entries === null) {
       setLoading(true);
-      const { data } = await supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data } = await (supabase as any)
         .from("status_history")
         .select("id, previous_status, new_status, reason, created_at")
         .eq("entity_type", entityType)
         .eq("entity_id", entityId)
         .order("created_at", { ascending: false });
-      setEntries(data ?? []);
+      setEntries((data ?? []) as Entry[]);
       setLoading(false);
     }
   };

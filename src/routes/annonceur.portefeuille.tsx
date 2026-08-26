@@ -107,14 +107,14 @@ function WalletPage() {
     try {
       const r = await fetchTransactions({ data: { kind: filterKind, page: 0, pageSize: 5000 } });
       const header = ["Date", "Type", "Description", "Montant (EUR)"];
-      const rows = r.transactions.map((t) => [
+      const rows = r.transactions.map((t: any) => [
         new Date(t.created_at).toLocaleString("fr-FR"),
         labelKind(t.kind),
         t.description ?? "",
         (t.amount_cents / 100).toFixed(2).replace(".", ","),
       ]);
       const csv = [header, ...rows]
-        .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";"))
+        .map((row) => row.map((v: unknown) => `"${String(v).replace(/"/g, '""')}"`).join(";"))
         .join("\r\n");
       const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);

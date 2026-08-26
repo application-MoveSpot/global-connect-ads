@@ -29,10 +29,10 @@ export const importVehiclesCSV = createServerFn({ method: "POST" })
     if (oErr) throw new Error(oErr.message);
     if (!owner) throw new Error("Profil propriétaire introuvable.");
 
-    const parsed = Papa.parse<Record<string, string>>(data.csv.trim(), {
+    const parsed = Papa.parse(data.csv.trim(), {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (h) => h.trim().toLowerCase().replace(/\s+/g, "_"),
+      transformHeader: (h: string) => h.trim().toLowerCase().replace(/\s+/g, "_"),
     });
     if (parsed.errors.length) {
       throw new Error(`CSV invalide ligne ${parsed.errors[0].row}: ${parsed.errors[0].message}`);
@@ -40,7 +40,7 @@ export const importVehiclesCSV = createServerFn({ method: "POST" })
 
     const rows: any[] = [];
     const errors: { line: number; error: string }[] = [];
-    parsed.data.forEach((raw, i) => {
+    parsed.data.forEach((raw: Record<string, string>, i: number) => {
       const r = RowSchema.safeParse(raw);
       if (!r.success) {
         errors.push({ line: i + 2, error: r.error.issues.map((x) => `${x.path}: ${x.message}`).join(", ") });

@@ -28,7 +28,8 @@ function NotFoundComponent() {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const Route = (createRootRouteWithContext as any)()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },

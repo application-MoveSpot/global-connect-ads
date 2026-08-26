@@ -21,7 +21,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchWallet().then((w) => setBalance(w.balance_cents)).catch(() => setBalance(0));
+    fetchWallet().then((w: { balance_cents: number }) => setBalance(w.balance_cents)).catch(() => setBalance(0));
   }, [fetchWallet]);
 
   const neededCents = Math.round(totalPriceEur * 100);

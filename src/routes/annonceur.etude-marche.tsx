@@ -56,7 +56,7 @@ const VEHICULES = [15,     60,      180,     380,     650];
 const MARGE    = [22.7,   49.2,    46.7,    48.8,    50.2];
 const STRUCTURE = ["Micro-BIC", "Micro-BIC", "SASU (IS)", "SASU (IS)", "SASU (IS)"];
 
-const fmt = (n: number) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(n) + " €";
+const fmt = (n: number | string) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Number(n)) + " €";
 
 // ─── Composant principal ───────────────────────────────────────────────────────
 
