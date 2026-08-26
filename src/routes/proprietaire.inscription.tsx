@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { HoneypotField } from "@/components/app/HoneypotField";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 
 export const Route = createFileRoute("/proprietaire/inscription")({
@@ -25,10 +26,15 @@ function InscriptionPage() {
   const [company, setCompany] = useState("");
   const [city, setCity] = useState("");
   const [bio, setBio] = useState("");
-  const [siret, setSiret] = useState<SiretCheck>({ siret: "", denomination: null, verified: false });
+  const [siret, setSiret] = useState<SiretCheck>({
+    siret: "",
+    denomination: null,
+    verified: false,
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -61,14 +67,26 @@ function InscriptionPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    if (honeypot) {
+      setLoading(false);
+      return;
+    }
     if (mode === "signup") {
       const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/proprietaire/inscription` },
       });
-      if (error) { setError(error.message); setLoading(false); return; }
-      if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+      if (
+        signUpData.user &&
+        signUpData.user.identities &&
+        signUpData.user.identities.length === 0
+      ) {
         setMode("signin");
         setError("Un compte existe déjà avec cet email. Connectez-vous.");
         setLoading(false);
@@ -82,8 +100,15 @@ function InscriptionPage() {
       }
       setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
       setSessionEmail(signInData.session?.user.email ?? null);
     }
     setStep("profile");
@@ -99,7 +124,11 @@ function InscriptionPage() {
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
+    if (!sess.session) {
+      setError("Session expirée");
+      setLoading(false);
+      return;
+    }
     const { error } = await supabase.from("owner_profiles").insert({
       user_id: sess.session.user.id,
       full_name: fullName,
@@ -111,7 +140,11 @@ function InscriptionPage() {
       siret_denomination: siret.denomination,
       siret_verified_at: new Date().toISOString(),
     });
-    if (error) { setError(error.message); setLoading(false); return; }
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
     navigate({ to: "/proprietaire/vehicules/nouveau" });
   };
 
@@ -121,7 +154,12 @@ function InscriptionPage() {
         <div className="mb-4">
           <LogoLink />
         </div>
-        <Link to="/devenir-partenaire" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
+        <Link
+          to="/devenir-partenaire"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
+          ← Retour
+        </Link>
 
         {step === "auth" ? (
           <>
@@ -129,25 +167,52 @@ function InscriptionPage() {
               {mode === "signup" ? "Devenir partenaire" : "Connexion propriétaire"}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
-              {mode === "signup" ? "Créez votre compte pour proposer vos véhicules." : "Accédez à votre espace propriétaire."}
+              {mode === "signup"
+                ? "Créez votre compte pour proposer vos véhicules."
+                : "Accédez à votre espace propriétaire."}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
+              <HoneypotField value={honeypot} onChange={setHoneypot} />
               <Input label="Email" type="email" value={email} onChange={setEmail} required />
               <div>
-                <Input label="Mot de passe" type="password" value={password} onChange={setPassword} required minLength={6} />
+                <Input
+                  label="Mot de passe"
+                  type="password"
+                  value={password}
+                  onChange={setPassword}
+                  required
+                  minLength={6}
+                />
                 {mode === "signin" && (
                   <div className="mt-2 text-right">
-                    <Link to="/reset-password" className="text-xs text-muted-foreground hover:text-foreground underline">Mot de passe oublié ?</Link>
+                    <Link
+                      to="/reset-password"
+                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                    >
+                      Mot de passe oublié ?
+                    </Link>
                   </div>
                 )}
               </div>
               {error && <Err msg={error} />}
-              <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+              >
                 {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
               </button>
             </form>
-            <button onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); }} className="w-full text-sm text-muted-foreground hover:text-foreground mt-4">
-              {mode === "signup" ? "Déjà un compte ? Se connecter" : "Pas encore inscrit ? Créer un compte"}
+            <button
+              onClick={() => {
+                setMode(mode === "signup" ? "signin" : "signup");
+                setError("");
+              }}
+              className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
+            >
+              {mode === "signup"
+                ? "Déjà un compte ? Se connecter"
+                : "Pas encore inscrit ? Créer un compte"}
             </button>
           </>
         ) : (
@@ -156,12 +221,18 @@ function InscriptionPage() {
             {sessionEmail && (
               <div className="mb-4 rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
                 Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
-                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="underline hover:text-foreground"
+                >
                   se déconnecter pour créer un autre compte
                 </button>
               </div>
             )}
-            <p className="text-sm text-muted-foreground mb-6">Quelques infos pour vous identifier auprès des annonceurs.</p>
+            <p className="text-sm text-muted-foreground mb-6">
+              Quelques infos pour vous identifier auprès des annonceurs.
+            </p>
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
               <SiretField value={siret} onChange={setSiret} />
@@ -170,11 +241,20 @@ function InscriptionPage() {
               <Input label="Ville" value={city} onChange={setCity} />
               <div>
                 <label className="block text-sm font-medium mb-1.5">Bio courte</label>
-                <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} maxLength={300}
-                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  maxLength={300}
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
               </div>
               {error && <Err msg={error} />}
-              <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+              >
                 {loading ? "..." : "Continuer → ajouter un véhicule"}
               </button>
             </form>
@@ -185,18 +265,40 @@ function InscriptionPage() {
   );
 }
 
-function Input({ label, value, onChange, type = "text", required, minLength }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; minLength?: number;
+function Input({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  minLength,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  minLength?: number;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} minLength={minLength} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input
+        type={type}
+        required={required}
+        minLength={minLength}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }
 
 function Err({ msg }: { msg: string }) {
-  return <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{msg}</div>;
+  return (
+    <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+      {msg}
+    </div>
+  );
 }

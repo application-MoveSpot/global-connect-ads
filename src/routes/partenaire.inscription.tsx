@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { HoneypotField } from "@/components/app/HoneypotField";
 
 export const Route = createFileRoute("/partenaire/inscription")({
   head: () => ({
@@ -27,6 +28,7 @@ function PartnerSignupPage() {
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -57,13 +59,23 @@ function PartnerSignupPage() {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); setLoading(true);
+    setError("");
+    setLoading(true);
+    if (honeypot) {
+      setLoading(false);
+      return;
+    }
     if (mode === "signup") {
       const { data: signUpData, error } = await supabase.auth.signUp({
-        email, password,
+        email,
+        password,
         options: { emailRedirectTo: `${window.location.origin}/partenaire/inscription` },
       });
-      if (error) { setError(error.message); setLoading(false); return; }
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
       if (signUpData.user?.identities?.length === 0) {
         setMode("signin");
         setError("Un compte existe déjà avec cet email. Connectez-vous.");
@@ -78,34 +90,64 @@ function PartnerSignupPage() {
       }
       setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
       setSessionEmail(signInData.session?.user.email ?? null);
     }
-    setStep("profile"); setLoading(false);
+    setStep("profile");
+    setLoading(false);
   };
 
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (company.trim().length < 2) { setError("Nom de l'entreprise invalide."); return; }
+    if (company.trim().length < 2) {
+      setError("Nom de l'entreprise invalide.");
+      return;
+    }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
-    if (!nameRe.test(fullName.trim())) { setError("Indiquez le prénom et le nom du responsable."); return; }
-    if (description.trim().length < 30) { setError("Décrivez votre activité en au moins 30 caractères."); return; }
+    if (!nameRe.test(fullName.trim())) {
+      setError("Indiquez le prénom et le nom du responsable.");
+      return;
+    }
+    if (description.trim().length < 30) {
+      setError("Décrivez votre activité en au moins 30 caractères.");
+      return;
+    }
     const phoneTrim = phone.trim();
-    if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) { setError("Numéro de téléphone invalide."); return; }
+    if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
+      setError("Numéro de téléphone invalide.");
+      return;
+    }
     const websiteTrim = website.trim();
     let websiteValue: string | null = null;
     if (websiteTrim) {
       try {
         const u = new URL(websiteTrim);
-        if (u.protocol !== "https:") { setError("Le site web doit utiliser HTTPS."); return; }
+        if (u.protocol !== "https:") {
+          setError("Le site web doit utiliser HTTPS.");
+          return;
+        }
         websiteValue = u.toString();
-      } catch { setError("URL de site web invalide."); return; }
+      } catch {
+        setError("URL de site web invalide.");
+        return;
+      }
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { setError("Session expirée"); setLoading(false); return; }
+    if (!sess.session) {
+      setError("Session expirée");
+      setLoading(false);
+      return;
+    }
     const { error } = await supabase.from("partner_profiles").insert({
       user_id: sess.session.user.id,
       company: company.trim(),
@@ -116,7 +158,10 @@ function PartnerSignupPage() {
       description: description.trim(),
     });
     setLoading(false);
-    if (error) { setError(error.message); return; }
+    if (error) {
+      setError(error.message);
+      return;
+    }
     navigate({ to: "/partenaire" });
   };
 
@@ -125,56 +170,120 @@ function PartnerSignupPage() {
       <header className="border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Accueil</Link>
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
+            ← Accueil
+          </Link>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="font-display text-3xl font-bold mb-2">Devenir partenaire MoveSpot</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          En tant que partenaire, référencez des clients, proposez des offres exclusives et développez votre réseau avec MoveSpot.
+          En tant que partenaire, référencez des clients, proposez des offres exclusives et
+          développez votre réseau avec MoveSpot.
         </p>
 
         {step === "auth" ? (
-          <form onSubmit={handleAuth} className="space-y-4 rounded-2xl border border-border bg-card p-6">
+          <form
+            onSubmit={handleAuth}
+            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+          >
+            <HoneypotField value={honeypot} onChange={setHoneypot} />
             <div className="flex gap-2 text-sm mb-2">
-              <button type="button" onClick={() => setMode("signup")}
-                className={`px-3 py-1.5 rounded-full ${mode === "signup" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className={`px-3 py-1.5 rounded-full ${mode === "signup" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
+              >
                 S'inscrire
               </button>
-              <button type="button" onClick={() => setMode("signin")}
-                className={`px-3 py-1.5 rounded-full ${mode === "signin" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
+              <button
+                type="button"
+                onClick={() => setMode("signin")}
+                className={`px-3 py-1.5 rounded-full ${mode === "signin" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
+              >
                 J'ai déjà un compte
               </button>
             </div>
             <FormInput label="Email" type="email" value={email} onChange={setEmail} required />
-            <FormInput label="Mot de passe" type="password" value={password} onChange={setPassword} required />
+            <FormInput
+              label="Mot de passe"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              required
+            />
             {error && <ErrorBox>{error}</ErrorBox>}
-            <button disabled={loading} className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
-              {loading ? "…" : (mode === "signup" ? "Créer mon compte" : "Se connecter")}
+            <button
+              disabled={loading}
+              className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
+            >
+              {loading ? "…" : mode === "signup" ? "Créer mon compte" : "Se connecter"}
             </button>
           </form>
         ) : (
-          <form onSubmit={handleProfile} className="space-y-4 rounded-2xl border border-border bg-card p-6">
+          <form
+            onSubmit={handleProfile}
+            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+          >
             {sessionEmail && (
               <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
                 Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
-                <button type="button" onClick={handleSignOut} className="underline hover:text-foreground">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="underline hover:text-foreground"
+                >
                   se déconnecter
                 </button>
               </div>
             )}
-            <FormInput label="Nom de l'entreprise ou structure" value={company} onChange={setCompany} required placeholder="Ex. Agence Marketing Pro" />
-            <FormInput label="Nom et prénom du responsable" value={fullName} onChange={setFullName} required placeholder="Ex. Jean Dupont" />
-            <FormInput label="Téléphone" type="tel" value={phone} onChange={setPhone} placeholder="Ex. +33 6 12 34 56 78" />
-            <FormInput label="Site web (optionnel)" type="url" value={website} onChange={setWebsite} placeholder="https://votresite.fr" />
+            <FormInput
+              label="Nom de l'entreprise ou structure"
+              value={company}
+              onChange={setCompany}
+              required
+              placeholder="Ex. Agence Marketing Pro"
+            />
+            <FormInput
+              label="Nom et prénom du responsable"
+              value={fullName}
+              onChange={setFullName}
+              required
+              placeholder="Ex. Jean Dupont"
+            />
+            <FormInput
+              label="Téléphone"
+              type="tel"
+              value={phone}
+              onChange={setPhone}
+              placeholder="Ex. +33 6 12 34 56 78"
+            />
+            <FormInput
+              label="Site web (optionnel)"
+              type="url"
+              value={website}
+              onChange={setWebsite}
+              placeholder="https://votresite.fr"
+            />
             <div>
-              <label className="block text-sm font-medium mb-1.5">Décrivez votre activité et votre intérêt pour le partenariat</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={1500} rows={5}
+              <label className="block text-sm font-medium mb-1.5">
+                Décrivez votre activité et votre intérêt pour le partenariat
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                maxLength={1500}
+                rows={5}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                placeholder="Votre secteur d'activité, vos clients cibles, pourquoi vous souhaitez devenir partenaire MoveSpot…" />
+                placeholder="Votre secteur d'activité, vos clients cibles, pourquoi vous souhaitez devenir partenaire MoveSpot…"
+              />
             </div>
             {error && <ErrorBox>{error}</ErrorBox>}
-            <button disabled={loading} className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
+            <button
+              disabled={loading}
+              className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
+            >
               {loading ? "Envoi…" : "Soumettre ma candidature"}
             </button>
           </form>
@@ -184,19 +293,40 @@ function PartnerSignupPage() {
   );
 }
 
-function FormInput({ label, value, onChange, type = "text", required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void;
-  type?: string; required?: boolean; placeholder?: string;
+function FormInput({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2" />
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-border bg-background px-3 py-2"
+      />
     </div>
   );
 }
 
 function ErrorBox({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{children}</div>;
+  return (
+    <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+      {children}
+    </div>
+  );
 }
