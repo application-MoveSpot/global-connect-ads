@@ -61,6 +61,7 @@ type Request = {
 function DashboardPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ id: string; full_name: string } | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -69,6 +70,7 @@ function DashboardPage() {
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
+    setUserId(sess.session.user.id);
     const { data: prof } = await supabase
       .from("owner_profiles")
       .select("id, full_name")
@@ -132,7 +134,7 @@ function DashboardPage() {
             <h1 className="font-display text-2xl font-bold mt-1">Bonjour, {profile?.full_name}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <NotificationBell />
+            <NotificationBell userId={userId} />
             <button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">Déconnexion</button>
           </div>
         </div>

@@ -1,17 +1,18 @@
 import { useRef, useState, useEffect } from "react";
-import { Bell } from "lucide-react";
+import { Bell, BellOff } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
-import { requestNotificationPermission, getNotificationPermission } from "@/lib/notifications/browser";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 
-export function NotificationBell() {
+interface Props {
+  userId?: string | null;
+}
+
+export function NotificationBell({ userId = null }: Props) {
   const { notifications, unreadCount, markAllRead, clearAll } = useNotifications();
+  const { state: pushState, subscribe } = usePushSubscription(userId);
   const [open, setOpen] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [subscribing, setSubscribing] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setPermission(getNotificationPermission());
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -27,10 +28,14 @@ export function NotificationBell() {
     setOpen((v) => !v);
   };
 
-  const enableNotifs = async () => {
-    const p = await requestNotificationPermission();
-    setPermission(p);
+  const handleSubscribe = async () => {
+    setSubscribing(true);
+    await subscribe();
+    setSubscribing(false);
   };
+
+  const showPushPrompt = userId && (pushState === "default" || pushState === "loading");
+  const pushDenied = pushState === "denied";
 
   return (
     <div ref={ref} className="relative">
@@ -61,12 +66,29 @@ export function NotificationBell() {
             )}
           </div>
 
-          {permission === "default" && (
-            <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between gap-3 text-xs text-amber-700 dark:text-amber-300">
-              <span>Activez les notifications pour ne rien rater.</span>
-              <button onClick={enableNotifs} className="font-semibold underline whitespace-nowrap">
-                Activer
+          {showPushPrompt && (
+            <div className="px-4 py-2.5 bg-primary/5 border-b border-primary/15 flex items-center justify-between gap-3 text-xs text-primary">
+              <span>Recevez les alertes même navigateur fermé.</span>
+              <button
+                onClick={handleSubscribe}
+                disabled={subscribing}
+                className="font-semibold underline whitespace-nowrap disabled:opacity-50"
+              >
+                {subscribing ? "…" : "Activer"}
               </button>
+            </div>
+          )}
+
+          {pushDenied && (
+            <div className="px-4 py-2.5 bg-secondary/40 border-b border-border flex items-center gap-2 text-xs text-muted-foreground">
+              <BellOff size={12} className="shrink-0" />
+              <span>Notifications bloquées — modifiez les permissions dans votre navigateur.</span>
+            </div>
+          )}
+
+          {pushState === "subscribed" && (
+            <div className="px-4 py-2.5 bg-emerald-500/8 border-b border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400">
+              ✓ Notifications push activées sur cet appareil.
             </div>
           )}
 

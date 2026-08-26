@@ -64,6 +64,7 @@ function ChauffeurEspace() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [earnings, setEarnings] = useState<{ totalCents: number; paidCents: number; pendingCents: number } | null>(null);
   const [state, setState] = useState<"loading" | "ready">("loading");
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
   const userIdRef = useRef<string | null>(null);
 
   const loadProfile = async (userId: string) => {
@@ -81,6 +82,7 @@ function ChauffeurEspace() {
       if (!sess.session) { navigate({ to: "/chauffeur/inscription" }); return; }
       const userId = sess.session.user.id;
       userIdRef.current = userId;
+      setAuthUserId(userId);
       const { data } = await supabase
         .from("payee_profiles")
         .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled")
@@ -126,7 +128,7 @@ function ChauffeurEspace() {
         <div className="flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-3">
-            <NotificationBell />
+            <NotificationBell userId={authUserId} />
             <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
               Suivi GPS →
             </Link>

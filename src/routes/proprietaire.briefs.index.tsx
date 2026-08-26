@@ -34,6 +34,7 @@ type Proposal = { id: string; brief_id: string; status: string; price_per_day: n
 function OpenBriefsPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [myTypes, setMyTypes] = useState<string[]>([]);
   const [briefs, setBriefs] = useState<Brief[]>([]);
@@ -42,6 +43,7 @@ function OpenBriefsPage() {
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
+    setUserId(sess.session.user.id);
     const { data: prof } = await supabase
       .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
     if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
@@ -95,7 +97,7 @@ function OpenBriefsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-2">
-            <NotificationBell />
+            <NotificationBell userId={userId} />
             <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
           </div>
         </div>
