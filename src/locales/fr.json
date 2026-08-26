@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "realtime": "Temps réel",
+    "vehicles": "Véhicules",
+    "how_it_works": "Comment ça marche",
+    "become_partner": "Devenir partenaire",
+    "advertiser": "Espace annonceur",
+    "owner": "Espace propriétaire",
+    "book": "Réserver"
+  },
+  "hero": {
+    "badge": "Plateforme en ligne · suivi GPS & paiements actifs",
+    "h1": "Vos pubs roulent,",
+    "h1_accent": "vos ventes décollent.",
+    "desc": "MoveSpot est la marketplace qui met en relation <strong>annonceurs</strong> et <strong>propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Vous dessinez votre zone, le budget se calcule au km², et chaque kilomètre diffusé est prouvé par GPS.",
+    "cta_primary": "Découvrir l'aperçu",
+    "cta_secondary": "Voir le pitch",
+    "stat0_v": "par km² et par jour (2,70 € en grande agglomération)",
+    "stat1_v": "budget minimum pour lancer une campagne",
+    "stat2_v": "reversé aux partenaires / commission MoveSpot",
+    "stat3_v": "d'essai gratuit sur les campagnes par abonnement"
+  },
+  "features": {
+    "badge": "● Ce qui est en place",
+    "h2": "Une plateforme complète, déjà opérationnelle",
+    "link": "Voir le parcours complet →",
+    "item0_t": "Zones dessinées sur carte",
+    "item0_d": "Vous tracez votre polygone de diffusion ; la surface et le budget se calculent automatiquement, avec majoration en zone dense.",
+    "item1_t": "Preuve de diffusion",
+    "item1_d": "Positions GPS envoyées par lots puis agrégées : kilomètres réels, minutes actives et taux de couverture de votre zone.",
+    "item2_t": "Paiements souples",
+    "item2_d": "Carte bancaire, abonnement avec essai de 14 jours, portefeuille prépayé ou virement bancaire pour les budgets B2B.",
+    "item3_t": "Confiance vérifiée",
+    "item3_d": "SIRET contrôlé, QR véhicules signés, pose validée sur 4 photos, double authentification et modération humaine."
+  },
+  "map": {
+    "badge": "● Aperçu",
+    "h2": "Véhicules en circulation",
+    "desc": "Aperçu des flux de véhicules. Sur une campagne active, cette carte affiche les positions réelles, les kilomètres parcourus et la part du trajet réalisée dans votre zone."
+  },
+  "footer": {
+    "copyright": "Tous droits réservés.",
+    "cgu": "CGU",
+    "cgv": "CGV",
+    "confidentialite": "Confidentialité",
+    "cookies": "Cookies",
+    "mentions": "Mentions légales",
+    "admin": "Admin"
+  }
+}
