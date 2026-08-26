@@ -1,25 +1,57 @@
 {
-  "name": "MoveSpot — Suivi GPS",
+  "id": "/",
+  "name": "MoveSpot — Publicité mobile",
   "short_name": "MoveSpot",
-  "description": "Plateforme publicité mobile MoveSpot",
-  "start_url": "/proprietaire",
+  "description": "Plateforme de publicité mobile sur véhicules : taxis, VTC, camionnettes.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
-  "background_color": "#ffffff",
+  "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Espace annonceur",
+      "short_name": "Annonceur",
+      "url": "/annonceur",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Espace propriétaire",
+      "short_name": "Propriétaire",
+      "url": "/proprietaire",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
