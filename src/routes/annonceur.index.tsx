@@ -54,6 +54,7 @@ function AnnonceurDashboard() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [requests, setRequests] = useState<Req[]>([]);
   const [balanceCents, setBalanceCents] = useState<number>(0);
   const [paying, setPaying] = useState<string | null>(null);
@@ -96,6 +97,7 @@ function AnnonceurDashboard() {
       return;
     }
     setProfile(prof);
+    setUserId(sess.session.user.id);
     await reload(sess.session.user.id);
     setLoading(false);
   }, [navigate, reload]);
@@ -123,6 +125,28 @@ function AnnonceurDashboard() {
   useEffect(() => {
     void loadWithRetry();
   }, [loadWithRetry]);
+
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`annonceur-realtime-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "campaign_requests",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          void reload(userId);
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, reload]);
 
   const handlePay = async (r: Req) => {
     const cents = Math.round(Number(r.total_price ?? 0) * 100);
