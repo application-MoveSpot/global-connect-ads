@@ -10,7 +10,10 @@ import { useEffect } from "react";
 
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
+import { initSentry, Sentry } from "@/lib/sentry";
 import appCss from "../styles.css?url";
+
+initSentry();
 
 function NotFoundComponent() {
   return (
@@ -134,10 +137,31 @@ function RootComponent() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppUpdateGuard />
-      <StatusBanner />
-      <Outlet />
-    </QueryClientProvider>
+    <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
+      <QueryClientProvider client={queryClient}>
+        <AppUpdateGuard />
+        <StatusBanner />
+        <Outlet />
+      </QueryClientProvider>
+    </Sentry.ErrorBoundary>
+  );
+}
+
+function ErrorFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="max-w-md text-center">
+        <h1 className="text-4xl font-bold text-foreground mb-4">Une erreur est survenue</h1>
+        <p className="text-muted-foreground mb-6">
+          Notre équipe a été notifiée automatiquement. Rechargez la page pour continuer.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Recharger la page
+        </button>
+      </div>
+    </div>
   );
 }
