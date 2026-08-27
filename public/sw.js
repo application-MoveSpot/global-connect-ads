@@ -1,23 +1,15 @@
 const CACHE = "movespot-v1";
+const PRECACHE = ["/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
 
-const PRECACHE = [
-  "/icon-192.png",
-  "/icon-512.png",
-  "/manifest.webmanifest",
-  "/camion-led.webp",
-];
-
-// Installe et pré-cache les assets essentiels
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll(PRECACHE))
+      .then((c) => c.addAll(PRECACHE))
       .then(() => self.skipWaiting()),
   );
 });
 
-// Supprime les anciens caches au démarrage
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -25,7 +17,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
       )
-      .then(() => self.clients.claim()),
+      .then(() => clients.claim()),
   );
 });
 
@@ -33,55 +25,64 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Ignorer les requêtes non-GET
-  if (request.method !== "GET") return;
-
-  // Ignorer les requêtes cross-origin (Supabase, Stripe, Mapbox, AI SDK…)
-  if (url.origin !== self.location.origin) return;
-
-  // Ignorer les routes serveur et API
   if (
+    url.origin !== self.location.origin ||
+    request.method !== "GET" ||
     url.pathname.startsWith("/api/") ||
-    url.pathname.startsWith("/_server") ||
-    url.pathname.startsWith("/__") ||
-    url.pathname.startsWith("/.well-known/")
+    url.hostname.includes("supabase")
   )
     return;
 
-  // Assets statiques (JS, CSS, images, fonts) → cache-first
-  if (/\.(js|css|png|jpg|jpeg|webp|avif|svg|ico|woff2?|ttf|otf)(\?.*)?$/.test(url.pathname)) {
+  // Static assets — cache-first
+  if (/\.(png|ico|webp|svg|woff2?|css|js)(\?.*)?$/.test(url.pathname)) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        });
-      }),
-    );
-    return;
-  }
-
-  // Navigation → network-first (SSR), fallback page hors-ligne minimaliste
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request).catch(
-        () =>
-          caches.match(request) ??
-          new Response(
-            `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>MoveSpot — Hors ligne</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0f172a;color:#e2e8f0}
-.box{text-align:center;padding:2rem}h1{font-size:2rem;margin-bottom:.5rem}p{color:#94a3b8}</style></head>
-<body><div class="box"><h1>📡 Hors ligne</h1>
-<p>Vérifiez votre connexion internet et réessayez.</p></div></body></html>`,
-            { headers: { "Content-Type": "text/html; charset=utf-8" } },
-          ),
+      caches.match(request).then(
+        (cached) =>
+          cached ??
+          fetch(request).then((res) => {
+            if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
+            return res;
+          }),
       ),
     );
     return;
   }
+
+  // Navigation — network-first, cache as fallback
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res.ok) caches.open(CACHE).then((c) => c.put(request, res.clone()));
+          return res;
+        })
+        .catch(() => caches.match(request)),
+    );
+  }
+});
+
+self.addEventListener("push", (event) => {
+  const data = event.data?.json() ?? {};
+  const title = data.title ?? "MoveSpot";
+  const options = {
+    body: data.body,
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
+    tag: data.tag ?? "movespot",
+    data: { url: data.url ?? "/" },
+    requireInteraction: false,
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url ?? "/";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((cs) => {
+      const existing = cs.find((c) => c.url.includes(self.location.origin));
+      if (existing) return existing.focus();
+      return clients.openWindow(url);
+    }),
+  );
 });

@@ -19,7 +19,10 @@ import {
   adminReviewInstallation,
   adminSendStripeReminder,
 } from "@/lib/admin.functions";
-import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
+import {
+  InstallationPhotoGrid,
+  parseInstallationPhotos,
+} from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 
 const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
@@ -28,7 +31,11 @@ export const Route = createFileRoute("/admin/dashboard")({
   head: () => ({
     meta: [
       { title: "Modération MoveSpot — Espace admin" },
-      { name: "description", content: "Espace de modération MoveSpot : briefs, certifications poseurs et suivi de flotte." },
+      {
+        name: "description",
+        content:
+          "Espace de modération MoveSpot : briefs, certifications poseurs et suivi de flotte.",
+      },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -70,6 +77,26 @@ function AdminDashboard() {
       alive = false;
     };
   }, [navigate]);
+
+  useEffect(() => {
+    if (!ready) return;
+    const channel = supabase
+      .channel("admin-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "campaign_requests" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-briefs"] });
+        qc.invalidateQueries({ queryKey: ["admin-installations"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "brief_proposals" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-briefs"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "payee_profiles" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-poseurs"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [ready, qc]);
 
   const briefsQuery = useQuery({
     queryKey: ["admin-briefs"],
@@ -141,7 +168,11 @@ function AdminDashboard() {
   });
 
   const error =
-    briefsQuery.error ?? installationsQuery.error ?? poseursQuery.error ?? fleetQuery.error ?? stripeQuery.error;
+    briefsQuery.error ??
+    installationsQuery.error ??
+    poseursQuery.error ??
+    fleetQuery.error ??
+    stripeQuery.error;
 
   return (
     <div className="min-h-screen bg-background">
@@ -159,10 +190,18 @@ function AdminDashboard() {
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
-          <TabBtn active={tab === "briefs"} onClick={() => setTab("briefs")}>Briefs & Campagnes</TabBtn>
-          <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>Poses à valider</TabBtn>
-          <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>Certifications poseurs</TabBtn>
-          <TabBtn active={tab === "fleet"} onClick={() => setTab("fleet")}>Suivi flotte</TabBtn>
+          <TabBtn active={tab === "briefs"} onClick={() => setTab("briefs")}>
+            Briefs & Campagnes
+          </TabBtn>
+          <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>
+            Poses à valider
+          </TabBtn>
+          <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>
+            Certifications poseurs
+          </TabBtn>
+          <TabBtn active={tab === "fleet"} onClick={() => setTab("fleet")}>
+            Suivi flotte
+          </TabBtn>
           <TabBtn active={tab === "stripe"} onClick={() => setTab("stripe")}>
             Stripe inactifs
             {(stripeQuery.data
@@ -209,7 +248,11 @@ function AdminDashboard() {
                             <StatusHistory
                               entityType="campaign_status"
                               entityId={c.id}
-                              statusLabel={{ pending: "En attente", approved: "Validée", rejected: "Refusée" }}
+                              statusLabel={{
+                                pending: "En attente",
+                                approved: "Validée",
+                                rejected: "Refusée",
+                              }}
                             />
                           </div>
                         </div>
@@ -297,8 +340,6 @@ function AdminDashboard() {
           )
         ) : null}
 
-
-
         {tab === "poseurs" ? (
           poseursQuery.isLoading ? (
             <Skeleton />
@@ -325,12 +366,19 @@ function AdminDashboard() {
                         <StatusHistory
                           entityType="payee_certification"
                           entityId={p.id}
-                          statusLabel={{ pending: "En attente", certified: "Certifié", rejected: "Refusé" }}
+                          statusLabel={{
+                            pending: "En attente",
+                            certified: "Certifié",
+                            rejected: "Refusé",
+                          }}
                         />
                       </div>
                     </div>
                     {p.certification_status !== "certified" ? (
-                      <Button onClick={() => certifyMut.mutate(p.id)} disabled={certifyMut.isPending}>
+                      <Button
+                        onClick={() => certifyMut.mutate(p.id)}
+                        disabled={certifyMut.isPending}
+                      >
                         Certifier le garage
                       </Button>
                     ) : (
@@ -352,8 +400,8 @@ function AdminDashboard() {
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               Dernier point GPS reçu pour chaque véhicule des campagnes actives ·{" "}
-              {fleetQuery.data?.points.length ?? 0} véhicule(s) · actualisation automatique toutes les
-              30 s.
+              {fleetQuery.data?.points.length ?? 0} véhicule(s) · actualisation automatique toutes
+              les 30 s.
             </p>
             <ClientOnly fallback={<Skeleton />}>
               <Suspense fallback={<Skeleton />}>
@@ -373,11 +421,18 @@ function AdminDashboard() {
                   Onboarding incomplet ({stripeQuery.data?.incomplete.length ?? 0})
                 </h2>
                 <p className="mb-3 text-sm text-muted-foreground">
-                  Ces prestataires ont démarré la liaison Stripe Express mais n'ont pas finalisé leur onboarding — ils ne peuvent pas encore recevoir de virements.
+                  Ces prestataires ont démarré la liaison Stripe Express mais n'ont pas finalisé
+                  leur onboarding — ils ne peuvent pas encore recevoir de virements.
                 </p>
                 <div className="space-y-3">
                   {(stripeQuery.data?.incomplete ?? []).map((p: any) => (
-                    <StripeAccountRow key={p.id} account={p} badge="Onboarding incomplet" badgeColor="amber" onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })} />
+                    <StripeAccountRow
+                      key={p.id}
+                      account={p}
+                      badge="Onboarding incomplet"
+                      badgeColor="amber"
+                      onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })}
+                    />
                   ))}
                   {(stripeQuery.data?.incomplete ?? []).length === 0 && (
                     <Empty>Aucun compte avec onboarding incomplet.</Empty>
@@ -387,14 +442,22 @@ function AdminDashboard() {
 
               <section>
                 <h2 className="mb-1 font-display text-lg font-bold">
-                  Jamais démarré Stripe — inscrits depuis &gt; 30 j ({stripeQuery.data?.neverStarted.length ?? 0})
+                  Jamais démarré Stripe — inscrits depuis &gt; 30 j (
+                  {stripeQuery.data?.neverStarted.length ?? 0})
                 </h2>
                 <p className="mb-3 text-sm text-muted-foreground">
-                  Ces prestataires sont inscrits depuis plus de 30 jours mais n'ont pas encore lié de compte Stripe Express — aucun reversement ne peut leur être versé.
+                  Ces prestataires sont inscrits depuis plus de 30 jours mais n'ont pas encore lié
+                  de compte Stripe Express — aucun reversement ne peut leur être versé.
                 </p>
                 <div className="space-y-3">
                   {(stripeQuery.data?.neverStarted ?? []).map((p: any) => (
-                    <StripeAccountRow key={p.id} account={p} badge="Stripe non lié" badgeColor="red" onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })} />
+                    <StripeAccountRow
+                      key={p.id}
+                      account={p}
+                      badge="Stripe non lié"
+                      badgeColor="red"
+                      onSendReminder={() => sendReminder({ data: { payeeProfileId: p.id } })}
+                    />
                   ))}
                   {(stripeQuery.data?.neverStarted ?? []).length === 0 && (
                     <Empty>Aucun prestataire sans Stripe après 30 jours.</Empty>
@@ -409,7 +472,15 @@ function AdminDashboard() {
   );
 }
 
-function TabBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function TabBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       onClick={onClick}
@@ -512,12 +583,7 @@ function StripeAccountRow({
           >
             {badge}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReminder}
-            disabled={sending || sent}
-          >
+          <Button variant="outline" size="sm" onClick={handleReminder} disabled={sending || sent}>
             {sent ? "Rappel envoyé ✓" : sending ? "Envoi…" : "Envoyer un rappel email"}
           </Button>
         </div>
@@ -563,7 +629,9 @@ function InstallationReviewCard({
         </span>
       </div>
 
-      {photos ? <InstallationPhotoGrid photos={photos} /> : (
+      {photos ? (
+        <InstallationPhotoGrid photos={photos} />
+      ) : (
         <p className="text-sm text-muted-foreground">Aucune photo disponible.</p>
       )}
 

@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { NotificationBell } from "@/components/app/NotificationBell";
+import { pushNotification } from "@/hooks/useNotifications";
 
 export const Route = createFileRoute("/proprietaire/briefs/")({
   head: () => ({
@@ -32,36 +34,60 @@ type Proposal = { id: string; brief_id: string; status: string; price_per_day: n
 function OpenBriefsPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [ownerId, setOwnerId] = useState<string | null>(null);
   const [myTypes, setMyTypes] = useState<string[]>([]);
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [myProposals, setMyProposals] = useState<Proposal[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
-      const { data: prof } = await supabase
-        .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
-      if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
+  const load = useCallback(async () => {
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
+    setUserId(sess.session.user.id);
+    const { data: prof } = await supabase
+      .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
+    if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
+    setOwnerId(prof.id);
 
-      const { data: vs } = await supabase
-        .from("vehicles").select("type").eq("owner_id", prof.id).eq("status", "approved");
-      const types = Array.from(new Set((vs ?? []).map((v) => v.type as string)));
-      setMyTypes(types);
+    const { data: vs } = await supabase
+      .from("vehicles").select("type").eq("owner_id", prof.id).eq("status", "approved");
+    const types = Array.from(new Set((vs ?? []).map((v) => v.type as string)));
+    setMyTypes(types);
 
-      const { data: bs } = await supabase
-        .from("advertiser_briefs").select("*").eq("status", "open").order("created_at", { ascending: false });
-      const all = (bs as Brief[]) ?? [];
-      const eligible = all.filter((b) => b.vehicle_types.some((t) => types.includes(t)));
-      setBriefs(eligible);
+    const { data: bs } = await supabase
+      .from("advertiser_briefs").select("*").eq("status", "open").order("created_at", { ascending: false });
+    const all = (bs as Brief[]) ?? [];
+    const eligible = all.filter((b) => b.vehicle_types.some((t) => types.includes(t)));
+    setBriefs(eligible);
 
-      const { data: ps } = await supabase
-        .from("brief_proposals").select("id, brief_id, status, price_per_day").eq("owner_id", prof.id);
-      setMyProposals((ps as Proposal[]) ?? []);
+    const { data: ps } = await supabase
+      .from("brief_proposals").select("id, brief_id, status, price_per_day").eq("owner_id", prof.id);
+    setMyProposals((ps as Proposal[]) ?? []);
 
-      setLoading(false);
-    })();
+    setLoading(false);
   }, [navigate]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  // Realtime: new briefs + proposal status changes
+  useEffect(() => {
+    if (!ownerId) return;
+    const channel = supabase
+      .channel(`owner-briefs-${ownerId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "advertiser_briefs" }, () => {
+        pushNotification("Nouveau brief publié", "Un brief pourrait correspondre à vos véhicules.");
+        void load();
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "advertiser_briefs" }, () => { void load(); })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `owner_id=eq.${ownerId}` }, (payload) => {
+        const newStatus = (payload.new as Record<string, unknown>).status as string | undefined;
+        if (newStatus === "accepted") pushNotification("Proposition acceptée !", "Un annonceur a accepté votre proposition.");
+        else if (newStatus === "rejected") pushNotification("Proposition refusée", "Un annonceur a refusé votre proposition.");
+        void load();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [ownerId, load]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
@@ -70,7 +96,10 @@ function OpenBriefsPage() {
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          <div className="flex items-center gap-2">
+            <NotificationBell userId={userId} />
+            <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          </div>
         </div>
       </header>
       <main className="max-w-5xl mx-auto px-4 py-8">

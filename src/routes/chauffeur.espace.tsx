@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { NotificationBell } from "@/components/app/NotificationBell";
+import { pushNotification } from "@/hooks/useNotifications";
 import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
@@ -62,15 +64,29 @@ function ChauffeurEspace() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [earnings, setEarnings] = useState<{ totalCents: number; paidCents: number; pendingCents: number } | null>(null);
   const [state, setState] = useState<"loading" | "ready">("loading");
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const userIdRef = useRef<string | null>(null);
+
+  const loadProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from("payee_profiles")
+      .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (data) setProfile(data as Profile);
+  };
 
   useEffect(() => {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) { navigate({ to: "/chauffeur/inscription" }); return; }
+      const userId = sess.session.user.id;
+      userIdRef.current = userId;
+      setAuthUserId(userId);
       const { data } = await supabase
         .from("payee_profiles")
         .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled")
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", userId)
         .maybeSingle();
       if (!data) { navigate({ to: "/chauffeur/inscription" }); return; }
       setProfile(data as Profile);
@@ -81,6 +97,24 @@ function ChauffeurEspace() {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Realtime: certification status + Stripe payout status changes
+  useEffect(() => {
+    if (!profile) return;
+    const userId = userIdRef.current;
+    if (!userId) return;
+    const channel = supabase
+      .channel(`chauffeur-profile-${profile.id}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "payee_profiles", filter: `user_id=eq.${userId}` }, (payload) => {
+          const newCertif = (payload.new as Record<string, unknown>).certification_status as string | undefined;
+          if (newCertif === "certified") pushNotification("Certification validée !", "Vous êtes maintenant certifié MoveSpot.");
+          else if (newCertif === "rejected") pushNotification("Certification refusée", "Votre certification a été refusée. Consultez les notes.");
+          void loadProfile(userId);
+        })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
 
   if (state === "loading") {
     return <div className="min-h-screen bg-background p-8 text-muted-foreground">Chargement…</div>;
@@ -93,9 +127,12 @@ function ChauffeurEspace() {
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <div className="flex items-center justify-between">
           <LogoLink />
-          <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
-            Suivi GPS →
-          </Link>
+          <div className="flex items-center gap-3">
+            <NotificationBell userId={authUserId} />
+            <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+              Suivi GPS →
+            </Link>
+          </div>
         </div>
 
         <div>

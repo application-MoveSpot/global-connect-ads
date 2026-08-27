@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 
 /**
  * Périodes déjà réservées (status=approved) pour un véhicule donné, à partir
@@ -9,6 +10,7 @@ import { z } from "zod";
 export const getVehicleBookedPeriods = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ vehicleId: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
+    assertRateLimit(`booked-periods:${getRequestIp()}`, { maxRequests: 30, windowMs: 60_000 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const today = new Date().toISOString().slice(0, 10);
     const { data: bookings } = await supabaseAdmin
@@ -32,6 +34,7 @@ export const getVehicleBookedPeriods = createServerFn({ method: "GET" })
 export const getPublicCampaignInfo = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ campaignRequestId: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
+    assertRateLimit(`campaign-info:${getRequestIp()}`, { maxRequests: 60, windowMs: 60_000 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: campaign } = await supabaseAdmin
       .from("campaign_requests")

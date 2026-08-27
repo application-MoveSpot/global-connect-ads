@@ -11,6 +11,46 @@ export const Route = createFileRoute("/prestataires/")({
       { title: "Prestataires impression covering — MoveSpot" },
       { name: "description", content: "Annuaire des prestataires d'impression covering véhicule sur MoveSpot. Demandez un devis en ligne." },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/prestataires" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              "@id": "https://move-spot.com/prestataires#page",
+              url: "https://move-spot.com/prestataires",
+              name: "Annuaire des prestataires covering véhicule — MoveSpot",
+              description:
+                "Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.",
+              isPartOf: { "@id": "https://move-spot.com/#website" },
+            },
+            {
+              "@type": "Service",
+              name: "Covering et habillage de véhicules publicitaires",
+              description:
+                "Impression et pose d'habillage publicitaire sur tout type de véhicule : food truck, van, taxi, camion LED, scooter de livraison.",
+              provider: { "@id": "https://move-spot.com/#organization" },
+              areaServed: { "@type": "Country", name: "France" },
+              serviceType: "Impression covering véhicule",
+              category: "Publicité extérieure",
+              hasOfferCatalog: {
+                "@type": "OfferCatalog",
+                name: "Prestations covering",
+                itemListElement: [
+                  { "@type": "Offer", itemOffered: { "@type": "Service", name: "Impression covering adhésif" } },
+                  { "@type": "Offer", itemOffered: { "@type": "Service", name: "Pose et dépose d'habillage" } },
+                  { "@type": "Offer", itemOffered: { "@type": "Service", name: "Création graphique publicitaire" } },
+                  { "@type": "Offer", itemOffered: { "@type": "Service", name: "Production vidéo publicitaire" } },
+                ],
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
 });
 

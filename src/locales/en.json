@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "realtime": "Live map",
+    "vehicles": "Vehicles",
+    "how_it_works": "How it works",
+    "become_partner": "Become a partner",
+    "advertiser": "Advertiser space",
+    "owner": "Owner space",
+    "book": "Book"
+  },
+  "hero": {
+    "badge": "Live platform · GPS tracking & payments active",
+    "h1": "Your ads roll,",
+    "h1_accent": "your sales take off.",
+    "desc": "MoveSpot is the marketplace connecting <strong>advertisers</strong> and <strong>vehicle owners</strong> — food trucks, vans, taxis, ride-hail, delivery scooters. You draw your zone, the budget is calculated per km², and every kilometre broadcast is proven by GPS.",
+    "cta_primary": "Discover the map",
+    "cta_secondary": "View the pitch",
+    "stat0_v": "per km² per day (€2.70 in major cities)",
+    "stat1_v": "minimum budget to start a campaign",
+    "stat2_v": "paid to partners / MoveSpot commission",
+    "stat3_v": "free trial on subscription campaigns"
+  },
+  "features": {
+    "badge": "● What's in place",
+    "h2": "A complete platform, already operational",
+    "link": "See the full journey →",
+    "item0_t": "Map-drawn zones",
+    "item0_d": "Draw your broadcast polygon; the area and budget are calculated automatically, with a density surcharge in urban areas.",
+    "item1_t": "Broadcast proof",
+    "item1_d": "GPS positions sent in batches then aggregated: real kilometres, active minutes, and coverage rate for your zone.",
+    "item2_t": "Flexible payments",
+    "item2_d": "Card payment, subscription with a 14-day trial, prepaid wallet, or bank transfer for B2B budgets.",
+    "item3_t": "Verified trust",
+    "item3_d": "SIRET-verified, signed vehicle QR codes, installation validated with 4 photos, two-factor auth, and human moderation."
+  },
+  "map": {
+    "badge": "● Preview",
+    "h2": "Vehicles in circulation",
+    "desc": "Overview of vehicle flows. On an active campaign, this map shows real-time positions, kilometres covered, and the share of the journey within your zone."
+  },
+  "footer": {
+    "copyright": "All rights reserved.",
+    "cgu": "T&Cs",
+    "cgv": "Sales T&Cs",
+    "confidentialite": "Privacy",
+    "cookies": "Cookies",
+    "mentions": "Legal notice",
+    "admin": "Admin"
+  }
+}

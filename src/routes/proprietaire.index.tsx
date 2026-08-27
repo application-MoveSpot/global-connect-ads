@@ -7,9 +7,14 @@ import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { OwnerConnectCard } from "@/components/owner/OwnerConnectCard";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+import { NotificationBell } from "@/components/app/NotificationBell";
+import { pushNotification } from "@/hooks/useNotifications";
+import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
+import { withRetry } from "@/lib/retry";
+import { downloadCsv } from "@/lib/exportCsv";
 
 const MobilityMap = lazy(() =>
-  import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap }))
+  import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
 );
 
 export const Route = createFileRoute("/proprietaire/")({
@@ -59,6 +64,9 @@ type Request = {
 function DashboardPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ id: string; full_name: string } | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
@@ -66,28 +74,114 @@ function DashboardPage() {
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/proprietaire/inscription" }); return; }
-    const { data: prof } = await supabase
+    if (!sess.session) {
+      navigate({ to: "/proprietaire/inscription" });
+      return;
+    }
+    setUserId(sess.session.user.id);
+    const { data: prof, error: profErr } = await supabase
       .from("owner_profiles")
       .select("id, full_name")
       .eq("user_id", sess.session.user.id)
       .maybeSingle();
-    if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
+    if (profErr) throw new Error(profErr.message);
+    if (!prof) {
+      navigate({ to: "/proprietaire/inscription" });
+      return;
+    }
     setProfile(prof);
-    const [{ data: v }, { data: r }] = await Promise.all([
-      supabase.from("vehicles").select("*").eq("owner_id", prof.id).order("created_at", { ascending: false }),
+    const [{ data: v, error: vErr }, { data: r, error: rErr }] = await Promise.all([
+      supabase
+        .from("vehicles")
+        .select("*")
+        .eq("owner_id", prof.id)
+        .order("created_at", { ascending: false }),
       supabase.from("campaign_requests").select("*").order("created_at", { ascending: false }),
     ]);
+    if (vErr) throw new Error(vErr.message);
+    if (rErr) throw new Error(rErr.message);
     setVehicles((v as Vehicle[]) ?? []);
     setRequests((r as Request[]) ?? []);
     setLoading(false);
   }, [navigate]);
 
-  useEffect(() => { load(); }, [load]);
+  const loadWithRetry = useCallback(
+    async (isManualRetry = false) => {
+      if (isManualRetry) setRetrying(true);
+      setLoadError(null);
+      try {
+        await withRetry(load, { maxAttempts: 3 });
+      } catch (err) {
+        setLoadError(
+          err instanceof Error
+            ? err.message
+            : "Impossible de charger les données. Vérifiez votre connexion.",
+        );
+        setLoading(false);
+      } finally {
+        if (isManualRetry) setRetrying(false);
+      }
+    },
+    [load],
+  );
+
+  useEffect(() => {
+    void loadWithRetry();
+  }, [loadWithRetry]);
+
+  // Realtime: new/updated campaign requests + vehicle status changes
+  useEffect(() => {
+    if (!profile) return;
+    const channel = supabase
+      .channel(`owner-dashboard-${profile.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "campaign_requests" },
+        (payload) => {
+          if ((payload as { eventType?: string }).eventType === "INSERT") {
+            const company = (payload.new as Record<string, unknown>).company as string | undefined;
+            pushNotification(
+              "Nouvelle demande de campagne",
+              company ? `${company} souhaite louer un espace publicitaire.` : undefined,
+            );
+          }
+          void loadWithRetry();
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "vehicles",
+          filter: `owner_id=eq.${profile.id}`,
+        },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          const newStatus = row.status as string | undefined;
+          const vName = row.name as string | undefined;
+          if (newStatus === "approved")
+            pushNotification(
+              "Véhicule approuvé !",
+              vName ? `${vName} est maintenant visible par les annonceurs.` : undefined,
+            );
+          else if (newStatus === "rejected")
+            pushNotification(
+              "Véhicule refusé",
+              vName ? `${vName} n'a pas été approuvé. Consultez les notes.` : undefined,
+            );
+          void loadWithRetry();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile, load, loadWithRetry]);
 
   const respond = async (id: string, response: "accepted" | "rejected") => {
     await supabase.from("campaign_requests").update({ owner_response: response }).eq("id", id);
-    await load();
+    void loadWithRetry();
   };
 
   const logout = async () => {
@@ -95,7 +189,41 @@ function DashboardPage() {
     navigate({ to: "/" });
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement...</div>;
+  const exportVehiclesCsv = () => {
+    const rows = vehicles.map((v) => ({
+      id: v.id,
+      nom: v.name,
+      type: v.type,
+      format: v.format_publicitaire,
+      prix_par_jour_eur: v.price_per_day,
+      statut: v.status,
+      date_ajout: v.created_at,
+    }));
+    downloadCsv(rows, `movespot-vehicules-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  const exportRequestsCsv = () => {
+    const rows = requests.map((r) => ({
+      id: r.id,
+      annonceur: r.company,
+      spot: r.spot_name,
+      statut: r.status,
+      prix_total_eur: r.total_price ?? "",
+      jours: r.days_count ?? "",
+      debut: r.start_date ?? "",
+      fin: r.end_date ?? "",
+      impressions_par_jour: r.estimated_impressions_per_day ?? "",
+      date_reception: r.created_at,
+    }));
+    downloadCsv(rows, `movespot-demandes-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
+  if (loading && !loadError)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Chargement...
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
@@ -105,44 +233,117 @@ function DashboardPage() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">Bonjour, {profile?.full_name}</h1>
           </div>
-          <button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">Déconnexion</button>
+          <div className="flex items-center gap-2">
+            <NotificationBell userId={userId} />
+            <button
+              onClick={logout}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Déconnexion
+            </button>
+          </div>
         </div>
       </header>
+
+      {loadError && (
+        <div className="max-w-6xl mx-auto px-4 pt-4">
+          <NetworkErrorBanner
+            message={loadError}
+            onRetry={() => loadWithRetry(true)}
+            retrying={retrying}
+          />
+        </div>
+      )}
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <OwnerConnectCard />
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex gap-2 flex-wrap">
-            <Tab active={tab === "vehicles"} onClick={() => setTab("vehicles")} count={vehicles.length}>Mes véhicules</Tab>
-            <Tab active={tab === "requests"} onClick={() => setTab("requests")} count={requests.length}>Demandes reçues</Tab>
-            <Link to="/proprietaire/briefs" className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition">
+            <Tab
+              active={tab === "vehicles"}
+              onClick={() => setTab("vehicles")}
+              count={vehicles.length}
+            >
+              Mes véhicules
+            </Tab>
+            <Tab
+              active={tab === "requests"}
+              onClick={() => setTab("requests")}
+              count={requests.length}
+            >
+              Demandes reçues
+            </Tab>
+            <Link
+              to="/proprietaire/briefs"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
+            >
               Briefs ouverts →
             </Link>
-            <Link to="/proprietaire/tracking" className="px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition">
+            <Link
+              to="/proprietaire/tracking"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition"
+            >
               📍 Démarrer suivi GPS
             </Link>
-            <Link to="/proprietaire/flotte" className="px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition">
+            <Link
+              to="/proprietaire/flotte"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition"
+            >
               🚚 Gérer ma flotte
             </Link>
-            <Link to="/proprietaire/flotte/import" className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition">
+            <Link
+              to="/proprietaire/flotte/import"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
+            >
               📥 Import CSV
             </Link>
-            <Link to="/proprietaire/flotte/qr" className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition">
+            <Link
+              to="/proprietaire/flotte/qr"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
+            >
               🔳 QR codes véhicules
             </Link>
           </div>
-          {tab === "vehicles" && (
-            <Link to="/proprietaire/vehicules/nouveau" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition">
-              + Ajouter un véhicule
-            </Link>
-          )}
+          <div className="flex gap-2">
+            {tab === "vehicles" && vehicles.length > 0 && (
+              <button
+                type="button"
+                onClick={exportVehiclesCsv}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
+              >
+                ⬇ Export CSV
+              </button>
+            )}
+            {tab === "requests" && requests.length > 0 && (
+              <button
+                type="button"
+                onClick={exportRequestsCsv}
+                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
+              >
+                ⬇ Export CSV
+              </button>
+            )}
+            {tab === "vehicles" && (
+              <Link
+                to="/proprietaire/vehicules/nouveau"
+                className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+              >
+                + Ajouter un véhicule
+              </Link>
+            )}
+          </div>
         </div>
 
         {tab === "vehicles" ? (
           vehicles.length === 0 ? (
             <Empty msg="Aucun véhicule pour le moment.">
-              <Link to="/proprietaire/vehicules/nouveau" className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold">Ajouter mon premier véhicule</Link>
+              <Link
+                to="/proprietaire/vehicules/nouveau"
+                className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold"
+              >
+                Ajouter mon premier véhicule
+              </Link>
             </Empty>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
@@ -151,53 +352,73 @@ function DashboardPage() {
               ))}
             </div>
           )
+        ) : requests.length === 0 ? (
+          <Empty msg="Aucune demande de campagne pour vos véhicules." />
         ) : (
-          requests.length === 0 ? (
-            <Empty msg="Aucune demande de campagne pour vos véhicules." />
-          ) : (
-            <div className="space-y-4">
-              {requests.map((r) => (
-                <div key={r.id} className="rounded-2xl border border-border bg-card p-6">
-                  <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
-                    <div>
-                      <div className="text-xs uppercase tracking-widest text-muted-foreground">{r.spot_name}</div>
-                      <h3 className="font-display text-xl font-bold mt-1">{r.company}</h3>
-                      <a href={`mailto:${r.email}`} className="text-sm text-primary">{r.email}</a>
+          <div className="space-y-4">
+            {requests.map((r) => (
+              <div key={r.id} className="rounded-2xl border border-border bg-card p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                      {r.spot_name}
                     </div>
-                    <div className="text-right">
-                      <ResponseBadge response={r.owner_response} />
-                      <div className="text-xs text-muted-foreground mt-1">{new Date(r.created_at).toLocaleString("fr-FR")}</div>
+                    <h3 className="font-display text-xl font-bold mt-1">{r.company}</h3>
+                    <a href={`mailto:${r.email}`} className="text-sm text-primary">
+                      {r.email}
+                    </a>
+                  </div>
+                  <div className="text-right">
+                    <ResponseBadge response={r.owner_response} />
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {new Date(r.created_at).toLocaleString("fr-FR")}
                     </div>
                   </div>
-                  <div className="rounded-lg bg-secondary/40 p-4 text-sm mb-4 whitespace-pre-wrap">{r.message}</div>
-                  <RouteSummary zones={r.route_zones} waypoints={r.route_waypoints} pois={r.route_pois} impressionsPerDay={r.estimated_impressions_per_day} days={r.days_count} />
-                  <CreativeFiles paths={r.creative_files} />
-                  {r.admin_notes && (
-                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
-                      <strong>Motif :</strong> {r.admin_notes}
-                    </div>
-                  )}
-                  {r.owner_response === "pending" && (
-                    <div className="flex gap-2">
-                      <button onClick={() => respond(r.id, "accepted")}
-                        className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-2 text-sm font-semibold hover:bg-signal/30">
-                        ✓ Accepter
-                      </button>
-                      <button onClick={() => respond(r.id, "rejected")}
-                        className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-2 text-sm font-semibold hover:bg-destructive/25">
-                        ✕ Refuser
-                      </button>
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
-          )
+                <div className="rounded-lg bg-secondary/40 p-4 text-sm mb-4 whitespace-pre-wrap">
+                  {r.message}
+                </div>
+                <RouteSummary
+                  zones={r.route_zones}
+                  waypoints={r.route_waypoints}
+                  pois={r.route_pois}
+                  impressionsPerDay={r.estimated_impressions_per_day}
+                  days={r.days_count}
+                />
+                <CreativeFiles paths={r.creative_files} />
+                {r.admin_notes && (
+                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
+                    <strong>Motif :</strong> {r.admin_notes}
+                  </div>
+                )}
+                {r.owner_response === "pending" && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => respond(r.id, "accepted")}
+                      className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-2 text-sm font-semibold hover:bg-signal/30"
+                    >
+                      ✓ Accepter
+                    </button>
+                    <button
+                      onClick={() => respond(r.id, "rejected")}
+                      className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-2 text-sm font-semibold hover:bg-destructive/25"
+                    >
+                      ✕ Refuser
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
 
         <section className="mt-12">
-          <h2 className="font-display text-2xl font-bold mb-2">Aperçu illustratif des flux de véhicules</h2>
-          <p className="text-sm text-muted-foreground mb-4">Visualisation indicative — données réelles branchées progressivement.</p>
+          <h2 className="font-display text-2xl font-bold mb-2">
+            Aperçu illustratif des flux de véhicules
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Visualisation indicative — données réelles branchées progressivement.
+          </p>
           <Suspense fallback={<div className="h-64 rounded-xl bg-secondary/40 animate-pulse" />}>
             <MobilityMap />
           </Suspense>
@@ -218,9 +439,22 @@ function DashboardPage() {
   );
 }
 
-function Tab({ active, onClick, count, children }: { active: boolean; onClick: () => void; count: number; children: React.ReactNode }) {
+function Tab({
+  active,
+  onClick,
+  count,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  count: number;
+  children: React.ReactNode;
+}) {
   return (
-    <button onClick={onClick} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground hover:bg-secondary/80"}`}>
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground hover:bg-secondary/80"}`}
+    >
       {children} <span className="opacity-60">({count})</span>
     </button>
   );
@@ -235,7 +469,20 @@ function Empty({ msg, children }: { msg: string; children?: React.ReactNode }) {
   );
 }
 
-function OwnerVehicleCard({ v }: { v: { id: string; name: string; type: string; format_publicitaire: string | null; price_per_day: number; status: string; photos: string[] | null; admin_notes: string | null } }) {
+function OwnerVehicleCard({
+  v,
+}: {
+  v: {
+    id: string;
+    name: string;
+    type: string;
+    format_publicitaire: string | null;
+    price_per_day: number;
+    status: string;
+    photos: string[] | null;
+    admin_notes: string | null;
+  };
+}) {
   const photoUrls = useVehiclePhotoUrls(v.photos);
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
@@ -246,8 +493,12 @@ function OwnerVehicleCard({ v }: { v: { id: string; name: string; type: string; 
         <h3 className="font-display text-lg font-bold">{v.name}</h3>
         <StatusBadge status={v.status} />
       </div>
-      <div className="text-xs text-muted-foreground mb-3">{v.type} · {v.format_publicitaire}</div>
-      <div className="font-display text-xl font-bold text-primary">{v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span></div>
+      <div className="text-xs text-muted-foreground mb-3">
+        {v.type} · {v.format_publicitaire}
+      </div>
+      <div className="font-display text-xl font-bold text-primary">
+        {v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span>
+      </div>
       {v.admin_notes && (
         <div className="mt-3 text-xs rounded-lg bg-secondary/40 p-3 border border-border">
           <strong>Note admin :</strong> {v.admin_notes}
@@ -265,7 +516,11 @@ function StatusBadge({ status }: { status: string }) {
     paused: { label: "En pause", cls: "bg-muted text-muted-foreground" },
   };
   const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>{x.label}</span>;
+  return (
+    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>
+      {x.label}
+    </span>
+  );
 }
 
 function ResponseBadge({ response }: { response: string }) {
@@ -275,5 +530,9 @@ function ResponseBadge({ response }: { response: string }) {
     rejected: { label: "Refusée", cls: "bg-destructive/15 text-destructive" },
   };
   const x = map[response] ?? { label: response, cls: "bg-secondary" };
-  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>{x.label}</span>;
+  return (
+    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>
+      {x.label}
+    </span>
+  );
 }

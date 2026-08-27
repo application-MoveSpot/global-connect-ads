@@ -10,13 +10,17 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "test": "node --experimental-strip-types --test 'src/lib/**/__tests__/*.test.ts'",
+    "test:watch": "node --experimental-strip-types --test --watch 'src/lib/**/__tests__/*.test.ts'",
     "test:e2e": "node node_modules/@playwright/test/cli.js test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "node node_modules/@playwright/test/cli.js show-report e2e/report",
     "test:e2e:list": "node node_modules/@playwright/test/cli.js test --list"
   },
   "dependencies": {
+    "@sentry/react": "^8.55.0",
     "@ai-sdk/openai-compatible": "^2.0.48",
+    "web-push": "^3.6.7",
     "@ai-sdk/react": "^3.0.195",
     "@cloudflare/vite-plugin": "^1.25.5",
     "@hookform/resolvers": "^5.2.2",
@@ -73,7 +77,10 @@
     "lucide-react": "^0.575.0",
     "mapbox-gl": "^2.15.0",
     "nitro": "3.0.260603-beta",
+    "i18next": "^26.4.0",
+    "i18next-browser-languagedetector": "^8.2.1",
     "papaparse": "^5.5.3",
+    "react-i18next": "^17.0.12",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
@@ -93,6 +100,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@sentry/vite-plugin": "^2.26.0",
+    "@types/web-push": "^3.6.4",
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "2.12.0",
     "@types/mapbox-gl": "^2.7.0",

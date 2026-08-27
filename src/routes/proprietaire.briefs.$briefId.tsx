@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics/track";
+import { pushNotification } from "@/hooks/useNotifications";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
@@ -39,6 +41,7 @@ function BriefDetailPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [ownerId, setOwnerId] = useState<string | null>(null);
+  const ownerIdRef = useRef<string | null>(null);
   const [brief, setBrief] = useState<Brief | null>(null);
   const [eligibleVehicles, setEligibleVehicles] = useState<Vehicle[]>([]);
   const [myProposals, setMyProposals] = useState<MyProposal[]>([]);
@@ -55,6 +58,7 @@ function BriefDetailPage() {
       .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
     if (!prof) { navigate({ to: "/proprietaire/inscription" }); return; }
     setOwnerId(prof.id);
+    ownerIdRef.current = prof.id;
 
     const { data: b } = await supabase.from("advertiser_briefs").select("*").eq("id", briefId).maybeSingle();
     if (!b) { navigate({ to: "/proprietaire/briefs" }); return; }
@@ -76,6 +80,23 @@ function BriefDetailPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Realtime: proposal status changes on this brief (accepted/rejected by advertiser)
+  useEffect(() => {
+    const channel = supabase
+      .channel(`brief-detail-${briefId}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `brief_id=eq.${briefId}` }, (payload) => {
+        const row = payload.new as Record<string, unknown>;
+        if ((row.owner_id as string | undefined) === ownerIdRef.current) {
+          const newStatus = row.status as string | undefined;
+          if (newStatus === "accepted") pushNotification("Proposition acceptée !", "L'annonceur a accepté votre proposition pour ce brief.");
+          else if (newStatus === "rejected") pushNotification("Proposition refusée", "L'annonceur a refusé votre proposition pour ce brief.");
+        }
+        void load();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [briefId, load]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -94,6 +115,7 @@ function BriefDetailPage() {
     }]);
     setSubmitting(false);
     if (insErr) { setError(insErr.message); return; }
+    void track("proposal_sent", { brief_id: briefId, vehicle_id: vehicleId, price_per_day: Number(price) });
     setVehicleId(""); setPrice(""); setMessage("");
     await load();
   };
