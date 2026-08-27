@@ -62,18 +62,45 @@ export const Route = (createRootRouteWithContext as any)()({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "MoveSpot",
-          url: "https://move-spot.com",
-          logo: "https://move-spot.com/icon-512.png",
-          description:
-            "Marketplace française de publicité mobile sur véhicules : food trucks, vans, taxis, scooters de livraison.",
-          contactPoint: {
-            "@type": "ContactPoint",
-            contactType: "customer service",
-            areaServed: "FR",
-            availableLanguage: ["French"],
-          },
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://move-spot.com/#organization",
+              name: "MoveSpot",
+              url: "https://move-spot.com",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://move-spot.com/icon-512.png",
+                width: 512,
+                height: 512,
+              },
+              description:
+                "Marketplace française de publicité mobile sur véhicules : food trucks, vans, taxis, scooters de livraison.",
+              areaServed: { "@type": "Country", name: "France" },
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer service",
+                areaServed: "FR",
+                availableLanguage: ["French"],
+              },
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://move-spot.com/#website",
+              url: "https://move-spot.com",
+              name: "MoveSpot",
+              inLanguage: "fr-FR",
+              publisher: { "@id": "https://move-spot.com/#organization" },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://move-spot.com/prestataires?q={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
         }),
       },
     ],

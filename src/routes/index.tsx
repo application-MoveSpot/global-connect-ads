@@ -25,6 +25,64 @@ export const Route = createFileRoute("/")({
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "@id": "https://move-spot.com/#service",
+          name: "Marketplace de publicité mobile MoveSpot",
+          description:
+            "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement.",
+          provider: { "@id": "https://move-spot.com/#organization" },
+          areaServed: { "@type": "Country", name: "France" },
+          serviceType: "Publicité extérieure mobile",
+          category: "DOOH mobile",
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "EUR",
+            lowPrice: "10",
+            highPrice: "2000",
+            offerCount: "3",
+            offers: [
+              {
+                "@type": "Offer",
+                name: "Campagne à la zone",
+                description: "1,80 €/km²/jour — 2,70 € en grande agglomération",
+                price: "1.80",
+                priceCurrency: "EUR",
+                availability: "https://schema.org/InStock",
+              },
+              {
+                "@type": "Offer",
+                name: "Abonnement Starter",
+                description: "29 €/mois par véhicule, 14 jours d'essai gratuit",
+                price: "29",
+                priceCurrency: "EUR",
+                priceSpecification: {
+                  "@type": "UnitPriceSpecification",
+                  billingIncrement: 1,
+                  unitCode: "MON",
+                },
+              },
+              {
+                "@type": "Offer",
+                name: "Abonnement Pro",
+                description: "59 €/mois par véhicule",
+                price: "59",
+                priceCurrency: "EUR",
+                priceSpecification: {
+                  "@type": "UnitPriceSpecification",
+                  billingIncrement: 1,
+                  unitCode: "MON",
+                },
+              },
+            ],
+          },
+        }),
+      },
+    ],
   }),
   component: Index,
 });
