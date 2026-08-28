@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
@@ -53,6 +54,7 @@ function WalletPage() {
 
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [balanceCents, setBalanceCents] = useState(0);
   const [amount, setAmount] = useState<number>(100);
 
@@ -64,22 +66,7 @@ function WalletPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  // Load balance once
-  useEffect(() => {
-    (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
-      try {
-        const w = await fetchWallet();
-        setBalanceCents(w.balance_cents);
-      } catch { /* ignore */ }
-      setAuthReady(true);
-      setLoading(false);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Reload transactions when filter or page changes
+  // Declared before refs so the refs can capture this function
   const loadTransactions = useCallback(async (kind: TxKind, p: number) => {
     setTxLoading(true);
     try {
@@ -94,6 +81,50 @@ function WalletPage() {
     }
   }, [fetchTransactions]);
 
+  // Stable refs so realtime callback always uses current values without re-subscribing
+  const loadTransactionsRef = useRef(loadTransactions);
+  loadTransactionsRef.current = loadTransactions;
+  const filterKindRef = useRef(filterKind);
+  filterKindRef.current = filterKind;
+  const pageRef = useRef(page);
+  pageRef.current = page;
+
+  // Load balance once
+  useEffect(() => {
+    (async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
+      setUserId(sess.session.user.id);
+      try {
+        const w = await fetchWallet();
+        setBalanceCents(w.balance_cents);
+      } catch { /* ignore */ }
+      setAuthReady(true);
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Realtime: balance auto-refresh when a new wallet transaction arrives (e.g. bank transfer approved)
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`wallet-realtime-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const tx = payload.new as { amount_cents: number; kind: string };
+          setBalanceCents((prev) => prev + tx.amount_cents);
+          if (tx.kind === "topup") toast.success("Solde crédité ! Votre portefeuille a été rechargé.");
+          void loadTransactionsRef.current(filterKindRef.current, pageRef.current);
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [userId]);
+
+  // Reload transactions when filter or page changes
   useEffect(() => {
     if (!authReady) return;
     void loadTransactions(filterKind, page);

@@ -107,24 +107,51 @@ function BriefDetailPage() {
       const contactHit = detectContact(message);
       if (contactHit) { setError(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.`); return; }
     }
+
+    // Capture form values, then optimistically add the proposal and clear the form immediately
+    const savedVehicleId = vehicleId;
+    const savedPrice = price;
+    const savedMessage = message;
+    const optimisticId = `opt-${Date.now()}`;
+    setMyProposals((prev) => [...prev, {
+      id: optimisticId,
+      vehicle_id: savedVehicleId,
+      price_per_day: Number(savedPrice),
+      message: savedMessage || null,
+      status: "pending",
+    }]);
+    setVehicleId(""); setPrice(""); setMessage("");
     setSubmitting(true);
+
     const { error: insErr } = await supabase.from("brief_proposals").insert([{
       brief_id: briefId,
-      vehicle_id: vehicleId,
+      vehicle_id: savedVehicleId,
       owner_id: ownerId,
-      price_per_day: Number(price),
-      message: message || null,
+      price_per_day: Number(savedPrice),
+      message: savedMessage || null,
     }]);
     setSubmitting(false);
-    if (insErr) { setError(insErr.message); return; }
-    void track("proposal_sent", { brief_id: briefId, vehicle_id: vehicleId, price_per_day: Number(price) });
-    setVehicleId(""); setPrice(""); setMessage("");
-    await load();
+
+    if (insErr) {
+      // Revert optimistic update and restore form
+      setMyProposals((prev) => prev.filter((p) => p.id !== optimisticId));
+      setVehicleId(savedVehicleId); setPrice(savedPrice); setMessage(savedMessage);
+      setError(insErr.message);
+      return;
+    }
+
+    void track("proposal_sent", { brief_id: briefId, vehicle_id: savedVehicleId, price_per_day: Number(savedPrice) });
+    await load(); // replace optimistic entry with real server row (gets the real UUID)
   };
 
   const withdraw = async (id: string) => {
-    await supabase.from("brief_proposals").update({ status: "withdrawn" }).eq("id", id);
-    await load();
+    // Optimistic: immediately mark as withdrawn so the button disappears
+    const snapshot = myProposals;
+    setMyProposals((prev) => prev.map((p) => p.id === id ? { ...p, status: "withdrawn" } : p));
+    const { error: upErr } = await supabase.from("brief_proposals").update({ status: "withdrawn" }).eq("id", id);
+    if (upErr) {
+      setMyProposals(snapshot); // revert on failure
+    }
   };
 
   if (loading || !brief) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
