@@ -146,9 +146,18 @@ function SuiviPage() {
       <div className="border-b bg-card p-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
-          <div className="flex items-center gap-2 text-sm">
-            <Radio className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`} />
-            <span>{live ? "Live" : "En attente de positions"}</span>
+          <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-2">
+              <Radio className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`} />
+              <span>{live ? "Live" : "En attente de positions"}</span>
+            </div>
+            <Link
+              to="/annonceur/rapport/$campaignId"
+              params={{ campaignId }}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-secondary transition"
+            >
+              📄 Rapport PDF
+            </Link>
           </div>
         </div>
       </div>
