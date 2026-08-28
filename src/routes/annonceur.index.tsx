@@ -15,6 +15,7 @@ import { downloadCsv } from "@/lib/exportCsv";
 import { toast } from "sonner";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
+import { RouteError } from "@/components/app/RouteError";
 
 type Req = {
   id: string;
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/annonceur/")({
     ],
   }),
   component: AnnonceurDashboard,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function AnnonceurDashboard() {

@@ -6,6 +6,7 @@ import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
+import { RouteError } from "@/components/app/RouteError";
 
 type Search = { redirect?: string };
 
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/annonceur/inscription")({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
   }),
   component: AnnonceurInscription,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type AccountType = "business" | "individual";

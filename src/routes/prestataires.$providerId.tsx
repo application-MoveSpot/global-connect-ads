@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { PROVIDER_SERVICES, providerServiceLabel } from "@/lib/providers/provider-services";
 import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
 import { detectContact } from "@/lib/moderation/contact-detection";
+import { RouteError } from "@/components/app/RouteError";
 
 const VIDEO_EXTENSIONS = new Set(["mp4", "webm", "mov", "avi", "mkv"]);
 function isVideoUrl(url: string) {
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/prestataires/$providerId")({
     };
   },
   component: ProviderDetailPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 

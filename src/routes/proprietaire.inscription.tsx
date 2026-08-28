@@ -5,6 +5,7 @@ import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/proprietaire/inscription")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/proprietaire/inscription")({
     ],
   }),
   component: InscriptionPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function InscriptionPage() {

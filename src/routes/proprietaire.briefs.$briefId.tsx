@@ -6,6 +6,7 @@ import { pushNotification } from "@/hooks/useNotifications";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/proprietaire/briefs/$briefId")({
   head: () => ({
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/proprietaire/briefs/$briefId")({
     ],
   }),
   component: BriefDetailPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Brief = {

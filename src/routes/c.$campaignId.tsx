@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/app/LogoLink";
 import { getPublicCampaignInfo } from "@/lib/campaigns/public-campaign.functions";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/c/$campaignId")({
   head: () => ({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/c/$campaignId")({
     ],
   }),
   component: PublicCampaignPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type State = { loading: boolean; found: boolean; company?: string; spotName?: string };

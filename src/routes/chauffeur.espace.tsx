@@ -9,6 +9,7 @@ import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payments/payee.functions";
+import { RouteError } from "@/components/app/RouteError";
 
 type Profile = {
   id: string;
@@ -56,6 +57,7 @@ export const Route = createFileRoute("/chauffeur/espace")({
     ],
   }),
   component: ChauffeurEspace,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function ChauffeurEspace() {

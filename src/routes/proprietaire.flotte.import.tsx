@@ -4,10 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { importVehiclesCSV } from "@/lib/fleet/fleet-import.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/proprietaire/flotte/import")({
   head: () => ({ meta: [{ title: "Import CSV de la flotte — MoveSpot" }] }),
   component: ImportPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 const EXAMPLE = `name,type,format_publicitaire,price_per_day,city,license_plate,condition

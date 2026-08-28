@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/proprietaire/briefs/")({
   head: () => ({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/proprietaire/briefs/")({
     ],
   }),
   component: OpenBriefsPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Brief = {

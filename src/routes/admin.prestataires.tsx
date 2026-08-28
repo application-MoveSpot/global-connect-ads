@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { StatusHistory } from "@/components/shared/StatusHistory";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/admin/prestataires")({
   head: () => ({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/admin/prestataires")({
     ],
   }),
   component: AdminProvidersPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Provider = {

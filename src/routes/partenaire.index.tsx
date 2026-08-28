@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { PartnerSubscriptionCard } from "@/components/partner/PartnerSubscriptionCard";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/partenaire/")({
   head: () => ({
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/partenaire/")({
     ],
   }),
   component: PartnerDashboard,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type PartnerProfile = {

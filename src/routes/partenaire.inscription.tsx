@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/partenaire/inscription")({
   head: () => ({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/partenaire/inscription")({
     ],
   }),
   component: PartnerSignupPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function PartnerSignupPage() {

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
 import { estimateVehicle } from "@/lib/fleet/vehicle-estimate.functions";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   head: () => ({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
     ],
   }),
   component: NewVehiclePage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 const TYPES_VEHICULES = [

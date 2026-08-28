@@ -6,6 +6,7 @@ import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscriptionCard";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/prestataire/")({
   head: () => ({
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/prestataire/")({
     ],
   }),
   component: ProviderDashboard,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Profile = {

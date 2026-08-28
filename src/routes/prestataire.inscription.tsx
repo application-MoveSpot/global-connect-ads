@@ -13,6 +13,7 @@ import {
 import { verifyWebsite } from "@/lib/providers/website-verify.functions";
 import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functions";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   head: () => ({
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/prestataire/inscription")({
     ],
   }),
   component: ProviderSignupPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function ProviderSignupPage() {

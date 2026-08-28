@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { listBankTransfersForAdmin, reviewBankTransfer } from "@/lib/payments/bank-transfers.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/admin/virements")({
   head: () => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/admin/virements")({
     ],
   }),
   component: AdminBankTransfers,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Row = {

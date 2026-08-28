@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { LogoLink } from "@/components/app/LogoLink";
 import { cn } from "@/lib/utils";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/annonceur/etude-marche")({
   head: () => ({
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/annonceur/etude-marche")({
     ],
   }),
   component: EtudeMarche,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 // ─── Catalogue véhicules ──────────────────────────────────────────────────────
