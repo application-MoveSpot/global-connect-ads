@@ -242,7 +242,7 @@ function FleetPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Kpi icon={<Truck className="h-4 w-4" />} label="Véhicules approuvés" value={approvedCount} />

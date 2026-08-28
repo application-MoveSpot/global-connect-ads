@@ -77,8 +77,8 @@ function ResetPasswordPage() {
         {mode === "request" ? (
           <form onSubmit={requestReset} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Email</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              <label htmlFor="reset-email" className="block text-sm font-medium mb-1.5">Email</label>
+              <input id="reset-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
@@ -91,13 +91,13 @@ function ResetPasswordPage() {
         ) : (
           <form onSubmit={updatePassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Nouveau mot de passe</label>
-              <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)}
+              <label htmlFor="new-password" className="block text-sm font-medium mb-1.5">Nouveau mot de passe</label>
+              <input id="new-password" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Confirmer</label>
-              <input type="password" required minLength={8} value={password2} onChange={(e) => setPassword2(e.target.value)}
+              <label htmlFor="confirm-password" className="block text-sm font-medium mb-1.5">Confirmer</label>
+              <input id="confirm-password" type="password" required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}

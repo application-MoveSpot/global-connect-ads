@@ -133,15 +133,23 @@ function AuthPage() {
 
         {mfa ? (
           <form onSubmit={submitMfa} className="space-y-4">
-            <input
-              autoFocus
-              value={mfaCode}
-              onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              inputMode="numeric"
-              maxLength={6}
-              placeholder="123456"
-              className="w-full rounded-lg bg-input border border-border px-4 py-3 text-lg font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+            <div>
+              <label htmlFor="mfa-code" className="block text-sm font-medium mb-1.5">
+                Code à 6 chiffres (application d'authentification)
+              </label>
+              <input
+                id="mfa-code"
+                autoFocus
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="123456"
+                autoComplete="one-time-code"
+                aria-required="true"
+                className="w-full rounded-lg bg-input border border-border px-4 py-3 text-lg font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
             <button type="submit" disabled={loading || mfaCode.length !== 6}
               className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
@@ -157,13 +165,13 @@ function AuthPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Email</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+            <label htmlFor="auth-email" className="block text-sm font-medium mb-1.5">Email</label>
+            <input id="auth-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1.5">Mot de passe</label>
-            <input type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)}
+            <label htmlFor="auth-password" className="block text-sm font-medium mb-1.5">Mot de passe</label>
+            <input id="auth-password" type="password" required minLength={8} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             {mode === "signup" && (
               <p className="text-xs text-muted-foreground mt-1">Min. 8 caractères. Les mots de passe compromis sont refusés.</p>

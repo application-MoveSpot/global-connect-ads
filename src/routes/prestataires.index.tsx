@@ -95,7 +95,7 @@ function ProvidersDirectory() {
           </Link>
         </div>
       </header>
-      <main className="max-w-5xl mx-auto px-4 py-10">
+      <main id="main-content" className="max-w-5xl mx-auto px-4 py-10">
         <h1 className="font-display text-3xl font-bold mb-2">Prestataires MoveSpot</h1>
         <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.</p>
 

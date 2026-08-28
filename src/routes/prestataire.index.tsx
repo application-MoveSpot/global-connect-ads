@@ -87,7 +87,7 @@ function ProviderDashboard() {
           </div>
         </div>
       </header>
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
           <div>
             <h1 className="font-display text-3xl font-bold">Espace prestataire</h1>

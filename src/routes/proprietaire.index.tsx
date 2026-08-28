@@ -257,7 +257,7 @@ function DashboardPage() {
         </div>
       )}
 
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <OwnerConnectCard />
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
