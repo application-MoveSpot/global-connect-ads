@@ -48,6 +48,31 @@ export const listInstallationJobs = createServerFn({ method: "GET" })
     return { jobs: data ?? [], isInstaller: true as const };
   });
 
+/** Retourne les photos de pose d'une campagne pour l'annonceur propriétaire. */
+export const getInstallationPhotosForAdvertiser = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator(z.object({ campaignId: z.string().uuid() }))
+  .handler(async ({ context, data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: campaign, error } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("id, spot_name, installation_photos, installation_status, installation_notes, installation_reviewed_at")
+      .eq("id", data.campaignId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (error || !campaign) throw new Error("Campagne introuvable ou accès non autorisé");
+
+    return {
+      spotName: campaign.spot_name as string,
+      photos: campaign.installation_photos as Record<string, string> | null,
+      status: campaign.installation_status as string | null,
+      notes: campaign.installation_notes as string | null,
+      reviewedAt: campaign.installation_reviewed_at as string | null,
+    };
+  });
+
 /** Seul un poseur certifié MoveSpot (ou un admin, à titre subsidiaire) transmet les 4 vues après pose. */
 export const submitInstallationPhotos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

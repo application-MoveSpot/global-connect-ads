@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getCampaignPositions, getCampaignMetrics, getCampaignPauseAlerts } from "@/lib/tracking/tracking.functions";
+import { getInstallationPhotosForAdvertiser } from "@/lib/providers/installation.functions";
+import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard } from "lucide-react";
+import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera } from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
@@ -27,6 +29,7 @@ function SuiviPage() {
   const fetchToken = useServerFn(getMapboxToken);
   const fetchMetrics = useServerFn(getCampaignMetrics);
   const fetchPauseAlerts = useServerFn(getCampaignPauseAlerts);
+  const fetchInstallPhotos = useServerFn(getInstallationPhotosForAdvertiser);
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -48,6 +51,12 @@ function SuiviPage() {
   const { data: pauseData } = useQuery({
     queryKey: ["campaign-pauses", campaignId],
     queryFn: () => fetchPauseAlerts({ data: { campaignRequestId: campaignId } }),
+    refetchInterval: 5 * 60_000,
+  });
+  const { data: installData } = useQuery({
+    queryKey: ["campaign-install-photos", campaignId],
+    queryFn: () => fetchInstallPhotos({ data: { campaignId } }),
+    staleTime: 5 * 60_000,
     refetchInterval: 5 * 60_000,
   });
 
@@ -242,6 +251,14 @@ function SuiviPage() {
             </CardContent>
           </Card>
         )}
+        {installData && (
+          <InstallationPhotosCard
+            photos={parseInstallationPhotos(installData.photos)}
+            status={installData.status}
+            notes={installData.notes}
+            reviewedAt={installData.reviewedAt}
+          />
+        )}
         {metrics && metrics.totals.pointsTotal > 0 && (
           <Card>
             <CardHeader>
@@ -293,6 +310,58 @@ function SuiviPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function InstallationPhotosCard({
+  photos,
+  status,
+  notes,
+  reviewedAt,
+}: {
+  photos: ReturnType<typeof parseInstallationPhotos>;
+  status: string | null;
+  notes: string | null;
+  reviewedAt: string | null;
+}) {
+  const statusConfig: Record<string, { label: string; cls: string }> = {
+    pending_approval: { label: "En attente de validation", cls: "bg-amber-500/10 text-amber-700 border-amber-500/30" },
+    approved: { label: "Pose validée ✓", cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30" },
+    rejected: { label: "Photos refusées", cls: "bg-destructive/10 text-destructive border-destructive/30" },
+  };
+  const s = status ? (statusConfig[status] ?? null) : null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Camera className="h-5 w-5" /> Photos de pose du covering
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {s && (
+          <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${s.cls}`}>
+            {s.label}
+            {reviewedAt && (
+              <span className="opacity-70">
+                · {new Date(reviewedAt).toLocaleDateString("fr-FR")}
+              </span>
+            )}
+          </div>
+        )}
+        {status === "rejected" && notes && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            <span className="font-semibold">Motif du refus : </span>{notes}
+          </div>
+        )}
+        <InstallationPhotoGrid photos={photos} />
+        {!photos && (
+          <p className="text-xs text-muted-foreground">
+            Le poseur certifié enverra les photos après la pose du covering sur votre véhicule.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

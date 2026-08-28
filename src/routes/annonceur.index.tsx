@@ -514,6 +514,15 @@ function AnnonceurDashboard() {
                         🧾 Facture PDF
                       </Link>
                     )}
+                    {(r.installation_status === "approved" || r.installation_status === "pending_approval") && (
+                      <Link
+                        to="/annonceur/suivi/$campaignId"
+                        params={{ campaignId: r.id }}
+                        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${r.installation_status === "approved" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20" : "border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"}`}
+                      >
+                        📸 {r.installation_status === "approved" ? "Pose validée — voir photos" : "Photos de pose en attente"}
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
