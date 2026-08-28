@@ -87,7 +87,7 @@ function HowItWorks() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-12">
+      <main id="main-content" className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">Comment marche MoveSpot ?</h1>
         <p className="text-lg text-muted-foreground mb-12">
           La marketplace qui transforme tout véhicule en média publicitaire géolocalisé. Trois rôles, un flux simple, des données 100 % vérifiables.

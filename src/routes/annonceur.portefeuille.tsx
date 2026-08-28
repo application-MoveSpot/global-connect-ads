@@ -144,7 +144,7 @@ function WalletPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main id="main-content" className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section>
           <h1 className="font-display text-3xl font-bold mb-2">Mon portefeuille</h1>
           <p className="text-sm text-muted-foreground">Crédits prépayés utilisables instantanément pour vos campagnes.</p>

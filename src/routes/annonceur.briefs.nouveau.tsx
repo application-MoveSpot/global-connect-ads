@@ -202,7 +202,7 @@ function NewBriefPage() {
           <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
         </div>
       </header>
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-3xl mx-auto px-4 py-8">
         {created && (
           <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/5 p-6">
             <h2 className="font-display text-2xl font-bold">Récapitulatif du devis</h2>

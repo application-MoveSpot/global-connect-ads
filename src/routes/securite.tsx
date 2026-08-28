@@ -174,12 +174,14 @@ function SecuritePage() {
               {!enroll && (
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Nom de l'appareil</label>
+                    <label htmlFor="totp-device-name" className="block text-sm font-medium mb-1.5">Nom de l'appareil</label>
                     <input
+                      id="totp-device-name"
                       value={friendlyName}
                       onChange={(e) => setFriendlyName(e.target.value)}
                       className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                       placeholder="Mon iPhone"
+                      autoComplete="off"
                     />
                   </div>
                   <button
@@ -202,12 +204,15 @@ function SecuritePage() {
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">2. Saisissez le code à 6 chiffres</label>
+                    <label htmlFor="totp-verify-code" className="block text-sm font-medium mb-1.5">2. Saisissez le code à 6 chiffres</label>
                     <input
+                      id="totp-verify-code"
                       value={code}
                       onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       inputMode="numeric"
                       maxLength={6}
+                      autoComplete="one-time-code"
+                      aria-required="true"
                       className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-ring"
                       placeholder="123456"
                     />

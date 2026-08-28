@@ -84,7 +84,7 @@ function EtudeMarche() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
+      <main id="main-content" className="max-w-6xl mx-auto px-6 py-10">
         {/* En-tête */}
         <div className="mb-8">
           <h1 className="font-display text-4xl font-bold mb-2">Étude de marché &amp; Prévisionnel</h1>
@@ -629,8 +629,9 @@ function SimulateurROI() {
       <div className="grid sm:grid-cols-2 gap-6">
         <div className="space-y-5">
           <div>
-            <label className="text-sm font-medium block mb-2">Type de véhicule</label>
+            <label htmlFor="sim-vehicle-type" className="text-sm font-medium block mb-2">Type de véhicule</label>
             <select
+              id="sim-vehicle-type"
               value={typeV.key}
               onChange={(e) => { const v = CATALOGUE.find((c) => c.key === e.target.value); if (v) { setTypeV(v); setPrixJour(Math.round((v.prixMin + v.prixMax) / 2)); } }}
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -639,21 +640,21 @@ function SimulateurROI() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Durée : <span className="text-primary font-bold">{jours} jours</span></label>
-            <input type="range" min={1} max={180} value={jours} onChange={(e) => setJours(Number(e.target.value))} className="w-full accent-primary" />
+            <label htmlFor="sim-jours" className="text-sm font-medium block mb-2">Durée : <span className="text-primary font-bold">{jours} jours</span></label>
+            <input id="sim-jours" type="range" min={1} max={180} value={jours} aria-valuetext={`${jours} jours`} onChange={(e) => setJours(Number(e.target.value))} className="w-full accent-primary" />
             <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1 j</span><span>180 j</span></div>
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">Nombre de véhicules : <span className="text-primary font-bold">{vehicules}</span></label>
-            <input type="range" min={1} max={50} value={vehicules} onChange={(e) => setVehicules(Number(e.target.value))} className="w-full accent-primary" />
+            <label htmlFor="sim-vehicules" className="text-sm font-medium block mb-2">Nombre de véhicules : <span className="text-primary font-bold">{vehicules}</span></label>
+            <input id="sim-vehicules" type="range" min={1} max={50} value={vehicules} aria-valuetext={`${vehicules} véhicule${vehicules > 1 ? "s" : ""}`} onChange={(e) => setVehicules(Number(e.target.value))} className="w-full accent-primary" />
             <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1</span><span>50</span></div>
           </div>
           <div>
-            <label className="text-sm font-medium block mb-2">
+            <label htmlFor="sim-prix" className="text-sm font-medium block mb-2">
               Prix/véhicule/jour : <span className="text-primary font-bold">{prixJour} €</span>
               <span className="text-xs text-muted-foreground ml-2">({typeV.prixMin}–{typeV.prixMax} €)</span>
             </label>
-            <input type="range" min={typeV.prixMin} max={typeV.prixMax} value={prixJour} onChange={(e) => setPrixJour(Number(e.target.value))} className="w-full accent-primary" />
+            <input id="sim-prix" type="range" min={typeV.prixMin} max={typeV.prixMax} value={prixJour} aria-valuetext={`${prixJour} € par jour`} onChange={(e) => setPrixJour(Number(e.target.value))} className="w-full accent-primary" />
           </div>
         </div>
         <div className="flex flex-col justify-center gap-4">
