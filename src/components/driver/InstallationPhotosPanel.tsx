@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageFile } from "@/lib/images/resize";
 import {
   INSTALLATION_VIEWS,
   INSTALLATION_VIEW_LABEL,
@@ -54,11 +55,12 @@ export function InstallationPhotosPanel({
       const paths: Record<string, string> = {};
       for (const view of INSTALLATION_VIEWS) {
         const file = files[view]!;
+        const resized = await resizeImageFile(file, 1600, 0.85);
         const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
         const path = `${uid}/installations/${campaignRequestId}/${view}-${Date.now()}.${ext}`;
         const { error } = await supabase.storage
           .from("campaign-creatives")
-          .upload(path, file, { upsert: true });
+          .upload(path, resized, { upsert: true });
         if (error) throw new Error(error.message);
         paths[view] = path;
       }

@@ -13,6 +13,7 @@ import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
 import type { VehicleKey, AdFormat } from "@/components/advertiser/VehicleMockup3D";
+import { resizeImageFile } from "@/lib/images/resize";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -352,16 +353,17 @@ export function BookingForm({ spot, onClose }: Props) {
     setDateConflict(null);
     setStatus("loading");
 
-    // Upload creative files first
+    // Upload creative files first (resize images before upload, max 2000px)
     const uploadedPaths: string[] = [];
     if (files.length > 0) {
       const folder = `${auth.userId}/${Date.now()}`;
       for (const f of files) {
+        const resized = await resizeImageFile(f, 2000, 0.87);
         const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `${folder}/${safeName}`;
         const { error: upErr } = await supabase.storage
           .from("campaign-creatives")
-          .upload(path, f, { upsert: false, contentType: f.type });
+          .upload(path, resized, { upsert: false, contentType: resized.type });
         if (upErr) {
           setStatus("rejected");
           setReason(`Erreur lors de l'upload de « ${f.name} ». Réessayez.`);

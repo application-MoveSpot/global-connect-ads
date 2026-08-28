@@ -9,6 +9,7 @@ import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 import { RouteError } from "@/components/app/RouteError";
+import { resizeImageFile } from "@/lib/images/resize";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -126,14 +127,15 @@ function NewBriefPage() {
     }
     setLoading(true);
 
-    // Upload creatives
+    // Upload creatives (resize images before upload, max 2000px for ad visuals)
     const uploadedPaths: string[] = [];
     for (const f of files) {
+      const resized = await resizeImageFile(f, 2000, 0.87);
       const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `${userId}/briefs/${Date.now()}_${safe}`;
       const { error: upErr } = await supabase.storage
         .from("campaign-creatives")
-        .upload(path, f, { upsert: false, contentType: f.type });
+        .upload(path, resized, { upsert: false, contentType: resized.type });
       if (upErr) { setError(`Upload échoué : ${f.name}`); setLoading(false); return; }
       uploadedPaths.push(path);
     }

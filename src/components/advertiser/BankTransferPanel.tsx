@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageFile } from "@/lib/images/resize";
 import {
   attachBankTransferReceipt,
   createBankTransferRequest,
@@ -117,11 +118,12 @@ export function BankTransferPanel({
       if (!userId) throw new Error("Session expirée");
       if (file.size > 10 * 1024 * 1024) throw new Error("Fichier trop lourd (10 Mo max)");
 
+      const resized = await resizeImageFile(file, 1600, 0.85);
       const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "pdf";
       const path = `${userId}/${requestId}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("bank-receipts")
-        .upload(path, file, { upsert: true });
+        .upload(path, resized, { upsert: true });
       if (upErr) throw new Error(upErr.message);
 
       await attachReceipt({ data: { requestId, receiptPath: path } });
