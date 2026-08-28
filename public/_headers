@@ -1,0 +1,6 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' js.stripe.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com data:; img-src 'self' data: blob: *.supabase.co *.mapbox.com; connect-src 'self' *.supabase.co wss://*.supabase.co *.stripe.com api.mapbox.com events.mapbox.com *.mapbox.com *.sentry.io; frame-src 'self' js.stripe.com hooks.stripe.com checkout.stripe.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' *.stripe.com
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), payment=*, geolocation=(self)

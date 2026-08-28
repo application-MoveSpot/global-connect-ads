@@ -9,13 +9,27 @@ import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { CSP_HEADER } from "./src/lib/security/csp";
 
 // Charge toutes les variables (sans préfixe VITE_) dans process.env pour les routes serveur.
 // Ne jamais exposer ces valeurs au bundle client.
 const serverEnv = loadEnv(process.env["NODE_ENV"] ?? "development", process.cwd(), "");
 Object.assign(process.env, serverEnv);
 
+const SECURITY_HEADERS = {
+  "Content-Security-Policy": CSP_HEADER,
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), payment=*, geolocation=(self)",
+};
+
 export default defineConfig({
+  nitro: {
+    routeRules: {
+      "/**": { headers: SECURITY_HEADERS },
+    },
+  },
   vite: {
     plugins: [
       mcpPlugin(),
