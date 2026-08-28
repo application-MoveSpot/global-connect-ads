@@ -413,3 +413,64 @@ export const adminReviewInstallation = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ============ Onglet Analytics ============
+export const adminAnalyticsData = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const since = new Date();
+    since.setDate(since.getDate() - 84); // 12 semaines
+
+    const [{ data: briefs }, { data: campaigns }] = await Promise.all([
+      supabaseAdmin
+        .from("advertiser_briefs")
+        .select("created_at")
+        .gte("created_at", since.toISOString()),
+      supabaseAdmin
+        .from("campaign_requests")
+        .select("created_at, payment_status")
+        .gte("created_at", since.toISOString()),
+    ]);
+
+    function toWeekKey(iso: string): string {
+      const d = new Date(iso);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d);
+      monday.setDate(diff);
+      return monday.toISOString().slice(0, 10);
+    }
+
+    const weeks: Record<string, { briefs: number; campaigns: number }> = {};
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i * 7);
+      const key = toWeekKey(d.toISOString());
+      weeks[key] = { briefs: 0, campaigns: 0 };
+    }
+
+    for (const b of briefs ?? []) {
+      const k = toWeekKey(b.created_at as string);
+      if (k in weeks) weeks[k].briefs++;
+    }
+    for (const c of campaigns ?? []) {
+      if ((c as { payment_status: string }).payment_status === "paid") {
+        const k = toWeekKey((c as { created_at: string }).created_at);
+        if (k in weeks) weeks[k].campaigns++;
+      }
+    }
+
+    return Object.entries(weeks).map(([week, v]) => ({
+      week,
+      label: new Date(week).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" }),
+      briefs: v.briefs,
+      campaigns: v.campaigns,
+    }));
+  });
