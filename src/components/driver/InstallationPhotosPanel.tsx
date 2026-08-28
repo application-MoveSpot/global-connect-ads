@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { resizeImageFile } from "@/lib/images/resize";
+import { captureError } from "@/lib/sentry";
 import {
   INSTALLATION_VIEWS,
   INSTALLATION_VIEW_LABEL,
@@ -76,6 +77,7 @@ export function InstallationPhotosPanel({
       onSubmitted?.();
     } catch (e) {
       toast.error((e as Error).message);
+      captureError(e, "upload", { flow: "installation_photos", campaignRequestId });
     } finally {
       setBusy(false);
     }

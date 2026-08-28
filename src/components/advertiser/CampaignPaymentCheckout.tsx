@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/payments/wallet.functions";
+import { captureError } from "@/lib/sentry";
 import { Button } from "@/components/ui/button";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
@@ -35,6 +36,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
       onPaid?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erreur");
+      captureError(e, "payment", { flow: "wallet_debit", campaignRequestId });
     } finally { setLoading(false); }
   };
 

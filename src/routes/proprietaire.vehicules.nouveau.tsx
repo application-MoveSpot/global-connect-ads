@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { estimateVehicle } from "@/lib/fleet/vehicle-estimate.functions";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
+import { captureError } from "@/lib/sentry";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   head: () => ({
@@ -164,6 +165,7 @@ function NewVehiclePage() {
       });
       setEstimate({ ...res, uploaded_urls: paths });
     } catch (e) {
+      if (e instanceof Error && e.message.startsWith("Upload")) captureError(e, "upload", { flow: "vehicle_photo" });
       setError(e instanceof Error ? e.message : "Erreur estimation");
     } finally {
       setEstimating(false);

@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
+import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
 import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
@@ -136,7 +137,7 @@ function NewBriefPage() {
       const { error: upErr } = await supabase.storage
         .from("campaign-creatives")
         .upload(path, resized, { upsert: false, contentType: resized.type });
-      if (upErr) { setError(`Upload échoué : ${f.name}`); setLoading(false); return; }
+      if (upErr) { captureError(upErr, "upload", { flow: "brief_creative", fileName: f.name }); setError(`Upload échoué : ${f.name}`); setLoading(false); return; }
       uploadedPaths.push(path);
     }
 

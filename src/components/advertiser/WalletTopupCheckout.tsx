@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { captureError } from "@/lib/sentry";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createWalletTopupCheckout } from "@/lib/payments/payments.functions";
@@ -44,6 +45,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
     } catch (e) {
       const message = e instanceof Error ? e.message : "Erreur Stripe";
       setError(message);
+      captureError(e, "payment", { flow: "wallet_topup", amountEuros });
       throw e;
     }
   }, [amountEuros, campaignBriefId, createTopup, returnUrl]);

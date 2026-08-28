@@ -31,3 +31,15 @@ export function initSentry() {
 }
 
 export { Sentry };
+
+/** Capture an error with a category tag so Sentry alert rules can filter by flow. */
+export function captureError(
+  error: unknown,
+  category: "payment" | "upload" | "auth" | "api",
+  extras?: Record<string, unknown>,
+) {
+  Sentry.captureException(error, {
+    tags: { category },
+    extra: extras,
+  });
+}
