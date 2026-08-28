@@ -339,14 +339,7 @@ function DashboardPage() {
 
         {tab === "vehicles" ? (
           vehicles.length === 0 ? (
-            <Empty msg="Aucun véhicule pour le moment.">
-              <Link
-                to="/proprietaire/vehicules/nouveau"
-                className="rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold"
-              >
-                Ajouter mon premier véhicule
-              </Link>
-            </Empty>
+            <OwnerVehicleOnboarding />
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
               {vehicles.map((v) => (
@@ -355,7 +348,7 @@ function DashboardPage() {
             </div>
           )
         ) : requests.length === 0 ? (
-          <Empty msg="Aucune demande de campagne pour vos véhicules." />
+          <OwnerRequestsEmpty hasVehicles={vehicles.length > 0} hasApproved={vehicles.some(v => v.status === "approved")} />
         ) : (
           <div className="space-y-4">
             {requests.map((r) => (
@@ -441,6 +434,178 @@ function DashboardPage() {
   );
 }
 
+function OwnerVehicleOnboarding() {
+  const steps = [
+    {
+      icon: "✅",
+      title: "Compte propriétaire créé",
+      desc: "Votre espace est prêt. Vous pouvez gérer vos véhicules et répondre aux annonceurs.",
+      done: true,
+      cta: null,
+    },
+    {
+      icon: "🚗",
+      title: "Ajoutez votre premier véhicule",
+      desc: "Photos, type, format publicitaire, tarif journalier. L'inscription prend moins de 5 minutes.",
+      done: false,
+      cta: { label: "Ajouter un véhicule", to: "/proprietaire/vehicules/nouveau" } as const,
+    },
+    {
+      icon: "🔍",
+      title: "Validation par l'équipe MoveSpot",
+      desc: "Nous vérifions les informations et approuvons votre véhicule sous 48 h. Vous recevez une notification.",
+      done: false,
+      cta: null,
+    },
+    {
+      icon: "💳",
+      title: "Connectez Stripe pour recevoir vos paiements",
+      desc: "Reliez votre compte bancaire via Stripe Connect. MoveSpot vous reverse 70 % du montant à la fin de chaque diffusion.",
+      done: false,
+      cta: { label: "Connecter Stripe", to: "/proprietaire/stripe-connect" } as const,
+    },
+    {
+      icon: "📣",
+      title: "Recevez des demandes d'annonceurs",
+      desc: "Votre véhicule apparaît dans le catalogue. Les annonceurs vous envoient des demandes — acceptez ou refusez en un clic.",
+      done: false,
+      cta: null,
+    },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="text-4xl mb-3">🚀</div>
+        <h2 className="font-display text-2xl font-bold">Démarrez en 4 étapes</h2>
+        <p className="text-muted-foreground text-sm mt-2">
+          Votre véhicule peut commencer à générer des revenus publicitaires dès cette semaine.
+        </p>
+      </div>
+
+      <ol className="space-y-3">
+        {steps.map((step, i) => (
+          <li
+            key={i}
+            className={`flex gap-4 rounded-xl p-4 transition ${
+              step.done
+                ? "bg-emerald-500/5 border border-emerald-500/20"
+                : i === 1
+                ? "bg-primary/5 border border-primary/20"
+                : "bg-secondary/30 border border-border"
+            }`}
+          >
+            <div
+              className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                step.done
+                  ? "bg-emerald-500/15 text-emerald-600"
+                  : i === 1
+                  ? "bg-primary/15 text-primary"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {step.done ? "✓" : i + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-sm">{step.icon} {step.title}</span>
+                {step.done && (
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">Fait</span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
+              {step.cta && (
+                <Link
+                  to={step.cta.to}
+                  className={`inline-block mt-2 rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                    i === 1
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border border-border text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {step.cta.label} →
+                </Link>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-6 pt-5 border-t border-border">
+        <p className="text-xs text-muted-foreground text-center">
+          Vous pouvez aussi importer une flotte entière via CSV ou générer des QR codes pour vos véhicules.
+        </p>
+        <div className="flex justify-center gap-3 mt-3">
+          <Link to="/proprietaire/flotte/import" className="text-xs text-primary hover:underline font-medium">
+            📥 Import CSV flotte
+          </Link>
+          <Link to="/proprietaire/flotte/qr" className="text-xs text-primary hover:underline font-medium">
+            🔳 QR codes
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OwnerRequestsEmpty({
+  hasVehicles,
+  hasApproved,
+}: {
+  hasVehicles: boolean;
+  hasApproved: boolean;
+}) {
+  if (!hasVehicles) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center max-w-lg mx-auto">
+        <div className="text-3xl mb-3">🚗</div>
+        <h3 className="font-semibold mb-1">Aucun véhicule enregistré</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Ajoutez au moins un véhicule pour commencer à recevoir des demandes de campagne.
+        </p>
+        <Link
+          to="/proprietaire/vehicules/nouveau"
+          className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+        >
+          Ajouter un véhicule
+        </Link>
+      </div>
+    );
+  }
+
+  if (!hasApproved) {
+    return (
+      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-10 text-center max-w-lg mx-auto">
+        <div className="text-3xl mb-3">⏳</div>
+        <h3 className="font-semibold mb-1">Validation en cours</h3>
+        <p className="text-sm text-muted-foreground">
+          Votre véhicule est en attente de validation par l'équipe MoveSpot (sous 48 h).
+          Les demandes d'annonceurs arriveront dès qu'il sera approuvé.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center max-w-lg mx-auto">
+      <div className="text-3xl mb-3">📭</div>
+      <h3 className="font-semibold mb-1">Pas encore de demande</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        Votre véhicule est approuvé et visible des annonceurs. Les demandes apparaîtront ici dès qu'un annonceur choisira votre espace.
+      </p>
+      <p className="text-xs text-muted-foreground">
+        Vous pouvez aussi consulter les briefs ouverts et proposer votre véhicule directement.
+      </p>
+      <Link
+        to="/proprietaire/briefs"
+        className="inline-block mt-3 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
+      >
+        Voir les briefs ouverts →
+      </Link>
+    </div>
+  );
+}
+
 function Tab({
   active,
   onClick,
@@ -459,15 +624,6 @@ function Tab({
     >
       {children} <span className="opacity-60">({count})</span>
     </button>
-  );
-}
-
-function Empty({ msg, children }: { msg: string; children?: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-12 text-center">
-      <p className="text-muted-foreground mb-4">{msg}</p>
-      {children}
-    </div>
   );
 }
 

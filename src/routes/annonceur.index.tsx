@@ -428,12 +428,7 @@ function AnnonceurDashboard() {
         </div>
 
         {requests.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center">
-            <p className="text-muted-foreground mb-4">Vous n'avez pas encore de campagne.</p>
-            <Link to="/" hash="spots" className="text-primary font-semibold hover:underline">
-              Parcourir les véhicules →
-            </Link>
-          </div>
+          <AdvertiserOnboarding />
         ) : (
           <div className="space-y-3">
             {requests.map((r) => (
@@ -553,6 +548,96 @@ function AnnonceurDashboard() {
           "À quoi sert un brief ?",
         ]}
       />
+    </div>
+  );
+}
+
+function AdvertiserOnboarding() {
+  const steps = [
+    {
+      icon: "✅",
+      title: "Compte créé",
+      desc: "Votre espace annonceur est prêt.",
+      done: true,
+      cta: null,
+    },
+    {
+      icon: "🔍",
+      title: "Parcourez les véhicules disponibles",
+      desc: "Choisissez un taxi, VTC, camionnette ou camion LED selon votre zone cible et votre budget.",
+      done: false,
+      cta: { label: "Voir les spots disponibles", to: "/", hash: "spots" } as const,
+    },
+    {
+      icon: "📋",
+      title: "Soumettez votre campagne",
+      desc: "Remplissez un brief en quelques minutes : zone géographique, durée, visuels. Vous pouvez aussi répondre à des propositions de propriétaires.",
+      done: false,
+      cta: { label: "Créer un brief", to: "/annonceur/briefs/nouveau" } as const,
+    },
+    {
+      icon: "🚀",
+      title: "Validation et lancement",
+      desc: "L'équipe MoveSpot valide votre campagne sous 48 h. Payez via votre portefeuille, votre publicité démarre.",
+      done: false,
+      cta: null,
+    },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <div className="text-4xl mb-3">📣</div>
+        <h2 className="font-display text-2xl font-bold">Lancez votre première campagne</h2>
+        <p className="text-muted-foreground text-sm mt-2">
+          Suivez ces étapes pour diffuser votre publicité sur des véhicules en circulation.
+        </p>
+      </div>
+
+      <ol className="space-y-4">
+        {steps.map((step, i) => (
+          <li key={i} className={`flex gap-4 rounded-xl p-4 transition ${step.done ? "bg-emerald-500/5 border border-emerald-500/20" : i === 1 ? "bg-primary/5 border border-primary/20" : "bg-secondary/30 border border-border"}`}>
+            <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold ${step.done ? "bg-emerald-500/15 text-emerald-600" : i === 1 ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>
+              {step.done ? "✓" : i + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-sm">{step.icon} {step.title}</span>
+                {step.done && (
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">Fait</span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
+              {step.cta && "hash" in step.cta ? (
+                <Link
+                  to={step.cta.to}
+                  hash={step.cta.hash}
+                  className="inline-block mt-2 rounded-full bg-primary text-primary-foreground px-4 py-1.5 text-xs font-semibold hover:bg-primary/90 transition"
+                >
+                  {step.cta.label} →
+                </Link>
+              ) : step.cta ? (
+                <Link
+                  to={step.cta.to}
+                  className="inline-block mt-2 rounded-full border border-primary/40 text-primary px-4 py-1.5 text-xs font-semibold hover:bg-primary/10 transition"
+                >
+                  {step.cta.label} →
+                </Link>
+              ) : null}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-6 pt-5 border-t border-border flex items-center justify-between flex-wrap gap-3">
+        <p className="text-xs text-muted-foreground">Vous pouvez aussi recharger votre portefeuille en avance pour payer rapidement à la validation.</p>
+        <Link
+          to="/annonceur/portefeuille"
+          className="text-xs text-primary font-semibold hover:underline"
+        >
+          💳 Charger mon portefeuille
+        </Link>
+      </div>
     </div>
   );
 }
