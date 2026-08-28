@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/devenir-partenaire")({
       { property: "og:title", content: "Devenir partenaire MoveSpot" },
       { property: "og:description", content: "Rentabilisez les kilomètres parcourus par votre véhicule en proposant vos espaces publicitaires." },
     ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/devenir-partenaire" }, ...hreflangLinks("/devenir-partenaire")],
   }),
   component: DevenirPartenaire,
 });

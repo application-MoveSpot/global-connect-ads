@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/comment-ca-marche")({
@@ -9,7 +10,7 @@ export const Route = createFileRoute("/comment-ca-marche")({
       { property: "og:title", content: "Comment fonctionne MoveSpot" },
       { property: "og:description", content: "Annonceur, propriétaire, chauffeur : découvrez le parcours complet sur MoveSpot." },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/comment-ca-marche" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/comment-ca-marche" }, ...hreflangLinks("/comment-ca-marche")],
     scripts: [
       {
         type: "application/ld+json",

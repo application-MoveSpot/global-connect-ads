@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
 export const Route = createFileRoute("/confidentialite")({
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/confidentialite")({
       { property: "og:description", content: "Comment MoveSpot collecte, utilise et protège vos données, y compris les positions GPS de campagne." },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/confidentialite" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/confidentialite" }, ...hreflangLinks("/confidentialite")],
   }),
   component: Privacy,
 });

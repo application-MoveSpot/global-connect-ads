@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/securite")({
       { property: "og:description", content: "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des annonceurs et propriétaires de véhicules." },
       { property: "og:url", content: "https://move-spot.com/securite" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/securite" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/securite" }, ...hreflangLinks("/securite")],
   }),
   component: SecuritePage,
 });
