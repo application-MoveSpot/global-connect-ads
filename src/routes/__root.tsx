@@ -5,6 +5,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { CSP_HEADER } from "@/lib/security/csp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -118,6 +119,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="fr">
       <head>
         <HeadContent />
+        <meta httpEquiv="Content-Security-Policy" content={CSP_HEADER} />
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
       </head>
       <body>
         <a
