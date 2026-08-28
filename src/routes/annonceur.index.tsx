@@ -15,6 +15,7 @@ import { downloadCsv } from "@/lib/exportCsv";
 import { toast } from "sonner";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
+import { CampaignMetricsRow } from "@/components/advertiser/CampaignMetricsRow";
 import { RouteError } from "@/components/app/RouteError";
 
 type Req = {
@@ -482,6 +483,11 @@ function AnnonceurDashboard() {
                   days={r.days_count}
                 />
                 <CreativeFiles paths={r.creative_files} />
+                <CampaignMetricsRow
+                  campaignId={r.id}
+                  status={r.status}
+                  paymentStatus={r.payment_status}
+                />
                 {r.status === "approved" && (
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <PaymentBadge status={r.payment_status} />
