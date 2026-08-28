@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Menu, X } from "lucide-react";
-import { MobilityMap } from "@/components/shared/MobilityMap";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
-import { BookingForm } from "@/components/shared/BookingForm";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
 import logo from "@/assets/movespot-logo.svg";
+
+const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
+const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -224,7 +225,9 @@ function Index() {
             <p className="text-muted-foreground mt-2">{t("map.desc")}</p>
           </div>
         </div>
-        <MobilityMap />
+        <Suspense fallback={<div className="h-96 rounded-2xl bg-secondary/40 animate-pulse" />}>
+          <MobilityMap />
+        </Suspense>
       </section>
 
       {/* Ad Spots */}
@@ -246,7 +249,9 @@ function Index() {
         </div>
       </footer>
 
-      <BookingForm spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
+      <Suspense fallback={null}>
+        <BookingForm spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
+      </Suspense>
     </div>
   );
 }

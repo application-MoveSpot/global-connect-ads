@@ -7,8 +7,7 @@ import { getInstallationPhotosForAdvertiser } from "@/lib/providers/installation
 import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera } from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
@@ -34,6 +33,7 @@ function SuiviPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const mglRef = useRef<typeof mapboxgl | null>(null);
   const [positions, setPositions] = useState<Position[]>([]);
   const [live, setLive] = useState(false);
 
@@ -96,30 +96,36 @@ function SuiviPage() {
     };
   }, [campaignId]);
 
-  // Init map
+  // Init map — dynamic import defers the ~800 KB Mapbox bundle until this view mounts
   useEffect(() => {
     if (!tokenData?.token || !mapContainer.current || mapRef.current) return;
-    mapboxgl.accessToken = tokenData.token;
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v12",
-      center: [2.3522, 48.8566],
-      zoom: 11,
-    });
-    mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    (async () => {
+      await import("mapbox-gl/dist/mapbox-gl.css");
+      const mgl = (await import("mapbox-gl")).default;
+      mglRef.current = mgl;
+      mgl.accessToken = tokenData.token;
+      mapRef.current = new mgl.Map({
+        container: mapContainer.current!,
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: [2.3522, 48.8566],
+        zoom: 11,
+      });
+      mapRef.current.addControl(new mgl.NavigationControl(), "top-right");
+    })();
   }, [tokenData]);
 
   // Update marker + polyline
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || positions.length === 0) return;
+    const mgl = mglRef.current;
+    if (!map || !mgl || positions.length === 0) return;
 
     const last = positions[positions.length - 1];
     const coords: [number, number][] = positions.map((p) => [p.lng, p.lat]);
 
     const draw = () => {
       if (!markerRef.current) {
-        markerRef.current = new mapboxgl.Marker({ color: "#0f172a" }).setLngLat([last.lng, last.lat]).addTo(map);
+        markerRef.current = new mgl.Marker({ color: "#0f172a" }).setLngLat([last.lng, last.lat]).addTo(map);
         map.flyTo({ center: [last.lng, last.lat], zoom: 14 });
       } else {
         markerRef.current.setLngLat([last.lng, last.lat]);

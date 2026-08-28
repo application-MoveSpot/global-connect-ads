@@ -13,11 +13,12 @@ export function CreativeFiles({ paths }: Props) {
 
   useEffect(() => {
     if (!paths || paths.length === 0) { setFiles([]); return; }
-    (async () => {
+    let alive = true;
+    const refresh = async () => {
       const { data } = await supabase.storage
         .from("campaign-creatives")
         .createSignedUrls(paths, 3600);
-      if (!data) return;
+      if (!alive || !data) return;
       setFiles(
         data
           .filter((d): d is typeof d & { signedUrl: string } => Boolean(d.signedUrl))
@@ -34,7 +35,11 @@ export function CreativeFiles({ paths }: Props) {
             };
           })
       );
-    })();
+    };
+    void refresh();
+    // Refresh 5 min before the 1-hour expiry so files never go stale mid-session
+    const timer = setInterval(() => void refresh(), 55 * 60 * 1000);
+    return () => { alive = false; clearInterval(timer); };
   }, [paths?.join("|")]);
 
   if (!paths || paths.length === 0) return null;
