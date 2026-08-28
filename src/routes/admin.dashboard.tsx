@@ -3,11 +3,22 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
 import {
+  adminAnalyticsData,
   adminApproveBrief,
   adminApproveCampaign,
   adminCertifyPoseur,
@@ -45,7 +56,9 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "poses" | "poseurs" | "fleet" | "stripe";
+type Tab = "briefs" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics";
+
+type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -142,6 +155,15 @@ function AdminDashboard() {
     retry: false,
   });
 
+  const getAnalytics = useServerFn(adminAnalyticsData);
+  const analyticsQuery = useQuery({
+    queryKey: ["admin-analytics"],
+    queryFn: () => getAnalytics(),
+    enabled: ready && tab === "analytics",
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+
   const approveCampaignMut = useMutation({
     mutationFn: (id: string) => approveCampaign({ data: { campaignRequestId: id, approve: true } }),
     onSuccess: () => {
@@ -172,7 +194,8 @@ function AdminDashboard() {
     installationsQuery.error ??
     poseursQuery.error ??
     fleetQuery.error ??
-    stripeQuery.error;
+    stripeQuery.error ??
+    analyticsQuery.error;
 
   return (
     <div className="min-h-screen bg-background">
@@ -211,6 +234,9 @@ function AdminDashboard() {
                 {stripeQuery.data!.incomplete.length + stripeQuery.data!.neverStarted.length}
               </span>
             )}
+          </TabBtn>
+          <TabBtn active={tab === "analytics"} onClick={() => setTab("analytics")}>
+            Analytics
           </TabBtn>
         </div>
 
@@ -467,7 +493,81 @@ function AdminDashboard() {
             </div>
           )
         ) : null}
+
+        {tab === "analytics" ? (
+          analyticsQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-8">
+              <section>
+                <h2 className="mb-1 font-display text-lg font-bold">Activité des 12 dernières semaines</h2>
+                <p className="mb-5 text-sm text-muted-foreground">
+                  Briefs créés et campagnes payées par semaine (lundi au dimanche).
+                </p>
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <ResponsiveContainer width="100%" height={320}>
+                    <BarChart
+                      data={analyticsQuery.data ?? []}
+                      margin={{ top: 4, right: 16, left: 0, bottom: 4 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis
+                        dataKey="label"
+                        tick={{ fontSize: 11 }}
+                        className="fill-muted-foreground"
+                      />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: "0.75rem",
+                          border: "1px solid hsl(var(--border))",
+                          background: "hsl(var(--card))",
+                          color: "hsl(var(--foreground))",
+                          fontSize: 12,
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
+                      <Bar dataKey="briefs" name="Briefs créés" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="campaigns" name="Campagnes payées" fill="hsl(var(--chart-2, 34 197 94))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </section>
+
+              <section>
+                <h2 className="mb-3 font-display text-lg font-bold">Totaux sur la période</h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <StatCard
+                    label="Briefs (12 sem.)"
+                    value={(analyticsQuery.data ?? []).reduce((s: number, r: AnalyticsRow) => s + r.briefs, 0)}
+                  />
+                  <StatCard
+                    label="Campagnes payées (12 sem.)"
+                    value={(analyticsQuery.data ?? []).reduce((s: number, r: AnalyticsRow) => s + r.campaigns, 0)}
+                  />
+                  <StatCard
+                    label="Meilleure semaine (briefs)"
+                    value={Math.max(0, ...(analyticsQuery.data ?? []).map((r: AnalyticsRow) => r.briefs))}
+                  />
+                  <StatCard
+                    label="Meilleure semaine (camp.)"
+                    value={Math.max(0, ...(analyticsQuery.data ?? []).map((r: AnalyticsRow) => r.campaigns))}
+                  />
+                </div>
+              </section>
+            </div>
+          )
+        ) : null}
       </main>
+    </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 text-center">
+      <p className="text-3xl font-bold font-display">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }
