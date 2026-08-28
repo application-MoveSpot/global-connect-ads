@@ -55,6 +55,23 @@ async function getOwnerUserId(ownerId: string): Promise<string | null> {
   return (data as { user_id?: string } | null)?.user_id ?? null;
 }
 
+async function getCertifiedInstallerUserIds(): Promise<string[]> {
+  const { data } = await supabase
+    .from("payee_profiles")
+    .select("user_id")
+    .in("kind", ["installer", "both"])
+    .eq("certification_status", "certified");
+  return (data as Array<{ user_id: string }> | null)?.map((r) => r.user_id) ?? [];
+}
+
+async function getAdminUserIds(): Promise<string[]> {
+  const { data } = await supabase
+    .from("user_roles")
+    .select("user_id")
+    .eq("role", "admin");
+  return (data as Array<{ user_id: string }> | null)?.map((r) => r.user_id) ?? [];
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
@@ -106,6 +123,41 @@ Deno.serve(async (req) => {
             });
           }
         }
+      }
+    }
+
+    if (table === "campaign_requests" && type === "UPDATE") {
+      const newStatus = record.status as string | undefined;
+      const prevStatus = oldRecord.status as string | undefined;
+
+      // A campaign just got approved → new installation job for certified installers
+      if (newStatus === "approved" && prevStatus !== "approved") {
+        const installerIds = await getCertifiedInstallerUserIds();
+        await Promise.allSettled(
+          installerIds.map((uid) =>
+            sendToUser(uid, {
+              title: "Nouvelle mission disponible !",
+              body: "Une mission d'installation est disponible dans votre espace.",
+              url: "/chauffeur/espace",
+            }),
+          ),
+        );
+      }
+
+      // Installer submitted photos → notify admins
+      const newInstallStatus = record.installation_status as string | undefined;
+      const prevInstallStatus = oldRecord.installation_status as string | undefined;
+      if (newInstallStatus === "pending_approval" && prevInstallStatus !== "pending_approval") {
+        const adminIds = await getAdminUserIds();
+        await Promise.allSettled(
+          adminIds.map((uid) =>
+            sendToUser(uid, {
+              title: "Photos à valider",
+              body: "Un installateur a soumis des photos d'installation.",
+              url: "/admin",
+            }),
+          ),
+        );
       }
     }
 

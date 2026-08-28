@@ -9,6 +9,7 @@ import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payments/payee.functions";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { RouteError } from "@/components/app/RouteError";
 
 type Profile = {
@@ -68,6 +69,8 @@ function ChauffeurEspace() {
   const [state, setState] = useState<"loading" | "ready">("loading");
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const userIdRef = useRef<string | null>(null);
+  const { state: pushState, subscribe: subscribePush } = usePushSubscription(authUserId);
+  const [subscribingPush, setSubscribingPush] = useState(false);
 
   const loadProfile = async (userId: string) => {
     const { data } = await supabase
@@ -144,6 +147,22 @@ function ChauffeurEspace() {
             {profile?.city ? ` · ${profile.city}` : ""}
           </p>
         </div>
+
+        {profile && (profile.kind === "installer" || profile.kind === "both") &&
+          profile.certification_status === "certified" &&
+          (pushState === "default" || pushState === "loading") && (
+          <button
+            onClick={async () => { setSubscribingPush(true); await subscribePush(); setSubscribingPush(false); }}
+            disabled={subscribingPush}
+            className="flex items-start gap-3 w-full rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-300 text-left hover:opacity-90 transition disabled:opacity-60"
+          >
+            <span className="mt-0.5 text-base shrink-0">🔔</span>
+            <span>
+              Activez les notifications push pour être alerté instantanément dès qu'une nouvelle mission est disponible.{" "}
+              <strong className="underline">{subscribingPush ? "Activation…" : "Activer les alertes →"}</strong>
+            </span>
+          </button>
+        )}
 
         {profile && !profile.stripe_payouts_enabled && (
           <a

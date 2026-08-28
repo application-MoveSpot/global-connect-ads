@@ -11,6 +11,7 @@ import { createClient } from "@supabase/supabase-js";
  *
  * Supported triggers:
  *   - campaign_requests INSERT  → notify owner
+ *   - campaign_requests UPDATE  → notify certified installers (status→approved), admins (installation_status→pending_approval)
  *   - brief_proposals   UPDATE  → notify owner (accepted/rejected)
  *   - payee_profiles    UPDATE  → notify chauffeur (certification)
  *   - vehicles          UPDATE  → notify owner (approved/rejected)
@@ -80,6 +81,56 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     url: "/proprietaire",
                   });
                 }
+              }
+            }
+          }
+
+          if (table === "campaign_requests" && type === "UPDATE") {
+            const newStatus = record.status as string | undefined;
+            const prevStatus = oldRecord.status as string | undefined;
+            const db = createClient(
+              process.env["SUPABASE_URL"]!,
+              process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+            );
+
+            // A campaign just got approved → new installation job for certified installers
+            if (newStatus === "approved" && prevStatus !== "approved") {
+              const { data: installers } = await db
+                .from("payee_profiles" as never)
+                .select("user_id")
+                .in("kind" as never, ["installer", "both"])
+                .eq("certification_status" as never, "certified");
+              if (installers?.length) {
+                await Promise.allSettled(
+                  (installers as Array<{ user_id: string }>).map((p) =>
+                    sendWebPushToUser(p.user_id, {
+                      title: "Nouvelle mission disponible !",
+                      body: "Une mission d'installation est disponible dans votre espace.",
+                      url: "/chauffeur/espace",
+                    })
+                  )
+                );
+              }
+            }
+
+            // Installer submitted photos → notify admins
+            const newInstallStatus = record.installation_status as string | undefined;
+            const prevInstallStatus = oldRecord.installation_status as string | undefined;
+            if (newInstallStatus === "pending_approval" && prevInstallStatus !== "pending_approval") {
+              const { data: admins } = await db
+                .from("user_roles" as never)
+                .select("user_id")
+                .eq("role" as never, "admin");
+              if (admins?.length) {
+                await Promise.allSettled(
+                  (admins as Array<{ user_id: string }>).map((a) =>
+                    sendWebPushToUser(a.user_id, {
+                      title: "Photos à valider",
+                      body: "Un installateur a soumis des photos d'installation.",
+                      url: "/admin",
+                    })
+                  )
+                );
               }
             }
           }
