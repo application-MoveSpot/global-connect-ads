@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 
 export const INSTALLATION_VIEWS = ["front", "left", "right", "rear"] as const;
 export type InstallationView = (typeof INSTALLATION_VIEWS)[number];
@@ -85,6 +86,7 @@ export const submitInstallationPhotos = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    assertRateLimit(`install-photos:${getRequestIp()}`, { maxRequests: 20, windowMs: 3_600_000 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: campaign } = await supabaseAdmin

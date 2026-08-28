@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 
 // Luhn checksum (valide pour SIRET 14 chiffres)
 function luhnSiretValid(siret: string): boolean {
@@ -25,6 +26,7 @@ export const verifySiret = createServerFn({ method: "POST" })
     z.object({ siret: z.string().regex(/^\d{14}$/, "Le SIRET doit comporter 14 chiffres.") }).parse(d),
   )
   .handler(async ({ data }): Promise<VerifyResult> => {
+    assertRateLimit(`verify-siret:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     const siret = data.siret;
     // La Poste (SIREN 356000000) ne respecte pas Luhn — on laisse passer et l'API INSEE tranchera.
     const isLaPoste = siret.startsWith("356000000");
