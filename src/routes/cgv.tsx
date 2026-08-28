@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
 export const Route = createFileRoute("/cgv")({
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/cgv")({
       { property: "og:description", content: "Modalités de commande, de paiement et d'annulation des campagnes de publicité mobile MoveSpot." },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/cgv" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/cgv" }, ...hreflangLinks("/cgv")],
   }),
   component: CGV,
 });

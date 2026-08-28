@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/prestataires/")({
       { title: "Prestataires impression covering — MoveSpot" },
       { name: "description", content: "Annuaire des prestataires d'impression covering véhicule sur MoveSpot. Demandez un devis en ligne." },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/prestataires" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/prestataires" }, ...hreflangLinks("/prestataires")],
     scripts: [
       {
         type: "application/ld+json",

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
 export const Route = createFileRoute("/mentions-legales")({
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/mentions-legales")({
       { property: "og:description", content: "Éditeur, coordonnées, hébergeur et services tiers de la plateforme MoveSpot." },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/mentions-legales" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/mentions-legales" }, ...hreflangLinks("/mentions-legales")],
   }),
   component: MentionsLegales,
 });

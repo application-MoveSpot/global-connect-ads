@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
 export const Route = createFileRoute("/cookies")({
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/cookies")({
       { property: "og:description", content: "Cookies et traceurs utilisés par MoveSpot, durées de conservation et gestion du consentement." },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/cookies" }],
+    links: [{ rel: "canonical", href: "https://move-spot.com/cookies" }, ...hreflangLinks("/cookies")],
   }),
 
   component: Cookies,
