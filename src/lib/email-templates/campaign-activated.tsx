@@ -1,17 +1,11 @@
 import * as React from "react";
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
 import type { TemplateEntry } from "./registry";
+import {
+  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
+  bodyStyle, containerStyle, contentPadding,
+  h1Style, textStyle, mutedText, buttonStyle,
+} from "./_base";
 
 interface Props {
   company?: string;
@@ -19,55 +13,60 @@ interface Props {
   startDate?: string;
   endDate?: string;
   amount?: string;
+  vehicleCount?: string;
+  zone?: string;
   trackingUrl?: string;
+  unsubscribeUrl?: string;
 }
 
-const Email = ({
-  company,
-  campaignName,
-  startDate,
-  endDate,
-  amount,
-  trackingUrl,
-}: Props) => (
+const Email = ({ company, campaignName, startDate, endDate, amount, vehicleCount, zone, trackingUrl, unsubscribeUrl }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
-    <Preview>Votre campagne MoveSpot est activée</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Text style={brand}>MoveSpot</Text>
-        <Heading style={h1}>🚀 Votre campagne est activée !</Heading>
-        <Text style={text}>
-          {company ? `Bonjour ${company},` : "Bonjour,"} bonne nouvelle : notre équipe a validé
-          votre paiement. Vos chauffeurs vont recevoir leurs missions d'affichage.
-        </Text>
+    <Preview>Paiement validé — votre campagne MoveSpot est en cours de diffusion</Preview>
+    <Body style={bodyStyle}>
+      <Container style={{ maxWidth: "560px", margin: "32px auto" }}>
+        <Container style={containerStyle}>
+          <EmailHeader />
 
-        <Section style={card}>
-          {campaignName ? <Text style={row}>Campagne : <strong>{campaignName}</strong></Text> : null}
-          {startDate && endDate ? (
-            <Text style={row}>
-              Période : <strong>{startDate} → {endDate}</strong>
+          <Section style={contentPadding}>
+            <StatusBadge color="green">Paiement validé</StatusBadge>
+
+            <Text style={{ ...h1Style, marginTop: "16px" }}>
+              Votre campagne est en diffusion 🚀
             </Text>
-          ) : null}
-          {amount ? <Text style={row}>Montant réglé : <strong>{amount}</strong></Text> : null}
-        </Section>
 
-        <Text style={text}>
-          Dès la pose des visuels, vous pourrez suivre les kilomètres parcourus dans votre zone de
-          ciblage et les impressions estimées depuis votre espace annonceur.
-        </Text>
+            <Text style={textStyle}>
+              {company ? `Bonjour ${company},` : "Bonjour,"} votre paiement a bien été reçu et confirmé. Vos chauffeurs ont reçu leurs missions — la diffusion de votre campagne est maintenant active.
+            </Text>
 
-        {trackingUrl ? (
-          <Button style={button} href={trackingUrl}>
-            Suivre ma campagne
-          </Button>
-        ) : null}
+            {/* Récapitulatif financier */}
+            <InfoCard>
+              {campaignName ? <InfoRow label="Campagne" value={campaignName} /> : null}
+              {amount ? <InfoRow label="Montant réglé" value={amount} /> : null}
+              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {vehicleCount ? <InfoRow label="Véhicules assignés" value={vehicleCount} /> : null}
+              {zone ? <InfoRow label="Zone de diffusion" value={zone} /> : null}
+            </InfoCard>
 
-        <Hr style={hr} />
-        <Text style={footer}>
-          MoveSpot — publicité mobile sur véhicules. Cet email vous est envoyé suite à la
-          validation du paiement de votre campagne.
-        </Text>
+            <Text style={textStyle}>
+              Suivez en temps réel les kilomètres parcourus dans votre zone, les minutes actives et le taux de couverture depuis votre espace annonceur.
+            </Text>
+
+            <Text style={mutedText}>
+              Les photographies de pose vous seront envoyées dès que les visuels seront installés sur les véhicules.
+            </Text>
+
+            {trackingUrl ? (
+              <Section style={{ margin: "24px 0" }}>
+                <Button style={buttonStyle} href={trackingUrl}>
+                  Suivre ma campagne en direct
+                </Button>
+              </Section>
+            ) : null}
+          </Section>
+
+          <EmailFooter unsubscribeUrl={unsubscribeUrl} />
+        </Container>
       </Container>
     </Body>
   </Html>
@@ -75,45 +74,19 @@ const Email = ({
 
 export const template = {
   component: Email,
-  subject: "🚀 Votre campagne MoveSpot est activée !",
-  displayName: "Campagne activée",
+  subject: (data: Record<string, unknown>) =>
+    data.campaignName
+      ? `Paiement validé — « ${data.campaignName} » est en diffusion`
+      : "Votre paiement MoveSpot est confirmé — campagne active",
+  displayName: "Paiement validé / Campagne activée",
   previewData: {
     company: "Rakoun Klub",
-    campaignName: "Taxi Pointe-à-Pitre",
-    startDate: "12/08/2026",
-    endDate: "12/09/2026",
+    campaignName: "Taxi Pointe-à-Pitre — Été 2026",
+    startDate: "20/08/2026",
+    endDate: "20/09/2026",
     amount: "1 250,00 €",
+    vehicleCount: "4 véhicules",
+    zone: "Centre-ville Pointe-à-Pitre",
     trackingUrl: "https://move-spot.com/annonceur",
   },
 } satisfies TemplateEntry;
-
-const main = { backgroundColor: "#ffffff", fontFamily: "Helvetica, Arial, sans-serif" };
-const container = { padding: "28px 24px", maxWidth: "560px" };
-const brand = {
-  fontSize: "13px",
-  letterSpacing: "3px",
-  textTransform: "uppercase" as const,
-  color: "#6b7280",
-  margin: "0 0 12px",
-};
-const h1 = { fontSize: "24px", lineHeight: "1.3", color: "#111827", margin: "0 0 16px" };
-const text = { fontSize: "15px", lineHeight: "1.6", color: "#374151" };
-const card = {
-  backgroundColor: "#f4f6f8",
-  borderRadius: "12px",
-  padding: "16px 18px",
-  margin: "20px 0",
-};
-const row = { fontSize: "14px", lineHeight: "1.5", color: "#111827", margin: "4px 0" };
-const button = {
-  backgroundColor: "#111827",
-  color: "#ffffff",
-  borderRadius: "10px",
-  padding: "12px 20px",
-  fontSize: "15px",
-  fontWeight: 600,
-  textDecoration: "none",
-  display: "inline-block",
-};
-const hr = { borderColor: "#e5e7eb", margin: "28px 0 16px" };
-const footer = { fontSize: "12px", lineHeight: "1.5", color: "#6b7280" };
