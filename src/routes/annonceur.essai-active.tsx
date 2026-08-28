@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/app/LogoLink";
 import { verifyCampaignSubscriptionSession } from "@/lib/payments/payments.functions";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/annonceur/essai-active")({
   head: () => ({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/annonceur/essai-active")({
     session_id: typeof search.session_id === "string" ? search.session_id : undefined,
   }),
   component: TrialActivatedPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type VerifyState =

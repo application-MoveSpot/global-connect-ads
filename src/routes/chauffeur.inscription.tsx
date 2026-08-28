@@ -6,6 +6,7 @@ import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
+import { RouteError } from "@/components/app/RouteError";
 
 type Kind = "driver" | "installer" | "both";
 
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/chauffeur/inscription")({
     ],
   }),
   component: ChauffeurInscription,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 const VEHICLE_KINDS = [

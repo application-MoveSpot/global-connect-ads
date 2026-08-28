@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/prestataire/connexion")({
   head: () => ({
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/prestataire/connexion")({
     ],
   }),
   component: ProviderLoginPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function ProviderLoginPage() {

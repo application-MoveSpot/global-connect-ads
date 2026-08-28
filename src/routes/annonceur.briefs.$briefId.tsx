@@ -7,6 +7,7 @@ import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { RefreshCw, Wallet } from "lucide-react";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/annonceur/briefs/$briefId")({
     ],
   }),
   component: BriefDetailPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Brief = {

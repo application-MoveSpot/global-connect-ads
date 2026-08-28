@@ -5,11 +5,13 @@ import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr/qr.funct
 import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { ObstacleReportDialog } from "@/components/driver/ObstacleReportDialog";
 import { toast } from "sonner";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/chauffeur/")({
   head: () => ({ meta: [{ title: "Chauffeur — MoveSpot" }, { name: "robots", content: "noindex" }] }),
   validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : "" }),
   component: DriverPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Vehicle = { id: string; name: string; type: string; format: string | null };

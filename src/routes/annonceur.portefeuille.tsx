@@ -7,6 +7,7 @@ import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functi
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
 import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/annonceur/portefeuille")({
     ],
   }),
   component: WalletPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type TxKind = "all" | "topup" | "campaign_debit" | "refund" | "admin_adjustment";

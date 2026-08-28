@@ -6,6 +6,7 @@ import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { Link } from "@tanstack/react-router";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/admin")({
     ],
   }),
   component: AdminPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Request = {

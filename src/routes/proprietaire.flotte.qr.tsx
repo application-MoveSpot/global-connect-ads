@@ -7,10 +7,12 @@ import { getFleetOverview } from "@/lib/fleet/fleet.functions";
 import { generateVehicleQrToken } from "@/lib/qr/qr.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/proprietaire/flotte/qr")({
   head: () => ({ meta: [{ title: "QR codes véhicules — MoveSpot" }] }),
   component: QrPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 function QrPage() {

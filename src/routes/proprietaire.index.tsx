@@ -12,6 +12,7 @@ import { pushNotification } from "@/hooks/useNotifications";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
 import { downloadCsv } from "@/lib/exportCsv";
+import { RouteError } from "@/components/app/RouteError";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/proprietaire/")({
     ],
   }),
   component: DashboardPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 type Vehicle = {

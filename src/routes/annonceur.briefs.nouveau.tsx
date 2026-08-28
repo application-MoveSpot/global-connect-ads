@@ -8,6 +8,7 @@ import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/adve
 import { estimateZoneBudget } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
+import { RouteError } from "@/components/app/RouteError";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/annonceur/briefs/nouveau")({
     ],
   }),
   component: NewBriefPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
 const VEHICLE_TYPES: { v: string; l: string; tip?: string }[] = [
