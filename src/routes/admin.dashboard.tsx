@@ -363,8 +363,9 @@ function AdminDashboard() {
                   {v.photos?.length > 0 && (
                     <div className="flex gap-2 flex-wrap">
                       {v.photos.slice(0, 4).map((url: string) => (
-                        <a key={url} href={url} target="_blank" rel="noopener noreferrer">
-                          <img src={url} alt="Photo véhicule" className="h-24 w-24 rounded-lg object-cover border border-border" />
+                        <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="relative overflow-hidden rounded-lg block h-24 w-24 flex-shrink-0 border border-border">
+                          <img src={url} alt="Photo véhicule" className="h-full w-full object-cover" />
+                          <div className="absolute bottom-0 left-0 right-0 h-[22%] backdrop-blur-md bg-black/10 pointer-events-none" />
                         </a>
                       ))}
                     </div>

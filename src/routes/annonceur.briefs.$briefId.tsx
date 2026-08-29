@@ -224,7 +224,7 @@ function BriefDetailPage() {
               return (
                 <div key={p.id} className="rounded-xl border border-border bg-card p-5">
                   <div className="flex items-start gap-4">
-                    {v?.photos?.[0] && <VehicleThumb src={v.photos[0]} alt={v.name} className="w-24 h-24 object-cover rounded-lg flex-shrink-0" />}
+                    {v?.photos?.[0] && <VehicleThumb src={v.photos[0]} alt={v.name} />}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -261,10 +261,15 @@ function BriefDetailPage() {
   );
 }
 
-function VehicleThumb({ src, alt, className }: { src: string; alt: string; className?: string }) {
+function VehicleThumb({ src, alt }: { src: string; alt: string }) {
   const [url] = useVehiclePhotoUrls([src]);
   if (!url) return null;
-  return <img src={url} alt={alt} className={className} />;
+  return (
+    <div className="relative overflow-hidden rounded-lg flex-shrink-0 w-24 h-24">
+      <img src={url} alt={alt} className="w-full h-full object-cover" />
+      <div className="absolute bottom-0 left-0 right-0 h-[22%] backdrop-blur-md bg-black/10 pointer-events-none" />
+    </div>
+  );
 }
 
 function StatusBadge({ status }: { status: string }) {

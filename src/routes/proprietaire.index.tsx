@@ -645,7 +645,10 @@ function OwnerVehicleCard({
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       {photoUrls[0] && (
-        <img src={photoUrls[0]} alt={v.name} className="w-full h-40 object-cover rounded-lg mb-4" />
+        <div className="relative overflow-hidden rounded-lg mb-4 h-40 w-full">
+          <img src={photoUrls[0]} alt={v.name} className="w-full h-full object-cover" />
+          <div className="absolute bottom-0 left-0 right-0 h-[22%] backdrop-blur-md bg-black/10 pointer-events-none" />
+        </div>
       )}
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-display text-lg font-bold">{v.name}</h3>
