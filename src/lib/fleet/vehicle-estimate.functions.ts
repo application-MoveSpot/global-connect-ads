@@ -105,6 +105,7 @@ Réponds UNIQUEMENT en JSON strict :
         model: "google/gemini-2.5-flash",
         messages: [{ role: "user", content }],
         response_format: { type: "json_object" },
+        temperature: 0,
       }),
     });
     if (!res.ok) {
