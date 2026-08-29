@@ -1,3 +1,4 @@
+// Test connexion Claude-Lovable [2026-08-29]
 import { createRouter, useRouter } from "@tanstack/react-router";
 import { QueryClient } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
