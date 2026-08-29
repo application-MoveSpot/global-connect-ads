@@ -1,6 +1,113 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+type TrafficTier = "urban_dense" | "urban" | "suburban" | "rural";
+
+// Keys stored accent-free + lowercase for robust matching
+const ZONE_TIERS: Record<string, TrafficTier> = {
+  // --- Guadeloupe ---
+  "pointe-a-pitre": "urban_dense",
+  "les abymes": "urban",
+  "abymes": "urban",
+  "baie-mahault": "urban",
+  "jarry": "urban",         // zone industrielle de Baie-Mahault
+  "basse-terre": "urban",
+  "gosier": "suburban",
+  "sainte-anne": "suburban",
+  "saint-francois": "suburban",
+  "lamentin": "suburban",
+  "capesterre-belle-eau": "rural",
+  "capesterre": "rural",
+  "petit-bourg": "rural",
+  "morne-a-l-eau": "rural",
+  "sainte-rose": "rural",
+  "anse-bertrand": "rural",
+  "port-louis": "rural",
+  // --- Martinique ---
+  "fort-de-france": "urban",
+  "fort de france": "urban",
+  "le lamentin": "suburban",
+  "schoelcher": "suburban",
+  "le robert": "suburban",
+  "saint-pierre": "rural",
+  // --- La Réunion ---
+  "saint-denis": "urban",
+  "saint-pierre": "urban",
+  "le port": "suburban",
+  "saint-paul": "suburban",
+  "saint-andre": "rural",
+  // --- Guyane ---
+  "cayenne": "urban",
+  "matoury": "suburban",
+  "kourou": "suburban",
+  "saint-laurent-du-maroni": "rural",
+  // --- France métropolitaine — urban_dense ---
+  "paris": "urban_dense",
+  "lyon": "urban_dense",
+  "marseille": "urban_dense",
+  // --- France métropolitaine — urban ---
+  "toulouse": "urban",
+  "nice": "urban",
+  "nantes": "urban",
+  "bordeaux": "urban",
+  "lille": "urban",
+  "strasbourg": "urban",
+  "rennes": "urban",
+  "montpellier": "urban",
+  "grenoble": "urban",
+  "toulon": "urban",
+  "saint-etienne": "urban",
+  "dijon": "urban",
+  "angers": "urban",
+  "nimes": "urban",
+  "villeurbanne": "urban",
+  "le mans": "urban",
+  "aix-en-provence": "urban",
+  "reims": "urban",
+  "clermont-ferrand": "urban",
+  "brest": "urban",
+  "limoges": "urban",
+  "amiens": "urban",
+  "perpignan": "urban",
+  "metz": "urban",
+  "nancy": "urban",
+  "rouen": "urban",
+  "caen": "urban",
+};
+
+const TIER_LABELS: Record<TrafficTier, string> = {
+  urban_dense: "centre urbain très dense (flux piétons et voitures très élevé, ex. centre Paris/Lyon/Pointe-à-Pitre)",
+  urban: "ville urbaine active (flux quotidien soutenu, artères commerciales)",
+  suburban: "zone périurbaine ou banlieue (flux modéré, routes secondaires et nationales)",
+  rural: "zone rurale ou semi-rurale (faible densité, trafic limité)",
+};
+
+function normalizeZone(z: string): string {
+  return z
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")   // strip accents
+    .replace(/['']/g, "-")
+    .replace(/\s+/g, " ");
+}
+
+function resolveZoneTiers(zones: string[]): string {
+  const matched: { zone: string; tier: TrafficTier }[] = [];
+  for (const zone of zones) {
+    const key = normalizeZone(zone);
+    // exact match first, then partial (zone is substring of key or vice versa)
+    const tier =
+      ZONE_TIERS[key] ??
+      (Object.entries(ZONE_TIERS).find(([k]) => key.includes(k) || k.includes(key))?.[1]);
+    if (tier) matched.push({ zone, tier });
+  }
+  if (matched.length === 0) return "(zones non reconnues — estime la densité depuis les noms fournis)";
+  return matched
+    .map(({ zone, tier }) => `  • ${zone} → ${tier} : ${TIER_LABELS[tier]}`)
+    .join("\n");
+}
+
 const InputSchema = z.object({
   type: z.string().min(1).max(50),
   condition: z.enum(["excellent", "bon", "moyen", "mauvais"]),
@@ -44,6 +151,8 @@ export const estimateVehicle = createServerFn({ method: "POST" })
       };
     }
 
+    const zoneTierContext = resolveZoneTiers(data.zones);
+
     const content: Array<Record<string, unknown>> = [
       {
         type: "text",
@@ -65,7 +174,8 @@ Analyse ce véhicule proposé sur MoveSpot et :
    - En cas de doute raisonnable sur l'authenticité → ai_generated_detected: false, mais signale-le dans recommendation.
 
 3. Estime une fourchette de prix par jour réaliste en € (marché FR) selon type, état, surface, km/jour et zones.
-4. Estime les impressions/jour réalistes (vues humaines uniques) selon km/jour, type et zones.
+   IMPORTANT : utilise le tier de densité de trafic fourni dans "Densité de trafic par zone" pour calibrer les impressions ET le prix. Un véhicule en zone urban_dense génère 2 à 3× plus d'impressions qu'en zone suburban, et peut justifier un prix 20-40 % plus élevé.
+4. Estime les impressions/jour réalistes (vues humaines uniques) selon km/jour, type, zones ET leur densité de trafic.
 5. Donne une courte recommandation au propriétaire (rappelle aussi la législation de propriété intellectuelle : photos personnelles, pas de droits tiers violés).
 
 Données déclarées :
@@ -74,6 +184,8 @@ Données déclarées :
 - Surface publicitaire: ${data.surface_m2 ?? "non renseignée"} m²
 - Km parcourus / jour: ${data.km_per_day ?? "non renseigné"}
 - Zones: ${data.zones.join(", ") || "non renseignées"}
+- Densité de trafic par zone (données MoveSpot) :
+${zoneTierContext}
 - Prix demandé / jour: ${data.price_per_day ?? "non renseigné"} €
 
 Réponds UNIQUEMENT en JSON strict :
