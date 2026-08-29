@@ -202,6 +202,9 @@ function AnnonceurInscription() {
               {mode === "signup"
                 ? "Entreprise, association ou particulier — créez votre compte pour réserver des espaces publicitaires."
                 : "Accédez à votre espace annonceur et vos campagnes."}
+              {mode === "signup" && (
+                <> {" "}<Link to="/annonceur/preview-3d" className="text-primary underline text-xs">Visualiser d'abord sans compte →</Link></>
+              )}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
