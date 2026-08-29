@@ -29,10 +29,10 @@ const ZONE_TIERS: Record<string, TrafficTier> = {
   "le lamentin": "suburban",
   "schoelcher": "suburban",
   "le robert": "suburban",
-  "saint-pierre": "rural",
+  "saint-pierre martinique": "rural",
   // --- La Réunion ---
   "saint-denis": "urban",
-  "saint-pierre": "urban",
+  "saint-pierre reunion": "urban",
   "le port": "suburban",
   "saint-paul": "suburban",
   "saint-andre": "rural",

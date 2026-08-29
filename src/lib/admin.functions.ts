@@ -414,6 +414,55 @@ export const adminReviewInstallation = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ============ Onglet Véhicules ============
+export const adminListVehicles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("vehicles")
+      .select("id, name, type, condition, status, zones, price_per_day, km_per_day, surface_m2, photos, description, ai_verification, admin_notes, created_at, owner_id")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    return { vehicles: data ?? [] };
+  });
+
+export const adminReviewVehicle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        vehicleId: z.string().uuid(),
+        approve: z.boolean(),
+        notes: z.string().max(500).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("vehicles")
+      .update({
+        status: data.approve ? "approved" : "rejected",
+        admin_notes: data.notes ?? (data.approve
+          ? "✅ Véhicule approuvé par MoveSpot."
+          : "⛔ Véhicule refusé par MoveSpot."),
+      } as never)
+      .eq("id", data.vehicleId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // ============ Onglet Analytics ============
 export const adminAnalyticsData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
