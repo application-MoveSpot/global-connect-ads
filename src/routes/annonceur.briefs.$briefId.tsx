@@ -55,13 +55,18 @@ function BriefDetailPage() {
   const [brief, setBrief] = useState<Brief | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
+  const [accountType, setAccountType] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
-    const { data: b } = await supabase.from("advertiser_briefs").select("*").eq("id", briefId).maybeSingle();
+    const [{ data: b }, { data: prof }] = await Promise.all([
+      supabase.from("advertiser_briefs").select("*").eq("id", briefId).maybeSingle(),
+      supabase.from("advertiser_profiles").select("account_type").eq("user_id", sess.session.user.id).maybeSingle(),
+    ]);
     if (!b) { navigate({ to: "/annonceur/briefs" }); return; }
     setBrief(b as Brief);
+    setAccountType((prof as { account_type?: string } | null)?.account_type ?? null);
     const { data: ps } = await supabase.from("brief_proposals").select("*").eq("brief_id", briefId).order("created_at", { ascending: false });
     const list = (ps as Proposal[]) ?? [];
     setProposals(list);
@@ -98,6 +103,14 @@ function BriefDetailPage() {
     await load();
   };
 
+  const isIndividual = accountType === "individual";
+
+  const daysUntilStart = (() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const start = new Date(brief?.start_date ?? ""); start.setHours(0, 0, 0, 0);
+    return Math.round((start.getTime() - today.getTime()) / 86400000);
+  })();
+
   if (loading || !brief) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
   return (
@@ -109,6 +122,25 @@ function BriefDetailPage() {
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Compte à rebours événement pour les particuliers */}
+        {isIndividual && brief.status === "open" && daysUntilStart > 0 && (
+          <div className={`mb-5 rounded-xl px-4 py-3 flex items-center gap-3 ${daysUntilStart <= 7 ? "bg-amber-500/10 border border-amber-500/30" : "bg-primary/5 border border-primary/20"}`}>
+            <span className="text-2xl">{daysUntilStart <= 7 ? "⏰" : "📅"}</span>
+            <div>
+              <p className={`text-sm font-semibold ${daysUntilStart <= 7 ? "text-amber-700 dark:text-amber-300" : "text-primary"}`}>
+                {daysUntilStart <= 7
+                  ? `Votre événement est dans ${daysUntilStart} jour${daysUntilStart > 1 ? "s" : ""} — acceptez une proposition rapidement.`
+                  : `J-${daysUntilStart} avant votre événement`}
+              </p>
+              {proposals.filter((p) => p.status === "pending").length > 0 && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {proposals.filter((p) => p.status === "pending").length} proposition{proposals.filter((p) => p.status === "pending").length > 1 ? "s" : ""} en attente de votre réponse
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
             <h1 className="font-display text-3xl font-bold">{brief.title}</h1>
@@ -164,45 +196,72 @@ function BriefDetailPage() {
 
             <div className="mt-5 space-y-4">
               <p className="text-sm font-semibold text-foreground">
-                Comment souhaitez-vous activer cette campagne ?
+                {isIndividual ? "Activez votre campagne :" : "Comment souhaitez-vous activer cette campagne ?"}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-xl border border-primary bg-primary/5 p-4 ring-1 ring-primary/30">
+              {isIndividual ? (
+                <div className="rounded-xl border border-primary bg-primary/5 p-4">
                   <div className="flex items-center gap-2.5 mb-1.5">
-                    <RefreshCw className="h-5 w-5 text-primary" />
-                    <span className="font-semibold text-sm">Abonnement mensuel</span>
+                    <Wallet className="h-5 w-5 text-primary" />
+                    <span className="font-semibold text-sm">Paiement via portefeuille</span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                    14 jours d'essai gratuit pour{" "}
-                    <strong>{acceptedProposals.length} véhicule{acceptedProposals.length > 1 ? "s" : ""}</strong>.
-                    Aucun prélèvement pendant l'essai · résiliable à tout moment.
+                    Votre portefeuille se débite automatiquement quand vous acceptez une proposition.
+                    Si votre solde est insuffisant, rechargez le montant de votre pack événement.
                   </p>
-                  <CampaignTrialCheckout
-                    campaignRequestId={brief.id}
-                    vehicleQuantity={acceptedProposals.length}
-                    buttonLabel="Activer l'essai gratuit de 14 jours"
-                    className="w-full"
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      to="/annonceur/portefeuille"
+                      className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+                    >
+                      💳 Mon portefeuille
+                    </Link>
+                    <Link
+                      to="/annonceur/pack"
+                      className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition"
+                    >
+                      🎪 Packs événement
+                    </Link>
+                  </div>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-primary bg-primary/5 p-4 ring-1 ring-primary/30">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <RefreshCw className="h-5 w-5 text-primary" />
+                      <span className="font-semibold text-sm">Abonnement mensuel</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                      14 jours d'essai gratuit pour{" "}
+                      <strong>{acceptedProposals.length} véhicule{acceptedProposals.length > 1 ? "s" : ""}</strong>.
+                      Aucun prélèvement pendant l'essai · résiliable à tout moment.
+                    </p>
+                    <CampaignTrialCheckout
+                      campaignRequestId={brief.id}
+                      vehicleQuantity={acceptedProposals.length}
+                      buttonLabel="Activer l'essai gratuit de 14 jours"
+                      className="w-full"
+                    />
+                  </div>
 
-                <div className="rounded-xl border border-border bg-card p-4">
-                  <div className="flex items-center gap-2.5 mb-1.5">
-                    <Wallet className="h-5 w-5 text-muted-foreground" />
-                    <span className="font-semibold text-sm">Portefeuille prépayé</span>
+                  <div className="rounded-xl border border-border bg-card p-4">
+                    <div className="flex items-center gap-2.5 mb-1.5">
+                      <Wallet className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold text-sm">Portefeuille prépayé</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                      Rechargez votre portefeuille et payez vos campagnes en une fois,
+                      sans abonnement. Idéal pour les budgets B2B ou les campagnes ponctuelles.
+                    </p>
+                    <Link
+                      to="/annonceur/portefeuille"
+                      className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
+                    >
+                      Gérer mon portefeuille →
+                    </Link>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                    Rechargez votre portefeuille et payez vos campagnes en une fois,
-                    sans abonnement. Idéal pour les budgets B2B ou les campagnes ponctuelles.
-                  </p>
-                  <Link
-                    to="/annonceur/portefeuille"
-                    className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
-                  >
-                    Gérer mon portefeuille →
-                  </Link>
                 </div>
-              </div>
+              )}
             </div>
           </section>
         )}
@@ -212,15 +271,20 @@ function BriefDetailPage() {
           <button onClick={cancelBrief} className="mb-6 text-xs text-destructive hover:underline">Annuler ce brief</button>
         )}
 
-        <h2 className="font-display text-2xl font-bold mb-4">Propositions reçues ({proposals.length})</h2>
+        <h2 className="font-display text-2xl font-bold mb-4">
+          {isIndividual ? "Véhicules disponibles pour votre événement" : "Propositions reçues"} ({proposals.length})
+        </h2>
         {proposals.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
-            Aucune proposition pour l'instant. Les propriétaires éligibles seront notifiés.
+            {isIndividual
+              ? "Aucun véhicule proposé pour l'instant. Les propriétaires de votre zone seront notifiés automatiquement."
+              : "Aucune proposition pour l'instant. Les propriétaires éligibles seront notifiés."}
           </div>
         ) : (
           <div className="space-y-3">
             {proposals.map((p) => {
               const v = vehicles[p.vehicle_id];
+              const totalForBrief = Number(p.price_per_day) * (brief.days_count ?? 0);
               return (
                 <div key={p.id} className="rounded-xl border border-border bg-card p-5">
                   <div className="flex items-start gap-4">
@@ -233,6 +297,9 @@ function BriefDetailPage() {
                         </div>
                         <div className="text-right">
                           <div className="font-display text-lg font-bold text-primary">{p.price_per_day}€<span className="text-xs font-normal text-muted-foreground">/jour</span></div>
+                          {isIndividual && brief.days_count && (
+                            <div className="text-xs text-muted-foreground">= {totalForBrief.toFixed(0)} € total</div>
+                          )}
                           <ProposalBadge status={p.status} />
                         </div>
                       </div>
@@ -241,7 +308,7 @@ function BriefDetailPage() {
                         <div className="flex gap-2 mt-3">
                           <button onClick={() => respond(p.id, "accepted")}
                             className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-1.5 text-sm font-semibold hover:bg-signal/30">
-                            ✓ Accepter
+                            ✓ {isIndividual ? "Choisir ce véhicule" : "Accepter"}
                           </button>
                           <button onClick={() => respond(p.id, "rejected")}
                             className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-1.5 text-sm font-semibold hover:bg-destructive/25">

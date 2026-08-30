@@ -216,6 +216,46 @@ function Index() {
         </div>
       </section>
 
+      {/* Particuliers */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="rounded-3xl border border-primary/20 bg-primary/5 px-8 py-10">
+          <div className="text-xs uppercase tracking-widest text-primary mb-2">Particuliers</div>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
+            Pas besoin d'être une entreprise
+          </h2>
+          <p className="text-muted-foreground max-w-xl mb-8">
+            Mariage, inauguration de commerce, festival local, association… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4 mb-8">
+            {[
+              { icon: "💍", label: "Mariage & célébration", desc: "Prévenez vos proches et voisins le jour J — 1 semaine · à partir de 79 €" },
+              { icon: "🏪", label: "Ouverture de commerce", desc: "Installez votre présence dans le quartier — 2 semaines · à partir de 149 €" },
+              { icon: "🎪", label: "Festival & événement", desc: "Visibilité maximale le week-end — 3 jours · à partir de 49 €" },
+            ].map((e) => (
+              <div key={e.label} className="rounded-2xl border border-border bg-card p-5">
+                <div className="text-3xl mb-3">{e.icon}</div>
+                <div className="font-semibold text-sm mb-1">{e.label}</div>
+                <div className="text-xs text-muted-foreground leading-relaxed">{e.desc}</div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/annonceur/inscription"
+              className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
+            >
+              Créer mon compte particulier →
+            </Link>
+            <Link
+              to="/annonceur/exemples"
+              className="rounded-full border border-border bg-card px-5 py-3 text-sm font-medium hover:bg-secondary transition"
+            >
+              Voir des exemples de campagnes
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Map */}
       <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
