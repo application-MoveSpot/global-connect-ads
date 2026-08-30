@@ -19,6 +19,7 @@ export const Route = createFileRoute("/annonceur/pack")({
 function PackPage() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [accountType, setAccountType] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -27,11 +28,19 @@ function PackPage() {
         navigate({ to: "/annonceur/inscription", search: { redirect: "/annonceur/pack" } });
         return;
       }
+      const { data: prof } = await supabase
+        .from("advertiser_profiles")
+        .select("account_type")
+        .eq("user_id", data.session.user.id)
+        .maybeSingle();
+      setAccountType((prof as { account_type?: string } | null)?.account_type ?? "business");
       setReady(true);
     })();
   }, [navigate]);
 
   if (!ready) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+
+  const isIndividual = accountType === "individual";
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,9 +55,13 @@ function PackPage() {
 
       <main className="max-w-3xl mx-auto px-4 py-10">
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold mb-2">Pack publicitaire</h1>
+          <h1 className="font-display text-3xl font-bold mb-2">
+            {isIndividual ? "Packs événement" : "Pack publicitaire"}
+          </h1>
           <p className="text-muted-foreground">
-            Lancez une campagne sans abonnement. Payez une fois, diffusez immédiatement.
+            {isIndividual
+              ? "Choisissez le pack adapté à votre événement. Paiement unique, aucun abonnement."
+              : "Lancez une campagne sans abonnement. Payez une fois, diffusez immédiatement."}
           </p>
         </div>
 
@@ -57,7 +70,9 @@ function PackPage() {
           <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-none">
             <li className="flex items-start gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">1</span>
-              Choisissez votre pack ci-dessous et payez par carte
+              {isIndividual
+                ? "Choisissez le pack correspondant à votre type d'événement et payez par carte"
+                : "Choisissez votre pack ci-dessous et payez par carte"}
             </li>
             <li className="flex items-start gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">2</span>
@@ -65,12 +80,17 @@ function PackPage() {
             </li>
             <li className="flex items-start gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">3</span>
-              Créez un brief ou acceptez une proposition — le portefeuille se débite automatiquement
+              {isIndividual
+                ? "Publiez votre brief — quand un propriétaire accepte, le portefeuille se débite automatiquement"
+                : "Créez un brief ou acceptez une proposition — le portefeuille se débite automatiquement"}
             </li>
           </ol>
         </div>
 
-        <CampaignPackCheckout returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/annonceur?pack=success`} />
+        <CampaignPackCheckout
+          accountType={accountType}
+          returnUrl={`${typeof window !== "undefined" ? window.location.origin : ""}/annonceur?pack=success`}
+        />
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground mb-2">
