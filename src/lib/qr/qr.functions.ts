@@ -171,3 +171,36 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
     return { ok: true, inserted: rows.length };
   });
 
+// ── Driver: get signed QR tokens for vehicles assigned to them ────────────────
+export const getDriverVehicleQrTokens = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: vehicles, error } = await supabaseAdmin
+      .from("vehicles")
+      .select("id, name, owner_id, type")
+      .eq("driver_id", userId)
+      .eq("status", "approved");
+
+    if (error) throw new Error(error.message);
+    if (!vehicles?.length) return { vehicles: [] };
+
+    const { signQrToken } = await import("@/lib/qr/qr-sign.server");
+
+    const result = await Promise.all(
+      vehicles.map(async (v) => {
+        const token = await signQrToken({
+          k: "driver",
+          v: v.id,
+          o: v.owner_id,
+          d: userId,
+          iat: Math.floor(Date.now() / 1000),
+        });
+        return { vehicleId: v.id, vehicleName: v.name, vehicleType: v.type, token };
+      }),
+    );
+
+    return { vehicles: result };
+  });
