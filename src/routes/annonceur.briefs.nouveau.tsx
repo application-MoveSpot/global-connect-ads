@@ -312,7 +312,7 @@ function NewBriefPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    navigate({ to: "/annonceur/briefs/$briefId", params: { briefId: data!.id } });
+    navigate({ to: "/annonceur/briefs/confirmation/$briefId", params: { briefId: data!.id } });
   };
 
   if (wizardStep === "event-type" && accountType === "individual") {

@@ -149,7 +149,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
               const [briefRes, vehicleRes] = await Promise.allSettled([
                 db
                   .from("advertiser_briefs" as never)
-                  .select("user_id, spot_name, event_type, start_date, zone_label")
+                  .select("user_id, title, start_date, zones")
                   .eq("id" as never, briefId)
                   .maybeSingle(),
                 vehicleId
@@ -162,7 +162,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
               ]);
 
               const brief = briefRes.status === "fulfilled"
-                ? (briefRes.value.data as { user_id?: string; spot_name?: string; event_type?: string; start_date?: string; zone_label?: string } | null)
+                ? (briefRes.value.data as { user_id?: string; title?: string; start_date?: string; zones?: string[] } | null)
                 : null;
               const vehicle = vehicleRes.status === "fulfilled"
                 ? (vehicleRes.value.data as { owner_id?: string; kind?: string; name?: string } | null)
@@ -211,29 +211,18 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     ? `${Number(pricePerDay).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })} / jour`
                     : undefined;
 
+                  const zoneLabel = brief.zones?.length ? brief.zones[0] : undefined;
+
                   if (isIndividual) {
                     const firstName = profile?.full_name?.split(" ")[0];
-                    const eventLabelMap: Record<string, string> = {
-                      mariage: "mariage",
-                      ouverture: "ouverture de commerce",
-                      festival: "festival",
-                      association: "événement associatif",
-                      inauguration: "inauguration",
-                      culturel: "événement culturel",
-                    };
-                    const eventLabel = brief.event_type
-                      ? (eventLabelMap[brief.event_type] ?? brief.event_type)
-                      : undefined;
-
                     await sendAppEmailSafe({
                       templateName: "brief-proposal-received-individual",
                       recipientEmail: email,
                       templateData: {
                         firstName,
-                        eventLabel,
                         ownerName: ownerProfile?.full_name,
                         vehicleType: vehicle?.kind,
-                        zone: brief.zone_label,
+                        zone: zoneLabel,
                         proposedPrice: priceLabel,
                         startDate: fmtDate(brief.start_date),
                         daysUntilEvent,
@@ -246,10 +235,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       recipientEmail: email,
                       templateData: {
                         company: profile?.full_name,
-                        spotName: brief.spot_name,
+                        spotName: brief.title,
                         ownerName: ownerProfile?.full_name,
                         vehicleCount: vehicle?.name ?? vehicle?.kind,
-                        zone: brief.zone_label,
+                        zone: zoneLabel,
                         proposedPrice: priceLabel,
                         startDate: fmtDate(brief.start_date),
                         dashboardUrl: briefUrl,

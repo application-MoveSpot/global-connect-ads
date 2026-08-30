@@ -9,7 +9,7 @@ import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera } from "lucide-react";
+import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera, Clock } from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
@@ -65,13 +65,30 @@ function SuiviPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("campaign_requests")
-        .select("id, status, payment_status, total_price")
+        .select("id, status, payment_status, total_price, start_date, end_date, spot_name")
         .eq("id", campaignId)
         .maybeSingle();
       return data;
     },
     refetchInterval: 10_000,
   });
+
+  const { data: advertiserMeta } = useQuery({
+    queryKey: ["campaign-advertiser-meta", campaignId],
+    queryFn: async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) return null;
+      const { data: prof } = await supabase
+        .from("advertiser_profiles")
+        .select("account_type, full_name")
+        .eq("user_id", sess.session.user.id)
+        .maybeSingle();
+      return prof as { account_type?: string; full_name?: string } | null;
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  const isIndividual = advertiserMeta?.account_type === "individual";
 
   useEffect(() => {
     if (posData?.positions) setPositions(posData.positions as Position[]);
@@ -164,7 +181,11 @@ function SuiviPage() {
           <div className="flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
               <Radio className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`} />
-              <span>{live ? "Live" : "En attente de positions"}</span>
+              <span>
+                {live
+                  ? (isIndividual ? "Votre véhicule est en route 🚗" : "Live")
+                  : (isIndividual ? "En attente du démarrage" : "En attente de positions")}
+              </span>
             </div>
             <Link
               to="/annonceur/rapport/$campaignId"
@@ -178,6 +199,29 @@ function SuiviPage() {
       </div>
 
       <div className="mx-auto max-w-6xl space-y-4 p-4">
+        {/* Bannière événement pour les particuliers */}
+        {isIndividual && campaign?.start_date && (() => {
+          const today = new Date(); today.setHours(0, 0, 0, 0);
+          const start = new Date(campaign.start_date); start.setHours(0, 0, 0, 0);
+          const d = Math.round((start.getTime() - today.getTime()) / 86400000);
+          if (d < 0) return null;
+          const urgent = d <= 3;
+          return (
+            <Card className={urgent ? "border-amber-500/50 bg-amber-500/5" : "border-primary/20 bg-primary/5"}>
+              <CardContent className="py-4 flex items-center gap-3 text-sm">
+                <Clock className={`h-5 w-5 shrink-0 ${urgent ? "text-amber-600" : "text-primary"}`} />
+                <span className={urgent ? "text-amber-900 dark:text-amber-200" : "text-foreground"}>
+                  {d === 0
+                    ? "🎉 C'est aujourd'hui ! Votre publicité est en cours de diffusion."
+                    : d === 1
+                    ? "⏰ Votre événement commence demain — votre véhicule est confirmé."
+                    : `📅 Votre événement commence dans ${d} jour${d > 1 ? "s" : ""} (${new Date(campaign.start_date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}).`}
+                </span>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {campaign?.status === "approved" && campaign.payment_status !== "paid" && campaign.total_price && (
           <Card>
             <CardHeader>
@@ -203,7 +247,7 @@ function SuiviPage() {
             <CardContent className="py-4 text-sm text-emerald-700">✅ Campagne payée. Votre diffusion est confirmée.</CardContent>
           </Card>
         )}
-        {pauseData && (
+        {!isIndividual && pauseData && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -301,17 +345,25 @@ function SuiviPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" /> Suivi GPS de la campagne
+              <MapPin className="h-5 w-5" />
+              {isIndividual ? "Où est votre véhicule en ce moment ?" : "Suivi GPS de la campagne"}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div ref={mapContainer} className="h-[500px] w-full rounded-md border" />
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-              <Stat label="Points reçus" value={positions.length} />
-              <Stat label="Dernière position" value={last ? new Date(last.recorded_at).toLocaleTimeString("fr-FR") : "—"} />
-              <Stat label="Vitesse" value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"} />
-              <Stat label="Coord." value={last ? `${last.lat.toFixed(4)}, ${last.lng.toFixed(4)}` : "—"} />
-            </div>
+            {isIndividual ? (
+              <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                <Stat label="Mise à jour" value={last ? new Date(last.recorded_at).toLocaleTimeString("fr-FR") : "En attente"} />
+                <Stat label="Vitesse actuelle" value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"} />
+              </div>
+            ) : (
+              <div className="mt-4 grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                <Stat label="Points reçus" value={positions.length} />
+                <Stat label="Dernière position" value={last ? new Date(last.recorded_at).toLocaleTimeString("fr-FR") : "—"} />
+                <Stat label="Vitesse" value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"} />
+                <Stat label="Coord." value={last ? `${last.lat.toFixed(4)}, ${last.lng.toFixed(4)}` : "—"} />
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
