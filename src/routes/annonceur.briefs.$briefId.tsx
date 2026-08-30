@@ -1,13 +1,16 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
+import { toast } from "sonner";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { RefreshCw, Wallet, FileText } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
+import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
@@ -56,6 +59,10 @@ function BriefDetailPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
   const [accountType, setAccountType] = useState<string | null>(null);
+  // Maps proposalId → campaign_request.id (populated on accept)
+  const [campaignRequestIds, setCampaignRequestIds] = useState<Record<string, string>>({});
+  const [respondingId, setRespondingId] = useState<string | null>(null);
+  const doAcceptProposal = useServerFn(acceptBriefProposal);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -92,9 +99,32 @@ function BriefDetailPage() {
 
 
   const respond = async (id: string, status: "accepted" | "rejected") => {
-    await supabase.from("brief_proposals").update({ status }).eq("id", id);
-    void track(`proposal_${status}`, { proposal_id: id, brief_id: briefId });
-    await load();
+    if (status === "rejected") {
+      await supabase.from("brief_proposals").update({ status }).eq("id", id);
+      void track("proposal_rejected", { proposal_id: id, brief_id: briefId });
+      await load();
+      return;
+    }
+
+    // Accepted: create campaign_request via server function
+    setRespondingId(id);
+    try {
+      const result = await doAcceptProposal({ data: { proposalId: id, briefId } });
+      void track("proposal_accepted", { proposal_id: id, brief_id: briefId, campaign_request_id: result.campaignRequestId });
+      setCampaignRequestIds((prev) => ({ ...prev, [id]: result.campaignRequestId }));
+
+      if (result.settled) {
+        toast.success("Campagne activée ! Votre portefeuille a été débité.");
+      } else if (result.insufficientFunds) {
+        toast.warning("Proposition acceptée — rechargez votre portefeuille pour activer la campagne.");
+      }
+
+      await load();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de l'acceptation.");
+    } finally {
+      setRespondingId(null);
+    }
   };
 
   const cancelBrief = async () => {
@@ -237,7 +267,10 @@ function BriefDetailPage() {
                       Aucun prélèvement pendant l'essai · résiliable à tout moment.
                     </p>
                     <CampaignTrialCheckout
-                      campaignRequestId={brief.id}
+                      campaignRequestId={
+                        // Use the first accepted proposal's campaign_request.id if available
+                        campaignRequestIds[acceptedProposals[0]?.id] ?? brief.id
+                      }
                       vehicleQuantity={acceptedProposals.length}
                       buttonLabel="Activer l'essai gratuit de 14 jours"
                       className="w-full"
@@ -306,12 +339,18 @@ function BriefDetailPage() {
                       {p.message && <p className="text-sm mt-2 whitespace-pre-wrap">{p.message}</p>}
                       {p.status === "pending" && brief.status === "open" && (
                         <div className="flex gap-2 mt-3">
-                          <button onClick={() => respond(p.id, "accepted")}
-                            className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-1.5 text-sm font-semibold hover:bg-signal/30">
-                            ✓ {isIndividual ? "Choisir ce véhicule" : "Accepter"}
+                          <button
+                            onClick={() => respond(p.id, "accepted")}
+                            disabled={respondingId === p.id}
+                            className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-1.5 text-sm font-semibold hover:bg-signal/30 disabled:opacity-50"
+                          >
+                            {respondingId === p.id ? "…" : `✓ ${isIndividual ? "Choisir ce véhicule" : "Accepter"}`}
                           </button>
-                          <button onClick={() => respond(p.id, "rejected")}
-                            className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-1.5 text-sm font-semibold hover:bg-destructive/25">
+                          <button
+                            onClick={() => respond(p.id, "rejected")}
+                            disabled={respondingId === p.id}
+                            className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-1.5 text-sm font-semibold hover:bg-destructive/25 disabled:opacity-50"
+                          >
                             ✕ Refuser
                           </button>
                         </div>
