@@ -271,6 +271,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
             const prevStatus = oldRecord.status as string | undefined;
             if (newStatus !== prevStatus && (newStatus === "accepted" || newStatus === "rejected")) {
               const ownerId = record.owner_id as string | undefined;
+              const briefId = record.brief_id as string | undefined;
               if (ownerId) {
                 const userId = await getOwnerUserId(ownerId);
                 if (userId) {
@@ -281,6 +282,66 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       : "Un annonceur a refusé votre proposition.",
                     url: "/proprietaire/briefs",
                   });
+                }
+
+                // Send email to the owner
+                const db = createClient(
+                  process.env["SUPABASE_URL"]!,
+                  process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                );
+
+                const [ownerProfileRes, briefRes] = await Promise.allSettled([
+                  db.from("owner_profiles" as never).select("user_id, full_name").eq("id" as never, ownerId).maybeSingle(),
+                  briefId
+                    ? db.from("advertiser_briefs" as never).select("title, zones, start_date, end_date, user_id").eq("id" as never, briefId).maybeSingle()
+                    : Promise.resolve({ data: null }),
+                ]);
+
+                const ownerProfile = ownerProfileRes.status === "fulfilled"
+                  ? (ownerProfileRes.value.data as { user_id?: string; full_name?: string } | null)
+                  : null;
+                const brief = briefRes.status === "fulfilled"
+                  ? (briefRes.value.data as { title?: string; zones?: string[]; start_date?: string; end_date?: string; user_id?: string } | null)
+                  : null;
+
+                if (ownerProfile?.user_id) {
+                  const userRes = await db.auth.admin.getUserById(ownerProfile.user_id);
+                  const ownerEmail = userRes.data?.user?.email;
+
+                  if (ownerEmail) {
+                    // Get advertiser company name
+                    let advertiserName: string | undefined;
+                    if (brief?.user_id) {
+                      const { data: advProfile } = await db
+                        .from("advertiser_profiles" as never)
+                        .select("full_name")
+                        .eq("user_id" as never, brief.user_id)
+                        .maybeSingle();
+                      advertiserName = (advProfile as { full_name?: string } | null)?.full_name;
+                    }
+
+                    const fmtDate = (d: string | null | undefined) =>
+                      d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
+
+                    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+                    const templateName = newStatus === "accepted" ? "brief-proposal-accepted" : "brief-proposal-rejected";
+
+                    await sendAppEmailSafe({
+                      templateName,
+                      recipientEmail: ownerEmail,
+                      templateData: {
+                        ownerName: ownerProfile.full_name?.split(" ")[0] ?? ownerProfile.full_name,
+                        briefTitle: brief?.title,
+                        company: advertiserName,
+                        zone: brief?.zones?.length ? brief.zones[0] : undefined,
+                        startDate: fmtDate(brief?.start_date),
+                        endDate: fmtDate(brief?.end_date),
+                        dashboardUrl: newStatus === "accepted"
+                          ? "https://move-spot.com/proprietaire"
+                          : "https://move-spot.com/proprietaire/briefs",
+                      },
+                    });
+                  }
                 }
               }
             }

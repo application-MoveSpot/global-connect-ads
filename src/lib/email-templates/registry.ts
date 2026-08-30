@@ -9,6 +9,8 @@ import { template as obstacleReportedTemplate } from './obstacle-reported'
 import { template as briefProposalReceivedTemplate } from './brief-proposal-received'
 import { template as briefProposalReceivedIndividualTemplate } from './brief-proposal-received-individual'
 import { template as stripeReminderTemplate } from './stripe-reminder'
+import { template as briefProposalAcceptedTemplate } from './brief-proposal-accepted'
+import { template as briefProposalRejectedTemplate } from './brief-proposal-rejected'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -34,4 +36,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'brief-proposal-received': briefProposalReceivedTemplate,
   'brief-proposal-received-individual': briefProposalReceivedIndividualTemplate,
   'stripe-reminder': stripeReminderTemplate,
+  'brief-proposal-accepted': briefProposalAcceptedTemplate,
+  'brief-proposal-rejected': briefProposalRejectedTemplate,
 }

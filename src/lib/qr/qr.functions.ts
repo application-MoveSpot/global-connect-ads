@@ -178,10 +178,20 @@ export const getDriverVehicleQrTokens = createServerFn({ method: "GET" })
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // vehicles.driver_id stores drivers.id (PK of the drivers table), not auth.users.id
+    const { data: driverRow } = await supabaseAdmin
+      .from("drivers" as never)
+      .select("id")
+      .eq("user_id" as never, userId)
+      .maybeSingle();
+
+    if (!driverRow) return { vehicles: [] };
+    const driverId = (driverRow as { id: string }).id;
+
     const { data: vehicles, error } = await supabaseAdmin
       .from("vehicles")
       .select("id, name, owner_id, type")
-      .eq("driver_id", userId)
+      .eq("driver_id", driverId)
       .eq("status", "approved");
 
     if (error) throw new Error(error.message);
@@ -195,7 +205,7 @@ export const getDriverVehicleQrTokens = createServerFn({ method: "GET" })
           k: "driver",
           v: v.id,
           o: v.owner_id,
-          d: userId,
+          d: driverId,
           iat: Math.floor(Date.now() / 1000),
         });
         return { vehicleId: v.id, vehicleName: v.name, vehicleType: v.type, token };
