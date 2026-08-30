@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
-import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
+import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
 import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
 import { estimateZoneBudget, MIN_EUR_PER_DAY } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
@@ -483,6 +483,8 @@ function NewBriefPage() {
               placeholder="Marque, message clé, ton, contraintes, audience cible…" />
           </Field>
 
+          <ContentChecker text={`${title} ${description} ${audience}`} />
+
           <Field label="Types de véhicules recherchés">
             {/* ── Camion LED BoxLED — carte hero ────────────────────────────── */}
             <button
@@ -857,6 +859,46 @@ function NewBriefPage() {
           </button>
         </form>
       </main>
+    </div>
+  );
+}
+
+function ContentChecker({ text }: { text: string }) {
+  const [match, setMatch] = useState<ReturnType<typeof findForbiddenMatch>>(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    setChecked(false);
+    const id = setTimeout(() => {
+      setMatch(findForbiddenMatch(text.trim()));
+      setChecked(true);
+    }, 400);
+    return () => clearTimeout(id);
+  }, [text]);
+
+  if (!checked || text.trim().length < 5) return null;
+
+  if (match) {
+    return (
+      <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-4 space-y-2">
+        <p className="text-sm font-semibold text-destructive flex items-center gap-2">
+          ⛔ Contenu non conforme — {match.category}
+        </p>
+        <p className="text-xs text-destructive/80">
+          Le terme <strong>« {match.keyword} »</strong> est interdit par la charte MoveSpot.
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">{match.advice}</p>
+        <p className="text-xs font-medium text-destructive">
+          Ce brief sera refusé automatiquement si vous le soumettez tel quel.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 flex items-center gap-2">
+      <span className="text-emerald-500 text-sm">✓</span>
+      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Contenu conforme à la charte MoveSpot</p>
     </div>
   );
 }
