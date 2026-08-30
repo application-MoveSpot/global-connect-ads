@@ -135,6 +135,132 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
             }
           }
 
+          if (table === "brief_proposals" && type === "INSERT") {
+            // Notify the advertiser that an owner submitted a proposal on their brief
+            const briefId = record.brief_id as string | undefined;
+            const pricePerDay = record.price_per_day as number | undefined;
+            const vehicleId = record.vehicle_id as string | undefined;
+            if (briefId) {
+              const db = createClient(
+                process.env["SUPABASE_URL"]!,
+                process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+              );
+              // Load brief + advertiser profile in parallel
+              const [briefRes, vehicleRes] = await Promise.allSettled([
+                db
+                  .from("advertiser_briefs" as never)
+                  .select("user_id, spot_name, event_type, start_date, zone_label")
+                  .eq("id" as never, briefId)
+                  .maybeSingle(),
+                vehicleId
+                  ? db
+                      .from("vehicles" as never)
+                      .select("owner_id, kind, name")
+                      .eq("id" as never, vehicleId)
+                      .maybeSingle()
+                  : Promise.resolve({ data: null }),
+              ]);
+
+              const brief = briefRes.status === "fulfilled"
+                ? (briefRes.value.data as { user_id?: string; spot_name?: string; event_type?: string; start_date?: string; zone_label?: string } | null)
+                : null;
+              const vehicle = vehicleRes.status === "fulfilled"
+                ? (vehicleRes.value.data as { owner_id?: string; kind?: string; name?: string } | null)
+                : null;
+
+              if (brief?.user_id) {
+                const [userRes, profileRes, ownerRes] = await Promise.allSettled([
+                  db.auth.admin.getUserById(brief.user_id),
+                  db
+                    .from("advertiser_profiles" as never)
+                    .select("full_name, account_type")
+                    .eq("user_id" as never, brief.user_id)
+                    .maybeSingle(),
+                  vehicle?.owner_id
+                    ? db
+                        .from("owner_profiles" as never)
+                        .select("full_name")
+                        .eq("id" as never, vehicle.owner_id)
+                        .maybeSingle()
+                    : Promise.resolve({ data: null }),
+                ]);
+
+                const email = userRes.status === "fulfilled"
+                  ? userRes.value.data?.user?.email
+                  : undefined;
+                const profile = profileRes.status === "fulfilled"
+                  ? (profileRes.value.data as { full_name?: string; account_type?: string } | null)
+                  : null;
+                const ownerProfile = ownerRes.status === "fulfilled"
+                  ? (ownerRes.value.data as { full_name?: string } | null)
+                  : null;
+
+                if (email) {
+                  const isIndividual = profile?.account_type === "individual";
+                  const briefUrl = `https://move-spot.com/annonceur/briefs/${briefId}`;
+                  const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+
+                  const fmtDate = (d: string | null | undefined) =>
+                    d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
+
+                  const daysUntilEvent = brief.start_date
+                    ? Math.round((new Date(brief.start_date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000)
+                    : undefined;
+
+                  const priceLabel = pricePerDay != null
+                    ? `${Number(pricePerDay).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })} / jour`
+                    : undefined;
+
+                  if (isIndividual) {
+                    const firstName = profile?.full_name?.split(" ")[0];
+                    const eventLabelMap: Record<string, string> = {
+                      mariage: "mariage",
+                      ouverture: "ouverture de commerce",
+                      festival: "festival",
+                      association: "événement associatif",
+                      inauguration: "inauguration",
+                      culturel: "événement culturel",
+                    };
+                    const eventLabel = brief.event_type
+                      ? (eventLabelMap[brief.event_type] ?? brief.event_type)
+                      : undefined;
+
+                    await sendAppEmailSafe({
+                      templateName: "brief-proposal-received-individual",
+                      recipientEmail: email,
+                      templateData: {
+                        firstName,
+                        eventLabel,
+                        ownerName: ownerProfile?.full_name,
+                        vehicleType: vehicle?.kind,
+                        zone: brief.zone_label,
+                        proposedPrice: priceLabel,
+                        startDate: fmtDate(brief.start_date),
+                        daysUntilEvent,
+                        dashboardUrl: briefUrl,
+                      },
+                    });
+                  } else {
+                    await sendAppEmailSafe({
+                      templateName: "brief-proposal-received",
+                      recipientEmail: email,
+                      templateData: {
+                        company: profile?.full_name,
+                        spotName: brief.spot_name,
+                        ownerName: ownerProfile?.full_name,
+                        vehicleCount: vehicle?.name ?? vehicle?.kind,
+                        zone: brief.zone_label,
+                        proposedPrice: priceLabel,
+                        startDate: fmtDate(brief.start_date),
+                        dashboardUrl: briefUrl,
+                      },
+                    });
+                  }
+                }
+              }
+            }
+          }
+
           if (table === "brief_proposals" && type === "UPDATE") {
             const newStatus = record.status as string | undefined;
             const prevStatus = oldRecord.status as string | undefined;
