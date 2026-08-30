@@ -754,9 +754,26 @@ export function BookingForm({ spot, onClose }: Props) {
               </p>
 
 
+              {spot.vehicleType === "camion_led" && (
+                <div className="rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-4 text-sm space-y-1">
+                  <div className="font-semibold text-indigo-300">📺 Véhicule écran LED</div>
+                  <p className="text-xs text-indigo-200/80">
+                    Ce véhicule diffuse votre campagne sur un écran LED embarqué (3 faces, résolution 3200 × 1920 px).
+                    <strong className="text-indigo-200"> Uploadez un fichier MP4 ou MOV</strong> (durée recommandée : 15 – 30 s,
+                    poids max 200 Mo). La vidéo est lue en boucle automatique pendant la plage horaire choisie.
+                  </p>
+                  <p className="text-xs text-indigo-200/60">
+                    Format H.264, codec AAC conseillé. Images statiques acceptées en complément (affichées 8 s chacune).
+                  </p>
+                </div>
+              )}
+
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="text-sm font-semibold">Fichiers de la créa <span className="text-muted-foreground font-normal">(optionnel)</span></div>
+                  <div className="text-sm font-semibold">
+                    {spot.vehicleType === "camion_led" ? "Vidéo de la campagne" : "Fichiers de la créa"}
+                    {" "}<span className="text-muted-foreground font-normal">{spot.vehicleType === "camion_led" ? "(MP4 requis)" : "(optionnel)"}</span>
+                  </div>
                   <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
                 </div>
                 <input

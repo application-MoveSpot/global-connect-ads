@@ -273,13 +273,23 @@ function ChauffeurEspace() {
                       <p className="font-semibold text-sm">{q.vehicleName}</p>
                       <p className="text-xs text-muted-foreground mb-2">{q.vehicleType}</p>
                       <div className="flex flex-wrap gap-2">
-                        <Link
-                          to="/chauffeur"
-                          search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
-                          className="text-xs font-semibold text-primary hover:underline"
-                        >
-                          Démarrer le GPS →
-                        </Link>
+                        {q.vehicleType === "camion_led" ? (
+                          <Link
+                            to="/chauffeur/ecran"
+                            search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
+                            className="text-xs font-semibold text-indigo-400 hover:underline"
+                          >
+                            📺 Démarrer l'écran →
+                          </Link>
+                        ) : (
+                          <Link
+                            to="/chauffeur"
+                            search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
+                            className="text-xs font-semibold text-primary hover:underline"
+                          >
+                            Démarrer le GPS →
+                          </Link>
+                        )}
                         <a
                           href={q.qrImg}
                           download={`qr-gps-${q.vehicleId}.png`}

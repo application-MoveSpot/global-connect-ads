@@ -60,6 +60,53 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     };
   });
 
+// ── Public: get active campaign creative files for a LED screen vehicle ──────
+export const getVehicleActiveCampaignVideo = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ token: z.string().min(10).max(2000) }).parse(input))
+  .handler(async ({ data }) => {
+    const { verifyQrToken } = await import("@/lib/qr/qr-sign.server");
+    const payload = await verifyQrToken(data.token);
+    if (!payload) return { ok: false as const, error: "Token invalide." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: camp } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("id, company, spot_name, creative_files, start_date, end_date, daily_start_time, daily_end_time")
+      .eq("vehicle_id", payload.v)
+      .eq("status", "approved")
+      .eq("installation_status", "approved")
+      .lte("start_date", today)
+      .gte("end_date", today)
+      .order("start_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!camp) return { ok: true as const, campaign: null };
+
+    const paths = (camp.creative_files ?? []) as string[];
+    const signedUrls: string[] = [];
+    for (const path of paths) {
+      const { data: signed } = await supabaseAdmin.storage
+        .from("campaign-creatives")
+        .createSignedUrl(path, 3600);
+      if (signed?.signedUrl) signedUrls.push(signed.signedUrl);
+    }
+
+    return {
+      ok: true as const,
+      campaign: {
+        id: camp.id,
+        company: camp.company,
+        spotName: camp.spot_name,
+        signedUrls,
+        dailyStart: camp.daily_start_time ?? null,
+        dailyEnd: camp.daily_end_time ?? null,
+      },
+    };
+  });
+
 // ── Public: push a position using a signed driver token (no Supabase auth) ────
 export const pushPositionWithToken = createServerFn({ method: "POST" })
   .inputValidator((input) =>
