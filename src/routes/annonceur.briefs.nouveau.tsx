@@ -68,7 +68,7 @@ const EVENT_TEMPLATES: EventTemplate[] = [
   {
     id: "mariage",
     icon: "💍",
-    label: "Mariage / PACS",
+    label: "Mariage",
     desc: "Annoncez votre grand jour dans votre ville",
     vehicleTypes: ["taxi", "voiture"],
     adFormat: "demi_covering",
