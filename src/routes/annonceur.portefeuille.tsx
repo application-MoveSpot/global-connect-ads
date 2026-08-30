@@ -56,6 +56,7 @@ function WalletPage() {
   const [authReady, setAuthReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [balanceCents, setBalanceCents] = useState(0);
+  const [accountType, setAccountType] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(100);
 
   const [filterKind, setFilterKind] = useState<TxKind>("all");
@@ -95,10 +96,17 @@ function WalletPage() {
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
       setUserId(sess.session.user.id);
-      try {
-        const w = await fetchWallet();
-        setBalanceCents(w.balance_cents);
-      } catch { /* ignore */ }
+      const [walletResult, profResult] = await Promise.allSettled([
+        fetchWallet(),
+        supabase.from("advertiser_profiles").select("account_type").eq("user_id", sess.session.user.id).maybeSingle(),
+      ]);
+      if (walletResult.status === "fulfilled") setBalanceCents(walletResult.value.balance_cents);
+      if (profResult.status === "fulfilled") {
+        const prof = profResult.value.data as { account_type?: string } | null;
+        const at = prof?.account_type ?? null;
+        setAccountType(at);
+        setAmount(at === "individual" ? 79 : 100);
+      }
       setAuthReady(true);
       setLoading(false);
     })();
@@ -178,7 +186,16 @@ function WalletPage() {
       <main id="main-content" className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section>
           <h1 className="font-display text-3xl font-bold mb-2">Mon portefeuille</h1>
-          <p className="text-sm text-muted-foreground">Crédits prépayés utilisables instantanément pour vos campagnes.</p>
+          <p className="text-sm text-muted-foreground">
+            {accountType === "individual"
+              ? "Rechargez le montant de votre pack événement — utilisé automatiquement quand un propriétaire accepte votre brief."
+              : "Crédits prépayés utilisables instantanément pour vos campagnes."}
+          </p>
+          {accountType === "individual" && (
+            <Link to="/annonceur/pack" className="inline-block mt-1 text-xs text-primary hover:underline">
+              Voir les packs événement (49 € · 79 € · 149 €) →
+            </Link>
+          )}
         </section>
 
         <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/15 to-card p-8">
@@ -190,13 +207,16 @@ function WalletPage() {
           <h2 className="font-display text-xl font-semibold">Recharger par carte bancaire</h2>
           <p className="text-sm text-muted-foreground">Paiement sécurisé via Stripe. Le solde est crédité instantanément.</p>
           <div className="flex flex-wrap items-center gap-2">
-            {[50, 100, 250, 500, 1000].map((v) => (
+            {(accountType === "individual"
+              ? [{ v: 49, label: "49 € · Week-end" }, { v: 79, label: "79 € · Événement" }, { v: 149, label: "149 € · Lancement" }]
+              : [50, 100, 250, 500, 1000].map((v) => ({ v, label: `${v} €` }))
+            ).map(({ v, label }) => (
               <button
                 key={v}
                 onClick={() => setAmount(v)}
                 className={`px-3 py-1.5 rounded-lg text-sm border ${amount === v ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"}`}
               >
-                {v} €
+                {label}
               </button>
             ))}
             <input

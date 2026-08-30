@@ -606,13 +606,23 @@ function AnnonceurDashboard() {
       </main>
       <FAQChatbot
         audience="annonceur"
-        suggestions={[
-          "Comment payer ma campagne validée ?",
-          "Combien de temps dure la validation de ma campagne ?",
-          "Quels contenus publicitaires sont interdits ?",
-          "Comment recharger mon portefeuille ?",
-          "À quoi sert un brief ?",
-        ]}
+        suggestions={
+          isIndividual
+            ? [
+                "Quel pack choisir pour mon mariage ?",
+                "Combien de temps avant l'événement dois-je publier ?",
+                "Comment choisir la zone de diffusion ?",
+                "Puis-je annuler si personne n'accepte mon brief ?",
+                "Comment fonctionne le paiement par portefeuille ?",
+              ]
+            : [
+                "Comment payer ma campagne validée ?",
+                "Combien de temps dure la validation de ma campagne ?",
+                "Quels contenus publicitaires sont interdits ?",
+                "Comment recharger mon portefeuille ?",
+                "À quoi sert un brief ?",
+              ]
+        }
       />
     </div>
   );
