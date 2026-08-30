@@ -6,7 +6,7 @@ import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
 import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
-import { estimateZoneBudget } from "@/lib/geo/zone-budget";
+import { estimateZoneBudget, MIN_EUR_PER_DAY } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 import { RouteError } from "@/components/app/RouteError";
@@ -353,6 +353,9 @@ function NewBriefPage() {
                     {tpl.days} jours
                   </span>
                 </div>
+                <p className="mt-2 text-[11px] text-primary font-medium">
+                  À partir de {MIN_EUR_PER_DAY * tpl.days} € pour 1 véhicule
+                </p>
               </button>
             ))}
           </div>
@@ -818,6 +821,12 @@ function NewBriefPage() {
             </Field>
           </div>
 
+          <LiveBudgetEstimator
+            days={estimatedDays}
+            vehicleCount={vehicleTypes.length}
+            zonePolygon={zonePolygon}
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="Budget max (€, optionnel)">
               <input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)}
@@ -848,6 +857,114 @@ function NewBriefPage() {
           </button>
         </form>
       </main>
+    </div>
+  );
+}
+
+function LiveBudgetEstimator({
+  days,
+  vehicleCount,
+  zonePolygon,
+}: {
+  days: number;
+  vehicleCount: number;
+  zonePolygon: ZonePolygon | null;
+}) {
+  if (days <= 0 && vehicleCount === 0) return null;
+
+  const v = Math.max(1, vehicleCount);
+  const d = Math.max(1, days);
+
+  const rows = [1, 3, 5].map((n) => {
+    let total: number;
+    if (zonePolygon) {
+      total = estimateZoneBudget(
+        zonePolygon.areaKm2,
+        d,
+        n,
+        zonePolygon.coordinates as [number, number][],
+      ).total;
+    } else {
+      total = MIN_EUR_PER_DAY * d * n;
+    }
+    return { n, total };
+  });
+
+  const isDense = zonePolygon
+    ? estimateZoneBudget(zonePolygon.areaKm2, d, 1, zonePolygon.coordinates as [number, number][]).denseMetro
+    : null;
+
+  const floorForV = MIN_EUR_PER_DAY * d * v;
+  const approxForV = zonePolygon
+    ? estimateZoneBudget(zonePolygon.areaKm2, d, v, zonePolygon.coordinates as [number, number][]).total
+    : floorForV;
+
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="font-semibold text-sm">Estimation de budget</p>
+        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+          {zonePolygon ? "zone dessinée ✓" : "mise à jour en temps réel"}
+        </span>
+      </div>
+
+      {days <= 0 ? (
+        <p className="text-xs text-muted-foreground">Sélectionnez des dates pour affiner l'estimation.</p>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="text-xs text-muted-foreground border-b border-border">
+                  <th className="text-left py-1.5 font-medium">Véhicules retenus</th>
+                  <th className="text-right py-1.5 font-medium">Estimation totale</th>
+                  <th className="text-right py-1.5 font-medium">Par jour</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(({ n, total }) => (
+                  <tr key={n} className={`border-b border-border/40 ${n === v ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                    <td className="py-2">
+                      {n} véhicule{n > 1 ? "s" : ""}
+                      {n === v && vehicleCount > 0 && (
+                        <span className="ml-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">sélectionné</span>
+                      )}
+                    </td>
+                    <td className="text-right py-2">{total.toLocaleString("fr-FR")} €</td>
+                    <td className="text-right py-2 text-xs">{Math.round(total / d)} €/j</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {isDense && (
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              🏙️ Zone dense ({isDense}) — coefficient ×1,5 inclus dans l'estimation.
+            </p>
+          )}
+
+          <div className="rounded-lg bg-background/60 border border-border p-3 text-xs text-muted-foreground space-y-1">
+            <p>• Estimation basée sur {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : "le tarif plancher"} × {d} jour{d > 1 ? "s" : ""}.</p>
+            <p>• Le montant final dépend des propositions des propriétaires — vous ne payez qu'à la validation.</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/annonceur/portefeuille"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition"
+            >
+              💳 Préparer {approxForV.toLocaleString("fr-FR")} €
+            </Link>
+            <Link
+              to="/annonceur/pack"
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+            >
+              Ou acheter un pack →
+            </Link>
+          </div>
+        </>
+      )}
     </div>
   );
 }
