@@ -133,6 +133,22 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                 );
               }
             }
+
+            // Admin rejected photos → notify the installer
+            if (newInstallStatus === "rejected" && prevInstallStatus !== "rejected") {
+              const photos = record.installation_photos as Record<string, unknown> | null;
+              const installerUserId = photos?.claimed_by as string | undefined;
+              const notes = record.installation_notes as string | undefined;
+              if (installerUserId) {
+                await sendWebPushToUser(installerUserId, {
+                  title: "⛔ Pose refusée — correction requise",
+                  body: notes
+                    ? `Motif : ${notes}`
+                    : "Votre pose a été refusée. Consultez votre espace pour corriger.",
+                  url: "/chauffeur/espace",
+                });
+              }
+            }
           }
 
           if (table === "brief_proposals" && type === "INSERT") {
