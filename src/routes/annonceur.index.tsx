@@ -40,7 +40,15 @@ type Req = {
   subscription_status: string | null;
 };
 
-type Profile = { full_name: string; company: string | null };
+type Profile = { full_name: string; company: string | null; account_type: string | null };
+
+type Step = {
+  icon: string;
+  title: string;
+  desc: string;
+  done: boolean;
+  cta: { label: string; to: string; hash?: string } | null;
+};
 
 export const Route = createFileRoute("/annonceur/")({
   head: () => ({
@@ -63,6 +71,7 @@ function AnnonceurDashboard() {
   const [requests, setRequests] = useState<Req[]>([]);
   const [balanceCents, setBalanceCents] = useState<number>(0);
   const [paying, setPaying] = useState<string | null>(null);
+  const isIndividual = profile?.account_type === "individual";
   const payFn = useServerFn(payCampaignWithWallet);
   const walletFn = useServerFn(getMyWallet);
 
@@ -93,7 +102,7 @@ function AnnonceurDashboard() {
     }
     const { data: prof, error: profErr } = await supabase
       .from("advertiser_profiles")
-      .select("full_name, company")
+      .select("full_name, company, account_type")
       .eq("user_id", sess.session.user.id)
       .maybeSingle();
     if (profErr) throw new Error(profErr.message);
@@ -246,12 +255,37 @@ function AnnonceurDashboard() {
             >
               💳 Portefeuille · {(balanceCents / 100).toFixed(2)} €
             </Link>
-            <Link
-              to="/prestataires"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
-            >
-              🎨 Prestataires covering
-            </Link>
+            {isIndividual ? (
+              <>
+                <Link
+                  to="/annonceur/pack"
+                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                >
+                  🎪 Packs événement
+                </Link>
+                <Link
+                  to="/annonceur/exemples"
+                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                >
+                  📖 Exemples
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/prestataires"
+                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                >
+                  🎨 Prestataires covering
+                </Link>
+                <Link
+                  to="/annonceur/etude-marche"
+                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                >
+                  📊 Étude de marché
+                </Link>
+              </>
+            )}
             <Link
               to="/annonceur/briefs"
               className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
@@ -259,24 +293,20 @@ function AnnonceurDashboard() {
               Mes briefs
             </Link>
             <Link
-              to="/annonceur/etude-marche"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
-            >
-              📊 Étude de marché
-            </Link>
-            <Link
               to="/annonceur/briefs/nouveau"
-              className="rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/20 transition"
-            >
-              + Nouveau brief
-            </Link>
-            <Link
-              to="/"
-              hash="spots"
               className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
             >
-              + Nouvelle campagne
+              + {isIndividual ? "Créer mon brief" : "Nouvelle campagne"}
             </Link>
+            {!isIndividual && (
+              <Link
+                to="/"
+                hash="spots"
+                className="rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/20 transition"
+              >
+                Parcourir les spots
+              </Link>
+            )}
             {requests.length > 0 && (
               <button
                 type="button"
@@ -289,146 +319,173 @@ function AnnonceurDashboard() {
           </div>
         </div>
 
-        {/* ── Card de découverte Camion LED ── */}
-        <div
-          className="mb-8 rounded-2xl overflow-hidden border border-border relative"
-          style={{ background: "linear-gradient(135deg, #0a0a14 0%, #0d1220 60%, #0f0f1a 100%)" }}
-        >
-          {/* Lueur LED décorative */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse 70% 60% at 75% 50%, rgba(40,100,255,0.10) 0%, transparent 70%)",
-            }}
-          />
-          <div className="relative flex flex-col sm:flex-row items-center gap-6 px-6 py-7">
-            {/* Icône silhouette */}
-            <div
-              className="flex-shrink-0 flex items-center justify-center rounded-xl"
-              style={{
-                width: 90,
-                height: 64,
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-              }}
-            >
-              {/* Mini silhouette CSS du camion */}
-              <div style={{ position: "relative", width: 82, height: 44 }}>
-                {/* Caisse */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: "30%",
-                    right: 0,
-                    top: 0,
-                    height: 40,
-                    background: "#0c0c12",
-                    border: "1px solid #1e1e30",
-                    borderRadius: "1px 4px 4px 1px",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: "3px 3px 8px 3px",
-                      background: "linear-gradient(135deg, #030a1c, #050d24)",
-                      boxShadow:
-                        "0 0 12px 3px rgba(40,100,255,0.25), inset 0 0 0 1px rgba(60,120,255,0.2)",
-                    }}
-                  />
-                </div>
-                {/* Cab */}
-                <div
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    width: "31%",
-                    top: 13,
-                    height: 27,
-                    background: "#0d0d0d",
-                    border: "1px solid #1a1a1a",
-                    borderRadius: "4px 1px 1px 4px",
-                  }}
-                >
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 3,
-                      left: 3,
-                      right: 3,
-                      height: 9,
-                      background: "rgba(60,120,220,0.12)",
-                      border: "0.5px solid rgba(100,160,255,0.1)",
-                      borderRadius: 2,
-                    }}
-                  />
-                </div>
-                {/* Roues */}
-                {[{ l: 2 }, { l: 16 }, { l: 55 }].map((p, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: p.l,
-                      width: i === 0 ? 12 : 10,
-                      height: i === 0 ? 12 : 10,
-                      borderRadius: "50%",
-                      background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
-                      border: "1.5px solid #252545",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-            {/* Textes */}
+        {/* ── Card contextuelle selon profil ── */}
+        {isIndividual ? (
+          <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/5 px-6 py-6 flex flex-col sm:flex-row items-center gap-5">
+            <div className="text-4xl flex-shrink-0">🎉</div>
             <div className="flex-1 text-center sm:text-left">
-              <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
-                <span
-                  className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(60,120,255,0.15)",
-                    color: "rgba(120,170,255,0.9)",
-                    border: "1px solid rgba(60,120,255,0.25)",
-                  }}
-                >
-                  Nouveau
-                </span>
-              </div>
-              <h2 className="text-lg font-bold text-white mb-1">
-                Camion Écran LED — Affichage Mobile Haute Visibilité
+              <h2 className="font-semibold text-base mb-1">
+                Touchez votre quartier pour votre événement
               </h2>
-              <p className="text-sm mb-3" style={{ color: "rgba(180,200,240,0.7)" }}>
-                3 faces LED IP67 · 3200×1920 px · Vidéo MP4 / Image / Flux HTML5 · Jusqu'à 20 000
-                contacts/jour
+              <p className="text-sm text-muted-foreground mb-3">
+                Mariage, inauguration, festival, association… Créez un brief en 5 minutes et choisissez vos véhicules locaux.
               </p>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <Link
                   to="/annonceur/briefs/nouveau"
-                  className="rounded-full px-5 py-2 text-sm font-semibold transition"
-                  style={{ background: "rgba(60,120,255,0.85)", color: "#fff" }}
+                  className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
                 >
-                  + Créer un brief Camion LED
+                  + Créer mon brief
                 </Link>
                 <Link
-                  to="/annonceur/etude-marche"
-                  className="rounded-full px-4 py-2 text-sm font-medium transition"
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    color: "rgba(180,200,240,0.8)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
+                  to="/annonceur/pack"
+                  className="rounded-full border border-primary/40 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/10 transition"
                 >
-                  Voir les tarifs →
+                  🎪 Voir les packs événement
+                </Link>
+                <Link
+                  to="/annonceur/exemples"
+                  className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition"
+                >
+                  Exemples de campagnes →
                 </Link>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div
+            className="mb-8 rounded-2xl overflow-hidden border border-border relative"
+            style={{ background: "linear-gradient(135deg, #0a0a14 0%, #0d1220 60%, #0f0f1a 100%)" }}
+          >
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(ellipse 70% 60% at 75% 50%, rgba(40,100,255,0.10) 0%, transparent 70%)",
+              }}
+            />
+            <div className="relative flex flex-col sm:flex-row items-center gap-6 px-6 py-7">
+              <div
+                className="flex-shrink-0 flex items-center justify-center rounded-xl"
+                style={{
+                  width: 90,
+                  height: 64,
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                }}
+              >
+                <div style={{ position: "relative", width: 82, height: 44 }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: "30%",
+                      right: 0,
+                      top: 0,
+                      height: 40,
+                      background: "#0c0c12",
+                      border: "1px solid #1e1e30",
+                      borderRadius: "1px 4px 4px 1px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: "3px 3px 8px 3px",
+                        background: "linear-gradient(135deg, #030a1c, #050d24)",
+                        boxShadow:
+                          "0 0 12px 3px rgba(40,100,255,0.25), inset 0 0 0 1px rgba(60,120,255,0.2)",
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      width: "31%",
+                      top: 13,
+                      height: 27,
+                      background: "#0d0d0d",
+                      border: "1px solid #1a1a1a",
+                      borderRadius: "4px 1px 1px 4px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 3,
+                        left: 3,
+                        right: 3,
+                        height: 9,
+                        background: "rgba(60,120,220,0.12)",
+                        border: "0.5px solid rgba(100,160,255,0.1)",
+                        borderRadius: 2,
+                      }}
+                    />
+                  </div>
+                  {[{ l: 2 }, { l: 16 }, { l: 55 }].map((p, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: p.l,
+                        width: i === 0 ? 12 : 10,
+                        height: i === 0 ? 12 : 10,
+                        borderRadius: "50%",
+                        background: "radial-gradient(circle at 35% 35%, #3a3a5c, #1a1a2e)",
+                        border: "1.5px solid #252545",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
+                  <span
+                    className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                    style={{
+                      background: "rgba(60,120,255,0.15)",
+                      color: "rgba(120,170,255,0.9)",
+                      border: "1px solid rgba(60,120,255,0.25)",
+                    }}
+                  >
+                    Nouveau
+                  </span>
+                </div>
+                <h2 className="text-lg font-bold text-white mb-1">
+                  Camion Écran LED — Affichage Mobile Haute Visibilité
+                </h2>
+                <p className="text-sm mb-3" style={{ color: "rgba(180,200,240,0.7)" }}>
+                  3 faces LED IP67 · 3200×1920 px · Vidéo MP4 / Image / Flux HTML5 · Jusqu'à 20 000
+                  contacts/jour
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                  <Link
+                    to="/annonceur/briefs/nouveau"
+                    className="rounded-full px-5 py-2 text-sm font-semibold transition"
+                    style={{ background: "rgba(60,120,255,0.85)", color: "#fff" }}
+                  >
+                    + Créer un brief Camion LED
+                  </Link>
+                  <Link
+                    to="/annonceur/etude-marche"
+                    className="rounded-full px-4 py-2 text-sm font-medium transition"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      color: "rgba(180,200,240,0.8)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    Voir les tarifs →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {requests.length === 0 ? (
-          <AdvertiserOnboarding />
+          <AdvertiserOnboarding isIndividual={isIndividual} />
         ) : (
           <div className="space-y-3">
             {requests.map((r) => (
@@ -561,8 +618,39 @@ function AnnonceurDashboard() {
   );
 }
 
-function AdvertiserOnboarding() {
-  const steps = [
+function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
+  const stepsIndividual = [
+    {
+      icon: "✅",
+      title: "Compte créé",
+      desc: "Votre espace particulier est prêt.",
+      done: true,
+      cta: null,
+    },
+    {
+      icon: "🎪",
+      title: "Choisissez un pack événement",
+      desc: "Week-end (3 j · 49 €), Événement (7 j · 79 €) ou Lancement (14 j · 149 €). Paiement unique, aucun abonnement.",
+      done: false,
+      cta: { label: "Voir les packs", to: "/annonceur/pack" } as const,
+    },
+    {
+      icon: "📋",
+      title: "Créez votre brief en 5 minutes",
+      desc: "Décrivez votre événement, choisissez votre zone et vos dates. Un modèle prérempli vous guide selon le type d'événement.",
+      done: false,
+      cta: { label: "Créer mon brief", to: "/annonceur/briefs/nouveau" } as const,
+    },
+    {
+      icon: "🚗",
+      title: "Un propriétaire local accepte",
+      desc: "Le véhicule de votre choix démarre dans votre quartier. Vous suivez la campagne en temps réel.",
+      done: false,
+      cta: null,
+    },
+  ] satisfies Step[];
+
+  const stepsBusiness = [
     {
       icon: "✅",
       title: "Compte créé",
@@ -591,16 +679,30 @@ function AdvertiserOnboarding() {
       done: false,
       cta: null,
     },
-  ];
+  ] satisfies Step[];
+
+  const steps = isIndividual ? stepsIndividual : stepsBusiness;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <div className="text-4xl mb-3">📣</div>
-        <h2 className="font-display text-2xl font-bold">Lancez votre première campagne</h2>
+        <div className="text-4xl mb-3">{isIndividual ? "🎉" : "📣"}</div>
+        <h2 className="font-display text-2xl font-bold">
+          {isIndividual ? "Annoncez votre événement" : "Lancez votre première campagne"}
+        </h2>
         <p className="text-muted-foreground text-sm mt-2">
-          Suivez ces étapes pour diffuser votre publicité sur des véhicules en circulation.
+          {isIndividual
+            ? "Touchez votre quartier en quelques clics — pour un mariage, une ouverture, un festival ou n'importe quel événement local."
+            : "Suivez ces étapes pour diffuser votre publicité sur des véhicules en circulation."}
         </p>
+        {isIndividual && (
+          <Link
+            to="/annonceur/exemples"
+            className="inline-block mt-3 text-xs text-primary hover:underline"
+          >
+            Voir des exemples de campagnes particuliers →
+          </Link>
+        )}
       </div>
 
       <ol className="space-y-4">
@@ -639,7 +741,11 @@ function AdvertiserOnboarding() {
       </ol>
 
       <div className="mt-6 pt-5 border-t border-border flex items-center justify-between flex-wrap gap-3">
-        <p className="text-xs text-muted-foreground">Vous pouvez aussi recharger votre portefeuille en avance pour payer rapidement à la validation.</p>
+        <p className="text-xs text-muted-foreground">
+          {isIndividual
+            ? "Rechargez votre portefeuille à l'avance pour payer instantanément à la validation."
+            : "Vous pouvez aussi recharger votre portefeuille en avance pour payer rapidement à la validation."}
+        </p>
         <Link
           to="/annonceur/portefeuille"
           className="text-xs text-primary font-semibold hover:underline"
