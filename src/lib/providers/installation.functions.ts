@@ -105,6 +105,16 @@ export const claimInstallationJob = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ campaignRequestId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    // Only certified installers may claim jobs
+    const { data: payee } = await context.supabase
+      .from("payee_profiles")
+      .select("kind, certification_status")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const isInstaller =
+      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+    if (!isInstaller) throw new Error("Accès réservé aux poseurs certifiés.");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: job } = await supabaseAdmin

@@ -36,12 +36,13 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        // Verify secret when configured
-        if (WEBHOOK_SECRET) {
-          const auth = request.headers.get("Authorization");
-          if (auth !== `Bearer ${WEBHOOK_SECRET}`) {
-            return new Response("Unauthorized", { status: 401 });
-          }
+        // Reject all requests when secret is not configured (fail-closed)
+        if (!WEBHOOK_SECRET) {
+          return new Response("Webhook non configuré", { status: 503 });
+        }
+        const auth = request.headers.get("Authorization");
+        if (auth !== `Bearer ${WEBHOOK_SECRET}`) {
+          return new Response("Unauthorized", { status: 401 });
         }
 
         let body: Record<string, unknown>;

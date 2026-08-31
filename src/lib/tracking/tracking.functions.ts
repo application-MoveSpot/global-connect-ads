@@ -46,6 +46,29 @@ export const pushPosition = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    // Verify the caller owns or is assigned to this vehicle
+    const { data: ownedVehicle } = await supabase
+      .from("vehicles")
+      .select("id")
+      .eq("id", data.vehicleId)
+      .eq("owner_id", userId)
+      .maybeSingle();
+    if (!ownedVehicle) {
+      const { data: driverRec } = await supabase
+        .from("drivers")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!driverRec) throw new Error("Accès non autorisé à ce véhicule.");
+      const { data: driverVehicle } = await supabase
+        .from("vehicles")
+        .select("id")
+        .eq("id", data.vehicleId)
+        .eq("driver_id", driverRec.id)
+        .maybeSingle();
+      if (!driverVehicle) throw new Error("Accès non autorisé à ce véhicule.");
+    }
+
     // Même protection que pushPositionBatch : on ne taggue le point avec la
     // campagne que si l'heure courante est dans la plage horaire déclarée.
     let campaignRequestId = data.campaignRequestId ?? null;
@@ -97,6 +120,29 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
   .inputValidator((input) => BatchSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+
+    // Verify the caller owns or is assigned to this vehicle
+    const { data: ownedVehicle } = await supabase
+      .from("vehicles")
+      .select("id")
+      .eq("id", data.vehicleId)
+      .eq("owner_id", userId)
+      .maybeSingle();
+    if (!ownedVehicle) {
+      const { data: driverRec } = await supabase
+        .from("drivers")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!driverRec) throw new Error("Accès non autorisé à ce véhicule.");
+      const { data: driverVehicle } = await supabase
+        .from("vehicles")
+        .select("id")
+        .eq("id", data.vehicleId)
+        .eq("driver_id", driverRec.id)
+        .maybeSingle();
+      if (!driverVehicle) throw new Error("Accès non autorisé à ce véhicule.");
+    }
 
     // Récupère la plage horaire de la campagne pour ne taguer les points
     // qu'à l'intérieur de la fenêtre déclarée (RGPD – minimisation des données,

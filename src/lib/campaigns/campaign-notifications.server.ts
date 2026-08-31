@@ -5,12 +5,13 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const notifyCampaignSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ campaignId: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: campaign } = await supabaseAdmin
       .from("campaign_requests")
       .select("spot_name, company, email, start_date, end_date")
       .eq("id", data.campaignId)
+      .eq("user_id", context.userId)
       .single();
     if (!campaign?.email) return { ok: true };
 
