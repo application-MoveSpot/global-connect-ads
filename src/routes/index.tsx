@@ -116,6 +116,7 @@ function Index() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#map" className="hover:text-foreground transition">{t("nav.realtime")}</a>
             <a href="#spots" className="hover:text-foreground transition">{t("nav.vehicles")}</a>
+            <Link to="/campagnes" className="hover:text-foreground transition">Campagnes</Link>
             <Link to="/comment-ca-marche" className="hover:text-foreground transition">{t("nav.how_it_works")}</Link>
             <Link to="/devenir-partenaire" className="hover:text-foreground transition">{t("nav.become_partner")}</Link>
           </nav>
@@ -146,6 +147,7 @@ function Index() {
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
               <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.realtime")}</a>
               <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.vehicles")}</a>
+              <Link to="/campagnes" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Campagnes</Link>
               <Link to="/comment-ca-marche" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.how_it_works")}</Link>
               <Link to="/devenir-partenaire" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.become_partner")}</Link>
               <div className="h-px bg-border my-2" />

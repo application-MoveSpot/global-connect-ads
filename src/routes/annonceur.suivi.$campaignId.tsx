@@ -9,8 +9,10 @@ import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera, Clock, Star, TrendingUp } from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
+import { submitCampaignRating, getCampaignRating } from "@/lib/campaigns/rating.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
@@ -29,6 +31,13 @@ function SuiviPage() {
   const fetchMetrics = useServerFn(getCampaignMetrics);
   const fetchPauseAlerts = useServerFn(getCampaignPauseAlerts);
   const fetchInstallPhotos = useServerFn(getInstallationPhotosForAdvertiser);
+  const submitRating = useServerFn(submitCampaignRating);
+  const fetchRating = useServerFn(getCampaignRating);
+  const [ratingStars, setRatingStars] = useState(0);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [ratingDone, setRatingDone] = useState(false);
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -65,13 +74,21 @@ function SuiviPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("campaign_requests")
-        .select("id, status, payment_status, total_price, start_date, end_date, spot_name")
+        .select("id, status, payment_status, total_price, start_date, end_date, spot_name, estimated_impressions_per_day, days_count")
         .eq("id", campaignId)
         .maybeSingle();
       return data;
     },
     refetchInterval: 10_000,
   });
+
+  const { data: ratingData } = useQuery({
+    queryKey: ["campaign-rating", campaignId],
+    queryFn: () => fetchRating({ data: { campaignRequestId: campaignId } }),
+    staleTime: 60_000,
+  });
+
+  const existingRating = ratingData?.ratings?.find((r: { rated_role: string; stars: number; comment: string | null }) => r.rated_role === "owner");
 
   const { data: advertiserMeta } = useQuery({
     queryKey: ["campaign-advertiser-meta", campaignId],
@@ -164,6 +181,46 @@ function SuiviPage() {
           source: "trail",
           paint: { "line-color": "#3b82f6", "line-width": 3, "line-opacity": 0.7 },
         });
+      }
+
+      // Heatmap layer for position density
+      const heatGeojson = {
+        type: "FeatureCollection" as const,
+        features: positions.map((p) => ({
+          type: "Feature" as const,
+          properties: {},
+          geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
+        })),
+      };
+      const heatSrc = map.getSource("heat-points") as mapboxgl.GeoJSONSource | undefined;
+      if (heatSrc) {
+        heatSrc.setData(heatGeojson);
+      } else if (positions.length >= 5) {
+        map.addSource("heat-points", { type: "geojson", data: heatGeojson });
+        map.addLayer(
+          {
+            id: "heat-layer",
+            type: "heatmap",
+            source: "heat-points",
+            maxzoom: 15,
+            paint: {
+              "heatmap-weight": 0.4,
+              "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 1, 15, 3],
+              "heatmap-color": [
+                "interpolate", ["linear"], ["heatmap-density"],
+                0, "rgba(33,102,172,0)",
+                0.2, "rgb(103,169,207)",
+                0.4, "rgb(209,229,240)",
+                0.6, "rgb(253,219,199)",
+                0.8, "rgb(239,138,98)",
+                1, "rgb(178,24,43)",
+              ],
+              "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 15, 20],
+              "heatmap-opacity": 0.5,
+            },
+          },
+          "trail-line",
+        );
       }
     };
 
@@ -342,6 +399,51 @@ function SuiviPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* ROI dashboard */}
+        {campaign && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" /> Estimation ROI campagne
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+                <Stat
+                  label="Impressions / jour"
+                  value={campaign.estimated_impressions_per_day != null
+                    ? campaign.estimated_impressions_per_day.toLocaleString("fr-FR")
+                    : "—"}
+                />
+                <Stat
+                  label="Impressions totales est."
+                  value={campaign.estimated_impressions_per_day != null && campaign.days_count != null
+                    ? (campaign.estimated_impressions_per_day * campaign.days_count).toLocaleString("fr-FR")
+                    : "—"}
+                />
+                <Stat
+                  label="Coût / 1 000 imp."
+                  value={
+                    campaign.total_price != null &&
+                    campaign.estimated_impressions_per_day != null &&
+                    campaign.days_count != null &&
+                    campaign.estimated_impressions_per_day * campaign.days_count > 0
+                      ? `${((Number(campaign.total_price) / (campaign.estimated_impressions_per_day * campaign.days_count)) * 1000).toFixed(2)} €`
+                      : "—"
+                  }
+                />
+                <Stat
+                  label="Jours de diffusion"
+                  value={campaign.days_count ?? "—"}
+                />
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Estimations basées sur la densité de trafic de la zone ciblée. Les impressions réelles peuvent varier.
+              </p>
+            </CardContent>
+          </Card>
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -351,6 +453,11 @@ function SuiviPage() {
           </CardHeader>
           <CardContent>
             <div ref={mapContainer} className="h-[500px] w-full rounded-md border" />
+            {positions.length >= 5 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                La carte de chaleur indique les zones les plus fréquentées par le véhicule.
+              </p>
+            )}
             {isIndividual ? (
               <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 <Stat label="Mise à jour" value={last ? new Date(last.recorded_at).toLocaleTimeString("fr-FR") : "En attente"} />
@@ -366,6 +473,95 @@ function SuiviPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Rating section — shown when campaign is active or ended */}
+        {campaign && campaign.status === "approved" && !ratingDone && !existingRating && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" /> Évaluer cette campagne
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Comment évaluez-vous la qualité du service du propriétaire du véhicule ?
+              </p>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button
+                    key={s}
+                    onMouseEnter={() => setRatingHover(s)}
+                    onMouseLeave={() => setRatingHover(0)}
+                    onClick={() => setRatingStars(s)}
+                    className="text-2xl transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`h-7 w-7 ${s <= (ratingHover || ratingStars) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                    />
+                  </button>
+                ))}
+                {ratingStars > 0 && (
+                  <span className="ml-2 self-center text-sm text-muted-foreground">
+                    {["", "Très décevant", "Décevant", "Correct", "Bien", "Excellent"][ratingStars]}
+                  </span>
+                )}
+              </div>
+              {ratingStars > 0 && (
+                <>
+                  <textarea
+                    value={ratingComment}
+                    onChange={(e) => setRatingComment(e.target.value)}
+                    placeholder="Commentaire optionnel (max 500 caractères)…"
+                    maxLength={500}
+                    rows={2}
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <button
+                    disabled={ratingSubmitting}
+                    onClick={async () => {
+                      setRatingSubmitting(true);
+                      try {
+                        await submitRating({
+                          data: {
+                            campaignRequestId: campaignId,
+                            stars: ratingStars,
+                            comment: ratingComment || undefined,
+                            ratedRole: "owner",
+                          },
+                        });
+                        setRatingDone(true);
+                        toast.success("Merci pour votre évaluation !");
+                      } catch {
+                        toast.error("Impossible d'enregistrer l'évaluation.");
+                      } finally {
+                        setRatingSubmitting(false);
+                      }
+                    }}
+                    className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-60 transition"
+                  >
+                    {ratingSubmitting ? "Envoi…" : "Envoyer l'évaluation"}
+                  </button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {(ratingDone || existingRating) && (
+          <Card>
+            <CardContent className="py-4 text-sm text-emerald-700 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Votre évaluation a été enregistrée — merci !
+              {existingRating && (
+                <span className="ml-2 flex gap-0.5">
+                  {[1,2,3,4,5].map((s) => (
+                    <Star key={s} className={`h-4 w-4 ${s <= existingRating.stars ? "fill-amber-400 text-amber-400" : "text-muted/30"}`} />
+                  ))}
+                </span>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
 import { CampaignMetricsRow } from "@/components/advertiser/CampaignMetricsRow";
 import { RouteError } from "@/components/app/RouteError";
+import { OnboardingModal } from "@/components/advertiser/OnboardingModal";
 
 type Req = {
   id: string;
@@ -209,6 +210,7 @@ function AnnonceurDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
+      <OnboardingModal isIndividual={isIndividual} />
       <header className="border-b border-border bg-card/50 backdrop-blur">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <LogoLink />
