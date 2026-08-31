@@ -175,6 +175,26 @@ export const Route = createFileRoute("/api/faq-chat")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
+        // Require a valid Supabase session (prevents unauthenticated AI token exhaustion)
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return new Response("Non authentifié", { status: 401 });
+        }
+        const token = authHeader.slice(7);
+        const supabaseUrl = process.env["SUPABASE_URL"];
+        const supabaseKey = process.env["SUPABASE_PUBLISHABLE_KEY"];
+        if (supabaseUrl && supabaseKey) {
+          const { createClient } = await import("@supabase/supabase-js");
+          const client = createClient(supabaseUrl, supabaseKey, {
+            global: { headers: { Authorization: `Bearer ${token}` } },
+            auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+          });
+          const { data, error } = await client.auth.getClaims(token);
+          if (error || !data?.claims?.sub) {
+            return new Response("Non authentifié", { status: 401 });
+          }
+        }
+
         const { messages, audience } = (await request.json()) as ChatRequestBody;
         if (!Array.isArray(messages)) {
           return new Response("Messages requis", { status: 400 });

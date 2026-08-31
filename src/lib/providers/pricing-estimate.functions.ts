@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   services: z.array(z.enum(["covering_vehicule", "video_publicitaire", "creation_graphique"])).min(1).max(3),
@@ -64,6 +65,7 @@ ZONES DE RÉFÉRENCE (impact prix)
 `;
 
 export const estimateProviderPricing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }): Promise<EstimateResult> => {
     const apiKey = process.env.LOVABLE_API_KEY;
