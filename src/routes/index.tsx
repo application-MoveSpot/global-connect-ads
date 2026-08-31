@@ -278,15 +278,55 @@ function Index() {
       </section>
 
       <footer className="border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} MoveSpot. {t("footer.copyright")}</div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Link to="/cgu" className="hover:text-foreground transition">{t("footer.cgu")}</Link>
-            <Link to="/cgv" className="hover:text-foreground transition">{t("footer.cgv")}</Link>
-            <Link to="/confidentialite" className="hover:text-foreground transition">{t("footer.confidentialite")}</Link>
-            <Link to="/cookies" className="hover:text-foreground transition">{t("footer.cookies")}</Link>
-            <Link to="/mentions-legales" className="hover:text-foreground transition">{t("footer.mentions")}</Link>
-            <Link to="/admin" className="opacity-60 hover:opacity-100 transition">{t("footer.admin")}</Link>
+        <div className="max-w-7xl mx-auto px-6 pt-8 pb-4 space-y-6">
+          {/* Paiement sécurisé */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span className="text-xs text-muted-foreground mr-1">Paiement sécurisé :</span>
+            {/* Carte Bancaire */}
+            <span className="inline-flex items-center rounded border border-border bg-white px-2 py-1 shadow-sm" title="Carte Bancaire">
+              <svg width="38" height="24" viewBox="0 0 38 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Carte Bancaire">
+                <rect width="38" height="24" rx="4" fill="#fff"/>
+                <text x="5" y="16" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="11" fill="#003189">CB</text>
+                <rect x="22" y="6" width="12" height="12" rx="2" fill="#003189" opacity="0.15"/>
+                <rect x="26" y="6" width="8" height="12" rx="1" fill="#003189" opacity="0.25"/>
+              </svg>
+            </span>
+            {/* Visa */}
+            <span className="inline-flex items-center rounded border border-border bg-white px-2 py-1 shadow-sm" title="Visa">
+              <svg width="50" height="24" viewBox="0 0 50 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Visa">
+                <rect width="50" height="24" rx="4" fill="#fff"/>
+                <text x="7" y="16" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="13" fill="#1A1F71" letterSpacing="-0.5">VISA</text>
+              </svg>
+            </span>
+            {/* Mastercard */}
+            <span className="inline-flex items-center rounded border border-border bg-white px-2 py-1 shadow-sm" title="Mastercard">
+              <svg width="42" height="24" viewBox="0 0 42 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Mastercard">
+                <rect width="42" height="24" rx="4" fill="#fff"/>
+                <circle cx="16" cy="12" r="7" fill="#EB001B"/>
+                <circle cx="26" cy="12" r="7" fill="#F79E1B"/>
+                <path d="M21 7.2a7 7 0 0 1 0 9.6A7 7 0 0 1 21 7.2z" fill="#FF5F00"/>
+              </svg>
+            </span>
+            {/* Stripe */}
+            <span className="inline-flex items-center rounded border border-border bg-white px-2 py-1 shadow-sm" title="Stripe">
+              <svg width="42" height="24" viewBox="0 0 42 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Stripe">
+                <rect width="42" height="24" rx="4" fill="#fff"/>
+                <text x="7" y="16" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="11" fill="#6772E5">stripe</text>
+              </svg>
+            </span>
+            <span className="text-xs text-muted-foreground">· Transactions SSL 3D Secure</span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
+            <div>© {new Date().getFullYear()} MoveSpot. {t("footer.copyright")}</div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Link to="/cgu" className="hover:text-foreground transition">{t("footer.cgu")}</Link>
+              <Link to="/cgv" className="hover:text-foreground transition">{t("footer.cgv")}</Link>
+              <Link to="/confidentialite" className="hover:text-foreground transition">{t("footer.confidentialite")}</Link>
+              <Link to="/cookies" className="hover:text-foreground transition">{t("footer.cookies")}</Link>
+              <Link to="/mentions-legales" className="hover:text-foreground transition">{t("footer.mentions")}</Link>
+              <Link to="/admin" className="opacity-60 hover:opacity-100 transition">{t("footer.admin")}</Link>
+            </div>
           </div>
         </div>
       </footer>
