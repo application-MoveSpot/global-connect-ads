@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { listInstallationJobs } from "@/lib/providers/installation.functions";
+import { toast } from "sonner";
+import {
+  listInstallationJobs,
+  listCompletedInstallationJobs,
+  claimInstallationJob,
+  unclaimInstallationJob,
+} from "@/lib/providers/installation.functions";
 import { InstallationPhotosPanel } from "@/components/driver/InstallationPhotosPanel";
 import { InstallationKit } from "@/components/driver/InstallationKit";
 
@@ -15,32 +21,102 @@ type Job = {
   installation_status: string | null;
   installation_notes: string | null;
   creative_files: string[] | null;
+  total_price: number | null;
+};
+
+type CompletedJob = {
+  id: string;
+  spot_name: string;
+  spot_location: string | null;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+  installation_photos: unknown;
+  total_price: number | null;
 };
 
 const fr = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
+const eur = (n: number | null) =>
+  n != null ? n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : null;
+
+function daysUntil(dateStr: string | null): number | null {
+  if (!dateStr) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / 86400000);
+}
+
+function mapsUrl(location: string | null): string | null {
+  if (!location) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
+function isClaimed(photos: unknown): boolean {
+  return !!(photos as Record<string, unknown> | null)?.claimed_by;
+}
 
 export function InstallationJobsPanel() {
   const fetchJobs = useServerFn(listInstallationJobs);
+  const fetchCompleted = useServerFn(listCompletedInstallationJobs);
+  const doClaim = useServerFn(claimInstallationJob);
+  const doUnclaim = useServerFn(unclaimInstallationJob);
+
+  const [tab, setTab] = useState<"pending" | "done">("pending");
   const [jobs, setJobs] = useState<Job[] | null>(null);
+  const [completedJobs, setCompletedJobs] = useState<CompletedJob[]>([]);
   const [isInstaller, setIsInstaller] = useState(false);
+  const [claiming, setClaiming] = useState<string | null>(null);
 
   const load = useCallback(() => {
     fetchJobs()
-      .then((r: { isInstaller: boolean; jobs: Job[] | null }) => {
+      .then((r: { isInstaller: boolean; jobs: Job[] }) => {
         setIsInstaller(r.isInstaller);
-        setJobs((r.jobs ?? []) as Job[]);
+        setJobs(r.jobs ?? []);
       })
       .catch(() => setJobs([]));
   }, [fetchJobs]);
 
+  const loadCompleted = useCallback(() => {
+    fetchCompleted()
+      .then((r: { jobs: CompletedJob[] }) => setCompletedJobs(r.jobs ?? []))
+      .catch(() => {});
+  }, [fetchCompleted]);
+
   useEffect(() => {
     load();
-  }, [load]);
+    loadCompleted();
+  }, [load, loadCompleted]);
+
+  const handleClaim = async (jobId: string) => {
+    setClaiming(jobId);
+    try {
+      await doClaim({ data: { campaignRequestId: jobId } });
+      toast.success("Mission réservée — elle n'est plus visible par les autres poseurs.");
+      load();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de la réservation.");
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  const handleUnclaim = async (jobId: string) => {
+    setClaiming(jobId);
+    try {
+      await doUnclaim({ data: { campaignRequestId: jobId } });
+      toast.success("Mission libérée.");
+      load();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erreur.");
+    } finally {
+      setClaiming(null);
+    }
+  };
 
   if (jobs === null) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
-        Chargement des poses à valider…
+        Chargement des missions…
       </div>
     );
   }
@@ -48,10 +124,10 @@ export function InstallationJobsPanel() {
   if (!isInstaller) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-display text-lg font-semibold">Validation des poses</h3>
+        <h3 className="font-display text-lg font-semibold">Missions de pose</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          La transmission des photos de pose est réservée aux poseurs certifiés MoveSpot. Dès votre certification
-          validée, les campagnes à équiper apparaîtront ici.
+          Réservé aux poseurs certifiés MoveSpot. Dès votre certification validée, les campagnes à équiper
+          apparaîtront ici.
         </p>
       </div>
     );
@@ -59,39 +135,182 @@ export function InstallationJobsPanel() {
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
-      <h3 className="font-display text-lg font-semibold">Poses à réaliser et à transmettre</h3>
-      <p className="mt-1 mb-4 text-sm text-muted-foreground">
-        Après la pose du covering, photographiez les quatre vues du véhicule (face avant, côté gauche, côté droit,
-        face arrière) et transmettez-les. MoveSpot approuve ou refuse la pose ; la diffusion et la rémunération ne
-        démarrent qu'après validation.
-      </p>
-
-      {jobs.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucune pose en attente pour le moment.</p>
-      ) : (
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <div key={job.id} className="rounded-xl border border-border p-4">
-              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-                <p className="text-sm font-semibold">{job.spot_name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {job.company} · {fr(job.start_date)} → {fr(job.end_date)}
-                </p>
-              </div>
-              {job.spot_location ? (
-                <p className="mb-2 text-xs text-muted-foreground">Zone : {job.spot_location}</p>
-              ) : null}
-              <InstallationKit campaignRequestId={job.id} creativeFiles={job.creative_files} />
-              <InstallationPhotosPanel
-                campaignRequestId={job.id}
-                installationPhotos={job.installation_photos}
-                installationStatus={job.installation_status}
-                installationNotes={job.installation_notes}
-                onSubmitted={load}
-              />
-            </div>
-          ))}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-lg font-semibold">Missions de pose</h3>
+        <div className="flex gap-1 rounded-lg border border-border p-1 text-xs">
+          <button
+            onClick={() => setTab("pending")}
+            className={`rounded px-3 py-1 font-semibold transition ${tab === "pending" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            En cours ({jobs.length})
+          </button>
+          <button
+            onClick={() => setTab("done")}
+            className={`rounded px-3 py-1 font-semibold transition ${tab === "done" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Terminées ({completedJobs.length})
+          </button>
         </div>
+      </div>
+
+      {tab === "pending" && (
+        <>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Réservez une mission, posez le covering, photographiez les 4 vues et transmettez. La diffusion et la
+            rémunération démarrent après validation MoveSpot.
+          </p>
+          {jobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucune pose en attente pour le moment.</p>
+          ) : (
+            <div className="space-y-4">
+              {jobs.map((job) => {
+                const days = daysUntil(job.start_date);
+                const urgent = days !== null && days <= 3 && days >= 0;
+                const overdue = days !== null && days < 0;
+                const claimed = isClaimed(job.installation_photos);
+                const maps = mapsUrl(job.spot_location);
+
+                return (
+                  <div
+                    key={job.id}
+                    className={`rounded-xl border p-4 ${urgent ? "border-amber-500/50 bg-amber-500/5" : "border-border"}`}
+                  >
+                    {/* Header */}
+                    <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-sm">{job.spot_name}</p>
+                        <p className="text-xs text-muted-foreground">{job.company}</p>
+                      </div>
+                      <div className="text-right space-y-0.5">
+                        {job.total_price != null && (
+                          <p className="text-xs font-semibold text-primary">
+                            Budget : {eur(job.total_price)}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {fr(job.start_date)} → {fr(job.end_date)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Deadline countdown */}
+                    {days !== null && !overdue && (
+                      <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}>
+                        <span>{urgent ? "⏰" : "📅"}</span>
+                        {days === 0
+                          ? "Campagne démarre aujourd'hui — pose urgente !"
+                          : `Pose à réaliser avant ${fr(job.start_date)} (J-${days})`}
+                      </div>
+                    )}
+                    {overdue && (
+                      <div className="mb-3 flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
+                        ⛔ Campagne déjà démarrée — pose en retard
+                      </div>
+                    )}
+
+                    {/* Location + Maps */}
+                    {(job.spot_location || maps) && (
+                      <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>📍</span>
+                        <span>{job.spot_location ?? "Localisation non précisée"}</span>
+                        {maps && (
+                          <a
+                            href={maps}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-auto shrink-0 rounded-lg border border-border bg-card px-2 py-1 font-semibold text-primary hover:bg-secondary transition"
+                          >
+                            Itinéraire →
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Claim / Unclaim */}
+                    {!claimed ? (
+                      <button
+                        onClick={() => handleClaim(job.id)}
+                        disabled={claiming === job.id}
+                        className="mb-3 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
+                      >
+                        {claiming === job.id ? "Réservation…" : "✋ Je prends cette mission"}
+                      </button>
+                    ) : (
+                      <div className="mb-3 flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                          ✅ Mission réservée par vous
+                        </span>
+                        {job.installation_status === "pending" && (
+                          <button
+                            onClick={() => handleUnclaim(job.id)}
+                            disabled={claiming === job.id}
+                            className="text-xs text-muted-foreground hover:text-destructive underline transition disabled:opacity-50"
+                          >
+                            Libérer
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    <InstallationKit campaignRequestId={job.id} creativeFiles={job.creative_files} />
+                    <InstallationPhotosPanel
+                      campaignRequestId={job.id}
+                      installationPhotos={job.installation_photos}
+                      installationStatus={job.installation_status}
+                      installationNotes={job.installation_notes}
+                      onSubmitted={load}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {tab === "done" && (
+        <>
+          {completedJobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucune mission terminée pour le moment.</p>
+          ) : (
+            <div className="space-y-3">
+              {completedJobs.map((job) => {
+                const maps = mapsUrl(job.spot_location);
+                return (
+                  <div key={job.id} className="rounded-xl border border-border bg-secondary/20 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold text-sm">{job.spot_name}</p>
+                        <p className="text-xs text-muted-foreground">{job.company}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {fr(job.start_date)} → {fr(job.end_date)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[11px] font-semibold">
+                          ✅ Validée
+                        </span>
+                        {job.total_price != null && (
+                          <p className="text-xs text-muted-foreground mt-1">{eur(job.total_price)}</p>
+                        )}
+                      </div>
+                    </div>
+                    {job.spot_location && maps && (
+                      <a
+                        href={maps}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition"
+                      >
+                        📍 {job.spot_location}
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

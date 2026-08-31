@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 
 export type BankDetails = {
   accountHolder: string;
@@ -26,7 +27,18 @@ export const createBankTransferRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof CreateInput>) => CreateInput.parse(d))
   .handler(async ({ data, context }) => {
+    assertRateLimit(`bank-transfer:${getRequestIp()}`, { maxRequests: 10, windowMs: 3_600_000 });
     const { supabase, userId } = context;
+
+    // Cross-instance guard: max 5 demandes par utilisateur par heure
+    const since = new Date(Date.now() - 3_600_000).toISOString();
+    const { count } = await supabase
+      .from("bank_transfer_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("created_at", since);
+    if ((count ?? 0) >= 5) throw new Error("Trop de demandes de virement. Réessayez dans une heure.");
+
     const reference = `MS-${Date.now().toString(36).toUpperCase()}-${userId.slice(0, 4).toUpperCase()}`;
 
     const { data: row, error } = await supabase

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { NotificationBell } from "@/components/app/NotificationBell";
@@ -9,6 +10,8 @@ import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payments/payee.functions";
+import { getDriverVehicleQrTokens } from "@/lib/qr/qr.functions";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { RouteError } from "@/components/app/RouteError";
 
 type Profile = {
@@ -68,6 +71,10 @@ function ChauffeurEspace() {
   const [state, setState] = useState<"loading" | "ready">("loading");
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const userIdRef = useRef<string | null>(null);
+  const { state: pushState, subscribe: subscribePush } = usePushSubscription(authUserId);
+  const [subscribingPush, setSubscribingPush] = useState(false);
+  const [driverQrs, setDriverQrs] = useState<{ vehicleId: string; vehicleName: string; vehicleType: string; qrImg: string; url: string }[]>([]);
+  const fetchDriverQrs = useServerFn(getDriverVehicleQrTokens);
 
   const loadProfile = async (userId: string) => {
     const { data } = await supabase
@@ -96,6 +103,18 @@ function ChauffeurEspace() {
       fetchEarnings()
         .then((e: any) => setEarnings({ totalCents: e.totalCents, paidCents: e.paidCents, pendingCents: e.pendingCents }))
         .catch(() => setEarnings({ totalCents: 0, paidCents: 0, pendingCents: 0 }));
+      // Load driver QR codes for assigned vehicles
+      fetchDriverQrs().then(async (res: { vehicles: { vehicleId: string; vehicleName: string; vehicleType: string; token: string }[] }) => {
+        const origin = window.location.origin;
+        const qrs = await Promise.all(
+          res.vehicles.map(async (v: { vehicleId: string; vehicleName: string; vehicleType: string; token: string }) => {
+            const url = `${origin}/chauffeur?t=${encodeURIComponent(v.token)}`;
+            const qrImg = await QRCode.toDataURL(url, { width: 320, margin: 1 }).catch(() => "");
+            return { vehicleId: v.vehicleId, vehicleName: v.vehicleName, vehicleType: v.vehicleType, qrImg, url };
+          }),
+        );
+        setDriverQrs(qrs.filter((q) => q.qrImg));
+      }).catch(() => {});
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -144,6 +163,22 @@ function ChauffeurEspace() {
             {profile?.city ? ` · ${profile.city}` : ""}
           </p>
         </div>
+
+        {profile && (profile.kind === "installer" || profile.kind === "both") &&
+          profile.certification_status === "certified" &&
+          (pushState === "default" || pushState === "loading") && (
+          <button
+            onClick={async () => { setSubscribingPush(true); await subscribePush(); setSubscribingPush(false); }}
+            disabled={subscribingPush}
+            className="flex items-start gap-3 w-full rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-300 text-left hover:opacity-90 transition disabled:opacity-60"
+          >
+            <span className="mt-0.5 text-base shrink-0">🔔</span>
+            <span>
+              Activez les notifications push pour être alerté instantanément dès qu'une nouvelle mission est disponible.{" "}
+              <strong className="underline">{subscribingPush ? "Activation…" : "Activer les alertes →"}</strong>
+            </span>
+          </button>
+        )}
 
         {profile && !profile.stripe_payouts_enabled && (
           <a
@@ -217,11 +252,63 @@ function ChauffeurEspace() {
           </ol>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <h3 className="font-display text-lg font-semibold">Suivi GPS des campagnes</h3>
-          <p className="text-sm text-muted-foreground">
-            Scannez le QR code collé dans le véhicule pour démarrer le suivi d'une campagne.
-          </p>
+          {driverQrs.length > 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Voici vos QR codes de suivi. Scannez-les avec votre téléphone pour démarrer le tracking GPS, ou imprimez-les pour les coller dans la cabine.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {driverQrs.map((q) => (
+                  <div key={q.vehicleId} className="rounded-xl border border-border bg-secondary/20 p-4 flex items-center gap-4">
+                    <img
+                      src={q.qrImg}
+                      alt={`QR ${q.vehicleName}`}
+                      width={96}
+                      height={96}
+                      className="rounded border border-border bg-white p-1 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm">{q.vehicleName}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{q.vehicleType}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {q.vehicleType === "camion_led" ? (
+                          <Link
+                            to="/chauffeur/ecran"
+                            search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
+                            className="text-xs font-semibold text-indigo-400 hover:underline"
+                          >
+                            📺 Démarrer l'écran →
+                          </Link>
+                        ) : (
+                          <Link
+                            to="/chauffeur"
+                            search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
+                            className="text-xs font-semibold text-primary hover:underline"
+                          >
+                            Démarrer le GPS →
+                          </Link>
+                        )}
+                        <a
+                          href={q.qrImg}
+                          download={`qr-gps-${q.vehicleId}.png`}
+                          className="text-xs text-muted-foreground hover:underline"
+                        >
+                          Télécharger
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Scannez le QR code collé dans le véhicule pour démarrer le suivi d'une campagne.
+              Aucun véhicule ne vous est encore assigné — votre propriétaire peut le faire depuis son espace flotte.
+            </p>
+          )}
           <Link to="/chauffeur" search={{ t: "" }} className="inline-block text-sm font-semibold text-primary hover:underline">
             Ouvrir le suivi GPS →
           </Link>

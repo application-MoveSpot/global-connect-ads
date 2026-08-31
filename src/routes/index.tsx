@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Menu, X } from "lucide-react";
-import { MobilityMap } from "@/components/shared/MobilityMap";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
-import { BookingForm } from "@/components/shared/BookingForm";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
 import logo from "@/assets/movespot-logo.svg";
+
+const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
+const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -115,6 +116,7 @@ function Index() {
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#map" className="hover:text-foreground transition">{t("nav.realtime")}</a>
             <a href="#spots" className="hover:text-foreground transition">{t("nav.vehicles")}</a>
+            <Link to="/campagnes" className="hover:text-foreground transition">Campagnes</Link>
             <Link to="/comment-ca-marche" className="hover:text-foreground transition">{t("nav.how_it_works")}</Link>
             <Link to="/devenir-partenaire" className="hover:text-foreground transition">{t("nav.become_partner")}</Link>
           </nav>
@@ -145,6 +147,7 @@ function Index() {
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
               <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.realtime")}</a>
               <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.vehicles")}</a>
+              <Link to="/campagnes" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Campagnes</Link>
               <Link to="/comment-ca-marche" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.how_it_works")}</Link>
               <Link to="/devenir-partenaire" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.become_partner")}</Link>
               <div className="h-px bg-border my-2" />
@@ -215,6 +218,46 @@ function Index() {
         </div>
       </section>
 
+      {/* Particuliers */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="rounded-3xl border border-primary/20 bg-primary/5 px-8 py-10">
+          <div className="text-xs uppercase tracking-widest text-primary mb-2">Particuliers</div>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
+            Pas besoin d'être une entreprise
+          </h2>
+          <p className="text-muted-foreground max-w-xl mb-8">
+            Mariage, inauguration de commerce, festival local, association… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4 mb-8">
+            {[
+              { icon: "💍", label: "Mariage & célébration", desc: "Prévenez vos proches et voisins le jour J — 1 semaine · à partir de 79 €" },
+              { icon: "🏪", label: "Ouverture de commerce", desc: "Installez votre présence dans le quartier — 2 semaines · à partir de 149 €" },
+              { icon: "🎪", label: "Festival & événement", desc: "Visibilité maximale le week-end — 3 jours · à partir de 49 €" },
+            ].map((e) => (
+              <div key={e.label} className="rounded-2xl border border-border bg-card p-5">
+                <div className="text-3xl mb-3">{e.icon}</div>
+                <div className="font-semibold text-sm mb-1">{e.label}</div>
+                <div className="text-xs text-muted-foreground leading-relaxed">{e.desc}</div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/annonceur/inscription"
+              className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
+            >
+              Créer mon compte particulier →
+            </Link>
+            <Link
+              to="/annonceur/exemples"
+              className="rounded-full border border-border bg-card px-5 py-3 text-sm font-medium hover:bg-secondary transition"
+            >
+              Voir des exemples de campagnes
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Map */}
       <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
@@ -224,7 +267,9 @@ function Index() {
             <p className="text-muted-foreground mt-2">{t("map.desc")}</p>
           </div>
         </div>
-        <MobilityMap />
+        <Suspense fallback={<div className="h-96 rounded-2xl bg-secondary/40 animate-pulse" />}>
+          <MobilityMap />
+        </Suspense>
       </section>
 
       {/* Ad Spots */}
@@ -246,7 +291,9 @@ function Index() {
         </div>
       </footer>
 
-      <BookingForm spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
+      <Suspense fallback={null}>
+        <BookingForm spot={selectedSpot} onClose={() => setSelectedSpot(null)} />
+      </Suspense>
     </div>
   );
 }

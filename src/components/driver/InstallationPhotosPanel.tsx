@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageFile } from "@/lib/images/resize";
+import { captureError } from "@/lib/sentry";
 import {
   INSTALLATION_VIEWS,
   INSTALLATION_VIEW_LABEL,
@@ -29,6 +31,17 @@ const STATUS: Record<string, { label: string; className: string }> = {
   rejected: { label: "⛔ Pose refusée — nouvelle pose conforme requise", className: "text-destructive" },
 };
 
+function getGeolocation(): Promise<{ lat: number; lng: number } | null> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 8000, maximumAge: 60000 },
+    );
+  });
+}
+
 export function InstallationPhotosPanel({
   campaignRequestId,
   installationPhotos,
@@ -39,6 +52,7 @@ export function InstallationPhotosPanel({
   const submit = useServerFn(submitInstallationPhotos);
   const [files, setFiles] = useState<Partial<Record<InstallationView, File>>>({});
   const [busy, setBusy] = useState(false);
+  const [geoStatus, setGeoStatus] = useState<"idle" | "locating" | "ok" | "skipped">("idle");
 
   const existing = parseInstallationPhotos(installationPhotos);
   const status = STATUS[installationStatus ?? "pending"] ?? STATUS["pending"]!;
@@ -46,7 +60,13 @@ export function InstallationPhotosPanel({
 
   const handleSubmit = async () => {
     setBusy(true);
+    let coords: { lat: number; lng: number } | null = null;
     try {
+      // Capture géolocalisation avant l'envoi
+      setGeoStatus("locating");
+      coords = await getGeolocation();
+      setGeoStatus(coords ? "ok" : "skipped");
+
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
       if (!uid) throw new Error("Session expirée, reconnectez-vous.");
@@ -54,11 +74,12 @@ export function InstallationPhotosPanel({
       const paths: Record<string, string> = {};
       for (const view of INSTALLATION_VIEWS) {
         const file = files[view]!;
+        const resized = await resizeImageFile(file, 1600, 0.85);
         const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
         const path = `${uid}/installations/${campaignRequestId}/${view}-${Date.now()}.${ext}`;
         const { error } = await supabase.storage
           .from("campaign-creatives")
-          .upload(path, file, { upsert: true });
+          .upload(path, resized, { upsert: true });
         if (error) throw new Error(error.message);
         paths[view] = path;
       }
@@ -67,13 +88,18 @@ export function InstallationPhotosPanel({
         data: {
           campaignRequestId,
           photos: paths as { front: string; left: string; right: string; rear: string },
+          lat: coords?.lat ?? null,
+          lng: coords?.lng ?? null,
         },
       });
       toast.success("Photos de pose transmises — en attente de validation MoveSpot.");
       setFiles({});
+      setGeoStatus("idle");
       onSubmitted?.();
     } catch (e) {
       toast.error((e as Error).message);
+      captureError(e, "upload", { flow: "installation_photos", campaignRequestId });
+      setGeoStatus("idle");
     } finally {
       setBusy(false);
     }
@@ -131,6 +157,23 @@ export function InstallationPhotosPanel({
               </label>
             ))}
           </div>
+
+          {geoStatus === "locating" && (
+            <p className="mt-2 text-[11px] text-muted-foreground animate-pulse">
+              📍 Localisation en cours…
+            </p>
+          )}
+          {geoStatus === "ok" && (
+            <p className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400">
+              📍 Position GPS capturée
+            </p>
+          )}
+          {geoStatus === "skipped" && (
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              📍 Position GPS non disponible (continuez sans)
+            </p>
+          )}
+
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}

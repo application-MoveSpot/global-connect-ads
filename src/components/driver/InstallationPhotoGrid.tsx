@@ -23,7 +23,7 @@ export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos |
   useEffect(() => {
     if (paths.length === 0) { setUrls({}); return; }
     let alive = true;
-    (async () => {
+    const refresh = async () => {
       const { data } = await supabase.storage.from("campaign-creatives").createSignedUrls(paths, 3600);
       if (!alive || !data) return;
       const map: Record<string, string> = {};
@@ -31,8 +31,11 @@ export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos |
         if (d.path && d.signedUrl) map[d.path] = d.signedUrl;
       }
       setUrls(map);
-    })();
-    return () => { alive = false; };
+    };
+    void refresh();
+    // Refresh 5 min before the 1-hour expiry so photos never go stale mid-session
+    const timer = setInterval(() => void refresh(), 55 * 60 * 1000);
+    return () => { alive = false; clearInterval(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paths.join("|")]);
 

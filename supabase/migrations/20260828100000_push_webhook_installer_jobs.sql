@@ -1,0 +1,17 @@
+-- Push notification: notify certified installers when a campaign_request is approved.
+--
+-- Configure a Supabase Database Webhook in the Supabase dashboard:
+--   Table: campaign_requests
+--   Events: UPDATE
+--   URL: https://<your-domain>/api/webhooks/supabase-push
+--   Headers: Authorization: Bearer <SUPABASE_WEBHOOK_SECRET>
+--
+-- The webhook handler sends push notifications to:
+--   1. All certified installers (payee_profiles.kind IN ('installer','both') AND certification_status = 'certified')
+--      when campaign_requests.status transitions to 'approved'.
+--   2. All admin users (user_roles.role = 'admin')
+--      when campaign_requests.installation_status transitions to 'pending_approval'.
+--
+-- No schema changes are needed — this migration documents the webhook requirement only.
+-- The push_subscriptions table was created in 20260826200000_push_subscriptions.sql.
+-- The user_roles table and has_role() RPC already exist from earlier migrations.

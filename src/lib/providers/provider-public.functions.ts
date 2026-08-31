@@ -1,10 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import type { Database } from "@/integrations/supabase/types";
 
 export const getProviderPublicMeta = createServerFn({ method: "GET" })
-  .inputValidator((data: { providerId: string }) => data)
+  .inputValidator((data: unknown) =>
+    z.object({ providerId: z.string().uuid() }).parse(data),
+  )
   .handler(async ({ data }) => {
     assertRateLimit(`provider-public:${getRequestIp()}`, { maxRequests: 30, windowMs: 60_000 });
     const supabase = createClient<Database>(

@@ -27,7 +27,9 @@ import {
   adminListInstallations,
   adminListInactiveStripeAccounts,
   adminListPoseurs,
+  adminListVehicles,
   adminReviewInstallation,
+  adminReviewVehicle,
   adminSendStripeReminder,
 } from "@/lib/admin.functions";
 import {
@@ -56,7 +58,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics";
+type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -67,6 +69,8 @@ function AdminDashboard() {
   const [ready, setReady] = useState(false);
 
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
+  const listVehicles = useServerFn(adminListVehicles);
+  const reviewVehicle = useServerFn(adminReviewVehicle);
   const listInstallations = useServerFn(adminListInstallations);
   const reviewInstallation = useServerFn(adminReviewInstallation);
   const listPoseurs = useServerFn(adminListPoseurs);
@@ -105,6 +109,9 @@ function AdminDashboard() {
       .on("postgres_changes", { event: "*", schema: "public", table: "payee_profiles" }, () => {
         qc.invalidateQueries({ queryKey: ["admin-poseurs"] });
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "vehicles" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-vehicles"] });
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -115,6 +122,12 @@ function AdminDashboard() {
     queryKey: ["admin-briefs"],
     queryFn: () => listBriefs(),
     enabled: ready && tab === "briefs",
+    retry: false,
+  });
+  const vehiclesQuery = useQuery({
+    queryKey: ["admin-vehicles"],
+    queryFn: () => listVehicles(),
+    enabled: ready && tab === "vehicules",
     retry: false,
   });
   const poseursQuery = useQuery({
@@ -188,9 +201,19 @@ function AdminDashboard() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+  const reviewVehicleMut = useMutation({
+    mutationFn: (v: { id: string; approve: boolean; notes?: string }) =>
+      reviewVehicle({ data: { vehicleId: v.id, approve: v.approve, notes: v.notes } }),
+    onSuccess: (_d, v) => {
+      toast.success(v.approve ? "Véhicule approuvé." : "Véhicule refusé.");
+      qc.invalidateQueries({ queryKey: ["admin-vehicles"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const error =
     briefsQuery.error ??
+    vehiclesQuery.error ??
     installationsQuery.error ??
     poseursQuery.error ??
     fleetQuery.error ??
@@ -215,6 +238,15 @@ function AdminDashboard() {
         <div className="mb-6 flex flex-wrap gap-2">
           <TabBtn active={tab === "briefs"} onClick={() => setTab("briefs")}>
             Briefs & Campagnes
+          </TabBtn>
+          <TabBtn active={tab === "vehicules"} onClick={() => setTab("vehicules")}>
+            Véhicules
+            {(() => {
+              const pending = (vehiclesQuery.data?.vehicles ?? []).filter((v: any) => v.status === "pending").length;
+              return pending > 0 ? (
+                <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pending}</span>
+              ) : null;
+            })()}
           </TabBtn>
           <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>
             Poses à valider
@@ -244,6 +276,107 @@ function AdminDashboard() {
           <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
             {(error as Error).message}
           </div>
+        ) : null}
+
+        {tab === "vehicules" ? (
+          vehiclesQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-4">
+              <h2 className="font-display text-lg font-bold">
+                Véhicules ({(vehiclesQuery.data?.vehicles ?? []).length})
+                {" — "}
+                <span className="text-amber-600">{(vehiclesQuery.data?.vehicles ?? []).filter((v: any) => v.status === "pending").length} en attente</span>
+              </h2>
+              {(vehiclesQuery.data?.vehicles ?? []).map((v: any) => (
+                <div key={v.id} className="rounded-2xl border border-border bg-card p-5 space-y-3">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <p className="font-semibold">{v.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {v.type} · {v.condition} · {v.price_per_day} €/j
+                        {v.km_per_day ? ` · ${v.km_per_day} km/j` : ""}
+                        {v.surface_m2 ? ` · ${v.surface_m2} m²` : ""}
+                      </p>
+                      {v.zones?.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {v.zones.map((z: string) => (
+                            <span key={z} className="rounded-full bg-secondary px-2 py-0.5 text-xs">{z}</span>
+                          ))}
+                        </div>
+                      )}
+                      {v.description && (
+                        <p className="text-xs text-muted-foreground whitespace-pre-wrap">{v.description}</p>
+                      )}
+                      {v.ai_verification && (
+                        <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs space-y-1">
+                          <p>Photo : <span className={v.ai_verification.photo_match === "ok" ? "text-green-600" : "text-amber-600"}>{v.ai_verification.photo_match}</span>
+                            {v.ai_verification.photo_notes ? ` — ${v.ai_verification.photo_notes}` : ""}
+                          </p>
+                          {v.ai_verification.condition_alert && (
+                            <p className="text-destructive">{v.ai_verification.condition_alert}</p>
+                          )}
+                          {v.ai_verification.ai_generated_detected && (
+                            <p className="text-destructive">⚠ IA détectée — {v.ai_verification.ai_generated_notes}</p>
+                          )}
+                          <p className="text-muted-foreground">
+                            Prix estimé : {v.ai_verification.suggested_price_min}–{v.ai_verification.suggested_price_max} €/j
+                            · {v.ai_verification.estimated_impressions_per_day?.toLocaleString("fr-FR")} imp./j
+                          </p>
+                        </div>
+                      )}
+                      {v.admin_notes && (
+                        <p className="text-xs italic text-muted-foreground">{v.admin_notes}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">{new Date(v.created_at).toLocaleDateString("fr-FR")}</p>
+                    </div>
+                    <div className="flex flex-col gap-2 items-end">
+                      {v.status === "pending" ? (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => reviewVehicleMut.mutate({ id: v.id, approve: true })}
+                            disabled={reviewVehicleMut.isPending}
+                          >
+                            Approuver
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => reviewVehicleMut.mutate({ id: v.id, approve: false })}
+                            disabled={reviewVehicleMut.isPending}
+                          >
+                            Refuser
+                          </Button>
+                        </>
+                      ) : (
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          v.status === "approved" ? "bg-primary/10 text-primary" :
+                          v.status === "rejected" ? "bg-destructive/10 text-destructive" :
+                          "bg-secondary text-muted-foreground"
+                        }`}>
+                          {v.status === "approved" ? "Approuvé" : v.status === "rejected" ? "Refusé" : v.status}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {v.photos?.length > 0 && (
+                    <div className="flex gap-2 flex-wrap">
+                      {v.photos.slice(0, 4).map((url: string) => (
+                        <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="relative overflow-hidden rounded-lg block h-24 w-24 flex-shrink-0 border border-border">
+                          <img src={url} alt="Photo véhicule" className="h-full w-full object-cover" />
+                          <div className="absolute bottom-0 left-0 right-0 h-[22%] backdrop-blur-md bg-black/10 pointer-events-none" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {(vehiclesQuery.data?.vehicles ?? []).length === 0 && (
+                <p className="text-muted-foreground text-sm">Aucun véhicule enregistré.</p>
+              )}
+            </div>
+          )
         ) : null}
 
         {tab === "briefs" ? (

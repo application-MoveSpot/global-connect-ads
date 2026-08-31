@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createCampaignSubscriptionCheckout } from "@/lib/payments/payments.functions";
+import { captureError } from "@/lib/sentry";
 import { getPaymentsConfig, getStripe } from "@/lib/payments/stripe";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +56,7 @@ export function CampaignTrialCheckout({
     } catch (e) {
       const message = e instanceof Error ? e.message : "Erreur Stripe";
       setError(message);
+      captureError(e, "payment", { flow: "campaign_trial", vehicleQuantity, priceId });
       throw e;
     }
   }, [campaignRequestId, createSubscription, priceId, trialPeriodDays, vehicleQuantity]);

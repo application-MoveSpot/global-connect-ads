@@ -95,6 +95,22 @@ function ProviderDetailPage() {
     })();
   }, [providerId]);
 
+  // Refresh portfolio signed URLs before the 1-hour Supabase expiry
+  useEffect(() => {
+    if (!provider?.portfolio_urls?.length) return;
+    const paths = provider.portfolio_urls.filter((u) => !/^https?:\/\//i.test(u));
+    const fullUrls = provider.portfolio_urls.filter((u) => /^https?:\/\//i.test(u));
+    if (!paths.length) return;
+    let alive = true;
+    const timer = setInterval(async () => {
+      const { data } = await supabase.storage.from("provider-portfolio").createSignedUrls(paths, 3600);
+      if (!alive || !data) return;
+      const signed = data.map((d) => d.signedUrl).filter(Boolean) as string[];
+      setPortfolioSigned([...fullUrls, ...signed]);
+    }, 55 * 60 * 1000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [provider]);
+
 
   const submitQuote = async (e: React.FormEvent) => {
     e.preventDefault();

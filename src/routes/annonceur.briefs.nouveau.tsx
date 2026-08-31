@@ -2,13 +2,15 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
+import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
-import { findForbiddenKeyword } from "@/lib/campaigns/forbidden-keywords";
+import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
 import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
-import { estimateZoneBudget } from "@/lib/geo/zone-budget";
+import { estimateZoneBudget, MIN_EUR_PER_DAY } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 import { RouteError } from "@/components/app/RouteError";
+import { resizeImageFile } from "@/lib/images/resize";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -49,9 +51,110 @@ const VEHICLE_TYPES: { v: string; l: string; tip?: string }[] = [
   { v: "autre", l: "Autre" },
 ];
 
+type EventTemplate = {
+  id: string;
+  icon: string;
+  label: string;
+  desc: string;
+  vehicleTypes: string[];
+  adFormat: AdFormat;
+  days: number;
+  titleTpl: string;
+  descTpl: string;
+  audience: string;
+};
+
+const EVENT_TEMPLATES: EventTemplate[] = [
+  {
+    id: "mariage",
+    icon: "💍",
+    label: "Mariage",
+    desc: "Annoncez votre grand jour dans votre ville",
+    vehicleTypes: ["taxi", "voiture"],
+    adFormat: "demi_covering",
+    days: 7,
+    titleTpl: "Mariage de [Prénom & Prénom] — [Ville]",
+    descTpl: "Nous nous marions le [date] à [lieu] et souhaitons le faire savoir dans [ville] et ses alentours. Visuel sobre et élégant fourni.",
+    audience: "Famille, amis, connaissances locales",
+  },
+  {
+    id: "ouverture",
+    icon: "🏪",
+    label: "Ouverture de commerce",
+    desc: "Boutique, restaurant, salon, studio…",
+    vehicleTypes: ["van", "taxi"],
+    adFormat: "demi_covering",
+    days: 14,
+    titleTpl: "Ouverture [Nom du commerce] — [Ville]",
+    descTpl: "Ouverture prochaine de [nom du commerce] au [adresse]. Venez nous découvrir ! Promotion d'inauguration le [date].",
+    audience: "Habitants du quartier, passants, clients locaux",
+  },
+  {
+    id: "association",
+    icon: "🤝",
+    label: "Association / Bénévolat",
+    desc: "Appel aux membres, collecte, événement",
+    vehicleTypes: ["velo_cargo", "voiture"],
+    adFormat: "stickers",
+    days: 14,
+    titleTpl: "Rejoignez [Nom de l'asso] — [Ville]",
+    descTpl: "L'association [nom] recherche des bénévoles / organise [événement] le [date] à [lieu]. Toutes les informations sur [site / contact].",
+    audience: "Habitants engagés, grand public local",
+  },
+  {
+    id: "culturel",
+    icon: "🎭",
+    label: "Événement culturel",
+    desc: "Concert, expo, spectacle, projection",
+    vehicleTypes: ["van", "voiture"],
+    adFormat: "demi_covering",
+    days: 7,
+    titleTpl: "[Nom de l'événement] — [Date] à [Ville]",
+    descTpl: "[Description : type, artistes, programme]. Entrée [gratuite / prix]. Réservations sur [lien ou contact].",
+    audience: "Grand public, amateurs de culture, 18-55 ans",
+  },
+  {
+    id: "festival",
+    icon: "🎪",
+    label: "Festival / Marché",
+    desc: "Marché artisanal, festival, fête locale",
+    vehicleTypes: ["food_truck", "van"],
+    adFormat: "covering_total",
+    days: 3,
+    titleTpl: "[Nom du festival / marché] — [Dates] à [Lieu]",
+    descTpl: "[Nombre] exposants, animations, restauration sur place. Entrée [gratuite / prix]. [Dates et horaires].",
+    audience: "Familles, habitants, touristes",
+  },
+  {
+    id: "inauguration",
+    icon: "🎗️",
+    label: "Inauguration / Lancement",
+    desc: "Nouveau local, produit, service, projet",
+    vehicleTypes: ["voiture", "van"],
+    adFormat: "demi_covering",
+    days: 7,
+    titleTpl: "Inauguration [Nom du projet] — [Ville]",
+    descTpl: "[Description du projet ou service]. Cérémonie d'inauguration le [date] à [lieu]. Tout le monde est bienvenu !",
+    audience: "Professionnels, grand public, curieux",
+  },
+];
+
+function isoDate(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+function addDays(base: Date, n: number): string {
+  const d = new Date(base);
+  d.setDate(d.getDate() + n);
+  return isoDate(d);
+}
+
 function NewBriefPage() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
+  const [accountType, setAccountType] = useState<string | null>(null);
+  const [wizardStep, setWizardStep] = useState<"event-type" | "form">("event-type");
+  const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
@@ -79,13 +182,30 @@ function NewBriefPage() {
       if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
       const { data: prof } = await supabase
         .from("advertiser_profiles")
-        .select("user_id")
+        .select("user_id, account_type")
         .eq("user_id", sess.session.user.id)
         .maybeSingle();
       if (!prof) { navigate({ to: "/annonceur/inscription" }); return; }
       setUserId(sess.session.user.id);
+      const type = (prof as { account_type?: string }).account_type ?? "business";
+      setAccountType(type);
+      if (type !== "individual") setWizardStep("form");
     })();
   }, [navigate]);
+
+  const applyTemplate = (tpl: EventTemplate) => {
+    setSelectedTemplate(tpl);
+    setTitle(tpl.titleTpl);
+    setDescription(tpl.descTpl);
+    setVehicleTypes(tpl.vehicleTypes);
+    setAdFormat(tpl.adFormat);
+    setAudience(tpl.audience);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setStartDate(isoDate(tomorrow));
+    setEndDate(addDays(tomorrow, tpl.days - 1));
+    setWizardStep("form");
+  };
 
   const estimatedDays =
     startDate && endDate && endDate >= startDate
@@ -126,15 +246,16 @@ function NewBriefPage() {
     }
     setLoading(true);
 
-    // Upload creatives
+    // Upload creatives (resize images before upload, max 2000px for ad visuals)
     const uploadedPaths: string[] = [];
     for (const f of files) {
+      const resized = await resizeImageFile(f, 2000, 0.87);
       const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const path = `${userId}/briefs/${Date.now()}_${safe}`;
       const { error: upErr } = await supabase.storage
         .from("campaign-creatives")
-        .upload(path, f, { upsert: false, contentType: f.type });
-      if (upErr) { setError(`Upload échoué : ${f.name}`); setLoading(false); return; }
+        .upload(path, resized, { upsert: false, contentType: resized.type });
+      if (upErr) { captureError(upErr, "upload", { flow: "brief_creative", fileName: f.name }); setError(`Upload échoué : ${f.name}`); setLoading(false); return; }
       uploadedPaths.push(path);
     }
 
@@ -191,8 +312,67 @@ function NewBriefPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    navigate({ to: "/annonceur/briefs/$briefId", params: { briefId: data!.id } });
+    navigate({ to: "/annonceur/briefs/confirmation/$briefId", params: { briefId: data!.id } });
   };
+
+  if (wizardStep === "event-type" && accountType === "individual") {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border">
+          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <LogoLink />
+            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
+          </div>
+        </header>
+        <main className="max-w-3xl mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="font-display text-3xl font-bold mb-2">Quel est votre projet ?</h1>
+            <p className="text-sm text-muted-foreground">
+              Choisissez un type d'événement — le formulaire sera pré-rempli pour vous.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            {EVENT_TEMPLATES.map((tpl) => (
+              <button
+                key={tpl.id}
+                type="button"
+                onClick={() => applyTemplate(tpl)}
+                className="text-left rounded-2xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all p-5 group"
+              >
+                <div className="text-3xl mb-3">{tpl.icon}</div>
+                <p className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{tpl.label}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{tpl.desc}</p>
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {tpl.vehicleTypes.map((v) => (
+                    <span key={v} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                      {VEHICLE_TYPES.find((t) => t.v === v)?.l ?? v}
+                    </span>
+                  ))}
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                    {tpl.days} jours
+                  </span>
+                </div>
+                <p className="mt-2 text-[11px] text-primary font-medium">
+                  À partir de {MIN_EUR_PER_DAY * tpl.days} € pour 1 véhicule
+                </p>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setWizardStep("form")}
+              className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-2"
+            >
+              Remplir manuellement sans modèle →
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -224,6 +404,23 @@ function NewBriefPage() {
                 Payer plus tard → voir le brief
               </Link>
             </div>
+          </div>
+        )}
+
+        {accountType === "individual" && (
+          <div className="flex items-center gap-2 mb-5">
+            <button
+              type="button"
+              onClick={() => setWizardStep("event-type")}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              ← Changer de type d'événement
+            </button>
+            {selectedTemplate && (
+              <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                {selectedTemplate.icon} {selectedTemplate.label}
+              </span>
+            )}
           </div>
         )}
 
@@ -285,6 +482,8 @@ function NewBriefPage() {
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               placeholder="Marque, message clé, ton, contraintes, audience cible…" />
           </Field>
+
+          <ContentChecker text={`${title} ${description} ${audience}`} />
 
           <Field label="Types de véhicules recherchés">
             {/* ── Camion LED BoxLED — carte hero ────────────────────────────── */}
@@ -624,6 +823,12 @@ function NewBriefPage() {
             </Field>
           </div>
 
+          <LiveBudgetEstimator
+            days={estimatedDays}
+            vehicleCount={vehicleTypes.length}
+            zonePolygon={zonePolygon}
+          />
+
           <div className="grid grid-cols-2 gap-4">
             <Field label="Budget max (€, optionnel)">
               <input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)}
@@ -654,6 +859,154 @@ function NewBriefPage() {
           </button>
         </form>
       </main>
+    </div>
+  );
+}
+
+function ContentChecker({ text }: { text: string }) {
+  const [match, setMatch] = useState<ReturnType<typeof findForbiddenMatch>>(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    setChecked(false);
+    const id = setTimeout(() => {
+      setMatch(findForbiddenMatch(text.trim()));
+      setChecked(true);
+    }, 400);
+    return () => clearTimeout(id);
+  }, [text]);
+
+  if (!checked || text.trim().length < 5) return null;
+
+  if (match) {
+    return (
+      <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-4 space-y-2">
+        <p className="text-sm font-semibold text-destructive flex items-center gap-2">
+          ⛔ Contenu non conforme — {match.category}
+        </p>
+        <p className="text-xs text-destructive/80">
+          Le terme <strong>« {match.keyword} »</strong> est interdit par la charte MoveSpot.
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">{match.advice}</p>
+        <p className="text-xs font-medium text-destructive">
+          Ce brief sera refusé automatiquement si vous le soumettez tel quel.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 flex items-center gap-2">
+      <span className="text-emerald-500 text-sm">✓</span>
+      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Contenu conforme à la charte MoveSpot</p>
+    </div>
+  );
+}
+
+function LiveBudgetEstimator({
+  days,
+  vehicleCount,
+  zonePolygon,
+}: {
+  days: number;
+  vehicleCount: number;
+  zonePolygon: ZonePolygon | null;
+}) {
+  if (days <= 0 && vehicleCount === 0) return null;
+
+  const v = Math.max(1, vehicleCount);
+  const d = Math.max(1, days);
+
+  const rows = [1, 3, 5].map((n) => {
+    let total: number;
+    if (zonePolygon) {
+      total = estimateZoneBudget(
+        zonePolygon.areaKm2,
+        d,
+        n,
+        zonePolygon.coordinates as [number, number][],
+      ).total;
+    } else {
+      total = MIN_EUR_PER_DAY * d * n;
+    }
+    return { n, total };
+  });
+
+  const isDense = zonePolygon
+    ? estimateZoneBudget(zonePolygon.areaKm2, d, 1, zonePolygon.coordinates as [number, number][]).denseMetro
+    : null;
+
+  const floorForV = MIN_EUR_PER_DAY * d * v;
+  const approxForV = zonePolygon
+    ? estimateZoneBudget(zonePolygon.areaKm2, d, v, zonePolygon.coordinates as [number, number][]).total
+    : floorForV;
+
+  return (
+    <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <p className="font-semibold text-sm">Estimation de budget</p>
+        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+          {zonePolygon ? "zone dessinée ✓" : "mise à jour en temps réel"}
+        </span>
+      </div>
+
+      {days <= 0 ? (
+        <p className="text-xs text-muted-foreground">Sélectionnez des dates pour affiner l'estimation.</p>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="text-xs text-muted-foreground border-b border-border">
+                  <th className="text-left py-1.5 font-medium">Véhicules retenus</th>
+                  <th className="text-right py-1.5 font-medium">Estimation totale</th>
+                  <th className="text-right py-1.5 font-medium">Par jour</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(({ n, total }) => (
+                  <tr key={n} className={`border-b border-border/40 ${n === v ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                    <td className="py-2">
+                      {n} véhicule{n > 1 ? "s" : ""}
+                      {n === v && vehicleCount > 0 && (
+                        <span className="ml-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">sélectionné</span>
+                      )}
+                    </td>
+                    <td className="text-right py-2">{total.toLocaleString("fr-FR")} €</td>
+                    <td className="text-right py-2 text-xs">{Math.round(total / d)} €/j</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {isDense && (
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              🏙️ Zone dense ({isDense}) — coefficient ×1,5 inclus dans l'estimation.
+            </p>
+          )}
+
+          <div className="rounded-lg bg-background/60 border border-border p-3 text-xs text-muted-foreground space-y-1">
+            <p>• Estimation basée sur {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : "le tarif plancher"} × {d} jour{d > 1 ? "s" : ""}.</p>
+            <p>• Le montant final dépend des propositions des propriétaires — vous ne payez qu'à la validation.</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/annonceur/portefeuille"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition"
+            >
+              💳 Préparer {approxForV.toLocaleString("fr-FR")} €
+            </Link>
+            <Link
+              to="/annonceur/pack"
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+            >
+              Ou acheter un pack →
+            </Link>
+          </div>
+        </>
+      )}
     </div>
   );
 }

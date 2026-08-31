@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { captureError } from "@/lib/sentry";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createWalletTopupCheckout } from "@/lib/payments/payments.functions";
@@ -20,9 +21,10 @@ type Props = {
   disabled?: boolean;
   className?: string;
   campaignBriefId?: string | null;
+  onClose?: () => void;
 };
 
-export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disabled, className, campaignBriefId }: Props) {
+export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disabled, className, campaignBriefId, onClose }: Props) {
   const createTopup = useServerFn(createWalletTopupCheckout);
   const [open, setOpen] = useState(false);
   const [checkoutKey, setCheckoutKey] = useState(0);
@@ -44,6 +46,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
     } catch (e) {
       const message = e instanceof Error ? e.message : "Erreur Stripe";
       setError(message);
+      captureError(e, "payment", { flow: "wallet_topup", amountEuros });
       throw e;
     }
   }, [amountEuros, campaignBriefId, createTopup, returnUrl]);
@@ -68,7 +71,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
         {buttonLabel ?? `Recharger ${amountEuros} €`}
       </Button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) onClose?.(); }}>
         <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto p-0">
           <PaymentTestModeBanner />
           <div className="space-y-4 p-6">

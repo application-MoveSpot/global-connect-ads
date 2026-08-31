@@ -11,8 +11,7 @@ import {
   assignDriverToVehicle,
 } from "@/lib/fleet/fleet.functions";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,25 +124,33 @@ function FleetPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
+  const mglRef = useRef<typeof mapboxgl | null>(null);
 
+  // Dynamic import defers the ~800 KB Mapbox bundle until fleet page loads
   useEffect(() => {
     if (!tokenData?.token || !mapContainer.current || mapRef.current) return;
-    mapboxgl.accessToken = tokenData.token;
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v12",
-      center: [2.3522, 48.8566],
-      zoom: 10,
-    });
-    mapRef.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    (async () => {
+      await import("mapbox-gl/dist/mapbox-gl.css");
+      const mgl = (await import("mapbox-gl")).default;
+      mglRef.current = mgl;
+      mgl.accessToken = tokenData.token;
+      mapRef.current = new mgl.Map({
+        container: mapContainer.current!,
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: [2.3522, 48.8566],
+        zoom: 10,
+      });
+      mapRef.current.addControl(new mgl.NavigationControl(), "top-right");
+    })();
   }, [tokenData]);
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    const mgl = mglRef.current;
+    if (!map || !mgl) return;
     const update = () => {
       const seen = new Set<string>();
-      const bounds = new mapboxgl.LngLatBounds();
+      const bounds = new mgl.LngLatBounds();
       let hasAny = false;
       for (const p of positions) {
         seen.add(p.vehicle_id);
@@ -156,14 +163,14 @@ function FleetPage() {
           el.style.width = "28px";
           el.style.height = "28px";
           el.textContent = (v?.name ?? "?").slice(0, 2).toUpperCase();
-          m = new mapboxgl.Marker({ element: el })
+          m = new mgl.Marker({ element: el })
             .setLngLat([p.lng, p.lat])
-            .setPopup(new mapboxgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString("fr-FR")}`))
+            .setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString("fr-FR")}`))
             .addTo(map);
           markersRef.current.set(p.vehicle_id, m);
         } else {
           m.setLngLat([p.lng, p.lat]);
-          m.setPopup(new mapboxgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString("fr-FR")}`));
+          m.setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString("fr-FR")}`));
         }
         bounds.extend([p.lng, p.lat]);
         hasAny = true;

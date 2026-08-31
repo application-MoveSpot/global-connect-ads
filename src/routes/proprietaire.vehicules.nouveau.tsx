@@ -5,6 +5,8 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
 import { estimateVehicle } from "@/lib/fleet/vehicle-estimate.functions";
 import { RouteError } from "@/components/app/RouteError";
+import { resizeImageFile } from "@/lib/images/resize";
+import { captureError } from "@/lib/sentry";
 
 export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   head: () => ({
@@ -118,8 +120,9 @@ function NewVehiclePage() {
     if (!userId) return [];
     const paths: string[] = [];
     for (const file of files.slice(0, 5)) {
+      const resized = await resizeImageFile(file, 1600, 0.85);
       const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-      const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, file);
+      const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, resized);
       if (upErr) throw new Error(`Upload : ${upErr.message}`);
       paths.push(path);
     }
@@ -162,6 +165,7 @@ function NewVehiclePage() {
       });
       setEstimate({ ...res, uploaded_urls: paths });
     } catch (e) {
+      if (e instanceof Error && e.message.startsWith("Upload")) captureError(e, "upload", { flow: "vehicle_photo" });
       setError(e instanceof Error ? e.message : "Erreur estimation");
     } finally {
       setEstimating(false);

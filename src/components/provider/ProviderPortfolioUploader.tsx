@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageFile } from "@/lib/images/resize";
 
 const MAX_FILES = 10;
 const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -44,10 +45,11 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
     for (const f of toUpload) {
       if (!ACCEPTED.includes(f.type)) { setError(`Format non supporté : ${f.name}`); continue; }
       if (f.size > MAX_SIZE) { setError(`Fichier trop volumineux (>50 Mo) : ${f.name}`); continue; }
+      const resized = await resizeImageFile(f, 1600, 0.85);
       const ext = f.name.split(".").pop()?.toLowerCase() ?? "bin";
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("provider-portfolio").upload(path, f, {
-        contentType: f.type, upsert: false,
+      const { error: upErr } = await supabase.storage.from("provider-portfolio").upload(path, resized, {
+        contentType: resized.type, upsert: false,
       });
       if (upErr) { setError(upErr.message); continue; }
       const { data: signed } = await supabase.storage.from("provider-portfolio").createSignedUrl(path, 3600);

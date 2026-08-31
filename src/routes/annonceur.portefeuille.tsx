@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
@@ -53,7 +54,9 @@ function WalletPage() {
 
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [balanceCents, setBalanceCents] = useState(0);
+  const [accountType, setAccountType] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(100);
 
   const [filterKind, setFilterKind] = useState<TxKind>("all");
@@ -64,22 +67,7 @@ function WalletPage() {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  // Load balance once
-  useEffect(() => {
-    (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
-      try {
-        const w = await fetchWallet();
-        setBalanceCents(w.balance_cents);
-      } catch { /* ignore */ }
-      setAuthReady(true);
-      setLoading(false);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Reload transactions when filter or page changes
+  // Declared before refs so the refs can capture this function
   const loadTransactions = useCallback(async (kind: TxKind, p: number) => {
     setTxLoading(true);
     try {
@@ -94,6 +82,57 @@ function WalletPage() {
     }
   }, [fetchTransactions]);
 
+  // Stable refs so realtime callback always uses current values without re-subscribing
+  const loadTransactionsRef = useRef(loadTransactions);
+  loadTransactionsRef.current = loadTransactions;
+  const filterKindRef = useRef(filterKind);
+  filterKindRef.current = filterKind;
+  const pageRef = useRef(page);
+  pageRef.current = page;
+
+  // Load balance once
+  useEffect(() => {
+    (async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
+      setUserId(sess.session.user.id);
+      const [walletResult, profResult] = await Promise.allSettled([
+        fetchWallet(),
+        supabase.from("advertiser_profiles").select("account_type").eq("user_id", sess.session.user.id).maybeSingle(),
+      ]);
+      if (walletResult.status === "fulfilled") setBalanceCents(walletResult.value.balance_cents);
+      if (profResult.status === "fulfilled") {
+        const prof = profResult.value.data as { account_type?: string } | null;
+        const at = prof?.account_type ?? null;
+        setAccountType(at);
+        setAmount(at === "individual" ? 79 : 100);
+      }
+      setAuthReady(true);
+      setLoading(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Realtime: balance auto-refresh when a new wallet transaction arrives (e.g. bank transfer approved)
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`wallet-realtime-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const tx = payload.new as { amount_cents: number; kind: string };
+          setBalanceCents((prev) => prev + tx.amount_cents);
+          if (tx.kind === "topup") toast.success("Solde crédité ! Votre portefeuille a été rechargé.");
+          void loadTransactionsRef.current(filterKindRef.current, pageRef.current);
+        },
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [userId]);
+
+  // Reload transactions when filter or page changes
   useEffect(() => {
     if (!authReady) return;
     void loadTransactions(filterKind, page);
@@ -147,7 +186,16 @@ function WalletPage() {
       <main id="main-content" className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section>
           <h1 className="font-display text-3xl font-bold mb-2">Mon portefeuille</h1>
-          <p className="text-sm text-muted-foreground">Crédits prépayés utilisables instantanément pour vos campagnes.</p>
+          <p className="text-sm text-muted-foreground">
+            {accountType === "individual"
+              ? "Rechargez le montant de votre pack événement — utilisé automatiquement quand un propriétaire accepte votre brief."
+              : "Crédits prépayés utilisables instantanément pour vos campagnes."}
+          </p>
+          {accountType === "individual" && (
+            <Link to="/annonceur/pack" className="inline-block mt-1 text-xs text-primary hover:underline">
+              Voir les packs événement (49 € · 79 € · 149 €) →
+            </Link>
+          )}
         </section>
 
         <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/15 to-card p-8">
@@ -159,13 +207,16 @@ function WalletPage() {
           <h2 className="font-display text-xl font-semibold">Recharger par carte bancaire</h2>
           <p className="text-sm text-muted-foreground">Paiement sécurisé via Stripe. Le solde est crédité instantanément.</p>
           <div className="flex flex-wrap items-center gap-2">
-            {[50, 100, 250, 500, 1000].map((v) => (
+            {(accountType === "individual"
+              ? [{ v: 49, label: "49 € · Week-end" }, { v: 79, label: "79 € · Événement" }, { v: 149, label: "149 € · Lancement" }]
+              : [50, 100, 250, 500, 1000].map((v) => ({ v, label: `${v} €` }))
+            ).map(({ v, label }) => (
               <button
                 key={v}
                 onClick={() => setAmount(v)}
                 className={`px-3 py-1.5 rounded-lg text-sm border ${amount === v ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"}`}
               >
-                {v} €
+                {label}
               </button>
             ))}
             <input

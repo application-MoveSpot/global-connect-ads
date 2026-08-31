@@ -13,6 +13,7 @@ import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
 import type { VehicleKey, AdFormat } from "@/components/advertiser/VehicleMockup3D";
+import { resizeImageFile } from "@/lib/images/resize";
 
 const VehicleMockup3D = lazy(() =>
   import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
@@ -352,16 +353,17 @@ export function BookingForm({ spot, onClose }: Props) {
     setDateConflict(null);
     setStatus("loading");
 
-    // Upload creative files first
+    // Upload creative files first (resize images before upload, max 2000px)
     const uploadedPaths: string[] = [];
     if (files.length > 0) {
       const folder = `${auth.userId}/${Date.now()}`;
       for (const f of files) {
+        const resized = await resizeImageFile(f, 2000, 0.87);
         const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `${folder}/${safeName}`;
         const { error: upErr } = await supabase.storage
           .from("campaign-creatives")
-          .upload(path, f, { upsert: false, contentType: f.type });
+          .upload(path, resized, { upsert: false, contentType: resized.type });
         if (upErr) {
           setStatus("rejected");
           setReason(`Erreur lors de l'upload de « ${f.name} ». Réessayez.`);
@@ -752,9 +754,26 @@ export function BookingForm({ spot, onClose }: Props) {
               </p>
 
 
+              {spot.vehicleType === "camion_led" && (
+                <div className="rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-4 text-sm space-y-1">
+                  <div className="font-semibold text-indigo-300">📺 Véhicule écran LED</div>
+                  <p className="text-xs text-indigo-200/80">
+                    Ce véhicule diffuse votre campagne sur un écran LED embarqué (3 faces, résolution 3200 × 1920 px).
+                    <strong className="text-indigo-200"> Uploadez un fichier MP4 ou MOV</strong> (durée recommandée : 15 – 30 s,
+                    poids max 200 Mo). La vidéo est lue en boucle automatique pendant la plage horaire choisie.
+                  </p>
+                  <p className="text-xs text-indigo-200/60">
+                    Format H.264, codec AAC conseillé. Images statiques acceptées en complément (affichées 8 s chacune).
+                  </p>
+                </div>
+              )}
+
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="text-sm font-semibold">Fichiers de la créa <span className="text-muted-foreground font-normal">(optionnel)</span></div>
+                  <div className="text-sm font-semibold">
+                    {spot.vehicleType === "camion_led" ? "Vidéo de la campagne" : "Fichiers de la créa"}
+                    {" "}<span className="text-muted-foreground font-normal">{spot.vehicleType === "camion_led" ? "(MP4 requis)" : "(optionnel)"}</span>
+                  </div>
                   <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
                 </div>
                 <input
