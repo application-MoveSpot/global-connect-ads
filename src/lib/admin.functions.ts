@@ -63,15 +63,16 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         admin_notes: adminNotes,
       } as never)
       .eq("id", data.campaignRequestId)
-      .select("spot_name, company, email, start_date, end_date, total_price")
+      .select("spot_name, company, email, start_date, end_date, total_price, user_id")
       .single();
     if (error || !campaign) throw new Error(error?.message ?? "Campagne introuvable");
 
     const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
     const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+    const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
 
     if (data.approve) {
-      // Notifie l'annonceur que sa campagne est approuvée et qu'il peut payer
+      // Email annonceur — campagne approuvée
       if (campaign.email) {
         sendAppEmailSafe({
           templateName: "campaign-approved",
@@ -88,10 +89,22 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
           },
         }).catch((e) => console.error("campaign-approved email failed", e));
       }
+      // Push annonceur — campagne approuvée
+      if (campaign.user_id) {
+        sendWebPushToUser(campaign.user_id as string, {
+          title: "Campagne approuvée ! 🎉",
+          body: campaign.spot_name
+            ? `${campaign.spot_name} est validée — procédez au paiement pour la lancer.`
+            : "Votre campagne est validée — procédez au paiement.",
+          url: "/annonceur",
+        }).catch(() => {});
+      }
       // Notifie les poseurs certifiés
       notifyCertifiedInstallers(campaign).catch((e) => console.error("notifyCertifiedInstallers failed", e));
+      // Notifie les prestataires actifs (covering, vidéo, graphisme)
+      notifyActiveProviders(campaign).catch((e) => console.error("notifyActiveProviders failed", e));
     } else {
-      // Notifie l'annonceur du refus avec le motif
+      // Email annonceur — campagne refusée
       if (campaign.email) {
         sendAppEmailSafe({
           templateName: "campaign-rejected",
@@ -103,6 +116,14 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
             newCampaignUrl: "https://move-spot.com/",
           },
         }).catch((e) => console.error("campaign-rejected email failed", e));
+      }
+      // Push annonceur — campagne refusée
+      if (campaign.user_id) {
+        sendWebPushToUser(campaign.user_id as string, {
+          title: "Campagne non approuvée",
+          body: "Consultez les notes de l'équipe MoveSpot pour corriger votre demande.",
+          url: "/annonceur",
+        }).catch(() => {});
       }
     }
 
@@ -143,6 +164,54 @@ async function notifyCertifiedInstallers(campaign: {
           spaceUrl: "https://move-spot.com/chauffeur/espace",
         },
       });
+    }),
+  );
+}
+
+async function notifyActiveProviders(campaign: {
+  spot_name: string;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+}) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: providers } = await supabaseAdmin
+    .from("provider_profiles")
+    .select("user_id, full_name")
+    .eq("stripe_subscription_status" as never, "active");
+  if (!providers?.length) return;
+
+  const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+  const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
+  const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
+
+  await Promise.allSettled(
+    (providers as Array<{ user_id: string; full_name: string | null }>).map(async (provider) => {
+      const { data: userRow } = await supabaseAdmin.auth.admin.getUserById(provider.user_id);
+      const email = userRow?.user?.email;
+      await Promise.allSettled([
+        email
+          ? sendAppEmailSafe({
+              templateName: "campaign-opportunity",
+              recipientEmail: email,
+              templateData: {
+                fullName: provider.full_name ?? undefined,
+                spotName: campaign.spot_name,
+                company: campaign.company,
+                startDate: fmtDate(campaign.start_date),
+                endDate: fmtDate(campaign.end_date),
+                profileUrl: "https://move-spot.com/prestataire",
+              },
+            })
+          : Promise.resolve(),
+        sendWebPushToUser(provider.user_id, {
+          title: "🎯 Nouvelle opportunité de prestation",
+          body: campaign.spot_name
+            ? `La campagne « ${campaign.spot_name} » peut nécessiter vos services.`
+            : "Une nouvelle campagne est disponible sur MoveSpot.",
+          url: "/prestataire",
+        }),
+      ]);
     }),
   );
 }

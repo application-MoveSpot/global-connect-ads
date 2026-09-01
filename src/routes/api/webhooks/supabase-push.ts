@@ -354,6 +354,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
             if (newCertif !== prevCertif && (newCertif === "certified" || newCertif === "rejected")) {
               const userId = record.user_id as string | undefined;
               if (userId) {
+                // Push
                 await sendWebPushToUser(userId, {
                   title: newCertif === "certified" ? "Certification validée !" : "Certification refusée",
                   body: newCertif === "certified"
@@ -361,6 +362,28 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     : "Votre certification a été refusée. Consultez les notes.",
                   url: "/chauffeur/espace",
                 });
+                // Email
+                const db = createClient(
+                  process.env["SUPABASE_URL"]!,
+                  process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                );
+                const userRes = await db.auth.admin.getUserById(userId);
+                const payeeEmail = userRes.data?.user?.email;
+                if (payeeEmail) {
+                  const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+                  await sendAppEmailSafe({
+                    templateName: "payee-certification",
+                    recipientEmail: payeeEmail,
+                    templateData: {
+                      fullName: (record.full_name as string | undefined) ?? undefined,
+                      certified: newCertif === "certified",
+                      notes: newCertif === "rejected"
+                        ? (record.certification_notes as string | undefined) ?? undefined
+                        : undefined,
+                      spaceUrl: "https://move-spot.com/chauffeur/espace",
+                    },
+                  });
+                }
               }
             }
           }
@@ -374,6 +397,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                 const userId = await getOwnerUserId(ownerId);
                 if (userId) {
                   const name = record.name as string | undefined;
+                  // Push
                   await sendWebPushToUser(userId, {
                     title: newStatus === "approved" ? "Véhicule approuvé !" : "Véhicule refusé",
                     body: name
@@ -383,6 +407,28 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       : undefined,
                     url: "/proprietaire",
                   });
+                  // Email
+                  const db = createClient(
+                    process.env["SUPABASE_URL"]!,
+                    process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                  );
+                  const userRes = await db.auth.admin.getUserById(userId);
+                  const ownerEmail = userRes.data?.user?.email;
+                  if (ownerEmail) {
+                    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+                    await sendAppEmailSafe({
+                      templateName: "vehicle-status",
+                      recipientEmail: ownerEmail,
+                      templateData: {
+                        vehicleName: name,
+                        approved: newStatus === "approved",
+                        reason: newStatus === "rejected"
+                          ? (record.admin_notes as string | undefined) ?? undefined
+                          : undefined,
+                        dashboardUrl: "https://move-spot.com/proprietaire",
+                      },
+                    });
+                  }
                 }
               }
             }
