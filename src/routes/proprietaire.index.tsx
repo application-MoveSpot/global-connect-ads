@@ -86,7 +86,7 @@ type Request = {
   vehicle_id: string | null;
   spot_name: string;
   company: string;
-  email: string;
+
   message: string;
   status: string;
   owner_response: string;
@@ -399,9 +399,6 @@ function DashboardPage() {
                       {r.spot_name}
                     </div>
                     <h3 className="font-display text-xl font-bold mt-1">{r.company}</h3>
-                    <a href={`mailto:${r.email}`} className="text-sm text-primary">
-                      {r.email}
-                    </a>
                   </div>
                   <div className="text-right">
                     <ResponseBadge response={r.owner_response} />
