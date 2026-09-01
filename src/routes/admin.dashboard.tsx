@@ -28,10 +28,13 @@ import {
   adminListInactiveStripeAccounts,
   adminListPoseurs,
   adminListVehicles,
+  adminRevenueData,
+  adminListUsers,
   adminReviewInstallation,
   adminReviewVehicle,
   adminSendStripeReminder,
 } from "@/lib/admin.functions";
+import type { AdminUserRow } from "@/lib/admin.functions";
 import {
   InstallationPhotoGrid,
   parseInstallationPhotos,
@@ -58,7 +61,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics";
+type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -67,6 +70,18 @@ function AdminDashboard() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("briefs");
   const [ready, setReady] = useState(false);
+
+  // Refusal inline forms — keyed by entity ID
+  const [refuseMap, setRefuseMap] = useState<Record<string, { open: boolean; notes: string }>>({});
+  const openRefuse = (id: string) => setRefuseMap((p) => ({ ...p, [id]: { open: true, notes: p[id]?.notes ?? "" } }));
+  const closeRefuse = (id: string) => setRefuseMap((p) => ({ ...p, [id]: { open: false, notes: "" } }));
+  const setRefuseNotes = (id: string, v: string) => setRefuseMap((p) => ({ ...p, [id]: { open: true, notes: v } }));
+
+  // Filters
+  const [campaignFilter, setCampaignFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+  const [vehicleFilter, setVehicleFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [userSearch, setUserSearch] = useState("");
+  const [userRoleFilter, setUserRoleFilter] = useState<"all" | "annonceur" | "proprietaire" | "prestataire" | "partenaire">("all");
 
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
   const listVehicles = useServerFn(adminListVehicles);
@@ -169,11 +184,28 @@ function AdminDashboard() {
   });
 
   const getAnalytics = useServerFn(adminAnalyticsData);
+  const getRevenue = useServerFn(adminRevenueData);
+  const getUsers = useServerFn(adminListUsers);
+
   const analyticsQuery = useQuery({
     queryKey: ["admin-analytics"],
     queryFn: () => getAnalytics(),
     enabled: ready && tab === "analytics",
     staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const revenueQuery = useQuery({
+    queryKey: ["admin-revenue"],
+    queryFn: () => getRevenue(),
+    enabled: ready && tab === "revenus",
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const usersQuery = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: () => getUsers(),
+    enabled: ready && tab === "utilisateurs",
+    staleTime: 2 * 60 * 1000,
     retry: false,
   });
 
@@ -201,6 +233,36 @@ function AdminDashboard() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+  const rejectCampaignMut = useMutation({
+    mutationFn: (v: { id: string; notes: string }) =>
+      approveCampaign({ data: { campaignRequestId: v.id, approve: false, notes: v.notes } }),
+    onSuccess: (_d, v) => {
+      toast.success("Campagne refusée.");
+      closeRefuse(v.id);
+      qc.invalidateQueries({ queryKey: ["admin-briefs"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const rejectBriefMut = useMutation({
+    mutationFn: (v: { id: string; notes: string }) =>
+      approveBrief({ data: { briefId: v.id, approve: false, notes: v.notes } }),
+    onSuccess: (_d, v) => {
+      toast.success("Brief refusé.");
+      closeRefuse(v.id);
+      qc.invalidateQueries({ queryKey: ["admin-briefs"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const rejectPoseurMut = useMutation({
+    mutationFn: (v: { id: string; notes: string }) =>
+      certify({ data: { payeeProfileId: v.id, certified: false, notes: v.notes } }),
+    onSuccess: (_d, v) => {
+      toast.success("Certification refusée.");
+      closeRefuse(v.id);
+      qc.invalidateQueries({ queryKey: ["admin-poseurs"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const reviewVehicleMut = useMutation({
     mutationFn: (v: { id: string; approve: boolean; notes?: string }) =>
       reviewVehicle({ data: { vehicleId: v.id, approve: v.approve, notes: v.notes } }),
@@ -218,7 +280,9 @@ function AdminDashboard() {
     poseursQuery.error ??
     fleetQuery.error ??
     stripeQuery.error ??
-    analyticsQuery.error;
+    analyticsQuery.error ??
+    revenueQuery.error ??
+    usersQuery.error;
 
   return (
     <div className="min-h-screen bg-background">
@@ -270,6 +334,12 @@ function AdminDashboard() {
           <TabBtn active={tab === "analytics"} onClick={() => setTab("analytics")}>
             Analytics
           </TabBtn>
+          <TabBtn active={tab === "revenus"} onClick={() => setTab("revenus")}>
+            Revenus
+          </TabBtn>
+          <TabBtn active={tab === "utilisateurs"} onClick={() => setTab("utilisateurs")}>
+            Utilisateurs
+          </TabBtn>
         </div>
 
         {error ? (
@@ -283,12 +353,26 @@ function AdminDashboard() {
             <Skeleton />
           ) : (
             <div className="space-y-4">
-              <h2 className="font-display text-lg font-bold">
-                Véhicules ({(vehiclesQuery.data?.vehicles ?? []).length})
-                {" — "}
-                <span className="text-amber-600">{(vehiclesQuery.data?.vehicles ?? []).filter((v: any) => v.status === "pending").length} en attente</span>
-              </h2>
-              {(vehiclesQuery.data?.vehicles ?? []).map((v: any) => (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="font-display text-lg font-bold">
+                  Véhicules ({(vehiclesQuery.data?.vehicles ?? []).length})
+                  {" — "}
+                  <span className="text-amber-600">{(vehiclesQuery.data?.vehicles ?? []).filter((v: any) => v.status === "pending").length} en attente</span>
+                </h2>
+                <select
+                  value={vehicleFilter}
+                  onChange={(e) => setVehicleFilter(e.target.value as typeof vehicleFilter)}
+                  className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+                >
+                  <option value="all">Tous</option>
+                  <option value="pending">En attente</option>
+                  <option value="approved">Approuvés</option>
+                  <option value="rejected">Refusés</option>
+                </select>
+              </div>
+              {(vehiclesQuery.data?.vehicles ?? [])
+                .filter((v: any) => vehicleFilter === "all" || v.status === vehicleFilter)
+                .map((v: any) => (
                 <div key={v.id} className="rounded-2xl border border-border bg-card p-5 space-y-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -340,14 +424,37 @@ function AdminDashboard() {
                           >
                             Approuver
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => reviewVehicleMut.mutate({ id: v.id, approve: false })}
-                            disabled={reviewVehicleMut.isPending}
-                          >
-                            Refuser
-                          </Button>
+                          {refuseMap[v.id]?.open ? (
+                            <div className="flex flex-col gap-1 items-end w-full">
+                              <textarea
+                                value={refuseMap[v.id]?.notes ?? ""}
+                                onChange={(e) => setRefuseNotes(v.id, e.target.value)}
+                                placeholder="Motif de refus (obligatoire)"
+                                rows={2}
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                              />
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" onClick={() => closeRefuse(v.id)}>Annuler</Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  disabled={reviewVehicleMut.isPending || !(refuseMap[v.id]?.notes ?? "").trim()}
+                                  onClick={() => reviewVehicleMut.mutate({ id: v.id, approve: false, notes: refuseMap[v.id]?.notes })}
+                                >
+                                  Confirmer le refus
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => openRefuse(v.id)}
+                              disabled={reviewVehicleMut.isPending}
+                            >
+                              Refuser
+                            </Button>
+                          )}
                         </>
                       ) : (
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -372,8 +479,8 @@ function AdminDashboard() {
                   )}
                 </div>
               ))}
-              {(vehiclesQuery.data?.vehicles ?? []).length === 0 && (
-                <p className="text-muted-foreground text-sm">Aucun véhicule enregistré.</p>
+              {(vehiclesQuery.data?.vehicles ?? []).filter((v: any) => vehicleFilter === "all" || v.status === vehicleFilter).length === 0 && (
+                <p className="text-muted-foreground text-sm">Aucun véhicule pour ce filtre.</p>
               )}
             </div>
           )
@@ -385,11 +492,25 @@ function AdminDashboard() {
           ) : (
             <div className="space-y-8">
               <section>
-                <h2 className="mb-3 font-display text-lg font-bold">
-                  Campagnes à modérer ({briefsQuery.data?.campaigns.length ?? 0})
-                </h2>
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="font-display text-lg font-bold">
+                    Campagnes ({briefsQuery.data?.campaigns.length ?? 0})
+                  </h2>
+                  <select
+                    value={campaignFilter}
+                    onChange={(e) => setCampaignFilter(e.target.value as typeof campaignFilter)}
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+                  >
+                    <option value="all">Toutes</option>
+                    <option value="pending">En attente</option>
+                    <option value="approved">Approuvées</option>
+                    <option value="rejected">Refusées</option>
+                  </select>
+                </div>
                 <div className="space-y-3">
-                  {(briefsQuery.data?.campaigns ?? []).map((c: any) => (
+                  {(briefsQuery.data?.campaigns ?? [])
+                    .filter((c: any) => campaignFilter === "all" || c.status === campaignFilter)
+                    .map((c: any) => (
                     <div key={c.id} className="rounded-2xl border border-border bg-card p-5">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -415,23 +536,54 @@ function AdminDashboard() {
                             />
                           </div>
                         </div>
-                        {c.status !== "approved" ? (
-                          <Button
-                            onClick={() => approveCampaignMut.mutate(c.id)}
-                            disabled={approveCampaignMut.isPending}
-                          >
-                            Approuver le visuel et la zone
-                          </Button>
-                        ) : (
-                          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                            Approuvée
-                          </span>
-                        )}
+                        <div className="flex flex-col gap-2 items-end">
+                          {c.status === "approved" ? (
+                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Approuvée</span>
+                          ) : c.status === "rejected" ? (
+                            <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">Refusée</span>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => approveCampaignMut.mutate(c.id)}
+                                disabled={approveCampaignMut.isPending || rejectCampaignMut.isPending}
+                              >
+                                Approuver
+                              </Button>
+                              {refuseMap[c.id]?.open ? (
+                                <div className="flex flex-col gap-1 items-end w-56">
+                                  <textarea
+                                    value={refuseMap[c.id]?.notes ?? ""}
+                                    onChange={(e) => setRefuseNotes(c.id, e.target.value)}
+                                    placeholder="Motif de refus"
+                                    rows={2}
+                                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                                  />
+                                  <div className="flex gap-2">
+                                    <Button size="sm" variant="outline" onClick={() => closeRefuse(c.id)}>Annuler</Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      disabled={rejectCampaignMut.isPending}
+                                      onClick={() => rejectCampaignMut.mutate({ id: c.id, notes: refuseMap[c.id]?.notes ?? "" })}
+                                    >
+                                      Confirmer
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <Button size="sm" variant="outline" onClick={() => openRefuse(c.id)}>
+                                  Refuser
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
-                  {(briefsQuery.data?.campaigns ?? []).length === 0 ? (
-                    <Empty>Aucune campagne pour l'instant.</Empty>
+                  {(briefsQuery.data?.campaigns ?? []).filter((c: any) => campaignFilter === "all" || c.status === campaignFilter).length === 0 ? (
+                    <Empty>Aucune campagne pour ce filtre.</Empty>
                   ) : null}
                 </div>
               </section>
@@ -456,13 +608,50 @@ function AdminDashboard() {
                             {(b.zones ?? []).join(", ")}
                           </p>
                         </div>
-                        <Button
-                          variant="outline"
-                          onClick={() => approveBriefMut.mutate(b.id)}
-                          disabled={approveBriefMut.isPending}
-                        >
-                          Approuver le visuel et la zone
-                        </Button>
+                        <div className="flex flex-col gap-2 items-end">
+                          {b.status === "open" ? (
+                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">Approuvé</span>
+                          ) : b.status === "cancelled" ? (
+                            <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">Refusé</span>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => approveBriefMut.mutate(b.id)}
+                                disabled={approveBriefMut.isPending || rejectBriefMut.isPending}
+                              >
+                                Approuver
+                              </Button>
+                              {refuseMap[b.id]?.open ? (
+                                <div className="flex flex-col gap-1 items-end w-56">
+                                  <textarea
+                                    value={refuseMap[b.id]?.notes ?? ""}
+                                    onChange={(e) => setRefuseNotes(b.id, e.target.value)}
+                                    placeholder="Motif de refus"
+                                    rows={2}
+                                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                                  />
+                                  <div className="flex gap-2">
+                                    <Button size="sm" variant="outline" onClick={() => closeRefuse(b.id)}>Annuler</Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      disabled={rejectBriefMut.isPending}
+                                      onClick={() => rejectBriefMut.mutate({ id: b.id, notes: refuseMap[b.id]?.notes ?? "" })}
+                                    >
+                                      Confirmer
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <Button size="sm" variant="outline" onClick={() => openRefuse(b.id)}>
+                                  Refuser
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -533,17 +722,46 @@ function AdminDashboard() {
                         />
                       </div>
                     </div>
-                    {p.certification_status !== "certified" ? (
-                      <Button
-                        onClick={() => certifyMut.mutate(p.id)}
-                        disabled={certifyMut.isPending}
-                      >
-                        Certifier le garage
-                      </Button>
+                    {p.certification_status === "certified" ? (
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">🏅 Certifié</span>
+                    ) : p.certification_status === "rejected" ? (
+                      <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">Refusé</span>
                     ) : (
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                        🏅 Certifié
-                      </span>
+                      <div className="flex flex-col gap-2 items-end">
+                        <Button
+                          size="sm"
+                          onClick={() => certifyMut.mutate(p.id)}
+                          disabled={certifyMut.isPending || rejectPoseurMut.isPending}
+                        >
+                          Certifier
+                        </Button>
+                        {refuseMap[p.id]?.open ? (
+                          <div className="flex flex-col gap-1 items-end w-56">
+                            <textarea
+                              value={refuseMap[p.id]?.notes ?? ""}
+                              onChange={(e) => setRefuseNotes(p.id, e.target.value)}
+                              placeholder="Motif de refus"
+                              rows={2}
+                              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => closeRefuse(p.id)}>Annuler</Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled={rejectPoseurMut.isPending}
+                                onClick={() => rejectPoseurMut.mutate({ id: p.id, notes: refuseMap[p.id]?.notes ?? "" })}
+                              >
+                                Confirmer
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => openRefuse(p.id)}>
+                            Refuser
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -627,6 +845,237 @@ function AdminDashboard() {
           )
         ) : null}
 
+        {tab === "revenus" ? (
+          revenueQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-8">
+              <section>
+                <h2 className="mb-4 font-display text-lg font-bold">Chiffre d'affaires global</h2>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <StatCard
+                    label="CA total (toutes campagnes payées)"
+                    value={revenueQuery.data?.totalRevenue ?? 0}
+                    format="currency"
+                  />
+                  <StatCard
+                    label="Commission MoveSpot (30%)"
+                    value={revenueQuery.data?.commission ?? 0}
+                    format="currency"
+                  />
+                  <StatCard
+                    label="Ticket moyen / campagne"
+                    value={revenueQuery.data?.avgTicket ?? 0}
+                    format="currency"
+                  />
+                  <StatCard
+                    label={`Taux de conversion (${revenueQuery.data?.paidCount ?? 0}/${revenueQuery.data?.totalCount ?? 0})`}
+                    value={revenueQuery.data?.conversionRate ?? 0}
+                    format="percent"
+                  />
+                </div>
+              </section>
+
+              <section>
+                <h2 className="mb-1 font-display text-lg font-bold">Revenus mensuels (6 derniers mois)</h2>
+                <div className="rounded-2xl border border-border bg-card p-6">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart
+                      data={revenueQuery.data?.monthly ?? []}
+                      margin={{ top: 4, right: 16, left: 0, bottom: 4 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} unit="€" />
+                      <Tooltip
+                        formatter={(v: number) => `${v.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}`}
+                        contentStyle={{
+                          borderRadius: "0.75rem",
+                          border: "1px solid hsl(var(--border))",
+                          background: "hsl(var(--card))",
+                          color: "hsl(var(--foreground))",
+                          fontSize: 12,
+                        }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
+                      <Bar dataKey="revenue" name="CA brut" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="commission" name="Commission (30%)" fill="hsl(var(--chart-2, 34 197 94))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </section>
+
+              <section>
+                <h2 className="mb-3 font-display text-lg font-bold">
+                  Campagnes payées récentes ({revenueQuery.data?.paidCount ?? 0} au total)
+                </h2>
+                <div className="overflow-x-auto rounded-2xl border border-border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30 text-left text-xs text-muted-foreground">
+                        <th className="px-4 py-3 font-medium">Annonceur</th>
+                        <th className="px-4 py-3 font-medium">Campagne</th>
+                        <th className="px-4 py-3 font-medium">Montant</th>
+                        <th className="px-4 py-3 font-medium">Commission</th>
+                        <th className="px-4 py-3 font-medium">Période</th>
+                        <th className="px-4 py-3 font-medium">Créée le</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(revenueQuery.data?.recentPaid ?? []).map((r: any) => (
+                        <tr key={r.id} className="border-b border-border last:border-0 hover:bg-muted/20">
+                          <td className="px-4 py-3 font-medium">{r.company ?? "—"}</td>
+                          <td className="px-4 py-3 text-muted-foreground">{r.spotName ?? "—"}</td>
+                          <td className="px-4 py-3 font-semibold text-primary">
+                            {r.totalPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                          </td>
+                          <td className="px-4 py-3 text-green-600">
+                            {r.commission.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground">
+                            {r.startDate ? new Date(r.startDate).toLocaleDateString("fr-FR") : "—"}
+                            {" → "}
+                            {r.endDate ? new Date(r.endDate).toLocaleDateString("fr-FR") : "—"}
+                          </td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground">
+                            {new Date(r.createdAt).toLocaleDateString("fr-FR")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {(revenueQuery.data?.recentPaid ?? []).length === 0 && (
+                    <div className="p-8 text-center text-sm text-muted-foreground">Aucune campagne payée pour le moment.</div>
+                  )}
+                </div>
+              </section>
+            </div>
+          )
+        ) : null}
+
+        {tab === "utilisateurs" ? (
+          usersQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="font-display text-lg font-bold">
+                  Utilisateurs ({usersQuery.data?.total ?? 0})
+                </h2>
+                <div className="ml-auto flex flex-wrap gap-2">
+                  <input
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    placeholder="Rechercher un nom…"
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm w-48"
+                  />
+                  <select
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value as typeof userRoleFilter)}
+                    className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
+                  >
+                    <option value="all">Tous les rôles</option>
+                    <option value="annonceur">Annonceurs</option>
+                    <option value="proprietaire">Propriétaires</option>
+                    <option value="prestataire">Prestataires</option>
+                    <option value="partenaire">Partenaires</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                {(["annonceur", "proprietaire", "prestataire", "partenaire"] as const).map((role) => {
+                  const count = (usersQuery.data?.users ?? []).filter((u: AdminUserRow) => u.role === role).length;
+                  const labels: Record<string, string> = { annonceur: "Annonceurs", proprietaire: "Propriétaires", prestataire: "Prestataires", partenaire: "Partenaires" };
+                  return (
+                    <button
+                      key={role}
+                      onClick={() => setUserRoleFilter(userRoleFilter === role ? "all" : role)}
+                      className={`rounded-xl border px-4 py-2 text-sm transition ${userRoleFilter === role ? "border-primary bg-primary/10 text-primary font-semibold" : "border-border hover:bg-secondary"}`}
+                    >
+                      {labels[role]} <span className="ml-1 font-bold">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="overflow-x-auto rounded-2xl border border-border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30 text-left text-xs text-muted-foreground">
+                      <th className="px-4 py-3 font-medium">Nom</th>
+                      <th className="px-4 py-3 font-medium">Rôle</th>
+                      <th className="px-4 py-3 font-medium">Détail</th>
+                      <th className="px-4 py-3 font-medium">Statut</th>
+                      <th className="px-4 py-3 font-medium">Inscrit le</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(usersQuery.data?.users ?? [])
+                      .filter((u: AdminUserRow) => {
+                        if (userRoleFilter !== "all" && u.role !== userRoleFilter) return false;
+                        if (userSearch.trim()) {
+                          const q = userSearch.toLowerCase();
+                          return (u.full_name ?? "").toLowerCase().includes(q) || (u.detail ?? "").toLowerCase().includes(q);
+                        }
+                        return true;
+                      })
+                      .map((u: AdminUserRow) => {
+                        const roleColors: Record<string, string> = {
+                          annonceur: "bg-blue-500/10 text-blue-600",
+                          proprietaire: "bg-amber-500/10 text-amber-600",
+                          prestataire: "bg-purple-500/10 text-purple-600",
+                          partenaire: "bg-green-500/10 text-green-600",
+                        };
+                        const roleLabels: Record<string, string> = {
+                          annonceur: "Annonceur",
+                          proprietaire: "Propriétaire",
+                          prestataire: "Prestataire",
+                          partenaire: "Partenaire",
+                        };
+                        return (
+                          <tr key={`${u.role}-${u.user_id}`} className="border-b border-border last:border-0 hover:bg-muted/20">
+                            <td className="px-4 py-3 font-medium">{u.full_name ?? <span className="text-muted-foreground italic">Sans nom</span>}</td>
+                            <td className="px-4 py-3">
+                              <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${roleColors[u.role] ?? ""}`}>
+                                {roleLabels[u.role] ?? u.role}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground">{u.detail ?? "—"}</td>
+                            <td className="px-4 py-3">
+                              <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                u.status === "active" || u.status === "approved" || u.status === "certified"
+                                  ? "bg-primary/10 text-primary"
+                                  : u.status === "rejected"
+                                  ? "bg-destructive/10 text-destructive"
+                                  : "bg-secondary text-muted-foreground"
+                              }`}>
+                                {u.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-xs text-muted-foreground">
+                              {new Date(u.created_at).toLocaleDateString("fr-FR")}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+                {(usersQuery.data?.users ?? []).filter((u: AdminUserRow) => {
+                  if (userRoleFilter !== "all" && u.role !== userRoleFilter) return false;
+                  if (userSearch.trim()) {
+                    const q = userSearch.toLowerCase();
+                    return (u.full_name ?? "").toLowerCase().includes(q) || (u.detail ?? "").toLowerCase().includes(q);
+                  }
+                  return true;
+                }).length === 0 && (
+                  <div className="p-8 text-center text-sm text-muted-foreground">Aucun utilisateur pour ce filtre.</div>
+                )}
+              </div>
+            </div>
+          )
+        ) : null}
+
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
             <Skeleton />
@@ -696,10 +1145,15 @@ function AdminDashboard() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value, format }: { label: string; value: number; format?: "currency" | "percent" }) {
+  const display = format === "currency"
+    ? value.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })
+    : format === "percent"
+    ? `${value} %`
+    : value;
   return (
     <div className="rounded-2xl border border-border bg-card p-5 text-center">
-      <p className="text-3xl font-bold font-display">{value}</p>
+      <p className="text-3xl font-bold font-display">{display}</p>
       <p className="mt-1 text-xs text-muted-foreground">{label}</p>
     </div>
   );

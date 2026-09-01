@@ -118,6 +118,7 @@ export function BookingForm({ spot, onClose }: Props) {
   const [periodsLoading, setPeriodsLoading] = useState(false);
   const [periodsError, setPeriodsError] = useState(false);
   const [dateConflict, setDateConflict] = useState<DateConflict | null>(null);
+  const [hasUnpaidCampaign, setHasUnpaidCampaign] = useState(false);
 
   // Calendrier de réservation : min 3 jours d'avance, durée 1 à 30 jours
   const MIN_LEAD_DAYS = 3;
@@ -214,6 +215,18 @@ export function BookingForm({ spot, onClose }: Props) {
       setAuth({ kind: "ready", userId, profile: { full_name: prof.full_name, company: prof.company, email } });
     })();
   }, [spot]);
+
+  // Block submission if the advertiser has an approved but unpaid campaign.
+  useEffect(() => {
+    if (auth.kind !== "ready") return;
+    supabase
+      .from("campaign_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", auth.userId)
+      .eq("status", "approved")
+      .neq("payment_status", "paid")
+      .then(({ count }) => setHasUnpaidCampaign((count ?? 0) > 0));
+  }, [auth]);
 
   // Load already-booked date ranges via the SECURITY DEFINER RPC (bypasses RLS,
   // returns only start_date/end_date — no sensitive data exposed).
@@ -328,6 +341,13 @@ export function BookingForm({ spot, onClose }: Props) {
     if (hoursPerDay < MIN_HOURS_PER_DAY) {
       setStatus("rejected");
       setReason(`La durée de diffusion doit être d'au moins ${MIN_HOURS_PER_DAY}h/jour.`);
+      return;
+    }
+
+    // Block if the advertiser has an unpaid approved campaign
+    if (hasUnpaidCampaign) {
+      setStatus("rejected");
+      setReason("Vous avez une campagne approuvée en attente de paiement. Réglez-la depuis votre espace annonceur avant de soumettre une nouvelle demande.");
       return;
     }
 
@@ -531,6 +551,16 @@ export function BookingForm({ spot, onClose }: Props) {
               Connecté en tant que <strong className="text-foreground">{auth.profile.full_name}</strong>
               {auth.profile.company ? ` (${auth.profile.company})` : ""} · {auth.profile.email}
             </div>
+
+            {hasUnpaidCampaign && (
+              <div className="rounded-lg border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 mb-4 text-sm text-amber-800 dark:text-amber-300 flex gap-2">
+                <span className="shrink-0">⚠️</span>
+                <span>
+                  Vous avez une <strong>campagne approuvée en attente de paiement</strong>. Réglez-la depuis votre{" "}
+                  <a href="/annonceur" className="underline font-medium">espace annonceur</a> avant de soumettre une nouvelle demande.
+                </span>
+              </div>
+            )}
 
             <div className="space-y-4">
               <div>

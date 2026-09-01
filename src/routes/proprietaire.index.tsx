@@ -33,12 +33,52 @@ type Vehicle = {
   id: string;
   name: string;
   type: string;
-  format_publicitaire: string;
+  format_publicitaire: string | null;
   price_per_day: number;
   status: string;
   admin_notes: string | null;
   photos: string[] | null;
   created_at: string;
+  condition: string | null;
+  km_per_day: number | null;
+  surface_m2: number | null;
+  zones: string[] | null;
+  description: string | null;
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  camion_led: "Camion LED",
+  food_truck: "Food truck",
+  van: "Van utilitaire",
+  taxi: "Taxi / VTC",
+  voiture: "Voiture",
+  scooter: "Scooter livraison",
+  velo_cargo: "Vélo cargo",
+  velo_remorque: "Vélo remorque",
+  triporteur: "Triporteur",
+  tutuk: "Tutuk",
+  autre: "Autre",
+};
+
+const FORMAT_PAR_TYPE: Record<string, string> = {
+  camion_led: "Écran LED numérique",
+  food_truck: "Covering latéral / toiture",
+  van: "Covering latéral / arrière",
+  taxi: "Covering latéral / toit",
+  voiture: "Covering latéral",
+  scooter: "Box arrière publicitaire",
+  velo_cargo: "Box cargo / flancs",
+  velo_remorque: "Remorque publicitaire",
+  triporteur: "Box triporteur / flancs",
+  tutuk: "Covering latéral",
+  autre: "Format personnalisé",
+};
+
+const CONDITION_LABELS: Record<string, string> = {
+  excellent: "Excellent état",
+  bon: "Bon état",
+  moyen: "État moyen",
+  mauvais: "Mauvais état",
 };
 
 type Request = {
@@ -627,21 +667,13 @@ function Tab({
   );
 }
 
-function OwnerVehicleCard({
-  v,
-}: {
-  v: {
-    id: string;
-    name: string;
-    type: string;
-    format_publicitaire: string | null;
-    price_per_day: number;
-    status: string;
-    photos: string[] | null;
-    admin_notes: string | null;
-  };
-}) {
+function OwnerVehicleCard({ v }: { v: Vehicle }) {
   const photoUrls = useVehiclePhotoUrls(v.photos);
+  const typeLabel = TYPE_LABELS[v.type] ?? v.type;
+  const formatLabel = v.format_publicitaire === "boxled"
+    ? "Écran LED numérique"
+    : (v.format_publicitaire || FORMAT_PAR_TYPE[v.type] || "—");
+
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       {photoUrls[0] && (
@@ -654,12 +686,35 @@ function OwnerVehicleCard({
         <h3 className="font-display text-lg font-bold">{v.name}</h3>
         <StatusBadge status={v.status} />
       </div>
-      <div className="text-xs text-muted-foreground mb-3">
-        {v.type} · {v.format_publicitaire}
+
+      {/* Type & format publicitaire */}
+      <div className="flex flex-wrap gap-1.5 mb-3">
+        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{typeLabel}</span>
+        <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium">{formatLabel}</span>
+        {v.condition && (
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{CONDITION_LABELS[v.condition] ?? v.condition}</span>
+        )}
       </div>
+
+      {/* Caractéristiques */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
+        {v.surface_m2 != null && <span>Surface : <strong>{v.surface_m2} m²</strong></span>}
+        {v.km_per_day != null && <span>Km/jour : <strong>{v.km_per_day} km</strong></span>}
+      </div>
+
+      {/* Zones */}
+      {v.zones && v.zones.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {v.zones.map((z) => (
+            <span key={z} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{z}</span>
+          ))}
+        </div>
+      )}
+
       <div className="font-display text-xl font-bold text-primary">
         {v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span>
       </div>
+
       {v.admin_notes && (
         <div className="mt-3 text-xs rounded-lg bg-secondary/40 p-3 border border-border">
           <strong>Note admin :</strong> {v.admin_notes}

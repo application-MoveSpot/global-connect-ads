@@ -24,6 +24,26 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
     const { userId, supabase } = context;
     const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
 
+    // --- Rate limiting (utilise les transactions réussies comme base de comptage) ---
+    const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString();
+    const oneDayAgo = new Date(Date.now() - 86_400_000).toISOString();
+    const { data: recentTxs } = await supabase
+      .from("wallet_transactions")
+      .select("amount_cents, created_at")
+      .eq("user_id", userId)
+      .eq("kind", "topup")
+      .gte("created_at", oneDayAgo);
+
+    const txs = recentTxs ?? [];
+    const lastHourCount = txs.filter((t) => t.created_at >= oneHourAgo).length;
+    if (lastHourCount >= 5) {
+      return { error: "Trop de recharges en peu de temps. Réessayez dans une heure." };
+    }
+    const dailyTotalCents = txs.reduce((s, t) => s + (t.amount_cents ?? 0), 0);
+    if (dailyTotalCents >= 100_000) {
+      return { error: "Limite de recharge journalière atteinte (1 000 €). Contactez le support si nécessaire." };
+    }
+
     try {
       const stripe = createStripeClient();
       const amountCents = Math.round(data.amountEuros * 100);
@@ -123,6 +143,12 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       const session = await stripe.checkout.sessions.create({
         ...sessionParams,
         payment_method_types: ["card"],
+        // Collecte l'adresse de facturation → alimente la vérification AVS de Stripe Radar.
+        billing_address_collection: "required",
+        // Collecte le numéro de téléphone → signal d'identité supplémentaire pour Radar.
+        phone_number_collection: { enabled: true },
+        // Demande systématiquement la 3D Secure quand la carte la supporte.
+        payment_method_options: { card: { request_three_d_secure: "any" } },
       } as never);
 
 

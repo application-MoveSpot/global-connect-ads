@@ -34,6 +34,7 @@ function InscriptionPage() {
     denomination: null,
     verified: false,
   });
+  const [isParticulier, setIsParticulier] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -121,7 +122,7 @@ function InscriptionPage() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!siret.verified) {
+    if (!isParticulier && !siret.verified) {
       setError("Merci de vérifier votre numéro SIRET avant de continuer.");
       return;
     }
@@ -136,12 +137,14 @@ function InscriptionPage() {
       user_id: sess.session.user.id,
       full_name: fullName,
       phone: phone || null,
-      company: company || siret.denomination,
+      company: isParticulier
+        ? null
+        : company || siret.denomination,
       city: city || null,
       bio: bio || null,
-      siret: siret.siret,
-      siret_denomination: siret.denomination,
-      siret_verified_at: new Date().toISOString(),
+      siret: isParticulier ? null : siret.siret || null,
+      siret_denomination: isParticulier ? null : siret.denomination,
+      siret_verified_at: isParticulier ? null : new Date().toISOString(),
     });
     if (error) {
       setError(error.message);
@@ -237,11 +240,35 @@ function InscriptionPage() {
             <p className="text-sm text-muted-foreground mb-6">
               Quelques infos pour vous identifier auprès des annonceurs.
             </p>
+            {/* Toggle particulier / professionnel */}
+            <div className="flex rounded-lg border border-border overflow-hidden mb-6">
+              <button
+                type="button"
+                onClick={() => { setIsParticulier(true); setSiret({ siret: "", denomination: null, verified: false }); setCompany(""); }}
+                className={`flex-1 py-2.5 text-sm font-medium transition ${isParticulier ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}
+              >
+                Particulier
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsParticulier(false)}
+                className={`flex-1 py-2.5 text-sm font-medium transition ${!isParticulier ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}
+              >
+                Professionnel
+              </button>
+            </div>
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
-              <SiretField value={siret} onChange={setSiret} />
+              {!isParticulier && (
+                <>
+                  <SiretField value={siret} onChange={setSiret} />
+                  {/* Nom commercial uniquement pour les sociétés (pas les EI) */}
+                  {siret.verified && !siret.isIndividual && (
+                    <Input label="Nom commercial" value={company} onChange={setCompany} />
+                  )}
+                </>
+              )}
               <Input label="Téléphone" value={phone} onChange={setPhone} type="tel" />
-              <Input label="Entreprise (si applicable)" value={company} onChange={setCompany} />
               <Input label="Ville" value={city} onChange={setCity} />
               <div>
                 <label className="block text-sm font-medium mb-1.5">Bio courte</label>

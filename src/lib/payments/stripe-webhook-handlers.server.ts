@@ -97,6 +97,28 @@ export async function handleStripeEvent(
             p_stripe_checkout_session_id: s.id,
             p_stripe_payment_intent_id: typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id,
           });
+
+          // Email d'alerte sécurité — permet à l'utilisateur de détecter une recharge frauduleuse.
+          try {
+            const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+            const email = userData.user?.email;
+            if (email) {
+              const now = new Date();
+              const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+              await sendAppEmailSafe({
+                templateName: "wallet-topup-alert",
+                recipientEmail: email,
+                idempotencyKey: `topup-alert-${s.id}`,
+                templateData: {
+                  amountEur: (amountCents / 100).toLocaleString("fr-FR", { minimumFractionDigits: 2 }),
+                  date: now.toLocaleDateString("fr-FR"),
+                  time: now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+                },
+              });
+            }
+          } catch {
+            // L'alerte email ne doit jamais bloquer le crédit du portefeuille.
+          }
         }
       }
 

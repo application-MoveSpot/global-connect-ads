@@ -40,6 +40,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
       .object({
         campaignRequestId: z.string().uuid(),
         approve: z.boolean().default(true),
+        notes: z.string().max(500).optional(),
       })
       .parse(d),
   )
@@ -52,7 +53,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const adminNotes = data.approve
       ? "✅ Visuel et zone de ciblage approuvés par MoveSpot — recherche de chauffeurs lancée."
-      : "⛔ Visuel ou zone refusés par MoveSpot.";
+      : (data.notes?.trim() || "⛔ Visuel ou zone refusés par MoveSpot.");
 
     const { data: campaign, error } = await supabaseAdmin
       .from("campaign_requests")
@@ -62,15 +63,16 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         admin_notes: adminNotes,
       } as never)
       .eq("id", data.campaignRequestId)
-      .select("spot_name, company, email, start_date, end_date, total_price")
+      .select("spot_name, company, email, start_date, end_date, total_price, user_id")
       .single();
     if (error || !campaign) throw new Error(error?.message ?? "Campagne introuvable");
 
     const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
     const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+    const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
 
     if (data.approve) {
-      // Notifie l'annonceur que sa campagne est approuvée et qu'il peut payer
+      // Email annonceur — campagne approuvée
       if (campaign.email) {
         sendAppEmailSafe({
           templateName: "campaign-approved",
@@ -87,10 +89,22 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
           },
         }).catch((e) => console.error("campaign-approved email failed", e));
       }
+      // Push annonceur — campagne approuvée
+      if (campaign.user_id) {
+        sendWebPushToUser(campaign.user_id as string, {
+          title: "Campagne approuvée ! 🎉",
+          body: campaign.spot_name
+            ? `${campaign.spot_name} est validée — procédez au paiement pour la lancer.`
+            : "Votre campagne est validée — procédez au paiement.",
+          url: "/annonceur",
+        }).catch(() => {});
+      }
       // Notifie les poseurs certifiés
       notifyCertifiedInstallers(campaign).catch((e) => console.error("notifyCertifiedInstallers failed", e));
+      // Notifie les prestataires actifs (covering, vidéo, graphisme)
+      notifyActiveProviders(campaign).catch((e) => console.error("notifyActiveProviders failed", e));
     } else {
-      // Notifie l'annonceur du refus avec le motif
+      // Email annonceur — campagne refusée
       if (campaign.email) {
         sendAppEmailSafe({
           templateName: "campaign-rejected",
@@ -102,6 +116,14 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
             newCampaignUrl: "https://move-spot.com/",
           },
         }).catch((e) => console.error("campaign-rejected email failed", e));
+      }
+      // Push annonceur — campagne refusée
+      if (campaign.user_id) {
+        sendWebPushToUser(campaign.user_id as string, {
+          title: "Campagne non approuvée",
+          body: "Consultez les notes de l'équipe MoveSpot pour corriger votre demande.",
+          url: "/annonceur",
+        }).catch(() => {});
       }
     }
 
@@ -146,11 +168,59 @@ async function notifyCertifiedInstallers(campaign: {
   );
 }
 
+async function notifyActiveProviders(campaign: {
+  spot_name: string;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+}) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: providers } = await supabaseAdmin
+    .from("provider_profiles")
+    .select("user_id, full_name")
+    .eq("stripe_subscription_status" as never, "active");
+  if (!providers?.length) return;
+
+  const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+  const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
+  const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
+
+  await Promise.allSettled(
+    (providers as Array<{ user_id: string; full_name: string | null }>).map(async (provider) => {
+      const { data: userRow } = await supabaseAdmin.auth.admin.getUserById(provider.user_id);
+      const email = userRow?.user?.email;
+      await Promise.allSettled([
+        email
+          ? sendAppEmailSafe({
+              templateName: "campaign-opportunity",
+              recipientEmail: email,
+              templateData: {
+                fullName: provider.full_name ?? undefined,
+                spotName: campaign.spot_name,
+                company: campaign.company,
+                startDate: fmtDate(campaign.start_date),
+                endDate: fmtDate(campaign.end_date),
+                profileUrl: "https://move-spot.com/prestataire",
+              },
+            })
+          : Promise.resolve(),
+        sendWebPushToUser(provider.user_id, {
+          title: "🎯 Nouvelle opportunité de prestation",
+          body: campaign.spot_name
+            ? `La campagne « ${campaign.spot_name} » peut nécessiter vos services.`
+            : "Une nouvelle campagne est disponible sur MoveSpot.",
+          url: "/prestataire",
+        }),
+      ]);
+    }),
+  );
+}
+
 export const adminApproveBrief = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
-      .object({ briefId: z.string().uuid(), approve: z.boolean().default(true) })
+      .object({ briefId: z.string().uuid(), approve: z.boolean().default(true), notes: z.string().max(500).optional() })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -522,4 +592,135 @@ export const adminAnalyticsData = createServerFn({ method: "GET" })
       briefs: v.briefs,
       campaigns: v.campaigns,
     }));
+  });
+
+// ============ Onglet Revenus ============
+export const adminRevenueData = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: campaigns } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("id, total_price, payment_status, company, spot_name, start_date, end_date, created_at")
+      .order("created_at", { ascending: false });
+
+    const all = campaigns ?? [];
+    const paid = all.filter((c) => (c as { payment_status: string }).payment_status === "paid");
+    const totalRevenue = paid.reduce((s, c) => s + (Number((c as { total_price: number | null }).total_price) || 0), 0);
+    const commission = Math.round(totalRevenue * 0.3 * 100) / 100;
+    const avgTicket = paid.length > 0 ? Math.round((totalRevenue / paid.length) * 100) / 100 : 0;
+    const conversionRate = all.length > 0 ? Math.round((paid.length / all.length) * 1000) / 10 : 0;
+
+    const months: Record<string, { revenue: number; commission: number; count: number }> = {};
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(1);
+      d.setMonth(d.getMonth() - i);
+      const key = d.toISOString().slice(0, 7);
+      months[key] = { revenue: 0, commission: 0, count: 0 };
+    }
+    for (const c of paid) {
+      const key = ((c as { created_at: string }).created_at).slice(0, 7);
+      if (key in months) {
+        const amount = Number((c as { total_price: number | null }).total_price) || 0;
+        months[key].revenue += amount;
+        months[key].commission += amount * 0.3;
+        months[key].count++;
+      }
+    }
+
+    const monthly = Object.entries(months).map(([month, v]) => ({
+      month,
+      label: new Date(month + "-01").toLocaleDateString("fr-FR", { month: "short", year: "2-digit" }),
+      revenue: Math.round(v.revenue * 100) / 100,
+      commission: Math.round(v.commission * 100) / 100,
+      count: v.count,
+    }));
+
+    const recentPaid = paid.slice(0, 20).map((c) => {
+      const row = c as { id: string; company: string | null; spot_name: string | null; total_price: number | null; start_date: string | null; end_date: string | null; created_at: string };
+      return {
+        id: row.id,
+        company: row.company,
+        spotName: row.spot_name,
+        totalPrice: Number(row.total_price) || 0,
+        commission: Math.round((Number(row.total_price) || 0) * 0.3 * 100) / 100,
+        startDate: row.start_date,
+        endDate: row.end_date,
+        createdAt: row.created_at,
+      };
+    });
+
+    return { totalRevenue, commission, avgTicket, conversionRate, paidCount: paid.length, totalCount: all.length, monthly, recentPaid };
+  });
+
+// ============ Onglet Utilisateurs ============
+export type AdminUserRow = {
+  user_id: string;
+  full_name: string | null;
+  role: "annonceur" | "proprietaire" | "prestataire" | "partenaire";
+  detail: string | null;
+  status: string;
+  created_at: string;
+};
+
+export const adminListUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [advRes, ownRes, payRes, parRes] = await Promise.all([
+      supabaseAdmin.from("advertiser_profiles").select("user_id, full_name, company, account_type, created_at").order("created_at", { ascending: false }).limit(300),
+      supabaseAdmin.from("owner_profiles").select("user_id, full_name, phone, city, created_at").order("created_at", { ascending: false }).limit(300),
+      supabaseAdmin.from("payee_profiles").select("user_id, full_name, kind, certification_status, status, created_at").order("created_at", { ascending: false }).limit(300),
+      supabaseAdmin.from("partner_profiles").select("user_id, full_name, status, created_at").order("created_at", { ascending: false }).limit(300),
+    ]);
+
+    const users: AdminUserRow[] = [
+      ...(advRes.data ?? []).map((u) => ({
+        user_id: u.user_id,
+        full_name: u.full_name as string | null,
+        role: "annonceur" as const,
+        detail: ((u as { company?: string | null }).company ?? (u as { account_type?: string | null }).account_type ?? null) as string | null,
+        status: "active",
+        created_at: u.created_at as string,
+      })),
+      ...(ownRes.data ?? []).map((u) => ({
+        user_id: u.user_id,
+        full_name: u.full_name as string | null,
+        role: "proprietaire" as const,
+        detail: ((u as { city?: string | null }).city ?? (u as { phone?: string | null }).phone ?? null) as string | null,
+        status: "active",
+        created_at: u.created_at as string,
+      })),
+      ...(payRes.data ?? []).map((u) => ({
+        user_id: u.user_id,
+        full_name: u.full_name as string | null,
+        role: "prestataire" as const,
+        detail: `${(u as { kind: string }).kind} — ${(u as { certification_status: string }).certification_status}`,
+        status: ((u as { status?: string | null }).status ?? "pending") as string,
+        created_at: u.created_at as string,
+      })),
+      ...(parRes.data ?? []).map((u) => ({
+        user_id: u.user_id,
+        full_name: u.full_name as string | null,
+        role: "partenaire" as const,
+        detail: null,
+        status: ((u as { status?: string | null }).status ?? "pending") as string,
+        created_at: u.created_at as string,
+      })),
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    return { users, total: users.length };
   });

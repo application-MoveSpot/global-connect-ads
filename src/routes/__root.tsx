@@ -87,6 +87,12 @@ export const Route = (createRootRouteWithContext as any)()({
                 areaServed: "FR",
                 availableLanguage: ["French"],
               },
+              paymentAccepted: "Carte Bancaire, Visa, Mastercard, Stripe",
+              currenciesAccepted: "EUR",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "FR",
+              },
             },
             {
               "@type": "WebSite",
