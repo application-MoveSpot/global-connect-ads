@@ -15,6 +15,10 @@ import { template as walletTopupAlertTemplate } from './wallet-topup-alert'
 import { template as vehicleStatusTemplate } from './vehicle-status'
 import { template as payeeCertificationTemplate } from './payee-certification'
 import { template as campaignOpportunityTemplate } from './campaign-opportunity'
+import { template as campaignPaymentReminderTemplate } from './campaign-payment-reminder'
+import { template as campaignExpiredNoticeTemplate } from './campaign-expired-notice'
+import { template as installationOverdueTemplate } from './installation-overdue'
+import { template as gpsInactivityAlertTemplate } from './gps-inactivity-alert'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -46,4 +50,8 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'vehicle-status': vehicleStatusTemplate,
   'payee-certification': payeeCertificationTemplate,
   'campaign-opportunity': campaignOpportunityTemplate,
+  'campaign-payment-reminder': campaignPaymentReminderTemplate,
+  'campaign-expired-notice': campaignExpiredNoticeTemplate,
+  'installation-overdue': installationOverdueTemplate,
+  'gps-inactivity-alert': gpsInactivityAlertTemplate,
 }
