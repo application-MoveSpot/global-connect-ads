@@ -38,7 +38,8 @@ function TrackingPage() {
   const [tracking, setTracking] = useState(false);
   const [lastSent, setLastSent] = useState<Date | null>(null);
   const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
-  const [errorCount, setErrorCount] = useState(0);
+  const [gpsErrorCount, setGpsErrorCount] = useState(0);
+  const [sendErrorCount, setSendErrorCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [online, setOnline] = useState(true);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
@@ -132,7 +133,8 @@ function TrackingPage() {
       toast.error("Géolocalisation non supportée sur cet appareil");
       return;
     }
-    setErrorCount(0);
+    setGpsErrorCount(0);
+    setSendErrorCount(0);
     setStartedAt(new Date());
     await acquireWakeLock();
 
@@ -145,7 +147,7 @@ function TrackingPage() {
       (r) => {
         setPending(r.pending);
         if (r.failed) {
-          setErrorCount((c) => c + 1);
+          setSendErrorCount((c) => c + 1);
         } else {
           setLastSent(new Date());
         }
@@ -177,9 +179,9 @@ function TrackingPage() {
       },
       (err) => {
         toast.error(`GPS : ${err.message}`);
-        setErrorCount((c) => c + 1);
+        setGpsErrorCount((c) => c + 1);
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 30_000 },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 },
     );
     setTracking(true);
     toast.success("Suivi GPS démarré");
@@ -334,8 +336,11 @@ function TrackingPage() {
                     {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")}
                   </span>
                 </div>
-                {errorCount > 0 && (
-                  <p className="text-xs text-destructive">{errorCount} erreur(s) d'envoi</p>
+                {gpsErrorCount > 0 && (
+                  <p className="text-xs text-amber-600">{gpsErrorCount} erreur(s) de signal GPS</p>
+                )}
+                {sendErrorCount > 0 && (
+                  <p className="text-xs text-destructive">{sendErrorCount} erreur(s) d'envoi réseau</p>
                 )}
               </div>
             )}
