@@ -143,6 +143,10 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       const session = await stripe.checkout.sessions.create({
         ...sessionParams,
         payment_method_types: ["card"],
+        // Collecte l'adresse de facturation → alimente la vérification AVS de Stripe Radar.
+        billing_address_collection: "required",
+        // Collecte le numéro de téléphone → signal d'identité supplémentaire pour Radar.
+        phone_number_collection: { enabled: true },
         // Demande systématiquement la 3D Secure quand la carte la supporte.
         payment_method_options: { card: { request_three_d_secure: "any" } },
       } as never);
