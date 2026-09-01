@@ -11,6 +11,7 @@ import { template as briefProposalReceivedIndividualTemplate } from './brief-pro
 import { template as stripeReminderTemplate } from './stripe-reminder'
 import { template as briefProposalAcceptedTemplate } from './brief-proposal-accepted'
 import { template as briefProposalRejectedTemplate } from './brief-proposal-rejected'
+import { template as walletTopupAlertTemplate } from './wallet-topup-alert'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -38,4 +39,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'stripe-reminder': stripeReminderTemplate,
   'brief-proposal-accepted': briefProposalAcceptedTemplate,
   'brief-proposal-rejected': briefProposalRejectedTemplate,
+  'wallet-topup-alert': walletTopupAlertTemplate,
 }
