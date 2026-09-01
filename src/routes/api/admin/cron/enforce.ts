@@ -16,8 +16,12 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         if (!cronSecret) {
           return Response.json({ error: "CRON_SECRET non configuré" }, { status: 503 });
         }
-        const authHeader = request.headers.get("authorization") ?? "";
-        if (authHeader !== `Bearer ${cronSecret}`) {
+        const url = new URL(request.url);
+        const token =
+          request.headers.get("x-cron-secret") ??
+          request.headers.get("authorization")?.replace("Bearer ", "") ??
+          url.searchParams.get("secret");
+        if (token !== cronSecret) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
 
@@ -286,13 +290,15 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
       },
 
       GET: async ({ request }: { request: Request }) => {
-        // Allow GET for easy testing — same auth
         const cronSecret = process.env["CRON_SECRET"];
         if (!cronSecret) {
           return Response.json({ error: "CRON_SECRET non configuré" }, { status: 503 });
         }
         const url = new URL(request.url);
-        const token = request.headers.get("authorization")?.replace("Bearer ", "") ?? url.searchParams.get("secret");
+        const token =
+          request.headers.get("x-cron-secret") ??
+          request.headers.get("authorization")?.replace("Bearer ", "") ??
+          url.searchParams.get("secret");
         if (token !== cronSecret) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
