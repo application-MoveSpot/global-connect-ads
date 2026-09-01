@@ -21,6 +21,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingTopup, setPendingTopup] = useState(false);
 
   const neededCents = Math.round(totalPriceEur * 100);
 
@@ -51,14 +52,30 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   const onTopupClose = async () => {
     setChecking(true);
     setError(null);
+    setPendingTopup(false);
     let cents = 0;
-    for (let i = 0; i < 6; i++) {
-      await new Promise((r) => setTimeout(r, 1500));
+    // Poll up to 20×2s = 40s to give Stripe webhook time to credit the wallet.
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
       cents = await refreshBalance();
       if (cents >= neededCents) break;
     }
     setChecking(false);
     if (cents >= neededCents) {
+      await onPayWallet();
+    } else {
+      // Webhook hasn't fired yet — show manual refresh option.
+      setPendingTopup(true);
+    }
+  };
+
+  const onManualCheck = async () => {
+    setChecking(true);
+    setError(null);
+    const cents = await refreshBalance();
+    setChecking(false);
+    if (cents >= neededCents) {
+      setPendingTopup(false);
       await onPayWallet();
     }
   };
@@ -73,11 +90,26 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
       </div>
 
       {checking ? (
-        <p className="text-sm text-muted-foreground animate-pulse">Vérification du solde en cours…</p>
+        <p className="text-sm text-muted-foreground animate-pulse">En attente de confirmation du paiement…</p>
       ) : enough ? (
         <Button onClick={onPayWallet} disabled={loading}>
           {loading ? "Paiement…" : `Payer ${totalPriceEur.toFixed(2)} € avec mon portefeuille`}
         </Button>
+      ) : pendingTopup ? (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Recharge reçue — le crédit peut prendre 1 à 2 minutes à apparaître.
+            Cliquez sur le bouton ci-dessous pour vérifier à nouveau.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onManualCheck} disabled={loading}>
+              Vérifier le solde
+            </Button>
+            <Button variant="ghost" size="sm" className="text-xs" onClick={() => setPendingTopup(false)}>
+              Recharger à nouveau
+            </Button>
+          </div>
+        </div>
       ) : (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Solde insuffisant. Rechargez par carte pour compléter le paiement.</p>
