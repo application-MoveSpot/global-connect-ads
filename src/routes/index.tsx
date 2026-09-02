@@ -118,6 +118,7 @@ function Index() {
             <a href="#spots" className="hover:text-foreground transition">{t("nav.vehicles")}</a>
             <Link to="/campagnes" className="hover:text-foreground transition">Campagnes</Link>
             <Link to="/comment-ca-marche" className="hover:text-foreground transition">{t("nav.how_it_works")}</Link>
+            <Link to="/pourquoi-movespot" className="hover:text-foreground transition">Pourquoi MoveSpot</Link>
             <Link to="/devenir-partenaire" className="hover:text-foreground transition">{t("nav.become_partner")}</Link>
           </nav>
           <div className="flex items-center gap-2">
@@ -215,6 +216,89 @@ function Index() {
         </div>
         <div className="mt-6">
           <Link to="/comment-ca-marche" className="text-sm text-primary hover:underline">{t("features.link")}</Link>
+        </div>
+      </section>
+
+      {/* Comparatif concurrents */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="text-xs uppercase tracking-widest text-primary mb-2">Positionnement</div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">MoveSpot vs la concurrence</h2>
+        <p className="text-muted-foreground mb-10 max-w-2xl">Contrairement aux agences traditionnelles ou aux panneaux fixes, MoveSpot vous connecte directement aux propriétaires de véhicules — sans intermédiaire, sans engagement, avec une mesure d'audience en temps réel.</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr>
+                <th className="text-left py-3 px-4 text-muted-foreground font-medium w-1/3"></th>
+                <th className="py-3 px-4 rounded-t-xl bg-primary text-primary-foreground font-bold text-center">MoveSpot</th>
+                <th className="py-3 px-4 text-muted-foreground font-medium text-center">Agence traditionnelle</th>
+                <th className="py-3 px-4 text-muted-foreground font-medium text-center">Billboard / Abribus</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { label: "Délai de lancement", ms: "5 minutes", ag: "3 à 6 semaines", bb: "2 à 4 semaines" },
+                { label: "Prix minimum", ms: "10 €/jour", ag: "1 000 € + frais", bb: "500 €/semaine" },
+                { label: "Sans engagement", ms: "✓", ag: "✗ (contrat)", bb: "✗ (contrat)" },
+                { label: "Mesure d'audience GPS", ms: "✓ Temps réel", ag: "Estimée", bb: "✗" },
+                { label: "Ciblage par zone", ms: "✓ Précis au km", ag: "Approximatif", bb: "✗ Zone fixe" },
+                { label: "Disponible en France", ms: "✓", ag: "✓", bb: "✓" },
+                { label: "Accès PME & particuliers", ms: "✓", ag: "✗ Grands comptes", bb: "✗ Grands comptes" },
+              ].map((row, i) => (
+                <tr key={row.label} className={i % 2 === 0 ? "bg-card/40" : ""}>
+                  <td className="py-3 px-4 font-medium">{row.label}</td>
+                  <td className="py-3 px-4 text-center bg-primary/5 font-semibold text-primary">{row.ms}</td>
+                  <td className="py-3 px-4 text-center text-muted-foreground">{row.ag}</td>
+                  <td className="py-3 px-4 text-center text-muted-foreground">{row.bb}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-8">
+          <Link to="/pourquoi-movespot" className="text-sm text-primary hover:underline">En savoir plus sur nos avantages →</Link>
+        </div>
+      </section>
+
+      {/* Mesure d'audience */}
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <div className="rounded-3xl border border-border bg-gradient-card p-8 md:p-12">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <div className="text-xs uppercase tracking-widest text-primary mb-2">Mesure d'audience</div>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Des données réelles, pas des estimations</h2>
+              <p className="text-muted-foreground mb-6">Chaque véhicule partenaire transmet sa position GPS en temps réel. MoveSpot calcule automatiquement les impressions générées selon les zones traversées, la densité de population et les horaires de circulation.</p>
+              <div className="space-y-3">
+                {[
+                  { icon: "📍", label: "Tracking GPS en temps réel", desc: "Position exacte toutes les 30 secondes" },
+                  { icon: "👁️", label: "Impressions calculées automatiquement", desc: "Basées sur km parcourus × densité de zone" },
+                  { icon: "📊", label: "Rapport de campagne détaillé", desc: "Zones couvertes, heures, répétitions" },
+                  { icon: "🎯", label: "Ciblage par zone géographique", desc: "Polygones personnalisés sur carte interactive" },
+                ].map((item) => (
+                  <div key={item.label} className="flex gap-3">
+                    <span className="text-xl flex-shrink-0">{item.icon}</span>
+                    <div>
+                      <div className="font-medium text-sm">{item.label}</div>
+                      <div className="text-xs text-muted-foreground">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { value: "150 000+", label: "Impressions/véhicule/mois", sub: "en zone urbaine dense" },
+                { value: "1,80 €", label: "CPM moyen", sub: "coût pour 1 000 contacts" },
+                { value: "< 5 min", label: "Délai de lancement", sub: "brief → véhicule en route" },
+                { value: "100 %", label: "Mesure certifiée GPS", sub: "zéro estimation approximative" },
+              ].map((kpi) => (
+                <div key={kpi.label} className="rounded-2xl border border-border bg-card p-5 text-center">
+                  <div className="font-display text-2xl font-bold text-primary">{kpi.value}</div>
+                  <div className="text-xs font-medium mt-1">{kpi.label}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{kpi.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
