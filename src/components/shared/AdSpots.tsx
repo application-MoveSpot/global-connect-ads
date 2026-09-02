@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@tanstack/react-router";
+import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
 type Spot = {
   id: string;
@@ -13,6 +14,7 @@ type Spot = {
   format: string | null;
   vehicleType?: string | null;
   available: boolean;
+  photos?: string[] | null;
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -29,6 +31,22 @@ const TYPE_LABELS: Record<string, string> = {
   autre: "Autre véhicule",
 };
 
+function SpotPhoto({ photos }: { photos: string[] | null | undefined }) {
+  const resolved = useVehiclePhotoUrls(photos);
+  if (!resolved.length) {
+    return (
+      <div className="w-full h-40 rounded-xl bg-secondary/60 flex items-center justify-center mb-4">
+        <span className="text-3xl">🚐</span>
+      </div>
+    );
+  }
+  return (
+    <div className="w-full h-40 rounded-xl overflow-hidden mb-4 bg-black">
+      <img src={resolved[0]} alt="véhicule" style={{ width: "100%", height: "100%", objectFit: "cover" }} draggable={false} />
+    </div>
+  );
+}
+
 export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +55,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
     (async () => {
       const { data } = await supabase
         .from("vehicles")
-        .select("id, name, type, format_publicitaire, price_per_day, zones, km_per_day")
+        .select("id, name, type, format_publicitaire, price_per_day, zones, km_per_day, photos")
         .eq("status", "approved")
         .order("created_at", { ascending: false });
       const mapped: Spot[] = (data ?? []).map((v) => ({
@@ -51,6 +69,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
         format: v.format_publicitaire,
         vehicleType: v.type,
         available: true,
+        photos: v.photos ?? null,
       }));
       setSpots(mapped);
       setLoading(false);
@@ -87,6 +106,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
               key={spot.id}
               className="group rounded-2xl border border-border bg-gradient-card p-6 hover:border-primary/50 transition-all hover:-translate-y-1 hover:shadow-elevated"
             >
+              <SpotPhoto photos={spot.photos} />
               <div className="flex items-start justify-between mb-4">
                 <span className="text-xs font-medium px-2 py-1 rounded-full bg-signal/15 text-signal">● Disponible</span>
                 <span className="text-xs text-muted-foreground">{spot.format}</span>

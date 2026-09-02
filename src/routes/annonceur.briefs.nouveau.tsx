@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useRef, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { captureError } from "@/lib/sentry";
@@ -12,13 +12,6 @@ import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible,
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 
-const VehicleMockup3D = lazy(() =>
-  import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
-);
-
-const CamionLEDMockupPreview = lazy(() =>
-  import("@/components/advertiser/CamionLEDMockupPreview").then((m) => ({ default: m.CamionLEDMockupPreview }))
-);
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
@@ -168,10 +161,6 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
-  const [brandColor, setBrandColor] = useState("#3B82F6");
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [screenVideoUrl, setScreenVideoUrl] = useState<string | null>(null);
-  const led3dRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
@@ -216,10 +205,7 @@ function NewBriefPage() {
     setVehicleTypes((cur) => {
       const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
       if (v === "camion_led" && !cur.includes("camion_led")) {
-        // Camion LED → format boxled automatique (seul format de série compatible)
         setAdFormat("boxled");
-        // Scroll vers la prévisualisation 3D dès qu'elle apparaît
-        setTimeout(() => led3dRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
       } else if (adFormat === "boxled" && isFormatIncompatible(next, "boxled")) {
         // Un véhicule incompatible ajouté alors que boxled est actif → on réinitialise le format
         setAdFormat(null);
@@ -597,56 +583,13 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {/* ── Prévisualisation 3D Camion LED — apparaît immédiatement après sélection ── */}
           {vehicleTypes.includes("camion_led") && (
-            <div ref={led3dRef} className="space-y-3 scroll-mt-4">
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Couleur de marque</label>
-                  <input
-                    type="color"
-                    value={brandColor}
-                    onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-card"
-                  />
-                  <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Visuel (logo ou vidéo)</label>
-                  <input
-                    type="file"
-                    accept="image/*,video/mp4,video/webm"
-                    className="text-xs"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const url = URL.createObjectURL(file);
-                      if (file.type.startsWith("video/")) {
-                        setScreenVideoUrl(url);
-                        setLogoUrl(null);
-                      } else {
-                        setLogoUrl(url);
-                        setScreenVideoUrl(null);
-                      }
-                    }}
-                  />
-                  {(logoUrl || screenVideoUrl) && (
-                    <button
-                      type="button"
-                      onClick={() => { setLogoUrl(null); setScreenVideoUrl(null); }}
-                      className="text-xs text-destructive"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-              <Suspense fallback={<div className="h-[520px] rounded-2xl bg-[#0c0d1a] animate-pulse flex items-center justify-center text-sm text-white/40">Chargement du camion LED 3D…</div>}>
-                <CamionLEDMockupPreview
-                  screenVideoUrl={screenVideoUrl}
-                  logoUrl={logoUrl}
-                />
-              </Suspense>
+            <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-sm space-y-1">
+              <div className="font-semibold text-blue-300">📺 Camion Écran LED sélectionné</div>
+              <p className="text-xs text-blue-200/70">
+                Les propriétaires de camions LED vous enverront les vraies photos de leur véhicule avec votre visuel appliqué.
+                L'aperçu sur photos réelles sera disponible dès la mise en relation.
+              </p>
             </div>
           )}
 
@@ -698,64 +641,11 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {/* Prévisualisation 3D — autres véhicules (hors camion_led géré plus haut) */}
           {vehicleTypes.length > 0 && adFormat && !vehicleTypes.includes("camion_led") && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Couleur de marque</label>
-                  <input
-                    type="color"
-                    value={brandColor}
-                    onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-card"
-                  />
-                  <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Visuel (logo ou vidéo)</label>
-                  <input
-                    type="file"
-                    accept="image/*,video/mp4,video/webm"
-                    className="text-xs"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const url = URL.createObjectURL(file);
-                      if (file.type.startsWith("video/")) {
-                        setScreenVideoUrl(url);
-                        setLogoUrl(null);
-                      } else {
-                        setLogoUrl(url);
-                        setScreenVideoUrl(null);
-                      }
-                    }}
-                  />
-                  {(logoUrl || screenVideoUrl) && (
-                    <button
-                      type="button"
-                      onClick={() => { setLogoUrl(null); setScreenVideoUrl(null); }}
-                      className="text-xs text-destructive"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-              <Suspense fallback={<div className="h-64 rounded-2xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">Chargement du simulateur…</div>}>
-                <VehicleMockup3D
-                  vehicleTypes={vehicleTypes}
-                  adFormat={adFormat}
-                  brandColor={brandColor}
-                  logoUrl={logoUrl}
-                  screenVideoUrl={screenVideoUrl}
-                />
-              </Suspense>
-              {vehicleTypes.every((t) => t === "autre") && (
-                <p className="text-xs text-muted-foreground italic px-1">
-                  ℹ️ Aperçu schématique sur un gabarit générique — la forme réelle dépend du véhicule « autre » proposé par le propriétaire. Vous verrez les vraies photos après mise en relation.
-                </p>
-              )}
+            <div className="rounded-xl border border-border bg-secondary/10 p-4 text-sm">
+              <p className="text-muted-foreground text-xs">
+                📷 L'aperçu de votre visuel sur les photos réelles du véhicule sera disponible dès qu'un propriétaire aura mis son véhicule en ligne et répondra à votre brief.
+              </p>
             </div>
           )}
 
