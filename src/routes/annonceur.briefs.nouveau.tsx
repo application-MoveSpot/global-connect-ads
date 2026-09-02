@@ -11,6 +11,7 @@ import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout
 import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
+import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
 
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
@@ -161,6 +162,10 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
+  const [previewVehicleId, setPreviewVehicleId] = useState<string | null>(null);
+  const [previewSearching, setPreviewSearching] = useState(false);
+  const [brandColor, setBrandColor] = useState("#3B82F6");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
@@ -181,6 +186,27 @@ function NewBriefPage() {
       if (type !== "individual") setWizardStep("form");
     })();
   }, [navigate]);
+
+  // Auto-find a real approved vehicle matching selected types for live preview
+  useEffect(() => {
+    if (vehicleTypes.length === 0) {
+      setPreviewVehicleId(null);
+      return;
+    }
+    setPreviewSearching(true);
+    supabase
+      .from("vehicles")
+      .select("id")
+      .eq("status", "approved")
+      .in("type", vehicleTypes as never)
+      .not("photos", "is", null)
+      .limit(1)
+      .maybeSingle()
+      .then(
+        ({ data }) => { setPreviewVehicleId(data?.id ?? null); setPreviewSearching(false); },
+        () => { setPreviewVehicleId(null); setPreviewSearching(false); },
+      );
+  }, [vehicleTypes]);
 
   const applyTemplate = (tpl: EventTemplate) => {
     setSelectedTemplate(tpl);
@@ -583,13 +609,52 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {vehicleTypes.includes("camion_led") && (
-            <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-sm space-y-1">
-              <div className="font-semibold text-blue-300">📺 Camion Écran LED sélectionné</div>
-              <p className="text-xs text-blue-200/70">
-                Les propriétaires de camions LED vous enverront les vraies photos de leur véhicule avec votre visuel appliqué.
-                L'aperçu sur photos réelles sera disponible dès la mise en relation.
-              </p>
+          {/* Aperçu automatique sur un véhicule réel disponible */}
+          {vehicleTypes.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-sm font-medium">🎨 Aperçu sur véhicule réel</span>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground">Couleur de marque</label>
+                  <input
+                    type="color"
+                    value={brandColor}
+                    onChange={(e) => setBrandColor(e.target.value)}
+                    className="w-8 h-8 rounded cursor-pointer border border-border p-0.5 bg-card"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground">Logo (optionnel)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="text-xs"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setLogoUrl(URL.createObjectURL(file));
+                    }}
+                  />
+                  {logoUrl && (
+                    <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
+                  )}
+                </div>
+              </div>
+              {previewSearching ? (
+                <div className="h-48 rounded-xl bg-secondary/40 flex items-center justify-center animate-pulse">
+                  <span className="text-sm text-muted-foreground">Recherche d'un véhicule disponible…</span>
+                </div>
+              ) : previewVehicleId ? (
+                <VehiclePhotoAdPreview
+                  vehicleId={previewVehicleId}
+                  brandColor={brandColor}
+                  logoUrl={logoUrl}
+                />
+              ) : (
+                <div className="rounded-xl border border-dashed border-border bg-secondary/10 p-5 text-center text-sm text-muted-foreground">
+                  <p>📷 Aucun véhicule de ce type n'a encore mis ses photos en ligne.</p>
+                  <p className="text-xs mt-1 opacity-70">L'aperçu apparaîtra automatiquement dès qu'un propriétaire ajoutera ses photos.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -641,13 +706,6 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {vehicleTypes.length > 0 && adFormat && !vehicleTypes.includes("camion_led") && (
-            <div className="rounded-xl border border-border bg-secondary/10 p-4 text-sm">
-              <p className="text-muted-foreground text-xs">
-                📷 L'aperçu de votre visuel sur les photos réelles du véhicule sera disponible dès qu'un propriétaire aura mis son véhicule en ligne et répondra à votre brief.
-              </p>
-            </div>
-          )}
 
           <Field label="Zone de ciblage sur la carte (optionnel)">
             <ZoneSelector
