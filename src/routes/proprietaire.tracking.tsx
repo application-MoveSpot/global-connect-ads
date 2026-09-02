@@ -272,9 +272,16 @@ function TrackingPage() {
             )}
 
             {!tracking ? (
-              <Button onClick={startTracking} className="w-full" size="lg" disabled={!vehicleId}>
-                <Play className="mr-2 h-4 w-4" /> Démarrer le partage GPS
-              </Button>
+              <>
+                <Button onClick={startTracking} className="w-full" size="lg" disabled={!vehicleId || !campaign}>
+                  <Play className="mr-2 h-4 w-4" /> Démarrer le partage GPS
+                </Button>
+                {vehicleId && !campaign && (
+                  <p className="text-xs text-destructive text-center">
+                    Le suivi GPS ne peut démarrer que lorsqu'une campagne est active sur ce véhicule.
+                  </p>
+                )}
+              </>
             ) : (
               <Button onClick={stopTracking} variant="destructive" className="w-full" size="lg">
                 <Square className="mr-2 h-4 w-4" /> Arrêter le partage
