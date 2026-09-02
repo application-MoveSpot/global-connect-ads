@@ -8,7 +8,7 @@ import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbid
 import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
 import { estimateZoneBudget, MIN_EUR_PER_DAY } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
-import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
+import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/ad-formats";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
