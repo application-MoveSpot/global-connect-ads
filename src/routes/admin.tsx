@@ -127,12 +127,12 @@ function AdminPage() {
           navigate({ to: "/auth" });
           return;
         }
-        const { data: roles, error: roleError } = await withTimeout(
-          supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id).eq("role", "admin").limit(1),
+        const { data: isAdmin, error: roleError } = await withTimeout(
+          supabase.rpc("check_is_admin"),
           "La vérification du rôle admin"
         );
         if (cancelled) return;
-        if (roleError || !roles || roles.length === 0) { setAuthState("unauthorized"); return; }
+        if (roleError || !isAdmin) { setAuthState("unauthorized"); return; }
         setAuthState("ok");
       } catch {
         if (!cancelled) setAuthState("unauthenticated");
