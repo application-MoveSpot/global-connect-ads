@@ -283,10 +283,10 @@ function ExemplesPage() {
               Créer mon compte gratuit →
             </Link>
             <Link
-              to="/annonceur/preview-3d"
+              to="/annonceur/briefs/nouveau"
               className="rounded-full border border-border bg-card text-foreground px-6 py-3 text-sm font-medium hover:bg-secondary transition-colors"
             >
-              Visualiser en 3D d'abord
+              Créer un brief
             </Link>
           </div>
           <p className="text-xs text-muted-foreground mt-4">
