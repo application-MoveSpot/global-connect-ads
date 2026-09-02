@@ -610,8 +610,6 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                         left: "5%",
                         right: "5%",
                         height: overlay.height,
-                        background: screenVideoUrl ? "#000" : brandColor,
-                        opacity: overlay.opacity,
                         borderRadius: 4,
                         display: "flex",
                         alignItems: "center",
@@ -619,9 +617,17 @@ export function VehicleMockup3D({ vehicleTypes, adFormat, brandColor, logoUrl, s
                         overflow: "hidden",
                         zIndex: 1,
                       }}>
+                        {/* Fond semi-transparent séparé pour ne pas affecter l'opacité du logo */}
+                        <div style={{
+                          position: "absolute",
+                          inset: 0,
+                          background: screenVideoUrl ? "#000" : brandColor,
+                          opacity: overlay.opacity,
+                          borderRadius: 4,
+                        }} />
                         {!screenVideoUrl && logoUrl && (
                           <img src={logoUrl} alt="logo"
-                            style={{ maxHeight: "85%", maxWidth: "85%", objectFit: "contain", opacity: 0.95 }} />
+                            style={{ maxHeight: "90%", maxWidth: "90%", objectFit: "contain", position: "relative", zIndex: 1 }} />
                         )}
                       </div>
                     )}

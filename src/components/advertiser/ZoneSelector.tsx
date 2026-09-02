@@ -677,6 +677,7 @@ export function ZoneSelector({
       <div
         style={{
           position: "relative",
+          zIndex: 0,
           overflow: "hidden",
           borderRadius: "0.5rem",
           border: "1px solid hsl(var(--border))",
