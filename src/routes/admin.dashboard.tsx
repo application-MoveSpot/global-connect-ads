@@ -40,6 +40,7 @@ import {
   parseInstallationPhotos,
 } from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
+import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 
 const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
 
@@ -61,7 +62,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs";
+type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -339,6 +340,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "utilisateurs"} onClick={() => setTab("utilisateurs")}>
             Utilisateurs
+          </TabBtn>
+          <TabBtn active={tab === "vigilance"} onClick={() => setTab("vigilance")}>
+            Vigilance Urssaf
           </TabBtn>
         </div>
 
@@ -1074,6 +1078,16 @@ function AdminDashboard() {
               </div>
             </div>
           )
+        ) : null}
+
+        {tab === "vigilance" ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold">Attestations de vigilance Urssaf</h2>
+              <span className="text-xs text-muted-foreground">Art. L.8222-1 Code du travail</span>
+            </div>
+            <VigilanceAdminPanel />
+          </div>
         ) : null}
 
         {tab === "analytics" ? (
