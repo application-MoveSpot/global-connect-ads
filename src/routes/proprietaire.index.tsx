@@ -6,6 +6,7 @@ import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { OwnerConnectCard } from "@/components/owner/OwnerConnectCard";
+import { VigAlerte } from "@/components/owner/VigAlerte";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
@@ -298,6 +299,8 @@ function DashboardPage() {
       )}
 
       <main id="main-content" className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        {/* Alerte vigilance Urssaf — s'affiche uniquement si nécessaire */}
+        <VigAlerte />
         <OwnerConnectCard />
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
