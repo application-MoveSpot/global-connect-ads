@@ -286,6 +286,57 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         );
         results.gps = gpsResults;
 
+        // ─── 4. Matching proactif briefs ↔ flottes ────────────────────────────────
+        // Notifie les propriétaires dont les véhicules correspondent aux briefs récents
+        try {
+          const sevenDaysAgo2 = new Date(now.getTime() - 7 * 86_400_000).toISOString();
+          const { data: recentBriefs } = await supabaseAdmin
+            .from("advertiser_briefs")
+            .select("id, title, vehicle_types, zones, start_date")
+            .gte("created_at", sevenDaysAgo2)
+            .order("created_at", { ascending: false });
+
+          const { data: approvedVehicles } = await supabaseAdmin
+            .from("vehicles")
+            .select("id, type, zones, owner_profiles!inner(user_id, full_name)")
+            .eq("status", "approved");
+
+          if (recentBriefs?.length && approvedVehicles?.length) {
+            type OwnerBucket = { userId: string; name: string; types: Set<string>; };
+            const ownerMap = new Map<string, OwnerBucket>();
+            for (const v of approvedVehicles) {
+              const prof = (v as unknown as Record<string, unknown>).owner_profiles as { user_id: string; full_name: string } | null;
+              if (!prof) continue;
+              if (!ownerMap.has(prof.user_id)) {
+                ownerMap.set(prof.user_id, { userId: prof.user_id, name: prof.full_name ?? "", types: new Set() });
+              }
+              ownerMap.get(prof.user_id)!.types.add(String(v.type));
+            }
+
+            const matchingStats = { notified: 0 };
+            for (const [, owner] of ownerMap) {
+              const compatible = recentBriefs.filter((b) =>
+                ((b.vehicle_types as string[] | null) ?? []).some((t) => owner.types.has(t)),
+              );
+              if (!compatible.length) continue;
+              const top = compatible[0]!;
+              await sendWebPushToUser(owner.userId, {
+                title: "🎯 Nouveaux briefs pour votre flotte",
+                body: compatible.length === 1
+                  ? `"${top.title}" correspond à votre flotte — répondez en premier !`
+                  : `${compatible.length} briefs correspondent à votre flotte. Ne les ratez pas !`,
+                url: "/proprietaire/briefs",
+              }).catch(() => {/* best-effort */});
+              matchingStats.notified++;
+            }
+            results.matching = matchingStats;
+          } else {
+            results.matching = { notified: 0 };
+          }
+        } catch {
+          results.matching = { error: "matching skipped" };
+        }
+
         return Response.json({ ok: true, results });
       },
 

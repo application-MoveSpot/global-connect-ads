@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
@@ -673,6 +674,20 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
   const formatLabel = v.format_publicitaire === "boxled"
     ? "Écran LED numérique"
     : (v.format_publicitaire || FORMAT_PAR_TYPE[v.type] || "—");
+  const [pricing, setPricing] = useState<PricingRecommendation | null>(null);
+  const [pricingLoading, setPricingLoading] = useState(false);
+
+  const handleGetPricing = async () => {
+    setPricingLoading(true);
+    try {
+      const rec = await recommendVehiclePrice({ data: { vehicleId: v.id } });
+      setPricing(rec);
+    } catch {
+      // silencieux
+    } finally {
+      setPricingLoading(false);
+    }
+  };
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
@@ -711,9 +726,42 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
         </div>
       )}
 
-      <div className="font-display text-xl font-bold text-primary">
-        {v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span>
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="font-display text-xl font-bold text-primary">
+          {v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span>
+        </div>
+        {v.status === "approved" && !pricing && (
+          <button
+            type="button"
+            disabled={pricingLoading}
+            onClick={handleGetPricing}
+            className="text-xs px-3 py-1 rounded-full border border-violet-500/40 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10 disabled:opacity-60 transition-colors"
+          >
+            {pricingLoading ? (
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-2.5 h-2.5 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+                Analyse…
+              </span>
+            ) : "💡 Prix recommandé IA"}
+          </button>
+        )}
       </div>
+
+      {pricing && (
+        <div className="mt-2 rounded-xl border border-violet-500/30 bg-violet-500/5 p-3 text-xs space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-violet-700 dark:text-violet-300">Prix optimal : {pricing.suggested} €/jour</span>
+            <span className="text-muted-foreground">fourchette {pricing.min}–{pricing.max} €</span>
+            <button type="button" onClick={() => setPricing(null)} className="ml-auto text-muted-foreground hover:text-foreground text-[10px]">✕</button>
+          </div>
+          <p className="text-muted-foreground leading-relaxed">{pricing.rationale}</p>
+          {pricing.factors.length > 0 && (
+            <ul className="space-y-0.5 text-muted-foreground">
+              {pricing.factors.map((f, i) => <li key={i}>• {f}</li>)}
+            </ul>
+          )}
+        </div>
+      )}
 
       {v.admin_notes && (
         <div className="mt-3 text-xs rounded-lg bg-secondary/40 p-3 border border-border">

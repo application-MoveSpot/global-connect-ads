@@ -13,6 +13,8 @@ import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
 import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
+import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
+import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
@@ -174,6 +176,10 @@ function NewBriefPage() {
   const [aiContext, setAiContext] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [creativeValidation, setCreativeValidation] = useState<Array<{ name: string; ok: boolean; score: number; issues: string[] }>>([]);
+  const [creativeValidating, setCreativeValidating] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -252,6 +258,66 @@ function NewBriefPage() {
     } finally {
       setAiLoading(false);
     }
+  };
+
+  // Score qualité brief — déclenché 2s après la dernière frappe sur titre+description
+  useEffect(() => {
+    if (title.trim().length < 10 || description.trim().length < 30) {
+      setQualityScore(null);
+      return;
+    }
+    setQualityLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const result = await scoreBriefQuality({
+          data: {
+            title: title.trim(),
+            description: description.trim(),
+            audience: audience.trim() || undefined,
+            vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
+            zone: zones.trim() || undefined,
+          },
+        });
+        setQualityScore(result);
+      } catch {
+        // silencieux
+      } finally {
+        setQualityLoading(false);
+      }
+    }, 2000);
+    return () => { clearTimeout(timer); setQualityLoading(false); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, audience]);
+
+  // Validation IA des visuels publicitaires
+  const handleCreativeValidation = async (selectedFiles: File[]) => {
+    if (!selectedFiles.length) { setCreativeValidation([]); return; }
+    setCreativeValidating(true);
+    setCreativeValidation([]);
+    const results: Array<{ name: string; ok: boolean; score: number; issues: string[] }> = [];
+    for (const file of selectedFiles) {
+      if (!file.type.startsWith("image/")) {
+        results.push({ name: file.name, ok: true, score: 100, issues: [] });
+        continue;
+      }
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataUrl = reader.result as string;
+            resolve(dataUrl.split(",")[1] ?? "");
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const res = await validateBriefCreative({ data: { base64, mimeType: file.type } });
+        results.push({ name: file.name, ok: res.ok, score: res.score, issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)] });
+      } catch {
+        results.push({ name: file.name, ok: true, score: 50, issues: [] });
+      }
+    }
+    setCreativeValidation(results);
+    setCreativeValidating(false);
   };
 
   const estimatedDays =
@@ -593,6 +659,36 @@ function NewBriefPage() {
 
           <ContentChecker text={`${title} ${description} ${audience}`} />
 
+          {/* ── Score qualité IA ────────────────────────────────────────── */}
+          {(qualityLoading || qualityScore) && (
+            <div className={`rounded-xl border px-4 py-3 text-xs transition-all ${qualityLoading ? "border-border bg-secondary/20 animate-pulse" : qualityScore && qualityScore.global >= 7 ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}`}>
+              {qualityLoading ? (
+                <p className="text-muted-foreground">✨ Analyse qualité en cours…</p>
+              ) : qualityScore ? (
+                <>
+                  <div className="flex items-center gap-3 flex-wrap mb-2">
+                    <span className="font-semibold text-sm">Score qualité du brief</span>
+                    <span className={`text-xl font-bold ${qualityScore.global >= 7 ? "text-emerald-600" : qualityScore.global >= 5 ? "text-amber-600" : "text-destructive"}`}>
+                      {qualityScore.global}/10
+                    </span>
+                    <div className="flex gap-2 text-muted-foreground flex-wrap">
+                      <span>Message: <strong className="text-foreground">{qualityScore.scores.message}/10</strong></span>
+                      <span>Audience: <strong className="text-foreground">{qualityScore.scores.audience}/10</strong></span>
+                      <span>Zone: <strong className="text-foreground">{qualityScore.scores.zone}/10</strong></span>
+                    </div>
+                  </div>
+                  {qualityScore.tips.length > 0 && (
+                    <ul className="space-y-0.5">
+                      {qualityScore.tips.map((tip, i) => (
+                        <li key={i} className="text-muted-foreground">💡 {tip}</li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : null}
+            </div>
+          )}
+
           <Field label="Types de véhicules recherchés">
             {/* ── Camion LED BoxLED — carte hero ────────────────────────────── */}
             <button
@@ -886,9 +982,39 @@ function NewBriefPage() {
 
           <Field label="Visuels publicitaires (optionnel)">
             <input type="file" multiple accept="image/*,application/pdf,video/*"
-              onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+              onChange={(e) => {
+                const selected = Array.from(e.target.files ?? []);
+                setFiles(selected);
+                void handleCreativeValidation(selected);
+              }}
               className="w-full text-sm" />
             {files.length > 0 && <p className="text-xs text-muted-foreground mt-1">{files.length} fichier(s) sélectionné(s)</p>}
+            {creativeValidating && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
+                <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+                Analyse IA des visuels en cours…
+              </div>
+            )}
+            {creativeValidation.length > 0 && !creativeValidating && (
+              <div className="mt-2 space-y-2">
+                {creativeValidation.map((r) => (
+                  <div key={r.name} className={`rounded-lg border px-3 py-2 text-xs ${r.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}>
+                    <div className="flex items-center gap-2 font-medium">
+                      <span>{r.ok ? "✅" : "⚠️"}</span>
+                      <span className="truncate max-w-[200px]">{r.name}</span>
+                      <span className={`ml-auto font-semibold ${r.score >= 70 ? "text-emerald-600" : r.score >= 50 ? "text-amber-600" : "text-destructive"}`}>
+                        {r.score}/100
+                      </span>
+                    </div>
+                    {r.issues.length > 0 && (
+                      <ul className="mt-1 space-y-0.5 text-muted-foreground">
+                        {r.issues.map((issue, i) => <li key={i}>• {issue}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </Field>
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
