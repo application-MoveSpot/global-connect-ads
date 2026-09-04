@@ -21,6 +21,10 @@ const RemoveSchema = z.object({
   endpoint: z.string().url().max(2000),
 });
 
+export const getVapidPublicKey = createServerFn({ method: "GET" }).handler(async () => {
+  return { publicKey: process.env["VAPID_PUBLIC_KEY"] ?? "" };
+});
+
 export const savePushSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: unknown) => SaveSchema.parse(data))
