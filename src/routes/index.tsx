@@ -113,13 +113,13 @@ function Index() {
             <img src={logo} alt="MoveSpot" width={32} height={32} className="h-8 w-8" />
             <span className="font-display font-bold text-lg tracking-tight">MoveSpot</span>
           </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-            <a href="#map" className="hover:text-foreground transition">{t("nav.realtime")}</a>
-            <a href="#spots" className="hover:text-foreground transition">{t("nav.vehicles")}</a>
-            <Link to="/campagnes" className="hover:text-foreground transition">Campagnes</Link>
-            <Link to="/comment-ca-marche" className="hover:text-foreground transition">{t("nav.how_it_works")}</Link>
-            <Link to="/pourquoi-movespot" className="hover:text-foreground transition">Pourquoi MoveSpot</Link>
-            <Link to="/devenir-partenaire" className="hover:text-foreground transition">{t("nav.become_partner")}</Link>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#map" className="whitespace-nowrap hover:text-foreground transition">{t("nav.realtime")}</a>
+            <a href="#spots" className="whitespace-nowrap hover:text-foreground transition">{t("nav.vehicles")}</a>
+            <Link to="/campagnes" className="whitespace-nowrap hover:text-foreground transition">Campagnes</Link>
+            <Link to="/comment-ca-marche" className="whitespace-nowrap hover:text-foreground transition">{t("nav.how_it_works")}</Link>
+            <Link to="/pourquoi-movespot" className="whitespace-nowrap hover:text-foreground transition">Pourquoi MoveSpot</Link>
+            <Link to="/devenir-partenaire" className="whitespace-nowrap hover:text-foreground transition">{t("nav.become_partner")}</Link>
           </nav>
           <div className="flex items-center gap-2">
             <LanguageSwitcher className="hidden md:flex" />
