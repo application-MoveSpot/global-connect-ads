@@ -144,25 +144,22 @@ export const adminListVigilancePending = createServerFn({ method: "GET" })
       .select(
         "id, user_id, full_name, vigilance_statut, vigilance_gains_cumules_centimes, vigilance_attestation_url, vigilance_seuil_atteint_at, vigilance_date_verification, vigilance_notes",
       )
-      .not("vigilance_attestation_url" as never, "is", null)
-      .order("vigilance_seuil_atteint_at" as never, { ascending: true });
+      .not("vigilance_attestation_url", "is", null)
+      .order("vigilance_seuil_atteint_at", { ascending: true });
 
     if (error) throw new Error(error.message);
 
-    return (data ?? []).map((row) => {
-      const r = row as unknown as Record<string, unknown>;
-      return {
-        id: r.id as string,
-        user_id: r.user_id as string,
-        full_name: (r.full_name as string | null) ?? null,
-        gains_centimes: Number(r.vigilance_gains_cumules_centimes ?? 0),
-        statut: (r.vigilance_statut ?? "EN_ATTENTE") as VigilanceStatut,
-        attestation_url: (r.vigilance_attestation_url as string | null) ?? null,
-        seuil_atteint_at: (r.vigilance_seuil_atteint_at as string | null) ?? null,
-        date_verification: (r.vigilance_date_verification as string | null) ?? null,
-        notes: (r.vigilance_notes as string | null) ?? null,
-      } satisfies VigilancePendingRow;
-    });
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      user_id: row.user_id,
+      full_name: row.full_name ?? null,
+      gains_centimes: Number(row.vigilance_gains_cumules_centimes ?? 0),
+      statut: (row.vigilance_statut ?? "EN_ATTENTE") as VigilanceStatut,
+      attestation_url: row.vigilance_attestation_url ?? null,
+      seuil_atteint_at: row.vigilance_seuil_atteint_at ?? null,
+      date_verification: row.vigilance_date_verification ?? null,
+      notes: row.vigilance_notes ?? null,
+    } satisfies VigilancePendingRow));
   });
 
 // ─── Admin : générer une URL signée pour voir l'attestation ──────────────────
