@@ -337,6 +337,85 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
           results.matching = { error: "matching skipped" };
         }
 
+        // ─── 5. Auto-modération visuels (briefs récents non modérés) ─────────────
+        // Analyse les créatifs des briefs des dernières 48h et alerte les admins si suspect
+        try {
+          const twoDaysAgoIso = new Date(now.getTime() - 2 * 86_400_000).toISOString();
+          const { data: briefsWithCreatives } = await supabaseAdmin
+            .from("advertiser_briefs")
+            .select("id, title, creative_files, advertiser_id")
+            .gte("created_at", twoDaysAgoIso)
+            .not("creative_files", "is", null);
+
+          const apiKey = process.env["LOVABLE_API_KEY"];
+          const modStats = { analysed: 0, suspects: 0 };
+
+          if (apiKey && briefsWithCreatives?.length) {
+            const { data: admins } = await supabaseAdmin
+              .from("user_roles" as never)
+              .select("user_id")
+              .eq("role" as never, "admin");
+
+            for (const brief of briefsWithCreatives) {
+              const files = (brief.creative_files as string[] | null) ?? [];
+              for (const storagePath of files.slice(0, 2)) {
+                // Fetch signed URL
+                const { data: urlData } = await supabaseAdmin.storage
+                  .from("campaign-creatives")
+                  .createSignedUrl(storagePath, 60);
+                if (!urlData?.signedUrl) continue;
+
+                try {
+                  const imgResp = await fetch(urlData.signedUrl);
+                  if (!imgResp.ok) continue;
+                  const buf = await imgResp.arrayBuffer();
+                  const base64 = Buffer.from(buf).toString("base64");
+                  const mimeType = imgResp.headers.get("content-type") ?? "image/jpeg";
+
+                  const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+                    body: JSON.stringify({
+                      model: "google/gemini-2.0-flash",
+                      messages: [{
+                        role: "user",
+                        content: [
+                          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
+                          { type: "text", text: 'Analyse ce visuel publicitaire. Réponds en JSON: {"safe":true/false,"score_risque":0-100,"verdict":"conforme"|"suspect"|"interdit","issues":[]}. Score > 50 = suspect.' },
+                        ],
+                      }],
+                      temperature: 0.1,
+                      max_tokens: 150,
+                    }),
+                  });
+
+                  modStats.analysed++;
+                  if (aiResp.ok) {
+                    const json = await aiResp.json() as { choices?: Array<{ message?: { content?: string } }> };
+                    const raw = json.choices?.[0]?.message?.content ?? "{}";
+                    let parsed: { score_risque?: number; verdict?: string } = {};
+                    try { parsed = JSON.parse(raw.replace(/```json\n?|\n?```/g, "")); } catch { /* ignore */ }
+                    const score = Number(parsed.score_risque ?? 0);
+                    if (score >= 50) {
+                      modStats.suspects++;
+                      for (const admin of (admins ?? []) as Array<{ user_id: string }>) {
+                        await sendWebPushToUser(admin.user_id, {
+                          title: "🚨 Visuel suspect détecté",
+                          body: `Brief "${brief.title}" : visuel avec score risque ${score}/100. Vérifiez dans Modération IA.`,
+                          url: "/admin/dashboard",
+                        }).catch(() => {/* best-effort */});
+                      }
+                    }
+                  }
+                } catch { /* best-effort per file */ }
+              }
+            }
+          }
+          results.autoModeration = modStats;
+        } catch {
+          results.autoModeration = { error: "auto-moderation skipped" };
+        }
+
         return Response.json({ ok: true, results });
       },
 

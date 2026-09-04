@@ -345,6 +345,26 @@ Réponds UNIQUEMENT en JSON strict :
       } catch { /* best-effort */ }
     }
 
+    // Notify admins when score is borderline (50–84) for manual review
+    if (!autoRejete && scoreFraude >= 50) {
+      try {
+        const { sendWebPushToUser } = await import(
+          "@/lib/notifications/push-send.server"
+        );
+        const { data: admins } = await supabaseAdmin
+          .from("user_roles" as never)
+          .select("user_id")
+          .eq("role" as never, "admin");
+        for (const admin of (admins ?? []) as Array<{ user_id: string }>) {
+          await sendWebPushToUser(admin.user_id, {
+            title: "⚠️ Attestation borderline",
+            body: `Score fraude ${scoreFraude}/100 — vérification manuelle requise. Motifs : ${motifs.join("; ") || "aucun spécifié"}.`,
+            url: "/admin/dashboard",
+          }).catch(() => {/* best-effort */});
+        }
+      } catch { /* best-effort */ }
+    }
+
     return {
       verdict,
       score_fraude: scoreFraude,

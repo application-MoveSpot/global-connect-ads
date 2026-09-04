@@ -15,6 +15,7 @@ import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { withRetry } from "@/lib/retry";
 import { downloadCsv } from "@/lib/exportCsv";
 import { RouteError } from "@/components/app/RouteError";
+import { SignalementDialog } from "@/components/shared/SignalementDialog";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
@@ -459,6 +460,9 @@ function DashboardPage() {
             <MobilityMap />
           </Suspense>
         </section>
+        <div className="mt-6 flex justify-end">
+          <SignalementDialog contextUrl="/proprietaire" triggerLabel="Signaler un problème" />
+        </div>
       </main>
 
       <FAQChatbot

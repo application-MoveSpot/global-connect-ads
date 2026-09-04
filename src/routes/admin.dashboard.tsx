@@ -43,6 +43,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { moderateBriefVisual, type VisualModerationResult } from "@/lib/ai/visual-validation.functions";
 import { runBriefMatching } from "@/lib/ai/brief-matching.functions";
+import { adminListTickets, adminResolveTicket, type SupportTicket } from "@/lib/support/signalement.functions";
 
 const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
 
@@ -64,7 +65,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation";
+type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -348,6 +349,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "moderation"} onClick={() => setTab("moderation")}>
             🔍 Modération IA
+          </TabBtn>
+          <TabBtn active={tab === "alertes"} onClick={() => setTab("alertes")}>
+            🔔 Alertes
           </TabBtn>
         </div>
 
@@ -1096,6 +1100,7 @@ function AdminDashboard() {
         ) : null}
 
         {tab === "moderation" ? <AdminModerationPanel /> : null}
+        {tab === "alertes" ? <AdminAlertesPanel /> : null}
 
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
@@ -1322,6 +1327,140 @@ function AdminModerationPanel() {
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Panneau Alertes (signalements) ──────────────────────────────────────────
+
+function AdminAlertesPanel() {
+  const listTickets = useServerFn(adminListTickets);
+  const resolveTicket = useServerFn(adminResolveTicket);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [resolving, setResolving] = useState<Record<string, boolean>>({});
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await listTickets({ data: undefined });
+      setTickets(data);
+    } catch {
+      toast.error("Impossible de charger les signalements.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const handleResolve = async (ticketId: string) => {
+    const response = responses[ticketId]?.trim();
+    if (!response) return;
+    setResolving((p) => ({ ...p, [ticketId]: true }));
+    try {
+      await resolveTicket({ data: { ticketId, response } });
+      toast.success("Signalement résolu, utilisateur notifié.");
+      await load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setResolving((p) => ({ ...p, [ticketId]: false }));
+    }
+  };
+
+  const open = tickets.filter((t) => t.status === "open");
+  const resolved = tickets.filter((t) => t.status === "resolved").slice(0, 10);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-bold">Signalements & litiges</h2>
+          <p className="text-xs text-muted-foreground">Tickets envoyés par les utilisateurs depuis l'application.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="text-xs text-muted-foreground hover:text-foreground transition"
+        >
+          ↻ Actualiser
+        </button>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Chargement…</p>
+      ) : open.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
+          Aucun signalement ouvert. Tout est calme ✅
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+            🚨 {open.length} signalement{open.length > 1 ? "s" : ""} ouvert{open.length > 1 ? "s" : ""}
+          </h3>
+          {open.map((t) => (
+            <div key={t.id} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
+              <div className="flex items-start justify-between gap-2 flex-wrap">
+                <div>
+                  <p className="font-semibold text-sm">{t.subject}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t.user_email} · {new Date(t.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                  {t.context_url && (
+                    <p className="text-xs text-muted-foreground">Contexte : {t.context_url}</p>
+                  )}
+                </div>
+              </div>
+              <p className="text-sm whitespace-pre-wrap">{t.message}</p>
+              <div className="flex gap-2 mt-2">
+                <textarea
+                  value={responses[t.id] ?? ""}
+                  onChange={(e) => setResponses((p) => ({ ...p, [t.id]: e.target.value }))}
+                  placeholder="Réponse à l'utilisateur..."
+                  rows={2}
+                  maxLength={1000}
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none"
+                />
+                <button
+                  type="button"
+                  disabled={!responses[t.id]?.trim() || resolving[t.id]}
+                  onClick={() => void handleResolve(t.id)}
+                  className="shrink-0 self-end rounded-full bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {resolving[t.id] ? "…" : "✅ Résoudre"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {resolved.length > 0 && (
+        <details className="mt-4">
+          <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+            Voir les {resolved.length} derniers signalements résolus
+          </summary>
+          <div className="mt-3 space-y-3">
+            {resolved.map((t) => (
+              <div key={t.id} className="rounded-xl border border-border bg-card/40 p-4 space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold text-sm">{t.subject}</p>
+                  <span className="text-xs text-emerald-600 font-medium">✅ Résolu</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{t.user_email} · {new Date(t.created_at).toLocaleDateString("fr-FR")}</p>
+                <p className="text-sm">{t.message}</p>
+                {t.admin_response && (
+                  <p className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-2 mt-1">
+                    Réponse : {t.admin_response}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </details>
       )}
     </div>
   );
