@@ -12,6 +12,7 @@ import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible,
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
+import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
 
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
@@ -169,6 +170,10 @@ function NewBriefPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -220,6 +225,33 @@ function NewBriefPage() {
     setStartDate(isoDate(tomorrow));
     setEndDate(addDays(tomorrow, tpl.days - 1));
     setWizardStep("form");
+  };
+
+  const handleAiGenerate = async () => {
+    if (!aiContext.trim() || aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiError("");
+    setAiLoading(true);
+    try {
+      const suggestion = await generateBriefSuggestion({
+        data: {
+          businessContext: aiContext.trim(),
+          vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
+          zone: zones.trim() || undefined,
+        },
+      });
+      setTitle(suggestion.title);
+      setDescription(suggestion.description);
+      setAudience(suggestion.audience);
+      setAiPanelOpen(false);
+      setAiContext("");
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "Erreur de génération.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const estimatedDays =
@@ -484,6 +516,70 @@ function NewBriefPage() {
         </div>
 
         <form onSubmit={submit} className="space-y-6">
+          {/* ── Assistant IA ─────────────────────────────────────────────── */}
+          <div className="rounded-2xl border border-violet-500/30 bg-violet-500/5 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => { setAiPanelOpen((v) => !v); setAiError(""); }}
+              className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-violet-500/5 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">✨</span>
+                <div>
+                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+                    Remplir avec l'IA
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Décrivez votre activité — l'IA génère le titre, la description et l'audience.
+                  </p>
+                </div>
+              </div>
+              <span className="text-muted-foreground text-sm">{aiPanelOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {aiPanelOpen && (
+              <div className="px-5 pb-5 border-t border-violet-500/20 pt-4 space-y-3">
+                <label className="block text-sm font-medium">
+                  Décrivez votre activité / projet en quelques phrases
+                </label>
+                <textarea
+                  value={aiContext}
+                  onChange={(e) => setAiContext(e.target.value)}
+                  rows={3}
+                  maxLength={600}
+                  placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm resize-none"
+                />
+                {aiError && (
+                  <p className="text-xs text-destructive">{aiError}</p>
+                )}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={aiLoading}
+                    onClick={handleAiGenerate}
+                    className="inline-flex items-center gap-2 rounded-full bg-violet-600 text-white px-5 py-2 text-sm font-semibold hover:bg-violet-700 disabled:opacity-60 transition-colors"
+                  >
+                    {aiLoading ? (
+                      <>
+                        <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Génération…
+                      </>
+                    ) : (
+                      "✨ Générer"
+                    )}
+                  </button>
+                  <span className="text-xs text-muted-foreground">
+                    {aiContext.length}/600 caractères
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Le contenu généré sera pré-rempli dans les champs ci-dessous — vous pouvez le modifier librement avant de publier.
+                </p>
+              </div>
+            )}
+          </div>
+
           <Field label="Titre du brief">
             <input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={120}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5" placeholder="Ex. Campagne street food Paris 11e" />
