@@ -22,7 +22,16 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
           request.headers.get("authorization")?.replace("Bearer ", "") ??
           url.searchParams.get("secret");
         if (token !== cronSecret) {
-          return Response.json({ error: "Non autorisé" }, { status: 401 });
+          return Response.json({
+            error: "Non autorisé",
+            _diag: {
+              secret_set: true,
+              secret_len: cronSecret.length,
+              token_set: !!token,
+              token_len: token?.length ?? 0,
+              match: false,
+            },
+          }, { status: 401 });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
