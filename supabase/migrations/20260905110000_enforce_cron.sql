@@ -24,7 +24,7 @@ SELECT cron.schedule(
 
     IF v_key IS NOT NULL THEN
       PERFORM net.http_post(
-        url     := 'https://move-spot.com/api/admin/cron/enforce',
+        url     := 'https://move-spot.com/lovable/cron/enforce',
         headers := jsonb_build_object(
           'Content-Type',  'application/json',
           'Authorization', 'Bearer ' || v_key
