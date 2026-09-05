@@ -70,6 +70,7 @@ import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableCronEnforceRouteImport } from './routes/lovable/cron/enforce'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -388,6 +389,11 @@ const LovableEmailTransactionalSendRoute =
     path: '/lovable/email/transactional/send',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableCronEnforceRoute = LovableCronEnforceRouteImport.update({
+  id: '/lovable/cron/enforce',
+  path: '/lovable/cron/enforce',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -451,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -514,6 +521,7 @@ export interface FileRoutesByTo {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -578,6 +586,7 @@ export interface FileRoutesById {
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -643,6 +652,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/lovable/cron/enforce'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -706,6 +716,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/lovable/cron/enforce'
   id:
     | '__root__'
     | '/'
@@ -769,6 +780,7 @@ export interface FileRouteTypes {
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/lovable/cron/enforce'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -828,6 +840,7 @@ export interface RootRouteChildren {
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  LovableCronEnforceRoute: typeof LovableCronEnforceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1259,6 +1272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/cron/enforce': {
+      id: '/lovable/cron/enforce'
+      path: '/lovable/cron/enforce'
+      fullPath: '/lovable/cron/enforce'
+      preLoaderRoute: typeof LovableCronEnforceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1347,6 +1367,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  LovableCronEnforceRoute: LovableCronEnforceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
