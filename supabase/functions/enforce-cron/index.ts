@@ -1,4 +1,4 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Supabase auto-injects SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY into all edge functions.
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
