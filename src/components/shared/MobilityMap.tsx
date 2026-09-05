@@ -15,10 +15,7 @@ type Hub = {
   status: "high" | "medium" | "low";
 };
 
-type VehicleTypeCount = {
-  type: string;
-  count: number;
-};
+type VehicleTypeCount = { type: string; count: number };
 
 const FRENCH_CITIES: Omit<Hub, "vehicles" | "status">[] = [
   { id: "par", city: "Paris",      country: "FR", flag: "🇫🇷", lng: 2.3522,  lat: 48.8566 },
@@ -31,6 +28,9 @@ const FRENCH_CITIES: Omit<Hub, "vehicles" | "status">[] = [
   { id: "str", city: "Strasbourg", country: "FR", flag: "🇫🇷", lng: 7.7521,  lat: 48.5734 },
 ];
 
+// Types qui ne sont PAS des véhicules et ne doivent jamais apparaître dans les stats
+const EXCLUDED_TYPES = new Set(["sac_a_dos_lcd", "sac_a_dos_affiche"]);
+
 const VEHICLE_TYPE_LABELS: Record<string, string> = {
   taxi: "Taxi/VTC",
   van: "Vans",
@@ -41,6 +41,7 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
   velo_remorque: "Vélos",
   triporteur: "Triporteurs",
   camion_led: "Camions LED",
+  tutuk: "Tutuks",
   autre: "Autres",
 };
 
@@ -59,7 +60,8 @@ const statusColor: Record<Hub["status"], string> = {
 export function MobilityMap() {
   const [hubs, setHubs] = useState<Hub[]>([]);
   const [selected, setSelected] = useState<Hub | null>(null);
-  const [typeCounts, setTypeCounts] = useState<VehicleTypeCount[]>([]);
+  // type counts per city id: { "par": [{type, count}, ...], ... }
+  const [cityTypeCounts, setCityTypeCounts] = useState<Record<string, VehicleTypeCount[]>>({});
   const [totalVehicles, setTotalVehicles] = useState(0);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string>("");
@@ -89,29 +91,31 @@ export function MobilityMap() {
           return;
         }
 
-        // Count by city (normalize city names to match our list)
+        // Count by city, and by (city, type) — excluding non-vehicle types
         const cityCount: Record<string, number> = {};
-        const typeCount: Record<string, number> = {};
+        // cityTypeMap[cityId][type] = count
+        const cityTypeMap: Record<string, Record<string, number>> = {};
 
         for (const v of vehicles) {
-          // Count vehicle types
-          if (v.type) {
-            typeCount[v.type] = (typeCount[v.type] ?? 0) + 1;
-          }
+          const vtype = v.type;
+          // Ignore non-vehicle types in stats
+          if (EXCLUDED_TYPES.has(vtype)) continue;
 
-          // Count by owner city
           const ownerCity = (v.owner_profiles as { city?: string | null } | null)?.city ?? "";
           if (!ownerCity) continue;
 
           const normalized = ownerCity.trim().toLowerCase();
-          // Match to known French cities
           const match = FRENCH_CITIES.find(
             (c) =>
               c.city.toLowerCase() === normalized ||
               normalized.startsWith(c.city.toLowerCase())
           );
-          const key = match ? match.id : "other";
-          cityCount[key] = (cityCount[key] ?? 0) + 1;
+          const cityKey = match ? match.id : null;
+          if (!cityKey) continue;
+
+          cityCount[cityKey] = (cityCount[cityKey] ?? 0) + 1;
+          if (!cityTypeMap[cityKey]) cityTypeMap[cityKey] = {};
+          cityTypeMap[cityKey][vtype] = (cityTypeMap[cityKey][vtype] ?? 0) + 1;
         }
 
         // Build hubs with real counts
@@ -122,14 +126,17 @@ export function MobilityMap() {
 
         setHubs(builtHubs);
         setSelected(builtHubs[0]);
-        setTotalVehicles(vehicles.length);
+        setTotalVehicles(Object.values(cityCount).reduce((a, b) => a + b, 0));
 
-        // Top 3 vehicle types
-        const sorted = Object.entries(typeCount)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
-          .map(([type, count]) => ({ type, count }));
-        setTypeCounts(sorted);
+        // Build per-city type top-3
+        const perCityTypes: Record<string, VehicleTypeCount[]> = {};
+        for (const [cityId, typeObj] of Object.entries(cityTypeMap)) {
+          perCityTypes[cityId] = Object.entries(typeObj)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([type, count]) => ({ type, count }));
+        }
+        setCityTypeCounts(perCityTypes);
       } catch {
         setHubs(FRENCH_CITIES.map(c => ({ ...c, vehicles: 0, status: "low" as const })));
       } finally {
@@ -192,6 +199,7 @@ export function MobilityMap() {
   }, [token, hubs]);
 
   const currentVehicles = selected ? hubs.find((h) => h.id === selected.id)?.vehicles ?? 0 : 0;
+  const currentTypeCounts = selected ? (cityTypeCounts[selected.id] ?? []) : [];
   const isLaunching = totalVehicles === 0 && !loading;
 
   return (
@@ -244,21 +252,19 @@ export function MobilityMap() {
                 {currentVehicles === 0 ? "En cours de lancement dans cette ville" : "Véhicules vérifiés par MoveSpot"}
               </div>
             </div>
-            <div className="h-px bg-border" />
-            {typeCounts.length > 0 ? (
-              <div className="grid grid-cols-3 gap-2 mt-auto">
-                {typeCounts.map(({ type, count }) => (
-                  <Stat
-                    key={type}
-                    label={VEHICLE_TYPE_LABELS[type] ?? type}
-                    value={count.toLocaleString("fr-FR")}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-xs text-muted-foreground text-center mt-auto">
-                Aucun véhicule inscrit pour le moment
-              </div>
+            {currentVehicles > 0 && currentTypeCounts.length > 0 && (
+              <>
+                <div className="h-px bg-border" />
+                <div className="grid grid-cols-3 gap-2 mt-auto">
+                  {currentTypeCounts.map(({ type, count }) => (
+                    <Stat
+                      key={type}
+                      label={VEHICLE_TYPE_LABELS[type] ?? type}
+                      value={count.toLocaleString("fr-FR")}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </>
         )}
