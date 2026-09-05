@@ -48,8 +48,8 @@ function MentionsLegales() {
       <LegalSection title="Coordonnées">
         <p>
           <strong>Email</strong> :{" "}
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">
-            contact@notify.move-spot.com
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
           </a>
         </p>
         <p>
@@ -114,7 +114,7 @@ function MentionsLegales() {
           <li><strong>Virements bancaires</strong> : établissement bancaire de MoveSpot, pour les règlements B2B entrants et les virements SEPA sortants.</li>
           <li><strong>Cartographie et itinéraires</strong> : Mapbox — affichage des cartes, dessin des zones de diffusion, vues 3D, géocodage des adresses, calcul d'itinéraire et détection des points d'intérêt.</li>
           <li><strong>Vérification d'entreprise</strong> : API publiques françaises « Annuaire des Entreprises » / INSEE Sirene.</li>
-          <li><strong>Emails transactionnels</strong> : envoi des notifications de compte et de campagne depuis le domaine <strong>notify.move-spot.com</strong>, avec gestion des désinscriptions.</li>
+          <li><strong>Emails transactionnels</strong> : envoi des notifications de compte et de campagne depuis le domaine <strong>move-spot.com</strong>, avec gestion des désinscriptions.</li>
           <li><strong>Infrastructure applicative</strong> : base de données, authentification (dont double authentification TOTP) et stockage de fichiers hébergés dans l'Union européenne.</li>
         </ul>
 
@@ -124,7 +124,7 @@ function MentionsLegales() {
         <p>
           Conformément à l'article L.612-1 du Code de la consommation, tout consommateur peut recourir gratuitement à
           un médiateur de la consommation en vue de la résolution amiable d'un litige. Pour toute demande, écrivez à{" "}
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">contact@notify.move-spot.com</a>
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">contact@move-spot.com</a>
           {" "}afin d'obtenir les coordonnées du médiateur compétent.
         </p>
       </LegalSection>
@@ -132,7 +132,7 @@ function MentionsLegales() {
       <LegalSection title="Signalement de contenu">
         <p>
           Tout contenu publicitaire diffusé via la Plateforme peut être signalé à l'adresse{" "}
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">contact@notify.move-spot.com</a>.
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">contact@move-spot.com</a>.
           MoveSpot procède à un examen humain et peut suspendre la campagne concernée.
         </p>
       </LegalSection>
