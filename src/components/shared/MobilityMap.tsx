@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 type Hub = {
   id: string;
@@ -14,60 +15,142 @@ type Hub = {
   status: "high" | "medium" | "low";
 };
 
-const INITIAL_HUBS: Hub[] = [
-  { id: "par", city: "Paris", country: "FR", flag: "🇫🇷", lng: 2.3522, lat: 48.8566, vehicles: 1243, status: "high" },
-  { id: "nyc", city: "New York", country: "US", flag: "🇺🇸", lng: -74.006, lat: 40.7128, vehicles: 2180, status: "high" },
-  { id: "tok", city: "Tokyo", country: "JP", flag: "🇯🇵", lng: 139.6917, lat: 35.6895, vehicles: 1876, status: "high" },
-  { id: "dub", city: "Dubai", country: "AE", flag: "🇦🇪", lng: 55.2708, lat: 25.2048, vehicles: 534, status: "medium" },
-  { id: "sao", city: "São Paulo", country: "BR", flag: "🇧🇷", lng: -46.6333, lat: -23.5505, vehicles: 412, status: "medium" },
-  { id: "sin", city: "Singapore", country: "SG", flag: "🇸🇬", lng: 103.8198, lat: 1.3521, vehicles: 689, status: "medium" },
-  { id: "lag", city: "Lagos", country: "NG", flag: "🇳🇬", lng: 3.3792, lat: 6.5244, vehicles: 187, status: "low" },
-  { id: "syd", city: "Sydney", country: "AU", flag: "🇦🇺", lng: 151.2093, lat: -33.8688, vehicles: 298, status: "low" },
+type VehicleTypeCount = {
+  type: string;
+  count: number;
+};
+
+const FRENCH_CITIES: Omit<Hub, "vehicles" | "status">[] = [
+  { id: "par", city: "Paris",      country: "FR", flag: "🇫🇷", lng: 2.3522,  lat: 48.8566 },
+  { id: "lyo", city: "Lyon",       country: "FR", flag: "🇫🇷", lng: 4.8357,  lat: 45.7640 },
+  { id: "mar", city: "Marseille",  country: "FR", flag: "🇫🇷", lng: 5.3698,  lat: 43.2965 },
+  { id: "bor", city: "Bordeaux",   country: "FR", flag: "🇫🇷", lng: -0.5792, lat: 44.8378 },
+  { id: "tou", city: "Toulouse",   country: "FR", flag: "🇫🇷", lng: 1.4442,  lat: 43.6047 },
+  { id: "nic", city: "Nice",       country: "FR", flag: "🇫🇷", lng: 7.2620,  lat: 43.7102 },
+  { id: "nan", city: "Nantes",     country: "FR", flag: "🇫🇷", lng: -1.5534, lat: 47.2184 },
+  { id: "str", city: "Strasbourg", country: "FR", flag: "🇫🇷", lng: 7.7521,  lat: 48.5734 },
 ];
 
+const VEHICLE_TYPE_LABELS: Record<string, string> = {
+  taxi: "Taxi/VTC",
+  van: "Vans",
+  food_truck: "Food trucks",
+  scooter: "Scooters",
+  voiture: "Voitures",
+  velo_cargo: "Vélos cargo",
+  velo_remorque: "Vélos",
+  triporteur: "Triporteurs",
+  camion_led: "Camions LED",
+  autre: "Autres",
+};
+
+function vehicleStatus(count: number): Hub["status"] {
+  if (count >= 20) return "high";
+  if (count >= 5)  return "medium";
+  return "low";
+}
+
 const statusColor: Record<Hub["status"], string> = {
-  high: "#22c55e",
+  high:   "#22c55e",
   medium: "#f59e0b",
-  low: "#ef4444",
+  low:    "#ef4444",
 };
 
 export function MobilityMap() {
-  const [hubs, setHubs] = useState(INITIAL_HUBS);
-  const [selected, setSelected] = useState<Hub>(INITIAL_HUBS[0]);
+  const [hubs, setHubs] = useState<Hub[]>([]);
+  const [selected, setSelected] = useState<Hub | null>(null);
+  const [typeCounts, setTypeCounts] = useState<VehicleTypeCount[]>([]);
+  const [totalVehicles, setTotalVehicles] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string>("");
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<Record<string, mapboxgl.Marker>>({});
 
-  // Load token from server
+  // Load Mapbox token
   useEffect(() => {
     getMapboxToken().then((res: { token: string }) => setToken(res.token)).catch(() => setToken(""));
   }, []);
 
-  // Update vehicle counts
+  // Load real vehicle data from Supabase
   useEffect(() => {
-    const interval = setInterval(() => {
-      setHubs((prev) =>
-        prev.map((h) => ({
-          ...h,
-          vehicles: Math.max(50, h.vehicles + Math.floor((Math.random() - 0.5) * 60)),
-        })),
-      );
-    }, 2000);
-    return () => clearInterval(interval);
+    async function loadVehicleData() {
+      setLoading(true);
+      try {
+        // Get all approved vehicles with their owner's city
+        const { data: vehicles, error } = await supabase
+          .from("vehicles")
+          .select("type, owner_profiles!vehicles_owner_id_fkey(city)")
+          .eq("status", "approved");
+
+        if (error || !vehicles) {
+          setHubs(FRENCH_CITIES.map(c => ({ ...c, vehicles: 0, status: "low" as const })));
+          setLoading(false);
+          return;
+        }
+
+        // Count by city (normalize city names to match our list)
+        const cityCount: Record<string, number> = {};
+        const typeCount: Record<string, number> = {};
+
+        for (const v of vehicles) {
+          // Count vehicle types
+          if (v.type) {
+            typeCount[v.type] = (typeCount[v.type] ?? 0) + 1;
+          }
+
+          // Count by owner city
+          const ownerCity = (v.owner_profiles as { city?: string | null } | null)?.city ?? "";
+          if (!ownerCity) continue;
+
+          const normalized = ownerCity.trim().toLowerCase();
+          // Match to known French cities
+          const match = FRENCH_CITIES.find(
+            (c) =>
+              c.city.toLowerCase() === normalized ||
+              normalized.startsWith(c.city.toLowerCase())
+          );
+          const key = match ? match.id : "other";
+          cityCount[key] = (cityCount[key] ?? 0) + 1;
+        }
+
+        // Build hubs with real counts
+        const builtHubs: Hub[] = FRENCH_CITIES.map((c) => {
+          const count = cityCount[c.id] ?? 0;
+          return { ...c, vehicles: count, status: vehicleStatus(count) };
+        });
+
+        setHubs(builtHubs);
+        setSelected(builtHubs[0]);
+        setTotalVehicles(vehicles.length);
+
+        // Top 3 vehicle types
+        const sorted = Object.entries(typeCount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([type, count]) => ({ type, count }));
+        setTypeCounts(sorted);
+      } catch {
+        setHubs(FRENCH_CITIES.map(c => ({ ...c, vehicles: 0, status: "low" as const })));
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadVehicleData();
   }, []);
 
-  // Initialize map
+  // Initialize map once token + hubs are ready
   useEffect(() => {
-    if (!token || !mapContainer.current || mapRef.current) return;
+    if (!token || !mapContainer.current || mapRef.current || hubs.length === 0) return;
 
     mapboxgl.accessToken = token;
     try {
       const map = new mapboxgl.Map({
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/dark-v11",
-        center: [10, 25],
-        zoom: 1.3,
+        center: [2.5, 46.5],
+        zoom: 4.5,
         projection: { name: "globe" },
         attributionControl: false,
       });
@@ -82,13 +165,13 @@ export function MobilityMap() {
         });
       });
 
-      INITIAL_HUBS.forEach((hub) => {
+      hubs.forEach((hub) => {
         const el = document.createElement("div");
         el.style.cssText = `width:14px;height:14px;border-radius:999px;background:${statusColor[hub.status]};box-shadow:0 0 0 4px ${statusColor[hub.status]}33, 0 0 12px ${statusColor[hub.status]};cursor:pointer;border:2px solid #0f172a;`;
         el.title = `${hub.flag} ${hub.city}`;
         el.addEventListener("click", () => {
           setSelected(hub);
-          map.flyTo({ center: [hub.lng, hub.lat], zoom: 4, duration: 1500 });
+          map.flyTo({ center: [hub.lng, hub.lat], zoom: 7, duration: 1200 });
         });
         const marker = new mapboxgl.Marker({ element: el })
           .setLngLat([hub.lng, hub.lat])
@@ -106,9 +189,10 @@ export function MobilityMap() {
       mapRef.current = null;
       markersRef.current = {};
     };
-  }, [token]);
+  }, [token, hubs]);
 
-  const currentVehicles = hubs.find((h) => h.id === selected.id)?.vehicles ?? 0;
+  const currentVehicles = selected ? hubs.find((h) => h.id === selected.id)?.vehicles ?? 0 : 0;
+  const isLaunching = totalVehicles === 0 && !loading;
 
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-6">
@@ -132,28 +216,71 @@ export function MobilityMap() {
       </div>
 
       <div className="rounded-2xl border border-border bg-gradient-card p-6 flex flex-col gap-4">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">Hub sélectionné</div>
-        <div className="flex items-center gap-3">
-          <span className="text-4xl">{selected.flag}</span>
-          <div>
-            <div className="font-display text-2xl font-semibold">{selected.city}</div>
-            <div className="text-sm text-muted-foreground">{selected.country}</div>
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">Chargement…</div>
           </div>
-        </div>
-        <div className="h-px bg-border" />
-        <div>
-          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Véhicules disponibles</div>
-          <div className="font-display text-4xl font-bold tabular-nums text-primary">
-            {currentVehicles.toLocaleString("fr-FR")}
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">Mis à jour en temps réel</div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 mt-auto">
-          <Stat label="Vélos" value="42%" />
-          <Stat label="Scooters" value="31%" />
-          <Stat label="Autos" value="27%" />
-        </div>
+        ) : isLaunching ? (
+          <LaunchingState />
+        ) : (
+          <>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">Ville sélectionnée</div>
+            {selected && (
+              <div className="flex items-center gap-3">
+                <span className="text-4xl">{selected.flag}</span>
+                <div>
+                  <div className="font-display text-2xl font-semibold">{selected.city}</div>
+                  <div className="text-sm text-muted-foreground">France</div>
+                </div>
+              </div>
+            )}
+            <div className="h-px bg-border" />
+            <div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Véhicules disponibles</div>
+              <div className="font-display text-4xl font-bold tabular-nums text-primary">
+                {currentVehicles.toLocaleString("fr-FR")}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {currentVehicles === 0 ? "En cours de lancement dans cette ville" : "Véhicules vérifiés par MoveSpot"}
+              </div>
+            </div>
+            <div className="h-px bg-border" />
+            {typeCounts.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2 mt-auto">
+                {typeCounts.map(({ type, count }) => (
+                  <Stat
+                    key={type}
+                    label={VEHICLE_TYPE_LABELS[type] ?? type}
+                    value={count.toLocaleString("fr-FR")}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground text-center mt-auto">
+                Aucun véhicule inscrit pour le moment
+              </div>
+            )}
+          </>
+        )}
       </div>
+    </div>
+  );
+}
+
+function LaunchingState() {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-4">
+      <span className="text-3xl">🚀</span>
+      <div className="font-display text-xl font-bold">Lancement en cours</div>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        MoveSpot ouvre ses portes en France. Les premiers propriétaires rejoignent la plateforme.
+      </p>
+      <a
+        href="/devenir-partenaire"
+        className="mt-2 text-xs font-semibold text-primary hover:underline"
+      >
+        Inscrire mon véhicule →
+      </a>
     </div>
   );
 }
