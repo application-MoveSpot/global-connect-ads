@@ -20,6 +20,10 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement." },
       { property: "og:url", content: "https://move-spot.com/" },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://move-spot.com/icon-512.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:image", content: "https://move-spot.com/icon-512.png" },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/" },

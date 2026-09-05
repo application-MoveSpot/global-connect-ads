@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createLovableAiGatewayProvider } from "@/lib/ai/ai-gateway.server";
 import { log } from "@/lib/logger";
+import { checkRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import type { ChatAudience } from "@/components/app/FAQChatbot";
 
 type ChatRequestBody = { messages?: unknown; audience?: ChatAudience };
@@ -193,6 +194,18 @@ export const Route = createFileRoute("/api/faq-chat")({
           if (error || !data?.claims?.sub) {
             return new Response("Non authentifié", { status: 401 });
           }
+        }
+
+        // Rate limit: 20 req/min par IP, 60 req/h par IP (protection coût IA)
+        const ip = getRequestIp();
+        if (
+          !checkRateLimit(`faq:min:${ip}`, { maxRequests: 20, windowMs: 60_000 }) ||
+          !checkRateLimit(`faq:hour:${ip}`, { maxRequests: 60, windowMs: 3_600_000 })
+        ) {
+          return new Response(
+            JSON.stringify({ error: "Trop de requêtes. Réessayez dans quelques minutes." }),
+            { status: 429, headers: { "Content-Type": "application/json" } },
+          );
         }
 
         const { messages, audience } = (await request.json()) as ChatRequestBody;
