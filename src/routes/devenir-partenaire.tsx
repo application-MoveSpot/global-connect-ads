@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { hreflangLinks } from "@/lib/seo";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
@@ -15,6 +16,113 @@ export const Route = createFileRoute("/devenir-partenaire")({
   }),
   component: DevenirPartenaire,
 });
+
+const VEHICULE_RATES: Record<string, { label: string; min: number; max: number }> = {
+  taxi:       { label: "Taxi / VTC",          min: 180, max: 480 },
+  van:        { label: "Van utilitaire",       min: 150, max: 400 },
+  foodtruck:  { label: "Food truck",           min: 120, max: 320 },
+  scooter:    { label: "Scooter livraison",    min:  60, max: 180 },
+  voiture:    { label: "Voiture personnelle",  min:  80, max: 240 },
+  flotte:     { label: "Flotte d'entreprise",  min: 400, max: 1200 },
+};
+
+const CITY_MULTIPLIER: Record<string, { label: string; mult: number }> = {
+  paris:      { label: "Paris",      mult: 1.4 },
+  lyon:       { label: "Lyon",       mult: 1.1 },
+  marseille:  { label: "Marseille",  mult: 1.0 },
+  bordeaux:   { label: "Bordeaux",   mult: 0.95 },
+  toulouse:   { label: "Toulouse",   mult: 0.95 },
+  autre:      { label: "Autre ville", mult: 0.8 },
+};
+
+function RevenueSimulator() {
+  const [vehicule, setVehicule] = useState("taxi");
+  const [ville, setVille] = useState("paris");
+  const [nb, setNb] = useState(1);
+
+  const rate = VEHICULE_RATES[vehicule];
+  const mult = CITY_MULTIPLIER[ville].mult;
+  const low = Math.round(rate.min * mult * nb);
+  const high = Math.round(rate.max * mult * nb);
+
+  return (
+    <section className="max-w-4xl mx-auto px-6 py-16">
+      <div className="rounded-3xl border border-primary/30 bg-card/80 backdrop-blur p-8 md:p-10 shadow-glow">
+        <div className="text-center mb-8">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-4 py-1.5 text-xs font-medium mb-4">
+            💶 Simulateur de revenus
+          </span>
+          <h2 className="font-display text-3xl md:text-4xl font-bold">Combien pouvez-vous gagner ?</h2>
+          <p className="text-muted-foreground mt-2 text-sm">Estimation basée sur les campagnes actives — 70 % du revenu vous revient directement.</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Type de véhicule</label>
+            <select
+              value={vehicule}
+              onChange={e => setVehicule(e.target.value)}
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {Object.entries(VEHICULE_RATES).map(([k, v]) => (
+                <option key={k} value={k}>{v.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Ville principale</label>
+            <select
+              value={ville}
+              onChange={e => setVille(e.target.value)}
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {Object.entries(CITY_MULTIPLIER).map(([k, v]) => (
+                <option key={k} value={k}>{v.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              Nombre de véhicules : <span className="text-foreground">{nb}</span>
+            </label>
+            <input
+              type="range"
+              min={1}
+              max={20}
+              value={nb}
+              onChange={e => setNb(Number(e.target.value))}
+              className="w-full accent-primary mt-3"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>1</span><span>10</span><span>20</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-primary/10 border border-primary/20 p-6 text-center">
+          <p className="text-sm text-muted-foreground mb-1">Revenu mensuel estimé</p>
+          <p className="font-display text-5xl md:text-6xl font-bold text-primary">
+            {low.toLocaleString("fr-FR")} – {high.toLocaleString("fr-FR")} €
+          </p>
+          <p className="text-xs text-muted-foreground mt-3">
+            Pour {nb} {VEHICULE_RATES[vehicule].label.toLowerCase()}{nb > 1 ? "s" : ""} à {CITY_MULTIPLIER[ville].label} · Estimation non contractuelle
+          </p>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/proprietaire/inscription"
+            className="inline-block rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
+          >
+            Créer mon espace propriétaire →
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function DevenirPartenaire() {
   return (
@@ -73,6 +181,8 @@ function DevenirPartenaire() {
           ))}
         </div>
       </section>
+
+      <RevenueSimulator />
 
       <section className="max-w-4xl mx-auto px-6 py-12">
         <div className="rounded-2xl border border-border bg-card/60 backdrop-blur p-6 md:p-8">
