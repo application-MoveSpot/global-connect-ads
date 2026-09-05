@@ -286,6 +286,136 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         );
         results.gps = gpsResults;
 
+        // ─── 4. Matching proactif briefs ↔ flottes ────────────────────────────────
+        // Notifie les propriétaires dont les véhicules correspondent aux briefs récents
+        try {
+          const sevenDaysAgo2 = new Date(now.getTime() - 7 * 86_400_000).toISOString();
+          const { data: recentBriefs } = await supabaseAdmin
+            .from("advertiser_briefs")
+            .select("id, title, vehicle_types, zones, start_date")
+            .gte("created_at", sevenDaysAgo2)
+            .order("created_at", { ascending: false });
+
+          const { data: approvedVehicles } = await supabaseAdmin
+            .from("vehicles")
+            .select("id, type, zones, owner_profiles!inner(user_id, full_name)")
+            .eq("status", "approved");
+
+          if (recentBriefs?.length && approvedVehicles?.length) {
+            type OwnerBucket = { userId: string; name: string; types: Set<string>; };
+            const ownerMap = new Map<string, OwnerBucket>();
+            for (const v of approvedVehicles) {
+              const prof = (v as unknown as Record<string, unknown>).owner_profiles as { user_id: string; full_name: string } | null;
+              if (!prof) continue;
+              if (!ownerMap.has(prof.user_id)) {
+                ownerMap.set(prof.user_id, { userId: prof.user_id, name: prof.full_name ?? "", types: new Set() });
+              }
+              ownerMap.get(prof.user_id)!.types.add(String(v.type));
+            }
+
+            const matchingStats = { notified: 0 };
+            for (const [, owner] of ownerMap) {
+              const compatible = recentBriefs.filter((b) =>
+                ((b.vehicle_types as string[] | null) ?? []).some((t) => owner.types.has(t)),
+              );
+              if (!compatible.length) continue;
+              const top = compatible[0]!;
+              await sendWebPushToUser(owner.userId, {
+                title: "🎯 Nouveaux briefs pour votre flotte",
+                body: compatible.length === 1
+                  ? `"${top.title}" correspond à votre flotte — répondez en premier !`
+                  : `${compatible.length} briefs correspondent à votre flotte. Ne les ratez pas !`,
+                url: "/proprietaire/briefs",
+              }).catch(() => {/* best-effort */});
+              matchingStats.notified++;
+            }
+            results.matching = matchingStats;
+          } else {
+            results.matching = { notified: 0 };
+          }
+        } catch {
+          results.matching = { error: "matching skipped" };
+        }
+
+        // ─── 5. Auto-modération visuels (briefs récents non modérés) ─────────────
+        // Analyse les créatifs des briefs des dernières 48h et alerte les admins si suspect
+        try {
+          const twoDaysAgoIso = new Date(now.getTime() - 2 * 86_400_000).toISOString();
+          const { data: briefsWithCreatives } = await supabaseAdmin
+            .from("advertiser_briefs")
+            .select("id, title, creative_files, advertiser_id")
+            .gte("created_at", twoDaysAgoIso)
+            .not("creative_files", "is", null);
+
+          const apiKey = process.env["LOVABLE_API_KEY"];
+          const modStats = { analysed: 0, suspects: 0 };
+
+          if (apiKey && briefsWithCreatives?.length) {
+            const { data: admins } = await supabaseAdmin
+              .from("user_roles" as never)
+              .select("user_id")
+              .eq("role" as never, "admin");
+
+            for (const brief of briefsWithCreatives) {
+              const files = (brief.creative_files as string[] | null) ?? [];
+              for (const storagePath of files.slice(0, 2)) {
+                // Fetch signed URL
+                const { data: urlData } = await supabaseAdmin.storage
+                  .from("campaign-creatives")
+                  .createSignedUrl(storagePath, 60);
+                if (!urlData?.signedUrl) continue;
+
+                try {
+                  const imgResp = await fetch(urlData.signedUrl);
+                  if (!imgResp.ok) continue;
+                  const buf = await imgResp.arrayBuffer();
+                  const base64 = Buffer.from(buf).toString("base64");
+                  const mimeType = imgResp.headers.get("content-type") ?? "image/jpeg";
+
+                  const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+                    body: JSON.stringify({
+                      model: "google/gemini-2.0-flash",
+                      messages: [{
+                        role: "user",
+                        content: [
+                          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
+                          { type: "text", text: 'Analyse ce visuel publicitaire. Réponds en JSON: {"safe":true/false,"score_risque":0-100,"verdict":"conforme"|"suspect"|"interdit","issues":[]}. Score > 50 = suspect.' },
+                        ],
+                      }],
+                      temperature: 0.1,
+                      max_tokens: 150,
+                    }),
+                  });
+
+                  modStats.analysed++;
+                  if (aiResp.ok) {
+                    const json = await aiResp.json() as { choices?: Array<{ message?: { content?: string } }> };
+                    const raw = json.choices?.[0]?.message?.content ?? "{}";
+                    let parsed: { score_risque?: number; verdict?: string } = {};
+                    try { parsed = JSON.parse(raw.replace(/```json\n?|\n?```/g, "")); } catch { /* ignore */ }
+                    const score = Number(parsed.score_risque ?? 0);
+                    if (score >= 50) {
+                      modStats.suspects++;
+                      for (const admin of (admins ?? []) as Array<{ user_id: string }>) {
+                        await sendWebPushToUser(admin.user_id, {
+                          title: "🚨 Visuel suspect détecté",
+                          body: `Brief "${brief.title}" : visuel avec score risque ${score}/100. Vérifiez dans Modération IA.`,
+                          url: "/admin/dashboard",
+                        }).catch(() => {/* best-effort */});
+                      }
+                    }
+                  }
+                } catch { /* best-effort per file */ }
+              }
+            }
+          }
+          results.autoModeration = modStats;
+        } catch {
+          results.autoModeration = { error: "auto-moderation skipped" };
+        }
+
         return Response.json({ ok: true, results });
       },
 

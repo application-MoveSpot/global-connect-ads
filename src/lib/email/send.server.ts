@@ -9,8 +9,8 @@ import { render } from "@react-email/render";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 
 const SITE_NAME = "MoveSpot";
-const SENDER_DOMAIN = "notify.move-spot.com";
-const FROM_DOMAIN = "notify.move-spot.com";
+const SENDER_DOMAIN = "move-spot.com";
+const FROM_DOMAIN = "move-spot.com";
 
 function generateToken(): string {
   const bytes = new Uint8Array(32);

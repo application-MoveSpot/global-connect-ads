@@ -677,9 +677,11 @@ export function ZoneSelector({
       <div
         style={{
           position: "relative",
+          zIndex: 0,
           overflow: "hidden",
           borderRadius: "0.5rem",
           border: "1px solid hsl(var(--border))",
+          isolation: "isolate",
         }}
       >
         <div ref={containerRef} style={{ height: 340, width: "100%" }} />

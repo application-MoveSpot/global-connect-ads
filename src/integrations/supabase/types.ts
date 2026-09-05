@@ -583,6 +583,12 @@ export type Database = {
           stripe_payouts_enabled: boolean
           updated_at: string
           user_id: string
+          vigilance_attestation_url: string | null
+          vigilance_date_verification: string | null
+          vigilance_gains_cumules_centimes: number
+          vigilance_notes: string | null
+          vigilance_seuil_atteint_at: string | null
+          vigilance_statut: string
         }
         Insert: {
           bio?: string | null
@@ -603,6 +609,12 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id: string
+          vigilance_attestation_url?: string | null
+          vigilance_date_verification?: string | null
+          vigilance_gains_cumules_centimes?: number
+          vigilance_notes?: string | null
+          vigilance_seuil_atteint_at?: string | null
+          vigilance_statut?: string
         }
         Update: {
           bio?: string | null
@@ -623,6 +635,12 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
+          vigilance_attestation_url?: string | null
+          vigilance_date_verification?: string | null
+          vigilance_gains_cumules_centimes?: number
+          vigilance_notes?: string | null
+          vigilance_seuil_atteint_at?: string | null
+          vigilance_statut?: string
         }
         Relationships: []
       }

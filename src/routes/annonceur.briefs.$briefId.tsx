@@ -11,6 +11,7 @@ import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { RefreshCw, Wallet, FileText } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
 import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
+import { SignalementDialog } from "@/components/shared/SignalementDialog";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
@@ -362,6 +363,12 @@ function BriefDetailPage() {
             })}
           </div>
         )}
+        <div className="mt-8 pt-6 border-t border-border flex justify-end">
+          <SignalementDialog
+            contextUrl={`/annonceur/briefs/${briefId}`}
+            triggerLabel="Signaler un problème"
+          />
+        </div>
       </main>
     </div>
   );

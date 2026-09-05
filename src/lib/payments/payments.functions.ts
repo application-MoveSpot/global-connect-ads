@@ -286,13 +286,32 @@ export const transferToOwner = createServerFn({ method: "POST" })
       .single();
     if (!vehicle?.owner_id) throw new Error("Propriétaire introuvable");
 
-    const { data: owner } = await supabaseAdmin
+    const { data: ownerRaw } = await (supabaseAdmin as unknown as {
+      from: (t: string) => {
+        select: (c: string) => {
+          eq: (col: string, val: string) => {
+            single: () => Promise<{ data: { stripe_account_id: string | null; stripe_payouts_enabled: boolean; vigilance_statut: string | null } | null }>;
+          };
+        };
+      };
+    })
       .from("owner_profiles")
-      .select("stripe_account_id, stripe_payouts_enabled")
+      .select("stripe_account_id, stripe_payouts_enabled, vigilance_statut")
       .eq("id", vehicle.owner_id)
       .single();
+    const owner = ownerRaw;
     if (!owner?.stripe_account_id) throw new Error("Le propriétaire n'a pas connecté son compte Stripe");
     if (!owner.stripe_payouts_enabled) throw new Error("Le compte Stripe du propriétaire n'est pas encore actif");
+
+    // ── Contrôle de vigilance Urssaf (Art. L.8222-1 Code du travail) ──────────
+    // Si le propriétaire a dépassé 5 000 € de gains et que son attestation
+    // Urssaf n'est pas encore validée, on bloque le virement.
+    if (owner.vigilance_statut === "BLOQUE") {
+      throw new Error(
+        "Virement suspendu : l'attestation de vigilance Urssaf du propriétaire est en attente de validation. " +
+        "Le propriétaire doit se connecter à son espace pour soumettre son attestation.",
+      );
+    }
 
     const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");
     const stripe = createStripeClient(getDefaultStripeEnvironment());

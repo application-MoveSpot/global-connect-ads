@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
@@ -12,12 +12,8 @@ import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
-import type { VehicleKey, AdFormat } from "@/components/advertiser/VehicleMockup3D";
+import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
 import { resizeImageFile } from "@/lib/images/resize";
-
-const VehicleMockup3D = lazy(() =>
-  import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
-);
 
 type BookedPeriod = { start_date: string; end_date: string };
 type DateConflict = {
@@ -76,28 +72,7 @@ type AuthState =
   | { kind: "no-profile"; userId: string; email: string }
   | { kind: "ready"; userId: string; profile: { full_name: string; company: string | null; email: string } };
 
-function spotToVehicleKey(vehicleType: string | null | undefined): VehicleKey {
-  const t = (vehicleType ?? "").toLowerCase();
-  if (t === "camion_led") return "camion_led";
-  if (t === "van") return "van";
-  if (t === "food_truck") return "food_truck";
-  if (t === "voiture") return "voiture";
-  if (t === "taxi") return "taxi";
-  if (t === "scooter") return "scooter";
-  if (t === "velo_cargo") return "velo_cargo";
-  if (t === "triporteur") return "triporteur";
-  return "autre";
-}
-
-function spotToAdFormat(format: string | null | undefined): AdFormat {
-  const f = (format ?? "").toLowerCase();
-  if (f.includes("boxled") || f.includes("led") || f.includes("écran")) return "boxled";
-  if (f.includes("demi")) return "demi_covering";
-  if (f.includes("covering")) return "covering_total";
-  if (f.includes("sticker")) return "stickers";
-  if (f.includes("affiche")) return "affiche";
-  return "covering_total";
-}
+const SCREEN_VEHICLE_TYPES = ["camion_led", "sac_a_dos_lcd"];
 
 export function BookingForm({ spot, onClose }: Props) {
   const navigate = useNavigate();
@@ -582,7 +557,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 )}
               </div>
 
-              {/* Simulateur 3D — couleur de marque + logo + rendu du véhicule avec overlay pub */}
+              {/* Aperçu publicitaire sur les photos réelles du véhicule */}
               <div className="rounded-lg border border-border bg-secondary/10 p-4 space-y-3">
                 <div className="text-sm font-semibold">🎨 Aperçu publicitaire sur le véhicule</div>
                 <div className="flex items-center gap-4 flex-wrap">
@@ -612,18 +587,17 @@ export function BookingForm({ spot, onClose }: Props) {
                     )}
                   </div>
                 </div>
-                <Suspense fallback={
-                  <div className="h-56 rounded-xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">
-                    Chargement du simulateur…
-                  </div>
-                }>
-                  <VehicleMockup3D
-                    vehicleTypes={[spotToVehicleKey(spot.vehicleType)]}
-                    adFormat={spotToAdFormat(spot.format)}
+                {spot.vehicleId ? (
+                  <VehiclePhotoAdPreview
+                    vehicleId={spot.vehicleId}
                     brandColor={brandColor}
                     logoUrl={logoUrl}
                   />
-                </Suspense>
+                ) : (
+                  <div className="h-32 rounded-xl bg-secondary/40 flex items-center justify-center text-xs text-muted-foreground">
+                    Aperçu non disponible
+                  </div>
+                )}
               </div>
 
               <div>
@@ -784,11 +758,11 @@ export function BookingForm({ spot, onClose }: Props) {
               </p>
 
 
-              {spot.vehicleType === "camion_led" && (
+              {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") && (
                 <div className="rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-4 text-sm space-y-1">
-                  <div className="font-semibold text-indigo-300">📺 Véhicule écran LED</div>
+                  <div className="font-semibold text-indigo-300">📺 Véhicule écran</div>
                   <p className="text-xs text-indigo-200/80">
-                    Ce véhicule diffuse votre campagne sur un écran LED embarqué (3 faces, résolution 3200 × 1920 px).
+                    Ce véhicule est équipé d'un écran pour diffuser votre campagne.
                     <strong className="text-indigo-200"> Uploadez un fichier MP4 ou MOV</strong> (durée recommandée : 15 – 30 s,
                     poids max 200 Mo). La vidéo est lue en boucle automatique pendant la plage horaire choisie.
                   </p>
@@ -801,8 +775,8 @@ export function BookingForm({ spot, onClose }: Props) {
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="text-sm font-semibold">
-                    {spot.vehicleType === "camion_led" ? "Vidéo de la campagne" : "Fichiers de la créa"}
-                    {" "}<span className="text-muted-foreground font-normal">{spot.vehicleType === "camion_led" ? "(MP4 requis)" : "(optionnel)"}</span>
+                    {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? "Vidéo de la campagne" : "Fichiers de la créa"}
+                    {" "}<span className="text-muted-foreground font-normal">{SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? "(MP4 requis)" : "(optionnel)"}</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
                 </div>

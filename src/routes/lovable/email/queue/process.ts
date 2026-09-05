@@ -1,4 +1,4 @@
-import { sendLovableEmail } from '@lovable.dev/email-js'
+import { Resend } from 'resend'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -64,11 +64,11 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const apiKey = process.env['LOVABLE_API_KEY']
+        const resendApiKey = process.env['RESEND_API_KEY']
         const supabaseUrl = import.meta.env['VITE_SUPABASE_URL']
         const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY']
 
-        if (!apiKey || !supabaseUrl || !supabaseServiceKey) {
+        if (!resendApiKey || !supabaseUrl || !supabaseServiceKey) {
           console.error('Missing required environment variables')
           return Response.json(
             { error: 'Server configuration error' },
@@ -88,6 +88,7 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
           return Response.json({ error: 'Forbidden' }, { status: 403 })
         }
 
+        const resend = new Resend(resendApiKey)
         const supabase: SupabaseClient<any, any> = createClient(supabaseUrl, supabaseServiceKey)
 
         // 1. Check rate-limit cooldown and read queue config
@@ -221,23 +222,19 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
             }
 
             try {
-              await sendLovableEmail(
-                {
-                  run_id: payload.run_id,
-                  to: payload.to,
-                  from: payload.from,
-                  sender_domain: payload.sender_domain,
-                  subject: payload.subject,
-                  html: payload.html,
-                  text: payload.text,
-                  purpose: payload.purpose,
-                  label: payload.label,
-                  idempotency_key: payload.idempotency_key,
-                  unsubscribe_token: payload.unsubscribe_token,
-                  message_id: payload.message_id,
+              const { error: resendError } = await resend.emails.send({
+                from: payload.from,
+                to: payload.to,
+                subject: payload.subject,
+                html: payload.html,
+                text: payload.text,
+                headers: {
+                  'X-Entity-Ref-ID': payload.message_id ?? '',
+                  'List-Unsubscribe': `<https://move-spot.com/unsubscribe?token=${payload.unsubscribe_token}>`,
+                  'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
                 },
-                { apiKey, sendUrl: process.env['LOVABLE_SEND_URL'] }
-              )
+              })
+              if (resendError) throw Object.assign(new Error(resendError.message), { status: (resendError as any).statusCode ?? 0 })
 
               // Log success
               await supabase.from('email_send_log').insert({

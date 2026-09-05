@@ -40,6 +40,10 @@ import {
   parseInstallationPhotos,
 } from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
+import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
+import { moderateBriefVisual, type VisualModerationResult } from "@/lib/ai/visual-validation.functions";
+import { runBriefMatching } from "@/lib/ai/brief-matching.functions";
+import { adminListTickets, adminResolveTicket, type SupportTicket } from "@/lib/support/signalement.functions";
 
 const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
 
@@ -61,7 +65,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs";
+type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -339,6 +343,15 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "utilisateurs"} onClick={() => setTab("utilisateurs")}>
             Utilisateurs
+          </TabBtn>
+          <TabBtn active={tab === "vigilance"} onClick={() => setTab("vigilance")}>
+            Vigilance Urssaf
+          </TabBtn>
+          <TabBtn active={tab === "moderation"} onClick={() => setTab("moderation")}>
+            🔍 Modération IA
+          </TabBtn>
+          <TabBtn active={tab === "alertes"} onClick={() => setTab("alertes")}>
+            🔔 Alertes
           </TabBtn>
         </div>
 
@@ -1076,6 +1089,19 @@ function AdminDashboard() {
           )
         ) : null}
 
+        {tab === "vigilance" ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold">Attestations de vigilance Urssaf</h2>
+              <span className="text-xs text-muted-foreground">Art. L.8222-1 Code du travail</span>
+            </div>
+            <VigilanceAdminPanel />
+          </div>
+        ) : null}
+
+        {tab === "moderation" ? <AdminModerationPanel /> : null}
+        {tab === "alertes" ? <AdminAlertesPanel /> : null}
+
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
             <Skeleton />
@@ -1155,6 +1181,287 @@ function StatCard({ label, value, format }: { label: string; value: number; form
     <div className="rounded-2xl border border-border bg-card p-5 text-center">
       <p className="text-3xl font-bold font-display">{display}</p>
       <p className="mt-1 text-xs text-muted-foreground">{label}</p>
+    </div>
+  );
+}
+
+// ─── Panneau modération IA ────────────────────────────────────────────────────
+
+type BriefRow = {
+  id: string;
+  title: string;
+  created_at: string;
+  creative_files: string[] | null;
+};
+
+function AdminModerationPanel() {
+  const [briefs, setBriefs] = useState<BriefRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modResults, setModResults] = useState<Record<string, VisualModerationResult>>({});
+  const [modLoading, setModLoading] = useState<Record<string, boolean>>({});
+  const [matchingResult, setMatchingResult] = useState<{ ownersNotified: number; matchesFound: number } | null>(null);
+  const [matchingLoading, setMatchingLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("advertiser_briefs")
+        .select("id, title, created_at, creative_files")
+        .not("creative_files", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(30);
+      setBriefs(
+        ((data ?? []) as BriefRow[]).filter(
+          (b) => Array.isArray(b.creative_files) && b.creative_files.length > 0,
+        ),
+      );
+      setLoading(false);
+    })();
+  }, []);
+
+  const analyseFile = async (briefId: string, path: string) => {
+    setModLoading((p) => ({ ...p, [`${briefId}:${path}`]: true }));
+    try {
+      const result = await moderateBriefVisual({ data: { storagePath: path } });
+      setModResults((p) => ({ ...p, [`${briefId}:${path}`]: result }));
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setModLoading((p) => ({ ...p, [`${briefId}:${path}`]: false }));
+    }
+  };
+
+  const handleRunMatching = async () => {
+    setMatchingLoading(true);
+    try {
+      const result = await runBriefMatching({ data: undefined });
+      setMatchingResult(result);
+      toast.success(`Matching terminé : ${result.ownersNotified} propriétaires notifiés.`);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setMatchingLoading(false);
+    }
+  };
+
+  const verdictColor = (v: VisualModerationResult["verdict"]) =>
+    v === "conforme" ? "text-emerald-600" : v === "suspect" ? "text-amber-600" : "text-destructive";
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-lg font-bold">Modération IA des visuels</h2>
+          <p className="text-xs text-muted-foreground">Analyse automatique des créatifs soumis par les annonceurs.</p>
+        </div>
+
+        {/* Matching proactif */}
+        <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div>
+            <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">Matching briefs ↔ flottes</p>
+            <p className="text-xs text-muted-foreground">Envoie une push aux propriétaires dont les véhicules correspondent aux briefs récents.</p>
+          </div>
+          <button
+            type="button"
+            disabled={matchingLoading}
+            onClick={handleRunMatching}
+            className="shrink-0 rounded-full bg-violet-600 text-white px-4 py-2 text-sm font-semibold hover:bg-violet-700 disabled:opacity-60"
+          >
+            {matchingLoading ? "Matching…" : "▶ Lancer le matching"}
+          </button>
+          {matchingResult && (
+            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              ✅ {matchingResult.ownersNotified} notifiés · {matchingResult.matchesFound} matches
+            </span>
+          )}
+        </div>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Chargement des briefs…</p>
+      ) : briefs.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Aucun brief avec visuels pour l'instant.</p>
+      ) : (
+        <div className="space-y-4">
+          {briefs.map((b) => (
+            <div key={b.id} className="rounded-2xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+                <p className="font-semibold text-sm">{b.title}</p>
+                <span className="text-xs text-muted-foreground">{new Date(b.created_at).toLocaleDateString("fr-FR")}</span>
+              </div>
+              <div className="space-y-2">
+                {(b.creative_files ?? []).map((path) => {
+                  const key = `${b.id}:${path}`;
+                  const result = modResults[key];
+                  const isLoading = modLoading[key];
+                  const filename = path.split("/").pop() ?? path;
+                  return (
+                    <div key={path} className={`rounded-lg border px-3 py-2 text-xs flex flex-wrap items-start gap-3 ${result ? (result.safe ? "border-emerald-500/30 bg-emerald-500/5" : "border-destructive/30 bg-destructive/5") : "border-border bg-secondary/20"}`}>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{filename}</p>
+                        {result && (
+                          <div className="mt-1 space-y-0.5">
+                            <p className={`font-semibold ${verdictColor(result.verdict)}`}>
+                              {result.verdict.toUpperCase()} — risque {result.score_risque}/100
+                            </p>
+                            {result.issues.map((issue, i) => (
+                              <p key={i} className="text-muted-foreground">• {issue}</p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {!result && (
+                        <button
+                          type="button"
+                          disabled={isLoading}
+                          onClick={() => void analyseFile(b.id, path)}
+                          className="shrink-0 rounded-full bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold hover:bg-primary/90 disabled:opacity-60"
+                        >
+                          {isLoading ? "Analyse…" : "🔍 Analyser"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Panneau Alertes (signalements) ──────────────────────────────────────────
+
+function AdminAlertesPanel() {
+  const listTickets = useServerFn(adminListTickets);
+  const resolveTicket = useServerFn(adminResolveTicket);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [responses, setResponses] = useState<Record<string, string>>({});
+  const [resolving, setResolving] = useState<Record<string, boolean>>({});
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await listTickets({ data: undefined });
+      setTickets(data);
+    } catch {
+      toast.error("Impossible de charger les signalements.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const handleResolve = async (ticketId: string) => {
+    const response = responses[ticketId]?.trim();
+    if (!response) return;
+    setResolving((p) => ({ ...p, [ticketId]: true }));
+    try {
+      await resolveTicket({ data: { ticketId, response } });
+      toast.success("Signalement résolu, utilisateur notifié.");
+      await load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setResolving((p) => ({ ...p, [ticketId]: false }));
+    }
+  };
+
+  const open = tickets.filter((t) => t.status === "open");
+  const resolved = tickets.filter((t) => t.status === "resolved").slice(0, 10);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-bold">Signalements & litiges</h2>
+          <p className="text-xs text-muted-foreground">Tickets envoyés par les utilisateurs depuis l'application.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void load()}
+          className="text-xs text-muted-foreground hover:text-foreground transition"
+        >
+          ↻ Actualiser
+        </button>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Chargement…</p>
+      ) : open.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
+          Aucun signalement ouvert. Tout est calme ✅
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+            🚨 {open.length} signalement{open.length > 1 ? "s" : ""} ouvert{open.length > 1 ? "s" : ""}
+          </h3>
+          {open.map((t) => (
+            <div key={t.id} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
+              <div className="flex items-start justify-between gap-2 flex-wrap">
+                <div>
+                  <p className="font-semibold text-sm">{t.subject}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t.user_email} · {new Date(t.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                  {t.context_url && (
+                    <p className="text-xs text-muted-foreground">Contexte : {t.context_url}</p>
+                  )}
+                </div>
+              </div>
+              <p className="text-sm whitespace-pre-wrap">{t.message}</p>
+              <div className="flex gap-2 mt-2">
+                <textarea
+                  value={responses[t.id] ?? ""}
+                  onChange={(e) => setResponses((p) => ({ ...p, [t.id]: e.target.value }))}
+                  placeholder="Réponse à l'utilisateur..."
+                  rows={2}
+                  maxLength={1000}
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none"
+                />
+                <button
+                  type="button"
+                  disabled={!responses[t.id]?.trim() || resolving[t.id]}
+                  onClick={() => void handleResolve(t.id)}
+                  className="shrink-0 self-end rounded-full bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {resolving[t.id] ? "…" : "✅ Résoudre"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {resolved.length > 0 && (
+        <details className="mt-4">
+          <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+            Voir les {resolved.length} derniers signalements résolus
+          </summary>
+          <div className="mt-3 space-y-3">
+            {resolved.map((t) => (
+              <div key={t.id} className="rounded-xl border border-border bg-card/40 p-4 space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold text-sm">{t.subject}</p>
+                  <span className="text-xs text-emerald-600 font-medium">✅ Résolu</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{t.user_email} · {new Date(t.created_at).toLocaleDateString("fr-FR")}</p>
+                <p className="text-sm">{t.message}</p>
+                {t.admin_response && (
+                  <p className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-2 mt-1">
+                    Réponse : {t.admin_response}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
     </div>
   );
 }

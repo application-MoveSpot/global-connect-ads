@@ -15,6 +15,7 @@ import {
   parseInstallationPhotos,
 } from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
+import { validateInstallationPhotos, type InstallationPhotoResult } from "@/lib/ai/visual-validation.functions";
 
 type Props = {
   campaignRequestId: string;
@@ -53,10 +54,46 @@ export function InstallationPhotosPanel({
   const [files, setFiles] = useState<Partial<Record<InstallationView, File>>>({});
   const [busy, setBusy] = useState(false);
   const [geoStatus, setGeoStatus] = useState<"idle" | "locating" | "ok" | "skipped">("idle");
+  const [aiValidation, setAiValidation] = useState<InstallationPhotoResult | null>(null);
+  const [aiValidating, setAiValidating] = useState(false);
 
   const existing = parseInstallationPhotos(installationPhotos);
   const status = STATUS[installationStatus ?? "pending"] ?? STATUS["pending"]!;
-  const canSubmit = INSTALLATION_VIEWS.every((v) => files[v]) && !busy;
+  const allFilesSelected = INSTALLATION_VIEWS.every((v) => files[v]);
+  const canSubmit = allFilesSelected && !busy && !aiValidating;
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(((reader.result as string).split(",")[1]) ?? "");
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const handleFileChange = async (view: InstallationView, file: File | undefined) => {
+    const nextFiles = { ...files, [view]: file };
+    setFiles(nextFiles);
+    setAiValidation(null);
+
+    // Dès que les 4 vues sont sélectionnées, lancer la validation IA
+    if (INSTALLATION_VIEWS.every((v) => nextFiles[v])) {
+      setAiValidating(true);
+      try {
+        const photos = {
+          front: { base64: await fileToBase64(nextFiles.front!), mimeType: nextFiles.front!.type },
+          left: { base64: await fileToBase64(nextFiles.left!), mimeType: nextFiles.left!.type },
+          right: { base64: await fileToBase64(nextFiles.right!), mimeType: nextFiles.right!.type },
+          rear: { base64: await fileToBase64(nextFiles.rear!), mimeType: nextFiles.rear!.type },
+        };
+        const result = await validateInstallationPhotos({ data: { photos } });
+        setAiValidation(result);
+      } catch {
+        // silencieux — l'upload peut continuer sans validation
+      } finally {
+        setAiValidating(false);
+      }
+    }
+  };
 
   const handleSubmit = async () => {
     setBusy(true);
@@ -145,18 +182,41 @@ export function InstallationPhotosPanel({
           <div className="grid gap-2 sm:grid-cols-4">
             {INSTALLATION_VIEWS.map((view) => (
               <label key={view} className="text-[11px] text-muted-foreground">
-                {INSTALLATION_VIEW_LABEL[view]}
+                <span className="flex items-center gap-1">
+                  {INSTALLATION_VIEW_LABEL[view]}
+                  {aiValidation?.perView[view] && (
+                    <span>{aiValidation.perView[view].ok ? "✅" : "⚠️"}</span>
+                  )}
+                </span>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) =>
-                    setFiles((f) => ({ ...f, [view]: e.target.files?.[0] }))
-                  }
+                  onChange={(e) => void handleFileChange(view, e.target.files?.[0])}
                   className="mt-1 block w-full text-[11px]"
                 />
+                {aiValidation?.perView[view] && !aiValidation.perView[view].ok && (
+                  <p className="mt-0.5 text-[10px] text-amber-600 dark:text-amber-400 leading-tight">
+                    {aiValidation.perView[view].note}
+                  </p>
+                )}
               </label>
             ))}
           </div>
+
+          {aiValidating && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
+              <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+              Vérification IA des photos de pose…
+            </div>
+          )}
+
+          {aiValidation && !aiValidating && (
+            <div className={`mt-2 rounded-lg border px-3 py-2 text-xs ${aiValidation.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}>
+              <p className={`font-medium ${aiValidation.ok ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"}`}>
+                {aiValidation.globalNote}
+              </p>
+            </div>
+          )}
 
           {geoStatus === "locating" && (
             <p className="mt-2 text-[11px] text-muted-foreground animate-pulse">

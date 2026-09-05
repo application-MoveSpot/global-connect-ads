@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useRef, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { captureError } from "@/lib/sentry";
@@ -8,17 +8,14 @@ import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbid
 import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
 import { estimateZoneBudget, MIN_EUR_PER_DAY } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
-import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/VehicleMockup3D";
+import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/ad-formats";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
+import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
+import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
+import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
+import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 
-const VehicleMockup3D = lazy(() =>
-  import("@/components/advertiser/VehicleMockup3D").then((m) => ({ default: m.VehicleMockup3D }))
-);
-
-const CamionLEDMockupPreview = lazy(() =>
-  import("@/components/advertiser/CamionLEDMockupPreview").then((m) => ({ default: m.CamionLEDMockupPreview }))
-);
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
@@ -168,13 +165,21 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
+  const [previewVehicleId, setPreviewVehicleId] = useState<string | null>(null);
+  const [previewSearching, setPreviewSearching] = useState(false);
   const [brandColor, setBrandColor] = useState("#3B82F6");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [screenVideoUrl, setScreenVideoUrl] = useState<string | null>(null);
-  const led3dRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<{ id: string; amount: number } | null>(null);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [creativeValidation, setCreativeValidation] = useState<Array<{ name: string; ok: boolean; score: number; issues: string[] }>>([]);
+  const [creativeValidating, setCreativeValidating] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -193,6 +198,27 @@ function NewBriefPage() {
     })();
   }, [navigate]);
 
+  // Auto-find a real approved vehicle matching selected types for live preview
+  useEffect(() => {
+    if (vehicleTypes.length === 0) {
+      setPreviewVehicleId(null);
+      return;
+    }
+    setPreviewSearching(true);
+    supabase
+      .from("vehicles")
+      .select("id")
+      .eq("status", "approved")
+      .in("type", vehicleTypes as never)
+      .not("photos", "is", null)
+      .limit(1)
+      .maybeSingle()
+      .then(
+        ({ data }) => { setPreviewVehicleId(data?.id ?? null); setPreviewSearching(false); },
+        () => { setPreviewVehicleId(null); setPreviewSearching(false); },
+      );
+  }, [vehicleTypes]);
+
   const applyTemplate = (tpl: EventTemplate) => {
     setSelectedTemplate(tpl);
     setTitle(tpl.titleTpl);
@@ -207,6 +233,93 @@ function NewBriefPage() {
     setWizardStep("form");
   };
 
+  const handleAiGenerate = async () => {
+    if (!aiContext.trim() || aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiError("");
+    setAiLoading(true);
+    try {
+      const suggestion = await generateBriefSuggestion({
+        data: {
+          businessContext: aiContext.trim(),
+          vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
+          zone: zones.trim() || undefined,
+        },
+      });
+      setTitle(suggestion.title);
+      setDescription(suggestion.description);
+      setAudience(suggestion.audience);
+      setAiPanelOpen(false);
+      setAiContext("");
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "Erreur de génération.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Score qualité brief — déclenché 2s après la dernière frappe sur titre+description
+  useEffect(() => {
+    if (title.trim().length < 10 || description.trim().length < 30) {
+      setQualityScore(null);
+      return;
+    }
+    setQualityLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const result = await scoreBriefQuality({
+          data: {
+            title: title.trim(),
+            description: description.trim(),
+            audience: audience.trim() || undefined,
+            vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
+            zone: zones.trim() || undefined,
+          },
+        });
+        setQualityScore(result);
+      } catch {
+        // silencieux
+      } finally {
+        setQualityLoading(false);
+      }
+    }, 2000);
+    return () => { clearTimeout(timer); setQualityLoading(false); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, audience]);
+
+  // Validation IA des visuels publicitaires
+  const handleCreativeValidation = async (selectedFiles: File[]) => {
+    if (!selectedFiles.length) { setCreativeValidation([]); return; }
+    setCreativeValidating(true);
+    setCreativeValidation([]);
+    const results: Array<{ name: string; ok: boolean; score: number; issues: string[] }> = [];
+    for (const file of selectedFiles) {
+      if (!file.type.startsWith("image/")) {
+        results.push({ name: file.name, ok: true, score: 100, issues: [] });
+        continue;
+      }
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataUrl = reader.result as string;
+            resolve(dataUrl.split(",")[1] ?? "");
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        const res = await validateBriefCreative({ data: { base64, mimeType: file.type } });
+        results.push({ name: file.name, ok: res.ok, score: res.score, issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)] });
+      } catch {
+        results.push({ name: file.name, ok: true, score: 50, issues: [] });
+      }
+    }
+    setCreativeValidation(results);
+    setCreativeValidating(false);
+  };
+
   const estimatedDays =
     startDate && endDate && endDate >= startDate
       ? Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000) + 1
@@ -216,10 +329,7 @@ function NewBriefPage() {
     setVehicleTypes((cur) => {
       const next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v];
       if (v === "camion_led" && !cur.includes("camion_led")) {
-        // Camion LED → format boxled automatique (seul format de série compatible)
         setAdFormat("boxled");
-        // Scroll vers la prévisualisation 3D dès qu'elle apparaît
-        setTimeout(() => led3dRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
       } else if (adFormat === "boxled" && isFormatIncompatible(next, "boxled")) {
         // Un véhicule incompatible ajouté alors que boxled est actif → on réinitialise le format
         setAdFormat(null);
@@ -472,6 +582,70 @@ function NewBriefPage() {
         </div>
 
         <form onSubmit={submit} className="space-y-6">
+          {/* ── Assistant IA ─────────────────────────────────────────────── */}
+          <div className="rounded-2xl border border-violet-500/30 bg-violet-500/5 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => { setAiPanelOpen((v) => !v); setAiError(""); }}
+              className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-violet-500/5 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">✨</span>
+                <div>
+                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+                    Remplir avec l'IA
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Décrivez votre activité — l'IA génère le titre, la description et l'audience.
+                  </p>
+                </div>
+              </div>
+              <span className="text-muted-foreground text-sm">{aiPanelOpen ? "▲" : "▼"}</span>
+            </button>
+
+            {aiPanelOpen && (
+              <div className="px-5 pb-5 border-t border-violet-500/20 pt-4 space-y-3">
+                <label className="block text-sm font-medium">
+                  Décrivez votre activité / projet en quelques phrases
+                </label>
+                <textarea
+                  value={aiContext}
+                  onChange={(e) => setAiContext(e.target.value)}
+                  rows={3}
+                  maxLength={600}
+                  placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm resize-none"
+                />
+                {aiError && (
+                  <p className="text-xs text-destructive">{aiError}</p>
+                )}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={aiLoading}
+                    onClick={handleAiGenerate}
+                    className="inline-flex items-center gap-2 rounded-full bg-violet-600 text-white px-5 py-2 text-sm font-semibold hover:bg-violet-700 disabled:opacity-60 transition-colors"
+                  >
+                    {aiLoading ? (
+                      <>
+                        <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Génération…
+                      </>
+                    ) : (
+                      "✨ Générer"
+                    )}
+                  </button>
+                  <span className="text-xs text-muted-foreground">
+                    {aiContext.length}/600 caractères
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Le contenu généré sera pré-rempli dans les champs ci-dessous — vous pouvez le modifier librement avant de publier.
+                </p>
+              </div>
+            )}
+          </div>
+
           <Field label="Titre du brief">
             <input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={120}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5" placeholder="Ex. Campagne street food Paris 11e" />
@@ -484,6 +658,36 @@ function NewBriefPage() {
           </Field>
 
           <ContentChecker text={`${title} ${description} ${audience}`} />
+
+          {/* ── Score qualité IA ────────────────────────────────────────── */}
+          {(qualityLoading || qualityScore) && (
+            <div className={`rounded-xl border px-4 py-3 text-xs transition-all ${qualityLoading ? "border-border bg-secondary/20 animate-pulse" : qualityScore && qualityScore.global >= 7 ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}`}>
+              {qualityLoading ? (
+                <p className="text-muted-foreground">✨ Analyse qualité en cours…</p>
+              ) : qualityScore ? (
+                <>
+                  <div className="flex items-center gap-3 flex-wrap mb-2">
+                    <span className="font-semibold text-sm">Score qualité du brief</span>
+                    <span className={`text-xl font-bold ${qualityScore.global >= 7 ? "text-emerald-600" : qualityScore.global >= 5 ? "text-amber-600" : "text-destructive"}`}>
+                      {qualityScore.global}/10
+                    </span>
+                    <div className="flex gap-2 text-muted-foreground flex-wrap">
+                      <span>Message: <strong className="text-foreground">{qualityScore.scores.message}/10</strong></span>
+                      <span>Audience: <strong className="text-foreground">{qualityScore.scores.audience}/10</strong></span>
+                      <span>Zone: <strong className="text-foreground">{qualityScore.scores.zone}/10</strong></span>
+                    </div>
+                  </div>
+                  {qualityScore.tips.length > 0 && (
+                    <ul className="space-y-0.5">
+                      {qualityScore.tips.map((tip, i) => (
+                        <li key={i} className="text-muted-foreground">💡 {tip}</li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : null}
+            </div>
+          )}
 
           <Field label="Types de véhicules recherchés">
             {/* ── Camion LED BoxLED — carte hero ────────────────────────────── */}
@@ -597,56 +801,52 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {/* ── Prévisualisation 3D Camion LED — apparaît immédiatement après sélection ── */}
-          {vehicleTypes.includes("camion_led") && (
-            <div ref={led3dRef} className="space-y-3 scroll-mt-4">
-              <div className="flex items-center gap-4 flex-wrap">
+          {/* Aperçu automatique sur un véhicule réel disponible */}
+          {vehicleTypes.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-sm font-medium">🎨 Aperçu sur véhicule réel</span>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Couleur de marque</label>
+                  <label className="text-xs text-muted-foreground">Couleur de marque</label>
                   <input
                     type="color"
                     value={brandColor}
                     onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-card"
+                    className="w-8 h-8 rounded cursor-pointer border border-border p-0.5 bg-card"
                   />
-                  <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Visuel (logo ou vidéo)</label>
+                  <label className="text-xs text-muted-foreground">Logo (optionnel)</label>
                   <input
                     type="file"
-                    accept="image/*,video/mp4,video/webm"
+                    accept="image/*"
                     className="text-xs"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (!file) return;
-                      const url = URL.createObjectURL(file);
-                      if (file.type.startsWith("video/")) {
-                        setScreenVideoUrl(url);
-                        setLogoUrl(null);
-                      } else {
-                        setLogoUrl(url);
-                        setScreenVideoUrl(null);
-                      }
+                      if (file) setLogoUrl(URL.createObjectURL(file));
                     }}
                   />
-                  {(logoUrl || screenVideoUrl) && (
-                    <button
-                      type="button"
-                      onClick={() => { setLogoUrl(null); setScreenVideoUrl(null); }}
-                      className="text-xs text-destructive"
-                    >
-                      ✕
-                    </button>
+                  {logoUrl && (
+                    <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
                   )}
                 </div>
               </div>
-              <Suspense fallback={<div className="h-[520px] rounded-2xl bg-[#0c0d1a] animate-pulse flex items-center justify-center text-sm text-white/40">Chargement du camion LED 3D…</div>}>
-                <CamionLEDMockupPreview
-                  screenVideoUrl={screenVideoUrl}
+              {previewSearching ? (
+                <div className="h-48 rounded-xl bg-secondary/40 flex items-center justify-center animate-pulse">
+                  <span className="text-sm text-muted-foreground">Recherche d'un véhicule disponible…</span>
+                </div>
+              ) : previewVehicleId ? (
+                <VehiclePhotoAdPreview
+                  vehicleId={previewVehicleId}
+                  brandColor={brandColor}
                   logoUrl={logoUrl}
                 />
-              </Suspense>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border bg-secondary/10 p-5 text-center text-sm text-muted-foreground">
+                  <p>📷 Aucun véhicule de ce type n'a encore mis ses photos en ligne.</p>
+                  <p className="text-xs mt-1 opacity-70">L'aperçu apparaîtra automatiquement dès qu'un propriétaire ajoutera ses photos.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -698,66 +898,6 @@ function NewBriefPage() {
             )}
           </Field>
 
-          {/* Prévisualisation 3D — autres véhicules (hors camion_led géré plus haut) */}
-          {vehicleTypes.length > 0 && adFormat && !vehicleTypes.includes("camion_led") && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Couleur de marque</label>
-                  <input
-                    type="color"
-                    value={brandColor}
-                    onChange={(e) => setBrandColor(e.target.value)}
-                    className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-card"
-                  />
-                  <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Visuel (logo ou vidéo)</label>
-                  <input
-                    type="file"
-                    accept="image/*,video/mp4,video/webm"
-                    className="text-xs"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const url = URL.createObjectURL(file);
-                      if (file.type.startsWith("video/")) {
-                        setScreenVideoUrl(url);
-                        setLogoUrl(null);
-                      } else {
-                        setLogoUrl(url);
-                        setScreenVideoUrl(null);
-                      }
-                    }}
-                  />
-                  {(logoUrl || screenVideoUrl) && (
-                    <button
-                      type="button"
-                      onClick={() => { setLogoUrl(null); setScreenVideoUrl(null); }}
-                      className="text-xs text-destructive"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-              <Suspense fallback={<div className="h-64 rounded-2xl bg-secondary/40 animate-pulse flex items-center justify-center text-sm text-muted-foreground">Chargement du simulateur…</div>}>
-                <VehicleMockup3D
-                  vehicleTypes={vehicleTypes}
-                  adFormat={adFormat}
-                  brandColor={brandColor}
-                  logoUrl={logoUrl}
-                  screenVideoUrl={screenVideoUrl}
-                />
-              </Suspense>
-              {vehicleTypes.every((t) => t === "autre") && (
-                <p className="text-xs text-muted-foreground italic px-1">
-                  ℹ️ Aperçu schématique sur un gabarit générique — la forme réelle dépend du véhicule « autre » proposé par le propriétaire. Vous verrez les vraies photos après mise en relation.
-                </p>
-              )}
-            </div>
-          )}
 
           <Field label="Zone de ciblage sur la carte (optionnel)">
             <ZoneSelector
@@ -842,9 +982,39 @@ function NewBriefPage() {
 
           <Field label="Visuels publicitaires (optionnel)">
             <input type="file" multiple accept="image/*,application/pdf,video/*"
-              onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+              onChange={(e) => {
+                const selected = Array.from(e.target.files ?? []);
+                setFiles(selected);
+                void handleCreativeValidation(selected);
+              }}
               className="w-full text-sm" />
             {files.length > 0 && <p className="text-xs text-muted-foreground mt-1">{files.length} fichier(s) sélectionné(s)</p>}
+            {creativeValidating && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
+                <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+                Analyse IA des visuels en cours…
+              </div>
+            )}
+            {creativeValidation.length > 0 && !creativeValidating && (
+              <div className="mt-2 space-y-2">
+                {creativeValidation.map((r) => (
+                  <div key={r.name} className={`rounded-lg border px-3 py-2 text-xs ${r.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}>
+                    <div className="flex items-center gap-2 font-medium">
+                      <span>{r.ok ? "✅" : "⚠️"}</span>
+                      <span className="truncate max-w-[200px]">{r.name}</span>
+                      <span className={`ml-auto font-semibold ${r.score >= 70 ? "text-emerald-600" : r.score >= 50 ? "text-amber-600" : "text-destructive"}`}>
+                        {r.score}/100
+                      </span>
+                    </div>
+                    {r.issues.length > 0 && (
+                      <ul className="mt-1 space-y-0.5 text-muted-foreground">
+                        {r.issues.map((issue, i) => <li key={i}>• {issue}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </Field>
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">

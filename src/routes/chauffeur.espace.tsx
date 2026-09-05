@@ -13,6 +13,7 @@ import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/pa
 import { getDriverVehicleQrTokens } from "@/lib/qr/qr.functions";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { RouteError } from "@/components/app/RouteError";
+import { SignalementDialog } from "@/components/shared/SignalementDialog";
 
 type Profile = {
   id: string;
@@ -313,6 +314,9 @@ function ChauffeurEspace() {
             Ouvrir le suivi GPS →
           </Link>
         </div>
+      </div>
+      <div className="mt-8 pt-6 border-t border-border flex justify-end px-4 pb-4">
+        <SignalementDialog contextUrl="/chauffeur/espace" triggerLabel="Signaler un problème" />
       </div>
     </div>
   );
