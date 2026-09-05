@@ -13,25 +13,15 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
     handlers: {
       POST: async ({ request }: { request: Request }) => {
         const cronSecret = process.env["CRON_SECRET"];
-        if (!cronSecret) {
-          return Response.json({ error: "CRON_SECRET non configuré" }, { status: 503 });
-        }
+        const serviceRoleKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
         const url = new URL(request.url);
         const token =
           request.headers.get("x-cron-secret") ??
           request.headers.get("authorization")?.replace("Bearer ", "") ??
           url.searchParams.get("secret");
-        if (token !== cronSecret) {
-          return Response.json({
-            error: "Non autorisé",
-            _diag: {
-              secret_set: true,
-              secret_len: cronSecret.length,
-              token_set: !!token,
-              token_len: token?.length ?? 0,
-              match: false,
-            },
-          }, { status: 401 });
+        const validTokens = [cronSecret, serviceRoleKey].filter(Boolean) as string[];
+        if (!token || !validTokens.includes(token)) {
+          return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
