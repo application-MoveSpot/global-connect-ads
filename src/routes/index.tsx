@@ -402,7 +402,10 @@ function Index() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div>© {new Date().getFullYear()} MoveSpot. {t("footer.copyright")}</div>
+            <div className="space-y-0.5">
+              <div>© {new Date().getFullYear()} MoveSpot — RAKOUN KLUB (SIRET 804 671 444 00052)</div>
+              <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
+            </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <Link to="/cgu" className="hover:text-foreground transition">{t("footer.cgu")}</Link>
               <Link to="/cgv" className="hover:text-foreground transition">{t("footer.cgv")}</Link>
