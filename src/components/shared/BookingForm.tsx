@@ -88,6 +88,7 @@ export function BookingForm({ spot, onClose }: Props) {
   const [files, setFiles] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
+  const [campaignId, setCampaignId] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [bookedPeriods, setBookedPeriods] = useState<BookedPeriod[]>([]);
   const [periodsLoading, setPeriodsLoading] = useState(false);
@@ -438,8 +439,8 @@ export function BookingForm({ spot, onClose }: Props) {
     }
 
     setStatus("success");
-    // Notification email best-effort — ne bloque pas l'affichage du succès
     if (created?.id) {
+      setCampaignId(created.id);
       notifyFn({ data: { campaignId: created.id } }).catch(() => {});
     }
   };
@@ -507,7 +508,11 @@ export function BookingForm({ spot, onClose }: Props) {
               <div>📩 Le propriétaire est notifié et peut vous contacter sous <strong className="text-foreground">48 h</strong> pour préciser l'itinéraire.</div>
             </div>
             <div className="flex flex-col gap-2">
-              <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Voir mes campagnes</button>
+              {campaignId ? (
+                <button onClick={() => navigate({ to: "/annonceur/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Suivre ma campagne →</button>
+              ) : (
+                <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Voir mes campagnes</button>
+              )}
               <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Fermer</button>
             </div>
           </div>

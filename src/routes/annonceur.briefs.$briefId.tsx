@@ -72,7 +72,7 @@ function BriefDetailPage() {
       supabase.from("advertiser_briefs").select("*").eq("id", briefId).maybeSingle(),
       supabase.from("advertiser_profiles").select("account_type").eq("user_id", sess.session.user.id).maybeSingle(),
     ]);
-    if (!b) { navigate({ to: "/annonceur/briefs" }); return; }
+    if (!b) { navigate({ to: "/annonceur" }); return; }
     setBrief(b as Brief);
     setAccountType((prof as { account_type?: string } | null)?.account_type ?? null);
     const { data: ps } = await supabase.from("brief_proposals").select("*").eq("brief_id", briefId).order("created_at", { ascending: false });
