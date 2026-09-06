@@ -124,6 +124,7 @@ function Index() {
             <Link to="/campagnes" className="whitespace-nowrap hover:text-foreground transition">Campagnes</Link>
             <Link to="/comment-ca-marche" className="whitespace-nowrap hover:text-foreground transition">{t("nav.how_it_works")}</Link>
             <Link to="/pourquoi-movespot" className="whitespace-nowrap hover:text-foreground transition">Pourquoi MoveSpot</Link>
+            <Link to="/tarifs" className="whitespace-nowrap hover:text-foreground transition">Tarifs</Link>
             <Link to="/devenir-partenaire" className="whitespace-nowrap hover:text-foreground transition">{t("nav.become_partner")}</Link>
           </nav>
           <div className="flex items-center gap-2">
