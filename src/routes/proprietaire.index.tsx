@@ -351,6 +351,12 @@ function DashboardPage() {
             >
               🔳 QR codes véhicules
             </Link>
+            <Link
+              to="/proprietaire/carte"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
+            >
+              🪪 Carte de visite
+            </Link>
           </div>
           <div className="flex gap-2">
             {tab === "vehicles" && vehicles.length > 0 && (
@@ -586,6 +592,9 @@ function OwnerVehicleOnboarding() {
           </Link>
           <Link to="/proprietaire/flotte/qr" className="text-xs text-primary hover:underline font-medium">
             🔳 QR codes
+          </Link>
+          <Link to="/proprietaire/carte" className="text-xs text-primary hover:underline font-medium">
+            🪪 Carte de visite
           </Link>
         </div>
       </div>
