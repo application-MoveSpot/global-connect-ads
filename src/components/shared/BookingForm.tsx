@@ -597,6 +597,7 @@ export function BookingForm({ spot, onClose }: Props) {
                     vehicleId={spot.vehicleId}
                     brandColor={brandColor}
                     logoUrl={logoUrl}
+                    videoFile={SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? (files.find(f => f.type.startsWith("video/")) ?? null) : null}
                   />
                 ) : (
                   <div className="h-32 rounded-xl bg-secondary/40 flex items-center justify-center text-xs text-muted-foreground">

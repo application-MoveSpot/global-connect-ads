@@ -6,12 +6,21 @@ type Props = {
   vehicleId: string;
   brandColor: string;
   logoUrl: string | null;
+  videoFile?: File | null;
 };
 
-export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl }: Props) {
+export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFile }: Props) {
   const [rawPhotos, setRawPhotos] = useState<string[] | null>(null);
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
+  const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!videoFile) { setVideoObjectUrl(null); return; }
+    const url = URL.createObjectURL(videoFile);
+    setVideoObjectUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [videoFile]);
 
   useEffect(() => {
     setIndex(0);
@@ -55,35 +64,57 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl }: Props)
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
 
-        {/* Fond de la pub (semi-transparent, ne cascade pas sur le logo) */}
-        <div
-          style={{
-            position: "absolute",
-            inset: "20% 8%",
-            background: brandColor,
-            opacity: 0.65,
-            borderRadius: 8,
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Logo au-dessus du fond — opacité pleine */}
-        {logoUrl && (
-          <img
-            src={logoUrl}
-            alt="logo"
+        {videoObjectUrl ? (
+          /* Video creative overlay for LED/screen vehicles */
+          <video
+            src={videoObjectUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
             style={{
               position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              maxHeight: "52%",
-              maxWidth: "66%",
+              inset: "10% 6%",
+              width: "88%",
+              height: "80%",
               objectFit: "contain",
+              borderRadius: 6,
               pointerEvents: "none",
-              filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.45))",
             }}
           />
+        ) : (
+          <>
+            {/* Fond de la pub (semi-transparent, ne cascade pas sur le logo) */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "20% 8%",
+                background: brandColor,
+                opacity: 0.65,
+                borderRadius: 8,
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Logo au-dessus du fond — opacité pleine */}
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt="logo"
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  maxHeight: "52%",
+                  maxWidth: "66%",
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                  filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.45))",
+                }}
+              />
+            )}
+          </>
         )}
 
         {/* Navigation */}
@@ -136,7 +167,9 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl }: Props)
       )}
 
       <p className="text-[11px] text-muted-foreground">
-        Aperçu indicatif — l'emplacement exact sera précisé par le propriétaire dans sa proposition.
+        {videoObjectUrl
+          ? "Aperçu de votre vidéo sur le véhicule — lecture automatique en boucle."
+          : "Aperçu indicatif — l'emplacement exact sera précisé par le propriétaire dans sa proposition."}
       </p>
     </div>
   );
