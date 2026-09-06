@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { lazy, Suspense, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Instagram, Linkedin, Facebook } from "lucide-react";
+import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
 import logo from "@/assets/movespot-logo.svg";
@@ -375,6 +376,26 @@ function Index() {
             <span className="inline-flex items-center gap-1 rounded border border-border bg-white dark:bg-white/10 px-2.5 py-1 font-bold text-[#EB001B] shadow-sm">Mastercard</span>
             <span className="inline-flex items-center gap-1 rounded border border-border bg-white dark:bg-white/10 px-2.5 py-1 font-bold text-[#6772E5] shadow-sm">Stripe</span>
             <span>· Transactions 3D Secure</span>
+          </div>
+
+          {/* Réseaux sociaux — en préparation */}
+          <div className="flex items-center gap-4 text-muted-foreground">
+            <span className="text-xs">Suivez-nous :</span>
+            {[
+              { icon: Instagram, label: "Instagram" },
+              { icon: Linkedin, label: "LinkedIn" },
+              { icon: Facebook, label: "Facebook" },
+            ].map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                title={`${label} — Page en cours de création`}
+                aria-label={`${label} (bientôt disponible)`}
+                onClick={() => toast.info(`Notre page ${label} est en cours de création. Revenez bientôt !`)}
+                className="rounded-full p-1.5 hover:bg-muted transition-colors cursor-pointer"
+              >
+                <Icon className="h-5 w-5" />
+              </button>
+            ))}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
