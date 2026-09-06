@@ -208,6 +208,7 @@ function AdminPage() {
             <a href="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">Prestataires →</a>
             <a href="/admin/virements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">Virements →</a>
             <a href="/admin/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">Modération (briefs, poseurs, flotte) →</a>
+            <a href="/admin/commissions" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">Commissions &amp; marges →</a>
 
           </div>
           <div className="flex gap-2">
