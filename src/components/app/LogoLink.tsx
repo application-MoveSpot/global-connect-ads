@@ -14,16 +14,16 @@ export function LogoLink() {
         height="40"
         aria-hidden="true"
       >
+        <circle cx="20" cy="52" r="7" fill="#0A1628" />
+        <circle cx="20" cy="52" r="4" fill="#CBD5E1" />
+        <circle cx="44" cy="52" r="7" fill="#0A1628" />
+        <circle cx="44" cy="52" r="4" fill="#CBD5E1" />
         <path
-          d="M32 3C43 3 52 12 52 23C52 32 46 38 38 38Q35 38 32 44Q29 38 26 38C18 38 12 32 12 23C12 12 21 3 32 3Z"
+          d="M32 5C45.4 5 57 13 57 22C57 36 43 46 32 59C21 46 7 36 7 22C7 13 18.6 5 32 5Z"
           fill="#F05A28"
         />
-        <circle cx="32" cy="23" r="11" fill="#EFF2F8" />
-        <circle cx="32" cy="23" r="4.5" fill="#F05A28" />
-        <circle cx="21" cy="38" r="6" fill="#0A1628" />
-        <circle cx="21" cy="38" r="3.5" fill="#CBD5E1" />
-        <circle cx="43" cy="38" r="6" fill="#0A1628" />
-        <circle cx="43" cy="38" r="3.5" fill="#CBD5E1" />
+        <circle cx="32" cy="22" r="11" fill="#EFF2F8" />
+        <circle cx="32" cy="22" r="4.5" fill="#F05A28" />
       </svg>
       <span
         style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 800, fontSize: "15px", lineHeight: 1 }}
