@@ -162,9 +162,9 @@ function Tarifs() {
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Contrat-cadre annuel</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Onboarding personnalisé</li>
               </ul>
-              <a href="mailto:contact@move-spot.com" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
-                Nous contacter
-              </a>
+              <Link to="/contact" search={{ plan: "enterprise" }} className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
+                Demander un devis
+              </Link>
             </div>
           </div>
 
