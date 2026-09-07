@@ -19,6 +19,8 @@ import { template as campaignPaymentReminderTemplate } from './campaign-payment-
 import { template as campaignExpiredNoticeTemplate } from './campaign-expired-notice'
 import { template as installationOverdueTemplate } from './installation-overdue'
 import { template as gpsInactivityAlertTemplate } from './gps-inactivity-alert'
+import { template as enterpriseLeadNotifyTemplate } from './enterprise-lead-notify'
+import { template as enterpriseLeadConfirmTemplate } from './enterprise-lead-confirm'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -54,4 +56,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'campaign-expired-notice': campaignExpiredNoticeTemplate,
   'installation-overdue': installationOverdueTemplate,
   'gps-inactivity-alert': gpsInactivityAlertTemplate,
+  'enterprise-lead-notify': enterpriseLeadNotifyTemplate,
+  'enterprise-lead-confirm': enterpriseLeadConfirmTemplate,
 }

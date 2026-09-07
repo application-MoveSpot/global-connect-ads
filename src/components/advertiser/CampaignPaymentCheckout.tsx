@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/payments/wallet.functions";
 import { captureError } from "@/lib/sentry";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
@@ -22,6 +23,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingTopup, setPendingTopup] = useState(false);
+  const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const neededCents = Math.round(totalPriceEur * 100);
 
@@ -34,6 +36,11 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
 
   useEffect(() => {
     refreshBalance();
+    return () => {
+      if (realtimeChannelRef.current) {
+        void supabase.removeChannel(realtimeChannelRef.current);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -48,25 +55,60 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
     } finally { setLoading(false); }
   };
 
-  // Called when the topup dialog closes — poll wallet until webhook credits it, then auto-pay.
+  // Called when the topup dialog closes — subscribe to realtime until webhook credits wallet, then auto-pay.
   const onTopupClose = async () => {
     setChecking(true);
     setError(null);
     setPendingTopup(false);
-    let cents = 0;
-    // Poll up to 20×2s = 40s to give Stripe webhook time to credit the wallet.
-    for (let i = 0; i < 20; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
-      cents = await refreshBalance();
-      if (cents >= neededCents) break;
-    }
-    setChecking(false);
-    if (cents >= neededCents) {
+
+    // Snapshot the current balance to detect the incoming credit.
+    const before = await refreshBalance();
+    if (before >= neededCents) {
+      setChecking(false);
       await onPayWallet();
-    } else {
-      // Webhook hasn't fired yet — show manual refresh option.
-      setPendingTopup(true);
+      return;
     }
+
+    const { data: sess } = await supabase.auth.getSession();
+    const userId = sess.session?.user.id;
+    if (!userId) { setChecking(false); setPendingTopup(true); return; }
+
+    // Fallback: if realtime doesn't fire within 60 s, show manual button.
+    const fallbackTimer = setTimeout(() => {
+      cleanupRealtime();
+      setChecking(false);
+      setPendingTopup(true);
+    }, 60_000);
+
+    const cleanupRealtime = () => {
+      clearTimeout(fallbackTimer);
+      if (realtimeChannelRef.current) {
+        void supabase.removeChannel(realtimeChannelRef.current);
+        realtimeChannelRef.current = null;
+      }
+    };
+
+    const channel = supabase
+      .channel(`topup-await-${campaignRequestId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        async (payload) => {
+          const tx = payload.new as { kind: string; amount_cents: number };
+          if (tx.kind !== "topup") return;
+          cleanupRealtime();
+          const cents = await refreshBalance();
+          setChecking(false);
+          if (cents >= neededCents) {
+            await onPayWallet();
+          } else {
+            setPendingTopup(true);
+          }
+        },
+      )
+      .subscribe();
+
+    realtimeChannelRef.current = channel;
   };
 
   const onManualCheck = async () => {

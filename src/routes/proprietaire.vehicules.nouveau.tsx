@@ -74,6 +74,29 @@ function NewVehiclePage() {
   const [pastedHint, setPastedHint] = useState(false);
   const callEstimate = useServerFn(estimateVehicle);
 
+  const MAX_PHOTOS = 5;
+  const MAX_PHOTO_SIZE = 30 * 1024 * 1024; // 30 MB
+
+  // Validates and merges incoming files into current list. Returns the new
+  // file array and sets a persistent error for anything rejected or dropped.
+  const applyPhotos = (incoming: File[], current: File[]): File[] => {
+    const tooLarge: string[] = [];
+    const valid: File[] = [];
+    for (const f of incoming) {
+      if (f.size > MAX_PHOTO_SIZE) {
+        tooLarge.push(`${f.name} (max 30 Mo)`);
+      } else {
+        valid.push(f);
+      }
+    }
+    const merged = [...current, ...valid];
+    const overflow = merged.length > MAX_PHOTOS ? merged.slice(MAX_PHOTOS).map((f) => f.name) : [];
+    const final = merged.slice(0, MAX_PHOTOS);
+    const rejected = [...tooLarge, ...overflow];
+    setError(rejected.length > 0 ? `Photo(s) ignorée(s) : ${rejected.join(", ")}` : "");
+    return final;
+  };
+
   // Coller une image depuis le presse-papier (Ctrl+V) directement dans la zone photos
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
@@ -89,16 +112,16 @@ function NewVehiclePage() {
       e.preventDefault();
       const newFiles = imageItems
         .map((item) => item.getAsFile())
-        .filter((f): f is File => f !== null)
-        .slice(0, 5);
+        .filter((f): f is File => f !== null);
       if (!newFiles.length) return;
-      setFiles((prev) => [...prev, ...newFiles].slice(0, 5));
+      setFiles((prev) => applyPhotos(newFiles, prev));
       setEstimate(null);
       setPastedHint(true);
       setTimeout(() => setPastedHint(false), 3000);
     };
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -336,7 +359,7 @@ function NewVehiclePage() {
                   if (!imageItems.length) return;
                   e.preventDefault();
                   const newFiles = imageItems.map(i => i.getAsFile()).filter((f): f is File => f !== null);
-                  setFiles((prev) => [...prev, ...newFiles].slice(0, 5));
+                  setFiles((prev) => applyPhotos(newFiles, prev));
                   setEstimate(null);
                   setPastedHint(true);
                   setTimeout(() => setPastedHint(false), 3000);
@@ -353,7 +376,12 @@ function NewVehiclePage() {
                     <span className="text-[10px] text-muted-foreground ml-1">pour coller depuis le presse-papier</span>
                   </div>
                   <input type="file" accept="image/*" multiple
-                    onChange={(e) => { setFiles(Array.from(e.target.files ?? [])); setEstimate(null); }}
+                    onChange={(e) => {
+                      const picked = Array.from(e.target.files ?? []);
+                      setFiles((prev) => applyPhotos(picked, prev));
+                      setEstimate(null);
+                      e.currentTarget.value = "";
+                    }}
                     className="hidden" />
                 </label>
                 {/* Flash de confirmation collage */}
