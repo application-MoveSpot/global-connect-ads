@@ -12,32 +12,43 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CampagnesRouteImport } from './routes/campagnes'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as CommentCaMarcheRouteImport } from './routes/comment-ca-marche'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as PitchRouteImport } from './routes/pitch'
+import { Route as PourquoiMovespotRouteImport } from './routes/pourquoi-movespot'
 import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecuriteRouteImport } from './routes/securite'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.essai-active'
+import { Route as AnnonceurEtudeMarcheRouteImport } from './routes/annonceur.etude-marche'
+import { Route as AnnonceurExemplesRouteImport } from './routes/annonceur.exemples'
 import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.inscription'
+import { Route as AnnonceurPackRouteImport } from './routes/annonceur.pack'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
+import { Route as AnnonceurPreview3dRouteImport } from './routes/annonceur.preview-3d'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as CCampaignIdRouteImport } from './routes/c.$campaignId'
 import { Route as ChauffeurIndexRouteImport } from './routes/chauffeur.index'
+import { Route as ChauffeurEcranRouteImport } from './routes/chauffeur.ecran'
 import { Route as ChauffeurEspaceRouteImport } from './routes/chauffeur.espace'
 import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
@@ -49,6 +60,7 @@ import { Route as PrestataireInscriptionRouteImport } from './routes/prestataire
 import { Route as PrestatairesIndexRouteImport } from './routes/prestataires.index'
 import { Route as PrestatairesProviderIdRouteImport } from './routes/prestataires.$providerId'
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
+import { Route as ProprietaireCarteRouteImport } from './routes/proprietaire.carte'
 import { Route as ProprietaireFlotteRouteImport } from './routes/proprietaire.flotte'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
 import { Route as ProprietaireTrackingRouteImport } from './routes/proprietaire.tracking'
@@ -57,20 +69,27 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as AnnonceurBriefsIndexRouteImport } from './routes/annonceur.briefs.index'
 import { Route as AnnonceurBriefsBriefIdRouteImport } from './routes/annonceur.briefs.$briefId'
 import { Route as AnnonceurBriefsNouveauRouteImport } from './routes/annonceur.briefs.nouveau'
+import { Route as AnnonceurContratBriefIdRouteImport } from './routes/annonceur.contrat.$briefId'
+import { Route as AnnonceurFactureCampaignIdRouteImport } from './routes/annonceur.facture.$campaignId'
+import { Route as AnnonceurRapportCampaignIdRouteImport } from './routes/annonceur.rapport.$campaignId'
 import { Route as AnnonceurSuiviCampaignIdRouteImport } from './routes/annonceur.suivi.$campaignId'
 import { Route as ApiAdminSetupStripeProductsRouteImport } from './routes/api/admin/setup-stripe-products'
+import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
+import { Route as ApiWebhooksSupabasePushRouteImport } from './routes/api/webhooks/supabase-push'
+import { Route as LovableCronEnforceRouteImport } from './routes/lovable/cron/enforce'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ProprietaireBriefsIndexRouteImport } from './routes/proprietaire.briefs.index'
 import { Route as ProprietaireBriefsBriefIdRouteImport } from './routes/proprietaire.briefs.$briefId'
 import { Route as ProprietaireFlotteImportRouteImport } from './routes/proprietaire.flotte.import'
 import { Route as ProprietaireFlotteQrRouteImport } from './routes/proprietaire.flotte.qr'
 import { Route as ProprietaireVehiculesNouveauRouteImport } from './routes/proprietaire.vehicules.nouveau'
+import { Route as AnnonceurBriefsConfirmationBriefIdRouteImport } from './routes/annonceur.briefs.confirmation.$briefId'
+import { Route as ApiAdminCronEnforceRouteImport } from './routes/api/admin/cron/enforce'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
-import { Route as LovableCronEnforceRouteImport } from './routes/lovable/cron/enforce'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -85,6 +104,11 @@ const AdminRoute = AdminRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampagnesRoute = CampagnesRouteImport.update({
+  id: '/campagnes',
+  path: '/campagnes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CguRoute = CguRouteImport.update({
@@ -105,6 +129,11 @@ const CommentCaMarcheRoute = CommentCaMarcheRouteImport.update({
 const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   id: '/confidentialite',
   path: '/confidentialite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CookiesRoute = CookiesRouteImport.update({
@@ -132,6 +161,11 @@ const PitchRoute = PitchRouteImport.update({
   path: '/pitch',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PourquoiMovespotRoute = PourquoiMovespotRouteImport.update({
+  id: '/pourquoi-movespot',
+  path: '/pourquoi-movespot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrevisionnelRoute = PrevisionnelRouteImport.update({
   id: '/previsionnel',
   path: '/previsionnel',
@@ -152,6 +186,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TarifsRoute = TarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
   path: '/unsubscribe',
@@ -169,6 +208,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminCommissionsRoute = AdminCommissionsRouteImport.update({
+  id: '/commissions',
+  path: '/commissions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -194,9 +238,24 @@ const AnnonceurEssaiActiveRoute = AnnonceurEssaiActiveRouteImport.update({
   path: '/annonceur/essai-active',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnonceurEtudeMarcheRoute = AnnonceurEtudeMarcheRouteImport.update({
+  id: '/annonceur/etude-marche',
+  path: '/annonceur/etude-marche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnonceurExemplesRoute = AnnonceurExemplesRouteImport.update({
+  id: '/annonceur/exemples',
+  path: '/annonceur/exemples',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnnonceurInscriptionRoute = AnnonceurInscriptionRouteImport.update({
   id: '/annonceur/inscription',
   path: '/annonceur/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnonceurPackRoute = AnnonceurPackRouteImport.update({
+  id: '/annonceur/pack',
+  path: '/annonceur/pack',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnnonceurPortefeuilleRoute = AnnonceurPortefeuilleRouteImport.update({
@@ -204,9 +263,19 @@ const AnnonceurPortefeuilleRoute = AnnonceurPortefeuilleRouteImport.update({
   path: '/annonceur/portefeuille',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnonceurPreview3dRoute = AnnonceurPreview3dRouteImport.update({
+  id: '/annonceur/preview-3d',
+  path: '/annonceur/preview-3d',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   id: '/api/faq-chat',
   path: '/api/faq-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CCampaignIdRoute = CCampaignIdRouteImport.update({
@@ -217,6 +286,11 @@ const CCampaignIdRoute = CCampaignIdRouteImport.update({
 const ChauffeurIndexRoute = ChauffeurIndexRouteImport.update({
   id: '/chauffeur/',
   path: '/chauffeur/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChauffeurEcranRoute = ChauffeurEcranRouteImport.update({
+  id: '/chauffeur/ecran',
+  path: '/chauffeur/ecran',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChauffeurEspaceRoute = ChauffeurEspaceRouteImport.update({
@@ -274,6 +348,11 @@ const ProprietaireIndexRoute = ProprietaireIndexRouteImport.update({
   path: '/proprietaire/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProprietaireCarteRoute = ProprietaireCarteRouteImport.update({
+  id: '/proprietaire/carte',
+  path: '/proprietaire/carte',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProprietaireFlotteRoute = ProprietaireFlotteRouteImport.update({
   id: '/proprietaire/flotte',
   path: '/proprietaire/flotte',
@@ -315,6 +394,23 @@ const AnnonceurBriefsNouveauRoute = AnnonceurBriefsNouveauRouteImport.update({
   path: '/annonceur/briefs/nouveau',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnonceurContratBriefIdRoute = AnnonceurContratBriefIdRouteImport.update({
+  id: '/annonceur/contrat/$briefId',
+  path: '/annonceur/contrat/$briefId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnonceurFactureCampaignIdRoute =
+  AnnonceurFactureCampaignIdRouteImport.update({
+    id: '/annonceur/facture/$campaignId',
+    path: '/annonceur/facture/$campaignId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AnnonceurRapportCampaignIdRoute =
+  AnnonceurRapportCampaignIdRouteImport.update({
+    id: '/annonceur/rapport/$campaignId',
+    path: '/annonceur/rapport/$campaignId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AnnonceurSuiviCampaignIdRoute =
   AnnonceurSuiviCampaignIdRouteImport.update({
     id: '/annonceur/suivi/$campaignId',
@@ -327,6 +423,21 @@ const ApiAdminSetupStripeProductsRoute =
     path: '/api/admin/setup-stripe-products',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
+  id: '/api/webhooks/stripe',
+  path: '/api/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebhooksSupabasePushRoute = ApiWebhooksSupabasePushRouteImport.update({
+  id: '/api/webhooks/supabase-push',
+  path: '/api/webhooks/supabase-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableCronEnforceRoute = LovableCronEnforceRouteImport.update({
+  id: '/lovable/cron/enforce',
+  path: '/lovable/cron/enforce',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
   id: '/lovable/email/suppression',
   path: '/lovable/email/suppression',
@@ -360,6 +471,17 @@ const ProprietaireVehiculesNouveauRoute =
     path: '/proprietaire/vehicules/nouveau',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AnnonceurBriefsConfirmationBriefIdRoute =
+  AnnonceurBriefsConfirmationBriefIdRouteImport.update({
+    id: '/annonceur/briefs/confirmation/$briefId',
+    path: '/annonceur/briefs/confirmation/$briefId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminCronEnforceRoute = ApiAdminCronEnforceRouteImport.update({
+  id: '/api/admin/cron/enforce',
+  path: '/api/admin/cron/enforce',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -389,40 +511,46 @@ const LovableEmailTransactionalSendRoute =
     path: '/lovable/email/transactional/send',
     getParentRoute: () => rootRouteImport,
   } as any)
-const LovableCronEnforceRoute = LovableCronEnforceRouteImport.update({
-  id: '/lovable/cron/enforce',
-  path: '/lovable/cron/enforce',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/campagnes': typeof CampagnesRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
+  '/pourquoi-movespot': typeof PourquoiMovespotRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tarifs': typeof TarifsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
+  '/annonceur/etude-marche': typeof AnnonceurEtudeMarcheRoute
+  '/annonceur/exemples': typeof AnnonceurExemplesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
+  '/annonceur/pack': typeof AnnonceurPackRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
+  '/annonceur/preview-3d': typeof AnnonceurPreview3dRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/api/health': typeof ApiHealthRoute
   '/c/$campaignId': typeof CCampaignIdRoute
+  '/chauffeur/ecran': typeof ChauffeurEcranRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -430,6 +558,7 @@ export interface FileRoutesByFullPath {
   '/prestataire/connexion': typeof PrestataireConnexionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
+  '/proprietaire/carte': typeof ProprietaireCarteRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
@@ -443,8 +572,14 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
+  '/annonceur/contrat/$briefId': typeof AnnonceurContratBriefIdRoute
+  '/annonceur/facture/$campaignId': typeof AnnonceurFactureCampaignIdRoute
+  '/annonceur/rapport/$campaignId': typeof AnnonceurRapportCampaignIdRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
+  '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
+  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
@@ -452,41 +587,53 @@ export interface FileRoutesByFullPath {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
+  '/annonceur/briefs/confirmation/$briefId': typeof AnnonceurBriefsConfirmationBriefIdRoute
+  '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
-  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/campagnes': typeof CampagnesRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
+  '/pourquoi-movespot': typeof PourquoiMovespotRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tarifs': typeof TarifsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
+  '/annonceur/etude-marche': typeof AnnonceurEtudeMarcheRoute
+  '/annonceur/exemples': typeof AnnonceurExemplesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
+  '/annonceur/pack': typeof AnnonceurPackRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
+  '/annonceur/preview-3d': typeof AnnonceurPreview3dRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/api/health': typeof ApiHealthRoute
   '/c/$campaignId': typeof CCampaignIdRoute
+  '/chauffeur/ecran': typeof ChauffeurEcranRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -494,6 +641,7 @@ export interface FileRoutesByTo {
   '/prestataire/connexion': typeof PrestataireConnexionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
+  '/proprietaire/carte': typeof ProprietaireCarteRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
@@ -507,8 +655,14 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
+  '/annonceur/contrat/$briefId': typeof AnnonceurContratBriefIdRoute
+  '/annonceur/facture/$campaignId': typeof AnnonceurFactureCampaignIdRoute
+  '/annonceur/rapport/$campaignId': typeof AnnonceurRapportCampaignIdRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
+  '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
+  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
@@ -516,42 +670,54 @@ export interface FileRoutesByTo {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs': typeof ProprietaireBriefsIndexRoute
+  '/annonceur/briefs/confirmation/$briefId': typeof AnnonceurBriefsConfirmationBriefIdRoute
+  '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
-  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/campagnes': typeof CampagnesRoute
   '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
   '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/pitch': typeof PitchRoute
+  '/pourquoi-movespot': typeof PourquoiMovespotRoute
   '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tarifs': typeof TarifsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
+  '/annonceur/etude-marche': typeof AnnonceurEtudeMarcheRoute
+  '/annonceur/exemples': typeof AnnonceurExemplesRoute
   '/annonceur/inscription': typeof AnnonceurInscriptionRoute
+  '/annonceur/pack': typeof AnnonceurPackRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
+  '/annonceur/preview-3d': typeof AnnonceurPreview3dRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
+  '/api/health': typeof ApiHealthRoute
   '/c/$campaignId': typeof CCampaignIdRoute
+  '/chauffeur/ecran': typeof ChauffeurEcranRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -559,6 +725,7 @@ export interface FileRoutesById {
   '/prestataire/connexion': typeof PrestataireConnexionRoute
   '/prestataire/inscription': typeof PrestataireInscriptionRoute
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
+  '/proprietaire/carte': typeof ProprietaireCarteRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
@@ -572,8 +739,14 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/annonceur/briefs/$briefId': typeof AnnonceurBriefsBriefIdRoute
   '/annonceur/briefs/nouveau': typeof AnnonceurBriefsNouveauRoute
+  '/annonceur/contrat/$briefId': typeof AnnonceurContratBriefIdRoute
+  '/annonceur/facture/$campaignId': typeof AnnonceurFactureCampaignIdRoute
+  '/annonceur/rapport/$campaignId': typeof AnnonceurRapportCampaignIdRoute
   '/annonceur/suivi/$campaignId': typeof AnnonceurSuiviCampaignIdRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
+  '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
+  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/proprietaire/briefs/$briefId': typeof ProprietaireBriefsBriefIdRoute
   '/proprietaire/flotte/import': typeof ProprietaireFlotteImportRoute
@@ -581,12 +754,13 @@ export interface FileRoutesById {
   '/proprietaire/vehicules/nouveau': typeof ProprietaireVehiculesNouveauRoute
   '/annonceur/briefs/': typeof AnnonceurBriefsIndexRoute
   '/proprietaire/briefs/': typeof ProprietaireBriefsIndexRoute
+  '/annonceur/briefs/confirmation/$briefId': typeof AnnonceurBriefsConfirmationBriefIdRoute
+  '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
-  '/lovable/cron/enforce': typeof LovableCronEnforceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -594,30 +768,41 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/campagnes'
     | '/cgu'
     | '/cgv'
     | '/comment-ca-marche'
     | '/confidentialite'
+    | '/contact'
     | '/cookies'
     | '/devenir-partenaire'
     | '/mcp'
     | '/mentions-legales'
     | '/pitch'
+    | '/pourquoi-movespot'
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
+    | '/tarifs'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/virements'
     | '/annonceur/essai-active'
+    | '/annonceur/etude-marche'
+    | '/annonceur/exemples'
     | '/annonceur/inscription'
+    | '/annonceur/pack'
     | '/annonceur/portefeuille'
+    | '/annonceur/preview-3d'
     | '/api/faq-chat'
+    | '/api/health'
     | '/c/$campaignId'
+    | '/chauffeur/ecran'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
@@ -625,6 +810,7 @@ export interface FileRouteTypes {
     | '/prestataire/connexion'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
+    | '/proprietaire/carte'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
@@ -638,8 +824,14 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
+    | '/annonceur/contrat/$briefId'
+    | '/annonceur/facture/$campaignId'
+    | '/annonceur/rapport/$campaignId'
     | '/annonceur/suivi/$campaignId'
     | '/api/admin/setup-stripe-products'
+    | '/api/webhooks/stripe'
+    | '/api/webhooks/supabase-push'
+    | '/lovable/cron/enforce'
     | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
@@ -647,41 +839,53 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
+    | '/annonceur/briefs/confirmation/$briefId'
+    | '/api/admin/cron/enforce'
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
-    | '/lovable/cron/enforce'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/auth'
+    | '/campagnes'
     | '/cgu'
     | '/cgv'
     | '/comment-ca-marche'
     | '/confidentialite'
+    | '/contact'
     | '/cookies'
     | '/devenir-partenaire'
     | '/mcp'
     | '/mentions-legales'
     | '/pitch'
+    | '/pourquoi-movespot'
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
+    | '/tarifs'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/virements'
     | '/annonceur/essai-active'
+    | '/annonceur/etude-marche'
+    | '/annonceur/exemples'
     | '/annonceur/inscription'
+    | '/annonceur/pack'
     | '/annonceur/portefeuille'
+    | '/annonceur/preview-3d'
     | '/api/faq-chat'
+    | '/api/health'
     | '/c/$campaignId'
+    | '/chauffeur/ecran'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
@@ -689,6 +893,7 @@ export interface FileRouteTypes {
     | '/prestataire/connexion'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
+    | '/proprietaire/carte'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
@@ -702,8 +907,14 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
+    | '/annonceur/contrat/$briefId'
+    | '/annonceur/facture/$campaignId'
+    | '/annonceur/rapport/$campaignId'
     | '/annonceur/suivi/$campaignId'
     | '/api/admin/setup-stripe-products'
+    | '/api/webhooks/stripe'
+    | '/api/webhooks/supabase-push'
+    | '/lovable/cron/enforce'
     | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
@@ -711,41 +922,53 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs'
     | '/proprietaire/briefs'
+    | '/annonceur/briefs/confirmation/$briefId'
+    | '/api/admin/cron/enforce'
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
-    | '/lovable/cron/enforce'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/auth'
+    | '/campagnes'
     | '/cgu'
     | '/cgv'
     | '/comment-ca-marche'
     | '/confidentialite'
+    | '/contact'
     | '/cookies'
     | '/devenir-partenaire'
     | '/mcp'
     | '/mentions-legales'
     | '/pitch'
+    | '/pourquoi-movespot'
     | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
+    | '/tarifs'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/virements'
     | '/annonceur/essai-active'
+    | '/annonceur/etude-marche'
+    | '/annonceur/exemples'
     | '/annonceur/inscription'
+    | '/annonceur/pack'
     | '/annonceur/portefeuille'
+    | '/annonceur/preview-3d'
     | '/api/faq-chat'
+    | '/api/health'
     | '/c/$campaignId'
+    | '/chauffeur/ecran'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
     | '/email/unsubscribe'
@@ -753,6 +976,7 @@ export interface FileRouteTypes {
     | '/prestataire/connexion'
     | '/prestataire/inscription'
     | '/prestataires/$providerId'
+    | '/proprietaire/carte'
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
@@ -766,8 +990,14 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/annonceur/briefs/$briefId'
     | '/annonceur/briefs/nouveau'
+    | '/annonceur/contrat/$briefId'
+    | '/annonceur/facture/$campaignId'
+    | '/annonceur/rapport/$campaignId'
     | '/annonceur/suivi/$campaignId'
     | '/api/admin/setup-stripe-products'
+    | '/api/webhooks/stripe'
+    | '/api/webhooks/supabase-push'
+    | '/lovable/cron/enforce'
     | '/lovable/email/suppression'
     | '/proprietaire/briefs/$briefId'
     | '/proprietaire/flotte/import'
@@ -775,39 +1005,50 @@ export interface FileRouteTypes {
     | '/proprietaire/vehicules/nouveau'
     | '/annonceur/briefs/'
     | '/proprietaire/briefs/'
+    | '/annonceur/briefs/confirmation/$briefId'
+    | '/api/admin/cron/enforce'
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
-    | '/lovable/cron/enforce'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CampagnesRoute: typeof CampagnesRoute
   CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
   CommentCaMarcheRoute: typeof CommentCaMarcheRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
+  ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
   McpRoute: typeof McpRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   PitchRoute: typeof PitchRoute
+  PourquoiMovespotRoute: typeof PourquoiMovespotRoute
   PrevisionnelRoute: typeof PrevisionnelRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecuriteRoute: typeof SecuriteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TarifsRoute: typeof TarifsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AnnonceurEssaiActiveRoute: typeof AnnonceurEssaiActiveRoute
+  AnnonceurEtudeMarcheRoute: typeof AnnonceurEtudeMarcheRoute
+  AnnonceurExemplesRoute: typeof AnnonceurExemplesRoute
   AnnonceurInscriptionRoute: typeof AnnonceurInscriptionRoute
+  AnnonceurPackRoute: typeof AnnonceurPackRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
+  AnnonceurPreview3dRoute: typeof AnnonceurPreview3dRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   CCampaignIdRoute: typeof CCampaignIdRoute
+  ChauffeurEcranRoute: typeof ChauffeurEcranRoute
   ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
   ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -815,6 +1056,7 @@ export interface RootRouteChildren {
   PrestataireConnexionRoute: typeof PrestataireConnexionRoute
   PrestataireInscriptionRoute: typeof PrestataireInscriptionRoute
   PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
+  ProprietaireCarteRoute: typeof ProprietaireCarteRoute
   ProprietaireFlotteRoute: typeof ProprietaireFlotteRouteWithChildren
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
@@ -828,19 +1070,26 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   AnnonceurBriefsBriefIdRoute: typeof AnnonceurBriefsBriefIdRoute
   AnnonceurBriefsNouveauRoute: typeof AnnonceurBriefsNouveauRoute
+  AnnonceurContratBriefIdRoute: typeof AnnonceurContratBriefIdRoute
+  AnnonceurFactureCampaignIdRoute: typeof AnnonceurFactureCampaignIdRoute
+  AnnonceurRapportCampaignIdRoute: typeof AnnonceurRapportCampaignIdRoute
   AnnonceurSuiviCampaignIdRoute: typeof AnnonceurSuiviCampaignIdRoute
   ApiAdminSetupStripeProductsRoute: typeof ApiAdminSetupStripeProductsRoute
+  ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
+  ApiWebhooksSupabasePushRoute: typeof ApiWebhooksSupabasePushRoute
+  LovableCronEnforceRoute: typeof LovableCronEnforceRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ProprietaireBriefsBriefIdRoute: typeof ProprietaireBriefsBriefIdRoute
   ProprietaireVehiculesNouveauRoute: typeof ProprietaireVehiculesNouveauRoute
   AnnonceurBriefsIndexRoute: typeof AnnonceurBriefsIndexRoute
   ProprietaireBriefsIndexRoute: typeof ProprietaireBriefsIndexRoute
+  AnnonceurBriefsConfirmationBriefIdRoute: typeof AnnonceurBriefsConfirmationBriefIdRoute
+  ApiAdminCronEnforceRoute: typeof ApiAdminCronEnforceRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
-  LovableCronEnforceRoute: typeof LovableCronEnforceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -864,6 +1113,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campagnes': {
+      id: '/campagnes'
+      path: '/campagnes'
+      fullPath: '/campagnes'
+      preLoaderRoute: typeof CampagnesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cgu': {
@@ -892,6 +1148,13 @@ declare module '@tanstack/react-router' {
       path: '/confidentialite'
       fullPath: '/confidentialite'
       preLoaderRoute: typeof ConfidentialiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cookies': {
@@ -929,6 +1192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PitchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pourquoi-movespot': {
+      id: '/pourquoi-movespot'
+      path: '/pourquoi-movespot'
+      fullPath: '/pourquoi-movespot'
+      preLoaderRoute: typeof PourquoiMovespotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/previsionnel': {
       id: '/previsionnel'
       path: '/previsionnel'
@@ -957,6 +1227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tarifs': {
+      id: '/tarifs'
+      path: '/tarifs'
+      fullPath: '/tarifs'
+      preLoaderRoute: typeof TarifsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/unsubscribe': {
       id: '/unsubscribe'
       path: '/unsubscribe'
@@ -977,6 +1254,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/.well-known/oauth-protected-resource'
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/commissions': {
+      id: '/admin/commissions'
+      path: '/commissions'
+      fullPath: '/admin/commissions'
+      preLoaderRoute: typeof AdminCommissionsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
       id: '/admin/dashboard'
@@ -1013,11 +1297,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurEssaiActiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/etude-marche': {
+      id: '/annonceur/etude-marche'
+      path: '/annonceur/etude-marche'
+      fullPath: '/annonceur/etude-marche'
+      preLoaderRoute: typeof AnnonceurEtudeMarcheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceur/exemples': {
+      id: '/annonceur/exemples'
+      path: '/annonceur/exemples'
+      fullPath: '/annonceur/exemples'
+      preLoaderRoute: typeof AnnonceurExemplesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/annonceur/inscription': {
       id: '/annonceur/inscription'
       path: '/annonceur/inscription'
       fullPath: '/annonceur/inscription'
       preLoaderRoute: typeof AnnonceurInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceur/pack': {
+      id: '/annonceur/pack'
+      path: '/annonceur/pack'
+      fullPath: '/annonceur/pack'
+      preLoaderRoute: typeof AnnonceurPackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/annonceur/portefeuille': {
@@ -1027,11 +1332,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurPortefeuilleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/preview-3d': {
+      id: '/annonceur/preview-3d'
+      path: '/annonceur/preview-3d'
+      fullPath: '/annonceur/preview-3d'
+      preLoaderRoute: typeof AnnonceurPreview3dRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/faq-chat': {
       id: '/api/faq-chat'
       path: '/api/faq-chat'
       fullPath: '/api/faq-chat'
       preLoaderRoute: typeof ApiFaqChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/c/$campaignId': {
@@ -1046,6 +1365,13 @@ declare module '@tanstack/react-router' {
       path: '/chauffeur'
       fullPath: '/chauffeur/'
       preLoaderRoute: typeof ChauffeurIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chauffeur/ecran': {
+      id: '/chauffeur/ecran'
+      path: '/chauffeur/ecran'
+      fullPath: '/chauffeur/ecran'
+      preLoaderRoute: typeof ChauffeurEcranRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chauffeur/espace': {
@@ -1125,6 +1451,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/proprietaire/carte': {
+      id: '/proprietaire/carte'
+      path: '/proprietaire/carte'
+      fullPath: '/proprietaire/carte'
+      preLoaderRoute: typeof ProprietaireCarteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/proprietaire/flotte': {
       id: '/proprietaire/flotte'
       path: '/proprietaire/flotte'
@@ -1181,6 +1514,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurBriefsNouveauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/contrat/$briefId': {
+      id: '/annonceur/contrat/$briefId'
+      path: '/annonceur/contrat/$briefId'
+      fullPath: '/annonceur/contrat/$briefId'
+      preLoaderRoute: typeof AnnonceurContratBriefIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceur/facture/$campaignId': {
+      id: '/annonceur/facture/$campaignId'
+      path: '/annonceur/facture/$campaignId'
+      fullPath: '/annonceur/facture/$campaignId'
+      preLoaderRoute: typeof AnnonceurFactureCampaignIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceur/rapport/$campaignId': {
+      id: '/annonceur/rapport/$campaignId'
+      path: '/annonceur/rapport/$campaignId'
+      fullPath: '/annonceur/rapport/$campaignId'
+      preLoaderRoute: typeof AnnonceurRapportCampaignIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/annonceur/suivi/$campaignId': {
       id: '/annonceur/suivi/$campaignId'
       path: '/annonceur/suivi/$campaignId'
@@ -1193,6 +1547,27 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/setup-stripe-products'
       fullPath: '/api/admin/setup-stripe-products'
       preLoaderRoute: typeof ApiAdminSetupStripeProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/stripe': {
+      id: '/api/webhooks/stripe'
+      path: '/api/webhooks/stripe'
+      fullPath: '/api/webhooks/stripe'
+      preLoaderRoute: typeof ApiWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/supabase-push': {
+      id: '/api/webhooks/supabase-push'
+      path: '/api/webhooks/supabase-push'
+      fullPath: '/api/webhooks/supabase-push'
+      preLoaderRoute: typeof ApiWebhooksSupabasePushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/cron/enforce': {
+      id: '/lovable/cron/enforce'
+      path: '/lovable/cron/enforce'
+      fullPath: '/lovable/cron/enforce'
+      preLoaderRoute: typeof LovableCronEnforceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/suppression': {
@@ -1237,6 +1612,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProprietaireVehiculesNouveauRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/briefs/confirmation/$briefId': {
+      id: '/annonceur/briefs/confirmation/$briefId'
+      path: '/annonceur/briefs/confirmation/$briefId'
+      fullPath: '/annonceur/briefs/confirmation/$briefId'
+      preLoaderRoute: typeof AnnonceurBriefsConfirmationBriefIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/cron/enforce': {
+      id: '/api/admin/cron/enforce'
+      path: '/api/admin/cron/enforce'
+      fullPath: '/api/admin/cron/enforce'
+      preLoaderRoute: typeof ApiAdminCronEnforceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1272,23 +1661,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/cron/enforce': {
-      id: '/lovable/cron/enforce'
-      path: '/lovable/cron/enforce'
-      fullPath: '/lovable/cron/enforce'
-      preLoaderRoute: typeof LovableCronEnforceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminCommissionsRoute: typeof AdminCommissionsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
   AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCommissionsRoute: AdminCommissionsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminPrestatairesRoute: AdminPrestatairesRoute,
   AdminVirementsRoute: AdminVirementsRoute,
@@ -1313,28 +1697,38 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
+  CampagnesRoute: CampagnesRoute,
   CguRoute: CguRoute,
   CgvRoute: CgvRoute,
   CommentCaMarcheRoute: CommentCaMarcheRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
+  ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   DevenirPartenaireRoute: DevenirPartenaireRoute,
   McpRoute: McpRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   PitchRoute: PitchRoute,
+  PourquoiMovespotRoute: PourquoiMovespotRoute,
   PrevisionnelRoute: PrevisionnelRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SecuriteRoute: SecuriteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TarifsRoute: TarifsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AnnonceurEssaiActiveRoute: AnnonceurEssaiActiveRoute,
+  AnnonceurEtudeMarcheRoute: AnnonceurEtudeMarcheRoute,
+  AnnonceurExemplesRoute: AnnonceurExemplesRoute,
   AnnonceurInscriptionRoute: AnnonceurInscriptionRoute,
+  AnnonceurPackRoute: AnnonceurPackRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
+  AnnonceurPreview3dRoute: AnnonceurPreview3dRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
+  ApiHealthRoute: ApiHealthRoute,
   CCampaignIdRoute: CCampaignIdRoute,
+  ChauffeurEcranRoute: ChauffeurEcranRoute,
   ChauffeurEspaceRoute: ChauffeurEspaceRoute,
   ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
@@ -1342,6 +1736,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrestataireConnexionRoute: PrestataireConnexionRoute,
   PrestataireInscriptionRoute: PrestataireInscriptionRoute,
   PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
+  ProprietaireCarteRoute: ProprietaireCarteRoute,
   ProprietaireFlotteRoute: ProprietaireFlotteRouteWithChildren,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
@@ -1355,19 +1750,27 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   AnnonceurBriefsBriefIdRoute: AnnonceurBriefsBriefIdRoute,
   AnnonceurBriefsNouveauRoute: AnnonceurBriefsNouveauRoute,
+  AnnonceurContratBriefIdRoute: AnnonceurContratBriefIdRoute,
+  AnnonceurFactureCampaignIdRoute: AnnonceurFactureCampaignIdRoute,
+  AnnonceurRapportCampaignIdRoute: AnnonceurRapportCampaignIdRoute,
   AnnonceurSuiviCampaignIdRoute: AnnonceurSuiviCampaignIdRoute,
   ApiAdminSetupStripeProductsRoute: ApiAdminSetupStripeProductsRoute,
+  ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
+  ApiWebhooksSupabasePushRoute: ApiWebhooksSupabasePushRoute,
+  LovableCronEnforceRoute: LovableCronEnforceRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ProprietaireBriefsBriefIdRoute: ProprietaireBriefsBriefIdRoute,
   ProprietaireVehiculesNouveauRoute: ProprietaireVehiculesNouveauRoute,
   AnnonceurBriefsIndexRoute: AnnonceurBriefsIndexRoute,
   ProprietaireBriefsIndexRoute: ProprietaireBriefsIndexRoute,
+  AnnonceurBriefsConfirmationBriefIdRoute:
+    AnnonceurBriefsConfirmationBriefIdRoute,
+  ApiAdminCronEnforceRoute: ApiAdminCronEnforceRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
-  LovableCronEnforceRoute: LovableCronEnforceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
