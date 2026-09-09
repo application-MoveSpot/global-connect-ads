@@ -25,7 +25,7 @@ SELECT cron.schedule(
 
     IF v_key IS NOT NULL THEN
       PERFORM net.http_post(
-        url     := 'https://kbloaebbwgzudtkrvulp.supabase.co/functions/v1/enforce-cron',
+        url     := 'https://phononlhfyljhhhvlmrm.supabase.co/functions/v1/enforce-cron',
         headers := jsonb_build_object(
           'Content-Type',  'application/json',
           'Authorization', 'Bearer ' || v_key,
