@@ -23,7 +23,7 @@ async function injectTestSession(page: Page) {
         role: "authenticated",
       },
     };
-    const key = "sb-kbloaebbwgzudtkrvulp-auth-token";
+    const key = "sb-phononlhfyljhhhvlmrm-auth-token";
     try {
       localStorage.setItem(key, JSON.stringify(fakeSession));
     } catch {}

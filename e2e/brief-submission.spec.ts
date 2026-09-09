@@ -23,7 +23,7 @@ async function injectTestSession(page: Page) {
       },
     };
     try {
-      localStorage.setItem("sb-kbloaebbwgzudtkrvulp-auth-token", JSON.stringify(fakeSession));
+      localStorage.setItem("sb-phononlhfyljhhhvlmrm-auth-token", JSON.stringify(fakeSession));
     } catch {}
   });
 }
