@@ -5,7 +5,7 @@ import { log } from "@/lib/logger";
 import { checkRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import type { ChatAudience } from "@/components/app/FAQChatbot";
 
-type ChatRequestBody = { messages?: unknown; audience?: ChatAudience };
+type ChatRequestBody = { messages?: unknown; audience?: ChatAudience; userContext?: string };
 
 const KNOWLEDGE_BASE = `
 MoveSpot est une marketplace française de publicité mobile qui met en relation :
@@ -208,7 +208,7 @@ export const Route = createFileRoute("/api/faq-chat")({
           );
         }
 
-        const { messages, audience } = (await request.json()) as ChatRequestBody;
+        const { messages, audience, userContext } = (await request.json()) as ChatRequestBody;
         if (!Array.isArray(messages)) {
           return new Response("Messages requis", { status: 400 });
         }
@@ -220,24 +220,32 @@ export const Route = createFileRoute("/api/faq-chat")({
         }
 
         const audienceCtx = audience ? AUDIENCE_CONTEXT[audience] : "";
+        const today = new Date().toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+        // Sanitize userContext: max 500 chars, strip potential injection
+        const safeUserCtx = typeof userContext === "string"
+          ? userContext.slice(0, 500).replace(/[<>{}[\]]/g, "")
+          : "";
 
         try {
           const gateway = createLovableAiGatewayProvider(key);
           const result = streamText({
             model: gateway("google/gemini-3-flash-preview"),
             system: `Tu es l'assistant officiel de MoveSpot, une marketplace française de publicité mobile sur véhicules.
+Date d'aujourd'hui : ${today}.
 
 RÈGLES ABSOLUES :
 1. Réponds UNIQUEMENT en français.
-2. Sois concis : 2 à 4 phrases sauf si on demande des détails.
+2. Sois concis et direct : 2 à 4 phrases sauf si l'utilisateur demande des détails.
 3. Base-toi STRICTEMENT sur la base de connaissances ci-dessous. Ne jamais inventer de tarifs, de délais ou d'engagements non mentionnés.
 4. Si la question dépasse ton périmètre, dis poliment que tu n'as pas l'info et renvoie vers contact@notify.move-spot.com.
-5. Quand c'est utile, indique la page de l'application à visiter (ex: "/annonceur/portefeuille").
+5. Quand c'est utile, indique la page de l'application à visiter en format lien court (ex: **/annonceur/portefeuille**).
 6. Utilise du **markdown léger** (gras, listes courtes) pour structurer les réponses longues.
-7. Sois chaleureux et professionnel, jamais robotique.
+7. Sois chaleureux et professionnel, jamais robotique ni répétitif.
+8. Si l'utilisateur a un contexte spécifique (solde, campagnes), prends-le en compte pour personnaliser ta réponse.
 
-CONTEXTE UTILISATEUR :
+PROFIL DE L'UTILISATEUR :
 ${audienceCtx}
+${safeUserCtx ? `\nINFOS COMPTE EN TEMPS RÉEL :\n${safeUserCtx}` : ""}
 
 === BASE DE CONNAISSANCES MOVESPOT ===
 ${KNOWLEDGE_BASE}`,

@@ -608,6 +608,10 @@ function AnnonceurDashboard() {
       </main>
       <FAQChatbot
         audience="annonceur"
+        userContext={[
+          `Solde portefeuille : ${(balanceCents / 100).toFixed(2)} €`,
+          `Type de compte : ${isIndividual ? "particulier / événementiel" : "entreprise / professionnel"}`,
+        ].join("\n")}
         suggestions={
           isIndividual
             ? [
