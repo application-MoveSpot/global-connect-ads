@@ -900,6 +900,9 @@ export type Database = {
           deadline: string | null
           format: string | null
           id: string
+          impossible_at: string | null
+          impossible_photos: string[]
+          impossible_reason: string | null
           message: string
           provider_id: string
           quantity: number | null
@@ -920,6 +923,9 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
+          impossible_at?: string | null
+          impossible_photos?: string[]
+          impossible_reason?: string | null
           message: string
           provider_id: string
           quantity?: number | null
@@ -940,6 +946,9 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
+          impossible_at?: string | null
+          impossible_photos?: string[]
+          impossible_reason?: string | null
           message?: string
           provider_id?: string
           quantity?: number | null

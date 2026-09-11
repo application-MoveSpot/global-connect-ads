@@ -32,6 +32,7 @@ type Quote = {
   id: string; advertiser_id: string; service_type: string; vehicle_type: string | null;
   format: string | null; quantity: number | null; deadline: string | null; zone: string | null;
   message: string; status: string; quoted_price_cents: number | null; quoted_message: string | null;
+  impossible_reason: string | null; impossible_photos: string[]; impossible_at: string | null;
   created_at: string;
 };
 
@@ -40,6 +41,7 @@ function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>({ open: false, quoteId: null });
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -73,9 +75,35 @@ function ProviderDashboard() {
     await load();
   };
 
-  const reportImpossible = async (id: string) => {
-    if (!confirm("Confirmer que la pose est techniquement impossible ? L'annonceur sera remboursé intégralement.")) return;
-    await supabase.from("service_quotes").update({ status: "impossible" }).eq("id", id);
+  const openImpossibleModal = (id: string) =>
+    setImpossibleModal({ open: true, quoteId: id });
+
+  const submitImpossible = async (reason: string, files: File[]) => {
+    const { quoteId } = impossibleModal;
+    if (!quoteId) return;
+    const { data: sess } = await supabase.auth.getSession();
+    const uid = sess.session?.user.id;
+    if (!uid) return;
+
+    const photoUrls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const path = `${uid}/${quoteId}/photo-${i + 1}.${file.name.split(".").pop()}`;
+      const { error } = await supabase.storage.from("pose-impossible").upload(path, file, { upsert: true });
+      if (!error) {
+        const { data: signed } = await supabase.storage.from("pose-impossible").createSignedUrl(path, 60 * 60 * 24 * 7);
+        if (signed) photoUrls.push(signed.signedUrl);
+      }
+    }
+
+    await supabase.from("service_quotes").update({
+      status: "impossible_pending",
+      impossible_reason: reason,
+      impossible_photos: photoUrls,
+      impossible_at: new Date().toISOString(),
+    }).eq("id", quoteId);
+
+    setImpossibleModal({ open: false, quoteId: null });
     await load();
   };
 
@@ -136,7 +164,7 @@ function ProviderDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {quotes.map((q) => <QuoteCard key={q.id} q={q} onRespond={respondQuote} onReject={rejectQuote} onReportImpossible={reportImpossible} />)}
+            {quotes.map((q) => <QuoteCard key={q.id} q={q} onRespond={respondQuote} onReject={rejectQuote} onOpenImpossible={openImpossibleModal} />)}
           </div>
         )}
       </main>
@@ -150,6 +178,13 @@ function ProviderDashboard() {
           "Comment répondre à une demande de devis ?",
         ]}
       />
+
+      {impossibleModal.open && (
+        <ImpossibleModal
+          onSubmit={submitImpossible}
+          onCancel={() => setImpossibleModal({ open: false, quoteId: null })}
+        />
+      )}
     </div>
   );
 }
@@ -216,7 +251,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function QuoteCard({ q, onRespond, onReject, onReportImpossible }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onReportImpossible: (id: string) => void }) {
+function QuoteCard({ q, onRespond, onReject, onOpenImpossible }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onOpenImpossible: (id: string) => void }) {
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
   return (
@@ -244,15 +279,21 @@ function QuoteCard({ q, onRespond, onReject, onReportImpossible }: { q: Quote; o
       )}
       {(q.status === "quoted" || q.status === "accepted") && (
         <div className="mt-3 border-t border-border pt-3">
-          <button onClick={() => onReportImpossible(q.id)}
+          <button onClick={() => onOpenImpossible(q.id)}
             className="rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/40 px-3 py-2 text-sm font-semibold hover:bg-orange-500/25">
             ⚠ Signaler une pose impossible
           </button>
         </div>
       )}
+      {q.status === "impossible_pending" && (
+        <div className="mt-3 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-700 dark:text-amber-300">
+          ⏳ Signalement en cours de vérification par MoveSpot.
+          {q.impossible_reason && <p className="mt-1 text-xs italic">Motif : {q.impossible_reason}</p>}
+        </div>
+      )}
       {q.status === "impossible" && (
         <div className="mt-3 rounded-lg bg-orange-500/10 border border-orange-500/30 p-3 text-sm text-orange-700 dark:text-orange-300">
-          ⚠ Pose signalée comme impossible — remboursement en cours pour l'annonceur.
+          ⚠ Pose impossible confirmée — remboursement de l'annonceur en cours.
         </div>
       )}
       {q.status === "pending" && (
@@ -295,8 +336,84 @@ function QuoteBadge({ status }: { status: string }) {
     accepted: { l: "Accepté", c: "bg-signal/20 text-signal" },
     rejected: { l: "Refusé", c: "bg-destructive/15 text-destructive" },
     cancelled: { l: "Annulé", c: "bg-secondary text-muted-foreground" },
+    impossible_pending: { l: "Vérification en cours", c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
     impossible: { l: "Pose impossible", c: "bg-orange-500/20 text-orange-700 dark:text-orange-300" },
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
+}
+
+function ImpossibleModal({ onSubmit, onCancel }: {
+  onSubmit: (reason: string, files: File[]) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [reason, setReason] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []).slice(0, 3);
+    setFiles(selected);
+    setPreviews(selected.map((f) => URL.createObjectURL(f)));
+  };
+
+  const handleSubmit = async () => {
+    if (!reason.trim()) { alert("Veuillez décrire le motif de l'impossibilité."); return; }
+    setUploading(true);
+    await onSubmit(reason.trim(), files);
+    setUploading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-background border border-border p-6 shadow-xl">
+        <h2 className="font-display text-lg font-bold mb-1">Signaler une pose impossible</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Décrivez pourquoi la pose n'a pas pu être réalisée. MoveSpot vérifiera votre signalement avant de rembourser l'annonceur.
+        </p>
+
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+          Motif (obligatoire)
+        </label>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          rows={3}
+          maxLength={500}
+          placeholder="Ex : surface du véhicule trop endommagée, présence de rouille empêchant l'adhésion du vinyle…"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm mb-4"
+        />
+
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+          Photos justificatives (max 3, recommandé)
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFiles}
+          className="text-sm text-muted-foreground mb-3"
+        />
+        {previews.length > 0 && (
+          <div className="flex gap-2 mb-4">
+            {previews.map((src, i) => (
+              <img key={i} src={src} alt={`Photo ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-border" />
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2 justify-end">
+          <button onClick={onCancel} disabled={uploading}
+            className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary">
+            Annuler
+          </button>
+          <button onClick={handleSubmit} disabled={uploading || !reason.trim()}
+            className="rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold hover:bg-orange-600 disabled:opacity-50">
+            {uploading ? "Envoi…" : "Envoyer le signalement"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
