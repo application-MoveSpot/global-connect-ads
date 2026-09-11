@@ -201,6 +201,23 @@ function CGU() {
         </p>
       </LegalSection>
 
+      <LegalSection title="15 bis. Impossibilité technique de pose">
+        <p>
+          Si, après validation d'une campagne et paiement par l'annonceur, le poseur certifié constate que la pose est
+          techniquement impossible (surface incompatible, état du véhicule ou contrainte matérielle indépendante de la
+          volonté des parties), il doit le signaler immédiatement via le bouton « Signaler une pose impossible » de son
+          espace prestataire.
+        </p>
+        <p>
+          Dans ce cas, MoveSpot procédera au <strong>remboursement intégral de l'annonceur</strong> dans un délai de
+          5 jours ouvrés. Aucune commission ne sera due au propriétaire du véhicule pour cette campagne. MoveSpot se
+          réserve le droit de proposer à l'annonceur un véhicule alternatif sans frais supplémentaires.
+        </p>
+        <p>
+          MoveSpot ne saurait être tenue responsable des conséquences d'une impossibilité technique de pose dûment
+          signalée dans les conditions prévues au présent article.
+        </p>
+      </LegalSection>
 
       <LegalSection title="16. Sécurité des comptes">
         <p>

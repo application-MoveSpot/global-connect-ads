@@ -73,6 +73,12 @@ function ProviderDashboard() {
     await load();
   };
 
+  const reportImpossible = async (id: string) => {
+    if (!confirm("Confirmer que la pose est techniquement impossible ? L'annonceur sera remboursé intégralement.")) return;
+    await supabase.from("service_quotes").update({ status: "impossible" }).eq("id", id);
+    await load();
+  };
+
   if (loading || !profile) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
   return (
@@ -130,7 +136,7 @@ function ProviderDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {quotes.map((q) => <QuoteCard key={q.id} q={q} onRespond={respondQuote} onReject={rejectQuote} />)}
+            {quotes.map((q) => <QuoteCard key={q.id} q={q} onRespond={respondQuote} onReject={rejectQuote} onReportImpossible={reportImpossible} />)}
           </div>
         )}
       </main>
@@ -210,7 +216,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function QuoteCard({ q, onRespond, onReject }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void }) {
+function QuoteCard({ q, onRespond, onReject, onReportImpossible }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onReportImpossible: (id: string) => void }) {
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
   return (
@@ -234,6 +240,19 @@ function QuoteCard({ q, onRespond, onReject }: { q: Quote; onRespond: (id: strin
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
           ✓ Devis envoyé : <strong>{((q.quoted_price_cents ?? 0) / 100).toFixed(2)} €</strong>
           {q.quoted_message && <p className="text-xs mt-1 whitespace-pre-wrap">{q.quoted_message}</p>}
+        </div>
+      )}
+      {(q.status === "quoted" || q.status === "accepted") && (
+        <div className="mt-3 border-t border-border pt-3">
+          <button onClick={() => onReportImpossible(q.id)}
+            className="rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/40 px-3 py-2 text-sm font-semibold hover:bg-orange-500/25">
+            ⚠ Signaler une pose impossible
+          </button>
+        </div>
+      )}
+      {q.status === "impossible" && (
+        <div className="mt-3 rounded-lg bg-orange-500/10 border border-orange-500/30 p-3 text-sm text-orange-700 dark:text-orange-300">
+          ⚠ Pose signalée comme impossible — remboursement en cours pour l'annonceur.
         </div>
       )}
       {q.status === "pending" && (
@@ -276,6 +295,7 @@ function QuoteBadge({ status }: { status: string }) {
     accepted: { l: "Accepté", c: "bg-signal/20 text-signal" },
     rejected: { l: "Refusé", c: "bg-destructive/15 text-destructive" },
     cancelled: { l: "Annulé", c: "bg-secondary text-muted-foreground" },
+    impossible: { l: "Pose impossible", c: "bg-orange-500/20 text-orange-700 dark:text-orange-300" },
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
