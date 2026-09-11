@@ -11,6 +11,7 @@ import { useEffect } from "react";
 
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
+import { TestEnvBanner } from "@/components/app/TestEnvBanner";
 import { CookieBanner } from "@/components/app/CookieBanner";
 import { initSentry, Sentry } from "@/lib/sentry";
 import appCss from "../styles.css?url";
@@ -160,6 +161,7 @@ function RootComponent() {
   return (
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <QueryClientProvider client={queryClient}>
+        <TestEnvBanner />
         <AppUpdateGuard />
         <StatusBanner />
         <Outlet />
