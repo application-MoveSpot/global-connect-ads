@@ -379,24 +379,38 @@ function Index() {
             <span>· Transactions 3D Secure</span>
           </div>
 
-          {/* Réseaux sociaux — en préparation */}
+          {/* Réseaux sociaux */}
           <div className="flex items-center gap-4 text-muted-foreground">
             <span className="text-xs">Suivez-nous :</span>
             {[
-              { icon: Instagram, label: "Instagram" },
-              { icon: Linkedin, label: "LinkedIn" },
-              { icon: Facebook, label: "Facebook" },
-            ].map(({ icon: Icon, label }) => (
-              <button
-                key={label}
-                title={`${label} — Page en cours de création`}
-                aria-label={`${label} (bientôt disponible)`}
-                onClick={() => toast.info(`Notre page ${label} est en cours de création. Revenez bientôt !`)}
-                className="rounded-full p-1.5 hover:bg-muted transition-colors cursor-pointer"
-              >
-                <Icon className="h-5 w-5" />
-              </button>
-            ))}
+              { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/movespot_pub/" },
+              { icon: Linkedin, label: "LinkedIn", href: null },
+              { icon: Facebook, label: "Facebook", href: null },
+            ].map(({ icon: Icon, label, href }) =>
+              href ? (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={label}
+                  aria-label={label}
+                  className="rounded-full p-1.5 hover:bg-muted transition-colors"
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ) : (
+                <button
+                  key={label}
+                  title={`${label} — Page en cours de création`}
+                  aria-label={`${label} (bientôt disponible)`}
+                  onClick={() => toast.info(`Notre page ${label} est en cours de création. Revenez bientôt !`)}
+                  className="rounded-full p-1.5 hover:bg-muted transition-colors cursor-pointer"
+                >
+                  <Icon className="h-5 w-5" />
+                </button>
+              )
+            )}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
