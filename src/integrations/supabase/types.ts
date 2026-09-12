@@ -563,6 +563,54 @@ export type Database = {
         }
         Relationships: []
       }
+      obstacle_reports: {
+        Row: {
+          id: string
+          vehicle_id: string | null
+          campaign_id: string | null
+          obstacle_type: string
+          description: string | null
+          photo_paths: string[]
+          reported_at: string
+          metadata: Record<string, unknown> | null
+        }
+        Insert: {
+          id?: string
+          vehicle_id?: string | null
+          campaign_id?: string | null
+          obstacle_type: string
+          description?: string | null
+          photo_paths?: string[]
+          reported_at?: string
+          metadata?: Record<string, unknown> | null
+        }
+        Update: {
+          id?: string
+          vehicle_id?: string | null
+          campaign_id?: string | null
+          obstacle_type?: string
+          description?: string | null
+          photo_paths?: string[]
+          reported_at?: string
+          metadata?: Record<string, unknown> | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obstacle_reports_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obstacle_reports_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       owner_profiles: {
         Row: {
           bio: string | null
