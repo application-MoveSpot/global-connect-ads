@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -281,6 +282,15 @@ function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
+            <a
+              href="https://www.instagram.com/movespot_pub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram MoveSpot"
+              className="rounded-full p-1.5 hover:bg-muted transition text-muted-foreground hover:text-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
             <Link
               to="/parametres"
               className="text-sm text-muted-foreground hover:text-foreground"
