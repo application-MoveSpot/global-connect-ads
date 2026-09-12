@@ -7,6 +7,7 @@ import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscriptionCard";
 import { RouteError } from "@/components/app/RouteError";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 
 export const Route = createFileRoute("/prestataire/")({
   head: () => ({
@@ -338,6 +339,9 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
           ✓ Devis envoyé : <strong>{((q.quoted_price_cents ?? 0) / 100).toFixed(2)} €</strong>
           {q.quoted_message && <p className="text-xs mt-1 whitespace-pre-wrap">{q.quoted_message}</p>}
         </div>
+      )}
+      {(q.status === "quoted" || q.status === "accepted") && (
+        <WeatherInstallCheck zone={q.zone} />
       )}
       {(q.status === "quoted" || q.status === "accepted") && (
         <div className="mt-3 border-t border-border pt-3">
