@@ -913,6 +913,7 @@ export type Database = {
           service_type: string
           status: string
           updated_at: string
+          vehicle_id: string | null
           vehicle_type: string | null
           zone: string | null
         }
@@ -936,6 +937,7 @@ export type Database = {
           service_type: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -959,6 +961,7 @@ export type Database = {
           service_type?: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -1094,6 +1097,8 @@ export type Database = {
         Row: {
           admin_notes: string | null
           ai_verification: Json | null
+          brand: string | null
+          color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at: string
           description: string | null
@@ -1101,6 +1106,8 @@ export type Database = {
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
+          license_plate: string | null
+          model: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -1114,6 +1121,8 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1121,6 +1130,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
+          model?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -1134,6 +1145,8 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1141,6 +1154,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
+          model?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null

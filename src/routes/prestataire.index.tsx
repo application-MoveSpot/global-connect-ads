@@ -30,10 +30,16 @@ type Profile = {
 
 type Quote = {
   id: string; advertiser_id: string; service_type: string; vehicle_type: string | null;
+  vehicle_id: string | null;
   format: string | null; quantity: number | null; deadline: string | null; zone: string | null;
   message: string; status: string; quoted_price_cents: number | null; quoted_message: string | null;
   impossible_reason: string | null; impossible_photos: string[]; impossible_at: string | null;
   created_at: string;
+};
+
+type VehicleId = {
+  license_plate: string | null; brand: string | null; model: string | null; color: string | null;
+  name: string; type: string; photos: string[] | null;
 };
 
 function ProviderDashboard() {
@@ -41,6 +47,7 @@ function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [vehicleMap, setVehicleMap] = useState<Record<string, VehicleId>>({});
   const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>({ open: false, quoteId: null });
 
   const load = useCallback(async () => {
@@ -54,7 +61,20 @@ function ProviderDashboard() {
     const { data: qs } = await supabase.from("service_quotes")
       .select("*").eq("provider_id", sess.session.user.id)
       .order("created_at", { ascending: false });
-    setQuotes((qs as Quote[]) ?? []);
+    const quoteList = (qs as Quote[]) ?? [];
+    setQuotes(quoteList);
+
+    // Fetch identification data for quoted vehicles
+    const vehicleIds = [...new Set(quoteList.map((q) => q.vehicle_id).filter((id): id is string => !!id))];
+    if (vehicleIds.length > 0) {
+      const { data: vehicles } = await supabase.from("vehicles")
+        .select("id, license_plate, brand, model, color, name, type, photos")
+        .in("id", vehicleIds);
+      const map: Record<string, VehicleId> = {};
+      for (const v of vehicles ?? []) map[v.id] = v as VehicleId;
+      setVehicleMap(map);
+    }
+
     setLoading(false);
   }, [navigate]);
 
@@ -164,7 +184,7 @@ function ProviderDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {quotes.map((q) => <QuoteCard key={q.id} q={q} onRespond={respondQuote} onReject={rejectQuote} onOpenImpossible={openImpossibleModal} />)}
+            {quotes.map((q) => <QuoteCard key={q.id} q={q} vehicle={q.vehicle_id ? vehicleMap[q.vehicle_id] : undefined} onRespond={respondQuote} onReject={rejectQuote} onOpenImpossible={openImpossibleModal} />)}
           </div>
         )}
       </main>
@@ -251,7 +271,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function QuoteCard({ q, onRespond, onReject, onOpenImpossible }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onOpenImpossible: (id: string) => void }) {
+function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Quote; vehicle?: VehicleId; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onOpenImpossible: (id: string) => void }) {
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
   return (
@@ -264,12 +284,54 @@ function QuoteCard({ q, onRespond, onReject, onOpenImpossible }: { q: Quote; onR
         <QuoteBadge status={q.status} />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted-foreground mb-3">
-        {q.vehicle_type && <div><strong className="text-foreground">Véhicule :</strong> {q.vehicle_type}</div>}
+        {q.vehicle_type && <div><strong className="text-foreground">Type :</strong> {q.vehicle_type}</div>}
         {q.format && <div><strong className="text-foreground">Format :</strong> {q.format}</div>}
         {q.quantity && <div><strong className="text-foreground">Qté :</strong> {q.quantity}</div>}
         {q.deadline && <div><strong className="text-foreground">Échéance :</strong> {new Date(q.deadline).toLocaleDateString("fr-FR")}</div>}
         {q.zone && <div className="col-span-2"><strong className="text-foreground">Zone :</strong> {q.zone}</div>}
       </div>
+      {vehicle && (
+        <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">🚗 Identification du véhicule à habiller</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
+            {vehicle.license_plate && (
+              <div className="col-span-2 sm:col-span-1">
+                <span className="text-xs text-muted-foreground block">Plaque</span>
+                <span className="font-mono font-bold tracking-widest">{vehicle.license_plate}</span>
+              </div>
+            )}
+            {vehicle.brand && (
+              <div>
+                <span className="text-xs text-muted-foreground block">Marque</span>
+                <span className="font-medium">{vehicle.brand}</span>
+              </div>
+            )}
+            {vehicle.model && (
+              <div>
+                <span className="text-xs text-muted-foreground block">Modèle</span>
+                <span className="font-medium">{vehicle.model}</span>
+              </div>
+            )}
+            {vehicle.color && (
+              <div>
+                <span className="text-xs text-muted-foreground block">Couleur</span>
+                <span className="font-medium">{vehicle.color}</span>
+              </div>
+            )}
+          </div>
+          {vehicle.name && (
+            <div className="mt-1 text-xs text-muted-foreground">Surnom : {vehicle.name}</div>
+          )}
+          {vehicle.photos && vehicle.photos.length > 0 && (
+            <div className="mt-2 flex gap-2">
+              {vehicle.photos.slice(0, 3).map((url, i) => (
+                <img key={i} src={url} alt={`Photo véhicule ${i + 1}`}
+                  className="w-16 h-16 rounded-lg object-cover border border-border" />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <p className="text-sm whitespace-pre-wrap mb-3">{q.message}</p>
       {q.status === "quoted" && (
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">

@@ -50,6 +50,10 @@ function NewVehiclePage() {
   const [autreDescription, setAutreDescription] = useState("");
   const [condition, setCondition] = useState<"excellent" | "bon" | "moyen" | "mauvais">("bon");
   const [name, setName] = useState("");
+  const [licensePlate, setLicensePlate] = useState("");
+  const [brand, setBrand] = useState("");
+  const [vehicleModel, setVehicleModel] = useState("");
+  const [color, setColor] = useState("");
   const [description, setDescription] = useState("");
   const [surface, setSurface] = useState("");
   const [km, setKm] = useState("");
@@ -226,6 +230,10 @@ function NewVehiclePage() {
         type: type as "camion_led" | "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
         condition,
         name,
+        license_plate: licensePlate.trim().toUpperCase() || null,
+        brand: brand.trim() || null,
+        model: vehicleModel.trim() || null,
+        color: color.trim() || null,
         description: type === "autre" && autreDescription.trim()
           ? `[Véhicule : ${autreDescription.trim()}]${description ? `\n\n${description}` : ""}`
           : description || null,
@@ -317,6 +325,22 @@ function NewVehiclePage() {
             </div>
 
             <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
+
+            <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Identification du véhicule — visible par le poseur</p>
+                <p className="text-xs text-muted-foreground">Ces informations permettent au prestataire de pose d'identifier précisément votre véhicule sur le terrain.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Plaque d'immatriculation" value={licensePlate} onChange={setLicensePlate} placeholder="AB-123-CD" />
+                <Field label="Couleur" value={color} onChange={setColor} placeholder="Blanc, Noir, Gris…" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Marque" value={brand} onChange={setBrand} placeholder="Renault, Peugeot…" />
+                <Field label="Modèle" value={vehicleModel} onChange={setVehicleModel} placeholder="Master, Berlingo…" />
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-1.5">Description</label>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
