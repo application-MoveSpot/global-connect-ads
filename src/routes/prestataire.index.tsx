@@ -343,6 +343,9 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
       {(q.status === "quoted" || q.status === "accepted") && (
         <WeatherInstallCheck zone={q.zone} />
       )}
+      {q.status === "accepted" && q.zone && (
+        <TrafficLinks zone={q.zone} />
+      )}
       {(q.status === "quoted" || q.status === "accepted") && (
         <div className="mt-3 border-t border-border pt-3">
           <button onClick={() => onOpenImpossible(q.id)}
@@ -380,6 +383,25 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
             placeholder="Message au client (délais, conditions…)" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
         </div>
       )}
+    </div>
+  );
+}
+
+function TrafficLinks({ zone }: { zone: string }) {
+  const q = encodeURIComponent(zone);
+  const wazeUrl = `https://waze.com/ul?q=${q}&navigate=yes`;
+  const mapsUrl = `https://maps.google.com/maps?q=${q}`;
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <span className="text-xs text-muted-foreground">🗺️ Vérifier le trafic :</span>
+      <a href={wazeUrl} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors">
+        Waze
+      </a>
+      <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors">
+        Google Maps
+      </a>
     </div>
   );
 }
