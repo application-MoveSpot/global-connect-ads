@@ -219,6 +219,12 @@ function AnnonceurDashboard() {
               {profile?.full_name}
               {profile?.company ? ` · ${profile.company}` : ""}
             </span>
+            <Link
+              to="/parametres"
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
+            >
+              Paramètres
+            </Link>
             <button
               onClick={async () => {
                 await supabase.auth.signOut();

@@ -137,6 +137,7 @@ function ProviderDashboard() {
           <LogoLink />
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:inline">{profile.company}</span>
+            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">Paramètres</Link>
             <button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">Se déconnecter</button>
           </div>

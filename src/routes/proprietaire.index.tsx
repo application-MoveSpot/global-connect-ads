@@ -281,6 +281,12 @@ function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
+            <Link
+              to="/parametres"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Paramètres
+            </Link>
             <button
               onClick={logout}
               className="text-sm text-muted-foreground hover:text-foreground"
