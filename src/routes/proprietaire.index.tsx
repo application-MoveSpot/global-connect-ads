@@ -16,6 +16,7 @@ import { withRetry } from "@/lib/retry";
 import { downloadCsv } from "@/lib/exportCsv";
 import { RouteError } from "@/components/app/RouteError";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
@@ -737,6 +738,11 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
             <span key={z} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{z}</span>
           ))}
         </div>
+      )}
+
+      {/* Météo — conditions pose sur la zone principale, uniquement pour les véhicules disponibles */}
+      {v.status === "approved" && v.zones && v.zones.length > 0 && (
+        <WeatherInstallCheck zone={v.zones[0]} />
       )}
 
       <div className="flex items-center gap-3 flex-wrap">
