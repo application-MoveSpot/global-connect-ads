@@ -45,7 +45,7 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: v, error } = await supabaseAdmin
       .from("vehicles")
-      .select("id, name, type, format_publicitaire, status, owner_id, zones")
+      .select("id, name, type, format_publicitaire, status, owner_id, zones, driver_id, license_plate")
       .eq("id", payload.v)
       .maybeSingle();
     if (error) return { ok: false as const, error: "Erreur serveur." };
@@ -53,9 +53,24 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     if (v.owner_id !== payload.o) return { ok: false as const, error: "QR falsifié (propriétaire incohérent)." };
     if (v.status !== "approved") return { ok: false as const, error: "Véhicule non approuvé." };
 
+    // Si le véhicule est assigné à un chauffeur précis et que le token identifie
+    // un autre chauffeur → refus pour éviter les confusions de véhicule.
+    const vehicleDriverId = (v as any).driver_id as string | null;
+    if (vehicleDriverId && payload.d && vehicleDriverId !== payload.d) {
+      return { ok: false as const, error: "Ce véhicule est assigné à un autre chauffeur. Vérifiez que vous êtes dans le bon véhicule." };
+    }
+
     return {
       ok: true as const,
-      vehicle: { id: v.id, name: v.name, type: v.type, format: v.format_publicitaire, zones: (v.zones ?? []) as string[] },
+      vehicle: {
+        id: v.id,
+        name: v.name,
+        type: v.type,
+        format: v.format_publicitaire,
+        zones: (v.zones ?? []) as string[],
+        plate: (v as any).license_plate as string | null ?? null,
+        driverAssigned: !!vehicleDriverId,
+      },
       driverId: payload.d ?? null,
     };
   });
