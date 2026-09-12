@@ -5,6 +5,7 @@ import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr/qr.funct
 import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { ObstacleReportDialog } from "@/components/driver/ObstacleReportDialog";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
+import { DriverTrackMap, type TrackPoint } from "@/components/driver/DriverTrackMap";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -27,7 +28,8 @@ function DriverPage() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [count, setCount] = useState(0);
   const [pending, setPending] = useState(0);
-  const [lastPos, setLastPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [lastPos, setLastPos] = useState<TrackPoint | null>(null);
+  const [sessionTrack, setSessionTrack] = useState<TrackPoint[]>([]);
 
   const watchIdRef = useRef<number | null>(null);
   const wakeLockRef = useRef<any>(null);
@@ -87,16 +89,20 @@ function DriverPage() {
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        const pt = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const added = buffer.add({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
+          lat: pt.lat,
+          lng: pt.lng,
           accuracy: pos.coords.accuracy ?? null,
           speed: pos.coords.speed ?? null,
           heading: pos.coords.heading ?? null,
           recordedAt: new Date().toISOString(),
         });
-        if (added) setPending(buffer.pending);
-        setLastPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        if (added) {
+          setPending(buffer.pending);
+          setSessionTrack((prev) => [...prev, pt]);
+        }
+        setLastPos(pt);
       },
       (err) => toast.error(`GPS : ${err.message}`),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 },
@@ -111,6 +117,7 @@ function DriverPage() {
     if (wakeLockRef.current) { try { wakeLockRef.current.release(); } catch {} }
     wakeLockRef.current = null;
     void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
+    setSessionTrack([]);
     setState("ready");
     toast("Suivi arrêté");
   };
@@ -190,6 +197,11 @@ function DriverPage() {
                 >
                   ⏹ Arrêter
                 </button>
+                <DriverTrackMap
+                  currentPos={lastPos}
+                  track={sessionTrack}
+                  zones={vehicle.zones}
+                />
                 <ObstacleReportDialog token={tokenRef.current} />
                 <p className="text-xs text-muted-foreground text-center">
                   Gardez l'écran allumé et l'app au premier plan. Téléphone branché recommandé.

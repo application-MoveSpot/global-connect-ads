@@ -572,6 +572,11 @@ export type Database = {
           description: string | null
           photo_paths: string[]
           reported_at: string
+          impact_start: string | null
+          impact_end: string | null
+          admin_validated: boolean
+          admin_validated_at: string | null
+          admin_notes: string | null
           metadata: Record<string, unknown> | null
         }
         Insert: {
@@ -582,6 +587,11 @@ export type Database = {
           description?: string | null
           photo_paths?: string[]
           reported_at?: string
+          impact_start?: string | null
+          impact_end?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          admin_notes?: string | null
           metadata?: Record<string, unknown> | null
         }
         Update: {
@@ -592,6 +602,11 @@ export type Database = {
           description?: string | null
           photo_paths?: string[]
           reported_at?: string
+          impact_start?: string | null
+          impact_end?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          admin_notes?: string | null
           metadata?: Record<string, unknown> | null
         }
         Relationships: [

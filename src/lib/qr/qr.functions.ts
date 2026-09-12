@@ -192,6 +192,25 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
+    // Fenêtres d'obstacles validées : les points GPS qui tombent dedans
+    // sont exclus des métriques de couverture de campagne.
+    const { data: obstacleWindows } = await supabaseAdmin
+      .from("obstacle_reports")
+      .select("impact_start, impact_end")
+      .eq("vehicle_id", payload.v)
+      .eq("admin_validated", true)
+      .not("impact_end", "is", null);
+
+    const windows = (obstacleWindows ?? []).map((w) => ({
+      start: new Date(w.impact_start!).getTime(),
+      end:   new Date(w.impact_end!).getTime(),
+    }));
+
+    const isInObstacleWindow = (recordedAt: string) => {
+      const t = new Date(recordedAt).getTime();
+      return windows.some((w) => t >= w.start && t <= w.end);
+    };
+
     const rows = data.points.map((p: any) => ({
       vehicle_id: payload.v,
       owner_id: payload.o,
@@ -207,12 +226,18 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("vehicle_positions").insert(rows);
     if (error) throw new Error(error.message);
 
-    // Met à jour les métriques de couverture de la campagne (zone PostGIS)
+    // Met à jour les métriques de couverture — en excluant les points dans les
+    // fenêtres d'obstacles validées par l'admin.
     if (camp?.id) {
-      await supabaseAdmin.rpc("record_campaign_gps_batch", {
-        p_campaign_id: camp.id,
-        p_points: data.points as never,
-      });
+      const pointsForMetrics = data.points.filter(
+        (p: any) => !isInObstacleWindow(p.recordedAt),
+      );
+      if (pointsForMetrics.length > 0) {
+        await supabaseAdmin.rpc("record_campaign_gps_batch", {
+          p_campaign_id: camp.id,
+          p_points: pointsForMetrics as never,
+        });
+      }
     }
 
     return { ok: true, inserted: rows.length };

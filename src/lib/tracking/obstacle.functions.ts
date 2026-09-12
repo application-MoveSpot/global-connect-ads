@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const OBSTACLE_TYPES = [
   { value: "travaux",       label: "Travaux de voirie" },
@@ -12,6 +13,14 @@ export const OBSTACLE_TYPES = [
 
 export type ObstacleType = (typeof OBSTACLE_TYPES)[number]["value"];
 
+export const IMPACT_DURATION_OPTIONS = [
+  { value: 30,   label: "~30 min" },
+  { value: 60,   label: "~1 heure" },
+  { value: 120,  label: "~2 heures" },
+  { value: 240,  label: "~4 heures" },
+  { value: null, label: "Durée inconnue" },
+] as const;
+
 // base64 JPEG/PNG/WebP, sans le préfixe data:...; max ~1.5 MB encodé ≈ 1.1 MB décodé
 const PhotoSchema = z.string().max(2_200_000);
 
@@ -20,9 +29,10 @@ const ReportSchema = z.object({
   obstacleType: z.enum(["travaux", "manifestation", "meteo", "route_barree", "accident", "autre"]),
   description: z.string().max(500).optional(),
   reportedAt: z.string().datetime().optional(),
+  // Durée estimée de l'impact en minutes (null = inconnue)
+  impactDurationMinutes: z.number().int().min(1).max(1440).nullable().optional(),
   // Jusqu'à 4 photos, base64 brut (sans préfixe data:)
   photos: z.array(PhotoSchema).max(4).optional(),
-  // Type MIME correspondant à chaque photo (même index)
   photoMimeTypes: z.array(z.enum(["image/jpeg", "image/png", "image/webp"])).max(4).optional(),
 });
 
@@ -56,6 +66,14 @@ export const reportObstacleWithToken = createServerFn({ method: "POST" })
     const reportedAt = data.reportedAt ?? new Date().toISOString();
     const ts = reportedAt.replace(/[:.]/g, "-").slice(0, 19);
 
+    // Calcul de la fenêtre d'impact
+    const impactStart = reportedAt;
+    let impactEnd: string | null = null;
+    if (data.impactDurationMinutes != null) {
+      const endDate = new Date(new Date(reportedAt).getTime() + data.impactDurationMinutes * 60_000);
+      impactEnd = endDate.toISOString();
+    }
+
     // Upload des photos dans le bucket obstacle-reports
     const photoPaths: string[] = [];
     const photos = data.photos ?? [];
@@ -82,6 +100,8 @@ export const reportObstacleWithToken = createServerFn({ method: "POST" })
         description: data.description ?? null,
         photo_paths: photoPaths,
         reported_at: reportedAt,
+        impact_start: impactStart,
+        impact_end: impactEnd,
         metadata: { driver_payload: payload },
       })
       .select("id")
@@ -98,6 +118,7 @@ export const reportObstacleWithToken = createServerFn({ method: "POST" })
         obstacleType: data.obstacleType,
         description: data.description ?? null,
         reportedAt,
+        impactDurationMinutes: data.impactDurationMinutes ?? null,
         campaignId: camp?.id ?? null,
         reportId: report?.id ?? null,
         photoCount: photoPaths.length,
@@ -105,4 +126,112 @@ export const reportObstacleWithToken = createServerFn({ method: "POST" })
     });
 
     return { ok: true, reportId: report?.id ?? null, photoCount: photoPaths.length };
+  });
+
+// ── Admin: liste les signalements d'obstacles (récents, non encore validés en priorité) ─
+export type ObstacleReport = {
+  id: string;
+  vehicle_id: string | null;
+  campaign_id: string | null;
+  obstacle_type: string;
+  description: string | null;
+  photo_paths: string[];
+  reported_at: string;
+  impact_start: string | null;
+  impact_end: string | null;
+  admin_validated: boolean;
+  admin_validated_at: string | null;
+  admin_notes: string | null;
+  vehicle_name: string | null;
+};
+
+export const adminListObstacleReports = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    // Vérifie que l'appelant est admin
+    const { data: adminRow } = await supabase.from("admin_profiles").select("id").maybeSingle();
+    if (!adminRow) throw new Error("Accès refusé.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("obstacle_reports")
+      .select("id, vehicle_id, campaign_id, obstacle_type, description, photo_paths, reported_at, impact_start, impact_end, admin_validated, admin_validated_at, admin_notes")
+      .order("reported_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+
+    // Enrichit avec le nom du véhicule
+    const vehicleIds = [...new Set((data ?? []).map((r) => r.vehicle_id).filter(Boolean))] as string[];
+    let vehicleNames: Record<string, string> = {};
+    if (vehicleIds.length > 0) {
+      const { data: vv } = await supabaseAdmin.from("vehicles").select("id, name").in("id", vehicleIds);
+      for (const v of vv ?? []) vehicleNames[v.id] = v.name;
+    }
+
+    return (data ?? []).map((r) => ({
+      ...r,
+      vehicle_name: r.vehicle_id ? (vehicleNames[r.vehicle_id] ?? null) : null,
+    })) as ObstacleReport[];
+  });
+
+export const adminValidateObstacleReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({
+      reportId: z.string().uuid(),
+      validated: z.boolean(),
+      notes: z.string().max(500).optional(),
+      // L'admin peut ajuster la fenêtre d'impact
+      impactEnd: z.string().datetime().nullable().optional(),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: adminRow } = await supabase.from("admin_profiles").select("id").maybeSingle();
+    if (!adminRow) throw new Error("Accès refusé.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const updates = {
+      admin_validated: data.validated,
+      admin_validated_at: new Date().toISOString(),
+      admin_notes: data.notes ?? null,
+      ...(data.impactEnd !== undefined ? { impact_end: data.impactEnd } : {}),
+    };
+
+    const { error } = await supabaseAdmin
+      .from("obstacle_reports")
+      .update(updates as never)
+      .eq("id", data.reportId);
+    if (error) throw new Error(error.message);
+
+    return { ok: true };
+  });
+
+// Génère des URLs signées pour les photos d'un signalement
+export const adminGetObstaclePhotoUrls = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ reportId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: adminRow } = await supabase.from("admin_profiles").select("id").maybeSingle();
+    if (!adminRow) throw new Error("Accès refusé.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: report } = await supabaseAdmin
+      .from("obstacle_reports")
+      .select("photo_paths")
+      .eq("id", data.reportId)
+      .maybeSingle();
+    if (!report) throw new Error("Signalement introuvable.");
+
+    const urls: string[] = [];
+    for (const path of report.photo_paths) {
+      const { data: signed } = await supabaseAdmin.storage
+        .from("obstacle-reports")
+        .createSignedUrl(path, 3600);
+      if (signed?.signedUrl) urls.push(signed.signedUrl);
+    }
+    return { urls };
   });

@@ -44,6 +44,12 @@ import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { moderateBriefVisual, type VisualModerationResult } from "@/lib/ai/visual-validation.functions";
 import { runBriefMatching } from "@/lib/ai/brief-matching.functions";
 import { adminListTickets, adminResolveTicket, type SupportTicket } from "@/lib/support/signalement.functions";
+import {
+  adminListObstacleReports,
+  adminValidateObstacleReport,
+  adminGetObstaclePhotoUrls,
+  type ObstacleReport,
+} from "@/lib/tracking/obstacle.functions";
 
 const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
 
@@ -1100,7 +1106,12 @@ function AdminDashboard() {
         ) : null}
 
         {tab === "moderation" ? <AdminModerationPanel /> : null}
-        {tab === "alertes" ? <AdminAlertesPanel /> : null}
+        {tab === "alertes" ? (
+          <div className="space-y-10">
+            <AdminAlertesPanel />
+            <AdminObstacleReportsPanel />
+          </div>
+        ) : null}
 
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
@@ -1666,6 +1677,180 @@ function InstallationReviewCard({
           </Button>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+// ─── Panel signalements d'obstacles chauffeur ─────────────────────────────────
+
+const OBSTACLE_TYPE_LABELS: Record<string, string> = {
+  travaux:       "Travaux",
+  manifestation: "Manifestation",
+  meteo:         "Météo extrême",
+  route_barree:  "Route barrée",
+  accident:      "Accident",
+  autre:         "Autre",
+};
+
+function AdminObstacleReportsPanel() {
+  const listReports   = useServerFn(adminListObstacleReports);
+  const validateReport = useServerFn(adminValidateObstacleReport);
+  const getPhotoUrls  = useServerFn(adminGetObstaclePhotoUrls);
+
+  const [reports, setReports] = useState<ObstacleReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [processing, setProcessing] = useState<Record<string, boolean>>({});
+  const [photos, setPhotos] = useState<Record<string, string[]>>({});
+
+  const load = async () => {
+    setLoading(true);
+    try { setReports(await listReports({ data: undefined })); }
+    catch { toast.error("Impossible de charger les signalements obstacles."); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { void load(); }, []);
+
+  const handleValidate = async (id: string, validated: boolean) => {
+    setProcessing((p) => ({ ...p, [id]: true }));
+    try {
+      await validateReport({ data: { reportId: id, validated, notes: notes[id] } });
+      toast.success(validated ? "Signalement validé — métriques neutralisées" : "Signalement rejeté");
+      await load();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setProcessing((p) => ({ ...p, [id]: false })); }
+  };
+
+  const loadPhotos = async (id: string, paths: string[]) => {
+    if (photos[id] || !paths.length) return;
+    const res = await getPhotoUrls({ data: { reportId: id } });
+    setPhotos((p) => ({ ...p, [id]: res.urls }));
+  };
+
+  const pending = reports.filter((r) => !r.admin_validated);
+  const validated = reports.filter((r) => r.admin_validated).slice(0, 5);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-bold">Signalements obstacles & météo</h2>
+          <p className="text-xs text-muted-foreground">
+            Validez pour neutraliser les métriques GPS sur la fenêtre d'impact déclarée.
+          </p>
+        </div>
+        <button onClick={() => void load()} className="text-xs text-muted-foreground hover:text-foreground">↻ Actualiser</button>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Chargement…</p>
+      ) : pending.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
+          Aucun signalement en attente. ✅
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+            ⚠️ {pending.length} signalement{pending.length > 1 ? "s" : ""} en attente de validation
+          </h3>
+          {pending.map((r) => (
+            <div key={r.id} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+                    {OBSTACLE_TYPE_LABELS[r.obstacle_type] ?? r.obstacle_type}
+                  </span>
+                  <p className="text-sm font-semibold mt-0.5">{r.vehicle_name ?? r.vehicle_id ?? "Véhicule inconnu"}</p>
+                  {r.description && <p className="text-xs text-muted-foreground mt-0.5">{r.description}</p>}
+                </div>
+                <div className="text-right text-xs text-muted-foreground">
+                  <div>{new Date(r.reported_at).toLocaleString("fr-FR")}</div>
+                  {r.impact_start && r.impact_end && (
+                    <div className="text-amber-600 dark:text-amber-400 mt-0.5">
+                      Impact : {new Date(r.impact_start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                      {" → "}
+                      {new Date(r.impact_end).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  )}
+                  {r.impact_start && !r.impact_end && (
+                    <div className="text-muted-foreground mt-0.5">Durée : inconnue</div>
+                  )}
+                </div>
+              </div>
+
+              {r.photo_paths.length > 0 && (
+                <div>
+                  {!photos[r.id] ? (
+                    <button
+                      onClick={() => void loadPhotos(r.id, r.photo_paths)}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      📷 Voir {r.photo_paths.length} photo{r.photo_paths.length > 1 ? "s" : ""}
+                    </button>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {photos[r.id]!.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                          <img src={url} alt={`Photo ${i + 1}`} className="rounded-lg border border-border w-full aspect-video object-cover hover:opacity-90 transition" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <textarea
+                  placeholder="Notes admin (optionnel)…"
+                  value={notes[r.id] ?? ""}
+                  onChange={(e) => setNotes((n) => ({ ...n, [r.id]: e.target.value }))}
+                  rows={2}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => void handleValidate(r.id, true)}
+                    disabled={processing[r.id]}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                  >
+                    {processing[r.id] ? "…" : "✅ Valider — neutraliser métriques"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void handleValidate(r.id, false)}
+                    disabled={processing[r.id]}
+                    className="text-xs"
+                  >
+                    ❌ Rejeter
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {validated.length > 0 && (
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer hover:text-foreground">
+            {validated.length} dernier{validated.length > 1 ? "s" : ""} signalement{validated.length > 1 ? "s" : ""} validé{validated.length > 1 ? "s" : ""}
+          </summary>
+          <div className="mt-2 space-y-2">
+            {validated.map((r) => (
+              <div key={r.id} className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 flex items-start justify-between gap-2">
+                <div>
+                  <span className="font-medium">{r.vehicle_name ?? "Véhicule"}</span>
+                  <span className="ml-2 text-muted-foreground">{OBSTACLE_TYPE_LABELS[r.obstacle_type] ?? r.obstacle_type}</span>
+                </div>
+                <span>{new Date(r.reported_at).toLocaleDateString("fr-FR")}</span>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
     </div>
   );
 }

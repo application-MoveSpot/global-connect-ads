@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { reportObstacleWithToken, OBSTACLE_TYPES, type ObstacleType } from "@/lib/tracking/obstacle.functions";
+import { reportObstacleWithToken, OBSTACLE_TYPES, IMPACT_DURATION_OPTIONS, type ObstacleType } from "@/lib/tracking/obstacle.functions";
 import { Camera, X, Loader2 } from "lucide-react";
 
 interface Props {
@@ -44,6 +44,7 @@ export function ObstacleReportDialog({ token }: Props) {
   const [open, setOpen] = useState(false);
   const [obstacleType, setObstacleType] = useState<ObstacleType>("travaux");
   const [description, setDescription] = useState("");
+  const [impactDuration, setImpactDuration] = useState<number | null>(60);
   const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [compressing, setCompressing] = useState(false);
   const [sending, setSending] = useState(false);
@@ -80,6 +81,7 @@ export function ObstacleReportDialog({ token }: Props) {
           obstacleType,
           description: description.trim() || undefined,
           reportedAt: new Date().toISOString(),
+          impactDurationMinutes: impactDuration,
           photos: photos.map((p) => p.b64),
           photoMimeTypes: photos.map((p) => p.mime),
         },
@@ -101,6 +103,7 @@ export function ObstacleReportDialog({ token }: Props) {
     setOpen(false);
     setDescription("");
     setObstacleType("travaux");
+    setImpactDuration(60);
     setPhotos([]);
   };
 
@@ -158,6 +161,31 @@ export function ObstacleReportDialog({ token }: Props) {
           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"
         />
         <p className="text-[10px] text-muted-foreground text-right">{description.length}/500</p>
+      </div>
+
+      {/* Durée estimée */}
+      <div className="space-y-2">
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">Durée estimée de l'obstacle</label>
+        <div className="flex flex-wrap gap-2">
+          {IMPACT_DURATION_OPTIONS.map((opt) => (
+            <button
+              key={String(opt.value)}
+              onClick={() => setImpactDuration(opt.value)}
+              className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${
+                impactDuration === opt.value
+                  ? "border-amber-500 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200"
+                  : "border-border bg-card text-muted-foreground hover:border-amber-300"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          {impactDuration != null
+            ? `Les métriques GPS seront neutralisées pendant ${impactDuration} min après validation admin.`
+            : "La fenêtre d'impact sera définie manuellement par l'admin."}
+        </p>
       </div>
 
       {/* Preuves photographiques */}
