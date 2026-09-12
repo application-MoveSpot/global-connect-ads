@@ -8,10 +8,17 @@
  * - Le formulaire respecte les champs requis
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+async function dismissCookieBanner(page: Page) {
+  await page.addInitScript(() => {
+    try { localStorage.setItem("ms_cookie_consent", "accepted"); } catch {}
+  });
+}
 
 test.describe("Inscription chauffeur — rendu et structure", () => {
   test.beforeEach(async ({ page }) => {
+    await dismissCookieBanner(page);
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
   });
 
@@ -71,19 +78,27 @@ test.describe("Inscription chauffeur — validation du formulaire auth", () => {
 
 test.describe("Inscription chauffeur — switch Connexion / Créer un compte", () => {
   test("le toggle 'Se connecter' est présent", async ({ page }) => {
+    await dismissCookieBanner(page);
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
     const loginToggle = page.getByText(/se connecter|connexion|déjà.*compte/i).first();
     await expect(loginToggle).toBeVisible();
   });
 
   test("basculer vers 'Connexion' change le bouton de soumission", async ({ page }) => {
+    await dismissCookieBanner(page);
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
 
-    const toggle = page.getByText(/se connecter|connexion/i).first();
+    // Attendre la fin des requêtes réseau (hydratation React + supabase auth check)
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForTimeout(200);
+
+    // Utiliser getByRole pour cibler précisément le bouton toggle (pas un parent div)
+    const toggle = page.getByRole("button", { name: /déjà un compte|se connecter/i });
+    await toggle.waitFor({ state: "visible" });
     await toggle.click();
 
-    const submitBtn = page.locator('button[type="submit"]').first();
-    const btnText = await submitBtn.innerText();
-    expect(btnText.toLowerCase()).toMatch(/connexion|connecter|login/);
+    // Attendre que le bouton de soumission (type=submit explicite) change de texte
+    const submitBtn = page.locator('button[type="submit"]');
+    await expect(submitBtn).toHaveText(/se connecter/i, { timeout: 3000 });
   });
 });

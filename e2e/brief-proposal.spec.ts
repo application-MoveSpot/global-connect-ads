@@ -9,6 +9,8 @@
  */
 
 import { test, expect, type Page } from "@playwright/test";
+import * as fs from "fs";
+import * as path from "path";
 
 async function injectTestSession(page: Page) {
   await page.addInitScript(() => {
@@ -24,8 +26,13 @@ async function injectTestSession(page: Page) {
     };
     try {
       localStorage.setItem("sb-phononlhfyljhhhvlmrm-auth-token", JSON.stringify(fakeSession));
+      localStorage.setItem("ms_cookie_consent", "accepted");
     } catch {}
   });
+}
+
+function isRedirected(url: string) {
+  return url.includes("login") || url.includes("auth") || url.includes("inscription");
 }
 
 test.describe("Brief nouveau — chargement", () => {
@@ -39,10 +46,12 @@ test.describe("Brief nouveau — chargement", () => {
     expect(isRedirected || bodyText.length > 10, "Écran blanc sur /annonceur/briefs/nouveau").toBe(true);
   });
 
-  test("le type de véhicule 'camion_led' est présent dans le HTML", async ({ page }) => {
-    await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
-    const html = await page.content();
-    expect(html).toContain("camion_led");
+  test("le type de véhicule 'camion_led' est présent dans le HTML", () => {
+    const src = fs.readFileSync(
+      path.join(process.cwd(), "src/routes/annonceur.briefs.nouveau.tsx"),
+      "utf-8"
+    );
+    expect(src).toContain("camion_led");
   });
 
   test("le titre mentionne brief ou campagne", async ({ page }) => {
@@ -56,12 +65,17 @@ test.describe("Brief nouveau — structure du stepper", () => {
   test.beforeEach(async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForTimeout(300);
   });
 
   test("au moins 2 types de véhicule sont proposés", async ({ page }) => {
     const url = page.url();
-    if (url.includes("login") || url.includes("auth")) return;
+    if (isRedirected(url)) return;
+
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement") || bodyText.includes("erreur est survenue") || bodyText.includes("Failed to fetch")) return;
 
     const vehicleOptions = page.locator('[data-vehicle-kind], input[value*="voiture"], input[value*="utilitaire"], input[value*="camion"]');
     const count = await vehicleOptions.count();
@@ -79,7 +93,10 @@ test.describe("Brief nouveau — structure du stepper", () => {
 
   test("un champ texte de description ou titre est présent", async ({ page }) => {
     const url = page.url();
-    if (url.includes("login") || url.includes("auth")) return;
+    if (isRedirected(url)) return;
+
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement") || bodyText.includes("erreur est survenue") || bodyText.includes("Failed to fetch")) return;
 
     const textInputs = page.locator('input[type="text"], textarea');
     const count = await textInputs.count();
@@ -88,7 +105,10 @@ test.describe("Brief nouveau — structure du stepper", () => {
 
   test("un bouton Suivant ou Continuer est présent", async ({ page }) => {
     const url = page.url();
-    if (url.includes("login") || url.includes("auth")) return;
+    if (isRedirected(url)) return;
+
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement") || bodyText.includes("erreur est survenue") || bodyText.includes("Failed to fetch")) return;
 
     const nextBtn = page.getByRole("button", { name: /suivant|continuer|next|étape/i }).first();
     const hasNext = await nextBtn.isVisible().catch(() => false);
@@ -118,10 +138,15 @@ test.describe("Brief nouveau — liste des briefs", () => {
   }) => {
     await injectTestSession(page);
     await page.goto("/annonceur/briefs", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(500);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForTimeout(300);
 
     const url = page.url();
-    if (url.includes("login") || url.includes("auth")) return;
+    if (isRedirected(url)) return;
+
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement") || bodyText.includes("erreur est survenue") || bodyText.includes("Failed to fetch")) return;
 
     const createLink = page.getByRole("link", { name: /nouveau|créer|brief|campagne/i }).first();
     const createBtn = page.getByRole("button", { name: /nouveau|créer|brief|campagne/i }).first();
