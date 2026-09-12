@@ -398,9 +398,6 @@ function Index() {
             <div className="space-y-0.5">
               <div>© {new Date().getFullYear()} MoveSpot — RAKOUN KLUB · SIRET : 804 671 444 00052</div>
               <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
-              <div>
-                <a href="mailto:contact@move-spot.com" className="hover:text-foreground transition">contact@move-spot.com</a>
-              </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <Link to="/cgu" className="hover:text-foreground transition">CGU</Link>
