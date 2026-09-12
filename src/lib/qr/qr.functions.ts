@@ -45,7 +45,7 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: v, error } = await supabaseAdmin
       .from("vehicles")
-      .select("id, name, type, format_publicitaire, status, owner_id")
+      .select("id, name, type, format_publicitaire, status, owner_id, zones")
       .eq("id", payload.v)
       .maybeSingle();
     if (error) return { ok: false as const, error: "Erreur serveur." };
@@ -55,7 +55,7 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
 
     return {
       ok: true as const,
-      vehicle: { id: v.id, name: v.name, type: v.type, format: v.format_publicitaire },
+      vehicle: { id: v.id, name: v.name, type: v.type, format: v.format_publicitaire, zones: (v.zones ?? []) as string[] },
       driverId: payload.d ?? null,
     };
   });

@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 import { LogoLink } from "@/components/app/LogoLink";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
@@ -75,6 +76,7 @@ function ChauffeurEspace() {
   const { state: pushState, subscribe: subscribePush } = usePushSubscription(authUserId);
   const [subscribingPush, setSubscribingPush] = useState(false);
   const [driverQrs, setDriverQrs] = useState<{ vehicleId: string; vehicleName: string; vehicleType: string; qrImg: string; url: string }[]>([]);
+  const [vehicleZones, setVehicleZones] = useState<Record<string, string[]>>({});
   const fetchDriverQrs = useServerFn(getDriverVehicleQrTokens);
 
   const loadProfile = async (userId: string) => {
@@ -114,7 +116,18 @@ function ChauffeurEspace() {
             return { vehicleId: v.vehicleId, vehicleName: v.vehicleName, vehicleType: v.vehicleType, qrImg, url };
           }),
         );
-        setDriverQrs(qrs.filter((q) => q.qrImg));
+        const filtered = qrs.filter((q) => q.qrImg);
+        setDriverQrs(filtered);
+        // Fetch zones for each assigned vehicle
+        if (filtered.length > 0) {
+          const ids = filtered.map((q) => q.vehicleId);
+          supabase.from("vehicles").select("id, zones").in("id", ids).then(({ data }) => {
+            if (!data) return;
+            const map: Record<string, string[]> = {};
+            for (const row of data) map[row.id] = (row.zones ?? []) as string[];
+            setVehicleZones(map);
+          });
+        }
       }).catch(() => {});
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -262,44 +275,64 @@ function ChauffeurEspace() {
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {driverQrs.map((q) => (
-                  <div key={q.vehicleId} className="rounded-xl border border-border bg-secondary/20 p-4 flex items-center gap-4">
-                    <img
-                      src={q.qrImg}
-                      alt={`QR ${q.vehicleName}`}
-                      width={96}
-                      height={96}
-                      className="rounded border border-border bg-white p-1 shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm">{q.vehicleName}</p>
-                      <p className="text-xs text-muted-foreground mb-2">{q.vehicleType}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {q.vehicleType === "camion_led" ? (
-                          <Link
-                            to="/chauffeur/ecran"
-                            search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
-                            className="text-xs font-semibold text-indigo-400 hover:underline"
+                  <div key={q.vehicleId} className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3">
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={q.qrImg}
+                        alt={`QR ${q.vehicleName}`}
+                        width={96}
+                        height={96}
+                        className="rounded border border-border bg-white p-1 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm">{q.vehicleName}</p>
+                        <p className="text-xs text-muted-foreground mb-2">{q.vehicleType}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {q.vehicleType === "camion_led" ? (
+                            <Link
+                              to="/chauffeur/ecran"
+                              search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
+                              className="text-xs font-semibold text-indigo-400 hover:underline"
+                            >
+                              📺 Démarrer l'écran →
+                            </Link>
+                          ) : (
+                            <Link
+                              to="/chauffeur"
+                              search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
+                              className="text-xs font-semibold text-primary hover:underline"
+                            >
+                              Démarrer le GPS →
+                            </Link>
+                          )}
+                          <a
+                            href={q.qrImg}
+                            download={`qr-gps-${q.vehicleId}.png`}
+                            className="text-xs text-muted-foreground hover:underline"
                           >
-                            📺 Démarrer l'écran →
-                          </Link>
-                        ) : (
-                          <Link
-                            to="/chauffeur"
-                            search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
-                            className="text-xs font-semibold text-primary hover:underline"
-                          >
-                            Démarrer le GPS →
-                          </Link>
-                        )}
-                        <a
-                          href={q.qrImg}
-                          download={`qr-gps-${q.vehicleId}.png`}
-                          className="text-xs text-muted-foreground hover:underline"
-                        >
-                          Télécharger
-                        </a>
+                            Télécharger
+                          </a>
+                        </div>
                       </div>
                     </div>
+                    {vehicleZones[q.vehicleId]?.[0] && (
+                      <div>
+                        <WeatherInstallCheck zone={vehicleZones[q.vehicleId]![0]!} />
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="text-xs text-muted-foreground">🗺️ Trafic :</span>
+                          {(() => {
+                            const zone = vehicleZones[q.vehicleId]![0]!;
+                            const enc = encodeURIComponent(zone);
+                            return (
+                              <>
+                                <a href={`https://waze.com/ul?q=${enc}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Waze</a>
+                                <a href={`https://maps.google.com/maps?q=${enc}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Google Maps</a>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

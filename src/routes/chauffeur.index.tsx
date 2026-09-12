@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr/qr.functions";
 import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { ObstacleReportDialog } from "@/components/driver/ObstacleReportDialog";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/chauffeur/")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-type Vehicle = { id: string; name: string; type: string; format: string | null };
+type Vehicle = { id: string; name: string; type: string; format: string | null; zones: string[] };
 
 function DriverPage() {
   const { t } = Route.useSearch();
@@ -139,6 +140,23 @@ function DriverPage() {
               <div className="text-xs uppercase tracking-widest text-muted-foreground">Véhicule</div>
               <div className="font-display text-xl font-bold mt-1">{vehicle.name}</div>
               <div className="text-sm text-muted-foreground">{vehicle.type} · {vehicle.format}</div>
+              {vehicle.zones.length > 0 && (
+                <div className="mt-3 text-left">
+                  <WeatherInstallCheck zone={vehicle.zones[0]!} />
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-muted-foreground">🗺️ Trafic :</span>
+                    {(() => {
+                      const q = encodeURIComponent(vehicle.zones[0]!);
+                      return (
+                        <>
+                          <a href={`https://waze.com/ul?q=${q}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Waze</a>
+                          <a href={`https://maps.google.com/maps?q=${q}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Google Maps</a>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
 
             {state === "ready" ? (
