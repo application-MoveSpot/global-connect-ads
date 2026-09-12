@@ -9,29 +9,42 @@ export const generateVehicleQrToken = createServerFn({ method: "POST" })
     z.object({
       vehicleId: z.string().uuid(),
       driverId: z.string().uuid().nullable().optional(),
+      // null = permanent; number = days until expiry
+      expiresInDays: z.number().int().positive().nullable().optional(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    // RLS-checked: owner can only read their own vehicles
     const { data: vehicle, error } = await supabase
       .from("vehicles")
-      .select("id, owner_id, name")
+      .select("id, owner_id, name, license_plate, type, format_publicitaire")
       .eq("id", data.vehicleId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!vehicle) throw new Error("Véhicule introuvable ou accès refusé.");
 
     const { signQrToken } = await import("@/lib/qr/qr-sign.server");
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = data.expiresInDays ? iat + data.expiresInDays * 86400 : undefined;
     const token = await signQrToken({
       k: data.driverId ? "driver" : "vehicle",
       v: vehicle.id,
       o: vehicle.owner_id,
       d: data.driverId ?? null,
-      iat: Math.floor(Date.now() / 1000),
-      // No expiry for QR stickers; driver magic links could add exp later.
+      iat,
+      exp,
     });
-    return { token, vehicleId: vehicle.id, vehicleName: vehicle.name, ownerUserId: userId };
+    return {
+      token,
+      vehicleId: vehicle.id,
+      vehicleName: vehicle.name,
+      licensePlate: (vehicle as any).license_plate as string | null,
+      vehicleType: (vehicle as any).type as string,
+      vehicleFormat: (vehicle as any).format_publicitaire as string | null,
+      ownerUserId: userId,
+      issuedAt: iat,
+      expiresAt: exp ?? null,
+    };
   });
 
 // ── Public: verify a scanned token, return minimal vehicle info ───────────────
