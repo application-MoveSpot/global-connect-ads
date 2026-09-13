@@ -69,6 +69,7 @@ test.describe("Inscription chauffeur — validation du formulaire auth", () => {
 
   test("email invalide bloque la soumission", async ({ page }) => {
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     const emailInput = page.locator('input[type="email"]').first();
     const count = await emailInput.count();
