@@ -36,7 +36,7 @@ export default defineConfig({
   // En local : réutilise un dev server existant ou en démarre un.
   webServer: {
     command: process.env.CI
-      ? "cd .output/server && WRANGLER_SEND_METRICS=false npx wrangler dev --port 3000"
+      ? "WRANGLER_SEND_METRICS=false npx wrangler dev --config .output/server/wrangler.json --port 3000"
       : "npm run dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
