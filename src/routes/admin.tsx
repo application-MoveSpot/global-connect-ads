@@ -128,7 +128,7 @@ function AdminPage() {
           return;
         }
         const { data: isAdmin, error: roleError } = await withTimeout(
-          supabase.rpc("check_is_admin"),
+          supabase.rpc("check_is_admin" as never),
           "La vérification du rôle admin"
         );
         if (cancelled) return;

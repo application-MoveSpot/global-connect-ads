@@ -143,7 +143,7 @@ function CartePage() {
                   </div>
                   {vehicleTypes.length > 0 && (
                     <div style={{ color: "#94a3b8", fontSize: 12 }}>
-                      {vehicleTypes.map((t) => TYPE_LABELS[t] ?? t).join(" · ")}
+                      {vehicleTypes.map((t) => TYPE_LABELS[t as string] ?? t).join(" · ")}
                     </div>
                   )}
                 </>

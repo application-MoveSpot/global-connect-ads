@@ -34,7 +34,8 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
       .eq("kind", "topup")
       .gte("created_at", oneDayAgo);
 
-    const txs = recentTxs ?? [];
+    type TxRow = { amount_cents: number | null; created_at: string };
+    const txs: TxRow[] = recentTxs ?? [];
     const lastHourCount = txs.filter((t) => t.created_at >= oneHourAgo).length;
     if (lastHourCount >= 5) {
       return { error: "Trop de recharges en peu de temps. Réessayez dans une heure." };
