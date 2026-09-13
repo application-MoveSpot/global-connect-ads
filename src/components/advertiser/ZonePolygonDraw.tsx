@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "leaflet/dist/leaflet.css";
 import area from "@turf/area";
 
 export type ZonePolygon = {
@@ -79,6 +78,13 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
     if (!containerRef.current) return;
     let destroyed = false;
 
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     import("leaflet").then((mod: any) => {
       if (destroyed || mapRef.current) return;

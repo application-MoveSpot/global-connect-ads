@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
-import "leaflet/dist/leaflet.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import type { FleetPoint } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,13 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
     if (!container.current) return;
     let map: import("leaflet").Map | null = null;
 
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
     import("leaflet").then((mod) => {
       const L = mod.default ?? mod;
       // Fix icône cassée dans bundlers
