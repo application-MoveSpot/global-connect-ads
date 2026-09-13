@@ -30,11 +30,14 @@ export default defineConfig({
       },
     },
   ],
-  // Lance le dev server automatiquement si pas déjà démarré
+  // En CI : sert le build déjà produit via vite preview (port 3000).
+  // En local : réutilise un dev server existant ou en démarre un.
   webServer: {
-    command: "npm run dev",
+    command: process.env.CI
+      ? "npx vite preview --port 3000"
+      : "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: true,
-    timeout: 60_000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
   },
 });
