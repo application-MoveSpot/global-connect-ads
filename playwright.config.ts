@@ -1,9 +1,17 @@
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "fs";
+
+// En environnement CCR (cloud), Chromium est pré-installé à ce chemin.
+// En CI GitHub Actions, Playwright installe son propre Chromium — pas d'executablePath.
+const CCR_CHROMIUM = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+const ccrLaunchOptions = existsSync(CCR_CHROMIUM)
+  ? { executablePath: CCR_CHROMIUM, args: ["--no-sandbox", "--disable-setuid-sandbox"] }
+  : { args: ["--no-sandbox", "--disable-setuid-sandbox"] };
 
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
-  retries: 1,
+  retries: process.env.CI ? 2 : 1,
   workers: 1,
   reporter: [["list"], ["html", { open: "never", outputFolder: "e2e/report" }]],
   use: {
@@ -11,21 +19,14 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "off",
-    // Chromium pré-installé dans l'environnement CCR
-    launchOptions: {
-      executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    },
+    launchOptions: ccrLaunchOptions,
   },
   projects: [
     {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        launchOptions: {
-          executablePath: "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
-          args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        },
+        launchOptions: ccrLaunchOptions,
       },
     },
   ],
