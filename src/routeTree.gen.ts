@@ -20,8 +20,10 @@ import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
+import { Route as KitRouteImport } from './routes/kit'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as PitchRouteImport } from './routes/pitch'
 import { Route as PourquoiMovespotRouteImport } from './routes/pourquoi-movespot'
 import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
@@ -32,6 +34,7 @@ import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
@@ -146,6 +149,11 @@ const DevenirPartenaireRoute = DevenirPartenaireRouteImport.update({
   path: '/devenir-partenaire',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KitRoute = KitRouteImport.update({
+  id: '/kit',
+  path: '/kit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
@@ -154,6 +162,11 @@ const McpRoute = McpRouteImport.update({
 const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   id: '/mentions-legales',
   path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParametresRoute = ParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PitchRoute = PitchRouteImport.update({
@@ -208,6 +221,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCommissionsRoute = AdminCommissionsRouteImport.update({
   id: '/commissions',
   path: '/commissions',
@@ -524,8 +542,10 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
   '/pourquoi-movespot': typeof PourquoiMovespotRoute
   '/previsionnel': typeof PrevisionnelRoute
@@ -536,6 +556,7 @@ export interface FileRoutesByFullPath {
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
@@ -607,8 +628,10 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
   '/pourquoi-movespot': typeof PourquoiMovespotRoute
   '/previsionnel': typeof PrevisionnelRoute
@@ -619,6 +642,7 @@ export interface FileRoutesByTo {
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
@@ -691,8 +715,10 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/devenir-partenaire': typeof DevenirPartenaireRoute
+  '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
   '/pourquoi-movespot': typeof PourquoiMovespotRoute
   '/previsionnel': typeof PrevisionnelRoute
@@ -703,6 +729,7 @@ export interface FileRoutesById {
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
@@ -776,8 +803,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/kit'
     | '/mcp'
     | '/mentions-legales'
+    | '/parametres'
     | '/pitch'
     | '/pourquoi-movespot'
     | '/previsionnel'
@@ -788,6 +817,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/audit'
     | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
@@ -859,8 +889,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/kit'
     | '/mcp'
     | '/mentions-legales'
+    | '/parametres'
     | '/pitch'
     | '/pourquoi-movespot'
     | '/previsionnel'
@@ -871,6 +903,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/audit'
     | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
@@ -942,8 +975,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/devenir-partenaire'
+    | '/kit'
     | '/mcp'
     | '/mentions-legales'
+    | '/parametres'
     | '/pitch'
     | '/pourquoi-movespot'
     | '/previsionnel'
@@ -954,6 +989,7 @@ export interface FileRouteTypes {
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/admin/audit'
     | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
@@ -1026,8 +1062,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   DevenirPartenaireRoute: typeof DevenirPartenaireRoute
+  KitRoute: typeof KitRoute
   McpRoute: typeof McpRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
+  ParametresRoute: typeof ParametresRoute
   PitchRoute: typeof PitchRoute
   PourquoiMovespotRoute: typeof PourquoiMovespotRoute
   PrevisionnelRoute: typeof PrevisionnelRoute
@@ -1171,6 +1209,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevenirPartenaireRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kit': {
+      id: '/kit'
+      path: '/kit'
+      fullPath: '/kit'
+      preLoaderRoute: typeof KitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mcp': {
       id: '/mcp'
       path: '/mcp'
@@ -1183,6 +1228,13 @@ declare module '@tanstack/react-router' {
       path: '/mentions-legales'
       fullPath: '/mentions-legales'
       preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parametres': {
+      id: '/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof ParametresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pitch': {
@@ -1254,6 +1306,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/.well-known/oauth-protected-resource'
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/commissions': {
       id: '/admin/commissions'
@@ -1665,6 +1724,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAuditRoute: typeof AdminAuditRoute
   AdminCommissionsRoute: typeof AdminCommissionsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
@@ -1672,6 +1732,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAuditRoute: AdminAuditRoute,
   AdminCommissionsRoute: AdminCommissionsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminPrestatairesRoute: AdminPrestatairesRoute,
@@ -1705,8 +1766,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   DevenirPartenaireRoute: DevenirPartenaireRoute,
+  KitRoute: KitRoute,
   McpRoute: McpRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
+  ParametresRoute: ParametresRoute,
   PitchRoute: PitchRoute,
   PourquoiMovespotRoute: PourquoiMovespotRoute,
   PrevisionnelRoute: PrevisionnelRoute,

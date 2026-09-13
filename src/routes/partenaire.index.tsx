@@ -165,19 +165,19 @@ function PartnerDashboard() {
                 icon="📄"
                 title="Présentation MoveSpot"
                 description="Slidedeck à envoyer à vos prospects annonceurs"
-                href="https://move-spot.com/documents/presentation-movespot.pdf"
+                href="/kit"
               />
               <ResourceCard
                 icon="📊"
                 title="Grille tarifaire"
                 description="Tarifs campagnes et formules disponibles"
-                href="https://move-spot.com/documents/grille-tarifaire.pdf"
+                href="/tarifs"
               />
               <ResourceCard
                 icon="🖼️"
-                title="Visuels & logo"
-                description="Logos et visuels officiels MoveSpot"
-                href="https://move-spot.com/documents/kit-media.zip"
+                title="Kit média & identité"
+                description="Palette de marque, chiffres clés et contacts presse"
+                href="/kit"
               />
               <ResourceCard
                 icon="📋"
