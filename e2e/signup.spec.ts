@@ -65,6 +65,7 @@ test.describe("Inscription annonceur — /annonceur/inscription", () => {
   test("email invalide bloque la soumission", async ({ page }) => {
     // Vérifier la validation email côté navigateur directement après fill()
     // sans soumettre (évite le timeout lié à networkidle + click)
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const emailInput = page.locator('input[type="email"]').first();
     const count = await emailInput.count();
     if (count === 0) return;
