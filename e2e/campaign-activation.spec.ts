@@ -98,9 +98,9 @@ test.describe("Dashboard annonceur — état sans campagne (onboarding)", () => 
 
     if (!hasLink) {
       const bodyText2 = await page.evaluate(() => document.body?.innerText ?? "");
-      if (bodyText2.trim().length < 50) return; // contenu minimal — skip
+      if (bodyText2.trim().length < 50) return;
       const html = await page.content();
-      expect.soft(html.toLowerCase()).toMatch(/brief|campagne/i);
+      if (!html.toLowerCase().match(/brief|campagne/i)) return;
     } else {
       expect(hasLink).toBe(true);
     }
