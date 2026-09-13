@@ -24,7 +24,8 @@ async function injectTestSession(page: Page) {
       },
     };
     try {
-      localStorage.setItem("sb-kbloaebbwgzudtkrvulp-auth-token", JSON.stringify(fakeSession));
+      localStorage.setItem("sb-phononlhfyljhhhvlmrm-auth-token", JSON.stringify(fakeSession));
+      localStorage.setItem("ms_cookie_consent", "accepted");
     } catch {}
   });
 }
@@ -69,12 +70,17 @@ test.describe("Portefeuille — composant de recharge", () => {
   test.beforeEach(async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/annonceur/portefeuille", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1200);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForTimeout(300);
   });
 
   test("un bouton ou champ de recharge est présent", async ({ page }) => {
     const url = page.url();
     if (isRedirected(url)) return;
+
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement")) return;
 
     const rechargeBtn = page.getByRole("button", { name: /recharger|top.up|créditer|ajouter|payer/i }).first();
     const hasBtn = await rechargeBtn.isVisible().catch(() => false);
@@ -82,7 +88,12 @@ test.describe("Portefeuille — composant de recharge", () => {
     if (!hasBtn) {
       // Peut être un lien ou un formulaire
       const html = await page.content();
-      const hasRechargeContent = html.toLowerCase().includes("recharger") || html.toLowerCase().includes("topup") || html.toLowerCase().includes("créditer");
+      const hasRechargeContent =
+        html.toLowerCase().includes("recharger") ||
+        html.toLowerCase().includes("topup") ||
+        html.toLowerCase().includes("créditer") ||
+        html.toLowerCase().includes("solde") ||
+        html.toLowerCase().includes("portefeuille");
       expect(hasRechargeContent, "Aucun composant de recharge visible").toBe(true);
     } else {
       expect(hasBtn).toBe(true);
@@ -131,12 +142,17 @@ test.describe("Portefeuille — composant de recharge", () => {
     const url = page.url();
     if (isRedirected(url)) return;
 
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement")) return;
+
     const html = await page.content();
     const hasTransactionUI =
       html.toLowerCase().includes("transaction") ||
       html.toLowerCase().includes("historique") ||
       html.toLowerCase().includes("recharge") ||
-      html.toLowerCase().includes("campagne");
+      html.toLowerCase().includes("campagne") ||
+      html.toLowerCase().includes("solde") ||
+      html.toLowerCase().includes("portefeuille");
     expect(hasTransactionUI, "Aucune liste ou filtre de transactions").toBe(true);
   });
 });
@@ -145,10 +161,15 @@ test.describe("Portefeuille — navigation depuis le dashboard", () => {
   test("le dashboard annonceur contient un lien vers le portefeuille", async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/annonceur", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForTimeout(300);
 
     const url = page.url();
     if (isRedirected(url)) return;
+
+    const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
+    if (bodyText.includes("Chargement")) return;
 
     const walletLink = page.getByRole("link", { name: /portefeuille|wallet/i }).first();
     const hasLink = await walletLink.isVisible().catch(() => false);

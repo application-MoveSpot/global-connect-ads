@@ -11,8 +11,10 @@ import { useEffect } from "react";
 
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
+import { TestEnvBanner } from "@/components/app/TestEnvBanner";
 import { CookieBanner } from "@/components/app/CookieBanner";
 import { initSentry, Sentry } from "@/lib/sentry";
+import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
 
 initSentry();
@@ -155,11 +157,21 @@ function RootComponent() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        Sentry.setUser({ id: session.user.id, email: session.user.email });
+      } else {
+        Sentry.setUser(null);
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <QueryClientProvider client={queryClient}>
+        <TestEnvBanner />
         <AppUpdateGuard />
         <StatusBanner />
         <Outlet />

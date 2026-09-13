@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,6 +64,16 @@ function PartnerDashboard() {
           <LogoLink />
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:inline">{profile.company}</span>
+            <a
+              href="https://www.instagram.com/movespot_pub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram MoveSpot"
+              className="rounded-full p-2 hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">Paramètres</Link>
             <button
               onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
@@ -154,19 +165,19 @@ function PartnerDashboard() {
                 icon="📄"
                 title="Présentation MoveSpot"
                 description="Slidedeck à envoyer à vos prospects annonceurs"
-                href="https://move-spot.com/documents/presentation-movespot.pdf"
+                href="/kit"
               />
               <ResourceCard
                 icon="📊"
                 title="Grille tarifaire"
                 description="Tarifs campagnes et formules disponibles"
-                href="https://move-spot.com/documents/grille-tarifaire.pdf"
+                href="/tarifs"
               />
               <ResourceCard
                 icon="🖼️"
-                title="Visuels & logo"
-                description="Logos et visuels officiels MoveSpot"
-                href="https://move-spot.com/documents/kit-media.zip"
+                title="Kit média & identité"
+                description="Palette de marque, chiffres clés et contacts presse"
+                href="/kit"
               />
               <ResourceCard
                 icon="📋"

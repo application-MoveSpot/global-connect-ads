@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { lazy, Suspense, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
-import { Menu, X, Instagram, Linkedin, Facebook } from "lucide-react";
+import { Menu, X, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
@@ -379,33 +379,25 @@ function Index() {
             <span>· Transactions 3D Secure</span>
           </div>
 
-          {/* Réseaux sociaux — en préparation */}
+          {/* Réseaux sociaux */}
           <div className="flex items-center gap-4 text-muted-foreground">
             <span className="text-xs">Suivez-nous :</span>
-            {[
-              { icon: Instagram, label: "Instagram" },
-              { icon: Linkedin, label: "LinkedIn" },
-              { icon: Facebook, label: "Facebook" },
-            ].map(({ icon: Icon, label }) => (
-              <button
-                key={label}
-                title={`${label} — Page en cours de création`}
-                aria-label={`${label} (bientôt disponible)`}
-                onClick={() => toast.info(`Notre page ${label} est en cours de création. Revenez bientôt !`)}
-                className="rounded-full p-1.5 hover:bg-muted transition-colors cursor-pointer"
-              >
-                <Icon className="h-5 w-5" />
-              </button>
-            ))}
+            <a
+              href="https://www.instagram.com/movespot_pub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Instagram"
+              aria-label="Instagram"
+              className="rounded-full p-1.5 hover:bg-muted transition-colors"
+            >
+              <Instagram className="h-5 w-5" />
+            </a>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="space-y-0.5">
               <div>© {new Date().getFullYear()} MoveSpot — RAKOUN KLUB · SIRET : 804 671 444 00052</div>
               <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
-              <div>
-                <a href="mailto:contact@move-spot.com" className="hover:text-foreground transition">contact@move-spot.com</a>
-              </div>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <Link to="/cgu" className="hover:text-foreground transition">CGU</Link>

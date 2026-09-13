@@ -24,10 +24,17 @@ type Provider = {
   services: string[]; created_at: string;
 };
 
+type ImpossibleReport = {
+  id: string; provider_id: string; status: string; vehicle_type: string | null;
+  impossible_reason: string | null; impossible_photos: string[]; impossible_at: string | null;
+  created_at: string;
+};
+
 function AdminProvidersPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [impossibleReports, setImpossibleReports] = useState<ImpossibleReport[]>([]);
   const [authed, setAuthed] = useState(false);
 
   const load = useCallback(async () => {
@@ -36,10 +43,31 @@ function AdminProvidersPage() {
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id);
     if (!(roles ?? []).some((r) => r.role === "admin")) { setAuthed(false); setLoading(false); return; }
     setAuthed(true);
-    const { data } = await supabase.from("provider_profiles").select("*").order("created_at", { ascending: false });
+    const [{ data }, { data: reports }] = await Promise.all([
+      supabase.from("provider_profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("service_quotes").select("id, provider_id, status, vehicle_type, impossible_reason, impossible_photos, impossible_at, created_at")
+        .eq("status", "impossible_pending").order("impossible_at", { ascending: true }),
+    ]);
     setProviders((data as Provider[]) ?? []);
+    setImpossibleReports((reports as ImpossibleReport[]) ?? []);
     setLoading(false);
   }, [navigate]);
+
+  const confirmImpossible = async (id: string) => {
+    await supabase.from("service_quotes").update({ status: "impossible" }).eq("id", id);
+    await load();
+  };
+
+  const rejectImpossible = async (id: string) => {
+    const notes = prompt("Motif de rejet du signalement (sera visible pour le prestataire) :") ?? "";
+    await supabase.from("service_quotes").update({
+      status: "accepted",
+      impossible_reason: null,
+      impossible_photos: [],
+      impossible_at: null,
+    }).eq("id", id);
+    await load();
+  };
 
   useEffect(() => { load(); }, [load]);
 
@@ -64,6 +92,60 @@ function AdminProvidersPage() {
       </header>
       <main className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold mb-6">Modération prestataires</h1>
+
+        {impossibleReports.length > 0 && (
+          <section className="mb-10">
+            <h2 className="font-display text-xl font-bold mb-3 text-orange-600 dark:text-orange-400">
+              ⚠ Poses impossibles à vérifier ({impossibleReports.length})
+            </h2>
+            <div className="space-y-3">
+              {impossibleReports.map((r) => (
+                <div key={r.id} className="rounded-xl border border-orange-500/40 bg-orange-500/5 p-5">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div>
+                      <div className="font-semibold text-sm">Devis #{r.id.slice(0, 8)}</div>
+                      {r.vehicle_type && <div className="text-xs text-muted-foreground">Véhicule : {r.vehicle_type}</div>}
+                      {r.impossible_at && (
+                        <div className="text-xs text-muted-foreground">
+                          Signalé le {new Date(r.impossible_at).toLocaleString("fr-FR")}
+                        </div>
+                      )}
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                      Vérification en cours
+                    </span>
+                  </div>
+                  {r.impossible_reason && (
+                    <div className="rounded-lg bg-secondary p-3 text-sm mb-3">
+                      <strong className="text-xs uppercase tracking-wide text-muted-foreground">Motif :</strong>
+                      <p className="mt-1 whitespace-pre-wrap">{r.impossible_reason}</p>
+                    </div>
+                  )}
+                  {r.impossible_photos && r.impossible_photos.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {r.impossible_photos.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                          <img src={url} alt={`Photo ${i + 1}`} className="w-24 h-24 object-cover rounded-lg border border-border hover:opacity-80" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <button onClick={() => confirmImpossible(r.id)}
+                      className="rounded-lg bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/40 px-3 py-1.5 text-sm font-semibold hover:bg-orange-500/30">
+                      ✓ Confirmer — lancer le remboursement
+                    </button>
+                    <button onClick={() => rejectImpossible(r.id)}
+                      className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-3 py-1.5 text-sm font-semibold hover:bg-destructive/25">
+                      ✕ Rejeter le signalement
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {providers.length === 0 ? (
           <div className="text-sm text-muted-foreground">Aucune fiche.</div>
         ) : (

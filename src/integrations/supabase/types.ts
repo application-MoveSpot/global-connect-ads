@@ -563,6 +563,69 @@ export type Database = {
         }
         Relationships: []
       }
+      obstacle_reports: {
+        Row: {
+          id: string
+          vehicle_id: string | null
+          campaign_id: string | null
+          obstacle_type: string
+          description: string | null
+          photo_paths: string[]
+          reported_at: string
+          impact_start: string | null
+          impact_end: string | null
+          admin_validated: boolean
+          admin_validated_at: string | null
+          admin_notes: string | null
+          metadata: Record<string, unknown> | null
+        }
+        Insert: {
+          id?: string
+          vehicle_id?: string | null
+          campaign_id?: string | null
+          obstacle_type: string
+          description?: string | null
+          photo_paths?: string[]
+          reported_at?: string
+          impact_start?: string | null
+          impact_end?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          admin_notes?: string | null
+          metadata?: Record<string, unknown> | null
+        }
+        Update: {
+          id?: string
+          vehicle_id?: string | null
+          campaign_id?: string | null
+          obstacle_type?: string
+          description?: string | null
+          photo_paths?: string[]
+          reported_at?: string
+          impact_start?: string | null
+          impact_end?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          admin_notes?: string | null
+          metadata?: Record<string, unknown> | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obstacle_reports_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obstacle_reports_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       owner_profiles: {
         Row: {
           bio: string | null
@@ -900,6 +963,9 @@ export type Database = {
           deadline: string | null
           format: string | null
           id: string
+          impossible_at: string | null
+          impossible_photos: string[]
+          impossible_reason: string | null
           message: string
           provider_id: string
           quantity: number | null
@@ -910,6 +976,7 @@ export type Database = {
           service_type: string
           status: string
           updated_at: string
+          vehicle_id: string | null
           vehicle_type: string | null
           zone: string | null
         }
@@ -920,6 +987,9 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
+          impossible_at?: string | null
+          impossible_photos?: string[]
+          impossible_reason?: string | null
           message: string
           provider_id: string
           quantity?: number | null
@@ -930,6 +1000,7 @@ export type Database = {
           service_type: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -940,6 +1011,9 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
+          impossible_at?: string | null
+          impossible_photos?: string[]
+          impossible_reason?: string | null
           message?: string
           provider_id?: string
           quantity?: number | null
@@ -950,6 +1024,7 @@ export type Database = {
           service_type?: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -1085,6 +1160,8 @@ export type Database = {
         Row: {
           admin_notes: string | null
           ai_verification: Json | null
+          brand: string | null
+          color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at: string
           description: string | null
@@ -1092,6 +1169,8 @@ export type Database = {
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
+          license_plate: string | null
+          model: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -1105,6 +1184,8 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1112,6 +1193,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
+          model?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -1125,6 +1208,8 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1132,6 +1217,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
+          model?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null

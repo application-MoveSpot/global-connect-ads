@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -219,6 +220,21 @@ function AnnonceurDashboard() {
               {profile?.full_name}
               {profile?.company ? ` · ${profile.company}` : ""}
             </span>
+            <a
+              href="https://www.instagram.com/movespot_pub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram MoveSpot"
+              className="rounded-full p-2 hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <Link
+              to="/parametres"
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
+            >
+              Paramètres
+            </Link>
             <button
               onClick={async () => {
                 await supabase.auth.signOut();
@@ -608,6 +624,10 @@ function AnnonceurDashboard() {
       </main>
       <FAQChatbot
         audience="annonceur"
+        userContext={[
+          `Solde portefeuille : ${(balanceCents / 100).toFixed(2)} €`,
+          `Type de compte : ${isIndividual ? "particulier / événementiel" : "entreprise / professionnel"}`,
+        ].join("\n")}
         suggestions={
           isIndividual
             ? [

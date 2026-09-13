@@ -9,29 +9,42 @@ export const generateVehicleQrToken = createServerFn({ method: "POST" })
     z.object({
       vehicleId: z.string().uuid(),
       driverId: z.string().uuid().nullable().optional(),
+      // null = permanent; number = days until expiry
+      expiresInDays: z.number().int().positive().nullable().optional(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    // RLS-checked: owner can only read their own vehicles
     const { data: vehicle, error } = await supabase
       .from("vehicles")
-      .select("id, owner_id, name")
+      .select("id, owner_id, name, license_plate, type, format_publicitaire")
       .eq("id", data.vehicleId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!vehicle) throw new Error("Véhicule introuvable ou accès refusé.");
 
     const { signQrToken } = await import("@/lib/qr/qr-sign.server");
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = data.expiresInDays ? iat + data.expiresInDays * 86400 : undefined;
     const token = await signQrToken({
       k: data.driverId ? "driver" : "vehicle",
       v: vehicle.id,
       o: vehicle.owner_id,
       d: data.driverId ?? null,
-      iat: Math.floor(Date.now() / 1000),
-      // No expiry for QR stickers; driver magic links could add exp later.
+      iat,
+      exp,
     });
-    return { token, vehicleId: vehicle.id, vehicleName: vehicle.name, ownerUserId: userId };
+    return {
+      token,
+      vehicleId: vehicle.id,
+      vehicleName: vehicle.name,
+      licensePlate: (vehicle as any).license_plate as string | null,
+      vehicleType: (vehicle as any).type as string,
+      vehicleFormat: (vehicle as any).format_publicitaire as string | null,
+      ownerUserId: userId,
+      issuedAt: iat,
+      expiresAt: exp ?? null,
+    };
   });
 
 // ── Public: verify a scanned token, return minimal vehicle info ───────────────
@@ -45,7 +58,7 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: v, error } = await supabaseAdmin
       .from("vehicles")
-      .select("id, name, type, format_publicitaire, status, owner_id")
+      .select("id, name, type, format_publicitaire, status, owner_id, zones, driver_id, license_plate")
       .eq("id", payload.v)
       .maybeSingle();
     if (error) return { ok: false as const, error: "Erreur serveur." };
@@ -53,9 +66,24 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     if (v.owner_id !== payload.o) return { ok: false as const, error: "QR falsifié (propriétaire incohérent)." };
     if (v.status !== "approved") return { ok: false as const, error: "Véhicule non approuvé." };
 
+    // Si le véhicule est assigné à un chauffeur précis et que le token identifie
+    // un autre chauffeur → refus pour éviter les confusions de véhicule.
+    const vehicleDriverId = (v as any).driver_id as string | null;
+    if (vehicleDriverId && payload.d && vehicleDriverId !== payload.d) {
+      return { ok: false as const, error: "Ce véhicule est assigné à un autre chauffeur. Vérifiez que vous êtes dans le bon véhicule." };
+    }
+
     return {
       ok: true as const,
-      vehicle: { id: v.id, name: v.name, type: v.type, format: v.format_publicitaire },
+      vehicle: {
+        id: v.id,
+        name: v.name,
+        type: v.type,
+        format: v.format_publicitaire,
+        zones: (v.zones ?? []) as string[],
+        plate: (v as any).license_plate as string | null ?? null,
+        driverAssigned: !!vehicleDriverId,
+      },
       driverId: payload.d ?? null,
     };
   });
@@ -192,6 +220,25 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
+    // Fenêtres d'obstacles validées : les points GPS qui tombent dedans
+    // sont exclus des métriques de couverture de campagne.
+    const { data: obstacleWindows } = await supabaseAdmin
+      .from("obstacle_reports")
+      .select("impact_start, impact_end")
+      .eq("vehicle_id", payload.v)
+      .eq("admin_validated", true)
+      .not("impact_end", "is", null);
+
+    const windows = (obstacleWindows ?? []).map((w) => ({
+      start: new Date(w.impact_start!).getTime(),
+      end:   new Date(w.impact_end!).getTime(),
+    }));
+
+    const isInObstacleWindow = (recordedAt: string) => {
+      const t = new Date(recordedAt).getTime();
+      return windows.some((w) => t >= w.start && t <= w.end);
+    };
+
     const rows = data.points.map((p: any) => ({
       vehicle_id: payload.v,
       owner_id: payload.o,
@@ -207,12 +254,18 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("vehicle_positions").insert(rows);
     if (error) throw new Error(error.message);
 
-    // Met à jour les métriques de couverture de la campagne (zone PostGIS)
+    // Met à jour les métriques de couverture — en excluant les points dans les
+    // fenêtres d'obstacles validées par l'admin.
     if (camp?.id) {
-      await supabaseAdmin.rpc("record_campaign_gps_batch", {
-        p_campaign_id: camp.id,
-        p_points: data.points as never,
-      });
+      const pointsForMetrics = data.points.filter(
+        (p: any) => !isInObstacleWindow(p.recordedAt),
+      );
+      if (pointsForMetrics.length > 0) {
+        await supabaseAdmin.rpc("record_campaign_gps_batch", {
+          p_campaign_id: camp.id,
+          p_points: pointsForMetrics as never,
+        });
+      }
     }
 
     return { ok: true, inserted: rows.length };

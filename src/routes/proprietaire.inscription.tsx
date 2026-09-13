@@ -133,7 +133,7 @@ function InscriptionPage() {
       setLoading(false);
       return;
     }
-    const { error } = await supabase.from("owner_profiles").insert({
+    const { error } = await supabase.from("owner_profiles").upsert({
       user_id: sess.session.user.id,
       full_name: fullName,
       phone: phone || null,
@@ -145,7 +145,7 @@ function InscriptionPage() {
       siret: isParticulier ? null : siret.siret || null,
       siret_denomination: isParticulier ? null : siret.denomination,
       siret_verified_at: isParticulier ? null : new Date().toISOString(),
-    });
+    }, { onConflict: "user_id" });
     if (error) {
       setError(error.message);
       setLoading(false);

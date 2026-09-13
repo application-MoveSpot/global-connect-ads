@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -7,6 +8,7 @@ import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscriptionCard";
 import { RouteError } from "@/components/app/RouteError";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 
 export const Route = createFileRoute("/prestataire/")({
   head: () => ({
@@ -30,9 +32,16 @@ type Profile = {
 
 type Quote = {
   id: string; advertiser_id: string; service_type: string; vehicle_type: string | null;
+  vehicle_id: string | null;
   format: string | null; quantity: number | null; deadline: string | null; zone: string | null;
   message: string; status: string; quoted_price_cents: number | null; quoted_message: string | null;
+  impossible_reason: string | null; impossible_photos: string[]; impossible_at: string | null;
   created_at: string;
+};
+
+type VehicleId = {
+  license_plate: string | null; brand: string | null; model: string | null; color: string | null;
+  name: string; type: string; photos: string[] | null;
 };
 
 function ProviderDashboard() {
@@ -40,6 +49,8 @@ function ProviderDashboard() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [vehicleMap, setVehicleMap] = useState<Record<string, VehicleId>>({});
+  const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>({ open: false, quoteId: null });
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -52,7 +63,20 @@ function ProviderDashboard() {
     const { data: qs } = await supabase.from("service_quotes")
       .select("*").eq("provider_id", sess.session.user.id)
       .order("created_at", { ascending: false });
-    setQuotes((qs as Quote[]) ?? []);
+    const quoteList = (qs as Quote[]) ?? [];
+    setQuotes(quoteList);
+
+    // Fetch identification data for quoted vehicles
+    const vehicleIds = [...new Set(quoteList.map((q) => q.vehicle_id).filter((id): id is string => !!id))];
+    if (vehicleIds.length > 0) {
+      const { data: vehicles } = await supabase.from("vehicles")
+        .select("id, license_plate, brand, model, color, name, type, photos")
+        .in("id", vehicleIds);
+      const map: Record<string, VehicleId> = {};
+      for (const v of vehicles ?? []) map[v.id] = v as VehicleId;
+      setVehicleMap(map);
+    }
+
     setLoading(false);
   }, [navigate]);
 
@@ -73,6 +97,38 @@ function ProviderDashboard() {
     await load();
   };
 
+  const openImpossibleModal = (id: string) =>
+    setImpossibleModal({ open: true, quoteId: id });
+
+  const submitImpossible = async (reason: string, files: File[]) => {
+    const { quoteId } = impossibleModal;
+    if (!quoteId) return;
+    const { data: sess } = await supabase.auth.getSession();
+    const uid = sess.session?.user.id;
+    if (!uid) return;
+
+    const photoUrls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const path = `${uid}/${quoteId}/photo-${i + 1}.${file.name.split(".").pop()}`;
+      const { error } = await supabase.storage.from("pose-impossible").upload(path, file, { upsert: true });
+      if (!error) {
+        const { data: signed } = await supabase.storage.from("pose-impossible").createSignedUrl(path, 60 * 60 * 24 * 7);
+        if (signed) photoUrls.push(signed.signedUrl);
+      }
+    }
+
+    await supabase.from("service_quotes").update({
+      status: "impossible_pending",
+      impossible_reason: reason,
+      impossible_photos: photoUrls,
+      impossible_at: new Date().toISOString(),
+    }).eq("id", quoteId);
+
+    setImpossibleModal({ open: false, quoteId: null });
+    await load();
+  };
+
   if (loading || !profile) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
 
   return (
@@ -82,6 +138,16 @@ function ProviderDashboard() {
           <LogoLink />
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:inline">{profile.company}</span>
+            <a
+              href="https://www.instagram.com/movespot_pub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram MoveSpot"
+              className="rounded-full p-2 hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">Paramètres</Link>
             <button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">Se déconnecter</button>
           </div>
@@ -130,7 +196,7 @@ function ProviderDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {quotes.map((q) => <QuoteCard key={q.id} q={q} onRespond={respondQuote} onReject={rejectQuote} />)}
+            {quotes.map((q) => <QuoteCard key={q.id} q={q} vehicle={q.vehicle_id ? vehicleMap[q.vehicle_id] : undefined} onRespond={respondQuote} onReject={rejectQuote} onOpenImpossible={openImpossibleModal} />)}
           </div>
         )}
       </main>
@@ -144,6 +210,13 @@ function ProviderDashboard() {
           "Comment répondre à une demande de devis ?",
         ]}
       />
+
+      {impossibleModal.open && (
+        <ImpossibleModal
+          onSubmit={submitImpossible}
+          onCancel={() => setImpossibleModal({ open: false, quoteId: null })}
+        />
+      )}
     </div>
   );
 }
@@ -210,7 +283,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function QuoteCard({ q, onRespond, onReject }: { q: Quote; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void }) {
+function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Quote; vehicle?: VehicleId; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onOpenImpossible: (id: string) => void }) {
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
   return (
@@ -223,17 +296,84 @@ function QuoteCard({ q, onRespond, onReject }: { q: Quote; onRespond: (id: strin
         <QuoteBadge status={q.status} />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted-foreground mb-3">
-        {q.vehicle_type && <div><strong className="text-foreground">Véhicule :</strong> {q.vehicle_type}</div>}
+        {q.vehicle_type && <div><strong className="text-foreground">Type :</strong> {q.vehicle_type}</div>}
         {q.format && <div><strong className="text-foreground">Format :</strong> {q.format}</div>}
         {q.quantity && <div><strong className="text-foreground">Qté :</strong> {q.quantity}</div>}
         {q.deadline && <div><strong className="text-foreground">Échéance :</strong> {new Date(q.deadline).toLocaleDateString("fr-FR")}</div>}
         {q.zone && <div className="col-span-2"><strong className="text-foreground">Zone :</strong> {q.zone}</div>}
       </div>
+      {vehicle && (
+        <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">🚗 Identification du véhicule à habiller</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
+            {vehicle.license_plate && (
+              <div className="col-span-2 sm:col-span-1">
+                <span className="text-xs text-muted-foreground block">Plaque</span>
+                <span className="font-mono font-bold tracking-widest">{vehicle.license_plate}</span>
+              </div>
+            )}
+            {vehicle.brand && (
+              <div>
+                <span className="text-xs text-muted-foreground block">Marque</span>
+                <span className="font-medium">{vehicle.brand}</span>
+              </div>
+            )}
+            {vehicle.model && (
+              <div>
+                <span className="text-xs text-muted-foreground block">Modèle</span>
+                <span className="font-medium">{vehicle.model}</span>
+              </div>
+            )}
+            {vehicle.color && (
+              <div>
+                <span className="text-xs text-muted-foreground block">Couleur</span>
+                <span className="font-medium">{vehicle.color}</span>
+              </div>
+            )}
+          </div>
+          {vehicle.name && (
+            <div className="mt-1 text-xs text-muted-foreground">Surnom : {vehicle.name}</div>
+          )}
+          {vehicle.photos && vehicle.photos.length > 0 && (
+            <div className="mt-2 flex gap-2">
+              {vehicle.photos.slice(0, 3).map((url, i) => (
+                <img key={i} src={url} alt={`Photo véhicule ${i + 1}`}
+                  className="w-16 h-16 rounded-lg object-cover border border-border" />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <p className="text-sm whitespace-pre-wrap mb-3">{q.message}</p>
       {q.status === "quoted" && (
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
           ✓ Devis envoyé : <strong>{((q.quoted_price_cents ?? 0) / 100).toFixed(2)} €</strong>
           {q.quoted_message && <p className="text-xs mt-1 whitespace-pre-wrap">{q.quoted_message}</p>}
+        </div>
+      )}
+      {(q.status === "quoted" || q.status === "accepted") && (
+        <WeatherInstallCheck zone={q.zone} />
+      )}
+      {q.status === "accepted" && q.zone && (
+        <TrafficLinks zone={q.zone} />
+      )}
+      {(q.status === "quoted" || q.status === "accepted") && (
+        <div className="mt-3 border-t border-border pt-3">
+          <button onClick={() => onOpenImpossible(q.id)}
+            className="rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/40 px-3 py-2 text-sm font-semibold hover:bg-orange-500/25">
+            ⚠ Signaler une pose impossible
+          </button>
+        </div>
+      )}
+      {q.status === "impossible_pending" && (
+        <div className="mt-3 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-700 dark:text-amber-300">
+          ⏳ Signalement en cours de vérification par MoveSpot.
+          {q.impossible_reason && <p className="mt-1 text-xs italic">Motif : {q.impossible_reason}</p>}
+        </div>
+      )}
+      {q.status === "impossible" && (
+        <div className="mt-3 rounded-lg bg-orange-500/10 border border-orange-500/30 p-3 text-sm text-orange-700 dark:text-orange-300">
+          ⚠ Pose impossible confirmée — remboursement de l'annonceur en cours.
         </div>
       )}
       {q.status === "pending" && (
@@ -258,6 +398,25 @@ function QuoteCard({ q, onRespond, onReject }: { q: Quote; onRespond: (id: strin
   );
 }
 
+function TrafficLinks({ zone }: { zone: string }) {
+  const q = encodeURIComponent(zone);
+  const wazeUrl = `https://waze.com/ul?q=${q}&navigate=yes`;
+  const mapsUrl = `https://maps.google.com/maps?q=${q}`;
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <span className="text-xs text-muted-foreground">🗺️ Vérifier le trafic :</span>
+      <a href={wazeUrl} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors">
+        Waze
+      </a>
+      <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors">
+        Google Maps
+      </a>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const m: Record<string, { l: string; c: string }> = {
     pending: { l: "Fiche en attente", c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
@@ -276,7 +435,84 @@ function QuoteBadge({ status }: { status: string }) {
     accepted: { l: "Accepté", c: "bg-signal/20 text-signal" },
     rejected: { l: "Refusé", c: "bg-destructive/15 text-destructive" },
     cancelled: { l: "Annulé", c: "bg-secondary text-muted-foreground" },
+    impossible_pending: { l: "Vérification en cours", c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    impossible: { l: "Pose impossible", c: "bg-orange-500/20 text-orange-700 dark:text-orange-300" },
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
+}
+
+function ImpossibleModal({ onSubmit, onCancel }: {
+  onSubmit: (reason: string, files: File[]) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [reason, setReason] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []).slice(0, 3);
+    setFiles(selected);
+    setPreviews(selected.map((f) => URL.createObjectURL(f)));
+  };
+
+  const handleSubmit = async () => {
+    if (!reason.trim()) { alert("Veuillez décrire le motif de l'impossibilité."); return; }
+    setUploading(true);
+    await onSubmit(reason.trim(), files);
+    setUploading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-background border border-border p-6 shadow-xl">
+        <h2 className="font-display text-lg font-bold mb-1">Signaler une pose impossible</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Décrivez pourquoi la pose n'a pas pu être réalisée. MoveSpot vérifiera votre signalement avant de rembourser l'annonceur.
+        </p>
+
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+          Motif (obligatoire)
+        </label>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          rows={3}
+          maxLength={500}
+          placeholder="Ex : surface du véhicule trop endommagée, présence de rouille empêchant l'adhésion du vinyle…"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm mb-4"
+        />
+
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+          Photos justificatives (max 3, recommandé)
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFiles}
+          className="text-sm text-muted-foreground mb-3"
+        />
+        {previews.length > 0 && (
+          <div className="flex gap-2 mb-4">
+            {previews.map((src, i) => (
+              <img key={i} src={src} alt={`Photo ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-border" />
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2 justify-end">
+          <button onClick={onCancel} disabled={uploading}
+            className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary">
+            Annuler
+          </button>
+          <button onClick={handleSubmit} disabled={uploading || !reason.trim()}
+            className="rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold hover:bg-orange-600 disabled:opacity-50">
+            {uploading ? "Envoi…" : "Envoyer le signalement"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -7,6 +7,8 @@ export type ChatAudience = "annonceur" | "proprietaire" | "partenaire" | "presta
 type Props = {
   audience: ChatAudience;
   suggestions?: string[];
+  /** Contexte utilisateur injecté dans le prompt (solde, nb campagnes…) */
+  userContext?: string;
 };
 
 const GREETINGS: Record<ChatAudience, string> = {
@@ -123,20 +125,33 @@ function TypingDots() {
   );
 }
 
-export function FAQChatbot({ audience, suggestions = [] }: Props) {
+export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [hasUnread, setHasUnread] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/faq-chat",
-      body: { audience },
+      body: { audience, userContext },
     }),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
+  const lastRole = messages[messages.length - 1]?.role;
+
+  // Badge de notification quand le chatbot est fermé et qu'une réponse arrive
+  useEffect(() => {
+    if (!open && lastRole === "assistant" && messages.length > 0) {
+      setHasUnread(true);
+    }
+  }, [messages.length, lastRole, open]);
+
+  useEffect(() => {
+    if (open) setHasUnread(false);
+  }, [open]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -149,6 +164,14 @@ export function FAQChatbot({ audience, suggestions = [] }: Props) {
       const t = setTimeout(() => inputRef.current?.focus(), 120);
       return () => clearTimeout(t);
     }
+  }, [open]);
+
+  // Fermer avec Échap
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
   const send = (text: string) => {
@@ -172,6 +195,9 @@ export function FAQChatbot({ audience, suggestions = [] }: Props) {
         }`}
       >
         {open ? <IconClose size={18} /> : <IconChat size={22} />}
+        {!open && hasUnread && (
+          <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-red-500 border-2 border-background" />
+        )}
       </button>
 
       {/* Chat Panel */}
@@ -186,12 +212,24 @@ export function FAQChatbot({ audience, suggestions = [] }: Props) {
               </div>
               <div>
                 <div className="font-display font-semibold text-sm leading-tight">Assistant MoveSpot</div>
-                <div className="text-[11px] text-muted-foreground">Réponse instantanée</div>
+                <div className="text-[11px] text-muted-foreground">Réponse instantanée · Échap pour fermer</div>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-signal animate-pulse" />
-              <span className="text-[11px] text-muted-foreground">En ligne</span>
+            <div className="flex items-center gap-2">
+              {messages.length > 0 && (
+                <button
+                  type="button"
+                  title="Nouvelle conversation"
+                  onClick={() => { setMessages([]); setInput(""); }}
+                  className="text-[11px] text-muted-foreground hover:text-foreground transition px-2 py-1 rounded-lg hover:bg-muted"
+                >
+                  Effacer
+                </button>
+              )}
+              <div className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-signal animate-pulse" />
+                <span className="text-[11px] text-muted-foreground">En ligne</span>
+              </div>
             </div>
           </div>
 

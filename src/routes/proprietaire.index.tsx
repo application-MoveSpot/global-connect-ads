@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Instagram } from "lucide-react";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ import { withRetry } from "@/lib/retry";
 import { downloadCsv } from "@/lib/exportCsv";
 import { RouteError } from "@/components/app/RouteError";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
@@ -280,6 +282,21 @@ function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
+            <a
+              href="https://www.instagram.com/movespot_pub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram MoveSpot"
+              className="rounded-full p-1.5 hover:bg-muted transition text-muted-foreground hover:text-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <Link
+              to="/parametres"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Paramètres
+            </Link>
             <button
               onClick={logout}
               className="text-sm text-muted-foreground hover:text-foreground"
@@ -737,6 +754,11 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
             <span key={z} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{z}</span>
           ))}
         </div>
+      )}
+
+      {/* Météo — conditions pose sur la zone principale, uniquement pour les véhicules disponibles */}
+      {v.status === "approved" && v.zones && v.zones.length > 0 && (
+        <WeatherInstallCheck zone={v.zones[0]} />
       )}
 
       <div className="flex items-center gap-3 flex-wrap">

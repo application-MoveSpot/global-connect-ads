@@ -4,8 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { verifyDriverToken, pushPositionBatchWithToken } from "@/lib/qr/qr.functions";
 import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { ObstacleReportDialog } from "@/components/driver/ObstacleReportDialog";
+import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
+import { DriverTrackMap, type TrackPoint } from "@/components/driver/DriverTrackMap";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
+import { CheckCircle, XCircle, Car } from "lucide-react";
 
 export const Route = createFileRoute("/chauffeur/")({
   head: () => ({ meta: [{ title: "Chauffeur — MoveSpot" }, { name: "robots", content: "noindex" }] }),
@@ -14,25 +17,33 @@ export const Route = createFileRoute("/chauffeur/")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-type Vehicle = { id: string; name: string; type: string; format: string | null };
+type Vehicle = {
+  id: string;
+  name: string;
+  type: string;
+  format: string | null;
+  zones: string[];
+  plate: string | null;
+  driverAssigned: boolean;
+};
 
 function DriverPage() {
   const { t } = Route.useSearch();
   const verify = useServerFn(verifyDriverToken);
   const pushBatch = useServerFn(pushPositionBatchWithToken);
 
-  const [state, setState] = useState<"verifying" | "ready" | "invalid" | "tracking">("verifying");
+  const [state, setState] = useState<"verifying" | "confirming" | "ready" | "invalid" | "tracking">("verifying");
   const [error, setError] = useState<string | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [count, setCount] = useState(0);
   const [pending, setPending] = useState(0);
-  const [lastPos, setLastPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [lastPos, setLastPos] = useState<TrackPoint | null>(null);
+  const [sessionTrack, setSessionTrack] = useState<TrackPoint[]>([]);
 
   const watchIdRef = useRef<number | null>(null);
   const wakeLockRef = useRef<any>(null);
   const tokenRef = useRef<string>(t);
   const bufferRef = useRef<GpsBatchBuffer | null>(null);
-
 
   useEffect(() => {
     const stored = typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
@@ -46,7 +57,8 @@ function DriverPage() {
     verify({ data: { token: tok } }).then((r: any) => {
       if (r.ok) {
         setVehicle(r.vehicle as Vehicle);
-        setState("ready");
+        // Étape de confirmation obligatoire avant le GPS
+        setState("confirming");
         try { localStorage.setItem("movespot_driver_token", tok); } catch {}
       } else {
         setState("invalid");
@@ -58,12 +70,23 @@ function DriverPage() {
     });
   }, [t, verify]);
 
+  const confirmVehicle = () => {
+    setState("ready");
+    toast.success("Véhicule confirmé ✓");
+  };
+
+  const rejectVehicle = () => {
+    // Efface le token mémorisé pour forcer un nouveau scan
+    try { localStorage.removeItem("movespot_driver_token"); } catch {}
+    setState("invalid");
+    setError("Mauvais véhicule signalé. Scannez le QR du bon véhicule ou contactez votre responsable.");
+  };
+
   const start = async () => {
     if (!navigator.geolocation) {
       toast.error("Géolocalisation non supportée");
       return;
     }
-    // Wake Lock to keep screen on
     try {
       // @ts-ignore
       if (navigator.wakeLock) wakeLockRef.current = await navigator.wakeLock.request("screen");
@@ -86,16 +109,20 @@ function DriverPage() {
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        const pt = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const added = buffer.add({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
+          lat: pt.lat,
+          lng: pt.lng,
           accuracy: pos.coords.accuracy ?? null,
           speed: pos.coords.speed ?? null,
           heading: pos.coords.heading ?? null,
           recordedAt: new Date().toISOString(),
         });
-        if (added) setPending(buffer.pending);
-        setLastPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        if (added) {
+          setPending(buffer.pending);
+          setSessionTrack((prev) => [...prev, pt]);
+        }
+        setLastPos(pt);
       },
       (err) => toast.error(`GPS : ${err.message}`),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 },
@@ -110,6 +137,7 @@ function DriverPage() {
     if (wakeLockRef.current) { try { wakeLockRef.current.release(); } catch {} }
     wakeLockRef.current = null;
     void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
+    setSessionTrack([]);
     setState("ready");
     toast("Suivi arrêté");
   };
@@ -133,12 +161,99 @@ function DriverPage() {
           </div>
         )}
 
+        {/* ── Étape de confirmation du véhicule ── */}
+        {state === "confirming" && vehicle && (
+          <div className="space-y-4">
+            <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Car className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-primary">Confirmez votre véhicule</span>
+              </div>
+
+              <div className="space-y-2 mb-5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Nom</span>
+                  <span className="font-semibold">{vehicle.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Type</span>
+                  <span>{vehicle.type}</span>
+                </div>
+                {vehicle.format && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Format pub</span>
+                    <span>{vehicle.format}</span>
+                  </div>
+                )}
+                {vehicle.plate && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Immatriculation</span>
+                    <span className="font-mono font-bold tracking-wider">{vehicle.plate}</span>
+                  </div>
+                )}
+                {vehicle.zones.length > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Zone(s)</span>
+                    <span className="text-right">{vehicle.zones.join(", ")}</span>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-sm font-medium text-center mb-4">
+                Êtes-vous bien dans ce véhicule ?
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={rejectVehicle}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 text-destructive py-3 text-sm font-semibold hover:bg-destructive/20 transition-colors"
+                >
+                  <XCircle className="w-4 h-4" />
+                  Non, mauvais véhicule
+                </button>
+                <button
+                  onClick={confirmVehicle}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold hover:bg-primary/90 transition-colors"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Oui, c'est le mien
+                </button>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Cette vérification garantit que vos positions GPS sont bien rattachées au bon véhicule et à la bonne campagne.
+            </p>
+          </div>
+        )}
+
+        {/* ── Suivi GPS (ready + tracking) ── */}
         {(state === "ready" || state === "tracking") && vehicle && (
           <div className="space-y-4">
             <div className="rounded-2xl border border-border bg-card p-6 text-center">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">Véhicule</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">Véhicule confirmé</div>
               <div className="font-display text-xl font-bold mt-1">{vehicle.name}</div>
-              <div className="text-sm text-muted-foreground">{vehicle.type} · {vehicle.format}</div>
+              <div className="text-sm text-muted-foreground">
+                {vehicle.type}{vehicle.format ? ` · ${vehicle.format}` : ""}
+                {vehicle.plate && <span className="ml-2 font-mono font-bold">{vehicle.plate}</span>}
+              </div>
+              {vehicle.zones.length > 0 && (
+                <div className="mt-3 text-left">
+                  <WeatherInstallCheck zone={vehicle.zones[0]!} />
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-muted-foreground">🗺️ Trafic :</span>
+                    {(() => {
+                      const q = encodeURIComponent(vehicle.zones[0]!);
+                      return (
+                        <>
+                          <a href={`https://waze.com/ul?q=${q}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Waze</a>
+                          <a href={`https://maps.google.com/maps?q=${q}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Google Maps</a>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
 
             {state === "ready" ? (
@@ -172,6 +287,11 @@ function DriverPage() {
                 >
                   ⏹ Arrêter
                 </button>
+                <DriverTrackMap
+                  currentPos={lastPos}
+                  track={sessionTrack}
+                  zones={vehicle.zones}
+                />
                 <ObstacleReportDialog token={tokenRef.current} />
                 <p className="text-xs text-muted-foreground text-center">
                   Gardez l'écran allumé et l'app au premier plan. Téléphone branché recommandé.

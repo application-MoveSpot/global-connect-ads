@@ -20,7 +20,7 @@ export function usePushSubscription(userId: string | null) {
   const fetchPublicKey = useServerFn(getVapidPublicKey);
 
   useEffect(() => {
-    fetchPublicKey().then((res) => {
+    fetchPublicKey().then((res: { publicKey: string }) => {
       publicKeyRef.current = res.publicKey;
       setPublicKey(res.publicKey);
     }).catch(() => {});
