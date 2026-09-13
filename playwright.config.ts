@@ -30,11 +30,13 @@ export default defineConfig({
       },
     },
   ],
-  // En CI : sert le build déjà produit via vite preview (port 3000).
+  // En CI : wrangler dev sert le Worker Cloudflare pré-buildé (output .output/server/).
+  // vite preview est intercepté par @tanstack/start-plugin-core qui cherche dist/server/server.js
+  // (chemin Nitro Node), introuvable car TanStack Start + Cloudflare sort dans .output/.
   // En local : réutilise un dev server existant ou en démarre un.
   webServer: {
     command: process.env.CI
-      ? "npx vite preview --port 3000"
+      ? "cd .output/server && WRANGLER_SEND_METRICS=false npx wrangler dev --port 3000"
       : "npm run dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
