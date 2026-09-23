@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       advertiser_briefs: {
         Row: {
+          ad_format: string | null
           advertiser_id: string
           audience_target: string | null
           budget_max: number | null
@@ -36,6 +37,7 @@ export type Database = {
           zones: string[]
         }
         Insert: {
+          ad_format?: string | null
           advertiser_id: string
           audience_target?: string | null
           budget_max?: number | null
@@ -56,6 +58,7 @@ export type Database = {
           zones?: string[]
         }
         Update: {
+          ad_format?: string | null
           advertiser_id?: string
           audience_target?: string | null
           budget_max?: number | null
@@ -289,11 +292,20 @@ export type Database = {
           audience: string | null
           campaign_goal: string | null
           company: string
+          country_code: string | null
           created_at: string
           creative_files: string[]
           daily_end_time: string | null
           daily_start_time: string | null
           days_count: number | null
+          depose_fee_cents: number | null
+          depose_installer_user_id: string | null
+          depose_notes: string | null
+          depose_payout_status: string | null
+          depose_photos: Json | null
+          depose_reviewed_at: string | null
+          depose_status: string | null
+          depose_stripe_transfer_id: string | null
           email: string
           end_date: string | null
           estimated_impressions_per_day: number | null
@@ -312,6 +324,10 @@ export type Database = {
           payout_status: string
           payout_transferred_at: string | null
           platform_fee_cents: number | null
+          pose_fee_cents: number | null
+          pose_installer_user_id: string | null
+          pose_payout_status: string | null
+          pose_stripe_transfer_id: string | null
           route_pois: string[] | null
           route_waypoints: string[] | null
           route_zones: string[] | null
@@ -326,6 +342,7 @@ export type Database = {
           stripe_subscription_id: string | null
           stripe_transfer_id: string | null
           subscription_status: string | null
+          timezone: string | null
           total_price: number | null
           trial_end: string | null
           updated_at: string
@@ -339,11 +356,20 @@ export type Database = {
           audience?: string | null
           campaign_goal?: string | null
           company: string
+          country_code?: string | null
           created_at?: string
           creative_files?: string[]
           daily_end_time?: string | null
           daily_start_time?: string | null
           days_count?: number | null
+          depose_fee_cents?: number | null
+          depose_installer_user_id?: string | null
+          depose_notes?: string | null
+          depose_payout_status?: string | null
+          depose_photos?: Json | null
+          depose_reviewed_at?: string | null
+          depose_status?: string | null
+          depose_stripe_transfer_id?: string | null
           email: string
           end_date?: string | null
           estimated_impressions_per_day?: number | null
@@ -362,6 +388,10 @@ export type Database = {
           payout_status?: string
           payout_transferred_at?: string | null
           platform_fee_cents?: number | null
+          pose_fee_cents?: number | null
+          pose_installer_user_id?: string | null
+          pose_payout_status?: string | null
+          pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
           route_waypoints?: string[] | null
           route_zones?: string[] | null
@@ -376,6 +406,7 @@ export type Database = {
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
           subscription_status?: string | null
+          timezone?: string | null
           total_price?: number | null
           trial_end?: string | null
           updated_at?: string
@@ -389,11 +420,20 @@ export type Database = {
           audience?: string | null
           campaign_goal?: string | null
           company?: string
+          country_code?: string | null
           created_at?: string
           creative_files?: string[]
           daily_end_time?: string | null
           daily_start_time?: string | null
           days_count?: number | null
+          depose_fee_cents?: number | null
+          depose_installer_user_id?: string | null
+          depose_notes?: string | null
+          depose_payout_status?: string | null
+          depose_photos?: Json | null
+          depose_reviewed_at?: string | null
+          depose_status?: string | null
+          depose_stripe_transfer_id?: string | null
           email?: string
           end_date?: string | null
           estimated_impressions_per_day?: number | null
@@ -412,6 +452,10 @@ export type Database = {
           payout_status?: string
           payout_transferred_at?: string | null
           platform_fee_cents?: number | null
+          pose_fee_cents?: number | null
+          pose_installer_user_id?: string | null
+          pose_payout_status?: string | null
+          pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
           route_waypoints?: string[] | null
           route_zones?: string[] | null
@@ -426,6 +470,7 @@ export type Database = {
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
           subscription_status?: string | null
+          timezone?: string | null
           total_price?: number | null
           trial_end?: string | null
           updated_at?: string
@@ -596,6 +641,66 @@ export type Database = {
         }
         Relationships: []
       }
+      obstacle_reports: {
+        Row: {
+          admin_notes: string | null
+          admin_validated: boolean
+          admin_validated_at: string | null
+          campaign_id: string | null
+          description: string | null
+          id: string
+          impact_end: string | null
+          impact_start: string | null
+          obstacle_type: string
+          photo_paths: string[]
+          reported_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          campaign_id?: string | null
+          description?: string | null
+          id?: string
+          impact_end?: string | null
+          impact_start?: string | null
+          obstacle_type: string
+          photo_paths?: string[]
+          reported_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          campaign_id?: string | null
+          description?: string | null
+          id?: string
+          impact_end?: string | null
+          impact_start?: string | null
+          obstacle_type?: string
+          photo_paths?: string[]
+          reported_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obstacle_reports_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obstacle_reports_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       owner_profiles: {
         Row: {
           bio: string | null
@@ -616,6 +721,12 @@ export type Database = {
           stripe_payouts_enabled: boolean
           updated_at: string
           user_id: string
+          vigilance_attestation_url: string | null
+          vigilance_date_verification: string | null
+          vigilance_gains_cumules_centimes: number | null
+          vigilance_notes: string | null
+          vigilance_seuil_atteint_at: string | null
+          vigilance_statut: string | null
         }
         Insert: {
           bio?: string | null
@@ -636,6 +747,12 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id: string
+          vigilance_attestation_url?: string | null
+          vigilance_date_verification?: string | null
+          vigilance_gains_cumules_centimes?: number | null
+          vigilance_notes?: string | null
+          vigilance_seuil_atteint_at?: string | null
+          vigilance_statut?: string | null
         }
         Update: {
           bio?: string | null
@@ -656,6 +773,12 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
+          vigilance_attestation_url?: string | null
+          vigilance_date_verification?: string | null
+          vigilance_gains_cumules_centimes?: number | null
+          vigilance_notes?: string | null
+          vigilance_seuil_atteint_at?: string | null
+          vigilance_statut?: string | null
         }
         Relationships: []
       }
@@ -672,6 +795,11 @@ export type Database = {
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_subscription_period_end: string | null
+          stripe_subscription_status: string | null
           updated_at: string
           user_id: string
         }
@@ -687,6 +815,11 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
         }
@@ -702,6 +835,11 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -851,6 +989,10 @@ export type Database = {
           services: string[]
           siret: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_subscription_period_end: string | null
+          stripe_subscription_status: string | null
           updated_at: string
           user_id: string
           website: string | null
@@ -870,6 +1012,10 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -889,6 +1035,10 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
@@ -1181,6 +1331,7 @@ export type Database = {
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
+          license_plate: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -1201,6 +1352,7 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -1221,6 +1373,7 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null

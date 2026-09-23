@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790179915338,
+      "tag": "0000_sync_poseur_and_campaign_feature_columns",
+      "breakpoints": true
+    }
+  ]
+}
