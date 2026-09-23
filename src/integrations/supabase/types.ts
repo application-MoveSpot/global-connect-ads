@@ -651,6 +651,7 @@ export type Database = {
           id: string
           impact_end: string | null
           impact_start: string | null
+          metadata: Json
           obstacle_type: string
           photo_paths: string[]
           reported_at: string
@@ -665,6 +666,7 @@ export type Database = {
           id?: string
           impact_end?: string | null
           impact_start?: string | null
+          metadata?: Json
           obstacle_type: string
           photo_paths?: string[]
           reported_at?: string
@@ -679,6 +681,7 @@ export type Database = {
           id?: string
           impact_end?: string | null
           impact_start?: string | null
+          metadata?: Json
           obstacle_type?: string
           photo_paths?: string[]
           reported_at?: string
@@ -787,6 +790,8 @@ export type Database = {
           city: string | null
           company: string | null
           created_at: string
+          description: string | null
+          email: string | null
           full_name: string
           id: string
           notes: string | null
@@ -802,11 +807,14 @@ export type Database = {
           stripe_subscription_status: string | null
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           city?: string | null
           company?: string | null
           created_at?: string
+          description?: string | null
+          email?: string | null
           full_name: string
           id?: string
           notes?: string | null
@@ -822,11 +830,14 @@ export type Database = {
           stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           city?: string | null
           company?: string | null
           created_at?: string
+          description?: string | null
+          email?: string | null
           full_name?: string
           id?: string
           notes?: string | null
@@ -842,6 +853,7 @@ export type Database = {
           stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -1106,6 +1118,9 @@ export type Database = {
           deadline: string | null
           format: string | null
           id: string
+          impossible_at: string | null
+          impossible_photos: string[]
+          impossible_reason: string | null
           message: string
           provider_id: string
           quantity: number | null
@@ -1116,6 +1131,7 @@ export type Database = {
           service_type: string
           status: string
           updated_at: string
+          vehicle_id: string | null
           vehicle_type: string | null
           zone: string | null
         }
@@ -1126,6 +1142,9 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
+          impossible_at?: string | null
+          impossible_photos?: string[]
+          impossible_reason?: string | null
           message: string
           provider_id: string
           quantity?: number | null
@@ -1136,6 +1155,7 @@ export type Database = {
           service_type: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -1146,6 +1166,9 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
+          impossible_at?: string | null
+          impossible_photos?: string[]
+          impossible_reason?: string | null
           message?: string
           provider_id?: string
           quantity?: number | null
@@ -1156,10 +1179,19 @@ export type Database = {
           service_type?: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "service_quotes_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       status_history: {
         Row: {
@@ -1324,6 +1356,8 @@ export type Database = {
         Row: {
           admin_notes: string | null
           ai_verification: Json | null
+          brand: string | null
+          color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at: string
           description: string | null
@@ -1332,6 +1366,7 @@ export type Database = {
           id: string
           km_per_day: number | null
           license_plate: string | null
+          model: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -1345,6 +1380,8 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1353,6 +1390,7 @@ export type Database = {
           id?: string
           km_per_day?: number | null
           license_plate?: string | null
+          model?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -1366,6 +1404,8 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1374,6 +1414,7 @@ export type Database = {
           id?: string
           km_per_day?: number | null
           license_plate?: string | null
+          model?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null
