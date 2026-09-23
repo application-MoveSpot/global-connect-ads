@@ -6,7 +6,7 @@ import { Menu, X, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import officialLogo from "@/assets/movespot-logo-horizontal.png.asset.json";
+import officialLogo from "@/assets/movespot-logo-horizontal-dark.png.asset.json";
 
 const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
 const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
