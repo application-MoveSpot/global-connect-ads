@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import logo from "@/assets/movespot-logo.svg";
+import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
 
 export const Route = createFileRoute("/pourquoi-movespot")({
   head: () => ({
@@ -115,11 +115,10 @@ function PourquoiMovespot() {
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src={logo} alt="MoveSpot" width={32} height={32} className="h-8 w-8" />
-            <span className="font-display font-bold text-lg tracking-tight">MoveSpot</span>
+      <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
+          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-14 items-center">
+            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-12 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition shadow-glow">
