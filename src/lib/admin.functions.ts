@@ -404,12 +404,33 @@ export const adminListInstallations = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("campaign_requests")
       .select(
-        "id, spot_name, company, email, start_date, end_date, status, payment_status, installation_photos, installation_status, installation_notes, installation_reviewed_at, created_at",
+        "id, spot_name, company, email, start_date, end_date, status, payment_status, installation_photos, installation_status, installation_notes, installation_reviewed_at, pose_fee_cents, pose_payout_status, pose_stripe_transfer_id, pose_installer_user_id, created_at",
       )
       .not("installation_photos", "is", null)
       .order("created_at", { ascending: false })
       .limit(200);
     return { installations: data ?? [] };
+  });
+
+// ============ Onglet Déposes à valider ============
+export const adminListDeposePending = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("campaign_requests")
+      .select(
+        "id, spot_name, company, email, start_date, end_date, depose_photos, depose_status, depose_notes, depose_reviewed_at, depose_fee_cents, depose_payout_status, depose_stripe_transfer_id, depose_installer_user_id, created_at",
+      )
+      .not("depose_photos", "is", null)
+      .order("end_date", { ascending: true })
+      .limit(200);
+    return { depositions: data ?? [] };
   });
 
 // ============ Onglet Comptes Stripe inactifs ============
@@ -478,6 +499,41 @@ export const adminReviewInstallation = createServerFn({ method: "POST" })
           ? (data.notes ?? "✅ Pose conforme validée par MoveSpot.")
           : data.notes!,
         installation_reviewed_at: new Date().toISOString(),
+      } as never)
+      .eq("id", data.campaignRequestId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminReviewDepose = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        campaignRequestId: z.string().uuid(),
+        approve: z.boolean(),
+        notes: z.string().max(500).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    if (!data.approve && !data.notes?.trim()) {
+      throw new Error("Un motif de refus est obligatoire");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        depose_status: data.approve ? "approved" : "rejected",
+        depose_notes: data.approve
+          ? (data.notes ?? "✅ Dépose conforme validée par MoveSpot.")
+          : data.notes!,
+        depose_reviewed_at: new Date().toISOString(),
       } as never)
       .eq("id", data.campaignRequestId);
     if (error) throw new Error(error.message);

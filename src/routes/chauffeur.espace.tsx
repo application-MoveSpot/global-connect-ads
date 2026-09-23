@@ -9,6 +9,7 @@ import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
 import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
+import { DeposeJobsPanel } from "@/components/driver/DeposeJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payments/payee.functions";
 import { getDriverVehicleQrTokens } from "@/lib/qr/qr.functions";
@@ -254,6 +255,7 @@ function ChauffeurEspace() {
         </div>
 
         {profile && (profile.kind === "installer" || profile.kind === "both") ? <InstallationJobsPanel /> : null}
+        {profile && (profile.kind === "installer" || profile.kind === "both") ? <DeposeJobsPanel /> : null}
 
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
