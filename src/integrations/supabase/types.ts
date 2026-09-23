@@ -16,7 +16,6 @@ export type Database = {
     Tables: {
       advertiser_briefs: {
         Row: {
-          ad_format: string | null
           advertiser_id: string
           audience_target: string | null
           budget_max: number | null
@@ -30,13 +29,13 @@ export type Database = {
           status: Database["public"]["Enums"]["brief_status"]
           title: string
           updated_at: string
+          vehicle_count: number
           vehicle_types: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2: number | null
           zone_polygon: unknown
           zones: string[]
         }
         Insert: {
-          ad_format?: string | null
           advertiser_id: string
           audience_target?: string | null
           budget_max?: number | null
@@ -50,13 +49,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["brief_status"]
           title: string
           updated_at?: string
+          vehicle_count?: number
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2?: number | null
           zone_polygon?: unknown
           zones?: string[]
         }
         Update: {
-          ad_format?: string | null
           advertiser_id?: string
           audience_target?: string | null
           budget_max?: number | null
@@ -70,6 +69,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["brief_status"]
           title?: string
           updated_at?: string
+          vehicle_count?: number
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2?: number | null
           zone_polygon?: unknown
@@ -286,6 +286,8 @@ export type Database = {
       campaign_requests: {
         Row: {
           admin_notes: string | null
+          audience: string | null
+          campaign_goal: string | null
           company: string
           created_at: string
           creative_files: string[]
@@ -321,28 +323,21 @@ export type Database = {
           status: string
           stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
           stripe_transfer_id: string | null
+          subscription_status: string | null
           total_price: number | null
+          trial_end: string | null
           updated_at: string
           user_id: string | null
           vehicle_id: string | null
           zone_area_km2: number | null
           zone_polygon: unknown
-          pose_fee_cents: number
-          depose_fee_cents: number
-          depose_status: string | null
-          depose_photos: Json | null
-          depose_notes: string | null
-          depose_reviewed_at: string | null
-          pose_installer_user_id: string | null
-          depose_installer_user_id: string | null
-          pose_payout_status: string | null
-          depose_payout_status: string | null
-          pose_stripe_transfer_id: string | null
-          depose_stripe_transfer_id: string | null
         }
         Insert: {
           admin_notes?: string | null
+          audience?: string | null
+          campaign_goal?: string | null
           company: string
           created_at?: string
           creative_files?: string[]
@@ -378,28 +373,21 @@ export type Database = {
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
+          subscription_status?: string | null
           total_price?: number | null
+          trial_end?: string | null
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
           zone_area_km2?: number | null
           zone_polygon?: unknown
-          pose_fee_cents?: number
-          depose_fee_cents?: number
-          depose_status?: string | null
-          depose_photos?: Json | null
-          depose_notes?: string | null
-          depose_reviewed_at?: string | null
-          pose_installer_user_id?: string | null
-          depose_installer_user_id?: string | null
-          pose_payout_status?: string | null
-          depose_payout_status?: string | null
-          pose_stripe_transfer_id?: string | null
-          depose_stripe_transfer_id?: string | null
         }
         Update: {
           admin_notes?: string | null
+          audience?: string | null
+          campaign_goal?: string | null
           company?: string
           created_at?: string
           creative_files?: string[]
@@ -435,25 +423,16 @@ export type Database = {
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
+          subscription_status?: string | null
           total_price?: number | null
+          trial_end?: string | null
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
           zone_area_km2?: number | null
           zone_polygon?: unknown
-          pose_fee_cents?: number
-          depose_fee_cents?: number
-          depose_status?: string | null
-          depose_photos?: Json | null
-          depose_notes?: string | null
-          depose_reviewed_at?: string | null
-          pose_installer_user_id?: string | null
-          depose_installer_user_id?: string | null
-          pose_payout_status?: string | null
-          depose_payout_status?: string | null
-          pose_stripe_transfer_id?: string | null
-          depose_stripe_transfer_id?: string | null
         }
         Relationships: [
           {
@@ -464,6 +443,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cron_config: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
       }
       drivers: {
         Row: {
@@ -599,69 +596,6 @@ export type Database = {
         }
         Relationships: []
       }
-      obstacle_reports: {
-        Row: {
-          id: string
-          vehicle_id: string | null
-          campaign_id: string | null
-          obstacle_type: string
-          description: string | null
-          photo_paths: string[]
-          reported_at: string
-          impact_start: string | null
-          impact_end: string | null
-          admin_validated: boolean
-          admin_validated_at: string | null
-          admin_notes: string | null
-          metadata: Record<string, unknown> | null
-        }
-        Insert: {
-          id?: string
-          vehicle_id?: string | null
-          campaign_id?: string | null
-          obstacle_type: string
-          description?: string | null
-          photo_paths?: string[]
-          reported_at?: string
-          impact_start?: string | null
-          impact_end?: string | null
-          admin_validated?: boolean
-          admin_validated_at?: string | null
-          admin_notes?: string | null
-          metadata?: Record<string, unknown> | null
-        }
-        Update: {
-          id?: string
-          vehicle_id?: string | null
-          campaign_id?: string | null
-          obstacle_type?: string
-          description?: string | null
-          photo_paths?: string[]
-          reported_at?: string
-          impact_start?: string | null
-          impact_end?: string | null
-          admin_validated?: boolean
-          admin_validated_at?: string | null
-          admin_notes?: string | null
-          metadata?: Record<string, unknown> | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "obstacle_reports_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "obstacle_reports_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       owner_profiles: {
         Row: {
           bio: string | null
@@ -682,12 +616,6 @@ export type Database = {
           stripe_payouts_enabled: boolean
           updated_at: string
           user_id: string
-          vigilance_attestation_url: string | null
-          vigilance_date_verification: string | null
-          vigilance_gains_cumules_centimes: number
-          vigilance_notes: string | null
-          vigilance_seuil_atteint_at: string | null
-          vigilance_statut: string
         }
         Insert: {
           bio?: string | null
@@ -708,12 +636,6 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id: string
-          vigilance_attestation_url?: string | null
-          vigilance_date_verification?: string | null
-          vigilance_gains_cumules_centimes?: number
-          vigilance_notes?: string | null
-          vigilance_seuil_atteint_at?: string | null
-          vigilance_statut?: string
         }
         Update: {
           bio?: string | null
@@ -734,135 +656,182 @@ export type Database = {
           stripe_payouts_enabled?: boolean
           updated_at?: string
           user_id?: string
-          vigilance_attestation_url?: string | null
-          vigilance_date_verification?: string | null
-          vigilance_gains_cumules_centimes?: number
-          vigilance_notes?: string | null
-          vigilance_seuil_atteint_at?: string | null
-          vigilance_statut?: string
-        }
-        Relationships: []
-      }
-      payee_profiles: {
-        Row: {
-          id: string
-          user_id: string
-          created_at: string
-          updated_at: string
-          kind: string
-          full_name: string
-          phone: string | null
-          city: string | null
-          status: string
-          vehicle_kind: string | null
-          vehicle_plate: string | null
-          certification_status: string
-          certification_notes: string | null
-          stripe_account_id: string | null
-          stripe_connect_account_id: string | null
-          stripe_charges_enabled: boolean | null
-          stripe_details_submitted: boolean | null
-          stripe_payouts_enabled: boolean | null
-          stripe_onboarding_completed_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          created_at?: string
-          updated_at?: string
-          kind: string
-          full_name: string
-          phone?: string | null
-          city?: string | null
-          status?: string
-          vehicle_kind?: string | null
-          vehicle_plate?: string | null
-          certification_status?: string
-          certification_notes?: string | null
-          stripe_account_id?: string | null
-          stripe_connect_account_id?: string | null
-          stripe_charges_enabled?: boolean | null
-          stripe_details_submitted?: boolean | null
-          stripe_payouts_enabled?: boolean | null
-          stripe_onboarding_completed_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          created_at?: string
-          updated_at?: string
-          kind?: string
-          full_name?: string
-          phone?: string | null
-          city?: string | null
-          status?: string
-          vehicle_kind?: string | null
-          vehicle_plate?: string | null
-          certification_status?: string
-          certification_notes?: string | null
-          stripe_account_id?: string | null
-          stripe_connect_account_id?: string | null
-          stripe_charges_enabled?: boolean | null
-          stripe_details_submitted?: boolean | null
-          stripe_payouts_enabled?: boolean | null
-          stripe_onboarding_completed_at?: string | null
         }
         Relationships: []
       }
       partner_profiles: {
         Row: {
-          admin_notes: string | null
-          company: string
+          city: string | null
+          company: string | null
           created_at: string
-          description: string | null
-          email: string
           full_name: string
           id: string
+          notes: string | null
           phone: string | null
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          stripe_subscription_period_end: string | null
-          stripe_subscription_status: string | null
+          referral_code: string | null
+          siret: string | null
+          siret_denomination: string | null
+          siret_verified_at: string | null
           updated_at: string
           user_id: string
-          website: string | null
         }
         Insert: {
-          admin_notes?: string | null
-          company: string
+          city?: string | null
+          company?: string | null
           created_at?: string
-          description?: string | null
-          email: string
           full_name: string
           id?: string
+          notes?: string | null
           phone?: string | null
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          stripe_subscription_period_end?: string | null
-          stripe_subscription_status?: string | null
+          referral_code?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
           updated_at?: string
           user_id: string
-          website?: string | null
         }
         Update: {
-          admin_notes?: string | null
-          company?: string
+          city?: string | null
+          company?: string | null
           created_at?: string
-          description?: string | null
-          email?: string
           full_name?: string
           id?: string
+          notes?: string | null
           phone?: string | null
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          stripe_subscription_period_end?: string | null
-          stripe_subscription_status?: string | null
+          referral_code?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
           updated_at?: string
           user_id?: string
-          website?: string | null
+        }
+        Relationships: []
+      }
+      payee_earnings: {
+        Row: {
+          amount_cents: number
+          campaign_request_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          paid_at: string | null
+          payee_user_id: string
+          status: string
+          stripe_transfer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          campaign_request_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          paid_at?: string | null
+          payee_user_id: string
+          status?: string
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          campaign_request_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          paid_at?: string | null
+          payee_user_id?: string
+          status?: string
+          stripe_transfer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payee_earnings_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payee_profiles: {
+        Row: {
+          certification_notes: string | null
+          certification_status: string
+          city: string | null
+          created_at: string
+          full_name: string
+          id: string
+          kind: string
+          notes: string | null
+          phone: string | null
+          siret: string | null
+          siret_denomination: string | null
+          siret_verified_at: string | null
+          status: string
+          stripe_account_id: string | null
+          stripe_charges_enabled: boolean
+          stripe_connect_account_id: string | null
+          stripe_details_submitted: boolean
+          stripe_onboarding_completed_at: string | null
+          stripe_payouts_enabled: boolean
+          updated_at: string
+          user_id: string
+          vehicle_kind: string | null
+          vehicle_plate: string | null
+        }
+        Insert: {
+          certification_notes?: string | null
+          certification_status?: string
+          city?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
+          status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_connect_account_id?: string | null
+          stripe_details_submitted?: boolean
+          stripe_onboarding_completed_at?: string | null
+          stripe_payouts_enabled?: boolean
+          updated_at?: string
+          user_id: string
+          vehicle_kind?: string | null
+          vehicle_plate?: string | null
+        }
+        Update: {
+          certification_notes?: string | null
+          certification_status?: string
+          city?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          kind?: string
+          notes?: string | null
+          phone?: string | null
+          siret?: string | null
+          siret_denomination?: string | null
+          siret_verified_at?: string | null
+          status?: string
+          stripe_account_id?: string | null
+          stripe_charges_enabled?: boolean
+          stripe_connect_account_id?: string | null
+          stripe_details_submitted?: boolean
+          stripe_onboarding_completed_at?: string | null
+          stripe_payouts_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+          vehicle_kind?: string | null
+          vehicle_plate?: string | null
         }
         Relationships: []
       }
@@ -882,10 +851,6 @@ export type Database = {
           services: string[]
           siret: string | null
           status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          stripe_subscription_period_end: string | null
-          stripe_subscription_status: string | null
           updated_at: string
           user_id: string
           website: string | null
@@ -905,10 +870,6 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          stripe_subscription_period_end?: string | null
-          stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -928,10 +889,6 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          stripe_subscription_period_end?: string | null
-          stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
@@ -999,9 +956,6 @@ export type Database = {
           deadline: string | null
           format: string | null
           id: string
-          impossible_at: string | null
-          impossible_photos: string[]
-          impossible_reason: string | null
           message: string
           provider_id: string
           quantity: number | null
@@ -1012,7 +966,6 @@ export type Database = {
           service_type: string
           status: string
           updated_at: string
-          vehicle_id: string | null
           vehicle_type: string | null
           zone: string | null
         }
@@ -1023,9 +976,6 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
-          impossible_at?: string | null
-          impossible_photos?: string[]
-          impossible_reason?: string | null
           message: string
           provider_id: string
           quantity?: number | null
@@ -1036,7 +986,6 @@ export type Database = {
           service_type: string
           status?: string
           updated_at?: string
-          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -1047,9 +996,6 @@ export type Database = {
           deadline?: string | null
           format?: string | null
           id?: string
-          impossible_at?: string | null
-          impossible_photos?: string[]
-          impossible_reason?: string | null
           message?: string
           provider_id?: string
           quantity?: number | null
@@ -1060,9 +1006,41 @@ export type Database = {
           service_type?: string
           status?: string
           updated_at?: string
-          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
+        }
+        Relationships: []
+      }
+      status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          new_status: string | null
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          new_status?: string | null
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          new_status?: string | null
+          previous_status?: string | null
+          reason?: string | null
         }
         Relationships: []
       }
@@ -1196,8 +1174,6 @@ export type Database = {
         Row: {
           admin_notes: string | null
           ai_verification: Json | null
-          brand: string | null
-          color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at: string
           description: string | null
@@ -1205,8 +1181,6 @@ export type Database = {
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
-          license_plate: string | null
-          model: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -1220,8 +1194,6 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           ai_verification?: Json | null
-          brand?: string | null
-          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1229,8 +1201,6 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
-          license_plate?: string | null
-          model?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -1244,8 +1214,6 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           ai_verification?: Json | null
-          brand?: string | null
-          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           created_at?: string
           description?: string | null
@@ -1253,8 +1221,6 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
-          license_plate?: string | null
-          model?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null
@@ -1441,6 +1407,14 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      fleet_public_stats: { Args: never; Returns: Json }
+      get_vehicle_booked_periods: {
+        Args: { p_vehicle_id: string }
+        Returns: {
+          end_date: string
+          start_date: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1500,7 +1474,6 @@ export type Database = {
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
       vehicle_status: "pending" | "approved" | "rejected" | "paused"
       vehicle_type:
-        | "camion_led"
         | "food_truck"
         | "van"
         | "taxi"
@@ -1513,6 +1486,7 @@ export type Database = {
         | "tutuk"
         | "sac_a_dos_lcd"
         | "sac_a_dos_affiche"
+        | "camion_boxled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1528,12 +1502,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1557,11 +1531,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1582,11 +1556,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1607,11 +1581,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1624,11 +1598,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1666,6 +1640,7 @@ export const Constants = {
         "tutuk",
         "sac_a_dos_lcd",
         "sac_a_dos_affiche",
+        "camion_boxled",
       ],
     },
   },
