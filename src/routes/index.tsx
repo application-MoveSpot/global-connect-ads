@@ -267,7 +267,7 @@ function Index() {
             <tbody>
               {[
                 { label: "Délai de lancement", ms: "5 minutes", ag: "3 à 6 semaines", bb: "2 à 4 semaines" },
-                { label: "Prix minimum", ms: "10 €/jour", ag: "1 000 € + frais", bb: "500 €/semaine" },
+                { label: "Prix minimum", ms: "25 €/jour", ag: "1 000 € + frais", bb: "500 €/semaine" },
                 { label: "Sans engagement", ms: "✓", ag: "✗ (contrat)", bb: "✗ (contrat)" },
                 { label: "Mesure d'audience GPS", ms: "✓ Temps réel", ag: "Estimée", bb: "✗" },
                 { label: "Ciblage par zone", ms: "✓ Précis au km", ag: "Approximatif", bb: "✗ Zone fixe" },
