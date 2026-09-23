@@ -227,7 +227,7 @@ function NewVehiclePage() {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
       const { error: insErr } = await supabase.from("vehicles").insert({
         owner_id: ownerId,
-        type: type as "camion_led" | "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
+        type: (type === "camion_led" ? "camion_boxled" : type) as "camion_boxled" | "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
         condition,
         name,
         license_plate: licensePlate.trim().toUpperCase() || null,
