@@ -12,7 +12,7 @@ i18n.use(initReactI18next).init({
   fallbackLng: "fr",
   supportedLngs: ["fr", "en"],
   interpolation: { escapeValue: false },
-  initImmediate: false,
+  initAsync: false,
 });
 
 if (typeof window !== "undefined") {
