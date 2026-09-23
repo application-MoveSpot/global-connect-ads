@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790179915338,
+      "tag": "0000_sync_poseur_and_campaign_feature_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790179959578,
+      "tag": "0001_sync_provider_quote_and_vehicle_columns",
+      "breakpoints": true
+    }
+  ]
+}
