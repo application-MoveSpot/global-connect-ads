@@ -6,7 +6,7 @@ import { Menu, X, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import officialLogo from "@/assets/movespot-logo.png.asset.json";
+import officialLogo from "@/assets/movespot-logo-horizontal.png.asset.json";
 
 const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
 const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
@@ -114,8 +114,8 @@ function Index() {
       {/* Nav */}
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center gap-4">
-          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 w-20 shrink-0 items-center justify-start overflow-hidden">
-            <img src={officialLogo.url} alt="MoveSpot" width={273} height={359} className="h-14 w-auto object-contain" />
+          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-14 w-44 shrink-0 items-center justify-start overflow-hidden sm:w-48">
+            <img src={officialLogo.url} alt="MoveSpot" width={360} height={80} className="h-11 w-auto max-w-full object-contain" />
           </Link>
           <nav className="hidden 2xl:flex min-w-0 flex-1 items-center justify-center gap-5 text-sm text-muted-foreground">
             <a href="#map" className="whitespace-nowrap hover:text-foreground transition">{t("nav.realtime")}</a>
