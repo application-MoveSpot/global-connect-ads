@@ -1,16 +1,75 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useId } from "react";
 import { hreflangLinks } from "@/lib/seo";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 
+const FAQ_ITEMS = [
+  {
+    q: "Combien puis-je gagner par mois avec MoveSpot ?",
+    a: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher annonceur de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
+  },
+  {
+    q: "Quels véhicules sont acceptés sur MoveSpot ?",
+    a: "Food trucks, vans utilitaires, taxis, VTC, scooters de livraison, voitures personnelles et flottes d'entreprise. Le véhicule doit être en état de circuler et disposer d'une surface vitrée ou carrossée utilisable pour l'affichage. La validation inclut 4 photos.",
+  },
+  {
+    q: "Est-ce compatible avec mon activité de taxi ou de VTC ?",
+    a: "Oui. MoveSpot est conçu comme un revenu complémentaire 100 % passif : vous roulez comme d'habitude, le suivi GPS valide les kilomètres parcourus dans la zone de la campagne. Aucune contrainte de trajet supplémentaire.",
+  },
+  {
+    q: "Comment et quand suis-je payé ?",
+    a: "Vos revenus s'accumulent dans votre portefeuille MoveSpot au fil des campagnes actives. Vous pouvez demander un virement bancaire dès 50 € de solde. Les virements sont traités sous 3 à 5 jours ouvrés.",
+  },
+  {
+    q: "Puis-je refuser une campagne publicitaire ?",
+    a: "Oui. Chaque demande de campagne vous est soumise avec les détails (marque, visuel, zone, durée). Vous l'acceptez ou la refusez librement, sans justification requise. Vous gardez le contrôle de ce que vous portez.",
+  },
+  {
+    q: "Y a-t-il des frais d'inscription ?",
+    a: "L'inscription est totalement gratuite. MoveSpot prélève une commission de 30 % sur chaque campagne, uniquement lorsque vous générez un revenu. Pas de frais fixes, pas d'abonnement pour les propriétaires.",
+  },
+  {
+    q: "Combien de temps dure la validation de mon véhicule ?",
+    a: "La validation prend généralement 48 heures ouvrées après soumission de votre profil et des 4 photos de votre véhicule. Une fois validé, vous apparaissez sur la marketplace et pouvez recevoir des propositions d'annonceurs.",
+  },
+];
+
 export const Route = createFileRoute("/devenir-partenaire")({
   head: () => ({
     meta: [
-      { title: "Devenir partenaire MoveSpot — Rentabilisez votre véhicule" },
-      { name: "description", content: "Vous avez un food truck, van, taxi ou scooter de livraison ? Inscrivez-vous sur MoveSpot et générez un revenu complémentaire en louant vos espaces publicitaires." },
-      { property: "og:title", content: "Devenir partenaire MoveSpot" },
-      { property: "og:description", content: "Rentabilisez les kilomètres parcourus par votre véhicule en proposant vos espaces publicitaires." },
+      { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partenaire MoveSpot" },
+      { name: "description", content: "Transformez vos kilomètres en revenu complémentaire avec MoveSpot. Taxi, VTC, food truck, van ou scooter : inscription gratuite, 70 % du budget campagne vous revient, minimum garanti 17,50 €/jour." },
+      { property: "og:title", content: "Revenu complémentaire sur votre véhicule — MoveSpot" },
+      { property: "og:description", content: "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h." },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQ_ITEMS.map(({ q, a }) => ({
+            "@type": "Question",
+            name: q,
+            acceptedAnswer: { "@type": "Answer", text: a },
+          })),
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: "Comment devenir partenaire MoveSpot et générer un revenu complémentaire",
+          description: "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'annonceurs locaux.",
+          step: [
+            { "@type": "HowToStep", name: "Créez votre profil gratuit", text: "Inscrivez-vous en 2 minutes avec votre email. Renseignez vos informations et ajoutez votre premier véhicule avec 4 photos." },
+            { "@type": "HowToStep", name: "Validation sous 48h par MoveSpot", text: "MoveSpot vérifie votre véhicule et votre SIRET pour garantir la qualité de la marketplace. Vous recevez une confirmation par email." },
+            { "@type": "HowToStep", name: "Recevez des campagnes et encaissez", text: "Les annonceurs vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu." },
+          ],
+        }),
+      },
     ],
     links: [{ rel: "canonical", href: "https://move-spot.com/devenir-partenaire" }, ...hreflangLinks("/devenir-partenaire")],
   }),
@@ -183,6 +242,44 @@ function RevenueSimulator() {
   );
 }
 
+function FAQAccordion() {
+  const [open, setOpen] = useState<number | null>(null);
+  const prefix = useId();
+  return (
+    <div className="divide-y divide-border rounded-2xl border border-border overflow-hidden">
+      {FAQ_ITEMS.map((item, i) => {
+        const isOpen = open === i;
+        return (
+          <div key={i}>
+            <button
+              type="button"
+              aria-expanded={isOpen}
+              aria-controls={`${prefix}-answer-${i}`}
+              id={`${prefix}-question-${i}`}
+              onClick={() => setOpen(isOpen ? null : i)}
+              className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left text-sm font-semibold hover:bg-muted/40 transition"
+            >
+              <span>{item.q}</span>
+              <span className="shrink-0 text-muted-foreground text-lg leading-none select-none" aria-hidden>
+                {isOpen ? "−" : "+"}
+              </span>
+            </button>
+            <div
+              id={`${prefix}-answer-${i}`}
+              role="region"
+              aria-labelledby={`${prefix}-question-${i}`}
+              hidden={!isOpen}
+              className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed"
+            >
+              {item.a}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function DevenirPartenaire() {
   return (
     <div className="min-h-screen bg-background">
@@ -289,6 +386,16 @@ function DevenirPartenaire() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="max-w-3xl mx-auto px-6 py-16" aria-labelledby="faq-title">
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-4 py-1.5 text-xs font-medium mb-4">
+            💬 Questions fréquentes
+          </span>
+          <h2 id="faq-title" className="font-display text-3xl font-bold">Tout ce qu'il faut savoir</h2>
+        </div>
+        <FAQAccordion />
       </section>
 
       <section className="max-w-3xl mx-auto px-6 py-16 text-center">

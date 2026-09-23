@@ -155,6 +155,9 @@ function InscriptionPage() {
     navigate({ to: "/proprietaire/vehicules/nouveau" });
   };
 
+  const steps = ["Compte", "Profil", "Véhicule"];
+  const currentStep = step === "auth" ? 0 : 1;
+
   return (
     <div className="min-h-screen bg-background p-4 flex items-center justify-center">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
@@ -168,6 +171,33 @@ function InscriptionPage() {
           ← Retour
         </Link>
 
+        {/* Step progress indicator */}
+        <div className="flex items-center gap-0 mt-5 mb-6">
+          {steps.map((label, i) => (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition ${
+                    i < currentStep
+                      ? "bg-primary text-primary-foreground"
+                      : i === currentStep
+                      ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {i < currentStep ? "✓" : i + 1}
+                </div>
+                <span className={`text-[10px] font-medium whitespace-nowrap ${i === currentStep ? "text-foreground" : "text-muted-foreground"}`}>
+                  {label}
+                </span>
+              </div>
+              {i < steps.length - 1 && (
+                <div className={`flex-1 h-0.5 mb-4 mx-1 transition ${i < currentStep ? "bg-primary" : "bg-border"}`} />
+              )}
+            </div>
+          ))}
+        </div>
+
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
@@ -175,7 +205,7 @@ function InscriptionPage() {
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
               {mode === "signup"
-                ? "Créez votre compte pour proposer vos véhicules."
+                ? "Inscription gratuite · Validation sous 48h · 70 % des revenus vous revient"
                 : "Accédez à votre espace propriétaire."}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
