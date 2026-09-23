@@ -328,6 +328,18 @@ export type Database = {
           vehicle_id: string | null
           zone_area_km2: number | null
           zone_polygon: unknown
+          pose_fee_cents: number
+          depose_fee_cents: number
+          depose_status: string | null
+          depose_photos: Json | null
+          depose_notes: string | null
+          depose_reviewed_at: string | null
+          pose_installer_user_id: string | null
+          depose_installer_user_id: string | null
+          pose_payout_status: string | null
+          depose_payout_status: string | null
+          pose_stripe_transfer_id: string | null
+          depose_stripe_transfer_id: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -373,6 +385,18 @@ export type Database = {
           vehicle_id?: string | null
           zone_area_km2?: number | null
           zone_polygon?: unknown
+          pose_fee_cents?: number
+          depose_fee_cents?: number
+          depose_status?: string | null
+          depose_photos?: Json | null
+          depose_notes?: string | null
+          depose_reviewed_at?: string | null
+          pose_installer_user_id?: string | null
+          depose_installer_user_id?: string | null
+          pose_payout_status?: string | null
+          depose_payout_status?: string | null
+          pose_stripe_transfer_id?: string | null
+          depose_stripe_transfer_id?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -418,6 +442,18 @@ export type Database = {
           vehicle_id?: string | null
           zone_area_km2?: number | null
           zone_polygon?: unknown
+          pose_fee_cents?: number
+          depose_fee_cents?: number
+          depose_status?: string | null
+          depose_photos?: Json | null
+          depose_notes?: string | null
+          depose_reviewed_at?: string | null
+          pose_installer_user_id?: string | null
+          depose_installer_user_id?: string | null
+          pose_payout_status?: string | null
+          depose_payout_status?: string | null
+          pose_stripe_transfer_id?: string | null
+          depose_stripe_transfer_id?: string | null
         }
         Relationships: [
           {

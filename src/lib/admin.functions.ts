@@ -484,6 +484,41 @@ export const adminReviewInstallation = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminReviewDepose = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        campaignRequestId: z.string().uuid(),
+        approve: z.boolean(),
+        notes: z.string().max(500).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    if (!data.approve && !data.notes?.trim()) {
+      throw new Error("Un motif de refus est obligatoire");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        depose_status: data.approve ? "approved" : "rejected",
+        depose_notes: data.approve
+          ? (data.notes ?? "✅ Dépose conforme validée par MoveSpot.")
+          : data.notes!,
+        depose_reviewed_at: new Date().toISOString(),
+      } as never)
+      .eq("id", data.campaignRequestId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // ============ Onglet Véhicules ============
 export const adminListVehicles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
