@@ -10,7 +10,7 @@ function getInitialLanguage() {
 
   try {
     const stored = window.localStorage.getItem("movespot_lang");
-    if (supportedLanguages.includes(stored as (typeof supportedLanguages)[number])) {
+    if (stored === "fr" || stored === "en") {
       return stored;
     }
   } catch {
