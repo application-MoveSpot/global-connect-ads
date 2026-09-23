@@ -37,6 +37,11 @@
   --color-signal-foreground: var(--signal-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-header: var(--header);
+  --color-header-foreground: var(--header-foreground);
+  --color-header-muted: var(--header-muted);
+  --color-header-border: var(--header-border);
+  --color-header-card: var(--header-card);
 
   --gradient-hero: linear-gradient(135deg, oklch(0.22 0.08 260) 0%, oklch(0.15 0.05 250) 50%, oklch(0.18 0.12 200) 100%);
   --gradient-signal: linear-gradient(135deg, oklch(0.82 0.22 150) 0%, oklch(0.72 0.2 170) 100%);
@@ -68,6 +73,11 @@
   --input: oklch(0.25 0.03 255);
   --ring: oklch(0.78 0.2 160);
   --signal: oklch(0.78 0.2 160);
+  --header: oklch(1 0 0);
+  --header-foreground: oklch(0.2 0.03 255);
+  --header-muted: oklch(0.5 0.02 255);
+  --header-border: oklch(0.92 0.004 255);
+  --header-card: oklch(0.96 0.004 255);
   --signal-foreground: oklch(0.15 0.05 250);
   --warning: oklch(0.75 0.18 70);
   --warning-foreground: oklch(0.15 0.05 250);

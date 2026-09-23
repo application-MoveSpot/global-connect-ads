@@ -6,7 +6,7 @@ import { Menu, X, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import logo from "@/assets/movespot-logo.svg";
+import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
 
 const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
 const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
@@ -97,71 +97,94 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useTranslation();
+  const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const stats: { k: string; vKey: string }[] = [
-    { k: "1,80 €", vKey: "hero.stat0_v" },
-    { k: "25 €", vKey: "hero.stat1_v" },
-    { k: "70 / 30", vKey: "hero.stat2_v" },
-    { k: "14 j", vKey: "hero.stat3_v" },
+  const stats: { k: string; vKey: string; fallback: string }[] = [
+    { k: "1,80 €", vKey: "hero.stat0_v", fallback: "par km² et par jour (2,70 € en grande agglomération)" },
+    { k: "25 €", vKey: "hero.stat1_v", fallback: "par véhicule par jour — soit 375 €/mois pour 1 véhicule" },
+    { k: "70 / 30", vKey: "hero.stat2_v", fallback: "reversé aux partenaires / commission MoveSpot" },
+    { k: "14 j", vKey: "hero.stat3_v", fallback: "d'essai gratuit sur les campagnes par abonnement" },
   ];
 
-  const featureKeys = ["item0", "item1", "item2", "item3"] as const;
+  const featureItems = [
+    {
+      key: "item0",
+      title: "Zones dessinées sur carte",
+      desc: "Vous tracez votre polygone de diffusion ; la surface et le budget se calculent automatiquement, avec majoration en zone dense.",
+    },
+    {
+      key: "item1",
+      title: "Preuve de diffusion",
+      desc: "Positions GPS envoyées par lots puis agrégées : kilomètres réels, minutes actives et taux de couverture de votre zone.",
+    },
+    {
+      key: "item2",
+      title: "Paiements souples",
+      desc: "Carte bancaire, abonnement avec essai de 14 jours, portefeuille prépayé ou virement bancaire pour les budgets B2B.",
+    },
+    {
+      key: "item3",
+      title: "Confiance vérifiée",
+      desc: "SIRET contrôlé, QR véhicules signés, pose validée sur 4 photos, double authentification et modération humaine.",
+    },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src={logo} alt="MoveSpot" width={32} height={32} className="h-8 w-8" />
-            <span className="font-display font-bold text-lg tracking-tight">MoveSpot</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#map" className="whitespace-nowrap hover:text-foreground transition">{t("nav.realtime")}</a>
-            <a href="#spots" className="whitespace-nowrap hover:text-foreground transition">{t("nav.vehicles")}</a>
-            <Link to="/campagnes" className="whitespace-nowrap hover:text-foreground transition">Campagnes</Link>
-            <Link to="/comment-ca-marche" className="whitespace-nowrap hover:text-foreground transition">{t("nav.how_it_works")}</Link>
-            <Link to="/pourquoi-movespot" className="whitespace-nowrap hover:text-foreground transition">Pourquoi MoveSpot</Link>
-            <Link to="/tarifs" className="whitespace-nowrap hover:text-foreground transition">Tarifs</Link>
-            <Link to="/devenir-partenaire" className="whitespace-nowrap hover:text-foreground transition">{t("nav.become_partner")}</Link>
+      <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
+        <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-2 sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
+          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 w-24 shrink-0 items-center justify-start overflow-hidden">
+            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-14 w-auto max-w-full object-contain" />
+          </Link>
+          <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
+            <a href="#map" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.realtime", "Temps réel")}</a>
+            <a href="#spots" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.vehicles", "Véhicules")}</a>
+            <Link to="/campagnes" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.campaigns", "Campagnes")}</Link>
+            <Link to="/comment-ca-marche" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.how_it_works", "Comment ça marche")}</Link>
+            <Link to="/pourquoi-movespot" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.why_movespot", "Pourquoi MoveSpot")}</Link>
+            <Link to="/tarifs" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.pricing", "Tarifs")}</Link>
+            <Link to="/devenir-partenaire" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.become_partner", "Devenir partenaire")}</Link>
           </nav>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher className="hidden md:flex" />
-            <Link to="/annonceur" className="hidden sm:inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
-              {t("nav.advertiser")}
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <LanguageSwitcher className="hidden lg:flex" />
+            <Link to="/annonceur" className="hidden sm:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition">
+              {tx("nav.advertiser", "Espace annonceur")}
             </Link>
-            <Link to="/proprietaire" className="hidden md:inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
-              {t("nav.owner")}
+            <Link to="/proprietaire" className="hidden xl:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition">
+              {tx("nav.owner", "Espace propriétaire")}
             </Link>
             <a href="#spots" className="hidden sm:inline-block rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
-              {t("nav.book")}
+              {tx("nav.book", "Réserver")}
             </a>
             <button
               type="button"
               aria-label="Menu"
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full border border-border bg-card hover:bg-secondary transition"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-header-border bg-header-card text-header-foreground transition hover:bg-header-muted/15 min-[1700px]:hidden"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
+          <div className="border-t border-header-border bg-header min-[1700px]:hidden">
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
-              <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.realtime")}</a>
-              <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.vehicles")}</a>
-              <Link to="/campagnes" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">Campagnes</Link>
-              <Link to="/comment-ca-marche" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.how_it_works")}</Link>
-              <Link to="/devenir-partenaire" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.become_partner")}</Link>
-              <div className="h-px bg-border my-2" />
-              <Link to="/annonceur" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">{t("nav.advertiser")}</Link>
-              <Link to="/proprietaire" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium">{t("nav.owner")}</Link>
-              <LanguageSwitcher className="py-2" />
-              <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="mt-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-center font-semibold">{t("nav.book")}</a>
+              <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.realtime", "Temps réel")}</a>
+              <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.vehicles", "Véhicules")}</a>
+              <Link to="/campagnes" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.campaigns", "Campagnes")}</Link>
+              <Link to="/comment-ca-marche" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.how_it_works", "Comment ça marche")}</Link>
+              <Link to="/pourquoi-movespot" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.why_movespot", "Pourquoi MoveSpot")}</Link>
+              <Link to="/tarifs" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.pricing", "Tarifs")}</Link>
+              <Link to="/devenir-partenaire" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.become_partner", "Devenir partenaire")}</Link>
+              <div className="h-px bg-header-border my-2" />
+              <Link to="/annonceur" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium text-header-foreground">{tx("nav.advertiser", "Espace annonceur")}</Link>
+              <Link to="/proprietaire" onClick={() => setMobileMenuOpen(false)} className="py-2 font-medium text-header-foreground">{tx("nav.owner", "Espace propriétaire")}</Link>
+              <LanguageSwitcher className="py-2 [&>button]:text-header-muted [&>button:hover]:text-header-foreground" />
+              <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="mt-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-center font-semibold">{tx("nav.book", "Réserver")}</a>
             </nav>
           </div>
         )}
@@ -177,31 +200,32 @@ function Index() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-signal opacity-75 animate-ping" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
             </span>
-            {t("hero.badge")}
+            {tx("hero.badge", "Plateforme en ligne · suivi GPS & paiements actifs")}
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
-            {t("hero.h1")}<br />
-            <span className="bg-gradient-signal bg-clip-text text-transparent">{t("hero.h1_accent")}</span>
+            {tx("hero.h1", "Vos pubs roulent,")}<br />
+            <span className="bg-gradient-signal bg-clip-text text-transparent">{tx("hero.h1_accent", "vos ventes décollent.")}</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
             <Trans
               i18nKey="hero.desc"
+                defaults="MoveSpot est la marketplace qui met en relation <strong>annonceurs</strong> et <strong>propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Vous dessinez votre zone, le budget se calcule au km², et chaque kilomètre diffusé est prouvé par GPS."
               components={{ strong: <strong className="text-foreground" /> }}
             />
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
-              {t("hero.cta_primary")}
+              {tx("hero.cta_primary", "Découvrir l'aperçu")}
             </a>
             <a href="/pitch" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
-              {t("hero.cta_secondary")}
+              {tx("hero.cta_secondary", "Voir le pitch")}
             </a>
           </div>
           <dl className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
             {stats.map((s) => (
               <div key={s.k} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-4">
                 <dt className="font-display text-2xl font-bold">{s.k}</dt>
-                <dd className="mt-1 text-xs text-muted-foreground">{t(s.vKey)}</dd>
+                <dd className="mt-1 text-xs text-muted-foreground">{tx(s.vKey, s.fallback)}</dd>
               </div>
             ))}
           </dl>
@@ -210,18 +234,18 @@ function Index() {
 
       {/* Features */}
       <section className="max-w-7xl mx-auto px-6 pt-4 pb-8">
-        <div className="text-xs uppercase tracking-widest text-primary mb-2">{t("features.badge")}</div>
-        <h2 className="font-display text-3xl md:text-4xl font-bold">{t("features.h2")}</h2>
+        <div className="text-xs uppercase tracking-widest text-primary mb-2">{tx("features.badge", "● Ce qui est en place")}</div>
+        <h2 className="font-display text-3xl md:text-4xl font-bold">{tx("features.h2", "Une plateforme complète, déjà opérationnelle")}</h2>
         <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {featureKeys.map((key) => (
-            <div key={key} className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="font-display font-bold">{t(`features.${key}_t`)}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{t(`features.${key}_d`)}</p>
+          {featureItems.map((item) => (
+            <div key={item.key} className="rounded-2xl border border-border bg-card p-5">
+              <h3 className="font-display font-bold">{tx(`features.${item.key}_t`, item.title)}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{tx(`features.${item.key}_d`, item.desc)}</p>
             </div>
           ))}
         </div>
         <div className="mt-6">
-          <Link to="/comment-ca-marche" className="text-sm text-primary hover:underline">{t("features.link")}</Link>
+          <Link to="/comment-ca-marche" className="text-sm text-primary hover:underline">{tx("features.link", "Voir le parcours complet →")}</Link>
         </div>
       </section>
 
@@ -352,9 +376,9 @@ function Index() {
       <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-primary mb-2">{t("map.badge")}</div>
-            <h2 className="font-display text-4xl font-bold">{t("map.h2")}</h2>
-            <p className="text-muted-foreground mt-2">{t("map.desc")}</p>
+            <div className="text-xs uppercase tracking-widest text-primary mb-2">{tx("map.badge", "● Aperçu")}</div>
+            <h2 className="font-display text-4xl font-bold">{tx("map.h2", "Véhicules en circulation")}</h2>
+            <p className="text-muted-foreground mt-2">{tx("map.desc", "Aperçu des flux de véhicules. Sur une campagne active, cette carte affiche les positions réelles, les kilomètres parcourus et la part du trajet réalisée dans votre zone.")}</p>
           </div>
         </div>
         <Suspense fallback={<div className="h-96 rounded-2xl bg-secondary/40 animate-pulse" />}>
