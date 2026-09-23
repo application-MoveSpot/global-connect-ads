@@ -50,7 +50,7 @@ export const Route = createFileRoute("/")({
           offers: {
             "@type": "AggregateOffer",
             priceCurrency: "EUR",
-            lowPrice: "10",
+            lowPrice: "25",
             highPrice: "2000",
             offerCount: "3",
             offers: [
@@ -102,7 +102,7 @@ function Index() {
 
   const stats: { k: string; vKey: string }[] = [
     { k: "1,80 €", vKey: "hero.stat0_v" },
-    { k: "10 €", vKey: "hero.stat1_v" },
+    { k: "25 €", vKey: "hero.stat1_v" },
     { k: "70 / 30", vKey: "hero.stat2_v" },
     { k: "14 j", vKey: "hero.stat3_v" },
   ];
