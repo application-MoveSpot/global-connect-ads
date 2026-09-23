@@ -412,6 +412,27 @@ export const adminListInstallations = createServerFn({ method: "GET" })
     return { installations: data ?? [] };
   });
 
+// ============ Onglet Déposes à valider ============
+export const adminListDeposePending = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("campaign_requests")
+      .select(
+        "id, spot_name, company, email, start_date, end_date, depose_photos, depose_status, depose_notes, depose_reviewed_at, depose_fee_cents, created_at",
+      )
+      .not("depose_photos", "is", null)
+      .order("end_date", { ascending: true })
+      .limit(200);
+    return { depositions: data ?? [] };
+  });
+
 // ============ Onglet Comptes Stripe inactifs ============
 export const adminListInactiveStripeAccounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

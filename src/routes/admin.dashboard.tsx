@@ -31,6 +31,8 @@ import {
   adminRevenueData,
   adminListUsers,
   adminReviewInstallation,
+  adminReviewDepose,
+  adminListDeposePending,
   adminReviewVehicle,
   adminSendStripeReminder,
 } from "@/lib/admin.functions";
@@ -71,7 +73,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   ),
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes";
+type Tab = "briefs" | "vehicules" | "poses" | "deposes" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -98,6 +100,8 @@ function AdminDashboard() {
   const reviewVehicle = useServerFn(adminReviewVehicle);
   const listInstallations = useServerFn(adminListInstallations);
   const reviewInstallation = useServerFn(adminReviewInstallation);
+  const listDeposePending = useServerFn(adminListDeposePending);
+  const doReviewDepose = useServerFn(adminReviewDepose);
   const listPoseurs = useServerFn(adminListPoseurs);
   const fleet = useServerFn(adminFleetLatestPositions);
   const listInactiveStripe = useServerFn(adminListInactiveStripeAccounts);
@@ -175,6 +179,23 @@ function AdminDashboard() {
     onSuccess: (_d, v) => {
       toast.success(v.approve ? "Pose validée — diffusion autorisée." : "Pose refusée.");
       qc.invalidateQueries({ queryKey: ["admin-installations"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const depositionsQuery = useQuery({
+    queryKey: ["admin-depositions"],
+    queryFn: () => listDeposePending(),
+    enabled: ready && tab === "deposes",
+    retry: false,
+  });
+  const reviewDeposeMut = useMutation({
+    mutationFn: (v: { id: string; approve: boolean; notes?: string }) =>
+      doReviewDepose({
+        data: { campaignRequestId: v.id, approve: v.approve, notes: v.notes },
+      }),
+    onSuccess: (_d, v) => {
+      toast.success(v.approve ? "Dépose validée." : "Dépose refusée.");
+      qc.invalidateQueries({ queryKey: ["admin-depositions"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -324,6 +345,15 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>
             Poses à valider
+          </TabBtn>
+          <TabBtn active={tab === "deposes"} onClick={() => setTab("deposes")}>
+            Déposes à valider
+            {(() => {
+              const pending = (depositionsQuery.data?.depositions ?? []).filter((d: any) => d.depose_status === "pending_approval").length;
+              return pending > 0 ? (
+                <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pending}</span>
+              ) : null;
+            })()}
           </TabBtn>
           <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>
             Certifications poseurs
@@ -702,6 +732,29 @@ function AdminDashboard() {
               ))}
               {(installationsQuery.data?.installations ?? []).length === 0 ? (
                 <Empty>Aucune pose transmise pour le moment.</Empty>
+              ) : null}
+            </div>
+          )
+        ) : null}
+
+        {tab === "deposes" ? (
+          depositionsQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Photos de dépose transmises par les poseurs certifiés. La rémunération dépose est débloquée après validation.
+              </p>
+              {(depositionsQuery.data?.depositions ?? []).map((d: any) => (
+                <DeposeReviewCard
+                  key={d.id}
+                  item={d}
+                  onReview={(approve, notes) => reviewDeposeMut.mutate({ id: d.id, approve, notes })}
+                  pending={reviewDeposeMut.isPending}
+                />
+              ))}
+              {(depositionsQuery.data?.depositions ?? []).length === 0 ? (
+                <Empty>Aucune dépose transmise pour le moment.</Empty>
               ) : null}
             </div>
           )
@@ -1661,6 +1714,103 @@ function InstallationReviewCard({
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button onClick={() => onReview(true)} disabled={pending}>
             Approuver la pose
+          </Button>
+          <input
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Motif de refus (obligatoire)"
+            className="flex-1 min-w-[200px] rounded-lg border border-border bg-background px-3 py-2 text-sm"
+          />
+          <Button
+            variant="outline"
+            onClick={() => onReview(false, notes)}
+            disabled={pending || !notes.trim()}
+          >
+            Refuser
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ─── Dépose review card ───────────────────────────────────────────────────────
+
+type DeposeItem = {
+  id: string;
+  spot_name: string;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+  depose_photos: unknown;
+  depose_status: string | null;
+  depose_notes: string | null;
+  depose_fee_cents: number | null;
+};
+
+function DeposeReviewCard({
+  item,
+  onReview,
+  pending,
+}: {
+  item: DeposeItem;
+  onReview: (approve: boolean, notes?: string) => void;
+  pending: boolean;
+}) {
+  const [notes, setNotes] = useState("");
+  const photos = parseInstallationPhotos(item.depose_photos);
+  const eur = (cents: number | null) =>
+    cents != null ? (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : "—";
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="font-semibold">{item.spot_name}</p>
+          <p className="text-sm text-muted-foreground">
+            {item.company} · {item.start_date ?? "—"} → {item.end_date ?? "—"}
+          </p>
+          {item.depose_fee_cents != null && (
+            <p className="text-xs text-primary font-semibold mt-0.5">
+              Rémunération dépose : {eur(item.depose_fee_cents)}
+            </p>
+          )}
+        </div>
+        <span className={`text-xs font-semibold ${item.depose_status === "pending_approval" ? "text-amber-500" : item.depose_status === "approved" ? "text-emerald-500" : "text-muted-foreground"}`}>
+          {item.depose_status === "pending_approval" ? "⏳ En attente"
+            : item.depose_status === "approved" ? "✅ Validée"
+            : item.depose_status === "rejected" ? "⛔ Refusée"
+            : item.depose_status ?? "pending"}
+        </span>
+      </div>
+
+      {photos ? (
+        <InstallationPhotoGrid photos={photos} />
+      ) : (
+        <p className="text-sm text-muted-foreground">Aucune photo disponible.</p>
+      )}
+
+      {item.depose_notes ? (
+        <p className="mt-3 text-xs text-muted-foreground">Note : {item.depose_notes}</p>
+      ) : null}
+
+      <div className="mt-3">
+        <StatusHistory
+          entityType="campaign_depose"
+          entityId={item.id}
+          statusLabel={{
+            pending: "Dépose non transmise",
+            pending_approval: "En attente de validation",
+            approved: "Dépose validée",
+            rejected: "Dépose refusée",
+          }}
+        />
+      </div>
+
+      {item.depose_status !== "approved" ? (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Button onClick={() => onReview(true)} disabled={pending}>
+            Valider la dépose
           </Button>
           <input
             value={notes}
