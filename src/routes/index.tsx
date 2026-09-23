@@ -114,8 +114,8 @@ function Index() {
       {/* Nav */}
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center gap-4">
-          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-14 w-44 shrink-0 items-center justify-start overflow-hidden sm:w-48">
-            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-12 w-auto max-w-full object-contain" />
+          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 w-24 shrink-0 items-center justify-start overflow-hidden">
+            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-14 w-auto max-w-full object-contain" />
           </Link>
           <nav className="hidden 2xl:flex min-w-0 flex-1 items-center justify-center gap-5 text-sm text-header-muted">
             <a href="#map" className="whitespace-nowrap hover:text-header-foreground transition">{t("nav.realtime")}</a>

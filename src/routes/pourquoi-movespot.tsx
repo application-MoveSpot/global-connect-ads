@@ -117,8 +117,8 @@ function PourquoiMovespot() {
       {/* Nav */}
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
         <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
-          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-14 items-center">
-            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-12 w-auto object-contain" />
+          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 items-center">
+            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-14 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition shadow-glow">
