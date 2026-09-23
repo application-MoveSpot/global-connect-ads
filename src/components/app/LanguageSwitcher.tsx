@@ -13,7 +13,10 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         <button
           key={code}
           type="button"
-          onClick={() => i18n.changeLanguage(code)}
+          onClick={() => {
+            localStorage.setItem("movespot_lang", code);
+            i18n.changeLanguage(code);
+          }}
           className={`text-xs font-semibold px-2 py-1 rounded-md transition ${
             i18n.resolvedLanguage === code
               ? "bg-primary text-primary-foreground"
