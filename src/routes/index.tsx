@@ -6,7 +6,7 @@ import { Menu, X, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import logo from "@/assets/movespot-logo.svg";
+import officialLogo from "@/assets/movespot-logo.png.asset.json";
 
 const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
 const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
@@ -113,12 +113,11 @@ function Index() {
     <div className="min-h-screen bg-background">
       {/* Nav */}
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src={logo} alt="MoveSpot" width={32} height={32} className="h-8 w-8" />
-            <span className="font-display font-bold text-lg tracking-tight">MoveSpot</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center gap-4">
+          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 w-20 shrink-0 items-center justify-start overflow-hidden">
+            <img src={officialLogo.url} alt="MoveSpot" width={273} height={359} className="h-14 w-auto object-contain" />
+          </Link>
+          <nav className="hidden 2xl:flex min-w-0 flex-1 items-center justify-center gap-5 text-sm text-muted-foreground">
             <a href="#map" className="whitespace-nowrap hover:text-foreground transition">{t("nav.realtime")}</a>
             <a href="#spots" className="whitespace-nowrap hover:text-foreground transition">{t("nav.vehicles")}</a>
             <Link to="/campagnes" className="whitespace-nowrap hover:text-foreground transition">Campagnes</Link>
@@ -127,12 +126,12 @@ function Index() {
             <Link to="/tarifs" className="whitespace-nowrap hover:text-foreground transition">Tarifs</Link>
             <Link to="/devenir-partenaire" className="whitespace-nowrap hover:text-foreground transition">{t("nav.become_partner")}</Link>
           </nav>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher className="hidden md:flex" />
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <LanguageSwitcher className="hidden lg:flex" />
             <Link to="/annonceur" className="hidden sm:inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
               {t("nav.advertiser")}
             </Link>
-            <Link to="/proprietaire" className="hidden md:inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
+            <Link to="/proprietaire" className="hidden xl:inline-block rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
               {t("nav.owner")}
             </Link>
             <a href="#spots" className="hidden sm:inline-block rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
@@ -143,14 +142,14 @@ function Index() {
               aria-label="Menu"
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full border border-border bg-card hover:bg-secondary transition"
+              className="2xl:hidden inline-flex items-center justify-center h-10 w-10 rounded-full border border-border bg-card hover:bg-secondary transition"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
+          <div className="2xl:hidden border-t border-border bg-background/95 backdrop-blur">
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
               <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.realtime")}</a>
               <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-muted-foreground hover:text-foreground">{t("nav.vehicles")}</a>
