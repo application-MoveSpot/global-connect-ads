@@ -15,6 +15,9 @@ i18n
     fallbackLng: "fr",
     supportedLngs: ["fr", "en"],
     interpolation: { escapeValue: false },
+    // Ensures synchronous init when resources are bundled inline (no async backend).
+    // Without this, SSR renders keys before the init microtask resolves.
+    initImmediate: false,
     detection: {
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],
