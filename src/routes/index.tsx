@@ -135,11 +135,11 @@ function Index() {
     <div className="min-h-screen bg-background">
       {/* Nav */}
       <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center gap-4">
+        <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-2 sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
           <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 w-24 shrink-0 items-center justify-start overflow-hidden">
             <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-14 w-auto max-w-full object-contain" />
           </Link>
-          <nav className="hidden 2xl:flex min-w-0 flex-1 items-center justify-center gap-5 text-sm text-header-muted">
+          <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
             <a href="#map" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.realtime", "Temps réel")}</a>
             <a href="#spots" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.vehicles", "Véhicules")}</a>
             <Link to="/campagnes" className="whitespace-nowrap hover:text-header-foreground transition">{tx("nav.campaigns", "Campagnes")}</Link>
@@ -164,14 +164,14 @@ function Index() {
               aria-label="Menu"
               aria-expanded={mobileMenuOpen}
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="2xl:hidden inline-flex items-center justify-center h-10 w-10 rounded-full border border-header-border bg-header-card text-header-foreground hover:bg-header-muted/15 transition"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-header-border bg-header-card text-header-foreground transition hover:bg-header-muted/15 min-[1700px]:hidden"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
         {mobileMenuOpen && (
-          <div className="2xl:hidden border-t border-header-border bg-header">
+          <div className="border-t border-header-border bg-header min-[1700px]:hidden">
             <nav className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-sm">
               <a href="#map" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.realtime", "Temps réel")}</a>
               <a href="#spots" onClick={() => setMobileMenuOpen(false)} className="py-2 text-header-muted hover:text-header-foreground">{tx("nav.vehicles", "Véhicules")}</a>
