@@ -17,33 +17,44 @@ export const Route = createFileRoute("/devenir-partenaire")({
   component: DevenirPartenaire,
 });
 
-const VEHICULE_RATES: Record<string, { label: string; min: number; max: number }> = {
-  taxi:       { label: "Taxi / VTC",          min: 180, max: 480 },
-  van:        { label: "Van utilitaire",       min: 150, max: 400 },
-  foodtruck:  { label: "Food truck",           min: 120, max: 320 },
-  scooter:    { label: "Scooter livraison",    min:  60, max: 180 },
-  voiture:    { label: "Voiture personnelle",  min:  80, max: 240 },
-  flotte:     { label: "Flotte d'entreprise",  min: 400, max: 1200 },
+/** Revenu journalier NET propriétaire (70 % de la campagne annonceur).
+ *  minPerDay = plancher absolu : 25 € MIN_EUR_PER_DAY × 70 % = 17,50 €
+ *  maxPerDay = campagne typique large zone pour ce type de véhicule × 70 %
+ *  cityMult  = reflet de la demande + multiplicateur zone dense (×1,5 en agglo) */
+const VEHICULE_CONFIG: Record<string, { label: string; emoji: string; minPerDay: number; maxPerDay: number }> = {
+  taxi:      { label: "Taxi / VTC",          emoji: "🚕", minPerDay: 17.5, maxPerDay: 49 },
+  van:       { label: "Van utilitaire",       emoji: "🚐", minPerDay: 17.5, maxPerDay: 42 },
+  foodtruck: { label: "Food truck",           emoji: "🍔", minPerDay: 17.5, maxPerDay: 35 },
+  scooter:   { label: "Scooter livraison",    emoji: "🛵", minPerDay: 17.5, maxPerDay: 28 },
+  voiture:   { label: "Voiture personnelle",  emoji: "🚗", minPerDay: 17.5, maxPerDay: 28 },
+  flotte:    { label: "Flotte d'entreprise",  emoji: "🚛", minPerDay: 17.5, maxPerDay: 56 },
 };
 
-const CITY_MULTIPLIER: Record<string, { label: string; mult: number }> = {
-  paris:      { label: "Paris",      mult: 1.4 },
-  lyon:       { label: "Lyon",       mult: 1.1 },
-  marseille:  { label: "Marseille",  mult: 1.0 },
-  bordeaux:   { label: "Bordeaux",   mult: 0.95 },
-  toulouse:   { label: "Toulouse",   mult: 0.95 },
-  autre:      { label: "Autre ville", mult: 0.8 },
+const CITY_CONFIG: Record<string, { label: string; mult: number; dense: boolean }> = {
+  paris:     { label: "Paris / IDF",    mult: 1.5, dense: true  },
+  lyon:      { label: "Lyon",           mult: 1.2, dense: true  },
+  marseille: { label: "Marseille",      mult: 1.1, dense: true  },
+  bordeaux:  { label: "Bordeaux",       mult: 1.0, dense: false },
+  toulouse:  { label: "Toulouse",       mult: 1.0, dense: false },
+  autre:     { label: "Autre ville",    mult: 0.85, dense: false },
 };
 
 function RevenueSimulator() {
   const [vehicule, setVehicule] = useState("taxi");
   const [ville, setVille] = useState("paris");
+  const [jours, setJours] = useState(15);
   const [nb, setNb] = useState(1);
 
-  const rate = VEHICULE_RATES[vehicule];
-  const mult = CITY_MULTIPLIER[ville].mult;
-  const low = Math.round(rate.min * mult * nb);
-  const high = Math.round(rate.max * mult * nb);
+  const cfg = VEHICULE_CONFIG[vehicule];
+  const city = CITY_CONFIG[ville];
+  const mult = city.mult;
+
+  const minDay  = Math.round(cfg.minPerDay * mult * 10) / 10;
+  const maxDay  = Math.round(cfg.maxPerDay * mult * 10) / 10;
+  const minMois = Math.round(minDay * jours * nb);
+  const maxMois = Math.round(maxDay * jours * nb);
+  const minAn   = minMois * 12;
+  const maxAn   = maxMois * 12;
 
   return (
     <section className="max-w-4xl mx-auto px-6 py-16">
@@ -53,10 +64,13 @@ function RevenueSimulator() {
             💶 Simulateur de revenus
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold">Combien pouvez-vous gagner ?</h2>
-          <p className="text-muted-foreground mt-2 text-sm">Estimation basée sur les campagnes actives — 70 % du revenu vous revient directement.</p>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Basé sur le modèle réel MoveSpot — <strong>70 % du budget campagne</strong> vous revient directement, avec un minimum garanti de <strong>17,50 € / véhicule / jour actif</strong>.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        {/* Inputs */}
+        <div className="grid sm:grid-cols-2 gap-5 mb-6">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Type de véhicule</label>
             <select
@@ -64,8 +78,8 @@ function RevenueSimulator() {
               onChange={e => setVehicule(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {Object.entries(VEHICULE_RATES).map(([k, v]) => (
-                <option key={k} value={k}>{v.label}</option>
+              {Object.entries(VEHICULE_CONFIG).map(([k, v]) => (
+                <option key={k} value={k}>{v.emoji} {v.label}</option>
               ))}
             </select>
           </div>
@@ -77,15 +91,37 @@ function RevenueSimulator() {
               onChange={e => setVille(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {Object.entries(CITY_MULTIPLIER).map(([k, v]) => (
-                <option key={k} value={k}>{v.label}</option>
+              {Object.entries(CITY_CONFIG).map(([k, v]) => (
+                <option key={k} value={k}>{v.label}{v.dense ? " ✦" : ""}</option>
               ))}
             </select>
+            {city.dense && (
+              <p className="text-xs text-primary mt-1">✦ Zone dense : tarif majoré ×1,5 pour les annonceurs</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-5 mb-8">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              Jours actifs / mois : <span className="text-foreground font-bold">{jours} jours</span>
+            </label>
+            <input
+              type="range"
+              min={5}
+              max={25}
+              value={jours}
+              onChange={e => setJours(Number(e.target.value))}
+              className="w-full accent-primary mt-2"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>5 j</span><span>15 j</span><span>25 j</span>
+            </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-              Nombre de véhicules : <span className="text-foreground">{nb}</span>
+              Nombre de véhicules : <span className="text-foreground font-bold">{nb}</span>
             </label>
             <input
               type="range"
@@ -93,7 +129,7 @@ function RevenueSimulator() {
               max={20}
               value={nb}
               onChange={e => setNb(Number(e.target.value))}
-              className="w-full accent-primary mt-3"
+              className="w-full accent-primary mt-2"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>1</span><span>10</span><span>20</span>
@@ -101,17 +137,40 @@ function RevenueSimulator() {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-primary/10 border border-primary/20 p-6 text-center">
-          <p className="text-sm text-muted-foreground mb-1">Revenu mensuel estimé</p>
-          <p className="font-display text-5xl md:text-6xl font-bold text-primary">
-            {low.toLocaleString("fr-FR")} – {high.toLocaleString("fr-FR")} €
-          </p>
-          <p className="text-xs text-muted-foreground mt-3">
-            Pour {nb} {VEHICULE_RATES[vehicule].label.toLowerCase()}{nb > 1 ? "s" : ""} à {CITY_MULTIPLIER[ville].label} · Estimation non contractuelle
-          </p>
+        {/* Résultats */}
+        <div className="grid sm:grid-cols-3 gap-4 mb-6">
+          <div className="rounded-2xl bg-muted/50 border border-border p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Par véhicule / jour</p>
+            <p className="font-display text-2xl font-bold text-foreground">
+              {minDay.toLocaleString("fr-FR")} – {maxDay.toLocaleString("fr-FR")} €
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">70 % de la campagne</p>
+          </div>
+          <div className="rounded-2xl bg-primary/10 border border-primary/30 p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Revenu mensuel estimé</p>
+            <p className="font-display text-3xl font-bold text-primary">
+              {minMois.toLocaleString("fr-FR")} – {maxMois.toLocaleString("fr-FR")} €
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">{jours} j × {nb} véh.</p>
+          </div>
+          <div className="rounded-2xl bg-muted/50 border border-border p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Projection annuelle</p>
+            <p className="font-display text-2xl font-bold text-foreground">
+              {minAn.toLocaleString("fr-FR")} – {maxAn.toLocaleString("fr-FR")} €
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">× 12 mois</p>
+          </div>
         </div>
 
-        <div className="mt-6 text-center">
+        {/* Formule transparente */}
+        <div className="rounded-xl bg-muted/40 border border-border px-5 py-4 text-xs text-muted-foreground mb-6">
+          <span className="font-semibold text-foreground">Comment c'est calculé ? </span>
+          Campagne annonceur min. <strong>25 €/véhicule/jour</strong> → vous recevez <strong>70 %</strong> soit{" "}
+          <strong>17,50 € garanti/jour</strong>. Les campagnes sur zones plus larges ou en grande agglomération génèrent davantage.
+          Estimation non contractuelle — les revenus dépendent des campagnes actives dans votre zone.
+        </div>
+
+        <div className="text-center">
           <Link
             to="/proprietaire/inscription"
             className="inline-block rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
