@@ -34,4 +34,13 @@ i18n.use(initReactI18next).init({
   initAsync: false,
 });
 
+// Apply stored language preference on the client only.
+// i18next-browser-languagedetector is browser-only and crashes on Cloudflare Workers SSR.
+if (typeof window !== "undefined") {
+  const stored = localStorage.getItem("movespot_lang");
+  if (stored === "fr" || stored === "en") {
+    i18n.changeLanguage(stored);
+  }
+}
+
 export default i18n;

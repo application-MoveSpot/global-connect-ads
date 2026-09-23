@@ -50,7 +50,7 @@ export const Route = createFileRoute("/")({
           offers: {
             "@type": "AggregateOffer",
             priceCurrency: "EUR",
-            lowPrice: "10",
+            lowPrice: "25",
             highPrice: "2000",
             offerCount: "3",
             offers: [
@@ -103,7 +103,7 @@ function Index() {
 
   const stats: { k: string; vKey: string; fallback: string }[] = [
     { k: "1,80 €", vKey: "hero.stat0_v", fallback: "par km² et par jour (2,70 € en grande agglomération)" },
-    { k: "10 €", vKey: "hero.stat1_v", fallback: "budget minimum pour lancer une campagne" },
+    { k: "25 €", vKey: "hero.stat1_v", fallback: "par véhicule par jour — soit 375 €/mois pour 1 véhicule" },
     { k: "70 / 30", vKey: "hero.stat2_v", fallback: "reversé aux partenaires / commission MoveSpot" },
     { k: "14 j", vKey: "hero.stat3_v", fallback: "d'essai gratuit sur les campagnes par abonnement" },
   ];
@@ -424,6 +424,7 @@ function Index() {
               <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Link to="/annonceurs-entreprise" className="hover:text-foreground transition">Solution B2B</Link>
               <Link to="/cgu" className="hover:text-foreground transition">CGU</Link>
               <Link to="/cgv" className="hover:text-foreground transition">CGV</Link>
               <Link to="/confidentialite" className="hover:text-foreground transition">Confidentialité</Link>
