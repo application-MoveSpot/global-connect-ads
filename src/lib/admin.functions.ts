@@ -404,7 +404,7 @@ export const adminListInstallations = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("campaign_requests")
       .select(
-        "id, spot_name, company, email, start_date, end_date, status, payment_status, installation_photos, installation_status, installation_notes, installation_reviewed_at, created_at",
+        "id, spot_name, company, email, start_date, end_date, status, payment_status, installation_photos, installation_status, installation_notes, installation_reviewed_at, pose_fee_cents, pose_payout_status, pose_stripe_transfer_id, pose_installer_user_id, created_at",
       )
       .not("installation_photos", "is", null)
       .order("created_at", { ascending: false })
@@ -425,7 +425,7 @@ export const adminListDeposePending = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("campaign_requests")
       .select(
-        "id, spot_name, company, email, start_date, end_date, depose_photos, depose_status, depose_notes, depose_reviewed_at, depose_fee_cents, created_at",
+        "id, spot_name, company, email, start_date, end_date, depose_photos, depose_status, depose_notes, depose_reviewed_at, depose_fee_cents, depose_payout_status, depose_stripe_transfer_id, depose_installer_user_id, created_at",
       )
       .not("depose_photos", "is", null)
       .order("end_date", { ascending: true })

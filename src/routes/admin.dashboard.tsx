@@ -36,6 +36,10 @@ import {
   adminReviewVehicle,
   adminSendStripeReminder,
 } from "@/lib/admin.functions";
+import {
+  transferToPoseInstaller,
+  transferToDeposeInstaller,
+} from "@/lib/campaigns/installer-payout.functions";
 import type { AdminUserRow } from "@/lib/admin.functions";
 import {
   InstallationPhotoGrid,
@@ -102,6 +106,8 @@ function AdminDashboard() {
   const reviewInstallation = useServerFn(adminReviewInstallation);
   const listDeposePending = useServerFn(adminListDeposePending);
   const doReviewDepose = useServerFn(adminReviewDepose);
+  const doPoseTransfer = useServerFn(transferToPoseInstaller);
+  const doDeposeTransfer = useServerFn(transferToDeposeInstaller);
   const listPoseurs = useServerFn(adminListPoseurs);
   const fleet = useServerFn(adminFleetLatestPositions);
   const listInactiveStripe = useServerFn(adminListInactiveStripeAccounts);
@@ -195,6 +201,22 @@ function AdminDashboard() {
       }),
     onSuccess: (_d, v) => {
       toast.success(v.approve ? "Dépose validée." : "Dépose refusée.");
+      qc.invalidateQueries({ queryKey: ["admin-depositions"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const poseTransferMut = useMutation({
+    mutationFn: (id: string) => doPoseTransfer({ data: { campaignRequestId: id } }),
+    onSuccess: (res) => {
+      toast.success((res as { alreadyDone?: boolean }).alreadyDone ? "Déjà viré." : "Virement pose effectué ✅");
+      qc.invalidateQueries({ queryKey: ["admin-installations"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const deposeTransferMut = useMutation({
+    mutationFn: (id: string) => doDeposeTransfer({ data: { campaignRequestId: id } }),
+    onSuccess: (res) => {
+      toast.success((res as { alreadyDone?: boolean }).alreadyDone ? "Déjà viré." : "Virement dépose effectué ✅");
       qc.invalidateQueries({ queryKey: ["admin-depositions"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -728,6 +750,8 @@ function AdminDashboard() {
                   item={i}
                   onReview={(approve, notes) => reviewMut.mutate({ id: i.id, approve, notes })}
                   pending={reviewMut.isPending}
+                  onTransfer={() => poseTransferMut.mutate(i.id)}
+                  transferring={poseTransferMut.isPending}
                 />
               ))}
               {(installationsQuery.data?.installations ?? []).length === 0 ? (
@@ -751,6 +775,8 @@ function AdminDashboard() {
                   item={d}
                   onReview={(approve, notes) => reviewDeposeMut.mutate({ id: d.id, approve, notes })}
                   pending={reviewDeposeMut.isPending}
+                  onTransfer={() => deposeTransferMut.mutate(d.id)}
+                  transferring={deposeTransferMut.isPending}
                 />
               ))}
               {(depositionsQuery.data?.depositions ?? []).length === 0 ? (
@@ -1659,19 +1685,28 @@ type InstallationItem = {
   installation_photos: unknown;
   installation_status: string | null;
   installation_notes: string | null;
+  pose_fee_cents: number | null;
+  pose_payout_status: string | null;
+  pose_stripe_transfer_id: string | null;
 };
 
 function InstallationReviewCard({
   item,
   onReview,
   pending,
+  onTransfer,
+  transferring,
 }: {
   item: InstallationItem;
   onReview: (approve: boolean, notes?: string) => void;
   pending: boolean;
+  onTransfer?: () => void;
+  transferring?: boolean;
 }) {
   const [notes, setNotes] = useState("");
   const photos = parseInstallationPhotos(item.installation_photos);
+  const eur = (cents: number | null) =>
+    cents != null ? (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : "—";
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -1681,9 +1716,17 @@ function InstallationReviewCard({
           <p className="text-sm text-muted-foreground">
             {item.company} · {item.start_date ?? "—"} → {item.end_date ?? "—"}
           </p>
+          {item.pose_fee_cents != null && (
+            <p className="text-xs text-primary font-semibold mt-0.5">
+              Forfait pose : {eur(item.pose_fee_cents)}
+            </p>
+          )}
         </div>
-        <span className="text-xs font-semibold text-muted-foreground">
-          Statut pose : {item.installation_status ?? "pending"}
+        <span className={`text-xs font-semibold ${item.installation_status === "pending_approval" ? "text-amber-500" : item.installation_status === "approved" ? "text-emerald-500" : "text-muted-foreground"}`}>
+          {item.installation_status === "pending_approval" ? "⏳ En attente"
+            : item.installation_status === "approved" ? "✅ Validée"
+            : item.installation_status === "rejected" ? "⛔ Refusée"
+            : item.installation_status ?? "pending"}
         </span>
       </div>
 
@@ -1730,6 +1773,22 @@ function InstallationReviewCard({
           </Button>
         </div>
       ) : null}
+
+      {item.installation_status === "approved" && onTransfer ? (
+        <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs">
+          {item.pose_payout_status === "transferred" || item.pose_stripe_transfer_id ? (
+            <span className="text-emerald-700 dark:text-emerald-400">
+              ✅ Forfait pose viré ({eur(item.pose_fee_cents)})
+            </span>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button onClick={onTransfer} disabled={transferring} className="text-xs h-7 px-3">
+                {transferring ? "Virement…" : `Virer ${eur(item.pose_fee_cents)} au poseur`}
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1746,16 +1805,22 @@ type DeposeItem = {
   depose_status: string | null;
   depose_notes: string | null;
   depose_fee_cents: number | null;
+  depose_payout_status: string | null;
+  depose_stripe_transfer_id: string | null;
 };
 
 function DeposeReviewCard({
   item,
   onReview,
   pending,
+  onTransfer,
+  transferring,
 }: {
   item: DeposeItem;
   onReview: (approve: boolean, notes?: string) => void;
   pending: boolean;
+  onTransfer?: () => void;
+  transferring?: boolean;
 }) {
   const [notes, setNotes] = useState("");
   const photos = parseInstallationPhotos(item.depose_photos);
@@ -1825,6 +1890,22 @@ function DeposeReviewCard({
           >
             Refuser
           </Button>
+        </div>
+      ) : null}
+
+      {item.depose_status === "approved" && onTransfer ? (
+        <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs">
+          {item.depose_payout_status === "transferred" || item.depose_stripe_transfer_id ? (
+            <span className="text-emerald-700 dark:text-emerald-400">
+              ✅ Forfait dépose viré ({eur(item.depose_fee_cents)})
+            </span>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button onClick={onTransfer} disabled={transferring} className="text-xs h-7 px-3">
+                {transferring ? "Virement…" : `Virer ${eur(item.depose_fee_cents)} au poseur`}
+              </Button>
+            </div>
+          )}
         </div>
       ) : null}
     </div>

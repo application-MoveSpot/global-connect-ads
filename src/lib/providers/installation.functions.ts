@@ -428,6 +428,7 @@ export const submitInstallationPhotos = createServerFn({ method: "POST" })
         installation_status: "pending_approval",
         installation_notes: null,
         installation_reviewed_at: null,
+        pose_installer_user_id: existing?.claimed_by ?? context.userId,
       } as never)
       .eq("id", data.campaignRequestId);
     if (error) throw new Error(error.message);
