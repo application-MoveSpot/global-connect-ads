@@ -1,0 +1,227 @@
+import { useCallback, useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import {
+  listDeposeJobs,
+  claimDeposeJob,
+  unclaimDeposeJob,
+} from "@/lib/providers/installation.functions";
+import { DeposePhotosPanel } from "@/components/driver/DeposePhotosPanel";
+
+type DeposeJob = {
+  id: string;
+  spot_name: string;
+  spot_location: string | null;
+  company: string;
+  start_date: string | null;
+  end_date: string | null;
+  depose_photos: unknown;
+  depose_status: string | null;
+  depose_notes: string | null;
+  creative_files: string[] | null;
+  total_price: number | null;
+  depose_fee_cents: number | null;
+};
+
+const fr = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
+const eur = (n: number | null) =>
+  n != null ? (n / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : null;
+
+function daysAfter(dateStr: string | null): number | null {
+  if (!dateStr) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
+  return Math.round((today.getTime() - target.getTime()) / 86400000);
+}
+
+function mapsUrl(location: string | null): string | null {
+  if (!location) return null;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
+function isClaimed(photos: unknown): boolean {
+  return !!(photos as Record<string, unknown> | null)?.claimed_by;
+}
+
+export function DeposeJobsPanel() {
+  const fetchJobs = useServerFn(listDeposeJobs);
+  const doClaim = useServerFn(claimDeposeJob);
+  const doUnclaim = useServerFn(unclaimDeposeJob);
+
+  const [jobs, setJobs] = useState<DeposeJob[] | null>(null);
+  const [isInstaller, setIsInstaller] = useState(false);
+  const [claiming, setClaiming] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    fetchJobs()
+      .then((r: { isInstaller: boolean; jobs: DeposeJob[] }) => {
+        setIsInstaller(r.isInstaller);
+        setJobs(r.jobs ?? []);
+      })
+      .catch(() => setJobs([]));
+  }, [fetchJobs]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleClaim = async (jobId: string) => {
+    setClaiming(jobId);
+    try {
+      await doClaim({ data: { campaignRequestId: jobId } });
+      toast.success("Mission de dépose réservée.");
+      load();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erreur lors de la réservation.");
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  const handleUnclaim = async (jobId: string) => {
+    setClaiming(jobId);
+    try {
+      await doUnclaim({ data: { campaignRequestId: jobId } });
+      toast.success("Mission libérée.");
+      load();
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Erreur.");
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  if (jobs === null) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
+        Chargement des missions de dépose…
+      </div>
+    );
+  }
+
+  if (!isInstaller) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="font-display text-lg font-semibold">Missions de dépose</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Réservé aux poseurs certifiés MoveSpot. Les déposes apparaissent ici une fois la pose validée et la
+          campagne terminée.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-lg font-semibold">Missions de dépose</h3>
+        <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+          {jobs.length} en attente
+        </span>
+      </div>
+
+      <p className="mb-4 text-sm text-muted-foreground">
+        Ces campagnes sont terminées — le covering doit être retiré. Réservez la mission, retirez le covering, photographiez les 4 vues et transmettez.
+      </p>
+
+      {jobs.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Aucune dépose en attente pour le moment.</p>
+      ) : (
+        <div className="space-y-4">
+          {jobs.map((job) => {
+            const daysElapsed = daysAfter(job.end_date);
+            const urgent = daysElapsed !== null && daysElapsed >= 3;
+            const claimed = isClaimed(job.depose_photos);
+            const maps = mapsUrl(job.spot_location);
+
+            return (
+              <div
+                key={job.id}
+                className={`rounded-xl border p-4 ${urgent ? "border-amber-500/50 bg-amber-500/5" : "border-border"}`}
+              >
+                {/* Header */}
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-sm">{job.spot_name}</p>
+                    <p className="text-xs text-muted-foreground">{job.company}</p>
+                  </div>
+                  <div className="text-right space-y-0.5">
+                    {job.depose_fee_cents != null && (
+                      <p className="text-xs font-semibold text-primary">
+                        Rémunération dépose : {eur(job.depose_fee_cents)}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {fr(job.start_date)} → {fr(job.end_date)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Urgency badge */}
+                {daysElapsed !== null && daysElapsed >= 0 && (
+                  <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}>
+                    <span>{urgent ? "⏰" : "📅"}</span>
+                    {daysElapsed === 0
+                      ? "Campagne terminée aujourd'hui — dépose à planifier"
+                      : `Campagne terminée depuis ${daysElapsed} jour${daysElapsed > 1 ? "s" : ""}`}
+                    {urgent ? " — dépose urgente" : ""}
+                  </div>
+                )}
+
+                {/* Location */}
+                {(job.spot_location || maps) && (
+                  <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>📍</span>
+                    <span>{job.spot_location ?? "Localisation non précisée"}</span>
+                    {maps && (
+                      <a
+                        href={maps}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-auto shrink-0 rounded-lg border border-border bg-card px-2 py-1 font-semibold text-primary hover:bg-secondary transition"
+                      >
+                        Itinéraire →
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Claim / Unclaim */}
+                {!claimed ? (
+                  <button
+                    onClick={() => handleClaim(job.id)}
+                    disabled={claiming === job.id}
+                    className="mb-3 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
+                  >
+                    {claiming === job.id ? "Réservation…" : "✋ Je prends cette dépose"}
+                  </button>
+                ) : (
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      ✅ Mission réservée par vous
+                    </span>
+                    {job.depose_status === "pending" && (
+                      <button
+                        onClick={() => handleUnclaim(job.id)}
+                        disabled={claiming === job.id}
+                        className="text-xs text-muted-foreground hover:text-destructive underline transition disabled:opacity-50"
+                      >
+                        Libérer
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <DeposePhotosPanel
+                  campaignRequestId={job.id}
+                  deposePhotos={job.depose_photos}
+                  deposeStatus={job.depose_status}
+                  deposeNotes={job.depose_notes}
+                  onSubmitted={load}
+                />
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

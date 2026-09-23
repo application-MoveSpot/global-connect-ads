@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type StatusHistoryEntityType =
   | "campaign_status"
   | "campaign_installation"
+  | "campaign_depose"
   | "payee_certification"
   | "provider_status";
 
