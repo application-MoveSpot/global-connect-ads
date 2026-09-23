@@ -82,6 +82,10 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
     const totalPrice = Number(proposal.price_per_day) * (brief.days_count ?? 1);
     const companyValue = profile?.full_name ?? "Annonceur MoveSpot";
     const emailValue = email ?? `advertiser-${userId}@move-spot.com`;
+
+    const { getInstallerFees } = await import("@/lib/campaigns/installer-fees.server");
+    const { poseFee, deposeFee } = await getInstallerFees();
+
     const { data: cr, error: crError } = await supabaseAdmin
       .from("campaign_requests")
       .insert({
@@ -97,6 +101,8 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         email: emailValue,
         message: `Via brief "${brief.title}"`,
         user_id: userId,
+        pose_fee_cents: poseFee,
+        depose_fee_cents: deposeFee,
       })
       .select("id")
       .maybeSingle();

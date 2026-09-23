@@ -8,6 +8,7 @@ import { detectContact } from "@/lib/moderation/contact-detection";
 import { COUNTRY_OPTIONS } from "@/lib/fleet/driving-rules";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
 import { notifyCampaignSubmitted } from "@/lib/campaigns/campaign-notifications.server";
+import { getInstallerFeeConfig } from "@/lib/campaigns/installer-fees.functions";
 import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,7 @@ export function BookingForm({ spot, onClose }: Props) {
   });
 
   const notifyFn = useServerFn(notifyCampaignSubmitted);
+  const getInstallerFees = useServerFn(getInstallerFeeConfig);
   const [brandColor, setBrandColor] = useState("#3B82F6");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -369,6 +371,8 @@ export function BookingForm({ spot, onClose }: Props) {
       }
     }
 
+    const installerFees = await getInstallerFees().catch(() => ({ poseFee: 2000, deposeFee: 2000 }));
+
     const { data: created, error } = await supabase
       .from("campaign_requests")
       .insert({
@@ -394,6 +398,8 @@ export function BookingForm({ spot, onClose }: Props) {
         route_pois: itinerary.pois.slice(0, 50),
         estimated_impressions_per_day: itinerary.impressionsPerDay || suggestedImpressions || null,
         creative_files: uploadedPaths,
+        pose_fee_cents: installerFees.poseFee,
+        depose_fee_cents: installerFees.deposeFee,
       })
       .select("id, status, admin_notes")
       .single();
