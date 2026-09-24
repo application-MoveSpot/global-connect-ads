@@ -73,7 +73,10 @@ function ChatPage() {
     try {
       const result = await doChat({
         data: {
-          messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+          // Skip the hardcoded initial assistant greeting — Gemini requires conversations to start with a user message
+          messages: nextMessages
+            .filter((m, i) => !(i === 0 && m.role === "assistant"))
+            .map((m) => ({ role: m.role, content: m.content })),
         },
       });
 
