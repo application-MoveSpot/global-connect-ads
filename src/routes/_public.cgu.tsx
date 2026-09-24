@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
-export const Route = createFileRoute("/cgu")({
+export const Route = createFileRoute("/_public/cgu")({
   head: () => ({
     meta: [
       { title: "Conditions Générales d'Utilisation — MoveSpot" },
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/cgu")({
 
 function CGU() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="24 août 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="24 août 2026" showHeader={false}>
       <LegalSection title="1. Objet">
         <p>
           Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités

@@ -9,32 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AnnonceursEntrepriseRouteImport } from './routes/annonceurs-entreprise'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as CampagnesRouteImport } from './routes/campagnes'
-import { Route as CguRouteImport } from './routes/cgu'
 import { Route as CgvRouteImport } from './routes/cgv'
-import { Route as CommentCaMarcheRouteImport } from './routes/comment-ca-marche'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
-import { Route as DevenirPartenaireRouteImport } from './routes/devenir-partenaire'
 import { Route as KitRouteImport } from './routes/kit'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as PitchRouteImport } from './routes/pitch'
-import { Route as PourquoiMovespotRouteImport } from './routes/pourquoi-movespot'
-import { Route as PrevisionnelRouteImport } from './routes/previsionnel'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecuriteRouteImport } from './routes/securite'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as PublicIndexRouteImport } from './routes/_public.index'
+import { Route as PublicAnnonceursEntrepriseRouteImport } from './routes/_public.annonceurs-entreprise'
+import { Route as PublicCampagnesRouteImport } from './routes/_public.campagnes'
+import { Route as PublicCguRouteImport } from './routes/_public.cgu'
+import { Route as PublicCommentCaMarcheRouteImport } from './routes/_public.comment-ca-marche'
+import { Route as PublicDevenirPartenaireRouteImport } from './routes/_public.devenir-partenaire'
+import { Route as PublicPourquoiMovespotRouteImport } from './routes/_public.pourquoi-movespot'
+import { Route as PublicPrevisionnelRouteImport } from './routes/_public.previsionnel'
+import { Route as PublicTarifsRouteImport } from './routes/_public.tarifs'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -95,9 +96,8 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -105,34 +105,14 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AnnonceursEntrepriseRoute = AnnonceursEntrepriseRouteImport.update({
-  id: '/annonceurs-entreprise',
-  path: '/annonceurs-entreprise',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CampagnesRoute = CampagnesRouteImport.update({
-  id: '/campagnes',
-  path: '/campagnes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CguRoute = CguRouteImport.update({
-  id: '/cgu',
-  path: '/cgu',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CgvRoute = CgvRouteImport.update({
   id: '/cgv',
   path: '/cgv',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommentCaMarcheRoute = CommentCaMarcheRouteImport.update({
-  id: '/comment-ca-marche',
-  path: '/comment-ca-marche',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
@@ -148,11 +128,6 @@ const ContactRoute = ContactRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevenirPartenaireRoute = DevenirPartenaireRouteImport.update({
-  id: '/devenir-partenaire',
-  path: '/devenir-partenaire',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KitRoute = KitRouteImport.update({
@@ -180,16 +155,6 @@ const PitchRoute = PitchRouteImport.update({
   path: '/pitch',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PourquoiMovespotRoute = PourquoiMovespotRouteImport.update({
-  id: '/pourquoi-movespot',
-  path: '/pourquoi-movespot',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrevisionnelRoute = PrevisionnelRouteImport.update({
-  id: '/previsionnel',
-  path: '/previsionnel',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -203,11 +168,6 @@ const SecuriteRoute = SecuriteRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TarifsRoute = TarifsRouteImport.update({
-  id: '/tarifs',
-  path: '/tarifs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -227,6 +187,52 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAnnonceursEntrepriseRoute =
+  PublicAnnonceursEntrepriseRouteImport.update({
+    id: '/annonceurs-entreprise',
+    path: '/annonceurs-entreprise',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicCampagnesRoute = PublicCampagnesRouteImport.update({
+  id: '/campagnes',
+  path: '/campagnes',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCguRoute = PublicCguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCommentCaMarcheRoute = PublicCommentCaMarcheRouteImport.update({
+  id: '/comment-ca-marche',
+  path: '/comment-ca-marche',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicDevenirPartenaireRoute = PublicDevenirPartenaireRouteImport.update({
+  id: '/devenir-partenaire',
+  path: '/devenir-partenaire',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPourquoiMovespotRoute = PublicPourquoiMovespotRouteImport.update({
+  id: '/pourquoi-movespot',
+  path: '/pourquoi-movespot',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPrevisionnelRoute = PublicPrevisionnelRouteImport.update({
+  id: '/previsionnel',
+  path: '/previsionnel',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicTarifsRoute = PublicTarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
+  getParentRoute: () => PublicRoute,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -537,32 +543,32 @@ const LovableEmailTransactionalSendRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof PublicIndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/annonceurs-entreprise': typeof AnnonceursEntrepriseRoute
   '/auth': typeof AuthRoute
-  '/campagnes': typeof CampagnesRoute
-  '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
-  '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
-  '/pourquoi-movespot': typeof PourquoiMovespotRoute
-  '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/tarifs': typeof TarifsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/annonceurs-entreprise': typeof PublicAnnonceursEntrepriseRoute
+  '/campagnes': typeof PublicCampagnesRoute
+  '/cgu': typeof PublicCguRoute
+  '/comment-ca-marche': typeof PublicCommentCaMarcheRoute
+  '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
+  '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
+  '/previsionnel': typeof PublicPrevisionnelRoute
+  '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -624,32 +630,31 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/annonceurs-entreprise': typeof AnnonceursEntrepriseRoute
   '/auth': typeof AuthRoute
-  '/campagnes': typeof CampagnesRoute
-  '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
-  '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
-  '/pourquoi-movespot': typeof PourquoiMovespotRoute
-  '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/tarifs': typeof TarifsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/annonceurs-entreprise': typeof PublicAnnonceursEntrepriseRoute
+  '/campagnes': typeof PublicCampagnesRoute
+  '/cgu': typeof PublicCguRoute
+  '/comment-ca-marche': typeof PublicCommentCaMarcheRoute
+  '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
+  '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
+  '/previsionnel': typeof PublicPrevisionnelRoute
+  '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -677,6 +682,7 @@ export interface FileRoutesByTo {
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
+  '/': typeof PublicIndexRoute
   '/annonceur': typeof AnnonceurIndexRoute
   '/chauffeur': typeof ChauffeurIndexRoute
   '/partenaire': typeof PartenaireIndexRoute
@@ -712,32 +718,32 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_public': typeof PublicRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
-  '/annonceurs-entreprise': typeof AnnonceursEntrepriseRoute
   '/auth': typeof AuthRoute
-  '/campagnes': typeof CampagnesRoute
-  '/cgu': typeof CguRoute
   '/cgv': typeof CgvRoute
-  '/comment-ca-marche': typeof CommentCaMarcheRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
-  '/devenir-partenaire': typeof DevenirPartenaireRoute
   '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
-  '/pourquoi-movespot': typeof PourquoiMovespotRoute
-  '/previsionnel': typeof PrevisionnelRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/tarifs': typeof TarifsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/_public/annonceurs-entreprise': typeof PublicAnnonceursEntrepriseRoute
+  '/_public/campagnes': typeof PublicCampagnesRoute
+  '/_public/cgu': typeof PublicCguRoute
+  '/_public/comment-ca-marche': typeof PublicCommentCaMarcheRoute
+  '/_public/devenir-partenaire': typeof PublicDevenirPartenaireRoute
+  '/_public/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
+  '/_public/previsionnel': typeof PublicPrevisionnelRoute
+  '/_public/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -765,6 +771,7 @@ export interface FileRoutesById {
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
+  '/_public/': typeof PublicIndexRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/chauffeur/': typeof ChauffeurIndexRoute
   '/partenaire/': typeof PartenaireIndexRoute
@@ -803,30 +810,30 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/annonceurs-entreprise'
     | '/auth'
-    | '/campagnes'
-    | '/cgu'
     | '/cgv'
-    | '/comment-ca-marche'
     | '/confidentialite'
     | '/contact'
     | '/cookies'
-    | '/devenir-partenaire'
     | '/kit'
     | '/mcp'
     | '/mentions-legales'
     | '/parametres'
     | '/pitch'
-    | '/pourquoi-movespot'
-    | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
-    | '/tarifs'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/annonceurs-entreprise'
+    | '/campagnes'
+    | '/cgu'
+    | '/comment-ca-marche'
+    | '/devenir-partenaire'
+    | '/pourquoi-movespot'
+    | '/previsionnel'
+    | '/tarifs'
     | '/admin/audit'
     | '/admin/commissions'
     | '/admin/dashboard'
@@ -888,32 +895,31 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/admin'
-    | '/annonceurs-entreprise'
     | '/auth'
-    | '/campagnes'
-    | '/cgu'
     | '/cgv'
-    | '/comment-ca-marche'
     | '/confidentialite'
     | '/contact'
     | '/cookies'
-    | '/devenir-partenaire'
     | '/kit'
     | '/mcp'
     | '/mentions-legales'
     | '/parametres'
     | '/pitch'
-    | '/pourquoi-movespot'
-    | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
-    | '/tarifs'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/annonceurs-entreprise'
+    | '/campagnes'
+    | '/cgu'
+    | '/comment-ca-marche'
+    | '/devenir-partenaire'
+    | '/pourquoi-movespot'
+    | '/previsionnel'
+    | '/tarifs'
     | '/admin/audit'
     | '/admin/commissions'
     | '/admin/dashboard'
@@ -941,6 +947,7 @@ export interface FileRouteTypes {
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
+    | '/'
     | '/annonceur'
     | '/chauffeur'
     | '/partenaire'
@@ -975,32 +982,32 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
   id:
     | '__root__'
-    | '/'
+    | '/_public'
     | '/admin'
-    | '/annonceurs-entreprise'
     | '/auth'
-    | '/campagnes'
-    | '/cgu'
     | '/cgv'
-    | '/comment-ca-marche'
     | '/confidentialite'
     | '/contact'
     | '/cookies'
-    | '/devenir-partenaire'
     | '/kit'
     | '/mcp'
     | '/mentions-legales'
     | '/parametres'
     | '/pitch'
-    | '/pourquoi-movespot'
-    | '/previsionnel'
     | '/reset-password'
     | '/securite'
     | '/sitemap.xml'
-    | '/tarifs'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/_public/annonceurs-entreprise'
+    | '/_public/campagnes'
+    | '/_public/cgu'
+    | '/_public/comment-ca-marche'
+    | '/_public/devenir-partenaire'
+    | '/_public/pourquoi-movespot'
+    | '/_public/previsionnel'
+    | '/_public/tarifs'
     | '/admin/audit'
     | '/admin/commissions'
     | '/admin/dashboard'
@@ -1028,6 +1035,7 @@ export interface FileRouteTypes {
     | '/proprietaire/flotte'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
+    | '/_public/'
     | '/annonceur/'
     | '/chauffeur/'
     | '/partenaire/'
@@ -1063,29 +1071,21 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  PublicRoute: typeof PublicRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
-  AnnonceursEntrepriseRoute: typeof AnnonceursEntrepriseRoute
   AuthRoute: typeof AuthRoute
-  CampagnesRoute: typeof CampagnesRoute
-  CguRoute: typeof CguRoute
   CgvRoute: typeof CgvRoute
-  CommentCaMarcheRoute: typeof CommentCaMarcheRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
-  DevenirPartenaireRoute: typeof DevenirPartenaireRoute
   KitRoute: typeof KitRoute
   McpRoute: typeof McpRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   ParametresRoute: typeof ParametresRoute
   PitchRoute: typeof PitchRoute
-  PourquoiMovespotRoute: typeof PourquoiMovespotRoute
-  PrevisionnelRoute: typeof PrevisionnelRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecuriteRoute: typeof SecuriteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  TarifsRoute: typeof TarifsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -1145,11 +1145,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_public': {
+      id: '/_public'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -1159,13 +1159,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/annonceurs-entreprise': {
-      id: '/annonceurs-entreprise'
-      path: '/annonceurs-entreprise'
-      fullPath: '/annonceurs-entreprise'
-      preLoaderRoute: typeof AnnonceursEntrepriseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -1173,32 +1166,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/campagnes': {
-      id: '/campagnes'
-      path: '/campagnes'
-      fullPath: '/campagnes'
-      preLoaderRoute: typeof CampagnesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cgu': {
-      id: '/cgu'
-      path: '/cgu'
-      fullPath: '/cgu'
-      preLoaderRoute: typeof CguRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/cgv': {
       id: '/cgv'
       path: '/cgv'
       fullPath: '/cgv'
       preLoaderRoute: typeof CgvRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/comment-ca-marche': {
-      id: '/comment-ca-marche'
-      path: '/comment-ca-marche'
-      fullPath: '/comment-ca-marche'
-      preLoaderRoute: typeof CommentCaMarcheRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/confidentialite': {
@@ -1220,13 +1192,6 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/devenir-partenaire': {
-      id: '/devenir-partenaire'
-      path: '/devenir-partenaire'
-      fullPath: '/devenir-partenaire'
-      preLoaderRoute: typeof DevenirPartenaireRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kit': {
@@ -1264,20 +1229,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PitchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pourquoi-movespot': {
-      id: '/pourquoi-movespot'
-      path: '/pourquoi-movespot'
-      fullPath: '/pourquoi-movespot'
-      preLoaderRoute: typeof PourquoiMovespotRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/previsionnel': {
-      id: '/previsionnel'
-      path: '/previsionnel'
-      fullPath: '/previsionnel'
-      preLoaderRoute: typeof PrevisionnelRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -1297,13 +1248,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tarifs': {
-      id: '/tarifs'
-      path: '/tarifs'
-      fullPath: '/tarifs'
-      preLoaderRoute: typeof TarifsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/unsubscribe': {
@@ -1326,6 +1270,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/.well-known/oauth-protected-resource'
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/annonceurs-entreprise': {
+      id: '/_public/annonceurs-entreprise'
+      path: '/annonceurs-entreprise'
+      fullPath: '/annonceurs-entreprise'
+      preLoaderRoute: typeof PublicAnnonceursEntrepriseRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/campagnes': {
+      id: '/_public/campagnes'
+      path: '/campagnes'
+      fullPath: '/campagnes'
+      preLoaderRoute: typeof PublicCampagnesRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/cgu': {
+      id: '/_public/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof PublicCguRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/comment-ca-marche': {
+      id: '/_public/comment-ca-marche'
+      path: '/comment-ca-marche'
+      fullPath: '/comment-ca-marche'
+      preLoaderRoute: typeof PublicCommentCaMarcheRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/devenir-partenaire': {
+      id: '/_public/devenir-partenaire'
+      path: '/devenir-partenaire'
+      fullPath: '/devenir-partenaire'
+      preLoaderRoute: typeof PublicDevenirPartenaireRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/pourquoi-movespot': {
+      id: '/_public/pourquoi-movespot'
+      path: '/pourquoi-movespot'
+      fullPath: '/pourquoi-movespot'
+      preLoaderRoute: typeof PublicPourquoiMovespotRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/previsionnel': {
+      id: '/_public/previsionnel'
+      path: '/previsionnel'
+      fullPath: '/previsionnel'
+      preLoaderRoute: typeof PublicPrevisionnelRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/tarifs': {
+      id: '/_public/tarifs'
+      path: '/tarifs'
+      fullPath: '/tarifs'
+      preLoaderRoute: typeof PublicTarifsRouteImport
+      parentRoute: typeof PublicRoute
     }
     '/admin/audit': {
       id: '/admin/audit'
@@ -1743,6 +1750,33 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface PublicRouteChildren {
+  PublicAnnonceursEntrepriseRoute: typeof PublicAnnonceursEntrepriseRoute
+  PublicCampagnesRoute: typeof PublicCampagnesRoute
+  PublicCguRoute: typeof PublicCguRoute
+  PublicCommentCaMarcheRoute: typeof PublicCommentCaMarcheRoute
+  PublicDevenirPartenaireRoute: typeof PublicDevenirPartenaireRoute
+  PublicPourquoiMovespotRoute: typeof PublicPourquoiMovespotRoute
+  PublicPrevisionnelRoute: typeof PublicPrevisionnelRoute
+  PublicTarifsRoute: typeof PublicTarifsRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAnnonceursEntrepriseRoute: PublicAnnonceursEntrepriseRoute,
+  PublicCampagnesRoute: PublicCampagnesRoute,
+  PublicCguRoute: PublicCguRoute,
+  PublicCommentCaMarcheRoute: PublicCommentCaMarcheRoute,
+  PublicDevenirPartenaireRoute: PublicDevenirPartenaireRoute,
+  PublicPourquoiMovespotRoute: PublicPourquoiMovespotRoute,
+  PublicPrevisionnelRoute: PublicPrevisionnelRoute,
+  PublicTarifsRoute: PublicTarifsRoute,
+  PublicIndexRoute: PublicIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
   AdminCommissionsRoute: typeof AdminCommissionsRoute
@@ -1775,29 +1809,21 @@ const ProprietaireFlotteRouteWithChildren =
   ProprietaireFlotteRoute._addFileChildren(ProprietaireFlotteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  PublicRoute: PublicRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
-  AnnonceursEntrepriseRoute: AnnonceursEntrepriseRoute,
   AuthRoute: AuthRoute,
-  CampagnesRoute: CampagnesRoute,
-  CguRoute: CguRoute,
   CgvRoute: CgvRoute,
-  CommentCaMarcheRoute: CommentCaMarcheRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
-  DevenirPartenaireRoute: DevenirPartenaireRoute,
   KitRoute: KitRoute,
   McpRoute: McpRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   ParametresRoute: ParametresRoute,
   PitchRoute: PitchRoute,
-  PourquoiMovespotRoute: PourquoiMovespotRoute,
-  PrevisionnelRoute: PrevisionnelRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SecuriteRoute: SecuriteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  TarifsRoute: TarifsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:

@@ -34,7 +34,7 @@ const FAQ_ITEMS = [
   },
 ];
 
-export const Route = createFileRoute("/devenir-partenaire")({
+export const Route = createFileRoute("/_public/devenir-partenaire")({
   head: () => ({
     meta: [
       { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partenaire MoveSpot" },

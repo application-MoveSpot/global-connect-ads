@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 const PROD_HOST = "move-spot.com";
 
 function isProduction() {
@@ -7,7 +9,13 @@ function isProduction() {
 }
 
 export function TestEnvBanner() {
-  if (isProduction()) return null;
+  const [showBanner, setShowBanner] = useState(false);
+
+  useEffect(() => {
+    setShowBanner(!isProduction());
+  }, []);
+
+  if (!showBanner) return null;
 
   return (
     <div
