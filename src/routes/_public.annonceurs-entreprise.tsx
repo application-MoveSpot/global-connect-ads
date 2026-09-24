@@ -8,8 +8,6 @@ export const Route = createFileRoute("/_public/annonceurs-entreprise")({
       { name: "description", content: "Diffusez vos campagnes sur des véhicules en mouvement dans vos zones cibles. Chaque kilomètre prouvé par GPS, rapport PDF téléchargeable, CPM entre 2 € et 5 €. Solution idéale pour les directions marketing B2B." },
       { property: "og:title", content: "Publicité mobile B2B certifiée GPS — MoveSpot" },
       { property: "og:description", content: "Campagnes prouvées GPS, rapport de diffusion certifié, ciblage géographique précis. Pilote B2B dès 25 €/véhicule/jour." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
     scripts: [
       {

@@ -7,10 +7,6 @@ export const Route = createFileRoute("/_public/previsionnel")({
     meta: [
       { title: "Prévisionnel 5 ans — MoveSpot" },
       { name: "description", content: "Prévisionnel financier MoveSpot sur 5 ans, version imprimable." },
-      { property: "og:title", content: "Prévisionnel 5 ans — MoveSpot" },
-      { property: "og:description", content: "Prévisionnel financier MoveSpot sur 5 ans, version imprimable." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex" },
     ],
   }),

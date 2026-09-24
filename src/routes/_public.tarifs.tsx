@@ -9,8 +9,6 @@ export const Route = createFileRoute("/_public/tarifs")({
       { name: "description", content: "Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les annonceurs, abonnement pour les prestataires." },
       { property: "og:title", content: "Tarifs MoveSpot — Transparent sur les prix" },
       { property: "og:description", content: "Pas d'abonnement caché. Propriétaires : gratuit. Annonceurs : à la campagne. Prestataires : formules flexibles." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/tarifs" },
