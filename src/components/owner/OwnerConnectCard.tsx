@@ -43,6 +43,7 @@ export function OwnerConnectCard() {
     } catch (e) {
       newTab?.close();
       setError(e instanceof Error ? e.message : "Erreur");
+    } finally {
       setLoading(false);
     }
   };
