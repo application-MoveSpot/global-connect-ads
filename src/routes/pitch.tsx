@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LogoLink } from "@/components/app/LogoLink";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/pitch")({
@@ -241,23 +240,18 @@ function Pitch() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className={`sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border ${isFullscreen ? "hidden" : ""}`}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <LogoLink />
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleFullscreen}
-              className="rounded-full border border-border bg-card/50 backdrop-blur px-3 py-1.5 text-xs font-medium hover:bg-card transition"
-              title="Plein écran (F)"
-            >
-              ⛶ Plein écran
-            </button>
-            <div className="text-xs text-muted-foreground tracking-widest">
-              {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
-            </div>
-          </div>
+      <div className={`flex justify-end px-6 py-3 border-b border-border gap-4 items-center ${isFullscreen ? "hidden" : ""}`}>
+        <div className="text-xs text-muted-foreground tracking-widest">
+          {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
         </div>
-      </header>
+        <button
+          onClick={toggleFullscreen}
+          className="rounded-full border border-border bg-card/50 backdrop-blur px-3 py-1.5 text-xs font-medium hover:bg-card transition"
+          title="Plein écran (F)"
+        >
+          ⛶ Plein écran
+        </button>
+      </div>
 
 
       <main className="relative flex-1 overflow-hidden">

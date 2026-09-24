@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useId } from "react";
 import { hreflangLinks } from "@/lib/seo";
-import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 
 const FAQ_ITEMS = [
@@ -283,15 +282,6 @@ function FAQAccordion() {
 function DevenirPartenaire() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-           <LogoLink />
-          <Link to="/proprietaire/inscription" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition">
-            S'inscrire
-          </Link>
-        </div>
-      </header>
-
       <section className="max-w-4xl mx-auto px-6 pt-20 pb-12 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 backdrop-blur px-4 py-1.5 text-xs font-medium mb-6">
           🚐 Espace propriétaires

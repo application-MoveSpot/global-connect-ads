@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { LogoLink } from "@/components/app/LogoLink";
 import { Check, X, Minus } from "lucide-react";
 
 export const Route = createFileRoute("/tarifs")({
@@ -72,17 +71,6 @@ function Cell({ value }: { value: boolean | string | null }) {
 function Tarifs() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-          <nav className="flex gap-4 text-sm text-muted-foreground">
-            <Link to="/comment-ca-marche" className="hover:text-foreground transition">Comment ça marche</Link>
-            <Link to="/annonceur" className="hover:text-foreground transition">Espace annonceur</Link>
-            <Link to="/proprietaire" className="hover:text-foreground transition">Espace propriétaire</Link>
-          </nav>
-        </div>
-      </header>
-
       <main className="max-w-6xl mx-auto px-4 py-14">
         {/* Hero */}
         <div className="text-center mb-16">

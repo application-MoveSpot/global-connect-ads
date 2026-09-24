@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/annonceurs-entreprise")({
   head: () => ({
@@ -81,25 +80,7 @@ const HOW_IT_WORKS = [
 function AnnonceursEntreprise() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <LogoLink />
-          <div className="flex items-center gap-3">
-            <Link
-              to="/annonceur"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Déjà client
-            </Link>
-            <Link
-              to="/annonceur/inscription"
-              className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition"
-            >
-              Lancer un pilote
-            </Link>
-          </div>
-        </div>
-      </header>
+
 
       {/* Hero */}
       <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">

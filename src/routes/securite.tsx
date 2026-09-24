@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/securite")({
   head: () => ({
@@ -124,11 +123,6 @@ function SecuritePage() {
   return (
     <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-6 flex items-center justify-between">
-          <LogoLink />
-          <Link to="/admin" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
-        </div>
-
         <h1 className="font-display text-3xl font-bold mb-2">Sécurité du compte</h1>
         <p className="text-sm text-muted-foreground mb-8">
           Activez la double authentification (2FA) avec une application comme Google Authenticator, Microsoft Authenticator ou 1Password.

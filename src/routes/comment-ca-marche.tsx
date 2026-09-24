@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/comment-ca-marche")({
   head: () => ({
@@ -77,16 +76,6 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 function HowItWorks() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-          <div className="flex gap-3 text-sm">
-            <Link to="/annonceur" className="hover:text-primary">Annonceur</Link>
-            <Link to="/proprietaire" className="hover:text-primary">Propriétaire</Link>
-          </div>
-        </div>
-      </header>
-
       <main id="main-content" className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">Comment marche MoveSpot ?</h1>
         <p className="text-lg text-muted-foreground mb-12">

@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LogoLink } from "@/components/app/LogoLink";
 import { Printer } from "lucide-react";
 
 export const Route = createFileRoute("/kit")({
@@ -19,9 +18,7 @@ export const Route = createFileRoute("/kit")({
 function KitMedia() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Nav — masqué à l'impression */}
-      <header className="border-b border-border px-6 py-4 flex items-center justify-between print:hidden">
-        <LogoLink />
+      <div className="flex justify-end px-6 py-4 print:hidden">
         <button
           onClick={() => window.print()}
           className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
@@ -29,7 +26,7 @@ function KitMedia() {
           <Printer className="w-4 h-4" />
           Imprimer / PDF
         </button>
-      </header>
+      </div>
 
       <main className="max-w-4xl mx-auto px-6 py-12 space-y-12 print:py-6 print:space-y-8">
         {/* En-tête */}
