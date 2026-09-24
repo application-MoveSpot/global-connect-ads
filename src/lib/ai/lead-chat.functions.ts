@@ -108,7 +108,7 @@ export const sendLeadChatMessage = createServerFn({ method: "POST" })
     const { text } = await generateText({
       model,
       system: SYSTEM_PROMPT,
-      messages: data.messages.map((m) => ({ role: m.role, content: m.content })),
+      messages: data.messages.map((m: z.infer<typeof MessageSchema>) => ({ role: m.role, content: m.content })),
       temperature: 0.6,
       maxOutputTokens: 400,
     });
