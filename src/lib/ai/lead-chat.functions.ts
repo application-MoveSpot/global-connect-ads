@@ -86,7 +86,7 @@ STYLE DE CONVERSATION
 - Ne dis jamais "lead", "formulaire", "soumission", ni "notre équipe va vous rappeler" — c'est toi qui génères la proposition.
 
 SIGNAL DE FIN
-Dès que tu as le nom complet ET l'email (budget optionnel mais bienvenu), dis une phrase du type "Je génère votre proposition maintenant…" puis émets sur une nouvelle ligne :
+Dès que tu as le nom complet, l'email ET le budget annuel estimé (les trois sont obligatoires), dis une phrase du type "Je génère votre proposition maintenant…" puis émets sur une nouvelle ligne :
 
 [LEAD_READY]
 {"contact_name":"...","email":"...","company_name":"...","phone":"...","budget_range":"...","message":"..."}
