@@ -318,7 +318,8 @@ export function ZoneSelector({
         mapRef.current = null;
       }
     };
-  }, [center]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center[0], center[1]]);
 
   // ── Simple mode: redraw circle ─────────────────────────────────────────────
   useEffect(() => {

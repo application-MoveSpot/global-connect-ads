@@ -179,7 +179,8 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         mapRef.current = null;
       }
     };
-  }, [center]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center[0], center[1]]);
 
   // Forward geocoding: searchQuery → pan map
   useEffect(() => {
