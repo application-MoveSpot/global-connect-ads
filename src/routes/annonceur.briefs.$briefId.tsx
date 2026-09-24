@@ -8,7 +8,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
-import { RefreshCw, Wallet, FileText } from "lucide-react";
+import { RefreshCw, Wallet, FileText, Activity, Navigation } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
 import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
@@ -52,6 +52,17 @@ type Proposal = {
 
 type Vehicle = { id: string; name: string; type: string; photos: string[] | null; format_publicitaire: string | null };
 
+type CampaignRequest = {
+  id: string;
+  status: string;
+  payment_status: string;
+  installation_status: string;
+  start_date: string | null;
+  end_date: string | null;
+  total_price: number | null;
+  vehicle_id: string | null;
+};
+
 function BriefDetailPage() {
   const { briefId } = Route.useParams();
   const navigate = useNavigate();
@@ -60,6 +71,7 @@ function BriefDetailPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
   const [accountType, setAccountType] = useState<string | null>(null);
+  const [campaignRequests, setCampaignRequests] = useState<CampaignRequest[]>([]);
   // Maps proposalId → campaign_request.id (populated on accept)
   const [campaignRequestIds, setCampaignRequestIds] = useState<Record<string, string>>({});
   const [respondingId, setRespondingId] = useState<string | null>(null);
@@ -75,11 +87,23 @@ function BriefDetailPage() {
     if (!b) { navigate({ to: "/annonceur" }); return; }
     setBrief(b as Brief);
     setAccountType((prof as { account_type?: string } | null)?.account_type ?? null);
-    const { data: ps } = await supabase.from("brief_proposals").select("*").eq("brief_id", briefId).order("created_at", { ascending: false });
+    const [{ data: ps }, { data: crs }] = await Promise.all([
+      supabase.from("brief_proposals").select("*").eq("brief_id", briefId).order("created_at", { ascending: false }),
+      supabase.from("campaign_requests")
+        .select("id, status, payment_status, installation_status, start_date, end_date, total_price, vehicle_id")
+        .eq("spot_id", briefId)
+        .eq("user_id", sess.session.user.id)
+        .order("created_at", { ascending: false }),
+    ]);
     const list = (ps as Proposal[]) ?? [];
     setProposals(list);
-    if (list.length > 0) {
-      const { data: vs } = await supabase.from("vehicles").select("id, name, type, photos, format_publicitaire").in("id", list.map((p) => p.vehicle_id));
+    setCampaignRequests((crs as CampaignRequest[]) ?? []);
+    const vehicleIds = [
+      ...list.map((p) => p.vehicle_id),
+      ...((crs as CampaignRequest[]) ?? []).filter((c) => c.vehicle_id).map((c) => c.vehicle_id as string),
+    ];
+    if (vehicleIds.length > 0) {
+      const { data: vs } = await supabase.from("vehicles").select("id, name, type, photos, format_publicitaire").in("id", vehicleIds);
       const map: Record<string, Vehicle> = {};
       for (const v of (vs as Vehicle[]) ?? []) map[v.id] = v;
       setVehicles(map);
@@ -305,6 +329,60 @@ function BriefDetailPage() {
           <button onClick={cancelBrief} className="mb-6 text-xs text-destructive hover:underline">Annuler ce brief</button>
         )}
 
+        {campaignRequests.length > 0 && (
+          <section className="rounded-2xl border border-border bg-card p-6 mb-6">
+            <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Vos campagnes ({campaignRequests.length})
+            </h2>
+            <div className="space-y-3">
+              {campaignRequests.map((cr) => {
+                const vehicle = cr.vehicle_id ? vehicles[cr.vehicle_id] : null;
+                return (
+                  <div key={cr.id} className="rounded-xl border border-border p-4">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm">{vehicle?.name ?? "Véhicule"}</p>
+                        {cr.start_date && cr.end_date && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {new Date(cr.start_date).toLocaleDateString("fr-FR")} → {new Date(cr.end_date).toLocaleDateString("fr-FR")}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          <CampaignStatusBadge status={cr.status} />
+                          <PaymentStatusBadge status={cr.payment_status} />
+                          <InstallBadge status={cr.installation_status} />
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        {cr.total_price != null && (
+                          <span className="font-display font-bold text-base">{cr.total_price.toFixed(2)} €</span>
+                        )}
+                        <div className="flex gap-2">
+                          <Link
+                            to="/annonceur/suivi/$campaignId"
+                            params={{ campaignId: cr.id }}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90 transition"
+                          >
+                            <Navigation className="h-3 w-3" />Suivi GPS
+                          </Link>
+                          <Link
+                            to="/annonceur/rapport/$campaignId"
+                            params={{ campaignId: cr.id }}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-secondary transition"
+                          >
+                            Rapport →
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <h2 className="font-display text-2xl font-bold mb-4">
           {isIndividual ? "Véhicules disponibles pour votre événement" : "Propositions reçues"} ({proposals.length})
         </h2>
@@ -405,4 +483,40 @@ function ProposalBadge({ status }: { status: string }) {
   };
   const x = map[status] ?? { label: status, cls: "bg-secondary" };
   return <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+}
+
+function CampaignStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    pending:   { label: "En attente", cls: "bg-secondary text-foreground" },
+    approved:  { label: "Validée", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
+    active:    { label: "Active ✦", cls: "bg-signal/20 text-signal" },
+    completed: { label: "Terminée", cls: "bg-secondary text-muted-foreground" },
+    cancelled: { label: "Annulée", cls: "bg-destructive/15 text-destructive" },
+    rejected:  { label: "Refusée", cls: "bg-destructive/15 text-destructive" },
+  };
+  const x = map[status] ?? { label: status, cls: "bg-secondary" };
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+}
+
+function PaymentStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    pending:  { label: "💳 Paiement en attente", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
+    paid:     { label: "✓ Payée", cls: "bg-signal/15 text-signal" },
+    refunded: { label: "Remboursée", cls: "bg-secondary text-muted-foreground" },
+  };
+  const x = map[status] ?? { label: status, cls: "bg-secondary" };
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+}
+
+function InstallBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
+    pending:     { label: "🔧 Installation en attente", cls: "bg-secondary text-muted-foreground" },
+    scheduled:   { label: "📅 Installation planifiée", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
+    in_progress: { label: "⚙️ En cours", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
+    completed:   { label: "✓ Posée", cls: "bg-signal/15 text-signal" },
+    approved:    { label: "✓ Posée", cls: "bg-signal/15 text-signal" },
+    rejected:    { label: "❌ Refusée", cls: "bg-destructive/15 text-destructive" },
+  };
+  const x = map[status] ?? { label: status, cls: "bg-secondary" };
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
 }
