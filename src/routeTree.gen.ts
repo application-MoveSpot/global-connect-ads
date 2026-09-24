@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AnnonceursEntrepriseRouteImport } from './routes/annonceurs-entreprise'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CampagnesRouteImport } from './routes/campagnes'
 import { Route as CguRouteImport } from './routes/cgu'
@@ -102,6 +103,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnnonceursEntrepriseRoute = AnnonceursEntrepriseRouteImport.update({
+  id: '/annonceurs-entreprise',
+  path: '/annonceurs-entreprise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -533,6 +539,7 @@ const LovableEmailTransactionalSendRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/annonceurs-entreprise': typeof AnnonceursEntrepriseRoute
   '/auth': typeof AuthRoute
   '/campagnes': typeof CampagnesRoute
   '/cgu': typeof CguRoute
@@ -619,6 +626,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/annonceurs-entreprise': typeof AnnonceursEntrepriseRoute
   '/auth': typeof AuthRoute
   '/campagnes': typeof CampagnesRoute
   '/cgu': typeof CguRoute
@@ -706,6 +714,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/annonceurs-entreprise': typeof AnnonceursEntrepriseRoute
   '/auth': typeof AuthRoute
   '/campagnes': typeof CampagnesRoute
   '/cgu': typeof CguRoute
@@ -794,6 +803,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/annonceurs-entreprise'
     | '/auth'
     | '/campagnes'
     | '/cgu'
@@ -880,6 +890,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/annonceurs-entreprise'
     | '/auth'
     | '/campagnes'
     | '/cgu'
@@ -966,6 +977,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/annonceurs-entreprise'
     | '/auth'
     | '/campagnes'
     | '/cgu'
@@ -1053,6 +1065,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AnnonceursEntrepriseRoute: typeof AnnonceursEntrepriseRoute
   AuthRoute: typeof AuthRoute
   CampagnesRoute: typeof CampagnesRoute
   CguRoute: typeof CguRoute
@@ -1144,6 +1157,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/annonceurs-entreprise': {
+      id: '/annonceurs-entreprise'
+      path: '/annonceurs-entreprise'
+      fullPath: '/annonceurs-entreprise'
+      preLoaderRoute: typeof AnnonceursEntrepriseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1757,6 +1777,7 @@ const ProprietaireFlotteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AnnonceursEntrepriseRoute: AnnonceursEntrepriseRoute,
   AuthRoute: AuthRoute,
   CampagnesRoute: CampagnesRoute,
   CguRoute: CguRoute,
