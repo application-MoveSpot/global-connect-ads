@@ -30,7 +30,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         .maybeSingle(),
       supabase
         .from("brief_proposals")
-        .select("id, vehicle_id, price_per_day, status")
+        .select("id, vehicle_id, price_per_day, status, owner_id")
         .eq("id", data.proposalId)
         .eq("brief_id", data.briefId)
         .maybeSingle(),
@@ -46,7 +46,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
       days_count: number | null; advertiser_id: string;
     } | null;
     const proposal = proposalRes.data as {
-      id: string; vehicle_id: string; price_per_day: number; status: string;
+      id: string; vehicle_id: string; price_per_day: number; status: string; owner_id: string;
     } | null;
     const profile = profileRes.data as { full_name?: string; account_type?: string } | null;
 
@@ -131,6 +131,33 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         insufficientFunds =
           msg.includes("solde") || msg.includes("insuffisant") || msg.includes("fonds");
       }
+    }
+
+    // Send confirmation email to advertiser (fire & forget — must not block the acceptance)
+    if (email) {
+      try {
+        const { data: ownerProfile } = await supabaseAdmin
+          .from("owner_profiles")
+          .select("full_name")
+          .eq("id", proposal.owner_id)
+          .maybeSingle();
+        const fmtDate = (d: string) => new Date(d).toLocaleDateString("fr-FR");
+        const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+        await sendAppEmailSafe({
+          templateName: "brief-campaign-confirmed",
+          recipientEmail: email,
+          idempotencyKey: `brief-campaign-confirmed-${campaignRequestId}`,
+          templateData: {
+            advertiserName: profile?.full_name ?? undefined,
+            briefTitle: brief.title,
+            ownerName: (ownerProfile as { full_name?: string } | null)?.full_name ?? undefined,
+            startDate: fmtDate(brief.start_date),
+            endDate: fmtDate(brief.end_date),
+            totalPrice: `${totalPrice.toFixed(2)} €`,
+            dashboardUrl: `https://move-spot.com/annonceur/briefs/${brief.id}`,
+          },
+        });
+      } catch { /* email failure must not block the campaign acceptance */ }
     }
 
     return { ok: true as const, campaignRequestId, settled, insufficientFunds, alreadyExists: false };

@@ -15,6 +15,7 @@ import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPre
 import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
 import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
+import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
 
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
@@ -412,6 +413,7 @@ function NewBriefPage() {
     }
     setLoading(false);
     void track("brief_created", { brief_id: data!.id, vehicle_types: vehicleTypes, has_zone: !!zonePolygon });
+    void notifyBriefCreated({ data: { briefId: data!.id } });
 
     // Budget calculé depuis la zone dessinée → tunnel de paiement Stripe
     const computed = zonePolygon
