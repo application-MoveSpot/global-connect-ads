@@ -61,6 +61,23 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
     advice:
       "Les contenus sexistes ou discriminatoires sont interdits et passibles de refus immédiat.",
   },
+  {
+    category: "Discipline spirituelle",
+    keywords: [
+      "yoga", "yogi", "yogique",
+      "méditation", "meditation", "méditer",
+      "chakra", "chakras",
+      "reiki",
+      "ayurveda", "ayurvédique", "ayurvedique",
+      "kundalini",
+      "pranayama",
+      "spirituel", "spirituelle", "spiritualité", "spiritualite",
+      "éveil spirituel", "eveil spirituel",
+      "bien-être spirituel",
+    ],
+    advice:
+      "Les disciplines spirituelles (yoga, méditation, reiki, ayurvéda…) ne sont pas acceptées sur MoveSpot. La plateforme est réservée aux activités commerciales, associatives et événementielles laïques.",
+  },
 ];
 
 export type ForbiddenMatch = {
