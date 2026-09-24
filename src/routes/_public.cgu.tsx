@@ -9,6 +9,8 @@ export const Route = createFileRoute("/_public/cgu")({
       { name: "description", content: "CGU MoveSpot : accès au service, charte publicitaire, obligations des chauffeurs, calcul du budget de zone, flux financiers, force majeure et sécurité des comptes." },
       { property: "og:title", content: "Conditions Générales d'Utilisation — MoveSpot" },
       { property: "og:description", content: "Règles d'accès et d'usage de la marketplace de publicité mobile MoveSpot." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "index, follow" },
     ],
     links: [{ rel: "canonical", href: "https://move-spot.com/cgu" }, ...hreflangLinks("/cgu")],

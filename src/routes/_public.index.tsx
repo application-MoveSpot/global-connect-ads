@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_public/")({
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { name: "twitter:image", content: "https://move-spot.com/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/" },

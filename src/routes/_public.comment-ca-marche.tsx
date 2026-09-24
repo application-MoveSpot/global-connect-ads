@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_public/comment-ca-marche")({
       { name: "description", content: "MoveSpot en 3 minutes : comment annonceurs, propriétaires de véhicules et chauffeurs utilisent la marketplace de publicité mobile." },
       { property: "og:title", content: "Comment fonctionne MoveSpot" },
       { property: "og:description", content: "Annonceur, propriétaire, chauffeur : découvrez le parcours complet sur MoveSpot." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://move-spot.com/comment-ca-marche" }, ...hreflangLinks("/comment-ca-marche")],
     scripts: [

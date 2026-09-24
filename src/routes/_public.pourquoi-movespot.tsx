@@ -8,6 +8,8 @@ export const Route = createFileRoute("/_public/pourquoi-movespot")({
       { name: "keywords", content: "publicité mobile alternative agence, comparatif publicité véhicule, movespot vs agence, DOOH mobile France, publicité sans engagement" },
       { property: "og:title", content: "Pourquoi MoveSpot — La pub mobile sans agence" },
       { property: "og:description", content: "Lancez votre campagne en 5 minutes sur les vrais véhicules des propriétaires. Pas d'agence, pas de contrat, mesure GPS incluse." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/pourquoi-movespot" },

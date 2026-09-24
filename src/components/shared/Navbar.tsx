@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -10,7 +10,8 @@ export function Navbar() {
   const { t } = useTranslation();
   const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isHome = typeof window !== "undefined" && window.location.pathname === "/";
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
   const mapHref = isHome ? "#map" : "/#map";
   const spotsHref = isHome ? "#spots" : "/#spots";
 

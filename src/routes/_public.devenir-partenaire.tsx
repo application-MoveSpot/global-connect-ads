@@ -41,6 +41,8 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
       { name: "description", content: "Transformez vos kilomètres en revenu complémentaire avec MoveSpot. Taxi, VTC, food truck, van ou scooter : inscription gratuite, 70 % du budget campagne vous revient, minimum garanti 17,50 €/jour." },
       { property: "og:title", content: "Revenu complémentaire sur votre véhicule — MoveSpot" },
       { property: "og:description", content: "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     scripts: [
       {
