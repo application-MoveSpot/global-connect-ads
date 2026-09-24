@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { sendLeadChatMessage, type LeadData } from "@/lib/ai/lead-chat.functions";
 import { submitContactLead } from "@/lib/leads/contact.functions";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Send, Loader2 } from "lucide-react";
+import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -19,217 +19,198 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
-const schema = z.object({
-  plan: z.enum(["enterprise", "partenaire", "autre"]),
-  company_name: z.string().max(200).optional(),
-  siret: z.string().max(20).optional(),
-  contact_name: z.string().min(2, "Prénom et nom requis").max(100),
-  email: z.string().email("Email invalide"),
-  phone: z.string().max(30).optional(),
-  budget_range: z.string().max(100).optional(),
-  message: z.string().max(1000).optional(),
-});
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+};
 
-type FormValues = z.infer<typeof schema>;
-
-const BUDGET_OPTIONS = [
-  "Moins de 5 000 € / an",
-  "5 000 – 10 000 € / an",
-  "10 000 – 30 000 € / an",
-  "30 000 – 100 000 € / an",
-  "Plus de 100 000 € / an",
-];
+const INITIAL_MESSAGE: Message = {
+  role: "assistant",
+  content:
+    "Bonjour ! Je suis l'assistant commercial de MoveSpot 👋\n\nJe suis là pour construire avec vous une offre Grand Compte sur mesure — commission négociée, account manager dédié, contrat-cadre annuel.\n\nPour commencer, pourriez-vous me donner votre prénom et nom, ainsi que le nom de votre entreprise ?",
+};
 
 function ContactPage() {
-  const { plan } = Route.useSearch();
-  const [submitted, setSubmitted] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { plan: (["enterprise", "partenaire", "autre"].includes(plan) ? plan : "enterprise") as FormValues["plan"] },
-  });
+  const doChat = useServerFn(sendLeadChatMessage);
+  const doSubmit = useServerFn(submitContactLead);
 
-  const onSubmit = async (values: FormValues): Promise<void> => {
-    setServerError(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  const send = async () => {
+    const text = input.trim();
+    if (!text || loading || done) return;
+
+    const userMsg: Message = { role: "user", content: text };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    setInput("");
+    setLoading(true);
+    setError(null);
+
     try {
-      await submitContactLead({ data: values });
-      setSubmitted(true);
+      const result = await doChat({
+        data: {
+          messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+        },
+      });
+
+      if (result.reply) {
+        setMessages((prev) => [...prev, { role: "assistant", content: result.reply }]);
+      }
+
+      if (result.done && result.leadData) {
+        setDone(true);
+        await submitLeadData(result.leadData);
+      }
     } catch {
-      setServerError("Une erreur est survenue. Réessayez ou écrivez-nous à contact@move-spot.com");
+      setError("Une erreur est survenue. Réessayez ou écrivez-nous à contact@move-spot.com");
+    } finally {
+      setLoading(false);
+      inputRef.current?.focus();
     }
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex-1 flex items-center justify-center px-4">
-          <div className="max-w-md text-center">
-            <div className="flex justify-center mb-6">
-              <CheckCircle2 className="w-16 h-16 text-emerald-500" />
-            </div>
-            <h1 className="text-2xl font-bold mb-3">Demande bien reçue !</h1>
-            <p className="text-muted-foreground mb-2">
-              Un email de confirmation vient de vous être envoyé.
-            </p>
-            <p className="text-muted-foreground mb-8">
-              Notre équipe commerciale vous recontacte sous <strong className="text-foreground">24h ouvrées</strong> pour construire votre offre sur mesure.
-            </p>
-            <Link to="/" className="text-sm text-primary hover:underline">
-              ← Retour à l'accueil
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const submitLeadData = async (leadData: LeadData) => {
+    try {
+      await doSubmit({
+        data: {
+          plan: "enterprise",
+          contact_name: leadData.contact_name ?? "Prospect",
+          email: leadData.email ?? "",
+          company_name: leadData.company_name ?? undefined,
+          phone: leadData.phone ?? undefined,
+          budget_range: leadData.budget_range ?? undefined,
+          message: leadData.message ?? undefined,
+        },
+      });
+    } catch {
+      // Lead submission failure is non-blocking — the conversation already confirmed to the user
+    }
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void send();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <main className="flex-1 flex items-start justify-center px-4 py-12">
-        <div className="w-full max-w-xl">
-          {/* Header */}
-          <div className="mb-8">
-            <span className="text-xs font-bold tracking-widest uppercase text-[#F05A28]">
-              Grand Compte · Sur devis
-            </span>
-            <h1 className="text-3xl font-bold mt-2 mb-3">Obtenez votre offre personnalisée</h1>
-            <p className="text-muted-foreground">
-              Remplissez ce formulaire et un account manager dédié vous rappelle sous 24h ouvrées pour construire ensemble une offre adaptée à votre budget et vos objectifs.
-            </p>
-          </div>
+      <header className="border-b border-border">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <LogoLink />
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
+            Grande entreprise · Sur devis
+          </span>
+        </div>
+      </header>
 
-          {/* Ce qui est inclus */}
-          <div className="bg-muted/40 rounded-xl p-5 mb-8 border border-border">
-            <p className="text-sm font-semibold mb-3">Ce que comprend l'offre Grand Compte :</p>
-            <ul className="space-y-1.5 text-sm text-muted-foreground">
-              {[
-                "Commission négociée selon votre budget annuel",
-                "Account manager dédié à votre compte",
-                "Contrat-cadre annuel avec SLA",
-                "Onboarding personnalisé et formation équipe",
-                "Accès prioritaire aux véhicules premium",
-                "Reporting mensuel détaillé",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2">
-                  <span className="text-emerald-500 font-bold">✓</span> {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-6 gap-4">
+        <div className="text-center mb-2">
+          <h1 className="text-2xl font-bold">Construisons votre offre ensemble</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Notre assistant vous pose quelques questions, puis notre équipe vous recontacte sous 24h ouvrées.
+          </p>
+        </div>
 
-          {/* Formulaire */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <input type="hidden" {...register("plan")} />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1.5">
-                  Nom complet <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("contact_name")}
-                  placeholder="Marie Dupont"
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                {errors.contact_name && (
-                  <p className="text-xs text-red-500 mt-1">{errors.contact_name.message}</p>
-                )}
-              </div>
-
-              <div className="col-span-2 sm:col-span-1">
-                <label className="block text-sm font-medium mb-1.5">
-                  Email professionnel <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("email")}
-                  type="email"
-                  placeholder="vous@entreprise.com"
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                {errors.email && (
-                  <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
-                )}
-              </div>
-
-              <div className="col-span-2 sm:col-span-1">
-                <label className="block text-sm font-medium mb-1.5">Téléphone</label>
-                <input
-                  {...register("phone")}
-                  type="tel"
-                  placeholder="+596 696 12 34 56"
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-
-              <div className="col-span-2 sm:col-span-1">
-                <label className="block text-sm font-medium mb-1.5">Nom de l'entreprise</label>
-                <input
-                  {...register("company_name")}
-                  placeholder="Caraïbes Distribution SARL"
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-
-              <div className="col-span-2 sm:col-span-1">
-                <label className="block text-sm font-medium mb-1.5">SIRET</label>
-                <input
-                  {...register("siret")}
-                  placeholder="123 456 789 00012"
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-              </div>
-
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1.5">Budget annuel estimé</label>
-                <select
-                  {...register("budget_range")}
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                >
-                  <option value="">Sélectionner une tranche</option>
-                  {BUDGET_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1.5">
-                  Décrivez votre projet (optionnel)
-                </label>
-                <textarea
-                  {...register("message")}
-                  rows={4}
-                  placeholder="Ex : Nous avons 15 véhicules utilitaires en Martinique et souhaitons lancer une campagne de notoriété pour notre enseigne..."
-                  className="w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-                />
+        {/* Chat messages */}
+        <div className="flex-1 overflow-y-auto rounded-2xl border border-border bg-card p-4 space-y-4 min-h-[380px] max-h-[520px]">
+          {messages.map((m, i) => (
+            <ChatBubble key={i} message={m} />
+          ))}
+          {loading && (
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>En train d'écrire…</span>
+            </div>
+          )}
+          {done && (
+            <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Demande transmise avec succès</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Un email de confirmation vient de vous être envoyé.</p>
               </div>
             </div>
-
-            {serverError && (
-              <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">
-                {serverError}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-lg bg-[#F05A28] text-white font-semibold py-3 px-6 hover:bg-[#d94e20] transition disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Envoi en cours…" : "Envoyer ma demande de devis"}
-            </button>
-
-            <p className="text-xs text-muted-foreground text-center">
-              En soumettant ce formulaire, vous acceptez d'être recontacté par notre équipe commerciale.
-            </p>
-          </form>
+          )}
+          {error && (
+            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">{error}</p>
+          )}
+          <div ref={bottomRef} />
         </div>
+
+        {/* Input */}
+        {!done && (
+          <div className="flex gap-2 items-end">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKeyDown}
+              rows={2}
+              placeholder="Votre message… (Entrée pour envoyer)"
+              disabled={loading}
+              className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+            />
+            <button
+              onClick={() => void send()}
+              disabled={loading || !input.trim()}
+              className="rounded-xl bg-[#F05A28] text-white p-3 hover:bg-[#d94e20] transition disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+              aria-label="Envoyer"
+            >
+              <Send className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+
+        {done && (
+          <div className="text-center">
+            <Link to="/" className="text-sm text-primary hover:underline">← Retour à l'accueil</Link>
+          </div>
+        )}
+
+        <p className="text-center text-xs text-muted-foreground">
+          Préférez-vous un formulaire classique ?{" "}
+          <a href="/contact?form=1" className="underline hover:text-foreground" onClick={(e) => { e.preventDefault(); window.location.href = "/contact?form=1"; }}>
+            Cliquez ici
+          </a>
+          {" "}— ou écrivez-nous à{" "}
+          <a href="mailto:contact@move-spot.com" className="underline hover:text-foreground">contact@move-spot.com</a>
+        </p>
       </main>
+    </div>
+  );
+}
+
+function ChatBubble({ message }: { message: Message }) {
+  const isUser = message.role === "user";
+  return (
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+      {!isUser && (
+        <div className="w-7 h-7 rounded-full bg-[#F05A28] flex items-center justify-center text-white text-xs font-bold shrink-0 mr-2 mt-0.5">
+          M
+        </div>
+      )}
+      <div
+        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap leading-relaxed ${
+          isUser
+            ? "bg-primary text-primary-foreground rounded-br-sm"
+            : "bg-secondary text-foreground rounded-bl-sm"
+        }`}
+      >
+        {message.content}
+      </div>
     </div>
   );
 }
