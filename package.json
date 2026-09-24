@@ -20,7 +20,7 @@
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
     "@ai-sdk/react": "^3.0.195",
-    "@cloudflare/vite-plugin": "^1.25.5",
+    "@cloudflare/vite-plugin": "^1.58.0",
     "@hookform/resolvers": "^5.2.2",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
     "@lovable.dev/email-js": "^0.1.2",
@@ -106,8 +106,8 @@
     "@lovable.dev/vite-tanstack-config": "2.25.0",
     "@playwright/test": "^1.63.0",
     "@sentry/vite-plugin": "^5.4.0",
-    "@types/mapbox__mapbox-gl-draw": "^1.4.9",
     "@types/mapbox-gl": "^2.7.0",
+    "@types/mapbox__mapbox-gl-draw": "^1.4.9",
     "@types/node": "^22.16.5",
     "@types/papaparse": "^5.5.2",
     "@types/qrcode": "^1.5.6",
@@ -126,7 +126,8 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "wrangler": "^4.137.0"
   },
   "pnpm": {
     "overrides": {
