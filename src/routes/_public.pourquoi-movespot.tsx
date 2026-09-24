@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/pourquoi-movespot")({
+export const Route = createFileRoute("/_public/pourquoi-movespot")({
   head: () => ({
     meta: [
       { title: "Pourquoi MoveSpot — Publicité mobile sans agence" },

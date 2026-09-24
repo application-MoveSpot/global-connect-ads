@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 
-export const Route = createFileRoute("/annonceurs-entreprise")({
+export const Route = createFileRoute("/_public/annonceurs-entreprise")({
   head: () => ({
     meta: [
       { title: "Publicité mobile certifiée GPS pour entreprises — MoveSpot" },

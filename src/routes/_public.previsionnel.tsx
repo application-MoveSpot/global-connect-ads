@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import PrevisionnelFormules from "@/components/shared/PrevisionnelFormules";
 
-export const Route = createFileRoute("/previsionnel")({
+export const Route = createFileRoute("/_public/previsionnel")({
   component: PrevisionnelPage,
   head: () => ({
     meta: [

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
-export const Route = createFileRoute("/cgu")({
+export const Route = createFileRoute("/_public/cgu")({
   head: () => ({
     meta: [
       { title: "Conditions Générales d'Utilisation — MoveSpot" },

@@ -9,7 +9,7 @@ import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
 const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_public/")({
   head: () => ({
     meta: [
       { title: "MoveSpot — Marketplace de publicité mobile sur véhicules" },

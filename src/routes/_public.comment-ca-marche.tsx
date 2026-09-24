@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 
-export const Route = createFileRoute("/comment-ca-marche")({
+export const Route = createFileRoute("/_public/comment-ca-marche")({
   head: () => ({
     meta: [
       { title: "Comment ça marche — MoveSpot" },

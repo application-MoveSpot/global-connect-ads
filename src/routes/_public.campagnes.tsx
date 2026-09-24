@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPublicActiveCampaigns } from "@/lib/campaigns/rating.functions";
 import { RouteError } from "@/components/app/RouteError";
 
-export const Route = createFileRoute("/campagnes")({
+export const Route = createFileRoute("/_public/campagnes")({
   head: () => ({
     meta: [
       { title: "Campagnes en cours — MoveSpot" },

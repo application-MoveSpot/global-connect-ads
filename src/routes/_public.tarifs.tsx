@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { Check, X, Minus } from "lucide-react";
 
-export const Route = createFileRoute("/tarifs")({
+export const Route = createFileRoute("/_public/tarifs")({
   head: () => ({
     meta: [
       { title: "Tarifs — MoveSpot" },
