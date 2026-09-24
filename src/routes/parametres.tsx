@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { checkDeletionBlockers, requestAccountDeletion } from "@/lib/account/account.functions";
-import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
 import { AlertTriangle, ChevronDown, ChevronUp, Loader2, ShieldCheck, Trash2 } from "lucide-react";
@@ -59,12 +58,6 @@ function ParametresPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-        </div>
-      </header>
-
       <main className="max-w-2xl mx-auto px-4 py-10 space-y-8">
         <div>
           <h1 className="font-display text-3xl font-bold">Paramètres du compte</h1>

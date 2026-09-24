@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -63,7 +62,6 @@ function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
-        <div className="mb-4"><LogoLink /></div>
         <Link to="/auth" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Connexion</Link>
         <h1 className="font-display text-3xl font-bold mt-4 mb-2">
           {mode === "request" ? "Mot de passe oublié" : "Nouveau mot de passe"}

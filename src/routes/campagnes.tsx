@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicActiveCampaigns } from "@/lib/campaigns/rating.functions";
-import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/campagnes")({
@@ -54,18 +53,6 @@ function CampagnesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <LogoLink />
-          <Link
-            to="/annonceur/inscription"
-            className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition"
-          >
-            Lancer une campagne →
-          </Link>
-        </div>
-      </header>
-
       <main className="max-w-6xl mx-auto px-6 py-12">
         <div className="mb-10 text-center">
           <h1 className="font-display text-4xl font-bold mb-3">Campagnes en cours</h1>

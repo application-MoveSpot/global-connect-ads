@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
 
 export const Route = createFileRoute("/pourquoi-movespot")({
   head: () => ({
@@ -114,20 +113,6 @@ function Stars({ n }: { n: number }) {
 function PourquoiMovespot() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
-        <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
-          <Link to="/" aria-label="MoveSpot — accueil" className="flex h-16 items-center">
-            <img src={officialLogo.url} alt="MoveSpot" width={512} height={512} className="h-14 w-auto object-contain" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition shadow-glow">
-              Lancer ma campagne →
-            </Link>
-          </div>
-        </div>
-      </header>
-
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-60" />

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { LogoLink } from "@/components/app/LogoLink";
 import { getPublicCampaignInfo } from "@/lib/campaigns/public-campaign.functions";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -35,12 +34,6 @@ function PublicCampaignPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <LogoLink />
-        </div>
-      </header>
-
       <main className="flex-1 max-w-2xl mx-auto px-4 py-16 text-center">
         <div className="text-5xl mb-4" aria-hidden="true">
           🚗

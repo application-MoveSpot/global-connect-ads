@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { submitContactLead } from "@/lib/leads/contact.functions";
-import { LogoLink } from "@/components/app/LogoLink";
 import { CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
@@ -68,9 +67,6 @@ function ContactPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
-        <nav className="border-b border-border px-6 py-4">
-          <LogoLink />
-        </nav>
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="max-w-md text-center">
             <div className="flex justify-center mb-6">
@@ -94,13 +90,6 @@ function ContactPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <nav className="border-b border-border px-6 py-4 flex items-center justify-between">
-        <LogoLink />
-        <Link to="/tarifs" className="text-sm text-muted-foreground hover:text-foreground transition">
-          ← Voir les tarifs
-        </Link>
-      </nav>
-
       <main className="flex-1 flex items-start justify-center px-4 py-12">
         <div className="w-full max-w-xl">
           {/* Header */}
