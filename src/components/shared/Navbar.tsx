@@ -5,12 +5,29 @@ import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
 import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
 
+const HIDE_NAV_PREFIXES = [
+  "/annonceur",
+  "/proprietaire",
+  "/chauffeur",
+  "/prestataire",
+  "/partenaire",
+  "/admin",
+  "/auth",
+  "/api",
+  "/lovable",
+  "/.lovable",
+];
+
 export function Navbar() {
   const { t } = useTranslation();
   const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const isHome = location.pathname === "/";
+  const pathname = location.pathname;
+
+  if (HIDE_NAV_PREFIXES.some((p) => pathname.startsWith(p))) return null;
+
+  const isHome = pathname === "/";
   const mapHref = isHome ? "#map" : "/#map";
   const spotsHref = isHome ? "#spots" : "/#spots";
 
