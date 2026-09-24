@@ -1,38 +1,16 @@
-## Diagnostic rapide
+# Barre de navigation des pages publiques
 
-Le bug vient de deux problèmes combinés :
+## Modifications
 
-1. **Le code utilise encore l’ancienne intégration Stripe par clé secrète** (`STRIPE_SECRET_KEY`) et redirige vers `checkout.stripe.com`.
-2. **Le passage en live Stripe n’est pas terminé** : le statut indique que l’étape 1 “Connecter le sandbox Stripe” est encore en cours. Donc les paiements live ne peuvent pas fonctionner tant que cette étape n’est pas finalisée.
+- Créer le layout public `_public` qui affiche la barre blanche existante, puis le contenu de la page.
+- Déplacer les neuf pages demandées sous ce layout sans changer leurs URL publiques.
+- Mettre à jour chaque déclaration de route pour qu’elle corresponde exactement à son nouveau fichier.
+- Retirer de la barre la logique qui masquait certains préfixes, devenue inutile grâce au layout.
+- Ne pas modifier la racine de l’application ni les espaces annonceur, propriétaire, chauffeur, prestataire, partenaire ou admin.
 
-<presentation-actions><presentation-open-payments>Go to payments</presentation-open-payments></presentation-actions>
+## Vérifications
 
-## Solution rapide proposée
-
-Je vais remplacer le flux fragile actuel par le flux de paiement Stripe intégré à Lovable :
-
-1. **Supprimer la dépendance à `STRIPE_SECRET_KEY` pour la recharge portefeuille**
-   - Ne plus appeler Stripe directement avec la clé secrète enregistrée.
-   - Utiliser le client paiement Lovable déjà présent côté front (`VITE_PAYMENTS_CLIENT_TOKEN`).
-
-2. **Transformer la recharge portefeuille en paiement Stripe intégré**
-   - Créer une session Checkout compatible avec l’intégration Lovable.
-   - Retourner un `clientSecret` au lieu d’une URL de redirection.
-   - Afficher le checkout directement dans la page portefeuille.
-
-3. **Afficher clairement le mode test / live**
-   - En preview, afficher un bandeau indiquant que les paiements sont en test.
-   - En production, si le live n’est pas prêt, afficher un message clair au lieu d’une erreur technique.
-
-4. **Garder la mise à jour du portefeuille via webhook**
-   - Conserver la logique qui crédite le portefeuille après paiement validé.
-   - Adapter le webhook si nécessaire pour fonctionner avec le nouveau flux.
-
-5. **Vérifier le parcours utilisateur**
-   - Tester `/annonceur/portefeuille`.
-   - Vérifier que le clic sur “Recharger” ouvre bien le paiement au lieu de planter.
-   - Vérifier que l’erreur “Invalid API Key” ne peut plus apparaître sur ce flux.
-
-## Important
-
-La correction rendra le paiement test fonctionnel rapidement. Pour accepter de vrais paiements live, il faudra aussi terminer l’étape Stripe actuellement bloquée dans l’onglet Payments.
+- Contrôler la compilation et le rendu côté serveur.
+- Ouvrir les pages publiques principales sur ordinateur et mobile pour confirmer la présence d’une seule barre, sans chevauchement.
+- Ouvrir un espace privé pour confirmer que la barre publique n’y apparaît pas.
+- Vérifier que les neuf pages conservent leurs adresses actuelles et leurs métadonnées propres.
