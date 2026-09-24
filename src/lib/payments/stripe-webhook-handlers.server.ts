@@ -270,7 +270,8 @@ export async function handleStripeEvent(
     }
 
     case "payment_intent.payment_failed": {
-      console.warn("[stripe] payment_intent.payment_failed", event.data.object);
+      const pi = event.data.object as { id: string; last_payment_error?: { code?: string } };
+      console.warn("[stripe] payment_intent.payment_failed", { id: pi.id, code: pi.last_payment_error?.code });
       break;
     }
 

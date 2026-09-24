@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         const url = new URL(request.url);
-        const authHeader = request.headers.get("x-admin-setup-token") ?? url.searchParams.get("token");
+        const authHeader = request.headers.get("x-admin-setup-token");
         const expectedToken = process.env["ADMIN_SETUP_TOKEN"];
         if (!expectedToken) {
           return Response.json({ error: "ADMIN_SETUP_TOKEN non configuré" }, { status: 503 });

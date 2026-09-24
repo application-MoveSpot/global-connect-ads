@@ -20,7 +20,7 @@ export const Route = createFileRoute("/lovable/cron/enforce")({
           request.headers.get("x-cron-secret") ??
           request.headers.get("authorization")?.replace("Bearer ", "") ??
           url.searchParams.get("secret");
-        const validTokens = [serviceRoleKey, cronSecret].filter(Boolean) as string[];
+        const validTokens = [cronSecret].filter(Boolean) as string[];
         if (!token || !validTokens.includes(token)) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
