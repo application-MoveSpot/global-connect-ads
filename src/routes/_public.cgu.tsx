@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_public/cgu")({
 
 function CGU() {
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="24 août 2026">
+    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="24 août 2026" showHeader={false}>
       <LegalSection title="1. Objet">
         <p>
           Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités

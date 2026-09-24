@@ -6,23 +6,26 @@ type Props = {
   eyebrow: string;
   title: string;
   updatedAt: string;
+  showHeader?: boolean;
   children: ReactNode;
 };
 
-export function LegalPage({ eyebrow, title, updatedAt, children }: Props) {
+export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, children }: Props) {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <LogoLink />
-          <Link
-            to="/"
-            className="rounded-full border border-border bg-card/50 backdrop-blur px-4 py-2 text-sm font-medium hover:bg-card transition"
-          >
-            ← Retour à l'accueil
-          </Link>
-        </div>
-      </header>
+      {showHeader && (
+        <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <LogoLink />
+            <Link
+              to="/"
+              className="rounded-full border border-border bg-card/50 backdrop-blur px-4 py-2 text-sm font-medium hover:bg-card transition"
+            >
+              ← Retour à l'accueil
+            </Link>
+          </div>
+        </header>
+      )}
 
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-gradient-hero opacity-40" />
