@@ -4,7 +4,6 @@ import {
   createRootRouteWithContext,
   HeadContent,
   Scripts,
-  useLocation,
 } from "@tanstack/react-router";
 import { CSP_HEADER } from "@/lib/security/csp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -153,23 +152,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-const DASHBOARD_PREFIXES = [
-  "/annonceur",
-  "/proprietaire",
-  "/chauffeur",
-  "/prestataire",
-  "/partenaire",
-  "/admin",
-  "/auth",
-  "/api",
-  "/lovable",
-  "/.lovable",
-];
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const location = useLocation();
-  const showNav = !DASHBOARD_PREFIXES.some((p) => location.pathname.startsWith(p));
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -194,7 +178,7 @@ function RootComponent() {
         <TestEnvBanner />
         <AppUpdateGuard />
         <StatusBanner />
-        {showNav && <Navbar />}
+        <Navbar />
         <Outlet />
         <CookieBanner />
       </QueryClientProvider>
