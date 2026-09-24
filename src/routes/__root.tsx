@@ -14,7 +14,6 @@ import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
 import { TestEnvBanner } from "@/components/app/TestEnvBanner";
 import { CookieBanner } from "@/components/app/CookieBanner";
-import { Navbar } from "@/components/shared/Navbar";
 import { initSentry, Sentry } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
@@ -178,7 +177,6 @@ function RootComponent() {
         <TestEnvBanner />
         <AppUpdateGuard />
         <StatusBanner />
-        <Navbar />
         <Outlet />
         <CookieBanner />
       </QueryClientProvider>
