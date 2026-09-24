@@ -88,8 +88,12 @@ function ChatPage() {
         setDone(true);
         await submitLeadData(result.leadData);
       }
-    } catch {
-      setError("Une erreur est survenue. Réessayez ou écrivez-nous à contact@move-spot.com");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg.includes("LOVABLE_API_KEY") || msg.includes("manquant")
+        ? "Configuration manquante : ajoutez LOVABLE_API_KEY dans Lovable Dashboard → Secrets."
+        : `Erreur : ${msg.slice(0, 120)}`
+      );
     } finally {
       setLoading(false);
       inputRef.current?.focus();
