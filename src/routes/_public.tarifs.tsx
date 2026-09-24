@@ -143,10 +143,7 @@ function Tarifs() {
               </div>
               <div className="font-display text-4xl font-bold mb-1">Sur devis</div>
               <div className="text-sm text-muted-foreground mb-1">&nbsp;</div>
-              <div className="flex items-center gap-1.5 text-sm font-medium mb-6">
-                <span className="text-base">🤖</span>
-                Commission et budget négociés par IA
-              </div>
+              <div className="text-sm font-medium mb-6">Commission négociée, budget annuel</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Tout ce qui est dans PME</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Account manager dédié</li>
@@ -154,7 +151,7 @@ function Tarifs() {
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Onboarding personnalisé</li>
               </ul>
               <Link to="/contact" search={{ plan: "enterprise" }} className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
-                Négocier avec notre IA →
+                Demander un devis
               </Link>
             </div>
           </div>
