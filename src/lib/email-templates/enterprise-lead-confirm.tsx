@@ -7,6 +7,14 @@ import {
   h1Style, textStyle, mutedText,
 } from "./_base";
 
+const COMMISSION_TABLE: Record<string, { rate: string; vehicles: string }> = {
+  "Moins de 5 000 € / an":   { rate: "28 %",       vehicles: "1 à 3 véhicules" },
+  "5 000 – 10 000 € / an":   { rate: "25 %",       vehicles: "3 à 8 véhicules" },
+  "10 000 – 30 000 € / an":  { rate: "22 %",       vehicles: "8 à 20 véhicules" },
+  "30 000 – 100 000 € / an": { rate: "18 %",       vehicles: "20 à 60 véhicules" },
+  "Plus de 100 000 € / an":  { rate: "sur mesure", vehicles: "60+ véhicules" },
+};
+
 interface Props {
   contactName?: string;
   company?: string;
@@ -14,54 +22,61 @@ interface Props {
   unsubscribeUrl?: string;
 }
 
-const Email = ({ contactName, company, budgetRange, unsubscribeUrl }: Props) => (
-  <Html lang="fr" dir="ltr">
-    <Head />
-    <Preview>Votre demande de devis est bien reçue — nous vous recontactons sous 24h</Preview>
-    <Body style={bodyStyle}>
-      <Container style={{ maxWidth: "560px", margin: "32px auto" }}>
-        <Container style={containerStyle}>
-          <EmailHeader />
-          <Section style={contentPadding}>
-            <Text style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" as const, color: "#6366f1", margin: "0 0 10px" }}>
-              Demande reçue ✓
-            </Text>
-            <Text style={h1Style}>
-              Merci {contactName ? `, ${contactName}` : ""} !
-            </Text>
-            <Text style={textStyle}>
-              Votre demande de devis Grand Compte{company ? ` pour ${company}` : ""} a bien été enregistrée. Un membre de notre équipe commerciale vous contactera <strong>sous 24h ouvrées</strong> pour construire ensemble une offre adaptée à vos besoins.
-            </Text>
-            <InfoCard>
-              {company ? <InfoRow label="Entreprise" value={company} /> : null}
-              {budgetRange ? <InfoRow label="Budget indiqué" value={budgetRange} /> : null}
-              <InfoRow label="Délai de rappel" value="24h ouvrées" />
-              <InfoRow label="Contact commercial" value="contact@move-spot.com" />
-            </InfoCard>
-            <Text style={{ ...textStyle, marginTop: "20px" }}>
-              En attendant, vous pouvez explorer notre plateforme :
-            </Text>
-            {[
-              "Consultez notre grille tarifaire complète sur move-spot.com/tarifs",
-              "Découvrez comment fonctionne la publicité mobile sur véhicules",
-              "Posez vos questions à notre chatbot disponible 24h/24",
-            ].map((step, i) => (
-              <Text key={i} style={{ ...mutedText, paddingLeft: "4px" }}>
-                {i + 1}. {step}
+const Email = ({ contactName, company, budgetRange, unsubscribeUrl }: Props) => {
+  const tier = budgetRange ? COMMISSION_TABLE[budgetRange] : null;
+  return (
+    <Html lang="fr" dir="ltr">
+      <Head />
+      <Preview>Votre proposition MoveSpot Grand Compte — générée par notre IA</Preview>
+      <Body style={bodyStyle}>
+        <Container style={{ maxWidth: "560px", margin: "32px auto" }}>
+          <Container style={containerStyle}>
+            <EmailHeader />
+            <Section style={contentPadding}>
+              <Text style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" as const, color: "#F05A28", margin: "0 0 10px" }}>
+                Proposition générée par IA ✦
               </Text>
-            ))}
-          </Section>
-          <EmailFooter unsubscribeUrl={unsubscribeUrl} />
+              <Text style={h1Style}>
+                Bonjour {contactName ?? ""} !
+              </Text>
+              <Text style={textStyle}>
+                Voici la proposition commerciale personnalisée que notre assistant IA a établie pour{company ? ` ${company}` : " votre entreprise"}, basée sur votre échange.
+              </Text>
+
+              <InfoCard>
+                {company ? <InfoRow label="Entreprise" value={company} /> : null}
+                {budgetRange ? <InfoRow label="Budget annuel" value={budgetRange} /> : null}
+                {tier ? <InfoRow label="Commission négociée" value={tier.rate} /> : null}
+                {tier ? <InfoRow label="Flotte estimée" value={tier.vehicles} /> : null}
+                <InfoRow label="Suivi GPS temps réel" value="Inclus" />
+                <InfoRow label="Rapport PDF mensuel" value="Inclus" />
+                <InfoRow label="Contrat-cadre annuel + SLA" value="Inclus" />
+                <InfoRow label="Onboarding personnalisé" value="Inclus" />
+                {tier?.rate !== "sur mesure"
+                  ? <InfoRow label="Account manager" value="Dédié à votre compte" />
+                  : <InfoRow label="Équipe dédiée" value="Relation premium" />}
+              </InfoCard>
+
+              <Text style={{ ...textStyle, marginTop: "20px" }}>
+                Un account manager MoveSpot vous contactera dans les <strong>24h ouvrées</strong> pour valider les détails, affiner les conditions et préparer votre contrat-cadre.
+              </Text>
+              <Text style={mutedText}>
+                Des questions ? Répondez directement à cet email ou écrivez à contact@move-spot.com
+              </Text>
+            </Section>
+            <EmailFooter unsubscribeUrl={unsubscribeUrl} />
+          </Container>
         </Container>
-      </Container>
-    </Body>
-  </Html>
-);
+      </Body>
+    </Html>
+  );
+};
 
 export const template = {
   component: Email,
-  subject: "Votre demande de devis MoveSpot est bien reçue",
-  displayName: "Confirmation prospect — lead Grand Compte",
+  subject: (d: Record<string, string>) =>
+    `Votre proposition MoveSpot${d.company ? ` — ${d.company}` : ""}`,
+  displayName: "Proposition IA — lead Grand Compte",
   previewData: {
     contactName: "Marie",
     company: "Caraïbes Distribution SARL",

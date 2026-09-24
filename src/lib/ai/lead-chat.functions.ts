@@ -27,31 +27,63 @@ export type LeadChatResult = {
   done: boolean;
 };
 
-const SYSTEM_PROMPT = `Tu es l'assistant commercial de MoveSpot, une plateforme française de publicité mobile sur véhicules (taxis, VTCs, utilitaires, camionnettes).
+const COMMISSION_TABLE: Record<string, { rate: string; vehicles: string; manager: string }> = {
+  "Moins de 5 000 € / an":      { rate: "28 %",  vehicles: "1 à 3",   manager: "support prioritaire" },
+  "5 000 – 10 000 € / an":      { rate: "25 %",  vehicles: "3 à 8",   manager: "account manager dédié" },
+  "10 000 – 30 000 € / an":     { rate: "22 %",  vehicles: "8 à 20",  manager: "account manager dédié" },
+  "30 000 – 100 000 € / an":    { rate: "18 %",  vehicles: "20 à 60", manager: "account manager senior dédié" },
+  "Plus de 100 000 € / an":     { rate: "sur mesure", vehicles: "60+", manager: "équipe dédiée" },
+};
 
-Ton rôle : qualifier chaleureusement les prospects Grande Entreprise / Réseau qui souhaitent une offre sur devis personnalisée.
+function buildQuoteBlock(leadData: LeadData): string {
+  const tier = leadData.budget_range ? COMMISSION_TABLE[leadData.budget_range] : null;
+  const firstName = leadData.contact_name?.split(" ")[0] ?? "vous";
+  const company = leadData.company_name ?? "votre entreprise";
+
+  let quote = `📋 Proposition personnalisée — ${company}\n`;
+  quote += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+  if (tier) {
+    quote += `✦ Commission négociée : ${tier.rate}\n`;
+    quote += `✦ Véhicules estimés : ${tier.vehicles} véhicules\n`;
+    quote += `✦ Suivi : ${tier.manager}\n`;
+  }
+  quote += `✦ Suivi GPS temps réel inclus\n`;
+  quote += `✦ Rapport PDF mensuel\n`;
+  quote += `✦ Contrat-cadre annuel avec SLA\n`;
+  quote += `✦ Onboarding personnalisé\n`;
+  quote += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  quote += `Cette proposition est envoyée à ${leadData.email ?? "votre adresse"} pour référence. `;
+  quote += `Un account manager vous contacte sous 24h ouvrées pour affiner les détails ensemble, ${firstName} 🤝`;
+  return quote;
+}
+
+const SYSTEM_PROMPT = `Tu es l'assistant commercial IA de MoveSpot, une plateforme française de publicité mobile sur véhicules (taxis, VTCs, utilitaires, camionnettes).
+
+Ton rôle : collecter les informations du prospect, puis GÉNÉRER TOI-MÊME une proposition commerciale personnalisée directement dans la conversation — sans renvoyer vers une équipe humaine pour établir le devis.
 
 Informations à collecter dans l'ordre naturel :
 1. Prénom et nom complet (obligatoire)
-2. Email professionnel (obligatoire)
-3. Nom de l'entreprise
-4. Téléphone
-5. Budget annuel estimé — propose ces tranches si utile : "Moins de 5 000 € / an", "5 000 – 10 000 € / an", "10 000 – 30 000 € / an", "30 000 – 100 000 € / an", "Plus de 100 000 € / an"
+2. Nom de l'entreprise (important)
+3. Email professionnel (obligatoire)
+4. Téléphone (optionnel)
+5. Budget annuel estimé parmi : "Moins de 5 000 € / an", "5 000 – 10 000 € / an", "10 000 – 30 000 € / an", "30 000 – 100 000 € / an", "Plus de 100 000 € / an"
 6. Description du projet et des objectifs
 
-Instructions de conduite :
+Instructions :
 - Sois chaleureux, professionnel, concis. 2 à 4 phrases max par réponse.
 - Pose une seule question à la fois.
-- Si l'utilisateur donne plusieurs infos d'un coup, enregistre-les toutes et passe directement aux infos manquantes.
-- Présente-toi brièvement au début et demande le nom + entreprise.
-- Ne parle pas de "lead", "formulaire" ou "soumission" — dis simplement que tu transmets à l'équipe commerciale.
-- Quand tu as AU MINIMUM le nom complet ET l'email : rédige un message de confirmation chaleureux (ex : "Parfait ! Je transmets votre demande à notre équipe commerciale, vous serez recontacté(e) sous 24h ouvrées."), puis, sur une NOUVELLE ligne, ajoute exactement ce bloc JSON (rien d'autre après) :
+- Si l'utilisateur donne plusieurs infos d'un coup, prends-les toutes et passe directement aux manquantes.
+- Quand tu as le nom, l'email ET le budget : dis "Je génère votre proposition…" puis émets [LEAD_READY].
+- Si tu n'as pas le budget, émets quand même [LEAD_READY] une fois que tu as nom + email + description.
+- Ne parle pas de "lead", "formulaire" ou "soumission".
+
+Quand tu as AU MINIMUM le nom complet ET l'email, sur une NOUVELLE ligne, ajoute exactement ce bloc JSON (rien d'autre après) :
 
 [LEAD_READY]
 {"contact_name":"...","email":"...","company_name":"...","phone":"...","budget_range":"...","message":"..."}
 
 Mets null (sans guillemets) pour les champs non renseignés.
-Ne génère [LEAD_READY] qu'une seule fois, uniquement quand tu as le nom + email.`;
+Ne génère [LEAD_READY] qu'une seule fois.`;
 
 export const sendLeadChatMessage = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof LeadChatInput>) => LeadChatInput.parse(d))
@@ -72,10 +104,12 @@ export const sendLeadChatMessage = createServerFn({ method: "POST" })
 
     const leadReadyMatch = text.match(/\[LEAD_READY\]\s*([\s\S]*)/);
     if (leadReadyMatch) {
-      const visibleText = text.replace(/\[LEAD_READY\][\s\S]*/, "").trim();
+      const intro = text.replace(/\[LEAD_READY\][\s\S]*/, "").trim();
       try {
         const leadData = JSON.parse(leadReadyMatch[1].trim()) as LeadData;
-        return { reply: visibleText, leadData, done: true };
+        const quote = buildQuoteBlock(leadData);
+        const reply = intro ? `${intro}\n\n${quote}` : quote;
+        return { reply, leadData, done: true };
       } catch {
         return { reply: text, leadData: null, done: false };
       }
