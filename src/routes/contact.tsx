@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { sendLeadChatMessage, type LeadData } from "@/lib/ai/lead-chat.functions";
@@ -9,6 +9,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 export const Route = createFileRoute("/contact")({
   validateSearch: (search: Record<string, unknown>) => ({
     plan: (search.plan as string) ?? "enterprise",
+    form: (search.form as string) ?? "",
   }),
   head: () => ({
     meta: [
@@ -31,6 +32,18 @@ const INITIAL_MESSAGE: Message = {
 };
 
 function ContactPage() {
+  const { form } = Route.useSearch();
+  const navigate = useNavigate();
+
+  if (form === "1") {
+    return <ClassicForm onSwitchToChat={() => navigate({ to: "/contact", search: { plan: "enterprise", form: "" } })} />;
+  }
+
+  return <ChatPage />;
+}
+
+function ChatPage() {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -116,6 +129,7 @@ function ContactPage() {
         </div>
       </header>
 
+
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-6 gap-4">
         <div className="text-center mb-2">
           <h1 className="text-2xl font-bold">Construisons votre offre ensemble</h1>
@@ -182,12 +196,145 @@ function ContactPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           Préférez-vous un formulaire classique ?{" "}
-          <a href="/contact?form=1" className="underline hover:text-foreground" onClick={(e) => { e.preventDefault(); window.location.href = "/contact?form=1"; }}>
+          <button
+            type="button"
+            className="underline hover:text-foreground"
+            onClick={() => navigate({ to: "/contact", search: { plan: "enterprise", form: "1" } })}
+          >
             Cliquez ici
-          </a>
+          </button>
           {" "}— ou écrivez-nous à{" "}
           <a href="mailto:contact@move-spot.com" className="underline hover:text-foreground">contact@move-spot.com</a>
         </p>
+      </main>
+    </div>
+  );
+}
+
+function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
+  const doSubmit = useServerFn(submitContactLead);
+  const [fields, setFields] = useState({ name: "", email: "", company: "", phone: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fields.name.trim() || !fields.email.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await doSubmit({
+        data: {
+          plan: "enterprise",
+          contact_name: fields.name,
+          email: fields.email,
+          company_name: fields.company || undefined,
+          phone: fields.phone || undefined,
+          message: fields.message || undefined,
+        },
+      });
+      setDone(true);
+    } catch {
+      setError("Une erreur est survenue. Écrivez-nous à contact@move-spot.com");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b border-border">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <LogoLink />
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
+            Grande entreprise · Sur devis
+          </span>
+        </div>
+      </header>
+      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold">Formulaire de contact</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Remplissez ce formulaire et notre équipe vous répond sous 24h ouvrées.
+          </p>
+        </div>
+        {done ? (
+          <div className="flex flex-col items-center gap-4 py-12">
+            <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 w-full max-w-md">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Demande envoyée avec succès</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Un email de confirmation vient de vous être envoyé.</p>
+              </div>
+            </div>
+            <Link to="/" className="text-sm text-primary hover:underline">← Retour à l'accueil</Link>
+          </div>
+        ) : (
+          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 max-w-lg mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium mb-1">Nom complet *</label>
+                <input
+                  type="text" required value={fields.name}
+                  onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="Sophie Martin"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Email professionnel *</label>
+                <input
+                  type="email" required value={fields.email}
+                  onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="sophie@entreprise.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Entreprise</label>
+                <input
+                  type="text" value={fields.company}
+                  onChange={(e) => setFields((f) => ({ ...f, company: e.target.value }))}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="Caraïbes Distribution"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Téléphone</label>
+                <input
+                  type="tel" value={fields.phone}
+                  onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  placeholder="+33 6 00 00 00 00"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Votre projet</label>
+              <textarea
+                rows={4} value={fields.message}
+                onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+                placeholder="Décrivez votre campagne, vos objectifs, votre budget…"
+              />
+            </div>
+            {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">{error}</p>}
+            <button
+              type="submit" disabled={loading || !fields.name.trim() || !fields.email.trim()}
+              className="w-full rounded-xl bg-[#F05A28] text-white py-3 text-sm font-semibold hover:bg-[#d94e20] transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Envoyer ma demande
+            </button>
+            <p className="text-center text-xs text-muted-foreground">
+              Préférez-vous notre assistant IA ?{" "}
+              <button type="button" className="underline hover:text-foreground" onClick={onSwitchToChat}>
+                Démarrer le chat
+              </button>
+            </p>
+          </form>
+        )}
       </main>
     </div>
   );
