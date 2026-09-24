@@ -15,8 +15,29 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 const serverEnv = loadEnv(process.env["NODE_ENV"] ?? "development", process.cwd(), "");
 Object.assign(process.env, serverEnv);
 
+// Valeurs PUBLIQUES (URL + clé publishable) : secours si .env est absent au build de publication.
+const PUBLIC_SUPABASE_URL =
+  process.env["VITE_SUPABASE_URL"] || "https://phononlhfyljhhhvlmrm.supabase.co";
+const PUBLIC_SUPABASE_KEY =
+  process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4";
+for (const [k, v] of [
+  ["VITE_SUPABASE_URL", PUBLIC_SUPABASE_URL],
+  ["SUPABASE_URL", PUBLIC_SUPABASE_URL],
+  ["VITE_SUPABASE_PUBLISHABLE_KEY", PUBLIC_SUPABASE_KEY],
+  ["SUPABASE_PUBLISHABLE_KEY", PUBLIC_SUPABASE_KEY],
+  ["VITE_SUPABASE_PROJECT_ID", "phononlhfyljhhhvlmrm"],
+]) {
+  if (!process.env[k]) process.env[k] = v;
+}
+
 export default defineConfig({
   vite: {
+    define: {
+      "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(PUBLIC_SUPABASE_URL),
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(PUBLIC_SUPABASE_KEY),
+      "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify("phononlhfyljhhhvlmrm"),
+    },
     plugins: [
       mcpPlugin(),
       sentryVitePlugin({
