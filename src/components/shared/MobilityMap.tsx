@@ -151,6 +151,7 @@ export function MobilityMap() {
   useEffect(() => {
     if (!token || !mapContainer.current || mapRef.current || hubs.length === 0) return;
 
+    let destroyed = false;
     mapboxgl.accessToken = token;
     try {
       const map = new mapboxgl.Map({
@@ -158,11 +159,11 @@ export function MobilityMap() {
         style: "mapbox://styles/mapbox/dark-v11",
         center: [2.5, 46.5],
         zoom: 4.5,
-        projection: { name: "globe" },
         attributionControl: false,
       });
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
       map.on("style.load", () => {
+        if (destroyed) return;
         map.setFog({
           color: "rgb(10, 15, 25)",
           "high-color": "rgb(30, 40, 70)",
@@ -192,6 +193,7 @@ export function MobilityMap() {
     }
 
     return () => {
+      destroyed = true;
       mapRef.current?.remove();
       mapRef.current = null;
       markersRef.current = {};
