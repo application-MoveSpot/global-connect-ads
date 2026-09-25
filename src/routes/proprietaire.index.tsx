@@ -374,6 +374,12 @@ function DashboardPage() {
             >
               🪪 Carte de visite
             </Link>
+            <Link
+              to="/proprietaire/historique"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition"
+            >
+              💰 Mes reversements
+            </Link>
           </div>
           <div className="flex gap-2">
             {tab === "vehicles" && vehicles.length > 0 && (
