@@ -14,6 +14,7 @@ import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
 import { TestEnvBanner } from "@/components/app/TestEnvBanner";
 import { CookieBanner } from "@/components/app/CookieBanner";
+import { OfflineBanner } from "@/components/app/OfflineBanner";
 import { initSentry, Sentry } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
@@ -174,6 +175,7 @@ function RootComponent() {
   return (
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <QueryClientProvider client={queryClient}>
+        <OfflineBanner />
         <TestEnvBanner />
         <AppUpdateGuard />
         <StatusBanner />

@@ -4,8 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { getCommercialDashboard, type CommercialProfile, type CommercialClient, type CommercialCampaign } from "@/lib/commercial/commercial.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
+import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { supabase } from "@/integrations/supabase/client";
-import { Copy, Check, TrendingUp, Users, ArrowLeft } from "lucide-react";
+import { Copy, Check, TrendingUp, Users, ArrowLeft, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/commercial/")({
   head: () => ({
@@ -30,6 +31,7 @@ function CommercialDashboard() {
   const navigate = useNavigate();
   const dashFn = useServerFn(getCommercialDashboard);
   const [loading, setLoading] = useState(true);
+  const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<CommercialProfile | null>(null);
   const [clients, setClients] = useState<CommercialClient[]>([]);
@@ -38,24 +40,32 @@ function CommercialDashboard() {
   const [paidCents, setPaidCents] = useState(0);
   const [copied, setCopied] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (isRetry = false) => {
+    if (isRetry) setRetrying(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/commercial/inscription" }); return; }
-    const res = await dashFn({ data: {} });
-    if (!res.ok) {
-      if (res.error?.includes("introuvable")) {
-        navigate({ to: "/commercial/inscription" });
-        return;
+    try {
+      const res = await dashFn({ data: {} });
+      if (!res.ok) {
+        if (res.error?.includes("introuvable")) {
+          navigate({ to: "/commercial/inscription" });
+          return;
+        }
+        setError(res.error ?? "Erreur");
+      } else {
+        setError(null);
+        setProfile(res.profile);
+        setClients(res.clients);
+        setCampaigns(res.campaigns);
+        setTotalCents(res.totalCommissionCents);
+        setPaidCents(res.paidCommissionCents);
       }
-      setError(res.error ?? "Erreur");
-    } else {
-      setProfile(res.profile);
-      setClients(res.clients);
-      setCampaigns(res.campaigns);
-      setTotalCents(res.totalCommissionCents);
-      setPaidCents(res.paidCommissionCents);
+    } catch {
+      setError("Impossible de charger les données. Vérifiez votre connexion.");
+    } finally {
+      setLoading(false);
+      setRetrying(false);
     }
-    setLoading(false);
   }, [dashFn, navigate]);
 
   useEffect(() => { void load(); }, [load]);
@@ -93,7 +103,11 @@ function CommercialDashboard() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {error && (
-          <div className="rounded-xl bg-destructive/10 border border-destructive/30 p-4 text-sm text-destructive">{error}</div>
+          <NetworkErrorBanner
+            message={error}
+            onRetry={() => load(true)}
+            retrying={retrying}
+          />
         )}
 
         {/* Lien de parrainage */}
