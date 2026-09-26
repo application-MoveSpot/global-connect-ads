@@ -60,6 +60,13 @@ function ParametresPage() {
     <div className="min-h-screen bg-background">
       <main className="max-w-2xl mx-auto px-4 py-10 space-y-8">
         <div>
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1"
+          >
+            ← Retour
+          </button>
           <h1 className="font-display text-3xl font-bold">Paramètres du compte</h1>
           <p className="text-muted-foreground mt-1">Gérez vos préférences et vos droits RGPD.</p>
         </div>
