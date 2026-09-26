@@ -80,9 +80,15 @@ export function Navbar() {
           >
             {tx("nav.owner", "Espace propriétaire")}
           </Link>
+          <Link
+            to="/commencer"
+            className="hidden sm:inline-block rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+          >
+            {tx("nav.signup", "S'inscrire")}
+          </Link>
           <a
             href={spotsHref}
-            className="hidden sm:inline-block rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition"
+            className="hidden lg:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition"
           >
             {tx("nav.book", "Réserver")}
           </a>
@@ -165,10 +171,17 @@ export function Navbar() {
               {tx("nav.owner", "Espace propriétaire")}
             </Link>
             <LanguageSwitcher className="py-2 [&>button]:text-header-muted [&>button:hover]:text-header-foreground" />
+            <Link
+              to="/commencer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="mt-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-center font-semibold"
+            >
+              {tx("nav.signup", "S'inscrire")}
+            </Link>
             <a
               href={spotsHref}
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-2 rounded-full bg-primary text-primary-foreground px-4 py-2.5 text-center font-semibold"
+              className="rounded-full border border-header-border bg-header-card px-4 py-2.5 text-center font-medium text-header-foreground"
             >
               {tx("nav.book", "Réserver")}
             </a>
