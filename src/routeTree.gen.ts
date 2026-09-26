@@ -35,11 +35,14 @@ import { Route as PublicCommentCaMarcheRouteImport } from './routes/_public.comm
 import { Route as PublicDevenirPartenaireRouteImport } from './routes/_public.devenir-partenaire'
 import { Route as PublicPourquoiMovespotRouteImport } from './routes/_public.pourquoi-movespot'
 import { Route as PublicPrevisionnelRouteImport } from './routes/_public.previsionnel'
+import { Route as PublicRemboursementRouteImport } from './routes/_public.remboursement'
 import { Route as PublicTarifsRouteImport } from './routes/_public.tarifs'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminCommerciauxRouteImport } from './routes/admin.commerciaux'
 import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
+import { Route as AdminRemboursementsRouteImport } from './routes/admin.remboursements'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AnnonceurIndexRouteImport } from './routes/annonceur.index'
 import { Route as AnnonceurEssaiActiveRouteImport } from './routes/annonceur.essai-active'
@@ -49,6 +52,7 @@ import { Route as AnnonceurInscriptionRouteImport } from './routes/annonceur.ins
 import { Route as AnnonceurPackRouteImport } from './routes/annonceur.pack'
 import { Route as AnnonceurPortefeuilleRouteImport } from './routes/annonceur.portefeuille'
 import { Route as AnnonceurPreview3dRouteImport } from './routes/annonceur.preview-3d'
+import { Route as AnnonceurRemboursementRouteImport } from './routes/annonceur.remboursement'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as CCampaignIdRouteImport } from './routes/c.$campaignId'
@@ -56,6 +60,8 @@ import { Route as ChauffeurIndexRouteImport } from './routes/chauffeur.index'
 import { Route as ChauffeurEcranRouteImport } from './routes/chauffeur.ecran'
 import { Route as ChauffeurEspaceRouteImport } from './routes/chauffeur.espace'
 import { Route as ChauffeurInscriptionRouteImport } from './routes/chauffeur.inscription'
+import { Route as CommercialIndexRouteImport } from './routes/commercial.index'
+import { Route as CommercialInscriptionRouteImport } from './routes/commercial.inscription'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as PartenaireIndexRouteImport } from './routes/partenaire.index'
 import { Route as PartenaireInscriptionRouteImport } from './routes/partenaire.inscription'
@@ -67,6 +73,7 @@ import { Route as PrestatairesProviderIdRouteImport } from './routes/prestataire
 import { Route as ProprietaireIndexRouteImport } from './routes/proprietaire.index'
 import { Route as ProprietaireCarteRouteImport } from './routes/proprietaire.carte'
 import { Route as ProprietaireFlotteRouteImport } from './routes/proprietaire.flotte'
+import { Route as ProprietaireHistoriqueRouteImport } from './routes/proprietaire.historique'
 import { Route as ProprietaireInscriptionRouteImport } from './routes/proprietaire.inscription'
 import { Route as ProprietaireTrackingRouteImport } from './routes/proprietaire.tracking'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -228,6 +235,11 @@ const PublicPrevisionnelRoute = PublicPrevisionnelRouteImport.update({
   path: '/previsionnel',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicRemboursementRoute = PublicRemboursementRouteImport.update({
+  id: '/remboursement',
+  path: '/remboursement',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicTarifsRoute = PublicTarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
@@ -236,6 +248,11 @@ const PublicTarifsRoute = PublicTarifsRouteImport.update({
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCommerciauxRoute = AdminCommerciauxRouteImport.update({
+  id: '/commerciaux',
+  path: '/commerciaux',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCommissionsRoute = AdminCommissionsRouteImport.update({
@@ -251,6 +268,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
   id: '/prestataires',
   path: '/prestataires',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRemboursementsRoute = AdminRemboursementsRouteImport.update({
+  id: '/remboursements',
+  path: '/remboursements',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminVirementsRoute = AdminVirementsRouteImport.update({
@@ -298,6 +320,11 @@ const AnnonceurPreview3dRoute = AnnonceurPreview3dRouteImport.update({
   path: '/annonceur/preview-3d',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnonceurRemboursementRoute = AnnonceurRemboursementRouteImport.update({
+  id: '/annonceur/remboursement',
+  path: '/annonceur/remboursement',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiFaqChatRoute = ApiFaqChatRouteImport.update({
   id: '/api/faq-chat',
   path: '/api/faq-chat',
@@ -331,6 +358,16 @@ const ChauffeurEspaceRoute = ChauffeurEspaceRouteImport.update({
 const ChauffeurInscriptionRoute = ChauffeurInscriptionRouteImport.update({
   id: '/chauffeur/inscription',
   path: '/chauffeur/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommercialIndexRoute = CommercialIndexRouteImport.update({
+  id: '/commercial/',
+  path: '/commercial/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommercialInscriptionRoute = CommercialInscriptionRouteImport.update({
+  id: '/commercial/inscription',
+  path: '/commercial/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
@@ -386,6 +423,11 @@ const ProprietaireCarteRoute = ProprietaireCarteRouteImport.update({
 const ProprietaireFlotteRoute = ProprietaireFlotteRouteImport.update({
   id: '/proprietaire/flotte',
   path: '/proprietaire/flotte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProprietaireHistoriqueRoute = ProprietaireHistoriqueRouteImport.update({
+  id: '/proprietaire/historique',
+  path: '/proprietaire/historique',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProprietaireInscriptionRoute = ProprietaireInscriptionRouteImport.update({
@@ -568,11 +610,14 @@ export interface FileRoutesByFullPath {
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/previsionnel': typeof PublicPrevisionnelRoute
+  '/remboursement': typeof PublicRemboursementRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/commerciaux': typeof AdminCommerciauxRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/etude-marche': typeof AnnonceurEtudeMarcheRoute
@@ -581,12 +626,14 @@ export interface FileRoutesByFullPath {
   '/annonceur/pack': typeof AnnonceurPackRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/annonceur/preview-3d': typeof AnnonceurPreview3dRoute
+  '/annonceur/remboursement': typeof AnnonceurRemboursementRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/api/health': typeof ApiHealthRoute
   '/c/$campaignId': typeof CCampaignIdRoute
   '/chauffeur/ecran': typeof ChauffeurEcranRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
+  '/commercial/inscription': typeof CommercialInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/connexion': typeof PrestataireConnexionRoute
@@ -594,10 +641,12 @@ export interface FileRoutesByFullPath {
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/carte': typeof ProprietaireCarteRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
+  '/proprietaire/historique': typeof ProprietaireHistoriqueRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/chauffeur/': typeof ChauffeurIndexRoute
+  '/commercial/': typeof CommercialIndexRoute
   '/partenaire/': typeof PartenaireIndexRoute
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
@@ -654,11 +703,14 @@ export interface FileRoutesByTo {
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/previsionnel': typeof PublicPrevisionnelRoute
+  '/remboursement': typeof PublicRemboursementRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/commerciaux': typeof AdminCommerciauxRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/etude-marche': typeof AnnonceurEtudeMarcheRoute
@@ -667,12 +719,14 @@ export interface FileRoutesByTo {
   '/annonceur/pack': typeof AnnonceurPackRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/annonceur/preview-3d': typeof AnnonceurPreview3dRoute
+  '/annonceur/remboursement': typeof AnnonceurRemboursementRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/api/health': typeof ApiHealthRoute
   '/c/$campaignId': typeof CCampaignIdRoute
   '/chauffeur/ecran': typeof ChauffeurEcranRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
+  '/commercial/inscription': typeof CommercialInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/connexion': typeof PrestataireConnexionRoute
@@ -680,11 +734,13 @@ export interface FileRoutesByTo {
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/carte': typeof ProprietaireCarteRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
+  '/proprietaire/historique': typeof ProprietaireHistoriqueRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/': typeof PublicIndexRoute
   '/annonceur': typeof AnnonceurIndexRoute
   '/chauffeur': typeof ChauffeurIndexRoute
+  '/commercial': typeof CommercialIndexRoute
   '/partenaire': typeof PartenaireIndexRoute
   '/prestataire': typeof PrestataireIndexRoute
   '/prestataires': typeof PrestatairesIndexRoute
@@ -743,11 +799,14 @@ export interface FileRoutesById {
   '/_public/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/_public/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/_public/previsionnel': typeof PublicPrevisionnelRoute
+  '/_public/remboursement': typeof PublicRemboursementRoute
   '/_public/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/commerciaux': typeof AdminCommerciauxRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/annonceur/essai-active': typeof AnnonceurEssaiActiveRoute
   '/annonceur/etude-marche': typeof AnnonceurEtudeMarcheRoute
@@ -756,12 +815,14 @@ export interface FileRoutesById {
   '/annonceur/pack': typeof AnnonceurPackRoute
   '/annonceur/portefeuille': typeof AnnonceurPortefeuilleRoute
   '/annonceur/preview-3d': typeof AnnonceurPreview3dRoute
+  '/annonceur/remboursement': typeof AnnonceurRemboursementRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/api/health': typeof ApiHealthRoute
   '/c/$campaignId': typeof CCampaignIdRoute
   '/chauffeur/ecran': typeof ChauffeurEcranRoute
   '/chauffeur/espace': typeof ChauffeurEspaceRoute
   '/chauffeur/inscription': typeof ChauffeurInscriptionRoute
+  '/commercial/inscription': typeof CommercialInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/partenaire/inscription': typeof PartenaireInscriptionRoute
   '/prestataire/connexion': typeof PrestataireConnexionRoute
@@ -769,11 +830,13 @@ export interface FileRoutesById {
   '/prestataires/$providerId': typeof PrestatairesProviderIdRoute
   '/proprietaire/carte': typeof ProprietaireCarteRoute
   '/proprietaire/flotte': typeof ProprietaireFlotteRouteWithChildren
+  '/proprietaire/historique': typeof ProprietaireHistoriqueRoute
   '/proprietaire/inscription': typeof ProprietaireInscriptionRoute
   '/proprietaire/tracking': typeof ProprietaireTrackingRoute
   '/_public/': typeof PublicIndexRoute
   '/annonceur/': typeof AnnonceurIndexRoute
   '/chauffeur/': typeof ChauffeurIndexRoute
+  '/commercial/': typeof CommercialIndexRoute
   '/partenaire/': typeof PartenaireIndexRoute
   '/prestataire/': typeof PrestataireIndexRoute
   '/prestataires/': typeof PrestatairesIndexRoute
@@ -833,11 +896,14 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/pourquoi-movespot'
     | '/previsionnel'
+    | '/remboursement'
     | '/tarifs'
     | '/admin/audit'
+    | '/admin/commerciaux'
     | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
+    | '/admin/remboursements'
     | '/admin/virements'
     | '/annonceur/essai-active'
     | '/annonceur/etude-marche'
@@ -846,12 +912,14 @@ export interface FileRouteTypes {
     | '/annonceur/pack'
     | '/annonceur/portefeuille'
     | '/annonceur/preview-3d'
+    | '/annonceur/remboursement'
     | '/api/faq-chat'
     | '/api/health'
     | '/c/$campaignId'
     | '/chauffeur/ecran'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
+    | '/commercial/inscription'
     | '/email/unsubscribe'
     | '/partenaire/inscription'
     | '/prestataire/connexion'
@@ -859,10 +927,12 @@ export interface FileRouteTypes {
     | '/prestataires/$providerId'
     | '/proprietaire/carte'
     | '/proprietaire/flotte'
+    | '/proprietaire/historique'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/annonceur/'
     | '/chauffeur/'
+    | '/commercial/'
     | '/partenaire/'
     | '/prestataire/'
     | '/prestataires/'
@@ -919,11 +989,14 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/pourquoi-movespot'
     | '/previsionnel'
+    | '/remboursement'
     | '/tarifs'
     | '/admin/audit'
+    | '/admin/commerciaux'
     | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
+    | '/admin/remboursements'
     | '/admin/virements'
     | '/annonceur/essai-active'
     | '/annonceur/etude-marche'
@@ -932,12 +1005,14 @@ export interface FileRouteTypes {
     | '/annonceur/pack'
     | '/annonceur/portefeuille'
     | '/annonceur/preview-3d'
+    | '/annonceur/remboursement'
     | '/api/faq-chat'
     | '/api/health'
     | '/c/$campaignId'
     | '/chauffeur/ecran'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
+    | '/commercial/inscription'
     | '/email/unsubscribe'
     | '/partenaire/inscription'
     | '/prestataire/connexion'
@@ -945,11 +1020,13 @@ export interface FileRouteTypes {
     | '/prestataires/$providerId'
     | '/proprietaire/carte'
     | '/proprietaire/flotte'
+    | '/proprietaire/historique'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/'
     | '/annonceur'
     | '/chauffeur'
+    | '/commercial'
     | '/partenaire'
     | '/prestataire'
     | '/prestataires'
@@ -1007,11 +1084,14 @@ export interface FileRouteTypes {
     | '/_public/devenir-partenaire'
     | '/_public/pourquoi-movespot'
     | '/_public/previsionnel'
+    | '/_public/remboursement'
     | '/_public/tarifs'
     | '/admin/audit'
+    | '/admin/commerciaux'
     | '/admin/commissions'
     | '/admin/dashboard'
     | '/admin/prestataires'
+    | '/admin/remboursements'
     | '/admin/virements'
     | '/annonceur/essai-active'
     | '/annonceur/etude-marche'
@@ -1020,12 +1100,14 @@ export interface FileRouteTypes {
     | '/annonceur/pack'
     | '/annonceur/portefeuille'
     | '/annonceur/preview-3d'
+    | '/annonceur/remboursement'
     | '/api/faq-chat'
     | '/api/health'
     | '/c/$campaignId'
     | '/chauffeur/ecran'
     | '/chauffeur/espace'
     | '/chauffeur/inscription'
+    | '/commercial/inscription'
     | '/email/unsubscribe'
     | '/partenaire/inscription'
     | '/prestataire/connexion'
@@ -1033,11 +1115,13 @@ export interface FileRouteTypes {
     | '/prestataires/$providerId'
     | '/proprietaire/carte'
     | '/proprietaire/flotte'
+    | '/proprietaire/historique'
     | '/proprietaire/inscription'
     | '/proprietaire/tracking'
     | '/_public/'
     | '/annonceur/'
     | '/chauffeur/'
+    | '/commercial/'
     | '/partenaire/'
     | '/prestataire/'
     | '/prestataires/'
@@ -1096,12 +1180,14 @@ export interface RootRouteChildren {
   AnnonceurPackRoute: typeof AnnonceurPackRoute
   AnnonceurPortefeuilleRoute: typeof AnnonceurPortefeuilleRoute
   AnnonceurPreview3dRoute: typeof AnnonceurPreview3dRoute
+  AnnonceurRemboursementRoute: typeof AnnonceurRemboursementRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
   ApiHealthRoute: typeof ApiHealthRoute
   CCampaignIdRoute: typeof CCampaignIdRoute
   ChauffeurEcranRoute: typeof ChauffeurEcranRoute
   ChauffeurEspaceRoute: typeof ChauffeurEspaceRoute
   ChauffeurInscriptionRoute: typeof ChauffeurInscriptionRoute
+  CommercialInscriptionRoute: typeof CommercialInscriptionRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   PartenaireInscriptionRoute: typeof PartenaireInscriptionRoute
   PrestataireConnexionRoute: typeof PrestataireConnexionRoute
@@ -1109,10 +1195,12 @@ export interface RootRouteChildren {
   PrestatairesProviderIdRoute: typeof PrestatairesProviderIdRoute
   ProprietaireCarteRoute: typeof ProprietaireCarteRoute
   ProprietaireFlotteRoute: typeof ProprietaireFlotteRouteWithChildren
+  ProprietaireHistoriqueRoute: typeof ProprietaireHistoriqueRoute
   ProprietaireInscriptionRoute: typeof ProprietaireInscriptionRoute
   ProprietaireTrackingRoute: typeof ProprietaireTrackingRoute
   AnnonceurIndexRoute: typeof AnnonceurIndexRoute
   ChauffeurIndexRoute: typeof ChauffeurIndexRoute
+  CommercialIndexRoute: typeof CommercialIndexRoute
   PartenaireIndexRoute: typeof PartenaireIndexRoute
   PrestataireIndexRoute: typeof PrestataireIndexRoute
   PrestatairesIndexRoute: typeof PrestatairesIndexRoute
@@ -1327,6 +1415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicPrevisionnelRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/remboursement': {
+      id: '/_public/remboursement'
+      path: '/remboursement'
+      fullPath: '/remboursement'
+      preLoaderRoute: typeof PublicRemboursementRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/tarifs': {
       id: '/_public/tarifs'
       path: '/tarifs'
@@ -1339,6 +1434,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/commerciaux': {
+      id: '/admin/commerciaux'
+      path: '/commerciaux'
+      fullPath: '/admin/commerciaux'
+      preLoaderRoute: typeof AdminCommerciauxRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/commissions': {
@@ -1360,6 +1462,13 @@ declare module '@tanstack/react-router' {
       path: '/prestataires'
       fullPath: '/admin/prestataires'
       preLoaderRoute: typeof AdminPrestatairesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/remboursements': {
+      id: '/admin/remboursements'
+      path: '/remboursements'
+      fullPath: '/admin/remboursements'
+      preLoaderRoute: typeof AdminRemboursementsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/virements': {
@@ -1425,6 +1534,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnnonceurPreview3dRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/annonceur/remboursement': {
+      id: '/annonceur/remboursement'
+      path: '/annonceur/remboursement'
+      fullPath: '/annonceur/remboursement'
+      preLoaderRoute: typeof AnnonceurRemboursementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/faq-chat': {
       id: '/api/faq-chat'
       path: '/api/faq-chat'
@@ -1472,6 +1588,20 @@ declare module '@tanstack/react-router' {
       path: '/chauffeur/inscription'
       fullPath: '/chauffeur/inscription'
       preLoaderRoute: typeof ChauffeurInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commercial/': {
+      id: '/commercial/'
+      path: '/commercial'
+      fullPath: '/commercial/'
+      preLoaderRoute: typeof CommercialIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commercial/inscription': {
+      id: '/commercial/inscription'
+      path: '/commercial/inscription'
+      fullPath: '/commercial/inscription'
+      preLoaderRoute: typeof CommercialInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/email/unsubscribe': {
@@ -1549,6 +1679,13 @@ declare module '@tanstack/react-router' {
       path: '/proprietaire/flotte'
       fullPath: '/proprietaire/flotte'
       preLoaderRoute: typeof ProprietaireFlotteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proprietaire/historique': {
+      id: '/proprietaire/historique'
+      path: '/proprietaire/historique'
+      fullPath: '/proprietaire/historique'
+      preLoaderRoute: typeof ProprietaireHistoriqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/proprietaire/inscription': {
@@ -1758,6 +1895,7 @@ interface PublicRouteChildren {
   PublicDevenirPartenaireRoute: typeof PublicDevenirPartenaireRoute
   PublicPourquoiMovespotRoute: typeof PublicPourquoiMovespotRoute
   PublicPrevisionnelRoute: typeof PublicPrevisionnelRoute
+  PublicRemboursementRoute: typeof PublicRemboursementRoute
   PublicTarifsRoute: typeof PublicTarifsRoute
   PublicIndexRoute: typeof PublicIndexRoute
 }
@@ -1770,6 +1908,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicDevenirPartenaireRoute: PublicDevenirPartenaireRoute,
   PublicPourquoiMovespotRoute: PublicPourquoiMovespotRoute,
   PublicPrevisionnelRoute: PublicPrevisionnelRoute,
+  PublicRemboursementRoute: PublicRemboursementRoute,
   PublicTarifsRoute: PublicTarifsRoute,
   PublicIndexRoute: PublicIndexRoute,
 }
@@ -1779,17 +1918,21 @@ const PublicRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminCommerciauxRoute: typeof AdminCommerciauxRoute
   AdminCommissionsRoute: typeof AdminCommissionsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+  AdminRemboursementsRoute: typeof AdminRemboursementsRoute
   AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminCommerciauxRoute: AdminCommerciauxRoute,
   AdminCommissionsRoute: AdminCommissionsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminPrestatairesRoute: AdminPrestatairesRoute,
+  AdminRemboursementsRoute: AdminRemboursementsRoute,
   AdminVirementsRoute: AdminVirementsRoute,
 }
 
@@ -1835,12 +1978,14 @@ const rootRouteChildren: RootRouteChildren = {
   AnnonceurPackRoute: AnnonceurPackRoute,
   AnnonceurPortefeuilleRoute: AnnonceurPortefeuilleRoute,
   AnnonceurPreview3dRoute: AnnonceurPreview3dRoute,
+  AnnonceurRemboursementRoute: AnnonceurRemboursementRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
   ApiHealthRoute: ApiHealthRoute,
   CCampaignIdRoute: CCampaignIdRoute,
   ChauffeurEcranRoute: ChauffeurEcranRoute,
   ChauffeurEspaceRoute: ChauffeurEspaceRoute,
   ChauffeurInscriptionRoute: ChauffeurInscriptionRoute,
+  CommercialInscriptionRoute: CommercialInscriptionRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   PartenaireInscriptionRoute: PartenaireInscriptionRoute,
   PrestataireConnexionRoute: PrestataireConnexionRoute,
@@ -1848,10 +1993,12 @@ const rootRouteChildren: RootRouteChildren = {
   PrestatairesProviderIdRoute: PrestatairesProviderIdRoute,
   ProprietaireCarteRoute: ProprietaireCarteRoute,
   ProprietaireFlotteRoute: ProprietaireFlotteRouteWithChildren,
+  ProprietaireHistoriqueRoute: ProprietaireHistoriqueRoute,
   ProprietaireInscriptionRoute: ProprietaireInscriptionRoute,
   ProprietaireTrackingRoute: ProprietaireTrackingRoute,
   AnnonceurIndexRoute: AnnonceurIndexRoute,
   ChauffeurIndexRoute: ChauffeurIndexRoute,
+  CommercialIndexRoute: CommercialIndexRoute,
   PartenaireIndexRoute: PartenaireIndexRoute,
   PrestataireIndexRoute: PrestataireIndexRoute,
   PrestatairesIndexRoute: PrestatairesIndexRoute,

@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
@@ -7,8 +8,9 @@ import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { RouteError } from "@/components/app/RouteError";
+import { resolveReferralCode } from "@/lib/commercial/commercial.functions";
 
-type Search = { redirect?: string };
+type Search = { redirect?: string; ref?: string };
 
 export const Route = createFileRoute("/annonceur/inscription")({
   head: () => ({
@@ -19,6 +21,7 @@ export const Route = createFileRoute("/annonceur/inscription")({
   }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
+    ref:      typeof s.ref === "string" ? s.ref.toUpperCase() : undefined,
   }),
   component: AnnonceurInscription,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -28,7 +31,7 @@ type AccountType = "business" | "individual";
 
 function AnnonceurInscription() {
   const navigate = useNavigate();
-  const { redirect } = useSearch({ from: "/annonceur/inscription" });
+  const { redirect, ref } = useSearch({ from: "/annonceur/inscription" });
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [accountType, setAccountType] = useState<AccountType>("business");
@@ -48,11 +51,26 @@ function AnnonceurInscription() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
+  const [commercialId, setCommercialId] = useState<string | null>(null);
+  const [commercialName, setCommercialName] = useState<string | null>(null);
+  const resolveRefFn = useServerFn(resolveReferralCode);
 
   const goNext = () => {
     if (redirect) window.location.href = redirect;
     else navigate({ to: "/annonceur" });
   };
+
+  useEffect(() => {
+    if (ref) {
+      resolveRefFn({ data: { code: ref } }).then((res) => {
+        if (res.ok) {
+          setCommercialId(res.commercialId);
+          setCommercialName(res.name);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref]);
 
   useEffect(() => {
     (async () => {
@@ -160,6 +178,7 @@ function AnnonceurInscription() {
       account_type: accountType,
       cgu_version: CGU_VERSION,
       cgu_accepted_at: new Date().toISOString(),
+      commercial_id: commercialId ?? null,
     };
     if (accountType === "business") {
       payload.company = company || siret.denomination;
@@ -254,7 +273,12 @@ function AnnonceurInscription() {
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil annonceur</h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
-            <p className="text-sm text-muted-foreground mb-6">
+            {commercialName && (
+              <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400">
+                Invitation de <strong>{commercialName}</strong> — vous serez associé à ce commercial.
+              </div>
+            )}
+            <p className="text-sm text-muted-foreground mt-4 mb-6">
               Choisissez le type de compte qui vous correspond.
             </p>
 
