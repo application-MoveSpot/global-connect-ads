@@ -176,6 +176,14 @@ export function InstallationPhotosPanel({
 
       {installationStatus !== "approved" ? (
         <>
+          <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300 space-y-1">
+            <p className="font-semibold">✔ Checklist avant de transmettre les photos</p>
+            <ul className="list-disc list-inside space-y-0.5">
+              <li>Visuel bien posé — pas de bulles, bords collés sur les 4 faces</li>
+              <li>QR code intact, lisible au scan depuis 50 cm</li>
+              <li>Aucun élément du véhicule caché (feux, plaque, signalétique)</li>
+            </ul>
+          </div>
           <p className="mb-2 text-xs text-muted-foreground">
             Transmettez les quatre vues du véhicule après pose du covering.
           </p>
