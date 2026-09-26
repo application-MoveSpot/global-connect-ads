@@ -78,7 +78,7 @@ export const getPublicActiveCampaigns = createServerFn({ method: "GET" })
 
     const { data } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, spot_name, spot_location, estimated_impressions_per_day, days_count, start_date, end_date, route_zones, vehicles(type, format_publicitaire, city)")
+      .select("id, spot_name, spot_location, estimated_impressions_per_day, days_count, start_date, end_date, route_zones, vehicles(type, format_publicitaire, owner_profiles(city))")
       .eq("status", "approved")
       .eq("payment_status", "paid")
       .lte("start_date", today)
@@ -95,14 +95,14 @@ export const getPublicActiveCampaigns = createServerFn({ method: "GET" })
       start_date: string;
       end_date: string;
       route_zones: string[] | null;
-      vehicles: { type: string; format_publicitaire: string | null; city: string | null } | null;
+      vehicles: { type: string; format_publicitaire: string | null; owner_profiles: { city: string | null } | null } | null;
     };
 
     return {
       campaigns: ((data ?? []) as unknown as CampRow[]).map((c) => ({
         id: c.id,
         spotName: c.spot_name,
-        location: c.spot_location ?? (c.vehicles as { city?: string | null } | null)?.city ?? null,
+        location: c.spot_location ?? c.vehicles?.owner_profiles?.city ?? null,
         impressionsPerDay: c.estimated_impressions_per_day,
         daysCount: c.days_count,
         startDate: c.start_date,
