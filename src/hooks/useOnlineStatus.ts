@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 
 export function useOnlineStatus() {
-  const [online, setOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  // Start as true — never show the banner on initial render.
+  // Only flip to false when the browser explicitly fires "offline".
+  const [online, setOnline] = useState(true);
 
   useEffect(() => {
     const up   = () => setOnline(true);
