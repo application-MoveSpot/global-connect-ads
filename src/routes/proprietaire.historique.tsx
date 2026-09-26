@@ -34,10 +34,13 @@ type Reversement = {
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   approved: { label: "Approuvée", color: "text-emerald-600 bg-emerald-500/10" },
+  paid:      { label: "Payée",     color: "text-emerald-600 bg-emerald-500/10" },
   completed: { label: "Terminée", color: "text-blue-600 bg-blue-500/10" },
-  pending: { label: "En attente", color: "text-amber-600 bg-amber-500/10" },
-  rejected: { label: "Refusée", color: "text-red-600 bg-red-500/10" },
+  pending:   { label: "En attente", color: "text-amber-600 bg-amber-500/10" },
+  rejected:  { label: "Refusée", color: "text-red-600 bg-red-500/10" },
 };
+
+const COMPLETED_STATUSES = new Set(["approved", "paid", "completed"]);
 
 function HistoriquePage() {
   const navigate = useNavigate();
@@ -86,7 +89,7 @@ function HistoriquePage() {
         .from("campaign_requests")
         .select("id, vehicle_id, spot_name, company, start_date, end_date, days_count, total_price, status, owner_response, created_at")
         .in("vehicle_id", vehicleIds)
-        .eq("owner_response", "accepted")
+        .neq("owner_response", "rejected")
         .order("created_at", { ascending: false });
 
       if (rErr) {
@@ -107,7 +110,7 @@ function HistoriquePage() {
 
   const totalEarnings = reversements.reduce((sum, r) => sum + (r.total_price ?? 0), 0);
   const completedEarnings = reversements
-    .filter((r) => r.status === "completed")
+    .filter((r) => COMPLETED_STATUSES.has(r.status))
     .reduce((sum, r) => sum + (r.total_price ?? 0), 0);
 
   const exportCsv = () => {
