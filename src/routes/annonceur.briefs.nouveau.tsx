@@ -184,6 +184,42 @@ function NewBriefPage() {
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPassword, setGuestPassword] = useState("");
   const [showGuestSignup, setShowGuestSignup] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  const DRAFT_KEY = "movespot_brief_draft_v1";
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw) as Record<string, unknown>;
+      if (d.title)           setTitle(d.title as string);
+      if (d.description)     setDescription(d.description as string);
+      if (d.vehicleTypes)    setVehicleTypes(d.vehicleTypes as string[]);
+      if (d.zones)           setZones(d.zones as string);
+      if (d.startDate)       setStartDate(d.startDate as string);
+      if (d.endDate)         setEndDate(d.endDate as string);
+      if (d.budget)          setBudget(d.budget as string);
+      if (d.audience)        setAudience(d.audience as string);
+      if (d.autreVehicleNote) setAutreVehicleNote(d.autreVehicleNote as string);
+      if (d.adFormat)        setAdFormat(d.adFormat as typeof adFormat);
+      if (d.brandColor)      setBrandColor(d.brandColor as string);
+      setDraftRestored(true);
+    } catch { /* localStorage inaccessible */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save draft on every change
+  useEffect(() => {
+    if (created) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        title, description, vehicleTypes, zones, startDate, endDate,
+        budget, audience, autreVehicleNote, adFormat, brandColor,
+      }));
+    } catch { /* quota exceeded or private mode */ }
+  }, [title, description, vehicleTypes, zones, startDate, endDate, budget, audience, autreVehicleNote, adFormat, brandColor, created]);
 
   useEffect(() => {
     (async () => {
@@ -399,6 +435,7 @@ function NewBriefPage() {
       return;
     }
     setLoading(false);
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
     void track("brief_created", { brief_id: data!.id, vehicle_types: vehicleTypes, has_zone: !!zonePolygon });
     void notifyBriefCreated({ data: { briefId: data!.id } });
 
@@ -619,6 +656,19 @@ function NewBriefPage() {
             </div>
           </div>
         </div>
+
+        {draftRestored && !created && (
+          <div className="mb-2 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+            <span>📝 Brouillon restauré — vos données ont été conservées.</span>
+            <button type="button" onClick={() => {
+              try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+              setTitle(""); setDescription(""); setVehicleTypes([]); setZones("");
+              setStartDate(""); setEndDate(""); setBudget(""); setAudience("");
+              setAutreVehicleNote(""); setAdFormat(null); setBrandColor("#3B82F6");
+              setDraftRestored(false);
+            }} className="ml-4 underline hover:no-underline shrink-0">Effacer</button>
+          </div>
+        )}
 
         <form onSubmit={submit} className="space-y-6">
           {/* ── Assistant IA ─────────────────────────────────────────────── */}
