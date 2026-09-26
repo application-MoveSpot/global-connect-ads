@@ -253,7 +253,7 @@ function ChauffeurInscription() {
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil prestataire</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil chauffeur / poseur</h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
             <p className="text-sm text-muted-foreground mb-6">
               Étape 1/2 — vos informations. Étape 2 : liaison de votre IBAN via Stripe.
