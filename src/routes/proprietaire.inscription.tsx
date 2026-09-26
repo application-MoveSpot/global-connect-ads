@@ -165,7 +165,7 @@ function InscriptionPage() {
           <LogoLink />
         </div>
         <Link
-          to="/devenir-partenaire"
+          to="/commencer"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
         >
           ← Retour
