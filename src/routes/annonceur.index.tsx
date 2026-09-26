@@ -311,6 +311,12 @@ function AnnonceurDashboard() {
               Mes briefs
             </Link>
             <Link
+              to="/annonceur/remboursement"
+              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+            >
+              💸 Remboursements
+            </Link>
+            <Link
               to="/annonceur/briefs/nouveau"
               className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
             >
