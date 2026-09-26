@@ -62,6 +62,16 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
       "Les contenus sexistes ou discriminatoires sont interdits et passibles de refus immédiat.",
   },
   {
+    category: "Événement festif saisonnier",
+    keywords: [
+      "carnaval", "halloween", "toussaint", "sorcière", "sorciere",
+      "zombie", "squelette", "citrouille", "déguisement", "deguisement",
+      "déguisé", "deguise", "mascarade", "mardi gras",
+    ],
+    advice:
+      "Les événements festifs saisonniers (carnaval, Halloween…) ne sont pas acceptés sur MoveSpot. La plateforme est réservée aux campagnes commerciales, institutionnelles et associatives pérennes.",
+  },
+  {
     category: "Discipline spirituelle",
     keywords: [
       "yoga", "yogi", "yogique",
