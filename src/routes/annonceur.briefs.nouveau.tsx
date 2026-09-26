@@ -181,11 +181,18 @@ function NewBriefPage() {
   const [qualityLoading, setQualityLoading] = useState(false);
   const [creativeValidation, setCreativeValidation] = useState<Array<{ name: string; ok: boolean; score: number; issues: string[] }>>([]);
   const [creativeValidating, setCreativeValidating] = useState(false);
+  const [guestEmail, setGuestEmail] = useState("");
+  const [guestPassword, setGuestPassword] = useState("");
+  const [showGuestSignup, setShowGuestSignup] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
+      if (!sess.session) {
+        // Guest mode: show form directly without redirect
+        setWizardStep("form");
+        return;
+      }
       const { data: prof } = await supabase
         .from("advertiser_profiles")
         .select("user_id, account_type")
@@ -339,30 +346,12 @@ function NewBriefPage() {
     });
   };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!userId) return;
-    if (vehicleTypes.length === 0) { setError("Sélectionnez au moins un type de véhicule."); return; }
-    if (vehicleTypes.includes("autre") && !autreVehicleNote.trim()) {
-      setError("Vous avez sélectionné « Autre » : veuillez préciser le type de véhicule recherché.");
-      return;
-    }
-    if (!startDate || !endDate) { setError("Dates obligatoires."); return; }
-    if (endDate < startDate) { setError("La date de fin doit être après la date de début."); return; }
-    const forbidden = findForbiddenKeyword(`${title} ${description} ${audience}`);
-    if (forbidden) {
-      setError(`Contenu interdit détecté : « ${forbidden} ». Charte MoveSpot : pas de campagne religieuse, politique/électorale, sexiste, pornographique, violente, ni d'anniversaire personnel.`);
-      return;
-    }
-    setLoading(true);
-
-    // Upload creatives (resize images before upload, max 2000px for ad visuals)
+  const createBriefForUser = async (uid: string) => {
     const uploadedPaths: string[] = [];
     for (const f of files) {
       const resized = await resizeImageFile(f, 2000, 0.87);
       const safe = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `${userId}/briefs/${Date.now()}_${safe}`;
+      const path = `${uid}/briefs/${Date.now()}_${safe}`;
       const { error: upErr } = await supabase.storage
         .from("campaign-creatives")
         .upload(path, resized, { upsert: false, contentType: resized.type });
@@ -380,7 +369,7 @@ function NewBriefPage() {
       : description;
 
     const { data, error: insErr } = await supabase.from("advertiser_briefs").insert([{
-      advertiser_id: userId,
+      advertiser_id: uid,
       title,
       description: finalDescription,
       vehicle_types: vehicleTypes as never,
@@ -397,12 +386,10 @@ function NewBriefPage() {
     }]).select("id").single();
 
     if (insErr) {
-      // Nettoyer les fichiers déjà uploadés pour éviter les orphelins
       if (uploadedPaths.length > 0) {
         await supabase.storage.from("campaign-creatives").remove(uploadedPaths);
       }
       setLoading(false);
-      // Message clair à la place du message d'erreur brut de la base
       const isEnumError = insErr.message?.includes("invalid input value for enum") || insErr.message?.includes("vehicle_type");
       setError(
         isEnumError
@@ -415,7 +402,6 @@ function NewBriefPage() {
     void track("brief_created", { brief_id: data!.id, vehicle_types: vehicleTypes, has_zone: !!zonePolygon });
     void notifyBriefCreated({ data: { briefId: data!.id } });
 
-    // Budget calculé depuis la zone dessinée → tunnel de paiement Stripe
     const computed = zonePolygon
       ? estimateZoneBudget(zonePolygon.areaKm2, days, 1, zonePolygon.coordinates as [number, number][]).total
       : 0;
@@ -425,6 +411,57 @@ function NewBriefPage() {
       return;
     }
     navigate({ to: "/annonceur/briefs/confirmation/$briefId", params: { briefId: data!.id } });
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (vehicleTypes.length === 0) { setError("Sélectionnez au moins un type de véhicule."); return; }
+    if (vehicleTypes.includes("autre") && !autreVehicleNote.trim()) {
+      setError("Vous avez sélectionné « Autre » : veuillez préciser le type de véhicule recherché.");
+      return;
+    }
+    if (!startDate || !endDate) { setError("Dates obligatoires."); return; }
+    if (endDate < startDate) { setError("La date de fin doit être après la date de début."); return; }
+    const forbidden = findForbiddenKeyword(`${title} ${description} ${audience}`);
+    if (forbidden) {
+      setError(`Contenu interdit détecté : « ${forbidden} ». Charte MoveSpot : pas de campagne religieuse, politique/électorale, sexiste, pornographique, violente, ni d'anniversaire personnel.`);
+      return;
+    }
+
+    if (!userId) {
+      if (!showGuestSignup) {
+        setShowGuestSignup(true);
+        setTimeout(() => document.getElementById("guest-signup-section")?.scrollIntoView({ behavior: "smooth" }), 80);
+        return;
+      }
+      // Guest form is visible — validate and create account
+      if (!guestEmail.trim()) { setError("Adresse email requise."); return; }
+      if (guestPassword.length < 8) { setError("Mot de passe trop court (8 caractères minimum)."); return; }
+      setLoading(true);
+      const { data: authData, error: authErr } = await supabase.auth.signUp({
+        email: guestEmail.trim().toLowerCase(),
+        password: guestPassword,
+        options: { data: { role: "advertiser" } },
+      });
+      if (authErr) {
+        const alreadyExists = authErr.message.includes("already registered") || authErr.message.includes("already been registered") || authErr.message.includes("User already registered");
+        setError(alreadyExists
+          ? "Cet email est déjà utilisé. Connectez-vous depuis l'espace annonceur."
+          : `Erreur lors de la création du compte : ${authErr.message}`);
+        setLoading(false);
+        return;
+      }
+      const newUserId = authData.user?.id;
+      if (!newUserId) { setError("Erreur inattendue lors de la création du compte. Réessayez."); setLoading(false); return; }
+      await supabase.from("advertiser_profiles").insert([{ user_id: newUserId, account_type: "business", full_name: guestEmail.trim().toLowerCase() }] as never);
+      setUserId(newUserId);
+      await createBriefForUser(newUserId);
+      return;
+    }
+
+    setLoading(true);
+    await createBriefForUser(userId);
   };
 
   if (wizardStep === "event-type" && accountType === "individual") {
@@ -1025,9 +1062,54 @@ function NewBriefPage() {
 
           {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
 
+          {showGuestSignup && !userId && (
+            <div id="guest-signup-section" className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 space-y-4">
+              <div>
+                <p className="font-semibold text-sm">Créez votre compte pour publier</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Votre brief sera publié immédiatement. Retrouvez-le et suivez les réponses depuis votre espace annonceur.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">Email</label>
+                  <input
+                    type="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    placeholder="votre@email.fr"
+                    autoComplete="email"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">Mot de passe</label>
+                  <input
+                    type="password"
+                    value={guestPassword}
+                    onChange={(e) => setGuestPassword(e.target.value)}
+                    placeholder="8 caractères minimum"
+                    autoComplete="new-password"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Déjà un compte ?{" "}
+                <Link to="/annonceur/inscription" className="text-primary underline">Se connecter</Link>
+              </p>
+            </div>
+          )}
+
           <button type="submit" disabled={loading}
             className="w-full rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
-            {loading ? "Publication…" : "Publier le brief"}
+            {loading
+              ? "Publication…"
+              : showGuestSignup && !userId
+                ? "Créer mon compte et publier →"
+                : userId
+                  ? "Publier le brief"
+                  : "Continuer →"}
           </button>
         </form>
       </main>
