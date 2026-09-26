@@ -89,7 +89,7 @@ function HistoriquePage() {
         .from("campaign_requests")
         .select("id, vehicle_id, spot_name, company, start_date, end_date, days_count, total_price, status, owner_response, created_at")
         .in("vehicle_id", vehicleIds)
-        .neq("owner_response", "rejected")
+        .or("owner_response.eq.accepted,status.in.(approved,paid,completed)")
         .order("created_at", { ascending: false });
 
       if (rErr) {
