@@ -715,49 +715,13 @@ function NewBriefPage() {
         <h1 className="font-display text-3xl font-bold mb-2">Publier un brief</h1>
         <p className="text-sm text-muted-foreground mb-6">Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.</p>
 
-        {/* ── Showcase Fourgon LED — visible uniquement en mode numérique ── */}
-        {displayType !== "traditionnel" && <div className="mb-8 rounded-2xl border border-blue-500/30 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #080e28 0%, #050a1c 100%)" }}>
-          <div className="flex flex-col sm:flex-row items-stretch">
-            {/* Photo réelle */}
-            <div className="sm:w-64 shrink-0 overflow-hidden" style={{ maxHeight: 200 }}>
-              <img
-                src="/camion-led.webp"
-                alt="Camion Écran LED BoxLED"
-                draggable={false}
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center right", display: "block", minHeight: 160 }}
-              />
-            </div>
-            {/* Infos */}
-            <div className="flex-1 p-5 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="font-bold text-white text-base">📺 Fourgon Écran LED numérique</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                    style={{ background: "rgba(37,99,235,0.3)", color: "rgba(147,197,253,0.95)", border: "1px solid rgba(59,130,246,0.3)" }}>
-                    EXCLUSIF MOVESPOT
-                  </span>
-                </div>
-                <p className="text-xs mb-3" style={{ color: "rgba(147,197,253,0.75)", lineHeight: 1.6 }}>
-                  Mercedes Sprinter 314 · 3 faces d'écran LED IP67 actives · 3 200 × 1 920 px ·
-                  Diffusion vidéo MP4, image dynamique ou flux HTML5 · Visibilité jour &amp; nuit ·
-                  Idéal zones haute densité &amp; événementiel
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {["5 000–20 000 impressions/j", "150–800 €/sem.", "Centre-ville", "Événementiel", "Grands axes"].map(t => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(30,58,138,0.35)", color: "rgba(147,197,253,0.8)", border: "1px solid rgba(59,130,246,0.2)" }}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-3 text-[11px]" style={{ color: "rgba(100,150,255,0.55)" }}>
-                ↓ Sélectionnez ce véhicule ci-dessous pour voir la prévisualisation 3D 360° en temps réel
-              </div>
-            </div>
+        {/* ── Rappel discret du type choisi (numérique) ── */}
+        {displayType === "digital" && (
+          <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-center gap-2 text-sm">
+            <span>📺</span>
+            <span className="text-blue-700 dark:text-blue-300 font-medium">Affichage numérique LED — les propriétaires de fourgons équipés d'écrans LED pourront répondre à ce brief.</span>
           </div>
-        </div>}
+        )}
 
         {draftRestored && !created && (
           <div className="mb-2 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
@@ -891,81 +855,20 @@ function NewBriefPage() {
                 ← Changer de type d'affichage
               </button>
             )}
-            {/* ── Fourgon LED numérique — carte hero (mode digital uniquement) */}
-            {displayType !== "traditionnel" && <button
-              type="button"
-              onClick={() => toggleType("camion_led")}
-              className="w-full text-left rounded-2xl border-2 transition-all overflow-hidden mb-3 focus:outline-none"
-              style={{
-                borderColor: vehicleTypes.includes("camion_led") ? "#3b6eff" : "rgba(59,110,255,0.25)",
-                background: vehicleTypes.includes("camion_led")
-                  ? "linear-gradient(135deg, #0d1a4a 0%, #091030 100%)"
-                  : "linear-gradient(135deg, rgba(8,12,30,0.9) 0%, rgba(5,8,20,0.95) 100%)",
-                boxShadow: vehicleTypes.includes("camion_led")
-                  ? "0 0 0 1px rgba(59,110,255,0.4), 0 4px 32px rgba(30,80,255,0.18)"
-                  : "0 1px 4px rgba(0,0,0,0.3)",
-              }}
-            >
-              <div className="flex items-stretch gap-0">
-                {/* Photo réelle du camion LED */}
-                <div className="shrink-0 overflow-hidden" style={{ width: 180, minWidth: 180, background: "#000" }}>
-                  <img
-                    src="/camion-led.webp"
-                    alt="Camion Écran LED BoxLED"
-                    draggable={false}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center right", display: "block", minHeight: 140 }}
-                  />
-                </div>
-
-                {/* Infos */}
-                <div className="flex-1 py-3.5 px-4 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-bold text-white">📺 Camion Écran LED BoxLED</span>
-                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
-                        style={{ background: "rgba(59,110,255,0.25)", color: "rgba(130,180,255,0.95)", border: "1px solid rgba(59,110,255,0.3)" }}>
-                        EXCLUSIF
-                      </span>
-                    </div>
-                    <div className="text-[11px] mt-0.5" style={{ color: "rgba(130,170,255,0.7)" }}>
-                      Fourgon publicitaire numérique — 3 faces d'écran LED actives
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {[
-                        "3 faces actives",
-                        "IP67 · Jour & nuit",
-                        "3200 × 1920 px",
-                        "Vidéo MP4 / Image",
-                      ].map(s => (
-                        <span key={s} className="text-[10px] px-2 py-0.5 rounded-full"
-                          style={{ background: "rgba(30,60,180,0.2)", color: "rgba(120,170,255,0.8)", border: "1px solid rgba(59,110,255,0.18)" }}>
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-2.5">
-                    <span className="text-[10px]" style={{ color: "rgba(90,130,220,0.65)" }}>
-                      150 – 800 € / semaine · 5 000 – 20 000 impressions
-                    </span>
-                    <span
-                      className="text-xs font-semibold px-3 py-1 rounded-full transition-all"
-                      style={vehicleTypes.includes("camion_led") ? {
-                        background: "#3b6eff",
-                        color: "#fff",
-                        boxShadow: "0 0 10px rgba(59,110,255,0.5)",
-                      } : {
-                        background: "rgba(59,110,255,0.12)",
-                        color: "rgba(120,170,255,0.8)",
-                        border: "1px solid rgba(59,110,255,0.25)",
-                      }}
-                    >
-                      {vehicleTypes.includes("camion_led") ? "✓ Sélectionné" : "Sélectionner"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </button>}
+            {/* ── Fourgon LED numérique — puce simple (mode digital uniquement) */}
+            {displayType !== "traditionnel" && (
+              <button
+                type="button"
+                onClick={() => toggleType("camion_led")}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-all mb-3 ${
+                  vehicleTypes.includes("camion_led")
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border hover:bg-secondary"
+                }`}
+              >
+                📺 Fourgon Écran LED numérique
+              </button>
+            )}
 
             {/* ── Autres véhicules (masqués en mode digital, déjà choisi) ─── */}
             {displayType !== "digital" && <>
