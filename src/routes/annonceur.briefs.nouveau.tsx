@@ -189,12 +189,14 @@ function NewBriefPage() {
 
   const DRAFT_KEY = "movespot_brief_draft_v1";
 
-  // Restore draft on mount
+  // Restore draft on mount — only when the draft has meaningful content
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
       const d = JSON.parse(raw) as Record<string, unknown>;
+      const hasMeaningfulContent = Boolean(d.title || d.description || d.budget || d.audience || d.displayType);
+      if (!hasMeaningfulContent) return;
       if (d.title)           setTitle(d.title as string);
       if (d.description)     setDescription(d.description as string);
       if (d.vehicleTypes)    setVehicleTypes(d.vehicleTypes as string[]);
@@ -213,9 +215,11 @@ function NewBriefPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-save draft on every change
+  // Auto-save draft only after the user has started filling in the form
   useEffect(() => {
     if (created) return;
+    const isDirty = Boolean(title || description || budget || audience || vehicleTypes.length > 0 || zones || startDate || endDate || displayType);
+    if (!isDirty) return;
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         title, description, vehicleTypes, zones, startDate, endDate,

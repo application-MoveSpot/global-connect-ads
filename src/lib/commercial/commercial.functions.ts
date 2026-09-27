@@ -97,9 +97,9 @@ export const getCommercialDashboard = createServerFn({ method: "POST" })
   });
 
 // ── Résoudre un code parrainage (côté inscription annonceur) ──────────────────
+// Public: called before the user is authenticated, so no auth middleware.
 
 export const resolveReferralCode = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ code: z.string().min(1).max(20) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
