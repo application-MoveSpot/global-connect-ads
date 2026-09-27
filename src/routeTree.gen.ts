@@ -31,6 +31,7 @@ import { Route as PublicIndexRouteImport } from './routes/_public.index'
 import { Route as PublicAnnonceursEntrepriseRouteImport } from './routes/_public.annonceurs-entreprise'
 import { Route as PublicCampagnesRouteImport } from './routes/_public.campagnes'
 import { Route as PublicCguRouteImport } from './routes/_public.cgu'
+import { Route as PublicCommencerRouteImport } from './routes/_public.commencer'
 import { Route as PublicCommentCaMarcheRouteImport } from './routes/_public.comment-ca-marche'
 import { Route as PublicDevenirPartenaireRouteImport } from './routes/_public.devenir-partenaire'
 import { Route as PublicPourquoiMovespotRouteImport } from './routes/_public.pourquoi-movespot'
@@ -213,6 +214,11 @@ const PublicCampagnesRoute = PublicCampagnesRouteImport.update({
 const PublicCguRoute = PublicCguRouteImport.update({
   id: '/cgu',
   path: '/cgu',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicCommencerRoute = PublicCommencerRouteImport.update({
+  id: '/commencer',
+  path: '/commencer',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicCommentCaMarcheRoute = PublicCommentCaMarcheRouteImport.update({
@@ -606,6 +612,7 @@ export interface FileRoutesByFullPath {
   '/annonceurs-entreprise': typeof PublicAnnonceursEntrepriseRoute
   '/campagnes': typeof PublicCampagnesRoute
   '/cgu': typeof PublicCguRoute
+  '/commencer': typeof PublicCommencerRoute
   '/comment-ca-marche': typeof PublicCommentCaMarcheRoute
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
@@ -699,6 +706,7 @@ export interface FileRoutesByTo {
   '/annonceurs-entreprise': typeof PublicAnnonceursEntrepriseRoute
   '/campagnes': typeof PublicCampagnesRoute
   '/cgu': typeof PublicCguRoute
+  '/commencer': typeof PublicCommencerRoute
   '/comment-ca-marche': typeof PublicCommentCaMarcheRoute
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
@@ -795,6 +803,7 @@ export interface FileRoutesById {
   '/_public/annonceurs-entreprise': typeof PublicAnnonceursEntrepriseRoute
   '/_public/campagnes': typeof PublicCampagnesRoute
   '/_public/cgu': typeof PublicCguRoute
+  '/_public/commencer': typeof PublicCommencerRoute
   '/_public/comment-ca-marche': typeof PublicCommentCaMarcheRoute
   '/_public/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/_public/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
@@ -892,6 +901,7 @@ export interface FileRouteTypes {
     | '/annonceurs-entreprise'
     | '/campagnes'
     | '/cgu'
+    | '/commencer'
     | '/comment-ca-marche'
     | '/devenir-partenaire'
     | '/pourquoi-movespot'
@@ -985,6 +995,7 @@ export interface FileRouteTypes {
     | '/annonceurs-entreprise'
     | '/campagnes'
     | '/cgu'
+    | '/commencer'
     | '/comment-ca-marche'
     | '/devenir-partenaire'
     | '/pourquoi-movespot'
@@ -1080,6 +1091,7 @@ export interface FileRouteTypes {
     | '/_public/annonceurs-entreprise'
     | '/_public/campagnes'
     | '/_public/cgu'
+    | '/_public/commencer'
     | '/_public/comment-ca-marche'
     | '/_public/devenir-partenaire'
     | '/_public/pourquoi-movespot'
@@ -1385,6 +1397,13 @@ declare module '@tanstack/react-router' {
       path: '/cgu'
       fullPath: '/cgu'
       preLoaderRoute: typeof PublicCguRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/commencer': {
+      id: '/_public/commencer'
+      path: '/commencer'
+      fullPath: '/commencer'
+      preLoaderRoute: typeof PublicCommencerRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/comment-ca-marche': {
@@ -1891,6 +1910,7 @@ interface PublicRouteChildren {
   PublicAnnonceursEntrepriseRoute: typeof PublicAnnonceursEntrepriseRoute
   PublicCampagnesRoute: typeof PublicCampagnesRoute
   PublicCguRoute: typeof PublicCguRoute
+  PublicCommencerRoute: typeof PublicCommencerRoute
   PublicCommentCaMarcheRoute: typeof PublicCommentCaMarcheRoute
   PublicDevenirPartenaireRoute: typeof PublicDevenirPartenaireRoute
   PublicPourquoiMovespotRoute: typeof PublicPourquoiMovespotRoute
@@ -1904,6 +1924,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicAnnonceursEntrepriseRoute: PublicAnnonceursEntrepriseRoute,
   PublicCampagnesRoute: PublicCampagnesRoute,
   PublicCguRoute: PublicCguRoute,
+  PublicCommencerRoute: PublicCommencerRoute,
   PublicCommentCaMarcheRoute: PublicCommentCaMarcheRoute,
   PublicDevenirPartenaireRoute: PublicDevenirPartenaireRoute,
   PublicPourquoiMovespotRoute: PublicPourquoiMovespotRoute,
