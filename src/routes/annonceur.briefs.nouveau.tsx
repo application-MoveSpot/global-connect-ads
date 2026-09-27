@@ -228,8 +228,7 @@ function NewBriefPage() {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) {
-        // Guest mode: show form directly without redirect
-        setWizardStep("form");
+        // Guest mode: let them choose display type first (display-type step)
         return;
       }
       const { data: prof } = await supabase
@@ -241,7 +240,7 @@ function NewBriefPage() {
       setUserId(sess.session.user.id);
       const type = (prof as { account_type?: string }).account_type ?? "business";
       setAccountType(type);
-      if (type !== "individual") setWizardStep("form");
+      // All users go through the display-type step — no skip needed
     })();
   }, [navigate]);
 
@@ -764,6 +763,7 @@ function NewBriefPage() {
               setTitle(""); setDescription(""); setVehicleTypes([]); setZones("");
               setStartDate(""); setEndDate(""); setBudget(""); setAudience("");
               setAutreVehicleNote(""); setAdFormat(null); setBrandColor("#3B82F6");
+              setDisplayType(null); setWizardStep("display-type");
               setDraftRestored(false);
             }} className="ml-4 underline hover:no-underline shrink-0">Effacer</button>
           </div>
