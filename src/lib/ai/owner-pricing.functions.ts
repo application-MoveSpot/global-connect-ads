@@ -54,7 +54,7 @@ export const recommendVehiclePrice = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const provider = createLovableAiGatewayProvider(apiKey);
-    const model = provider("google/gemini-2.0-flash");
+    const model = provider("google/gemini-2.5-flash");
 
     const prompt = `Tu es expert en tarification publicitaire mobile en France (véhicules publicitaires).
 
