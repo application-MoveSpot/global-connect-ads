@@ -5,10 +5,21 @@ import { track } from "@/lib/analytics/track";
 import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
-import { ZoneSelector, polygonToEwkt, type ZonePolygon } from "@/components/advertiser/ZoneSelector";
+import {
+  ZoneSelector,
+  polygonToEwkt,
+  type ZonePolygon,
+} from "@/components/advertiser/ZoneSelector";
 import { estimateZoneBudget, MIN_EUR_PER_DAY } from "@/lib/geo/zone-budget";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
-import { AD_FORMATS, BOXLED_INCOMPATIBLE, CAMION_LED_SPEC, isFormatIncompatible, type AdFormat, type VehicleKey } from "@/components/advertiser/ad-formats";
+import {
+  AD_FORMATS,
+  BOXLED_INCOMPATIBLE,
+  CAMION_LED_SPEC,
+  isFormatIncompatible,
+  type AdFormat,
+  type VehicleKey,
+} from "@/components/advertiser/ad-formats";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
@@ -17,13 +28,9 @@ import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quali
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
 
-
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
-    meta: [
-      { title: "Nouveau brief — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Nouveau brief — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: NewBriefPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -33,9 +40,10 @@ const VEHICLE_TYPES: { v: string; l: string; tip?: string }[] = [
   {
     v: "camion_led",
     l: "📺 Camion LED",
-    tip: `${CAMION_LED_SPEC.name} — ${CAMION_LED_SPEC.vehicleClass}\n` +
-         `Écrans : ${CAMION_LED_SPEC.screens.activeFaces.join(", ")} · ${CAMION_LED_SPEC.screens.type}\n` +
-         `Résolution : faces ${CAMION_LED_SPEC.screens.resolution.side} · arrière ${CAMION_LED_SPEC.screens.resolution.rear}`,
+    tip:
+      `${CAMION_LED_SPEC.name} — ${CAMION_LED_SPEC.vehicleClass}\n` +
+      `Écrans : ${CAMION_LED_SPEC.screens.activeFaces.join(", ")} · ${CAMION_LED_SPEC.screens.type}\n` +
+      `Résolution : faces ${CAMION_LED_SPEC.screens.resolution.side} · arrière ${CAMION_LED_SPEC.screens.resolution.rear}`,
   },
   { v: "food_truck", l: "Food truck" },
   { v: "van", l: "Van utilitaire" },
@@ -72,7 +80,8 @@ const EVENT_TEMPLATES: EventTemplate[] = [
     adFormat: "demi_covering",
     days: 7,
     titleTpl: "Mariage de [Prénom & Prénom] — [Ville]",
-    descTpl: "Nous nous marions le [date] à [lieu] et souhaitons le faire savoir dans [ville] et ses alentours. Visuel sobre et élégant fourni.",
+    descTpl:
+      "Nous nous marions le [date] à [lieu] et souhaitons le faire savoir dans [ville] et ses alentours. Visuel sobre et élégant fourni.",
     audience: "Famille, amis, connaissances locales",
   },
   {
@@ -84,7 +93,8 @@ const EVENT_TEMPLATES: EventTemplate[] = [
     adFormat: "demi_covering",
     days: 14,
     titleTpl: "Ouverture [Nom du commerce] — [Ville]",
-    descTpl: "Ouverture prochaine de [nom du commerce] au [adresse]. Venez nous découvrir ! Promotion d'inauguration le [date].",
+    descTpl:
+      "Ouverture prochaine de [nom du commerce] au [adresse]. Venez nous découvrir ! Promotion d'inauguration le [date].",
     audience: "Habitants du quartier, passants, clients locaux",
   },
   {
@@ -96,7 +106,8 @@ const EVENT_TEMPLATES: EventTemplate[] = [
     adFormat: "stickers",
     days: 14,
     titleTpl: "Rejoignez [Nom de l'asso] — [Ville]",
-    descTpl: "L'association [nom] recherche des bénévoles / organise [événement] le [date] à [lieu]. Toutes les informations sur [site / contact].",
+    descTpl:
+      "L'association [nom] recherche des bénévoles / organise [événement] le [date] à [lieu]. Toutes les informations sur [site / contact].",
     audience: "Habitants engagés, grand public local",
   },
   {
@@ -108,7 +119,8 @@ const EVENT_TEMPLATES: EventTemplate[] = [
     adFormat: "demi_covering",
     days: 7,
     titleTpl: "[Nom de l'événement] — [Date] à [Ville]",
-    descTpl: "[Description : type, artistes, programme]. Entrée [gratuite / prix]. Réservations sur [lien ou contact].",
+    descTpl:
+      "[Description : type, artistes, programme]. Entrée [gratuite / prix]. Réservations sur [lien ou contact].",
     audience: "Grand public, amateurs de culture, 18-55 ans",
   },
   {
@@ -120,7 +132,8 @@ const EVENT_TEMPLATES: EventTemplate[] = [
     adFormat: "covering_total",
     days: 3,
     titleTpl: "[Nom du festival / marché] — [Dates] à [Lieu]",
-    descTpl: "[Nombre] exposants, animations, restauration sur place. Entrée [gratuite / prix]. [Dates et horaires].",
+    descTpl:
+      "[Nombre] exposants, animations, restauration sur place. Entrée [gratuite / prix]. [Dates et horaires].",
     audience: "Familles, habitants, touristes",
   },
   {
@@ -132,7 +145,8 @@ const EVENT_TEMPLATES: EventTemplate[] = [
     adFormat: "demi_covering",
     days: 7,
     titleTpl: "Inauguration [Nom du projet] — [Ville]",
-    descTpl: "[Description du projet ou service]. Cérémonie d'inauguration le [date] à [lieu]. Tout le monde est bienvenu !",
+    descTpl:
+      "[Description du projet ou service]. Cérémonie d'inauguration le [date] à [lieu]. Tout le monde est bienvenu !",
     audience: "Professionnels, grand public, curieux",
   },
 ];
@@ -151,7 +165,9 @@ function NewBriefPage() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
-  const [wizardStep, setWizardStep] = useState<"display-type" | "event-type" | "form">("display-type");
+  const [wizardStep, setWizardStep] = useState<"display-type" | "event-type" | "form">(
+    "display-type",
+  );
   const [displayType, setDisplayType] = useState<"digital" | "traditionnel" | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate | null>(null);
   const [title, setTitle] = useState("");
@@ -180,7 +196,9 @@ function NewBriefPage() {
   const [aiError, setAiError] = useState("");
   const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
   const [qualityLoading, setQualityLoading] = useState(false);
-  const [creativeValidation, setCreativeValidation] = useState<Array<{ name: string; ok: boolean; score: number; issues: string[] }>>([]);
+  const [creativeValidation, setCreativeValidation] = useState<
+    Array<{ name: string; ok: boolean; score: number; issues: string[] }>
+  >([]);
   const [creativeValidating, setCreativeValidating] = useState(false);
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPassword, setGuestPassword] = useState("");
@@ -195,38 +213,81 @@ function NewBriefPage() {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
       const d = JSON.parse(raw) as Record<string, unknown>;
-      const hasMeaningfulContent = Boolean(d.title || d.description || d.budget || d.audience || d.displayType);
+      const hasMeaningfulContent = Boolean(
+        d.title || d.description || d.budget || d.audience || d.displayType,
+      );
       if (!hasMeaningfulContent) return;
-      if (d.title)           setTitle(d.title as string);
-      if (d.description)     setDescription(d.description as string);
-      if (d.vehicleTypes)    setVehicleTypes(d.vehicleTypes as string[]);
-      if (d.zones)           setZones(d.zones as string);
-      if (d.startDate)       setStartDate(d.startDate as string);
-      if (d.endDate)         setEndDate(d.endDate as string);
-      if (d.budget)          setBudget(d.budget as string);
-      if (d.audience)        setAudience(d.audience as string);
+      if (d.title) setTitle(d.title as string);
+      if (d.description) setDescription(d.description as string);
+      if (d.vehicleTypes) setVehicleTypes(d.vehicleTypes as string[]);
+      if (d.zones) setZones(d.zones as string);
+      if (d.startDate) setStartDate(d.startDate as string);
+      if (d.endDate) setEndDate(d.endDate as string);
+      if (d.budget) setBudget(d.budget as string);
+      if (d.audience) setAudience(d.audience as string);
       if (d.autreVehicleNote) setAutreVehicleNote(d.autreVehicleNote as string);
-      if (d.adFormat)        setAdFormat(d.adFormat as typeof adFormat);
-      if (d.brandColor)      setBrandColor(d.brandColor as string);
-      if (d.displayType)     setDisplayType(d.displayType as "digital" | "traditionnel");
+      if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
+      if (d.brandColor) setBrandColor(d.brandColor as string);
+      if (d.displayType) setDisplayType(d.displayType as "digital" | "traditionnel");
       setDraftRestored(true);
       setWizardStep("form");
-    } catch { /* localStorage inaccessible */ }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    } catch {
+      /* localStorage inaccessible */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-save draft only after the user has started filling in the form
   useEffect(() => {
     if (created) return;
-    const isDirty = Boolean(title || description || budget || audience || vehicleTypes.length > 0 || zones || startDate || endDate || displayType);
+    const isDirty = Boolean(
+      title ||
+      description ||
+      budget ||
+      audience ||
+      vehicleTypes.length > 0 ||
+      zones ||
+      startDate ||
+      endDate ||
+      displayType,
+    );
     if (!isDirty) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({
-        title, description, vehicleTypes, zones, startDate, endDate,
-        budget, audience, autreVehicleNote, adFormat, brandColor, displayType,
-      }));
-    } catch { /* quota exceeded or private mode */ }
-  }, [title, description, vehicleTypes, zones, startDate, endDate, budget, audience, autreVehicleNote, adFormat, brandColor, displayType, created]);
+      localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          title,
+          description,
+          vehicleTypes,
+          zones,
+          startDate,
+          endDate,
+          budget,
+          audience,
+          autreVehicleNote,
+          adFormat,
+          brandColor,
+          displayType,
+        }),
+      );
+    } catch {
+      /* quota exceeded or private mode */
+    }
+  }, [
+    title,
+    description,
+    vehicleTypes,
+    zones,
+    startDate,
+    endDate,
+    budget,
+    audience,
+    autreVehicleNote,
+    adFormat,
+    brandColor,
+    displayType,
+    created,
+  ]);
 
   useEffect(() => {
     (async () => {
@@ -240,7 +301,10 @@ function NewBriefPage() {
         .select("user_id, account_type")
         .eq("user_id", sess.session.user.id)
         .maybeSingle();
-      if (!prof) { navigate({ to: "/annonceur/inscription" }); return; }
+      if (!prof) {
+        navigate({ to: "/annonceur/inscription" });
+        return;
+      }
       setUserId(sess.session.user.id);
       const type = (prof as { account_type?: string }).account_type ?? "business";
       setAccountType(type);
@@ -264,8 +328,14 @@ function NewBriefPage() {
       .limit(1)
       .maybeSingle()
       .then(
-        ({ data }) => { setPreviewVehicleId(data?.id ?? null); setPreviewSearching(false); },
-        () => { setPreviewVehicleId(null); setPreviewSearching(false); },
+        ({ data }) => {
+          setPreviewVehicleId(data?.id ?? null);
+          setPreviewSearching(false);
+        },
+        () => {
+          setPreviewVehicleId(null);
+          setPreviewSearching(false);
+        },
       );
   }, [vehicleTypes]);
 
@@ -312,7 +382,11 @@ function NewBriefPage() {
 
   // Score qualité brief — déclenché 2s après la dernière frappe sur titre+description
   useEffect(() => {
-    if (title.trim().length < 10 || description.trim().length < 30) {
+    const safeTitle = String(title ?? "");
+    const safeDescription = String(description ?? "");
+    const safeAudience = String(audience ?? "");
+    const safeZones = String(zones ?? "");
+    if (safeTitle.trim().length < 10 || safeDescription.trim().length < 30) {
       setQualityScore(null);
       return;
     }
@@ -321,11 +395,11 @@ function NewBriefPage() {
       try {
         const result = await scoreBriefQuality({
           data: {
-            title: title.trim(),
-            description: description.trim(),
-            audience: audience.trim() || undefined,
+            title: safeTitle.trim(),
+            description: safeDescription.trim(),
+            audience: safeAudience.trim() || undefined,
             vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
-            zone: zones.trim() || undefined,
+            zone: safeZones.trim() || undefined,
           },
         });
         setQualityScore(result);
@@ -335,13 +409,19 @@ function NewBriefPage() {
         setQualityLoading(false);
       }
     }, 2000);
-    return () => { clearTimeout(timer); setQualityLoading(false); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearTimeout(timer);
+      setQualityLoading(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, description, audience]);
 
   // Validation IA des visuels publicitaires
   const handleCreativeValidation = async (selectedFiles: File[]) => {
-    if (!selectedFiles.length) { setCreativeValidation([]); return; }
+    if (!selectedFiles.length) {
+      setCreativeValidation([]);
+      return;
+    }
     setCreativeValidating(true);
     setCreativeValidation([]);
     const results: Array<{ name: string; ok: boolean; score: number; issues: string[] }> = [];
@@ -361,7 +441,12 @@ function NewBriefPage() {
           reader.readAsDataURL(file);
         });
         const res = await validateBriefCreative({ data: { base64, mimeType: file.type } });
-        results.push({ name: file.name, ok: res.ok, score: res.score, issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)] });
+        results.push({
+          name: file.name,
+          ok: res.ok,
+          score: res.score,
+          issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)],
+        });
       } catch {
         results.push({ name: file.name, ok: true, score: 50, issues: [] });
       }
@@ -397,56 +482,87 @@ function NewBriefPage() {
       const { error: upErr } = await supabase.storage
         .from("campaign-creatives")
         .upload(path, resized, { upsert: false, contentType: resized.type });
-      if (upErr) { captureError(upErr, "upload", { flow: "brief_creative", fileName: f.name }); setError(`Upload échoué : ${f.name}`); setLoading(false); return; }
+      if (upErr) {
+        captureError(upErr, "upload", { flow: "brief_creative", fileName: f.name });
+        setError(`Upload échoué : ${f.name}`);
+        setLoading(false);
+        return;
+      }
       uploadedPaths.push(path);
     }
 
-    const zoneList = zones.split(/\r?\n|,/).map((z) => z.trim()).filter(Boolean).slice(0, 30);
+    const zoneList = zones
+      .split(/\r?\n|,/)
+      .map((z) => z.trim())
+      .filter(Boolean)
+      .slice(0, 30);
     const start = new Date(startDate);
     const end = new Date(endDate);
     const days = Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
 
-    const finalDescription = vehicleTypes.includes("autre") && autreVehicleNote.trim()
-      ? `${description}\n\n[Véhicule autre recherché : ${autreVehicleNote.trim()}]`
-      : description;
+    const finalDescription =
+      vehicleTypes.includes("autre") && autreVehicleNote.trim()
+        ? `${description}\n\n[Véhicule autre recherché : ${autreVehicleNote.trim()}]`
+        : description;
 
-    const { data, error: insErr } = await supabase.from("advertiser_briefs").insert([{
-      advertiser_id: uid,
-      title,
-      description: finalDescription,
-      vehicle_types: vehicleTypes as never,
-      zones: zoneList,
-      start_date: startDate,
-      end_date: endDate,
-      days_count: days,
-      budget_max: budget ? Number(budget) : null,
-      audience_target: audience || null,
-      creative_files: uploadedPaths,
-      zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
-      zone_area_km2: zonePolygon?.areaKm2 ?? null,
-      ad_format: adFormat ?? null,
-    }]).select("id").single();
+    const { data, error: insErr } = await supabase
+      .from("advertiser_briefs")
+      .insert([
+        {
+          advertiser_id: uid,
+          title,
+          description: finalDescription,
+          vehicle_types: vehicleTypes as never,
+          zones: zoneList,
+          start_date: startDate,
+          end_date: endDate,
+          days_count: days,
+          budget_max: budget ? Number(budget) : null,
+          audience_target: audience || null,
+          creative_files: uploadedPaths,
+          zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
+          zone_area_km2: zonePolygon?.areaKm2 ?? null,
+          ad_format: adFormat ?? null,
+        },
+      ])
+      .select("id")
+      .single();
 
     if (insErr) {
       if (uploadedPaths.length > 0) {
         await supabase.storage.from("campaign-creatives").remove(uploadedPaths);
       }
       setLoading(false);
-      const isEnumError = insErr.message?.includes("invalid input value for enum") || insErr.message?.includes("vehicle_type");
+      const isEnumError =
+        insErr.message?.includes("invalid input value for enum") ||
+        insErr.message?.includes("vehicle_type");
       setError(
         isEnumError
           ? "Le type de véhicule sélectionné n'est pas encore disponible sur cette version. Veuillez réessayer dans quelques minutes ou contacter le support."
-          : `Erreur lors de la création du brief : ${insErr.message}`
+          : `Erreur lors de la création du brief : ${insErr.message}`,
       );
       return;
     }
     setLoading(false);
-    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-    void track("brief_created", { brief_id: data!.id, vehicle_types: vehicleTypes, has_zone: !!zonePolygon });
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
+    void track("brief_created", {
+      brief_id: data!.id,
+      vehicle_types: vehicleTypes,
+      has_zone: !!zonePolygon,
+    });
     void notifyBriefCreated({ data: { briefId: data!.id } });
 
     const computed = zonePolygon
-      ? estimateZoneBudget(zonePolygon.areaKm2, days, 1, zonePolygon.coordinates as [number, number][]).total
+      ? estimateZoneBudget(
+          zonePolygon.areaKm2,
+          days,
+          1,
+          zonePolygon.coordinates as [number, number][],
+        ).total
       : 0;
     if (computed > 0) {
       setCreated({ id: data!.id, amount: Math.max(10, Math.round(computed)) });
@@ -459,28 +575,51 @@ function NewBriefPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (vehicleTypes.length === 0) { setError("Sélectionnez au moins un type de véhicule."); return; }
-    if (vehicleTypes.includes("autre") && !autreVehicleNote.trim()) {
-      setError("Vous avez sélectionné « Autre » : veuillez préciser le type de véhicule recherché.");
+    if (vehicleTypes.length === 0) {
+      setError("Sélectionnez au moins un type de véhicule.");
       return;
     }
-    if (!startDate || !endDate) { setError("Dates obligatoires."); return; }
-    if (endDate < startDate) { setError("La date de fin doit être après la date de début."); return; }
+    if (vehicleTypes.includes("autre") && !autreVehicleNote.trim()) {
+      setError(
+        "Vous avez sélectionné « Autre » : veuillez préciser le type de véhicule recherché.",
+      );
+      return;
+    }
+    if (!startDate || !endDate) {
+      setError("Dates obligatoires.");
+      return;
+    }
+    if (endDate < startDate) {
+      setError("La date de fin doit être après la date de début.");
+      return;
+    }
     const forbidden = findForbiddenKeyword(`${title} ${description} ${audience}`);
     if (forbidden) {
-      setError(`Contenu interdit détecté : « ${forbidden} ». Charte MoveSpot : pas de campagne religieuse, politique/électorale, sexiste, pornographique, violente, ni d'anniversaire personnel.`);
+      setError(
+        `Contenu interdit détecté : « ${forbidden} ». Charte MoveSpot : pas de campagne religieuse, politique/électorale, sexiste, pornographique, violente, ni d'anniversaire personnel.`,
+      );
       return;
     }
 
     if (!userId) {
       if (!showGuestSignup) {
         setShowGuestSignup(true);
-        setTimeout(() => document.getElementById("guest-signup-section")?.scrollIntoView({ behavior: "smooth" }), 80);
+        setTimeout(
+          () =>
+            document.getElementById("guest-signup-section")?.scrollIntoView({ behavior: "smooth" }),
+          80,
+        );
         return;
       }
       // Guest form is visible — validate and create account
-      if (!guestEmail.trim()) { setError("Adresse email requise."); return; }
-      if (guestPassword.length < 8) { setError("Mot de passe trop court (8 caractères minimum)."); return; }
+      if (!guestEmail.trim()) {
+        setError("Adresse email requise.");
+        return;
+      }
+      if (guestPassword.length < 8) {
+        setError("Mot de passe trop court (8 caractères minimum).");
+        return;
+      }
       setLoading(true);
       const { data: authData, error: authErr } = await supabase.auth.signUp({
         email: guestEmail.trim().toLowerCase(),
@@ -488,16 +627,31 @@ function NewBriefPage() {
         options: { data: { role: "advertiser" } },
       });
       if (authErr) {
-        const alreadyExists = authErr.message.includes("already registered") || authErr.message.includes("already been registered") || authErr.message.includes("User already registered");
-        setError(alreadyExists
-          ? "Cet email est déjà utilisé. Connectez-vous depuis l'espace annonceur."
-          : `Erreur lors de la création du compte : ${authErr.message}`);
+        const alreadyExists =
+          authErr.message.includes("already registered") ||
+          authErr.message.includes("already been registered") ||
+          authErr.message.includes("User already registered");
+        setError(
+          alreadyExists
+            ? "Cet email est déjà utilisé. Connectez-vous depuis l'espace annonceur."
+            : `Erreur lors de la création du compte : ${authErr.message}`,
+        );
         setLoading(false);
         return;
       }
       const newUserId = authData.user?.id;
-      if (!newUserId) { setError("Erreur inattendue lors de la création du compte. Réessayez."); setLoading(false); return; }
-      await supabase.from("advertiser_profiles").insert([{ user_id: newUserId, account_type: "business", full_name: guestEmail.trim().toLowerCase() }] as never);
+      if (!newUserId) {
+        setError("Erreur inattendue lors de la création du compte. Réessayez.");
+        setLoading(false);
+        return;
+      }
+      await supabase.from("advertiser_profiles").insert([
+        {
+          user_id: newUserId,
+          account_type: "business",
+          full_name: guestEmail.trim().toLowerCase(),
+        },
+      ] as never);
       setUserId(newUserId);
       await createBriefForUser(newUserId);
       return;
@@ -513,7 +667,9 @@ function NewBriefPage() {
         <header className="border-b border-border">
           <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
             <LogoLink />
-            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
+            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
+              ← Retour
+            </Link>
           </div>
         </header>
         <main className="max-w-3xl mx-auto px-4 py-10">
@@ -548,20 +704,44 @@ function NewBriefPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">📺</span>
                   <span className="font-bold text-white text-base">Affichage numérique</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ml-auto"
-                    style={{ background: "rgba(37,99,235,0.3)", color: "rgba(147,197,253,0.9)", border: "1px solid rgba(59,130,246,0.3)" }}>
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ml-auto"
+                    style={{
+                      background: "rgba(37,99,235,0.3)",
+                      color: "rgba(147,197,253,0.9)",
+                      border: "1px solid rgba(59,130,246,0.3)",
+                    }}
+                  >
                     LED
                   </span>
                 </div>
-                <p className="text-xs mb-3" style={{ color: "rgba(147,197,253,0.75)", lineHeight: 1.6 }}>
-                  Fourgon équipé d'écrans LED intégrés. Diffusion de vidéos MP4, images dynamiques ou flux HTML5.
+                <p
+                  className="text-xs mb-3"
+                  style={{ color: "rgba(147,197,253,0.75)", lineHeight: 1.6 }}
+                >
+                  Fourgon équipé d'écrans LED intégrés. Diffusion de vidéos MP4, images dynamiques
+                  ou flux HTML5.
                 </p>
                 <ul className="space-y-1">
-                  {["✅ Contenu vidéo & animé", "✅ Visible jour et nuit", "✅ Idéal pour événements", "✅ Changement de visuel à distance"].map(item => (
-                    <li key={item} className="text-[11px]" style={{ color: "rgba(147,197,253,0.65)" }}>{item}</li>
+                  {[
+                    "✅ Contenu vidéo & animé",
+                    "✅ Visible jour et nuit",
+                    "✅ Idéal pour événements",
+                    "✅ Changement de visuel à distance",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="text-[11px]"
+                      style={{ color: "rgba(147,197,253,0.65)" }}
+                    >
+                      {item}
+                    </li>
                   ))}
                 </ul>
-                <div className="mt-4 text-xs font-semibold" style={{ color: "rgba(96,165,250,0.9)" }}>
+                <div
+                  className="mt-4 text-xs font-semibold"
+                  style={{ color: "rgba(96,165,250,0.9)" }}
+                >
                   150–800 €/semaine · 5 000–20 000 impressions/j →
                 </div>
               </div>
@@ -588,8 +768,15 @@ function NewBriefPage() {
                   Covering vinyle adhésif posé sur le véhicule. Visuel imprimé fixe.
                 </p>
                 <ul className="space-y-1">
-                  {["✅ Visuel permanent & durable", "✅ Coût maîtrisé", "✅ Large choix de véhicules", "✅ Idéal image de marque locale"].map(item => (
-                    <li key={item} className="text-[11px] text-muted-foreground">{item}</li>
+                  {[
+                    "✅ Visuel permanent & durable",
+                    "✅ Coût maîtrisé",
+                    "✅ Large choix de véhicules",
+                    "✅ Idéal image de marque locale",
+                  ].map((item) => (
+                    <li key={item} className="text-[11px] text-muted-foreground">
+                      {item}
+                    </li>
                   ))}
                 </ul>
                 <div className="mt-4 text-xs font-semibold text-primary">
@@ -609,7 +796,9 @@ function NewBriefPage() {
         <header className="border-b border-border">
           <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
             <LogoLink />
-            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
+            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
+              ← Retour
+            </Link>
           </div>
         </header>
         <main className="max-w-3xl mx-auto px-4 py-8">
@@ -629,11 +818,16 @@ function NewBriefPage() {
                 className="text-left rounded-2xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all p-5 group"
               >
                 <div className="text-3xl mb-3">{tpl.icon}</div>
-                <p className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">{tpl.label}</p>
+                <p className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">
+                  {tpl.label}
+                </p>
                 <p className="text-xs text-muted-foreground leading-relaxed">{tpl.desc}</p>
                 <div className="mt-3 flex flex-wrap gap-1">
                   {tpl.vehicleTypes.map((v) => (
-                    <span key={v} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                    <span
+                      key={v}
+                      className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground"
+                    >
                       {VEHICLE_TYPES.find((t) => t.v === v)?.l ?? v}
                     </span>
                   ))}
@@ -667,7 +861,9 @@ function NewBriefPage() {
       <header className="border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
+          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
+            ← Retour
+          </Link>
         </div>
       </header>
       <main id="main-content" className="max-w-3xl mx-auto px-4 py-8">
@@ -676,7 +872,9 @@ function NewBriefPage() {
             <h2 className="font-display text-2xl font-bold">Récapitulatif du devis</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Brief enregistré. Montant calculé d'après la zone dessinée et la durée de campagne :{" "}
-              <strong className="text-foreground">{created.amount.toLocaleString("fr-FR")} €</strong>{" "}
+              <strong className="text-foreground">
+                {created.amount.toLocaleString("fr-FR")} €
+              </strong>{" "}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <WalletTopupCheckout
@@ -713,27 +911,51 @@ function NewBriefPage() {
         )}
 
         <h1 className="font-display text-3xl font-bold mb-2">Publier un brief</h1>
-        <p className="text-sm text-muted-foreground mb-6">Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.</p>
+        <p className="text-sm text-muted-foreground mb-6">
+          Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.
+        </p>
 
         {/* ── Rappel discret du type choisi (numérique) ── */}
         {displayType === "digital" && (
           <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-center gap-2 text-sm">
             <span>📺</span>
-            <span className="text-blue-700 dark:text-blue-300 font-medium">Affichage numérique LED — les propriétaires de fourgons équipés d'écrans LED pourront répondre à ce brief.</span>
+            <span className="text-blue-700 dark:text-blue-300 font-medium">
+              Affichage numérique LED — les propriétaires de fourgons équipés d'écrans LED pourront
+              répondre à ce brief.
+            </span>
           </div>
         )}
 
         {draftRestored && !created && (
           <div className="mb-2 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
             <span>📝 Brouillon restauré — vos données ont été conservées.</span>
-            <button type="button" onClick={() => {
-              try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-              setTitle(""); setDescription(""); setVehicleTypes([]); setZones("");
-              setStartDate(""); setEndDate(""); setBudget(""); setAudience("");
-              setAutreVehicleNote(""); setAdFormat(null); setBrandColor("#3B82F6");
-              setDisplayType(null); setWizardStep("display-type");
-              setDraftRestored(false);
-            }} className="ml-4 underline hover:no-underline shrink-0">Effacer</button>
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  localStorage.removeItem(DRAFT_KEY);
+                } catch {
+                  /* ignore */
+                }
+                setTitle("");
+                setDescription("");
+                setVehicleTypes([]);
+                setZones("");
+                setStartDate("");
+                setEndDate("");
+                setBudget("");
+                setAudience("");
+                setAutreVehicleNote("");
+                setAdFormat(null);
+                setBrandColor("#3B82F6");
+                setDisplayType(null);
+                setWizardStep("display-type");
+                setDraftRestored(false);
+              }}
+              className="ml-4 underline hover:no-underline shrink-0"
+            >
+              Effacer
+            </button>
           </div>
         )}
 
@@ -742,7 +964,10 @@ function NewBriefPage() {
           <div className="rounded-2xl border border-violet-500/30 bg-violet-500/5 overflow-hidden">
             <button
               type="button"
-              onClick={() => { setAiPanelOpen((v) => !v); setAiError(""); }}
+              onClick={() => {
+                setAiPanelOpen((v) => !v);
+                setAiError("");
+              }}
               className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-violet-500/5 transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -772,9 +997,7 @@ function NewBriefPage() {
                   placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm resize-none"
                 />
-                {aiError && (
-                  <p className="text-xs text-destructive">{aiError}</p>
-                )}
+                {aiError && <p className="text-xs text-destructive">{aiError}</p>}
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
@@ -796,47 +1019,79 @@ function NewBriefPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Le contenu généré sera pré-rempli dans les champs ci-dessous — vous pouvez le modifier librement avant de publier.
+                  Le contenu généré sera pré-rempli dans les champs ci-dessous — vous pouvez le
+                  modifier librement avant de publier.
                 </p>
               </div>
             )}
           </div>
 
           <Field label="Titre du brief">
-            <input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={120}
-              className="w-full rounded-lg border border-border bg-card px-4 py-2.5" placeholder="Ex. Campagne street food Paris 11e" />
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              maxLength={120}
+              className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+              placeholder="Ex. Campagne street food Paris 11e"
+            />
           </Field>
 
           <Field label="Description">
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} required maxLength={2000} rows={4}
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              maxLength={2000}
+              rows={4}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Marque, message clé, ton, contraintes, audience cible…" />
+              placeholder="Marque, message clé, ton, contraintes, audience cible…"
+            />
           </Field>
 
           <ContentChecker text={`${title} ${description} ${audience}`} />
 
           {/* ── Score qualité IA ────────────────────────────────────────── */}
           {(qualityLoading || qualityScore) && (
-            <div className={`rounded-xl border px-4 py-3 text-xs transition-all ${qualityLoading ? "border-border bg-secondary/20 animate-pulse" : qualityScore && qualityScore.global >= 7 ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}`}>
+            <div
+              className={`rounded-xl border px-4 py-3 text-xs transition-all ${qualityLoading ? "border-border bg-secondary/20 animate-pulse" : qualityScore && qualityScore.global >= 7 ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}`}
+            >
               {qualityLoading ? (
                 <p className="text-muted-foreground">✨ Analyse qualité en cours…</p>
               ) : qualityScore ? (
                 <>
                   <div className="flex items-center gap-3 flex-wrap mb-2">
                     <span className="font-semibold text-sm">Score qualité du brief</span>
-                    <span className={`text-xl font-bold ${qualityScore.global >= 7 ? "text-emerald-600" : qualityScore.global >= 5 ? "text-amber-600" : "text-destructive"}`}>
+                    <span
+                      className={`text-xl font-bold ${qualityScore.global >= 7 ? "text-emerald-600" : qualityScore.global >= 5 ? "text-amber-600" : "text-destructive"}`}
+                    >
                       {qualityScore.global}/10
                     </span>
                     <div className="flex gap-2 text-muted-foreground flex-wrap">
-                      <span>Message: <strong className="text-foreground">{qualityScore.scores.message}/10</strong></span>
-                      <span>Audience: <strong className="text-foreground">{qualityScore.scores.audience}/10</strong></span>
-                      <span>Zone: <strong className="text-foreground">{qualityScore.scores.zone}/10</strong></span>
+                      <span>
+                        Message:{" "}
+                        <strong className="text-foreground">
+                          {qualityScore.scores.message}/10
+                        </strong>
+                      </span>
+                      <span>
+                        Audience:{" "}
+                        <strong className="text-foreground">
+                          {qualityScore.scores.audience}/10
+                        </strong>
+                      </span>
+                      <span>
+                        Zone:{" "}
+                        <strong className="text-foreground">{qualityScore.scores.zone}/10</strong>
+                      </span>
                     </div>
                   </div>
                   {qualityScore.tips.length > 0 && (
                     <ul className="space-y-0.5">
                       {qualityScore.tips.map((tip, i) => (
-                        <li key={i} className="text-muted-foreground">💡 {tip}</li>
+                        <li key={i} className="text-muted-foreground">
+                          💡 {tip}
+                        </li>
                       ))}
                     </ul>
                   )}
@@ -849,7 +1104,12 @@ function NewBriefPage() {
             {displayType && (
               <button
                 type="button"
-                onClick={() => { setDisplayType(null); setVehicleTypes([]); setAdFormat(null); setWizardStep("display-type"); }}
+                onClick={() => {
+                  setDisplayType(null);
+                  setVehicleTypes([]);
+                  setAdFormat(null);
+                  setWizardStep("display-type");
+                }}
                 className="mb-3 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
                 ← Changer de type d'affichage
@@ -871,43 +1131,53 @@ function NewBriefPage() {
             )}
 
             {/* ── Autres véhicules (masqués en mode digital, déjà choisi) ─── */}
-            {displayType !== "digital" && <>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-              {displayType === "traditionnel" ? "Véhicules disponibles" : "Autres véhicules"}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {VEHICLE_TYPES.filter(t => t.v !== "camion_led").map((t) => {
-                const blockedByBoxled = adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(t.v as VehicleKey);
-                const isSelected = vehicleTypes.includes(t.v);
-                return (
-                  <button
-                    type="button"
-                    key={t.v}
-                    disabled={blockedByBoxled}
-                    title={blockedByBoxled ? "Incompatible avec le format Écran LED/Vidéo (BoxLED)" : t.tip}
-                    onClick={() => toggleType(t.v)}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
-                      blockedByBoxled
-                        ? "opacity-40 cursor-not-allowed bg-card border-border"
-                        : isSelected
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-card border-border hover:bg-secondary"
-                    }`}
-                  >
-                    {t.l}
-                  </button>
-                );
-              })}
-            </div>
-            {adFormat === "boxled" && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                ⚠️ Le format <strong>Écran LED/Vidéo</strong> est réservé aux fourgons publicitaires numériques. Food truck, scooter, vélo cargo et triporteur sont incompatibles.
-              </p>
+            {displayType !== "digital" && (
+              <>
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+                  {displayType === "traditionnel" ? "Véhicules disponibles" : "Autres véhicules"}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {VEHICLE_TYPES.filter((t) => t.v !== "camion_led").map((t) => {
+                    const blockedByBoxled =
+                      adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(t.v as VehicleKey);
+                    const isSelected = vehicleTypes.includes(t.v);
+                    return (
+                      <button
+                        type="button"
+                        key={t.v}
+                        disabled={blockedByBoxled}
+                        title={
+                          blockedByBoxled
+                            ? "Incompatible avec le format Écran LED/Vidéo (BoxLED)"
+                            : t.tip
+                        }
+                        onClick={() => toggleType(t.v)}
+                        className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                          blockedByBoxled
+                            ? "opacity-40 cursor-not-allowed bg-card border-border"
+                            : isSelected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-card border-border hover:bg-secondary"
+                        }`}
+                      >
+                        {t.l}
+                      </button>
+                    );
+                  })}
+                </div>
+                {adFormat === "boxled" && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                    ⚠️ Le format <strong>Écran LED/Vidéo</strong> est réservé aux fourgons
+                    publicitaires numériques. Food truck, scooter, vélo cargo et triporteur sont
+                    incompatibles.
+                  </p>
+                )}
+              </>
             )}
-            </>}
             {displayType === "digital" && (
               <div className="mt-1 rounded-lg border border-blue-500/20 bg-blue-500/5 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
-                📺 Fourgon publicitaire numérique sélectionné — contenu vidéo/image diffusé sur écrans LED intégrés.
+                📺 Fourgon publicitaire numérique sélectionné — contenu vidéo/image diffusé sur
+                écrans LED intégrés.
               </div>
             )}
           </Field>
@@ -938,13 +1208,21 @@ function NewBriefPage() {
                     }}
                   />
                   {logoUrl && (
-                    <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
+                    <button
+                      type="button"
+                      onClick={() => setLogoUrl(null)}
+                      className="text-xs text-destructive"
+                    >
+                      ✕
+                    </button>
                   )}
                 </div>
               </div>
               {previewSearching ? (
                 <div className="h-48 rounded-xl bg-secondary/40 flex items-center justify-center animate-pulse">
-                  <span className="text-sm text-muted-foreground">Recherche d'un véhicule disponible…</span>
+                  <span className="text-sm text-muted-foreground">
+                    Recherche d'un véhicule disponible…
+                  </span>
                 </div>
               ) : previewVehicleId ? (
                 <VehiclePhotoAdPreview
@@ -955,7 +1233,9 @@ function NewBriefPage() {
               ) : (
                 <div className="rounded-xl border border-dashed border-border bg-secondary/10 p-5 text-center text-sm text-muted-foreground">
                   <p>📷 Aucun véhicule de ce type n'a encore mis ses photos en ligne.</p>
-                  <p className="text-xs mt-1 opacity-70">L'aperçu apparaîtra automatiquement dès qu'un propriétaire ajoutera ses photos.</p>
+                  <p className="text-xs mt-1 opacity-70">
+                    L'aperçu apparaîtra automatiquement dès qu'un propriétaire ajoutera ses photos.
+                  </p>
                 </div>
               )}
             </div>
@@ -971,23 +1251,33 @@ function NewBriefPage() {
                 placeholder="Ex. Rickshaw, bateau fluvial, camion brasserie…"
                 className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               />
-              <p className="text-xs text-muted-foreground mt-1">Cette précision aide les propriétaires à évaluer si leur véhicule correspond à votre besoin.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Cette précision aide les propriétaires à évaluer si leur véhicule correspond à votre
+                besoin.
+              </p>
             </Field>
           )}
 
           <Field label="Format publicitaire">
             <div className="flex flex-wrap gap-2">
               {AD_FORMATS.map((f) => {
-                const incompatible = f.v === "boxled" && vehicleTypes.length > 0 && isFormatIncompatible(vehicleTypes, "boxled");
+                const incompatible =
+                  f.v === "boxled" &&
+                  vehicleTypes.length > 0 &&
+                  isFormatIncompatible(vehicleTypes, "boxled");
                 return (
                   <button
                     type="button"
                     key={f.v}
                     disabled={incompatible}
-                    title={incompatible ? "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux fourgons publicitaires" : f.desc}
+                    title={
+                      incompatible
+                        ? "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux fourgons publicitaires"
+                        : f.desc
+                    }
                     onClick={() => {
                       if (incompatible) return;
-                      setAdFormat((cur) => cur === f.v ? null : f.v);
+                      setAdFormat((cur) => (cur === f.v ? null : f.v));
                     }}
                     className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
                       incompatible
@@ -1004,11 +1294,12 @@ function NewBriefPage() {
             </div>
             {isFormatIncompatible(vehicleTypes, "boxled") && vehicleTypes.length > 0 && (
               <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                ⚠️ <strong>Écran LED/Vidéo (BoxLED)</strong> non disponible : un ou plusieurs véhicules sélectionnés (food truck, scooter, vélo cargo, triporteur) n'existent pas en version BoxLED de série.
+                ⚠️ <strong>Écran LED/Vidéo (BoxLED)</strong> non disponible : un ou plusieurs
+                véhicules sélectionnés (food truck, scooter, vélo cargo, triporteur) n'existent pas
+                en version BoxLED de série.
               </p>
             )}
           </Field>
-
 
           <Field label="Zone de ciblage sur la carte (optionnel)">
             <ZoneSelector
@@ -1032,45 +1323,59 @@ function NewBriefPage() {
               }}
               rows={3}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Tapez un quartier pour centrer la carte, ou dessinez sur la carte" />
-            <p className="text-xs text-muted-foreground mt-1">Rempli automatiquement quand vous dessinez sur la carte — modifiable.</p>
-            {zonePolygon && estimatedDays > 0 && (() => {
-              const est = estimateZoneBudget(
-                zonePolygon.areaKm2,
-                estimatedDays,
-                1,
-                zonePolygon.coordinates as [number, number][],
-              );
-              return (
-                <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
-                  <p className="font-medium">Budget estimé pour cette zone</p>
-                  <p className="mt-1 text-muted-foreground">
-                    {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
-                    <strong className="text-foreground">
-                      {est.total.toLocaleString("fr-FR")} €
-                    </strong>{" "}
-                    ({est.perDay} €/jour · {est.ratePerKm2PerDay} €/km²/jour)
-                  </p>
-                  {est.denseMetro && (
-                    <p className="mt-2 text-xs text-foreground">
-                      🏙️ Zone dense détectée ({est.denseMetro}) : coefficient ×{est.multiplier} appliqué
-                      pour forte visibilité.
+              placeholder="Tapez un quartier pour centrer la carte, ou dessinez sur la carte"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Rempli automatiquement quand vous dessinez sur la carte — modifiable.
+            </p>
+            {zonePolygon &&
+              estimatedDays > 0 &&
+              (() => {
+                const est = estimateZoneBudget(
+                  zonePolygon.areaKm2,
+                  estimatedDays,
+                  1,
+                  zonePolygon.coordinates as [number, number][],
+                );
+                return (
+                  <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
+                    <p className="font-medium">Budget estimé pour cette zone</p>
+                    <p className="mt-1 text-muted-foreground">
+                      {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
+                      <strong className="text-foreground">
+                        {est.total.toLocaleString("fr-FR")} €
+                      </strong>{" "}
+                      ({est.perDay} €/jour · {est.ratePerKm2PerDay} €/km²/jour)
                     </p>
-                  )}
-                </div>
-              );
-            })()}
+                    {est.denseMetro && (
+                      <p className="mt-2 text-xs text-foreground">
+                        🏙️ Zone dense détectée ({est.denseMetro}) : coefficient ×{est.multiplier}{" "}
+                        appliqué pour forte visibilité.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
           </Field>
-
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Date de début">
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required
-                className="w-full rounded-lg border border-border bg-card px-4 py-2.5" />
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+              />
             </Field>
             <Field label="Date de fin">
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required
-                className="w-full rounded-lg border border-border bg-card px-4 py-2.5" />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                required
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+              />
             </Field>
           </div>
 
@@ -1082,24 +1387,42 @@ function NewBriefPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Budget max (€, optionnel)">
-              <input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)}
-                className="w-full rounded-lg border border-border bg-card px-4 py-2.5" />
+              <input
+                type="number"
+                min={0}
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+              />
             </Field>
             <Field label="Audience cible (optionnel)">
-              <input value={audience} onChange={(e) => setAudience(e.target.value)} maxLength={200}
-                className="w-full rounded-lg border border-border bg-card px-4 py-2.5" placeholder="Ex. 25-40 ans urbains" />
+              <input
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+                maxLength={200}
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+                placeholder="Ex. 25-40 ans urbains"
+              />
             </Field>
           </div>
 
           <Field label="Visuels publicitaires (optionnel)">
-            <input type="file" multiple accept="image/*,application/pdf,video/*"
+            <input
+              type="file"
+              multiple
+              accept="image/*,application/pdf,video/*"
               onChange={(e) => {
                 const selected = Array.from(e.target.files ?? []);
                 setFiles(selected);
                 void handleCreativeValidation(selected);
               }}
-              className="w-full text-sm" />
-            {files.length > 0 && <p className="text-xs text-muted-foreground mt-1">{files.length} fichier(s) sélectionné(s)</p>}
+              className="w-full text-sm"
+            />
+            {files.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {files.length} fichier(s) sélectionné(s)
+              </p>
+            )}
             {creativeValidating && (
               <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
                 <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
@@ -1109,17 +1432,24 @@ function NewBriefPage() {
             {creativeValidation.length > 0 && !creativeValidating && (
               <div className="mt-2 space-y-2">
                 {creativeValidation.map((r) => (
-                  <div key={r.name} className={`rounded-lg border px-3 py-2 text-xs ${r.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}>
+                  <div
+                    key={r.name}
+                    className={`rounded-lg border px-3 py-2 text-xs ${r.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}
+                  >
                     <div className="flex items-center gap-2 font-medium">
                       <span>{r.ok ? "✅" : "⚠️"}</span>
                       <span className="truncate max-w-[200px]">{r.name}</span>
-                      <span className={`ml-auto font-semibold ${r.score >= 70 ? "text-emerald-600" : r.score >= 50 ? "text-amber-600" : "text-destructive"}`}>
+                      <span
+                        className={`ml-auto font-semibold ${r.score >= 70 ? "text-emerald-600" : r.score >= 50 ? "text-amber-600" : "text-destructive"}`}
+                      >
                         {r.score}/100
                       </span>
                     </div>
                     {r.issues.length > 0 && (
                       <ul className="mt-1 space-y-0.5 text-muted-foreground">
-                        {r.issues.map((issue, i) => <li key={i}>• {issue}</li>)}
+                        {r.issues.map((issue, i) => (
+                          <li key={i}>• {issue}</li>
+                        ))}
                       </ul>
                     )}
                   </div>
@@ -1129,22 +1459,35 @@ function NewBriefPage() {
           </Field>
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
-            <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en soumettant un visuel publicitaire, vous garantissez en détenir tous les droits (créations, marques, droit à l'image, musiques) et vous engagez à respecter la législation française et européenne.
+            <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en soumettant
+            un visuel publicitaire, vous garantissez en détenir tous les droits (créations, marques,
+            droit à l'image, musiques) et vous engagez à respecter la législation française et
+            européenne.
           </div>
 
-          {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+          {error && (
+            <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
 
           {showGuestSignup && !userId && (
-            <div id="guest-signup-section" className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 space-y-4">
+            <div
+              id="guest-signup-section"
+              className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 space-y-4"
+            >
               <div>
                 <p className="font-semibold text-sm">Créez votre compte pour publier</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Votre brief sera publié immédiatement. Retrouvez-le et suivez les réponses depuis votre espace annonceur.
+                  Votre brief sera publié immédiatement. Retrouvez-le et suivez les réponses depuis
+                  votre espace annonceur.
                 </p>
               </div>
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest text-muted-foreground">Email</label>
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
+                    Email
+                  </label>
                   <input
                     type="email"
                     value={guestEmail}
@@ -1155,7 +1498,9 @@ function NewBriefPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs uppercase tracking-widest text-muted-foreground">Mot de passe</label>
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground">
+                    Mot de passe
+                  </label>
                   <input
                     type="password"
                     value={guestPassword}
@@ -1168,13 +1513,18 @@ function NewBriefPage() {
               </div>
               <p className="text-xs text-muted-foreground">
                 Déjà un compte ?{" "}
-                <Link to="/annonceur/inscription" className="text-primary underline">Se connecter</Link>
+                <Link to="/annonceur/inscription" className="text-primary underline">
+                  Se connecter
+                </Link>
               </p>
             </div>
           )}
 
-          <button type="submit" disabled={loading}
-            className="w-full rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 disabled:opacity-50">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
+          >
             {loading
               ? "Publication…"
               : showGuestSignup && !userId
@@ -1192,17 +1542,18 @@ function NewBriefPage() {
 function ContentChecker({ text }: { text: string }) {
   const [match, setMatch] = useState<ReturnType<typeof findForbiddenMatch>>(null);
   const [checked, setChecked] = useState(false);
+  const safeText = text ?? "";
 
   useEffect(() => {
     setChecked(false);
     const id = setTimeout(() => {
-      setMatch(findForbiddenMatch(text.trim()));
+      setMatch(findForbiddenMatch(safeText.trim()));
       setChecked(true);
     }, 400);
     return () => clearTimeout(id);
-  }, [text]);
+  }, [safeText]);
 
-  if (!checked || text.trim().length < 5) return null;
+  if (!checked || safeText.trim().length < 5) return null;
 
   if (match) {
     return (
@@ -1224,7 +1575,9 @@ function ContentChecker({ text }: { text: string }) {
   return (
     <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 flex items-center gap-2">
       <span className="text-emerald-500 text-sm">✓</span>
-      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Contenu conforme à la charte MoveSpot</p>
+      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+        Contenu conforme à la charte MoveSpot
+      </p>
     </div>
   );
 }
@@ -1259,12 +1612,14 @@ function LiveBudgetEstimator({
   });
 
   const isDense = zonePolygon
-    ? estimateZoneBudget(zonePolygon.areaKm2, d, 1, zonePolygon.coordinates as [number, number][]).denseMetro
+    ? estimateZoneBudget(zonePolygon.areaKm2, d, 1, zonePolygon.coordinates as [number, number][])
+        .denseMetro
     : null;
 
   const floorForV = MIN_EUR_PER_DAY * d * v;
   const approxForV = zonePolygon
-    ? estimateZoneBudget(zonePolygon.areaKm2, d, v, zonePolygon.coordinates as [number, number][]).total
+    ? estimateZoneBudget(zonePolygon.areaKm2, d, v, zonePolygon.coordinates as [number, number][])
+        .total
     : floorForV;
 
   return (
@@ -1277,7 +1632,9 @@ function LiveBudgetEstimator({
       </div>
 
       {days <= 0 ? (
-        <p className="text-xs text-muted-foreground">Sélectionnez des dates pour affiner l'estimation.</p>
+        <p className="text-xs text-muted-foreground">
+          Sélectionnez des dates pour affiner l'estimation.
+        </p>
       ) : (
         <>
           <div className="overflow-x-auto">
@@ -1291,11 +1648,16 @@ function LiveBudgetEstimator({
               </thead>
               <tbody>
                 {rows.map(({ n, total }) => (
-                  <tr key={n} className={`border-b border-border/40 ${n === v ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                  <tr
+                    key={n}
+                    className={`border-b border-border/40 ${n === v ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                  >
                     <td className="py-2">
                       {n} véhicule{n > 1 ? "s" : ""}
                       {n === v && vehicleCount > 0 && (
-                        <span className="ml-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">sélectionné</span>
+                        <span className="ml-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                          sélectionné
+                        </span>
                       )}
                     </td>
                     <td className="text-right py-2">{total.toLocaleString("fr-FR")} €</td>
@@ -1313,8 +1675,15 @@ function LiveBudgetEstimator({
           )}
 
           <div className="rounded-lg bg-background/60 border border-border p-3 text-xs text-muted-foreground space-y-1">
-            <p>• Estimation basée sur {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : "le tarif plancher"} × {d} jour{d > 1 ? "s" : ""}.</p>
-            <p>• Le montant final dépend des propositions des propriétaires — vous ne payez qu'à la validation.</p>
+            <p>
+              • Estimation basée sur{" "}
+              {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : "le tarif plancher"}{" "}
+              × {d} jour{d > 1 ? "s" : ""}.
+            </p>
+            <p>
+              • Le montant final dépend des propositions des propriétaires — vous ne payez qu'à la
+              validation.
+            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
