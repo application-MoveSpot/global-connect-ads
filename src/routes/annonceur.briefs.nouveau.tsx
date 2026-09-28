@@ -194,6 +194,7 @@ function NewBriefPage() {
   const [aiContext, setAiContext] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
   const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
   const [qualityLoading, setQualityLoading] = useState(false);
   const [creativeValidation, setCreativeValidation] = useState<
@@ -359,6 +360,7 @@ function NewBriefPage() {
       return;
     }
     setAiError("");
+    setAiSessionExpired(false);
     setAiLoading(true);
     try {
       const result = await generateBriefSuggestion({
@@ -369,7 +371,8 @@ function NewBriefPage() {
         },
       });
       if (!result.ok) {
-        setAiError(result.message);
+        if (result.code === "UNAUTHORIZED") setAiSessionExpired(true);
+        else setAiError(result.message);
         return;
       }
       const { suggestion } = result;
@@ -379,8 +382,8 @@ function NewBriefPage() {
       setAiPanelOpen(false);
       setAiContext("");
     } catch (err) {
-      if (err instanceof Response) {
-        setAiError(err.status === 401 ? "Session expirée — reconnectez-vous puis réessayez." : "Le service IA est indisponible. Réessayez.");
+      if (err instanceof Response && err.status === 401) {
+        setAiSessionExpired(true);
       } else {
         setAiError(err instanceof Error ? err.message : "Erreur de génération.");
       }
@@ -976,6 +979,7 @@ function NewBriefPage() {
               onClick={() => {
                 setAiPanelOpen((v) => !v);
                 setAiError("");
+                setAiSessionExpired(false);
               }}
               className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-violet-500/5 transition-colors"
             >
@@ -1006,7 +1010,18 @@ function NewBriefPage() {
                   placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm resize-none"
                 />
-                {aiError && <p className="text-xs text-destructive">{aiError}</p>}
+                {aiSessionExpired && (
+                  <p className="text-xs text-destructive">
+                    Session expirée —{" "}
+                    <Link to="/annonceur/inscription" className="underline hover:no-underline">
+                      reconnectez-vous
+                    </Link>{" "}
+                    puis réessayez.
+                  </p>
+                )}
+                {aiError && !aiSessionExpired && (
+                  <p className="text-xs text-destructive">{aiError}</p>
+                )}
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
