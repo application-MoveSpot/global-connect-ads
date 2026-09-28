@@ -261,10 +261,10 @@ function Index() {
                 { value: "< 5 min", label: "Délai de lancement", sub: "brief → véhicule en route" },
                 { value: "100 %", label: "Mesure certifiée GPS", sub: "zéro estimation approximative" },
               ].map((kpi) => (
-                <div key={kpi.label} className="rounded-2xl border border-border bg-card p-5 text-center">
-                  <div className="font-display text-2xl font-bold text-primary">{kpi.value}</div>
-                  <div className="text-xs font-medium mt-1">{kpi.label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{kpi.sub}</div>
+                <div key={kpi.label} className="rounded-2xl border border-border bg-card p-3 text-center">
+                  <div className="font-display text-xl font-bold text-primary leading-tight">{kpi.value}</div>
+                  <div className="text-xs font-medium mt-1 leading-snug">{kpi.label}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{kpi.sub}</div>
                 </div>
               ))}
             </div>
