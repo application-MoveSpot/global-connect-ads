@@ -361,13 +361,18 @@ function NewBriefPage() {
     setAiError("");
     setAiLoading(true);
     try {
-      const suggestion = await generateBriefSuggestion({
+      const result = await generateBriefSuggestion({
         data: {
           businessContext: aiContext.trim(),
           vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
           zone: zones.trim() || undefined,
         },
       });
+      if (!result.ok) {
+        setAiError(result.message);
+        return;
+      }
+      const { suggestion } = result;
       setTitle(suggestion.title);
       setDescription(suggestion.description);
       setAudience(suggestion.audience);

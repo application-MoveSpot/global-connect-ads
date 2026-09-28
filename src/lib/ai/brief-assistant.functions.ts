@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { hasAuthenticatedBriefRequest } from "./brief-auth.server";
 
 const BriefGenerateInput = z.object({
   businessContext: z.string().min(10).max(600),
@@ -15,14 +15,31 @@ export type BriefSuggestion = {
   audience: string;
 };
 
+export type BriefSuggestionResult =
+  | { ok: true; suggestion: BriefSuggestion }
+  | { ok: false; code: "UNAUTHORIZED" | "AI_UNAVAILABLE"; message: string };
+
 export const generateBriefSuggestion = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof BriefGenerateInput>) =>
+  .validator((d: z.infer<typeof BriefGenerateInput>) =>
     BriefGenerateInput.parse(d),
   )
-  .handler(async ({ data }): Promise<BriefSuggestion> => {
+  .handler(async ({ data }): Promise<BriefSuggestionResult> => {
+    if (!(await hasAuthenticatedBriefRequest())) {
+      return {
+        ok: false,
+        code: "UNAUTHORIZED",
+        message: "Session expirée — reconnectez-vous puis réessayez.",
+      };
+    }
+
     const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
+    if (!apiKey) {
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "Le service IA est indisponible. Réessayez.",
+      };
+    }
 
     const provider = createLovableAiGatewayProvider(apiKey);
     const model = provider("google/gemini-2.5-flash");
@@ -50,19 +67,25 @@ Réponds UNIQUEMENT en JSON strict :
   "audience": "..."
 }`;
 
-    const { generateText } = await import("ai");
-    const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 600 });
-
     try {
+      const { generateText } = await import("ai");
+      const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 600 });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as BriefSuggestion;
       return {
-        title: String(parsed.title ?? "").slice(0, 120),
-        description: String(parsed.description ?? "").slice(0, 2000),
-        audience: String(parsed.audience ?? "").slice(0, 200),
+        ok: true,
+        suggestion: {
+          title: String(parsed.title ?? "").slice(0, 120),
+          description: String(parsed.description ?? "").slice(0, 2000),
+          audience: String(parsed.audience ?? "").slice(0, 200),
+        },
       };
     } catch {
-      throw new Error("L'IA n'a pas pu générer de suggestion. Réessayez.");
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+      };
     }
   });
