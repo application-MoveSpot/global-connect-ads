@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
 const BriefGenerateInput = z.object({
@@ -51,6 +50,7 @@ Réponds UNIQUEMENT en JSON strict :
   "audience": "..."
 }`;
 
+    const { generateText } = await import("ai");
     const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 600 });
 
     try {
