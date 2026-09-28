@@ -374,7 +374,11 @@ function NewBriefPage() {
       setAiPanelOpen(false);
       setAiContext("");
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : "Erreur de génération.");
+      if (err instanceof Response) {
+        setAiError(err.status === 401 ? "Session expirée — reconnectez-vous puis réessayez." : "Le service IA est indisponible. Réessayez.");
+      } else {
+        setAiError(err instanceof Error ? err.message : "Erreur de génération.");
+      }
     } finally {
       setAiLoading(false);
     }

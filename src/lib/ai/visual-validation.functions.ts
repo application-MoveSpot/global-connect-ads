@@ -15,7 +15,7 @@ async function analyseImageBase64(
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: "google/gemini-2.0-flash",
+      model: "google/gemini-2.5-flash",
       messages: [
         {
           role: "user",
@@ -214,7 +214,7 @@ Réponds UNIQUEMENT en JSON strict :
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash",
+          model: "google/gemini-2.5-flash",
           messages: [
             {
               role: "user",
