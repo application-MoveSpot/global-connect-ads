@@ -26,8 +26,8 @@ function AdminCommerciauxPage() {
 
   useEffect(() => {
     listFn({ data: {} })
-      .then((res) => { if (res.ok) setRows(res.commercials); })
-      .catch((e) => toast.error(e instanceof Error ? e.message : "Erreur"))
+      .then((res: any) => { if (res.ok) setRows(res.commercials); })
+      .catch((e: unknown) => toast.error(e instanceof Error ? e.message : "Erreur"))
       .finally(() => setLoading(false));
   }, [listFn]);
 

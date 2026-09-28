@@ -62,7 +62,7 @@ function AnnonceurInscription() {
 
   useEffect(() => {
     if (ref) {
-      resolveRefFn({ data: { code: ref } }).then((res) => {
+      resolveRefFn({ data: { code: ref } }).then((res: any) => {
         if (res.ok) {
           setCommercialId(res.commercialId);
           setCommercialName(res.name);
