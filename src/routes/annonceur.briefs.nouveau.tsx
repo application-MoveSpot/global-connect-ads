@@ -1013,7 +1013,11 @@ function NewBriefPage() {
                 {aiSessionExpired && (
                   <p className="text-xs text-destructive">
                     Session expirée —{" "}
-                    <Link to="/annonceur/inscription" className="underline hover:no-underline">
+                    <Link
+                      to="/annonceur/inscription"
+                      search={{ mode: "signin" }}
+                      className="underline hover:no-underline"
+                    >
                       reconnectez-vous
                     </Link>{" "}
                     puis réessayez.
