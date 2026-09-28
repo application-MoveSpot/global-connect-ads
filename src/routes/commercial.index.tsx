@@ -1,12 +1,29 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getCommercialDashboard, type CommercialProfile, type CommercialClient, type CommercialCampaign } from "@/lib/commercial/commercial.functions";
+import {
+  getCommercialDashboard,
+  type CommercialProfile,
+  type CommercialClient,
+  type CommercialCampaign,
+} from "@/lib/commercial/commercial.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { supabase } from "@/integrations/supabase/client";
-import { Copy, Check, TrendingUp, Users, ArrowLeft, RefreshCw } from "lucide-react";
+import {
+  Copy,
+  Check,
+  TrendingUp,
+  Users,
+  ArrowLeft,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+  Mail,
+  Lightbulb,
+} from "lucide-react";
 
 export const Route = createFileRoute("/commercial/")({
   head: () => ({
@@ -20,12 +37,53 @@ export const Route = createFileRoute("/commercial/")({
 });
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending:   { label: "En attente", color: "text-amber-600 bg-amber-500/10" },
-  approved:  { label: "Approuvée",  color: "text-emerald-600 bg-emerald-500/10" },
-  paid:      { label: "Payée",      color: "text-emerald-600 bg-emerald-500/10" },
-  completed: { label: "Terminée",   color: "text-blue-600 bg-blue-500/10" },
-  rejected:  { label: "Refusée",    color: "text-red-600 bg-red-500/10" },
+  pending: { label: "En attente", color: "text-amber-600 bg-amber-500/10" },
+  approved: { label: "Approuvée", color: "text-emerald-600 bg-emerald-500/10" },
+  paid: { label: "Payée", color: "text-emerald-600 bg-emerald-500/10" },
+  completed: { label: "Terminée", color: "text-blue-600 bg-blue-500/10" },
+  rejected: { label: "Refusée", color: "text-red-600 bg-red-500/10" },
 };
+
+function KitMessage({
+  icon,
+  label,
+  msgKey,
+  copiedKey,
+  onCopy,
+  text,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  msgKey: string;
+  copiedKey: string | null;
+  onCopy: (key: string, text: string) => void;
+  text: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          {icon}
+          <span className="text-xs font-semibold">{label}</span>
+        </div>
+        <button
+          onClick={() => onCopy(msgKey, text)}
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:bg-secondary transition"
+        >
+          {copiedKey === msgKey ? (
+            <Check className="w-3.5 h-3.5 text-emerald-500" />
+          ) : (
+            <Copy className="w-3.5 h-3.5" />
+          )}
+          {copiedKey === msgKey ? "Copié !" : "Copier"}
+        </button>
+      </div>
+      <pre className="text-xs text-muted-foreground bg-background border border-border rounded-lg p-3 whitespace-pre-wrap leading-relaxed font-sans">
+        {text}
+      </pre>
+    </div>
+  );
+}
 
 function CommercialDashboard() {
   const navigate = useNavigate();
@@ -39,36 +97,46 @@ function CommercialDashboard() {
   const [totalCents, setTotalCents] = useState(0);
   const [paidCents, setPaidCents] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [kitOpen, setKitOpen] = useState(false);
+  const [copiedKit, setCopiedKit] = useState<string | null>(null);
 
-  const load = useCallback(async (isRetry = false) => {
-    if (isRetry) setRetrying(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/commercial/inscription" }); return; }
-    try {
-      const res = await dashFn({ data: {} });
-      if (!res.ok) {
-        if (res.error?.includes("introuvable")) {
-          navigate({ to: "/commercial/inscription" });
-          return;
-        }
-        setError(res.error ?? "Erreur");
-      } else {
-        setError(null);
-        setProfile(res.profile);
-        setClients(res.clients);
-        setCampaigns(res.campaigns);
-        setTotalCents(res.totalCommissionCents);
-        setPaidCents(res.paidCommissionCents);
+  const load = useCallback(
+    async (isRetry = false) => {
+      if (isRetry) setRetrying(true);
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        navigate({ to: "/commercial/inscription" });
+        return;
       }
-    } catch {
-      setError("Impossible de charger les données. Vérifiez votre connexion.");
-    } finally {
-      setLoading(false);
-      setRetrying(false);
-    }
-  }, [dashFn, navigate]);
+      try {
+        const res = await dashFn({ data: {} });
+        if (!res.ok) {
+          if (res.error?.includes("introuvable")) {
+            navigate({ to: "/commercial/inscription" });
+            return;
+          }
+          setError(res.error ?? "Erreur");
+        } else {
+          setError(null);
+          setProfile(res.profile);
+          setClients(res.clients);
+          setCampaigns(res.campaigns);
+          setTotalCents(res.totalCommissionCents);
+          setPaidCents(res.paidCommissionCents);
+        }
+      } catch {
+        setError("Impossible de charger les données. Vérifiez votre connexion.");
+      } finally {
+        setLoading(false);
+        setRetrying(false);
+      }
+    },
+    [dashFn, navigate],
+  );
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const referralLink = profile
     ? `${typeof window !== "undefined" ? window.location.origin : "https://movespot.fr"}/annonceur/inscription?ref=${profile.referral_code}`
@@ -84,8 +152,22 @@ function CommercialDashboard() {
     }
   };
 
+  const copyKit = async (key: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedKit(key);
+      setTimeout(() => setCopiedKit(null), 2000);
+    } catch {
+      // clipboard denied
+    }
+  };
+
   if (loading)
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Chargement…
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,7 +177,10 @@ function CommercialDashboard() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">Espace commercial</h1>
           </div>
-          <Link to="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="w-4 h-4" /> Accueil
           </Link>
         </div>
@@ -103,11 +188,7 @@ function CommercialDashboard() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {error && (
-          <NetworkErrorBanner
-            message={error}
-            onRetry={() => load(true)}
-            retrying={retrying}
-          />
+          <NetworkErrorBanner message={error} onRetry={() => load(true)} retrying={retrying} />
         )}
 
         {/* Lien de parrainage */}
@@ -115,36 +196,118 @@ function CommercialDashboard() {
           <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Votre lien de parrainage</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Partagez ce lien — chaque annonceur inscrit via ce lien vous est automatiquement attribué.</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                  Votre lien de parrainage
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Partagez ce lien — chaque annonceur inscrit via ce lien vous est automatiquement
+                  attribué.
+                </p>
               </div>
-              <span className="text-xs font-mono bg-primary/10 text-primary px-3 py-1 rounded-full">{profile.referral_code}</span>
+              <span className="text-xs font-mono bg-primary/10 text-primary px-3 py-1 rounded-full">
+                {profile.referral_code}
+              </span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="flex-1 min-w-0 text-xs bg-background border border-border rounded-lg px-3 py-2 truncate">{referralLink}</code>
-              <button onClick={copyLink}
-                className="shrink-0 flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-secondary transition">
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <code className="flex-1 min-w-0 text-xs bg-background border border-border rounded-lg px-3 py-2 truncate">
+                {referralLink}
+              </code>
+              <button
+                onClick={copyLink}
+                className="shrink-0 flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold hover:bg-secondary transition"
+              >
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 {copied ? "Copié" : "Copier"}
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Commission : <strong className="text-foreground">{Math.round((profile.commission_rate ?? 0.10) * 100)} %</strong> du montant hors taxes de chaque campagne réalisée.
+              Commission :{" "}
+              <strong className="text-foreground">
+                {Math.round((profile.commission_rate ?? 0.1) * 100)} %
+              </strong>{" "}
+              du montant hors taxes de chaque campagne réalisée.
             </p>
           </div>
         )}
+
+        {/* Kit de prospection */}
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <button
+            onClick={() => setKitOpen((o) => !o)}
+            className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-secondary/50 transition"
+          >
+            <div className="flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-amber-500" />
+              <span className="font-semibold text-sm">Kit de prospection</span>
+              <span className="text-xs text-muted-foreground">Messages prêts à envoyer</span>
+            </div>
+            {kitOpen ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {kitOpen && (
+            <div className="px-6 pb-6 space-y-4 border-t border-border pt-4">
+              <KitMessage
+                icon={<MessageSquare className="w-4 h-4 text-emerald-500" />}
+                label="WhatsApp / SMS"
+                msgKey="whatsapp"
+                copiedKey={copiedKit}
+                onCopy={copyKit}
+                text={`Bonjour, je vous contacte de la part de MoveSpot — une plateforme de publicité sur véhicules en mouvement (taxi, VTC, utilitaires).\n\nVous payez uniquement au km² réel parcouru dans votre zone, prouvé par GPS. Pas d'engagement minimum.\n\nJe peux vous créer un accès gratuitement si vous êtes intéressé(e). Votre lien d'inscription : ${referralLink || "[votre lien ici]"}`}
+              />
+              <KitMessage
+                icon={<Mail className="w-4 h-4 text-blue-500" />}
+                label="Email / LinkedIn"
+                msgKey="email"
+                copiedKey={copiedKit}
+                onCopy={copyKit}
+                text={`Objet : Publicité mobile géolocalisée — sans abonnement\n\nBonjour,\n\nJe vous présente MoveSpot, une solution de publicité mobile sur véhicules (taxis, VTC, camionnettes) circulant dans votre zone de chalandise.\n\nPourquoi c'est différent :\n• Vous payez uniquement au km² réel parcouru (prouvé par GPS)\n• Pas d'engagement, pas d'abonnement\n• Vos visuels posés sur des véhicules qui circulent là où sont vos clients\n\nJe serais heureux(se) de vous montrer comment ça fonctionne. Vous pouvez créer votre compte gratuitement ici : ${referralLink || "[votre lien ici]"}\n\nCordialement`}
+              />
+              <div className="rounded-xl bg-secondary/50 border border-border p-4 space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                  Arguments clés à retenir
+                </p>
+                <ul className="space-y-1.5 text-sm text-muted-foreground">
+                  {[
+                    "Paiement au km² réel, pas au clic ni à l'impression estimée",
+                    "GPS embarqué = preuve de diffusion, pas une promesse",
+                    "Visible en extérieur, de jour, dans les zones passantes",
+                    "Idéal pour commerces locaux, restaurants, immobilier, services",
+                    "Inscription gratuite pour l'annonceur — aucun risque pour lui",
+                  ].map((arg) => (
+                    <li key={arg} className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">•</span>
+                      {arg}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Résumé chiffres */}
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
             <div className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-muted-foreground" />
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Clients apportés</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                Clients apportés
+              </p>
             </div>
             <p className="font-display text-3xl font-bold">{clients.length}</p>
           </div>
           <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Commissions générées</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              Commissions générées
+            </p>
             <p className="font-display text-3xl font-bold text-primary">
               {(totalCents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
             </p>
@@ -152,7 +315,9 @@ function CommercialDashboard() {
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-1">
             <div className="flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Commissions versées</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                Commissions versées
+              </p>
             </div>
             <p className="font-display text-3xl font-bold text-emerald-600">
               {(paidCents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
@@ -166,12 +331,17 @@ function CommercialDashboard() {
           {clients.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
               <p className="text-muted-foreground text-sm">Aucun client pour l'instant.</p>
-              <p className="text-muted-foreground text-xs mt-1">Partagez votre lien de parrainage pour commencer.</p>
+              <p className="text-muted-foreground text-xs mt-1">
+                Partagez votre lien de parrainage pour commencer.
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
               {clients.map((c) => (
-                <div key={c.id} className="rounded-xl border border-border bg-card px-5 py-3 flex items-center justify-between gap-4">
+                <div
+                  key={c.id}
+                  className="rounded-xl border border-border bg-card px-5 py-3 flex items-center justify-between gap-4"
+                >
                   <div>
                     <p className="font-medium text-sm">{c.full_name}</p>
                     {c.company && <p className="text-xs text-muted-foreground">{c.company}</p>}
@@ -187,7 +357,9 @@ function CommercialDashboard() {
 
         {/* Campagnes */}
         <section>
-          <h2 className="font-semibold text-lg mb-3">Campagnes & commissions ({campaigns.length})</h2>
+          <h2 className="font-semibold text-lg mb-3">
+            Campagnes & commissions ({campaigns.length})
+          </h2>
           {campaigns.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
               <p className="text-muted-foreground text-sm">Aucune campagne pour l'instant.</p>
@@ -195,16 +367,27 @@ function CommercialDashboard() {
           ) : (
             <div className="space-y-2">
               {campaigns.map((camp) => {
-                const st = STATUS_LABELS[camp.status] ?? { label: camp.status, color: "text-muted-foreground bg-muted" };
+                const st = STATUS_LABELS[camp.status] ?? {
+                  label: camp.status,
+                  color: "text-muted-foreground bg-muted",
+                };
                 return (
                   <div key={camp.id} className="rounded-xl border border-border bg-card px-5 py-3">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs uppercase tracking-widest text-muted-foreground">{camp.spot_name}</span>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${st.color}`}>{st.label}</span>
+                          <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                            {camp.spot_name}
+                          </span>
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${st.color}`}
+                          >
+                            {st.label}
+                          </span>
                           {camp.commission_paid_at && (
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full text-emerald-600 bg-emerald-500/10">Commission versée</span>
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full text-emerald-600 bg-emerald-500/10">
+                              Commission versée
+                            </span>
                           )}
                         </div>
                         <p className="font-medium text-sm mt-0.5">{camp.company}</p>
@@ -212,12 +395,19 @@ function CommercialDashboard() {
                       <div className="text-right shrink-0">
                         {camp.commission_amount_cents != null && (
                           <p className="font-display text-lg font-bold text-primary">
-                            {(camp.commission_amount_cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                            {(camp.commission_amount_cents / 100).toLocaleString("fr-FR", {
+                              style: "currency",
+                              currency: "EUR",
+                            })}
                           </p>
                         )}
                         {camp.total_price != null && (
                           <p className="text-xs text-muted-foreground">
-                            Campagne : {camp.total_price.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                            Campagne :{" "}
+                            {camp.total_price.toLocaleString("fr-FR", {
+                              style: "currency",
+                              currency: "EUR",
+                            })}
                           </p>
                         )}
                       </div>
@@ -231,8 +421,13 @@ function CommercialDashboard() {
 
         {/* Note de versement */}
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-muted-foreground">
-          <strong className="text-foreground">Versement des commissions :</strong> Les commissions sont calculées et versées par virement bancaire à la fin de chaque mois, après validation et paiement des campagnes concernées. Contactez{" "}
-          <a href="mailto:contact@movespot.fr" className="underline text-foreground">contact@movespot.fr</a> pour vos coordonnées bancaires.
+          <strong className="text-foreground">Versement des commissions :</strong> Les commissions
+          sont calculées et versées par virement bancaire à la fin de chaque mois, après validation
+          et paiement des campagnes concernées. Contactez{" "}
+          <a href="mailto:contact@movespot.fr" className="underline text-foreground">
+            contact@movespot.fr
+          </a>{" "}
+          pour vos coordonnées bancaires.
         </div>
       </main>
     </div>
