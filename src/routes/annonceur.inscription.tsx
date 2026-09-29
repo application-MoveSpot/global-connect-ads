@@ -10,7 +10,7 @@ import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { RouteError } from "@/components/app/RouteError";
 import { resolveReferralCode } from "@/lib/commercial/commercial.functions";
 
-type Search = { redirect?: string; ref?: string };
+type Search = { redirect?: string; ref?: string; mode?: "signin" | "signup" };
 
 export const Route = createFileRoute("/annonceur/inscription")({
   head: () => ({
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/annonceur/inscription")({
   }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
-    ref:      typeof s.ref === "string" ? s.ref.toUpperCase() : undefined,
+    ref: typeof s.ref === "string" ? s.ref.toUpperCase() : undefined,
+    mode: s.mode === "signin" || s.mode === "signup" ? s.mode : undefined,
   }),
   component: AnnonceurInscription,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -31,8 +32,8 @@ type AccountType = "business" | "individual";
 
 function AnnonceurInscription() {
   const navigate = useNavigate();
-  const { redirect, ref } = useSearch({ from: "/annonceur/inscription" });
-  const [mode, setMode] = useState<"signup" | "signin">("signup");
+  const { redirect, ref, mode: modeParam } = useSearch({ from: "/annonceur/inscription" });
+  const [mode, setMode] = useState<"signup" | "signin">(modeParam ?? "signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [accountType, setAccountType] = useState<AccountType>("business");
   const [email, setEmail] = useState("");
@@ -222,7 +223,16 @@ function AnnonceurInscription() {
                 ? "Entreprise, association ou particulier — créez votre compte pour réserver des espaces publicitaires."
                 : "Accédez à votre espace annonceur et vos campagnes."}
               {mode === "signup" && (
-                <> {" "}<Link to="/annonceur/briefs/nouveau" className="text-primary underline text-xs">Créer un brief sans compte →</Link>{" · "}<Link to="/annonceur/exemples" className="text-primary underline text-xs">Voir des exemples →</Link></>
+                <>
+                  {" "}
+                  <Link to="/annonceur/briefs/nouveau" className="text-primary underline text-xs">
+                    Créer un brief sans compte →
+                  </Link>
+                  {" · "}
+                  <Link to="/annonceur/exemples" className="text-primary underline text-xs">
+                    Voir des exemples →
+                  </Link>
+                </>
               )}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
@@ -275,7 +285,8 @@ function AnnonceurInscription() {
             <SignedInBanner onSignedOut={() => setStep("auth")} />
             {commercialName && (
               <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400">
-                Invitation de <strong>{commercialName}</strong> — vous serez associé à ce commercial.
+                Invitation de <strong>{commercialName}</strong> — vous serez associé à ce
+                commercial.
               </div>
             )}
             <p className="text-sm text-muted-foreground mt-4 mb-6">
