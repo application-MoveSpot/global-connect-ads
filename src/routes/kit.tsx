@@ -36,7 +36,7 @@ function KitMedia() {
             <h1 className="text-4xl font-black tracking-tight mb-3">MoveSpot</h1>
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
               La mobilité mondiale, monétisée localement. Publicité mobile sur véhicules —
-              ciblage géographique précis, suivi GPS temps réel, campagnes dès 10 €/jour.
+              ciblage géographique précis, suivi GPS temps réel, campagnes dès 25 €/jour par véhicule.
             </p>
           </div>
           <div className="shrink-0 text-right print:text-left">
@@ -54,7 +54,7 @@ function KitMedia() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { value: "1,80 €", label: "par km²/jour (ville)", sub: "2,70 € grandes agglomérations" },
-              { value: "dès 10 €", label: "budget campagne", sub: "sans abonnement" },
+              { value: "dès 25 €/jour", label: "budget campagne par véhicule", sub: "sans abonnement" },
               { value: "70 / 30", label: "reversé au propriétaire", sub: "30 % commission plateforme" },
               { value: "14 jours", label: "essai gratuit annonceur", sub: "sans CB requise" },
             ].map(({ value, label, sub }) => (

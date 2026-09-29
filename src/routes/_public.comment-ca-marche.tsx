@@ -107,7 +107,7 @@ const CONTENT = {
     ],
     payment_h2: "💳 Payer sa campagne",
     payment: [
-      { title: "À la zone et au jour", body: "1,80 €/km²/jour, 2,70 € dans les grandes agglomérations, minimum 10 € par campagne. Le devis se calcule pendant que vous dessinez." },
+      { title: "À la zone et au jour", body: "1,80 €/km²/jour, 2,70 € dans les grandes agglomérations, minimum 25 €/jour par véhicule. Le devis se calcule pendant que vous dessinez." },
       { title: "Ou par abonnement", body: "Trois formules mensuelles par véhicule : Starter 29 €, Standard 42 €, Pro 59 € — avec 14 jours d'essai gratuit et résiliation à tout moment." },
       { title: "Le moyen qui vous arrange", body: "Carte bancaire, portefeuille prépayé ou virement bancaire pour les budgets B2B." },
       { title: "Tenu informé par email", body: "Campagne activée, virement reçu, décision de modération : chaque étape déclenche un email automatique. Dès qu'un virement est validé, la campagne passe en « payée » et la rémunération du propriétaire est enregistrée." },
@@ -158,7 +158,7 @@ const CONTENT = {
     ],
     payment_h2: "💳 Paying for your campaign",
     payment: [
-      { title: "Per zone and per day", body: "€1.80/km²/day, €2.70 in major cities, minimum €10 per campaign. The quote calculates as you draw." },
+      { title: "Per zone and per day", body: "€1.80/km²/day, €2.70 in major cities, minimum €25/day per vehicle. The quote calculates as you draw." },
       { title: "Or by subscription", body: "Three monthly plans per vehicle: Starter €29, Standard €42, Pro €59 — with a 14-day free trial and cancel at any time." },
       { title: "The way that suits you", body: "Credit card, prepaid wallet or bank transfer for B2B budgets." },
       { title: "Kept informed by email", body: "Campaign activated, payment received, moderation decision: every step triggers an automatic email. Once a payment is confirmed, the campaign switches to 'paid' and the owner's earnings are recorded." },
