@@ -103,7 +103,7 @@ function Tarifs() {
               <div className="text-sm text-muted-foreground mb-1">d'inscription</div>
               <div className="text-sm font-medium mb-6">+ 30 % de commission par campagne</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
-                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 10 €</li>
+                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 25 €/jour par véhicule</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Briefs illimités</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Suivi GPS temps réel</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Paiement CB sécurisé</li>
@@ -125,7 +125,7 @@ function Tarifs() {
               <div className="text-sm text-muted-foreground mb-1">d'inscription</div>
               <div className="text-sm font-medium mb-6">+ 25 % de commission par campagne</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
-                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 10 €</li>
+                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 25 €/jour par véhicule</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Briefs illimités</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Suivi GPS + rapport PDF</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Virement + portefeuille prépayé</li>
