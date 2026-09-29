@@ -169,7 +169,7 @@ const slides: Slide[] = [
         {[
           "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
           "Des preuves plutôt que des promesses : chaque euro facturé s'appuie sur des kilomètres réellement parcourus dans la zone.",
-          "Un outil simple et accessible : un commerçant peut lancer une campagne dès 10 €, sans jargon publicitaire.",
+          "Un outil simple et accessible : un commerçant peut lancer une campagne dès 25 €/jour par véhicule, sans jargon publicitaire.",
           "Un écosystème de prestataires spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
           "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (

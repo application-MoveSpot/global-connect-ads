@@ -160,7 +160,7 @@ function CGU() {
           L'annonceur définit sa zone de diffusion en dessinant un polygone sur la carte interactive. Le budget
           indicatif est calculé automatiquement à partir de la surface réelle de la zone (base de 1,80 € par km² et
           par jour), majorée d'un coefficient de densité de 1,5× (soit 2,70 € par km² et par jour) pour les grandes
-          agglomérations. Un montant plancher de 10 € par campagne s'applique.
+          agglomérations. Un montant plancher de 25 € par véhicule et par jour s'applique.
         </p>
         <p>
           Ce montant est un devis indicatif calculé par la Plateforme ; il est présenté à l'annonceur pour validation

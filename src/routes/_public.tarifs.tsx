@@ -34,7 +34,7 @@ type OwnerRow = {
 const ADVERTISER_FEATURES: FeatureRow[] = [
   { label: "Inscription", particulier: "Gratuit", pme: "Gratuit", enterprise: "Gratuit" },
   { label: "Commission MoveSpot", particulier: "30 %", pme: "25 %", enterprise: "Sur devis" },
-  { label: "Campagne à partir de", particulier: "10 €", pme: "10 €", enterprise: "500 €" },
+  { label: "Campagne à partir de", particulier: "25 €/jour", pme: "25 €/jour", enterprise: "500 €" },
   { label: "Briefs illimités", particulier: true, pme: true, enterprise: true },
   { label: "Suivi GPS temps réel", particulier: true, pme: true, enterprise: true },
   { label: "Rapport PDF exportable", particulier: false, pme: true, enterprise: true },
@@ -103,7 +103,7 @@ function Tarifs() {
               <div className="text-sm text-muted-foreground mb-1">d'inscription</div>
               <div className="text-sm font-medium mb-6">+ 30 % de commission par campagne</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
-                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 10 €</li>
+                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 25 €/jour par véhicule</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Briefs illimités</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Suivi GPS temps réel</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Paiement CB sécurisé</li>
@@ -125,7 +125,7 @@ function Tarifs() {
               <div className="text-sm text-muted-foreground mb-1">d'inscription</div>
               <div className="text-sm font-medium mb-6">+ 25 % de commission par campagne</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
-                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 10 €</li>
+                <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Campagnes dès 25 €/jour par véhicule</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Briefs illimités</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Suivi GPS + rapport PDF</li>
                 <li className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />Virement + portefeuille prépayé</li>
