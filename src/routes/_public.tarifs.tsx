@@ -34,7 +34,7 @@ type OwnerRow = {
 const ADVERTISER_FEATURES: FeatureRow[] = [
   { label: "Inscription", particulier: "Gratuit", pme: "Gratuit", enterprise: "Gratuit" },
   { label: "Commission MoveSpot", particulier: "30 %", pme: "25 %", enterprise: "Sur devis" },
-  { label: "Campagne à partir de", particulier: "10 €", pme: "10 €", enterprise: "500 €" },
+  { label: "Campagne à partir de", particulier: "25 €/jour", pme: "25 €/jour", enterprise: "500 €" },
   { label: "Briefs illimités", particulier: true, pme: true, enterprise: true },
   { label: "Suivi GPS temps réel", particulier: true, pme: true, enterprise: true },
   { label: "Rapport PDF exportable", particulier: false, pme: true, enterprise: true },

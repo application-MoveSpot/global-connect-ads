@@ -62,7 +62,7 @@ function CGV() {
         <p>
           Le budget est calculé automatiquement à partir de la surface réelle de la zone dessinée : 1,80 € par km² et
           par jour, porté à 2,70 € par km² et par jour (coefficient de densité 1,5×) dans les grandes agglomérations.
-          Un montant plancher de 10 € s'applique par campagne.
+          Un montant plancher de 25 € par véhicule et par jour s'applique.
         </p>
         <p>
           Pour les campagnes récurrentes, MoveSpot propose un abonnement mensuel par véhicule selon trois formules :
