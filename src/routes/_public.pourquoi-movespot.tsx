@@ -43,8 +43,8 @@ const AVANTAGES = [
   },
   {
     icon: "💶",
-    titre: "À partir de 10 € par jour",
-    desc: "MoveSpot est accessible aux PME, commerçants, associations et particuliers. Pas de budget minimum imposé, pas de frais d'agence cachés.",
+    titre: "À partir de 25 € par jour",
+    desc: "MoveSpot est accessible aux PME, commerçants, associations et particuliers. Pas de frais d'agence cachés, budget maîtrisé dès le premier jour.",
     vs: "Un panneau d'affichage classique coûte en moyenne 500 €/semaine, sans mesure d'audience précise.",
   },
   {
@@ -93,7 +93,7 @@ const COMPARATIF = [
     bb: "2–4 semaines",
     wr: "Non disponible",
   },
-  { label: "Prix minimum", ms: "10 €/j", ag: "1 000 € +", bb: "500 €/sem", wr: "~15 $/j (US)" },
+  { label: "Prix minimum", ms: "25 €/j", ag: "1 000 € +", bb: "500 €/sem", wr: "~15 $/j (US)" },
   { label: "Sans engagement", ms: "✓", ag: "✗", bb: "✗", wr: "✓ (US)" },
   { label: "Mesure GPS", ms: "✓", ag: "Estimée", bb: "✗", wr: "✓ (US)" },
   { label: "Ciblage zone libre-service", ms: "✓", ag: "✗", bb: "✗", wr: "✓ (US)" },
@@ -144,7 +144,7 @@ function PourquoiMovespot() {
           <dl className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
             {[
               { v: "< 5 min", l: "Délai de lancement" },
-              { v: "10 €/j", l: "Prix minimum" },
+              { v: "25 €/j", l: "Prix minimum" },
               { v: "GPS", l: "Mesure d'audience" },
               { v: "70 %", l: "Reversé aux propriétaires" },
             ].map((s) => (
