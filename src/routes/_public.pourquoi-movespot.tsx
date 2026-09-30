@@ -81,7 +81,7 @@ const AVANTAGES = {
     },
     {
       icon: "🔒",
-      titre: "Conformité RGPD native",
+      titre: "Hébergement en Europe",
       desc: "Hébergement européen, support francophone et paiement en euros via Stripe 3D Secure. Vos données et celles de vos clients ne quittent jamais l'Union européenne.",
       vs: "Les plateformes américaines comme Wrapify ou Carvertise ne couvrent pas l'Europe et ne sont pas soumises au RGPD.",
     },
@@ -131,7 +131,7 @@ const AVANTAGES = {
     },
     {
       icon: "🔒",
-      titre: "Native GDPR compliance",
+      titre: "European hosting",
       desc: "European hosting, French-speaking support and payment in euros via Stripe 3D Secure. Your data and your customers' data never leave the European Union.",
       vs: "US platforms like Wrapify or Carvertise do not cover Europe and are not subject to GDPR.",
     },
