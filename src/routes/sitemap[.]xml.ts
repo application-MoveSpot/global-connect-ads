@@ -20,10 +20,15 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         const staticEntries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0", lastmod: today },
+          { path: "/pourquoi-movespot", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/comment-ca-marche", changefreq: "monthly", priority: "0.9", lastmod: today },
-          { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.8", lastmod: today },
-          { path: "/chauffeur", changefreq: "monthly", priority: "0.8", lastmod: today },
-          { path: "/prestataires", changefreq: "weekly", priority: "0.8", lastmod: today },
+          { path: "/tarifs", changefreq: "monthly", priority: "0.9", lastmod: today },
+          { path: "/annonceurs-entreprise", changefreq: "monthly", priority: "0.8", lastmod: today },
+          { path: "/commencer", changefreq: "monthly", priority: "0.8", lastmod: today },
+          { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.7", lastmod: today },
+          { path: "/chauffeur", changefreq: "monthly", priority: "0.7", lastmod: today },
+          { path: "/prestataires", changefreq: "weekly", priority: "0.7", lastmod: today },
+          { path: "/contact", changefreq: "yearly", priority: "0.5", lastmod: today },
           { path: "/securite", changefreq: "yearly", priority: "0.4", lastmod: today },
           { path: "/mentions-legales", changefreq: "yearly", priority: "0.3", lastmod: today },
           { path: "/cgu", changefreq: "yearly", priority: "0.3", lastmod: today },
