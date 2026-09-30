@@ -63,6 +63,7 @@ export const Route = (createRootRouteWithContext as any)()({
       { name: "apple-mobile-web-app-title", content: "MoveSpot" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "mobile-web-app-capable", content: "yes" },
+      { name: "google-site-verification", content: "Zxfh0u093_IIhcQhtBVtR8IOteGY8APBba1oQcwcOWQ" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
