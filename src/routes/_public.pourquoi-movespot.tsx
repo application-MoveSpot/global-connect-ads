@@ -80,10 +80,10 @@ const AVANTAGES = {
       vs: "Les agences gardent la majorité de la marge. Chez MoveSpot, 70 % du revenu va directement au propriétaire.",
     },
     {
-      icon: "🇫🇷",
-      titre: "100 % France",
-      desc: "Hébergement, support et équipe basés en France. Conformité RGPD native. Paiement en euros via Stripe 3D Secure.",
-      vs: "Les acteurs US comme Wrapify ou Carvertise ne couvrent pas le marché français et ne respectent pas la réglementation européenne.",
+      icon: "🔒",
+      titre: "Conformité RGPD native",
+      desc: "Hébergement européen, support francophone et paiement en euros via Stripe 3D Secure. Vos données et celles de vos clients ne quittent jamais l'Union européenne.",
+      vs: "Les plateformes américaines comme Wrapify ou Carvertise ne couvrent pas l'Europe et ne sont pas soumises au RGPD.",
     },
   ],
   en: [
@@ -130,10 +130,10 @@ const AVANTAGES = {
       vs: "Agencies keep most of the margin. At MoveSpot, 70% of revenue goes directly to the owner.",
     },
     {
-      icon: "🇫🇷",
-      titre: "100% French",
-      desc: "Hosting, support and team based in France. Native GDPR compliance. Payment in euros via Stripe 3D Secure.",
-      vs: "US players like Wrapify or Carvertise do not cover the French market and do not comply with European regulation.",
+      icon: "🔒",
+      titre: "Native GDPR compliance",
+      desc: "European hosting, French-speaking support and payment in euros via Stripe 3D Secure. Your data and your customers' data never leave the European Union.",
+      vs: "US platforms like Wrapify or Carvertise do not cover Europe and are not subject to GDPR.",
     },
   ],
 };
