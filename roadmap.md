@@ -1,2 +1,2 @@
 
-- [ ] Créer la vidéo du raton avec le script commerciaux expérimentés et une voix masculine posée.
+- [x] Créer la vidéo du raton avec le script commerciaux expérimentés et une voix masculine posée.
