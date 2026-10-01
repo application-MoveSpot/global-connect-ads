@@ -27,6 +27,7 @@ function CommercialInscription() {
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
   const [city, setCity] = useState("");
+  const [cguAccepted, setCguAccepted] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const createProfileFn = useServerFn(createCommercialProfile);
@@ -137,7 +138,24 @@ function CommercialInscription() {
               <Field label="Téléphone" type="tel" value={phone} onChange={setPhone} />
               <Field label="Ville" value={city} onChange={setCity} />
               {error && <Err msg={error} />}
-              <button type="submit" disabled={loading}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={cguAccepted}
+                  onChange={(e) => setCguAccepted(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-primary"
+                  required
+                />
+                <span className="text-xs text-muted-foreground leading-relaxed">
+                  J'accepte les{" "}
+                  <strong className="text-foreground">règles de conduite commerciale MoveSpot</strong>{" "}
+                  : je m'engage à présenter MoveSpot honnêtement (plateforme de mise en relation),
+                  sans promettre de revenus garantis, sans pratiques agressives, et sans
+                  assimiler ce partenariat à un système pyramidal (MLM). Tout manquement
+                  peut entraîner la désactivation de mon compte.
+                </span>
+              </label>
+              <button type="submit" disabled={loading || !cguAccepted}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
                 {loading ? "..." : "Créer mon espace commercial"}
               </button>
