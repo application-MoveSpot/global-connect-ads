@@ -54,9 +54,9 @@ const INDIVIDUAL_PACKS: Pack[] = [
   },
   {
     id: "evenement",
-    icon: "💍",
+    icon: "🎪",
     label: "Événement",
-    sublabel: "Mariage · Vernissage · Inauguration",
+    sublabel: "Vernissage · Inauguration · Kermesse",
     days: 7,
     price: 79,
     perDay: 11.3,

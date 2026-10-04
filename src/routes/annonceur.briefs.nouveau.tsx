@@ -72,17 +72,17 @@ type EventTemplate = {
 
 const EVENT_TEMPLATES: EventTemplate[] = [
   {
-    id: "mariage",
-    icon: "💍",
-    label: "Mariage",
-    desc: "Annoncez votre grand jour dans votre ville",
-    vehicleTypes: ["taxi", "voiture"],
+    id: "association",
+    icon: "🤝",
+    label: "Association & événement local",
+    desc: "Club sportif, comité des fêtes, association culturelle…",
+    vehicleTypes: ["taxi", "voiture", "van"],
     adFormat: "demi_covering",
     days: 7,
-    titleTpl: "Mariage de [Prénom & Prénom] — [Ville]",
+    titleTpl: "[Nom de l'association] — [Événement] à [Ville]",
     descTpl:
-      "Nous nous marions le [date] à [lieu] et souhaitons le faire savoir dans [ville] et ses alentours. Visuel sobre et élégant fourni.",
-    audience: "Famille, amis, connaissances locales",
+      "Nous organisons [événement] le [date] à [lieu]. Venez nombreux ! Informations et inscriptions sur [contact/site].",
+    audience: "Habitants du quartier, familles, sympathisants",
   },
   {
     id: "ouverture",
