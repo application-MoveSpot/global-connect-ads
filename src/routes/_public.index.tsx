@@ -280,11 +280,11 @@ function Index() {
             Pas besoin d'être une entreprise
           </h2>
           <p className="text-muted-foreground max-w-xl mb-8">
-            Mariage, inauguration de commerce, festival local, association… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.
+            Fête, inauguration de commerce, festival local, association… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.
           </p>
           <div className="grid sm:grid-cols-3 gap-4 mb-8">
             {[
-              { icon: "💍", label: "Mariage & célébration", desc: "Prévenez vos proches et voisins le jour J — 1 semaine · à partir de 79 €" },
+              { icon: "🎉", label: "Fête & célébration", desc: "Prévenez vos proches et voisins — 1 semaine · à partir de 79 €" },
               { icon: "🏪", label: "Ouverture de commerce", desc: "Installez votre présence dans le quartier — 2 semaines · à partir de 149 €" },
               { icon: "🎪", label: "Festival & événement", desc: "Visibilité maximale le week-end — 3 jours · à partir de 49 €" },
             ].map((e) => (
