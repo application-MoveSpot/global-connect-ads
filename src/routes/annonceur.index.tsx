@@ -352,7 +352,7 @@ function AnnonceurDashboard() {
                 Touchez votre quartier pour votre événement
               </h2>
               <p className="text-sm text-muted-foreground mb-3">
-                Fête, inauguration, festival, association… Créez un brief en 5 minutes et choisissez vos véhicules locaux.
+                Association, inauguration, festival… Créez un brief en 5 minutes et choisissez vos véhicules locaux.
               </p>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <Link
