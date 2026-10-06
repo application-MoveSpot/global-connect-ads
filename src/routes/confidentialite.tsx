@@ -32,7 +32,7 @@ function Privacy() {
           Le responsable du traitement est RAKOUN KLUB, entreprise individuelle exploitant MoveSpot (voir les{" "}
           <a href="/mentions-legales" className="text-primary hover:underline">mentions légales</a>).
           Pour toute question relative à vos données, contactez-nous à
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.
+          <a href="mailto:privacy@movespot.fr" className="text-primary hover:underline"> privacy@movespot.fr</a>.
         </p>
       </LegalSection>
 
@@ -175,7 +175,7 @@ function Privacy() {
         </ul>
         <p>
           Pour exercer vos droits, écrivez-nous à
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.
+          <a href="mailto:privacy@movespot.fr" className="text-primary hover:underline"> privacy@movespot.fr</a>.
           Une réponse vous sera apportée dans un délai maximum d'un mois.
         </p>
       </LegalSection>
