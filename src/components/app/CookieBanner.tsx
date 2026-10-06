@@ -1,26 +1,20 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
-
-const STORAGE_KEY = "ms_cookie_consent";
+import { getConsent, setConsent as persistConsent } from "@/lib/consent";
+import { resetStripeCache } from "@/lib/payments/stripe";
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
-    } catch {
-      // localStorage indisponible (mode privé, etc.)
-    }
+    // Affiche le banner si absent ou si le consentement a expiré (> 6 mois)
+    if (getConsent() === null) setVisible(true);
   }, []);
 
   const save = (choice: "accepted" | "refused") => {
-    try {
-      localStorage.setItem(STORAGE_KEY, choice);
-    } catch {
-      // ignore
-    }
+    persistConsent(choice); // stocke {v, ts} + dispatch "ms-consent-change"
+    resetStripeCache();     // permet à Stripe de se charger si le choix est "accepted"
     setVisible(false);
   };
 
