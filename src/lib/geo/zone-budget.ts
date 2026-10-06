@@ -12,8 +12,9 @@ export type LngLat = [number, number];
 /** Bounding box approximative [minLng, minLat, maxLng, maxLat] d'un centre-ville dense. */
 type Metro = { name: string; bbox: [number, number, number, number] };
 
-/** Approximation par bounding box des principales agglomérations françaises. */
+/** Approximation par bounding box des principales agglomérations (France, DOM-TOM, Miami). */
 export const DENSE_METROS: Metro[] = [
+  // Métropoles françaises
   { name: "Paris", bbox: [2.224, 48.815, 2.47, 48.902] },
   { name: "Lyon", bbox: [4.77, 45.707, 4.9, 45.808] },
   { name: "Marseille", bbox: [5.29, 43.21, 5.44, 43.36] },
@@ -26,6 +27,15 @@ export const DENSE_METROS: Metro[] = [
   { name: "Montpellier", bbox: [3.82, 43.58, 3.94, 43.66] },
   { name: "Rennes", bbox: [-1.73, 48.07, -1.6, 48.15] },
   { name: "Grenoble", bbox: [5.66, 45.14, 5.78, 45.21] },
+  // DOM-TOM
+  { name: "Pointe-à-Pitre", bbox: [-61.56, 16.21, -61.52, 16.25] },
+  { name: "Basse-Terre", bbox: [-61.74, 15.99, -61.70, 16.02] },
+  { name: "Fort-de-France", bbox: [-61.09, 14.59, -61.03, 14.63] },
+  { name: "Saint-Denis (La Réunion)", bbox: [55.42, -20.93, 55.48, -20.88] },
+  { name: "Cayenne", bbox: [-52.35, 4.9, -52.28, 4.95] },
+  // Miami (beachhead US)
+  { name: "Miami", bbox: [-80.32, 25.7, -80.13, 25.86] },
+  { name: "Miami Beach", bbox: [-80.15, 25.77, -80.11, 25.85] },
 ];
 
 function bboxOf(coordinates: LngLat[]): [number, number, number, number] {

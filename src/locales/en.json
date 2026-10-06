@@ -1,4 +1,74 @@
 {
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "submit": "Submit",
+    "publish": "Publish",
+    "search": "Search",
+    "filter": "Filter",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending",
+      "completed": "Completed",
+      "draft": "Draft",
+      "cancelled": "Cancelled"
+    },
+    "date": "Date",
+    "amount": "Amount",
+    "description": "Description",
+    "title": "Title"
+  },
+  "wallet": {
+    "page_title": "My wallet — MoveSpot",
+    "title": "My wallet",
+    "balance": "Available balance",
+    "topup": "Top up",
+    "transactions": "Transactions",
+    "no_transactions": "No transactions yet",
+    "load_more": "Load more",
+    "type": {
+      "all": "All",
+      "topup": "Top-ups",
+      "campaign_debit": "Campaigns",
+      "refund": "Refunds",
+      "admin_adjustment": "Adjustments"
+    },
+    "tx_label": {
+      "topup": "Top-up",
+      "campaign_debit": "Campaign",
+      "refund": "Refund",
+      "admin_adjustment": "Adjustment"
+    }
+  },
+  "briefs": {
+    "page_title": "My briefs — MoveSpot",
+    "new": "New brief",
+    "create": "Create a brief",
+    "my_briefs": "My briefs",
+    "no_briefs": "No briefs yet.",
+    "vehicle_type": "Vehicle type",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "budget": "Budget",
+    "submit": "Publish brief",
+    "draft_restored": "Draft restored",
+    "step": {
+      "display_type": "Format",
+      "event_type": "Event type",
+      "form": "Details"
+    }
+  },
   "nav": {
     "realtime": "Live map",
     "vehicles": "Vehicles",
