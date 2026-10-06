@@ -7,7 +7,8 @@ import {
 } from "@tanstack/react-router";
 import { CSP_HEADER } from "@/lib/security/csp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import "@/lib/i18n";
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
@@ -22,20 +23,21 @@ import appCss from "../styles.css?url";
 initSentry();
 
 function NotFoundComponent() {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page introuvable</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t("root.not_found_title")}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Cette page n'existe pas ou a été déplacée.
+          {t("root.not_found_desc")}
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Retour à l'accueil
+            {t("root.not_found_cta")}
           </Link>
         </div>
       </div>
@@ -133,8 +135,17 @@ export const Route = (createRootRouteWithContext as any)()({
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  const { t, i18n: i18nInstance } = useTranslation();
+  const [lang, setLang] = useState(i18nInstance.resolvedLanguage ?? "fr");
+
+  useEffect(() => {
+    const onLangChange = (lng: string) => setLang(lng);
+    i18nInstance.on("languageChanged", onLangChange);
+    return () => i18nInstance.off("languageChanged", onLangChange);
+  }, [i18nInstance]);
+
   return (
-    <html lang="fr">
+    <html lang={lang}>
       <head>
         <HeadContent />
         <meta httpEquiv="Content-Security-Policy" content={CSP_HEADER} />
@@ -145,7 +156,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
         >
-          Aller au contenu principal
+          {t("root.skip_to_content")}
         </a>
         {children}
         <Scripts />
@@ -189,18 +200,19 @@ function RootComponent() {
 }
 
 function ErrorFallback() {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-4xl font-bold text-foreground mb-4">Une erreur est survenue</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-4">{t("root.error_title")}</h1>
         <p className="text-muted-foreground mb-6">
-          Notre équipe a été notifiée automatiquement. Rechargez la page pour continuer.
+          {t("root.error_desc")}
         </p>
         <button
           onClick={() => window.location.reload()}
           className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          Recharger la page
+          {t("root.error_reload")}
         </button>
       </div>
     </div>

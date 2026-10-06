@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
@@ -64,6 +65,7 @@ export const Route = createFileRoute("/annonceur/")({
 });
 
 function AnnonceurDashboard() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -128,7 +130,7 @@ function AnnonceurDashboard() {
         setLoadError(
           err instanceof Error
             ? err.message
-            : "Impossible de charger les données. Vérifiez votre connexion.",
+            : t("errors.network"),
         );
         setLoading(false);
       } finally {
@@ -202,10 +204,12 @@ function AnnonceurDashboard() {
     }
   };
 
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+
   if (loading && !loadError)
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Chargement…
+        {t("common.loading")}
       </div>
     );
 
@@ -233,7 +237,7 @@ function AnnonceurDashboard() {
               to="/parametres"
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
             >
-              Paramètres
+              {t("common.settings")}
             </Link>
             <button
               onClick={async () => {
@@ -242,7 +246,7 @@ function AnnonceurDashboard() {
               }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
             >
-              Se déconnecter
+              {t("common.logout")}
             </button>
           </div>
         </div>
@@ -261,9 +265,9 @@ function AnnonceurDashboard() {
       <main id="main-content" className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
           <div>
-            <h1 className="font-display text-3xl font-bold">Mes campagnes</h1>
+            <h1 className="font-display text-3xl font-bold">{t("annonceur.my_campaigns")}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Suivez le statut de vos réservations.
+              {t("annonceur.campaigns_subtitle")}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -337,7 +341,7 @@ function AnnonceurDashboard() {
                 onClick={exportCsv}
                 className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
               >
-                ⬇ Export CSV
+                {t("common.export_csv")}
               </button>
             )}
           </div>
@@ -530,7 +534,7 @@ function AnnonceurDashboard() {
                   <div className="flex flex-col items-end gap-1">
                     <Badge status={r.status} />
                     <span className="text-xs text-muted-foreground">
-                      {new Date(r.created_at).toLocaleDateString("fr-FR")}
+                      {new Date(r.created_at).toLocaleDateString(dateLocale)}
                     </span>
                   </div>
                 </div>
@@ -575,8 +579,8 @@ function AnnonceurDashboard() {
                         className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
                       >
                         {paying === r.id
-                          ? "Paiement…"
-                          : `Payer ${Number(r.total_price).toFixed(2)} € avec mon portefeuille`}
+                          ? t("annonceur.paying")
+                          : `${t("annonceur.pay_with_wallet")} (${Number(r.total_price).toFixed(2)} €)`}
                       </button>
                     )}
                     <Link
@@ -613,19 +617,16 @@ function AnnonceurDashboard() {
 
         <section className="mt-12">
           <h2 className="font-display text-2xl font-bold mb-2">
-            Aperçu illustratif des flux de véhicules
+            {t("annonceur.map_title")}
           </h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Visualisation indicative — données réelles branchées progressivement.
+            {t("annonceur.map_desc")}
           </p>
           <MobilityMap />
         </section>
 
         <div className="mt-10 rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
-          <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en soumettant
-          un visuel publicitaire, vous garantissez en détenir tous les droits (créations, marques,
-          droit à l'image, musiques) et vous engagez à respecter la législation française et
-          européenne. Tout contenu litigieux est refusé.
+          {t("annonceur.ip_notice")}
         </div>
       </main>
       <FAQChatbot
@@ -796,37 +797,43 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
 }
 
 function Badge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: "En attente", cls: "bg-secondary text-foreground" },
-    approved: { label: "Validée", cls: "bg-signal/20 text-signal" },
-    rejected: { label: "Refusée", cls: "bg-destructive/20 text-destructive" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending: "bg-secondary text-foreground",
+    approved: "bg-signal/20 text-signal",
+    rejected: "bg-destructive/20 text-destructive",
   };
-  const s = map[status] ?? map.pending;
-  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+  const label = t(`campaign_status.${status}`, { defaultValue: status });
+  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] ?? cls.pending}`}>{label}</span>;
 }
 
 function PaymentBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    unpaid: { label: "À payer", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
-    paid: { label: "Payée ✓", cls: "bg-signal/20 text-signal" },
-    refunded: { label: "Remboursée", cls: "bg-secondary text-foreground" },
-    partial_refund: { label: "Remb. partiel", cls: "bg-secondary text-foreground" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    unpaid: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    paid: "bg-signal/20 text-signal",
+    refunded: "bg-secondary text-foreground",
+    partial_refund: "bg-secondary text-foreground",
   };
-  const s = map[status] ?? map.unpaid;
-  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+  const labels: Record<string, string> = {
+    unpaid: t("payment_status.unpaid"),
+    paid: `${t("payment_status.paid")} ✓`,
+    refunded: t("payment_status.refunded"),
+    partial_refund: t("payment_status.refunded"),
+  };
+  const label = labels[status] ?? status;
+  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] ?? cls.unpaid}`}>{label}</span>;
 }
 
 function SubscriptionBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const map: Record<string, { label: string; cls: string }> = {
-    trialing: { label: "Essai gratuit en cours", cls: "bg-signal/20 text-signal" },
-    active: { label: "Abonnement actif", cls: "bg-signal/20 text-signal" },
-    past_due: { label: "Paiement échoué", cls: "bg-destructive/20 text-destructive" },
-    unpaid: { label: "Impayé", cls: "bg-destructive/20 text-destructive" },
-    canceled: { label: "Abonnement résilié", cls: "bg-secondary text-foreground" },
-    incomplete: {
-      label: "Souscription en cours",
-      cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
-    },
+    trialing: { label: t("common.status.active"), cls: "bg-signal/20 text-signal" },
+    active: { label: t("common.status.active"), cls: "bg-signal/20 text-signal" },
+    past_due: { label: t("common.status.pending"), cls: "bg-destructive/20 text-destructive" },
+    unpaid: { label: t("payment_status.unpaid"), cls: "bg-destructive/20 text-destructive" },
+    canceled: { label: t("common.status.cancelled"), cls: "bg-secondary text-foreground" },
+    incomplete: { label: t("common.status.pending"), cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
   };
   const s = map[status];
   if (!s) return null;
