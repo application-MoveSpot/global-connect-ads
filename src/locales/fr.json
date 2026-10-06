@@ -1,4 +1,74 @@
 {
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "next": "Suivant",
+    "back": "Retour",
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "confirm": "Confirmer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "close": "Fermer",
+    "submit": "Soumettre",
+    "publish": "Publier",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "pending": "En attente",
+      "completed": "Terminé",
+      "draft": "Brouillon",
+      "cancelled": "Annulé"
+    },
+    "date": "Date",
+    "amount": "Montant",
+    "description": "Description",
+    "title": "Titre"
+  },
+  "wallet": {
+    "page_title": "Mon portefeuille — MoveSpot",
+    "title": "Mon portefeuille",
+    "balance": "Solde disponible",
+    "topup": "Recharger",
+    "transactions": "Transactions",
+    "no_transactions": "Aucune transaction pour l'instant",
+    "load_more": "Charger plus",
+    "type": {
+      "all": "Tout",
+      "topup": "Recharges",
+      "campaign_debit": "Campagnes",
+      "refund": "Remboursements",
+      "admin_adjustment": "Ajustements"
+    },
+    "tx_label": {
+      "topup": "Recharge",
+      "campaign_debit": "Campagne",
+      "refund": "Remboursement",
+      "admin_adjustment": "Ajustement"
+    }
+  },
+  "briefs": {
+    "page_title": "Mes briefs — MoveSpot",
+    "new": "Nouveau brief",
+    "create": "Créer un brief",
+    "my_briefs": "Mes briefs",
+    "no_briefs": "Aucun brief pour l'instant.",
+    "vehicle_type": "Type de véhicule",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "budget": "Budget",
+    "submit": "Publier le brief",
+    "draft_restored": "Brouillon restauré",
+    "step": {
+      "display_type": "Format",
+      "event_type": "Type d'événement",
+      "form": "Détails"
+    }
+  },
   "nav": {
     "realtime": "Temps réel",
     "vehicles": "Véhicules",

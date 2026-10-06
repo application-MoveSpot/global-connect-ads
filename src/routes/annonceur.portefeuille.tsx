@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useCallback, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -9,6 +10,7 @@ import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout
 import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
 import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
 import { RouteError } from "@/components/app/RouteError";
+import { useCurrency } from "@/hooks/useCurrency";
 
 export const Route = createFileRoute("/annonceur/portefeuille")({
   head: () => ({
@@ -23,32 +25,14 @@ export const Route = createFileRoute("/annonceur/portefeuille")({
 
 type TxKind = "all" | "topup" | "campaign_debit" | "refund" | "admin_adjustment";
 
-const KIND_LABELS: Record<TxKind, string> = {
-  all: "Tout",
-  topup: "Recharges",
-  campaign_debit: "Campagnes",
-  refund: "Remboursements",
-  admin_adjustment: "Ajustements",
-};
+const TX_KINDS: TxKind[] = ["all", "topup", "campaign_debit", "refund", "admin_adjustment"];
 
 const PAGE_SIZE = 25;
 
-function fmt(cents: number) {
-  return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
-}
-
-function labelKind(k: string) {
-  switch (k) {
-    case "topup": return "Recharge";
-    case "campaign_debit": return "Campagne";
-    case "refund": return "Remboursement";
-    case "admin_adjustment": return "Ajustement";
-    default: return k;
-  }
-}
-
 function WalletPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { fmt, locale } = useCurrency();
   const fetchWallet = useServerFn(getMyWallet);
   const fetchTransactions = useServerFn(getWalletTransactions);
 
@@ -147,12 +131,12 @@ function WalletPage() {
     setTxLoading(true);
     try {
       const r = await fetchTransactions({ data: { kind: filterKind, page: 0, pageSize: 5000 } });
-      const header = ["Date", "Type", "Description", "Montant (EUR)"];
-      const rows = r.transactions.map((t: any) => [
-        new Date(t.created_at).toLocaleString("fr-FR"),
-        labelKind(t.kind),
-        t.description ?? "",
-        (t.amount_cents / 100).toFixed(2).replace(".", ","),
+      const header = ["Date", "Type", "Description", "Montant"];
+      const rows = r.transactions.map((tx: any) => [
+        new Date(tx.created_at).toLocaleString(locale),
+        t(`wallet.tx_label.${tx.kind}` as Parameters<typeof t>[0]) ?? tx.kind,
+        tx.description ?? "",
+        (tx.amount_cents / 100).toFixed(2).replace(".", ","),
       ]);
       const csv = [header, ...rows]
         .map((row) => row.map((v: unknown) => `"${String(v).replace(/"/g, '""')}"`).join(";"))
@@ -171,7 +155,7 @@ function WalletPage() {
     }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
 
   return (
     <div className="min-h-screen bg-background">
@@ -199,7 +183,7 @@ function WalletPage() {
         </section>
 
         <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/15 to-card p-8">
-          <div className="text-xs uppercase tracking-widest text-muted-foreground">Solde disponible</div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("wallet.balance")}</div>
           <div className="font-display text-5xl font-bold mt-2">{fmt(balanceCents)}</div>
         </section>
 
@@ -248,7 +232,7 @@ function WalletPage() {
 
           {/* Filtres */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {(Object.keys(KIND_LABELS) as TxKind[]).map((k) => (
+            {TX_KINDS.map((k) => (
               <button
                 key={k}
                 onClick={() => handleFilter(k)}
@@ -258,7 +242,7 @@ function WalletPage() {
                     : "border-border hover:bg-secondary"
                 }`}
               >
-                {KIND_LABELS[k]}
+                {t(`wallet.type.${k}` as Parameters<typeof t>[0])}
               </button>
             ))}
           </div>
@@ -284,24 +268,24 @@ function WalletPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.map((t) => (
-                    <tr key={t.id} className="border-t border-border hover:bg-secondary/20">
+                  {transactions.map((tx) => (
+                    <tr key={tx.id} className="border-t border-border hover:bg-secondary/20">
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                        {new Date(t.created_at).toLocaleString("fr-FR")}
+                        {new Date(tx.created_at).toLocaleString(locale)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                          t.kind === "topup" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" :
-                          t.kind === "campaign_debit" ? "bg-blue-500/15 text-blue-700 dark:text-blue-400" :
-                          t.kind === "refund" ? "bg-amber-500/15 text-amber-700 dark:text-amber-400" :
+                          tx.kind === "topup" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" :
+                          tx.kind === "campaign_debit" ? "bg-blue-500/15 text-blue-700 dark:text-blue-400" :
+                          tx.kind === "refund" ? "bg-amber-500/15 text-amber-700 dark:text-amber-400" :
                           "bg-secondary text-muted-foreground"
                         }`}>
-                          {labelKind(t.kind)}
+                          {t(`wallet.tx_label.${tx.kind}` as Parameters<typeof t>[0]) ?? tx.kind}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{t.description ?? "—"}</td>
-                      <td className={`px-4 py-3 text-right font-semibold font-mono whitespace-nowrap ${t.amount_cents >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
-                        {t.amount_cents >= 0 ? "+" : ""}{fmt(t.amount_cents)}
+                      <td className="px-4 py-3 text-muted-foreground">{tx.description ?? "—"}</td>
+                      <td className={`px-4 py-3 text-right font-semibold font-mono whitespace-nowrap ${tx.amount_cents >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
+                        {tx.amount_cents >= 0 ? "+" : ""}{fmt(tx.amount_cents)}
                       </td>
                     </tr>
                   ))}
