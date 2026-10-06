@@ -6,7 +6,7 @@ export const Route = createFileRoute("/confidentialite")({
   head: () => ({
     meta: [
       { title: "Politique de confidentialité — MoveSpot" },
-      { name: "description", content: "Politique de confidentialité MoveSpot : données de géolocalisation, paiements, authentification à deux facteurs et droits RGPD." },
+      { name: "description", content: "Politique de confidentialité MoveSpot : données de géolocalisation, paiements, droits RGPD (UE) et droits CCPA/FDBR pour les résidents américains." },
       { property: "og:title", content: "Politique de confidentialité — MoveSpot" },
       { property: "og:description", content: "Comment MoveSpot collecte, utilise et protège vos données, y compris les positions GPS de campagne." },
       { name: "robots", content: "index, follow" },
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/confidentialite")({
 
 function Privacy() {
   return (
-    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="12 août 2026">
+    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="6 octobre 2026">
       <LegalSection title="1. Préambule">
         <p>
           MoveSpot accorde une importance particulière à la protection des données personnelles. La présente politique
@@ -195,7 +195,64 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="14. Modifications">
+      <LegalSection title="14. Droits des résidents américains (CCPA / FDBR)">
+        <p>
+          Cette section s'adresse aux résidents de Californie au titre du <em>California Consumer Privacy Act</em> tel
+          qu'amendé par le <em>California Privacy Rights Act</em> (CCPA/CPRA, Cal. Civ. Code § 1798.100 et s.), et aux
+          résidents de Floride au titre du <em>Florida Digital Bill of Rights</em> (FDBR, § 501.71 F.S.).
+        </p>
+
+        <h4 className="font-semibold mt-4 mb-2">Catégories de données collectées</h4>
+        <p>MoveSpot collecte les catégories suivantes au sens du CCPA :</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Identifiants</strong> : nom, email, identifiant de compte.</li>
+          <li><strong>Informations commerciales</strong> : campagnes, transactions, solde de portefeuille.</li>
+          <li><strong>Données de géolocalisation</strong> : positions GPS liées au véhicule pendant les campagnes.</li>
+          <li><strong>Activité sur Internet / réseau</strong> : pages consultées, journaux de connexion.</li>
+          <li><strong>Données professionnelles</strong> : SIREN/SIRET, informations d'entreprise.</li>
+        </ul>
+
+        <h4 className="font-semibold mt-4 mb-2">MoveSpot ne vend pas vos données</h4>
+        <p>
+          MoveSpot ne vend ni ne partage vos données personnelles à des tiers à des fins de publicité comportementale
+          croisée (<em>cross-context behavioral advertising</em>). Vous pouvez néanmoins nous notifier d'une demande
+          d'opt-out à l'adresse ci-dessous, ce qui sera enregistré dans votre dossier.
+        </p>
+
+        <h4 className="font-semibold mt-4 mb-2">Vos droits</h4>
+        <ul className="list-disc pl-6 space-y-2">
+          <li><strong>Droit de savoir</strong> — connaître les catégories et finalités de traitement vous concernant.</li>
+          <li><strong>Droit d'accès</strong> — obtenir une copie des données personnelles collectées au cours des
+            12 derniers mois.</li>
+          <li><strong>Droit de rectification</strong> — corriger des données inexactes vous concernant.</li>
+          <li><strong>Droit à l'effacement</strong> — demander la suppression de vos données personnelles, sous
+            réserve d'exceptions légales (obligations comptables, exécution du contrat en cours).</li>
+          <li><strong>Droit d'opt-out</strong> — s'opposer à toute vente ou partage de vos données (sans objet ici,
+            MoveSpot ne vendant pas de données).</li>
+          <li><strong>Droit à la non-discrimination</strong> — l'exercice de ces droits n'entraîne aucune différence
+            de tarif, de qualité de service ou d'accès à la Plateforme.</li>
+        </ul>
+
+        <h4 className="font-semibold mt-4 mb-2">Comment exercer vos droits</h4>
+        <p>
+          Envoyez un email à{" "}
+          <a href="mailto:privacy@movespot.fr" className="text-primary hover:underline">privacy@movespot.fr</a>{" "}
+          en indiquant en objet <strong>« California Privacy Rights »</strong> ou <strong>« Florida Privacy Rights »</strong>{" "}
+          selon votre État de résidence. Nous répondrons dans un délai de <strong>45 jours</strong> (extensible à 90 jours
+          en cas de complexité, avec notification préalable). Vous pouvez également mandater un agent autorisé pour
+          soumettre une demande en votre nom.
+        </p>
+        <p className="mt-2">
+          Les résidents de Californie disposent du droit d'introduire une réclamation auprès du{" "}
+          <em>California Privacy Protection Agency</em> (
+          <a href="https://cppa.ca.gov" className="text-primary hover:underline">cppa.ca.gov</a>).
+          Les résidents de Floride peuvent s'adresser au{" "}
+          <em>Florida Department of Legal Affairs</em> (
+          <a href="https://myfloridalegal.com" className="text-primary hover:underline">myfloridalegal.com</a>).
+        </p>
+      </LegalSection>
+
+      <LegalSection title="15. Modifications">
         <p>
           La présente politique peut être mise à jour à tout moment. Toute modification substantielle vous sera
           notifiée par email ou via la Plateforme.
