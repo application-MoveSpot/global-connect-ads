@@ -3,6 +3,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import type { FleetPoint } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
+import { MapConsentGate } from "@/components/app/MapConsentGate";
 
 // ── Fallback Leaflet (aucune dépendance WebGL) ────────────────────────────────
 function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
@@ -232,12 +233,13 @@ export default function FleetMap({ points }: { points: FleetPoint[] }) {
     }).catch(() => setWebglOk(false));
   }, []);
 
-  // SSR / premier rendu → skeleton neutre (évite le flash de contenu)
   if (webglOk === null) {
     return <div className="h-[520px] w-full rounded-2xl border border-border bg-card animate-pulse" />;
   }
 
-  return webglOk
-    ? <FleetMapMapbox points={points} />
-    : <FleetMapLeaflet points={points} />;
+  return (
+    <MapConsentGate>
+      {webglOk ? <FleetMapMapbox points={points} /> : <FleetMapLeaflet points={points} />}
+    </MapConsentGate>
+  );
 }

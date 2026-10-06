@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { ChevronDown, ChevronUp, Map } from "lucide-react";
+import { MapConsentGate } from "@/components/app/MapConsentGate";
 
 export type TrackPoint = { lat: number; lng: number };
 
@@ -215,6 +216,7 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
 
       {open && (
         <>
+          <MapConsentGate className="h-64">
           {!tokenLoaded ? (
             <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">
               Chargement de la carte…
@@ -222,6 +224,7 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
           ) : (
             <div ref={containerRef} className="w-full h-64" />
           )}
+          </MapConsentGate>
 
           {!hasData && tokenLoaded && (
             <p className="px-4 pb-3 text-[10px] text-muted-foreground">

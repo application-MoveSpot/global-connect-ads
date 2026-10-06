@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { MapConsentGate } from "@/components/app/MapConsentGate";
 
 type Hub = {
   id: string;
@@ -206,6 +207,7 @@ export function MobilityMap() {
 
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-6">
+      <MapConsentGate className="aspect-[16/9]">
       <div className="relative aspect-[16/9] rounded-2xl border border-border bg-gradient-card overflow-hidden shadow-elevated">
         {token ? (
           <div ref={mapContainer} className="absolute inset-0" />
@@ -224,6 +226,7 @@ export function MobilityMap() {
           </div>
         )}
       </div>
+      </MapConsentGate>
 
       <div className="rounded-2xl border border-border bg-gradient-card p-6 flex flex-col gap-4">
         {loading ? (

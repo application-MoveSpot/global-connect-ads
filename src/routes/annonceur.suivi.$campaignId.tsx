@@ -13,6 +13,7 @@ import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera, Clock, S
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 import { submitCampaignRating, getCampaignRating } from "@/lib/campaigns/rating.functions";
 import { toast } from "sonner";
+import { MapConsentGate } from "@/components/app/MapConsentGate";
 
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
@@ -452,7 +453,9 @@ function SuiviPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div ref={mapContainer} className="h-[500px] w-full rounded-md border" />
+            <MapConsentGate className="h-[500px]">
+              <div ref={mapContainer} className="h-[500px] w-full rounded-md border" />
+            </MapConsentGate>
             {positions.length >= 5 && (
               <p className="mt-2 text-xs text-muted-foreground">
                 La carte de chaleur indique les zones les plus fréquentées par le véhicule.

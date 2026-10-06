@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 
 export type ItineraryData = {
   /** Étapes saisies (adresses résolues) */
@@ -29,6 +30,7 @@ const DIR = "https://api.mapbox.com/directions/v5/mapbox/driving";
 const TILEQ = "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/tilequery";
 
 export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props) {
+  const consent = useCookieConsent();
   const [token, setToken] = useState("");
   const [steps, setSteps] = useState<string[]>([""]);
   const [coords, setCoords] = useState<([number, number] | null)[]>([null]);
@@ -43,8 +45,9 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
   onChangeRef.current = onChange;
 
   useEffect(() => {
+    if (consent === "refused") return;
     getMapboxToken().then((r: { token: string }) => setToken(r.token)).catch(() => setToken(""));
-  }, []);
+  }, [consent]);
 
   const impressionsPerDay = Math.round(distanceKm * BASE_TRAFFIC_DENSITY * multiplier);
 
@@ -213,7 +216,13 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
       </div>
 
       {error && <p className="text-xs text-destructive">{error}</p>}
-      {!token && <p className="text-xs text-muted-foreground">Service cartographique non configuré.</p>}
+      {consent === "refused" && (
+        <p className="text-xs text-muted-foreground">
+          Le géocodage utilise Mapbox (service tiers).{" "}
+          <a href="/cookies" className="underline text-primary">Acceptez les cookies</a> pour activer le calcul d'itinéraire.
+        </p>
+      )}
+      {consent !== "refused" && !token && <p className="text-xs text-muted-foreground">Service cartographique non configuré.</p>}
     </div>
   );
 }

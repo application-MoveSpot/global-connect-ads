@@ -14,6 +14,7 @@ import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { MapConsentGate } from "@/components/app/MapConsentGate";
 import { Input } from "@/components/ui/input";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -264,7 +265,9 @@ function FleetPage() {
             <CardTitle>Carte temps réel</CardTitle>
           </CardHeader>
           <CardContent>
-            <div ref={mapContainer} className="h-[420px] w-full rounded-md border" />
+            <MapConsentGate className="h-[420px]">
+              <div ref={mapContainer} className="h-[420px] w-full rounded-md border" />
+            </MapConsentGate>
             <p className="mt-2 text-xs text-muted-foreground">
               {positions.length} véhicule(s) avec position récente · refresh auto 30s
             </p>
