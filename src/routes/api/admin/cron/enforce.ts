@@ -415,6 +415,38 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
           results.autoModeration = { error: "auto-moderation skipped" };
         }
 
+        // ─── 6. Hard delete comptes (RGPD J+30) ──────────────────────────────────
+        // Supprime définitivement les auth.users dont la période de grâce est écoulée
+        try {
+          const { data: dueRequests } = await supabaseAdmin
+            .from("account_deletion_requests" as never)
+            .select("id, user_id")
+            .lte("scheduled_hard_delete_at" as never, now.toISOString())
+            .is("cancelled_at" as never, null)
+            .is("executed_at" as never, null);
+
+          const hardDeleteResults = { deleted: 0, errors: 0 };
+
+          await Promise.allSettled(
+            ((dueRequests ?? []) as Array<{ id: string; user_id: string }>).map(async (req) => {
+              try {
+                await supabaseAdmin.auth.admin.deleteUser(req.user_id);
+                await supabaseAdmin
+                  .from("account_deletion_requests" as never)
+                  .update({ executed_at: now.toISOString() } as never)
+                  .eq("id" as never, req.id);
+                hardDeleteResults.deleted++;
+              } catch {
+                hardDeleteResults.errors++;
+              }
+            }),
+          );
+
+          results.hardDelete = hardDeleteResults;
+        } catch {
+          results.hardDelete = { error: "hard-delete skipped" };
+        }
+
         return Response.json({ ok: true, results });
       },
 
