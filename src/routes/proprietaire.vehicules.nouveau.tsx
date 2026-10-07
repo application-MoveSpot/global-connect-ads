@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,36 +20,30 @@ export const Route = createFileRoute("/proprietaire/vehicules/nouveau")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-const TYPES_VEHICULES = [
-  { v: "camion_led", l: "📺 Camion LED", tip: "Fourgon publicitaire numérique — 3 faces écran LED IP67 (3200×1920 px). Format boxled exclusivement." },
-  { v: "food_truck", l: "Food truck" },
-  { v: "van", l: "Van utilitaire" },
-  { v: "taxi", l: "Taxi / VTC" },
-  { v: "scooter", l: "Scooter livraison" },
-  { v: "velo_cargo", l: "Vélo cargo" },
-  { v: "velo_remorque", l: "Vélo remorque" },
-  { v: "triporteur", l: "Triporteur" },
-  { v: "tutuk", l: "Tutuk" },
-  { v: "voiture", l: "Voiture" },
-];
-const TYPES_AUTRES = [
-  { v: "autre", l: "Autre" },
-];
+const VEHICLE_TYPE_VALUES = [
+  "camion_led",
+  "food_truck",
+  "van",
+  "taxi",
+  "scooter",
+  "velo_cargo",
+  "velo_remorque",
+  "triporteur",
+  "tutuk",
+  "voiture",
+] as const;
 
-const CONDITIONS = [
-  { v: "excellent", l: "Excellent", desc: "Carrosserie impeccable, comme neuf" },
-  { v: "bon", l: "Bon", desc: "Quelques traces d'usage, propre et soigné" },
-  { v: "moyen", l: "Moyen", desc: "Usure visible mais correct" },
-  { v: "mauvais", l: "Mauvais", desc: "⛔ Non accepté sur MoveSpot" },
-];
+const CONDITION_VALUES = ["excellent", "bon", "moyen", "mauvais"] as const;
+type ConditionValue = (typeof CONDITION_VALUES)[number];
 
 function NewVehiclePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
   const [autreDescription, setAutreDescription] = useState("");
-  const [condition, setCondition] = useState<"excellent" | "bon" | "moyen" | "mauvais">("bon");
+  const [condition, setCondition] = useState<ConditionValue>("bon");
   const [name, setName] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
   const [brand, setBrand] = useState("");
@@ -81,14 +76,12 @@ function NewVehiclePage() {
   const MAX_PHOTOS = 5;
   const MAX_PHOTO_SIZE = 30 * 1024 * 1024; // 30 MB
 
-  // Validates and merges incoming files into current list. Returns the new
-  // file array and sets a persistent error for anything rejected or dropped.
   const applyPhotos = (incoming: File[], current: File[]): File[] => {
     const tooLarge: string[] = [];
     const valid: File[] = [];
     for (const f of incoming) {
       if (f.size > MAX_PHOTO_SIZE) {
-        tooLarge.push(`${f.name} (max 30 Mo)`);
+        tooLarge.push(`${f.name} (${t("proprietaire.vehicules.nouveau.max_photo_size")})`);
       } else {
         valid.push(f);
       }
@@ -97,14 +90,13 @@ function NewVehiclePage() {
     const overflow = merged.length > MAX_PHOTOS ? merged.slice(MAX_PHOTOS).map((f) => f.name) : [];
     const final = merged.slice(0, MAX_PHOTOS);
     const rejected = [...tooLarge, ...overflow];
-    setError(rejected.length > 0 ? `Photo(s) ignorée(s) : ${rejected.join(", ")}` : "");
+    setError(rejected.length > 0 ? t("proprietaire.vehicules.nouveau.error_photos_ignored", { files: rejected.join(", ") }) : "");
     return final;
   };
 
   // Coller une image depuis le presse-papier (Ctrl+V) directement dans la zone photos
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
-      // Ne pas interférer si le focus est dans un champ texte
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
@@ -167,11 +159,11 @@ function NewVehiclePage() {
   const runEstimate = async () => {
     setError("");
     if (condition === "mauvais") {
-      setError("Les véhicules en mauvais état ne sont pas acceptés sur MoveSpot.");
+      setError(t("proprietaire.vehicules.nouveau.error_bad_condition"));
       return;
     }
     if (files.length === 0) {
-      setError("Ajoutez au moins une photo pour l'estimation et la vérification.");
+      setError(t("proprietaire.vehicules.nouveau.error_need_photo"));
       return;
     }
     setEstimating(true);
@@ -193,7 +185,7 @@ function NewVehiclePage() {
       setEstimate({ ...res, uploaded_urls: paths });
     } catch (e) {
       if (e instanceof Error && e.message.startsWith("Upload")) captureError(e, "upload", { flow: "vehicle_photo" });
-      setError(e instanceof Error ? e.message : "Erreur estimation");
+      setError(e instanceof Error ? e.message : t("proprietaire.vehicules.nouveau.error_estimate_generic"));
     } finally {
       setEstimating(false);
     }
@@ -204,21 +196,26 @@ function NewVehiclePage() {
     if (!ownerId || !userId) return;
     setError("");
     if (condition === "mauvais") {
-      setError("Les véhicules en mauvais état ne sont pas acceptés.");
+      setError(t("proprietaire.vehicules.nouveau.error_bad_condition_submit"));
       return;
     }
     if (type === "autre" && !autreDescription.trim()) {
-      setError("Veuillez préciser le type de véhicule dans le champ dédié.");
+      setError(t("proprietaire.vehicules.nouveau.error_autre_desc"));
       return;
     }
     if (estimate?.ai_generated_detected) {
-      setError("⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.");
+      setError(t("proprietaire.vehicules.nouveau.error_ai_photo"));
       return;
     }
     if (estimate && estimate.suggested_price_max > 0 && Number(price) > estimate.suggested_price_max * 0.7) {
       const maxAcceptable = Math.floor(estimate.suggested_price_max * 0.7);
       const minAcceptable = Math.floor(estimate.suggested_price_min * 0.7);
-      setError(`⛔ Prix trop élevé : la fourchette IA ${estimate.suggested_price_min}–${estimate.suggested_price_max} €/j est le prix payé par l'annonceur. Votre rémunération de propriétaire correspond à 70 % de ce montant, soit ${minAcceptable}–${maxAcceptable} €/jour. Saisissez au maximum ${maxAcceptable} €/jour (bouton « Utiliser ${maxAcceptable} €/j » dans l'encart Estimation IA).`);
+      setError(t("proprietaire.vehicules.nouveau.error_price_too_high", {
+        aiMin: estimate.suggested_price_min,
+        aiMax: estimate.suggested_price_max,
+        ownerMin: minAcceptable,
+        ownerMax: maxAcceptable,
+      }));
       return;
     }
 
@@ -269,112 +266,111 @@ function NewVehiclePage() {
         <div className="mb-4">
           <LogoLink />
         </div>
-        <Link to="/proprietaire" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour au tableau de bord</Link>
+        <Link to="/proprietaire" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+          {t("proprietaire.vehicules.nouveau.back")}
+        </Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
-          <h1 className="font-display text-3xl font-bold mb-2">Ajouter un véhicule</h1>
-          <p className="text-sm text-muted-foreground mb-6">Votre véhicule sera vérifié par MoveSpot avant d'apparaître sur la marketplace.</p>
+          <h1 className="font-display text-3xl font-bold mb-2">{t("proprietaire.vehicules.nouveau.title")}</h1>
+          <p className="text-sm text-muted-foreground mb-6">{t("proprietaire.vehicules.nouveau.desc")}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
+              <label className="block text-sm font-medium mb-1.5">{t("proprietaire.vehicules.nouveau.vehicle_type_label")}</label>
               <select value={type} onChange={(e) => setType(e.target.value)} required
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
-                <optgroup label="Véhicules">
-                  {TYPES_VEHICULES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                <optgroup label={t("proprietaire.vehicules.nouveau.group_vehicles")}>
+                  {VEHICLE_TYPE_VALUES.map((v) => (
+                    <option key={v} value={v}>{t(`vehicle_types.${v}`)}</option>
+                  ))}
                 </optgroup>
-                <optgroup label="Autre">
-                  {TYPES_AUTRES.map((t) => <option key={t.v} value={t.v}>{t.l}</option>)}
+                <optgroup label={t("proprietaire.vehicules.nouveau.group_other")}>
+                  <option value="autre">{t("vehicle_types.autre")}</option>
                 </optgroup>
               </select>
             </div>
             {type === "autre" && (
               <div>
-                <label className="block text-sm font-medium mb-1.5">Précisez le type de véhicule *</label>
+                <label className="block text-sm font-medium mb-1.5">{t("proprietaire.vehicules.nouveau.autre_type_label")}</label>
                 <input
                   type="text"
                   required
                   maxLength={120}
                   value={autreDescription}
                   onChange={(e) => setAutreDescription(e.target.value)}
-                  placeholder="Ex. Rickshaw, bateau fluvial, camion brasserie…"
+                  placeholder={t("proprietaire.vehicules.nouveau.autre_type_placeholder")}
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                <p className="text-xs text-muted-foreground mt-1.5">Cette précision est visible par les annonceurs et aide MoveSpot à valider votre véhicule.</p>
+                <p className="text-xs text-muted-foreground mt-1.5">{t("proprietaire.vehicules.nouveau.autre_type_hint")}</p>
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium mb-1.5">État du véhicule *</label>
+              <label className="block text-sm font-medium mb-1.5">{t("proprietaire.vehicules.nouveau.condition_label")}</label>
               <div className="grid grid-cols-2 gap-2">
-                {CONDITIONS.map((c) => (
-                  <button type="button" key={c.v} onClick={() => { setCondition(c.v as "excellent" | "bon" | "moyen" | "mauvais"); setEstimate(null); }}
+                {CONDITION_VALUES.map((v) => (
+                  <button type="button" key={v} onClick={() => { setCondition(v); setEstimate(null); }}
                     className={`rounded-lg border px-3 py-2.5 text-left transition ${
-                      condition === c.v
-                        ? c.v === "mauvais"
+                      condition === v
+                        ? v === "mauvais"
                           ? "border-destructive bg-destructive/10"
                           : "border-primary bg-primary/10"
                         : "border-border bg-input hover:border-primary/40"
                     }`}>
-                    <div className="text-sm font-semibold">{c.l}</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">{c.desc}</div>
+                    <div className="text-sm font-semibold">{t(`proprietaire.vehicules.nouveau.condition_${v}`)}</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">{t(`proprietaire.vehicules.nouveau.condition_${v}_desc`)}</div>
                   </button>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-1.5">
-                ⚠️ L'état déclaré est vérifié sur photo par notre IA et confirmé par MoveSpot. Toute fausse déclaration entraîne un refus.
+                {t("proprietaire.vehicules.nouveau.condition_warning")}
               </p>
             </div>
 
-            <Field label="Nom / surnom du véhicule *" value={name} onChange={setName} required placeholder="Ex. Le Bistrot Roulant" />
+            <Field label={t("proprietaire.vehicules.nouveau.name_label")} value={name} onChange={setName} required placeholder={t("proprietaire.vehicules.nouveau.name_placeholder")} />
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Identification du véhicule — visible par le poseur</p>
-                <p className="text-xs text-muted-foreground">Ces informations permettent au prestataire de pose d'identifier précisément votre véhicule sur le terrain.</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("proprietaire.vehicules.nouveau.id_section_title")}</p>
+                <p className="text-xs text-muted-foreground">{t("proprietaire.vehicules.nouveau.id_section_desc")}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Plaque d'immatriculation" value={licensePlate} onChange={setLicensePlate} placeholder="AB-123-CD" />
-                <Field label="Couleur" value={color} onChange={setColor} placeholder="Blanc, Noir, Gris…" />
+                <Field label={t("proprietaire.vehicules.nouveau.plate_label")} value={licensePlate} onChange={setLicensePlate} placeholder={t("proprietaire.vehicules.nouveau.plate_placeholder")} />
+                <Field label={t("proprietaire.vehicules.nouveau.color_label")} value={color} onChange={setColor} placeholder={t("proprietaire.vehicules.nouveau.color_placeholder")} />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Marque" value={brand} onChange={setBrand} placeholder="Renault, Peugeot…" />
-                <Field label="Modèle" value={vehicleModel} onChange={setVehicleModel} placeholder="Master, Berlingo…" />
+                <Field label={t("proprietaire.vehicules.nouveau.brand_label")} value={brand} onChange={setBrand} placeholder={t("proprietaire.vehicules.nouveau.brand_placeholder")} />
+                <Field label={t("proprietaire.vehicules.nouveau.model_label")} value={vehicleModel} onChange={setVehicleModel} placeholder={t("proprietaire.vehicules.nouveau.model_placeholder")} />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Description</label>
+              <label className="block text-sm font-medium mb-1.5">{t("proprietaire.vehicules.nouveau.description_label")}</label>
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
-                placeholder="Décrivez votre véhicule, son état, ses spécificités…"
+                placeholder={t("proprietaire.vehicules.nouveau.description_placeholder")}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              <p className="text-xs text-muted-foreground mt-1.5">Pas besoin de préciser les formats publicitaires : ce sont les annonceurs qui choisissent ce qu'ils veulent habiller.</p>
+              <p className="text-xs text-muted-foreground mt-1.5">{t("proprietaire.vehicules.nouveau.description_hint")}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Surface (m²)" value={surface} onChange={setSurface} type="number" />
-              <Field label="Km / jour" value={km} onChange={setKm} type="number" />
+              <Field label={t("proprietaire.vehicules.nouveau.surface_label")} value={surface} onChange={setSurface} type="number" />
+              <Field label={t("proprietaire.vehicules.nouveau.km_label")} value={km} onChange={setKm} type="number" />
             </div>
-            <Field label="Zones desservies" value={zones} onChange={setZones} placeholder="Paris 11e, Bastille, République (séparés par virgules)" />
+            <Field label={t("proprietaire.vehicules.nouveau.zones_label")} value={zones} onChange={setZones} placeholder={t("proprietaire.vehicules.nouveau.zones_placeholder")} />
             <div>
-              <Field label="Prix par jour (€) *" value={price} onChange={setPrice} type="number" required />
-
+              <Field label={t("proprietaire.vehicules.nouveau.price_label")} value={price} onChange={setPrice} type="number" required />
               <p className="text-xs text-muted-foreground mt-1.5">
-                Indiquez <strong className="text-foreground">votre rémunération nette de propriétaire</strong>, pas le prix
-                payé par l'annonceur. L'estimation IA affiche le prix de marché annonceur ; votre prix correspond à 70 % de
-                celui-ci (MoveSpot conserve 30 % de commission).
+                {t("proprietaire.vehicules.nouveau.price_hint")}
                 {estimate && estimate.suggested_price_max > 0 && (
                   <>
-                    {" "}Fourchette conseillée pour vous :{" "}
-                    <strong className="text-foreground">
-                      {Math.floor(estimate.suggested_price_min * 0.7)}–{Math.floor(estimate.suggested_price_max * 0.7)} €/j
-                    </strong>.
+                    {" "}{t("proprietaire.vehicules.nouveau.price_range_hint", {
+                      min: Math.floor(estimate.suggested_price_min * 0.7),
+                      max: Math.floor(estimate.suggested_price_max * 0.7),
+                    })}
                   </>
                 )}
               </p>
             </div>
 
-
             <div>
-              <label className="block text-sm font-medium mb-1.5">Photos (max 5) *</label>
-              {/* Zone de collage / upload */}
+              <label className="block text-sm font-medium mb-1.5">{t("proprietaire.vehicules.nouveau.photos_label")}</label>
               <div
                 className="relative rounded-xl border-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/30 transition-colors"
                 onPaste={(e) => {
@@ -391,13 +387,13 @@ function NewVehiclePage() {
               >
                 <label className="flex flex-col items-center justify-center gap-2 py-5 cursor-pointer">
                   <span className="text-2xl">📷</span>
-                  <span className="text-sm text-muted-foreground font-medium">Choisir des photos</span>
-                  <span className="text-xs text-muted-foreground/70">ou glisser-déposer</span>
+                  <span className="text-sm text-muted-foreground font-medium">{t("proprietaire.vehicules.nouveau.photos_choose")}</span>
+                  <span className="text-xs text-muted-foreground/70">{t("proprietaire.vehicules.nouveau.photos_drag")}</span>
                   <div className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full bg-card border border-border">
                     <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">Ctrl</kbd>
                     <span className="text-[10px] text-muted-foreground">+</span>
                     <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">V</kbd>
-                    <span className="text-[10px] text-muted-foreground ml-1">pour coller depuis le presse-papier</span>
+                    <span className="text-[10px] text-muted-foreground ml-1">{t("proprietaire.vehicules.nouveau.photos_paste")}</span>
                   </div>
                   <input type="file" accept="image/*" multiple
                     onChange={(e) => {
@@ -408,11 +404,10 @@ function NewVehiclePage() {
                     }}
                     className="hidden" />
                 </label>
-                {/* Flash de confirmation collage */}
                 {pastedHint && (
                   <div className="absolute inset-0 flex items-center justify-center bg-primary/10 border-2 border-primary rounded-xl pointer-events-none">
                     <span className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-full shadow-lg animate-pulse">
-                      ✓ Image collée !
+                      {t("proprietaire.vehicules.nouveau.photos_pasted")}
                     </span>
                   </div>
                 )}
@@ -432,32 +427,32 @@ function NewVehiclePage() {
                   ))}
                 </div>
               )}
-              <p className="text-xs text-muted-foreground mt-1.5">Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.</p>
+              <p className="text-xs text-muted-foreground mt-1.5">{t("proprietaire.vehicules.nouveau.photos_hint")}</p>
               <p className="text-xs text-muted-foreground mt-1.5">
-                💡 Les annonceurs utilisent un simulateur 3D pour visualiser leur habillage publicitaire sur votre véhicule à partir de vos photos. Plus elles sont nettes et représentatives, meilleure sera leur prévisualisation — et plus votre véhicule a de chances d'être sélectionné.
+                {t("proprietaire.vehicules.nouveau.photos_3d_hint")}
               </p>
             </div>
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <div>
-                  <div className="text-sm font-semibold">Estimation IA</div>
-                  <div className="text-xs text-muted-foreground">Vérifie la photo et propose un prix réaliste.</div>
+                  <div className="text-sm font-semibold">{t("proprietaire.vehicules.nouveau.estimate_title")}</div>
+                  <div className="text-xs text-muted-foreground">{t("proprietaire.vehicules.nouveau.estimate_desc")}</div>
                 </div>
                 <button type="button" onClick={runEstimate} disabled={estimating || condition === "mauvais"}
                   className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap">
-                  {estimating ? "Analyse..." : "Lancer l'estimation"}
+                  {estimating ? t("proprietaire.vehicules.nouveau.estimating") : t("proprietaire.vehicules.nouveau.estimate_btn")}
                 </button>
               </div>
               {estimate && (
                 <div className="space-y-2 text-sm mt-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">Prix marché annonceur</div>
+                      <div className="text-[11px] text-muted-foreground uppercase">{t("proprietaire.vehicules.nouveau.estimate_market_price")}</div>
                       <div className="font-semibold">{estimate.suggested_price_min}–{estimate.suggested_price_max} €/j</div>
                     </div>
                     <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">Impressions est.</div>
+                      <div className="text-[11px] text-muted-foreground uppercase">{t("proprietaire.vehicules.nouveau.estimate_impressions")}</div>
                       <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString("fr-FR")} /j</div>
                     </div>
                   </div>
@@ -468,11 +463,11 @@ function NewVehiclePage() {
                     estimate.photo_match === "mismatch" ? "bg-destructive/10 text-destructive" :
                     "bg-muted text-muted-foreground"
                   }`}>
-                    <strong>Vérification photo : </strong>
-                    {estimate.photo_match === "ok" && "✓ cohérente avec la déclaration."}
-                    {estimate.photo_match === "doubtful" && "⚠️ cohérence incertaine."}
-                    {estimate.photo_match === "mismatch" && "✗ ne correspond pas à la déclaration."}
-                    {estimate.photo_match === "unverified" && "Non vérifiée."}
+                    <strong>{t("proprietaire.vehicules.nouveau.estimate_photo_label")} </strong>
+                    {estimate.photo_match === "ok" && t("proprietaire.vehicules.nouveau.estimate_photo_ok")}
+                    {estimate.photo_match === "doubtful" && t("proprietaire.vehicules.nouveau.estimate_photo_doubtful")}
+                    {estimate.photo_match === "mismatch" && t("proprietaire.vehicules.nouveau.estimate_photo_mismatch")}
+                    {estimate.photo_match === "unverified" && t("proprietaire.vehicules.nouveau.estimate_photo_unverified")}
                     {estimate.photo_notes && <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>}
                   </div>
                   {estimate.condition_alert && (
@@ -480,33 +475,32 @@ function NewVehiclePage() {
                   )}
                   {estimate.ai_generated_detected && (
                     <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-2.5 text-xs">
-                      🚫 <strong>Photo refusée — image générée ou retouchée par IA détectée.</strong>
+                      {t("proprietaire.vehicules.nouveau.estimate_ai_detected")}
                       {estimate.ai_generated_notes && <span className="block mt-1">{estimate.ai_generated_notes}</span>}
-                      <span className="block mt-1">Merci de téléverser une photo authentique du véhicule.</span>
+                      <span className="block mt-1">{t("proprietaire.vehicules.nouveau.estimate_ai_upload")}</span>
                     </div>
                   )}
                   {estimate.suggested_price_max > 0 && (
                     <div className="rounded-lg border border-primary/30 bg-primary/5 p-2.5 text-xs">
                       <div>
-                        <strong>Votre rémunération propriétaire (70 %) :</strong>{" "}
+                        <strong>{t("proprietaire.vehicules.nouveau.estimate_owner_remun")}</strong>{" "}
                         {Math.floor(estimate.suggested_price_min * 0.7)}–{Math.floor(estimate.suggested_price_max * 0.7)} €/j
                       </div>
                       <div className="mt-1 text-muted-foreground">
-                        MoveSpot conserve 30 % de commission d'intermédiation. Saisissez un prix dans cette fourchette.
+                        {t("proprietaire.vehicules.nouveau.estimate_commission")}
                       </div>
                       <button
                         type="button"
                         onClick={() => { setPrice(String(Math.floor(estimate.suggested_price_max * 0.7))); setError(""); }}
                         className="mt-2 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 font-medium hover:bg-primary/90 transition"
                       >
-                        Utiliser {Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                        {t("proprietaire.vehicules.nouveau.estimate_use_price", { price: Math.floor(estimate.suggested_price_max * 0.7) })}
                       </button>
                     </div>
                   )}
                   {estimate.recommendation && (
                     <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
                   )}
-
                 </div>
               )}
             </div>
@@ -514,11 +508,11 @@ function NewVehiclePage() {
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
 
             <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
-              <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en publiant ce véhicule et ses photos, vous certifiez en détenir les droits et vous engagez à respecter la législation française et européenne sur la propriété intellectuelle (droits d'auteur, marques, droit à l'image). Les visuels publicitaires diffusés par les annonceurs sont sous leur seule responsabilité.
+              {t("proprietaire.vehicules.nouveau.ip_notice")}
             </div>
 
             <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-              {loading ? "Envoi..." : "Soumettre pour validation"}
+              {loading ? t("proprietaire.vehicules.nouveau.submitting") : t("proprietaire.vehicules.nouveau.submit")}
             </button>
           </form>
         </div>

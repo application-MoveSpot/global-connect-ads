@@ -66,27 +66,6 @@ const TYPE_LABELS: Record<string, string> = {
   autre: "Autre",
 };
 
-const FORMAT_PAR_TYPE: Record<string, string> = {
-  camion_led: "Écran LED numérique",
-  food_truck: "Covering latéral / toiture",
-  van: "Covering latéral / arrière",
-  taxi: "Covering latéral / toit",
-  voiture: "Covering latéral",
-  scooter: "Box arrière publicitaire",
-  velo_cargo: "Box cargo / flancs",
-  velo_remorque: "Remorque publicitaire",
-  triporteur: "Box triporteur / flancs",
-  tutuk: "Covering latéral",
-  autre: "Format personnalisé",
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  excellent: "Excellent état",
-  bon: "Bon état",
-  moyen: "État moyen",
-  mauvais: "Mauvais état",
-};
-
 type Request = {
   id: string;
   vehicle_id: string | null;
@@ -192,7 +171,7 @@ function DashboardPage() {
             const company = (payload.new as Record<string, unknown>).company as string | undefined;
             pushNotification(
               t("proprietaire.new_campaign_notif"),
-              company ? `${company} souhaite louer un espace publicitaire.` : undefined,
+              company ? t("proprietaire.notif_new_campaign_body", { company }) : undefined,
             );
           }
           void loadWithRetry();
@@ -213,12 +192,12 @@ function DashboardPage() {
           if (newStatus === "approved")
             pushNotification(
               t("proprietaire.vehicle_approved_notif"),
-              vName ? `${vName} est maintenant visible par les annonceurs.` : undefined,
+              vName ? t("proprietaire.notif_vehicle_approved_body", { name: vName }) : undefined,
             );
           else if (newStatus === "rejected")
             pushNotification(
               t("proprietaire.vehicle_rejected_notif"),
-              vName ? `${vName} n'a pas été approuvé. Consultez les notes.` : undefined,
+              vName ? t("proprietaire.notif_vehicle_rejected_body", { name: vName }) : undefined,
             );
           void loadWithRetry();
         },
@@ -345,43 +324,43 @@ function DashboardPage() {
               to="/proprietaire/briefs"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              Briefs ouverts →
+              {t("proprietaire.nav_briefs")}
             </Link>
             <Link
               to="/proprietaire/tracking"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition"
             >
-              📍 Démarrer suivi GPS
+              {t("proprietaire.nav_tracking")}
             </Link>
             <Link
               to="/proprietaire/flotte"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition"
             >
-              🚚 Gérer ma flotte
+              {t("proprietaire.nav_fleet")}
             </Link>
             <Link
               to="/proprietaire/flotte/import"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              📥 Import CSV
+              {t("proprietaire.nav_import")}
             </Link>
             <Link
               to="/proprietaire/flotte/qr"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              🔳 QR codes véhicules
+              {t("proprietaire.nav_qr")}
             </Link>
             <Link
               to="/proprietaire/carte"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              🪪 Carte de visite
+              {t("proprietaire.nav_carte")}
             </Link>
             <Link
               to="/proprietaire/historique"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition"
             >
-              💰 Mes reversements
+              {t("proprietaire.nav_historique")}
             </Link>
           </div>
           <div className="flex gap-2">
@@ -493,18 +472,18 @@ function DashboardPage() {
           </Suspense>
         </section>
         <div className="mt-6 flex justify-end">
-          <SignalementDialog contextUrl="/proprietaire" triggerLabel="Signaler un problème" />
+          <SignalementDialog contextUrl="/proprietaire" triggerLabel={t("proprietaire.signalement_label")} />
         </div>
       </main>
 
       <FAQChatbot
         audience="proprietaire"
         suggestions={[
-          "Comment ajouter un nouveau véhicule ?",
-          "Combien de temps prend la validation ?",
-          "Comment connecter Stripe pour recevoir mes paiements ?",
-          "Comment accepter ou refuser une demande de campagne ?",
-          "Comment démarrer le suivi GPS ?",
+          t("proprietaire.faq_suggestion_1"),
+          t("proprietaire.faq_suggestion_2"),
+          t("proprietaire.faq_suggestion_3"),
+          t("proprietaire.faq_suggestion_4"),
+          t("proprietaire.faq_suggestion_5"),
         ]}
       />
     </div>
@@ -512,39 +491,41 @@ function DashboardPage() {
 }
 
 function OwnerVehicleOnboarding() {
+  const { t } = useTranslation();
+
   const steps = [
     {
       icon: "✅",
-      title: "Compte propriétaire créé",
-      desc: "Votre espace est prêt. Vous pouvez gérer vos véhicules et répondre aux annonceurs.",
+      title: t("proprietaire.onboarding_step1_title"),
+      desc: t("proprietaire.onboarding_step1_desc"),
       done: true,
       cta: null,
     },
     {
       icon: "🚗",
-      title: "Ajoutez votre premier véhicule",
-      desc: "Photos, type, format publicitaire, tarif journalier. L'inscription prend moins de 5 minutes.",
+      title: t("proprietaire.onboarding_step2_title"),
+      desc: t("proprietaire.onboarding_step2_desc"),
       done: false,
-      cta: { label: "Ajouter un véhicule", to: "/proprietaire/vehicules/nouveau" } as const,
+      cta: { label: t("proprietaire.onboarding_step2_cta"), to: "/proprietaire/vehicules/nouveau" } as const,
     },
     {
       icon: "🔍",
-      title: "Validation par l'équipe MoveSpot",
-      desc: "Nous vérifions les informations et approuvons votre véhicule sous 48 h. Vous recevez une notification.",
+      title: t("proprietaire.onboarding_step3_title"),
+      desc: t("proprietaire.onboarding_step3_desc"),
       done: false,
       cta: null,
     },
     {
       icon: "💳",
-      title: "Connectez Stripe pour recevoir vos paiements",
-      desc: "Reliez votre compte bancaire via Stripe Connect. MoveSpot vous reverse 70 % du montant à la fin de chaque diffusion.",
+      title: t("proprietaire.onboarding_step4_title"),
+      desc: t("proprietaire.onboarding_step4_desc"),
       done: false,
-      cta: { label: "Connecter Stripe", to: "/proprietaire/stripe-connect" } as const,
+      cta: { label: t("proprietaire.onboarding_step4_cta"), to: "/proprietaire/stripe-connect" } as const,
     },
     {
       icon: "📣",
-      title: "Recevez des demandes d'annonceurs",
-      desc: "Votre véhicule apparaît dans le catalogue. Les annonceurs vous envoient des demandes — acceptez ou refusez en un clic.",
+      title: t("proprietaire.onboarding_step5_title"),
+      desc: t("proprietaire.onboarding_step5_desc"),
       done: false,
       cta: null,
     },
@@ -554,9 +535,9 @@ function OwnerVehicleOnboarding() {
     <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">🚀</div>
-        <h2 className="font-display text-2xl font-bold">Démarrez en 4 étapes</h2>
+        <h2 className="font-display text-2xl font-bold">{t("proprietaire.onboarding_title")}</h2>
         <p className="text-muted-foreground text-sm mt-2">
-          Votre véhicule peut commencer à générer des revenus publicitaires dès cette semaine.
+          {t("proprietaire.onboarding_desc")}
         </p>
       </div>
 
@@ -587,7 +568,7 @@ function OwnerVehicleOnboarding() {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm">{step.icon} {step.title}</span>
                 {step.done && (
-                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">Fait</span>
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">{t("proprietaire.onboarding_step_done")}</span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
@@ -610,17 +591,17 @@ function OwnerVehicleOnboarding() {
 
       <div className="mt-6 pt-5 border-t border-border">
         <p className="text-xs text-muted-foreground text-center">
-          Vous pouvez aussi importer une flotte entière via CSV ou générer des QR codes pour vos véhicules.
+          {t("proprietaire.onboarding_footer")}
         </p>
         <div className="flex justify-center gap-3 mt-3">
           <Link to="/proprietaire/flotte/import" className="text-xs text-primary hover:underline font-medium">
-            📥 Import CSV flotte
+            {t("proprietaire.onboarding_import")}
           </Link>
           <Link to="/proprietaire/flotte/qr" className="text-xs text-primary hover:underline font-medium">
-            🔳 QR codes
+            {t("proprietaire.onboarding_qr")}
           </Link>
           <Link to="/proprietaire/carte" className="text-xs text-primary hover:underline font-medium">
-            🪪 Carte de visite
+            {t("proprietaire.onboarding_carte")}
           </Link>
         </div>
       </div>
@@ -713,8 +694,8 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
   const photoUrls = useVehiclePhotoUrls(v.photos);
   const typeLabel = t(`vehicle_types.${v.type}`, { defaultValue: TYPE_LABELS[v.type] ?? v.type });
   const formatLabel = v.format_publicitaire === "boxled"
-    ? "Écran LED numérique"
-    : (v.format_publicitaire || FORMAT_PAR_TYPE[v.type] || "—");
+    ? t("proprietaire.format_boxled")
+    : (v.format_publicitaire || t(`proprietaire.vehicle_formats.${v.type}`, "—"));
   const [pricing, setPricing] = useState<PricingRecommendation | null>(null);
   const [pricingLoading, setPricingLoading] = useState(false);
 
@@ -748,14 +729,14 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
         <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{typeLabel}</span>
         <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium">{formatLabel}</span>
         {v.condition && (
-          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{CONDITION_LABELS[v.condition] ?? v.condition}</span>
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{t(`proprietaire.vehicle_condition.${v.condition}`, v.condition)}</span>
         )}
       </div>
 
       {/* Caractéristiques */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
-        {v.surface_m2 != null && <span>Surface : <strong>{v.surface_m2} m²</strong></span>}
-        {v.km_per_day != null && <span>Km/jour : <strong>{v.km_per_day} km</strong></span>}
+        {v.surface_m2 != null && <span>{t("proprietaire.vehicle_surface", { value: v.surface_m2 })}</span>}
+        {v.km_per_day != null && <span>{t("proprietaire.vehicle_km_per_day", { value: v.km_per_day })}</span>}
       </div>
 
       {/* Zones */}
@@ -774,7 +755,7 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="font-display text-xl font-bold text-primary">
-          {v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span>
+          {t("proprietaire.vehicle_price_day", { price: v.price_per_day })}
         </div>
         {v.status === "approved" && !pricing && (
           <button
@@ -786,9 +767,9 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
             {pricingLoading ? (
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-2.5 h-2.5 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
-                Analyse…
+                {t("proprietaire.ai_pricing_loading")}
               </span>
-            ) : "💡 Prix recommandé IA"}
+            ) : t("proprietaire.ai_pricing_cta")}
           </button>
         )}
       </div>
@@ -796,8 +777,8 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
       {pricing && (
         <div className="mt-2 rounded-xl border border-violet-500/30 bg-violet-500/5 p-3 text-xs space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-violet-700 dark:text-violet-300">Prix optimal : {pricing.suggested} €/jour</span>
-            <span className="text-muted-foreground">fourchette {pricing.min}–{pricing.max} €</span>
+            <span className="font-semibold text-violet-700 dark:text-violet-300">{t("proprietaire.ai_pricing_title", { price: pricing.suggested })}</span>
+            <span className="text-muted-foreground">{t("proprietaire.ai_pricing_range", { min: pricing.min, max: pricing.max })}</span>
             <button type="button" onClick={() => setPricing(null)} className="ml-auto text-muted-foreground hover:text-foreground text-[10px]">✕</button>
           </div>
           <p className="text-muted-foreground leading-relaxed">{pricing.rationale}</p>

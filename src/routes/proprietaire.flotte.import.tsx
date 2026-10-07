@@ -5,6 +5,7 @@ import { importVehiclesCSV } from "@/lib/fleet/fleet-import.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/proprietaire/flotte/import")({
   head: () => ({ meta: [{ title: "Import CSV de la flotte — MoveSpot" }] }),
@@ -18,6 +19,7 @@ Citroën Jumpy #07,Van utilitaire,Bâche latérale,80,Lyon,CC-456-DD,bon
 Vespa Livraison #03,Scooter,Top box arrière,25,Marseille,EE-789-FF,moyen`;
 
 function ImportPage() {
+  const { t } = useTranslation();
   const importFn = useServerFn(importVehiclesCSV);
   const navigate = useNavigate();
   const [csv, setCsv] = useState("");
@@ -32,19 +34,19 @@ function ImportPage() {
 
   const submit = async () => {
     if (!csv.trim()) {
-      toast.error("CSV vide");
+      toast.error(t("proprietaire.flotte.import.toast_csv_empty"));
       return;
     }
     setLoading(true);
     try {
       const r = await importFn({ data: { csv } });
       setResult(r);
-      if (r.inserted > 0) toast.success(`${r.inserted} véhicule(s) importé(s)`);
+      if (r.inserted > 0) toast.success(t("proprietaire.flotte.import.toast_imported", { count: r.inserted }));
       if (r.errors.length === 0 && r.inserted > 0) {
         setTimeout(() => navigate({ to: "/proprietaire/flotte" }), 1500);
       }
     } catch (e: any) {
-      toast.error(e.message ?? "Erreur d'import");
+      toast.error(e.message ?? t("proprietaire.flotte.import.toast_error"));
     } finally {
       setLoading(false);
     }
@@ -55,32 +57,38 @@ function ImportPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/proprietaire/flotte" className="text-sm text-muted-foreground hover:text-foreground">← Retour flotte</Link>
+          <Link to="/proprietaire/flotte" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("proprietaire.flotte.import.back")}
+          </Link>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="font-display text-3xl font-bold mb-2">Importer une flotte en CSV</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("proprietaire.flotte.import.title")}</h1>
         <p className="text-muted-foreground mb-6">
-          Idéal pour ajouter rapidement 10, 50 ou 200 véhicules. Tous les véhicules importés sont en statut
-          <strong> « En attente validation »</strong> jusqu'à modération.
+          {t("proprietaire.flotte.import.desc")}{" "}
+          <strong>{t("proprietaire.flotte.import.desc_status")}</strong>{" "}
+          {t("proprietaire.flotte.import.desc_suffix")}
         </p>
 
         <div className="rounded-2xl border border-border bg-card p-6 mb-6">
-          <h2 className="font-semibold mb-2">Format attendu</h2>
-          <p className="text-sm text-muted-foreground mb-3">Colonnes requises : <code>name, type, format_publicitaire, price_per_day</code>. Optionnelles : <code>city, license_plate, condition</code> (bon/moyen/mauvais).</p>
+          <h2 className="font-semibold mb-2">{t("proprietaire.flotte.import.format_title")}</h2>
+          <p
+            className="text-sm text-muted-foreground mb-3"
+            dangerouslySetInnerHTML={{ __html: t("proprietaire.flotte.import.format_desc") }}
+          />
           <pre className="text-xs bg-secondary/40 p-3 rounded-lg overflow-x-auto">{EXAMPLE}</pre>
           <button
             type="button"
             onClick={() => setCsv(EXAMPLE)}
             className="mt-3 text-xs text-primary hover:underline"
           >
-            Charger cet exemple
+            {t("proprietaire.flotte.import.load_example")}
           </button>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Fichier CSV</label>
+            <label className="block text-sm font-medium mb-2">{t("proprietaire.flotte.import.file_label")}</label>
             <input
               type="file"
               accept=".csv,text/csv"
@@ -89,7 +97,7 @@ function ImportPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Ou collez le contenu</label>
+            <label className="block text-sm font-medium mb-2">{t("proprietaire.flotte.import.paste_label")}</label>
             <textarea
               value={csv}
               onChange={(e) => setCsv(e.target.value)}
@@ -103,21 +111,26 @@ function ImportPage() {
             disabled={loading || !csv.trim()}
             className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold disabled:opacity-50"
           >
-            {loading ? "Import en cours..." : "Importer"}
+            {loading ? t("proprietaire.flotte.import.loading") : t("proprietaire.flotte.import.submit")}
           </button>
         </div>
 
         {result && (
           <div className="mt-6 rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-semibold mb-3">Résultat</h2>
-            <p className="text-sm">✅ <strong>{result.inserted}</strong> véhicule(s) ajouté(s).</p>
+            <h2 className="font-semibold mb-3">{t("proprietaire.flotte.import.result_title")}</h2>
+            <p
+              className="text-sm"
+              dangerouslySetInnerHTML={{ __html: t("proprietaire.flotte.import.result_inserted", { count: result.inserted }) }}
+            />
             {result.errors.length > 0 && (
               <div className="mt-3">
-                <p className="text-sm text-destructive font-medium mb-2">{result.errors.length} ligne(s) ignorée(s) :</p>
+                <p className="text-sm text-destructive font-medium mb-2">
+                  {t("proprietaire.flotte.import.result_errors", { count: result.errors.length })}
+                </p>
                 <ul className="text-xs space-y-1 max-h-60 overflow-y-auto">
                   {result.errors.map((e, i) => (
                     <li key={i} className="rounded bg-destructive/10 px-2 py-1">
-                      Ligne {e.line} : {e.error}
+                      {t("proprietaire.flotte.import.result_line_error", { line: e.line, error: e.error })}
                     </li>
                   ))}
                 </ul>

@@ -15,6 +15,7 @@ import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react
 import { getDrivingRules } from "@/lib/fleet/driving-rules";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/proprietaire/tracking")({
   head: () => ({
@@ -22,12 +23,15 @@ export const Route = createFileRoute("/proprietaire/tracking")({
     links: [{ rel: "manifest", href: "/manifest.webmanifest" }],
   }),
   component: TrackingPage,
-  errorComponent: ({ error }: { error: Error }) => (
-    <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
-  ),
+  errorComponent: ({ error }: { error: Error }) => {
+    const { t } = useTranslation();
+    return <div className="p-8 text-center text-destructive">{t("proprietaire.tracking.error", { message: error.message })}</div>;
+  },
 });
 
 function TrackingPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
   const navigate = useNavigate();
   const fetchVehicles = useServerFn(getOwnerVehiclesForTracking);
   const fetchCampaign = useServerFn(getActiveCampaignForVehicle);
@@ -124,13 +128,13 @@ function TrackingPage() {
 
   async function startTracking() {
     if (!vehicleId) {
-      toast.error("Sélectionnez un véhicule");
+      toast.error(t("proprietaire.tracking.toast_select_vehicle"));
       return;
     }
-    setLastStopAt(new Date()); // le véhicule démarre à l'arrêt
+    setLastStopAt(new Date());
     setContinuousDrivingMin(0);
     if (!("geolocation" in navigator)) {
-      toast.error("Géolocalisation non supportée sur cet appareil");
+      toast.error(t("proprietaire.tracking.toast_no_gps"));
       return;
     }
     setGpsErrorCount(0);
@@ -178,13 +182,13 @@ function TrackingPage() {
         if (added) setPending(buffer.pending);
       },
       (err) => {
-        toast.error(`GPS : ${err.message}`);
+        toast.error(t("proprietaire.tracking.toast_gps_error", { message: err.message }));
         setGpsErrorCount((c) => c + 1);
       },
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 60_000 },
     );
     setTracking(true);
-    toast.success("Suivi GPS démarré");
+    toast.success(t("proprietaire.tracking.toast_started"));
   }
 
   function stopTracking() {
@@ -198,7 +202,7 @@ function TrackingPage() {
     setStartedAt(null);
     setLastStopAt(null);
     setContinuousDrivingMin(0);
-    toast.success("Suivi GPS arrêté — dernier lot envoyé");
+    toast.success(t("proprietaire.tracking.toast_stopped"));
   }
 
   useEffect(() => {
@@ -220,29 +224,36 @@ function TrackingPage() {
   const ss = String(elapsed % 60).padStart(2, "0");
   void tick;
 
+  const drivingHH = String(Math.floor(continuousDrivingMin / 60)).padStart(2, "0");
+  const drivingMM = String(continuousDrivingMin % 60).padStart(2, "0");
+  const alertHH = String(Math.floor(alertMin / 60)).padStart(2, "0");
+  const alertMM = String(alertMin % 60).padStart(2, "0");
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="mx-auto max-w-md space-y-4">
         <div className="flex items-center justify-between">
-          <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Retour</Link>
+          <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("proprietaire.tracking.back")}
+          </Link>
           <div className="flex items-center gap-1 text-xs">
             {isMounted && !online ? <WifiOff className="h-4 w-4 text-destructive" /> : <Wifi className="h-4 w-4 text-green-600" />}
-            <span>{isMounted && !online ? "Hors ligne" : "En ligne"}</span>
+            <span>{isMounted && !online ? t("proprietaire.tracking.offline") : t("proprietaire.tracking.online")}</span>
           </div>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" /> Suivi GPS du véhicule
+              <MapPin className="h-5 w-5" /> {t("proprietaire.tracking.title")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium">Véhicule</label>
+              <label className="mb-2 block text-sm font-medium">{t("proprietaire.tracking.vehicle_label")}</label>
               <Select value={vehicleId} onValueChange={setVehicleId} disabled={tracking}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choisir un véhicule" />
+                  <SelectValue placeholder={t("proprietaire.tracking.vehicle_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {vehicles.map((v: any) => (
@@ -253,7 +264,7 @@ function TrackingPage() {
                 </SelectContent>
               </Select>
               {vehicles.length === 0 && (
-                <p className="mt-2 text-xs text-muted-foreground">Aucun véhicule approuvé.</p>
+                <p className="mt-2 text-xs text-muted-foreground">{t("proprietaire.tracking.no_vehicles")}</p>
               )}
             </div>
 
@@ -261,12 +272,16 @@ function TrackingPage() {
               <div className="rounded-md bg-muted/40 p-3 text-sm">
                 {campaign ? (
                   <>
-                    <p className="font-medium">📢 Campagne en cours</p>
+                    <p className="font-medium">{t("proprietaire.tracking.campaign_active")}</p>
                     <p className="text-muted-foreground">{campaign.company} — {campaign.spot_name}</p>
-                    <p className="text-xs text-muted-foreground">Jusqu'au {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString("fr-FR") : "—"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("proprietaire.tracking.campaign_until", {
+                        date: campaign.end_date ? new Date(campaign.end_date).toLocaleDateString(dateLocale) : "—",
+                      })}
+                    </p>
                   </>
                 ) : (
-                  <p className="text-muted-foreground">Aucune campagne active aujourd'hui. Les positions seront enregistrées sans lien de campagne.</p>
+                  <p className="text-muted-foreground">{t("proprietaire.tracking.no_campaign")}</p>
                 )}
               </div>
             )}
@@ -274,21 +289,20 @@ function TrackingPage() {
             {!tracking ? (
               <>
                 <Button onClick={startTracking} className="w-full" size="lg" disabled={!vehicleId || !campaign}>
-                  <Play className="mr-2 h-4 w-4" /> Démarrer le partage GPS
+                  <Play className="mr-2 h-4 w-4" /> {t("proprietaire.tracking.start")}
                 </Button>
                 {vehicleId && !campaign && (
                   <p className="text-xs text-destructive text-center">
-                    Le suivi GPS ne peut démarrer que lorsqu'une campagne est active sur ce véhicule.
+                    {t("proprietaire.tracking.no_campaign_hint")}
                   </p>
                 )}
               </>
             ) : (
               <Button onClick={stopTracking} variant="destructive" className="w-full" size="lg">
-                <Square className="mr-2 h-4 w-4" /> Arrêter le partage
+                <Square className="mr-2 h-4 w-4" /> {t("proprietaire.tracking.stop")}
               </Button>
             )}
 
-            {/* Alerte pause conducteur (règles selon la zone réglementaire de la campagne) */}
             {tracking && continuousDrivingMin >= warnMin && (
               <div className={`rounded-md border p-3 text-sm flex gap-2 items-start ${
                 continuousDrivingMin >= alertMin
@@ -299,17 +313,16 @@ function TrackingPage() {
                 <div>
                   {continuousDrivingMin >= alertMin ? (
                     <>
-                      <p className="font-semibold">Pause obligatoire dépassée</p>
+                      <p className="font-semibold">{t("proprietaire.tracking.break_required_title")}</p>
                       <p className="text-xs mt-0.5">
-                        {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite continue
-                        — {requiredBreakMin} min de repos requis.
+                        {t("proprietaire.tracking.break_required_detail", { hh: drivingHH, mm: drivingMM, breakMin: requiredBreakMin })}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold">Pause recommandée dans {alertMin - continuousDrivingMin} min</p>
+                      <p className="font-semibold">{t("proprietaire.tracking.break_recommended_title", { remaining: alertMin - continuousDrivingMin })}</p>
                       <p className="text-xs mt-0.5">
-                        {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")} de conduite — la pause de {requiredBreakMin} min sera obligatoire à {Math.floor(alertMin / 60)}h{String(alertMin % 60).padStart(2, "0")}.
+                        {t("proprietaire.tracking.break_recommended_detail", { hh: drivingHH, mm: drivingMM, breakMin: requiredBreakMin, alertHH, alertMM })}
                       </p>
                     </>
                   )}
@@ -320,45 +333,45 @@ function TrackingPage() {
             {tracking && (
               <div className="space-y-2 rounded-md border border-green-500/30 bg-green-500/5 p-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Durée</span>
+                  <span className="text-muted-foreground">{t("proprietaire.tracking.stat_duration")}</span>
                   <span className="font-mono">{hh}:{mm}:{ss}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Dernier lot envoyé</span>
-                  <span className="font-mono">{lastSent ? lastSent.toLocaleTimeString("fr-FR") : "—"}</span>
+                  <span className="text-muted-foreground">{t("proprietaire.tracking.stat_last_sent")}</span>
+                  <span className="font-mono">{lastSent ? lastSent.toLocaleTimeString(dateLocale) : "—"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Points en attente</span>
+                  <span className="text-muted-foreground">{t("proprietaire.tracking.stat_pending")}</span>
                   <span className="font-mono">{pending}</span>
                 </div>
                 {lastCoords && (
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Coord.</span>
+                    <span className="text-muted-foreground">{t("proprietaire.tracking.stat_coords")}</span>
                     <span className="font-mono">{lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)} (±{Math.round(lastCoords.acc ?? 0)}m)</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Conduite continue</span>
+                  <span className="text-muted-foreground">{t("proprietaire.tracking.stat_driving")}</span>
                   <span className={`font-mono ${continuousDrivingMin >= alertMin ? "text-destructive font-bold" : continuousDrivingMin >= warnMin ? "text-amber-600" : ""}`}>
-                    {Math.floor(continuousDrivingMin / 60)}h{String(continuousDrivingMin % 60).padStart(2, "0")}
+                    {drivingHH}h{drivingMM}
                   </span>
                 </div>
                 {gpsErrorCount > 0 && (
-                  <p className="text-xs text-amber-600">{gpsErrorCount} erreur(s) de signal GPS</p>
+                  <p className="text-xs text-amber-600">{t("proprietaire.tracking.gps_errors", { count: gpsErrorCount })}</p>
                 )}
                 {sendErrorCount > 0 && (
-                  <p className="text-xs text-destructive">{sendErrorCount} erreur(s) d'envoi réseau</p>
+                  <p className="text-xs text-destructive">{t("proprietaire.tracking.send_errors", { count: sendErrorCount })}</p>
                 )}
               </div>
             )}
 
             <div className="rounded-md bg-blue-500/5 p-3 text-xs text-muted-foreground">
-              <p className="mb-1 font-medium text-foreground">💡 Conseils</p>
+              <p className="mb-1 font-medium text-foreground">{t("proprietaire.tracking.tips_title")}</p>
               <ul className="list-disc space-y-1 pl-4">
-                <li>Gardez le téléphone branché et l'écran allumé (verrouillé d'écran maintenu auto).</li>
-                <li>Ajoutez l'application à l'écran d'accueil pour un usage type appli.</li>
-                <li>Les points sont collectés tous les 10 m et envoyés par lot toutes les 5 minutes.</li>
-                <li>Hors réseau (zone blanche), les points sont conservés et renvoyés au cycle suivant.</li>
+                <li>{t("proprietaire.tracking.tip_1")}</li>
+                <li>{t("proprietaire.tracking.tip_2")}</li>
+                <li>{t("proprietaire.tracking.tip_3")}</li>
+                <li>{t("proprietaire.tracking.tip_4")}</li>
               </ul>
             </div>
           </CardContent>

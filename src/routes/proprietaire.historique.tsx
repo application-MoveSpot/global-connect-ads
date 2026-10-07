@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { downloadCsv } from "@/lib/exportCsv";
 import { ArrowLeft, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/proprietaire/historique")({
   head: () => ({
@@ -32,17 +33,20 @@ type Reversement = {
   created_at: string;
 };
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  approved: { label: "Approuvée", color: "text-emerald-600 bg-emerald-500/10" },
-  paid:      { label: "Payée",     color: "text-emerald-600 bg-emerald-500/10" },
-  completed: { label: "Terminée", color: "text-blue-600 bg-blue-500/10" },
-  pending:   { label: "En attente", color: "text-amber-600 bg-amber-500/10" },
-  rejected:  { label: "Refusée", color: "text-red-600 bg-red-500/10" },
+const STATUS_COLORS: Record<string, string> = {
+  approved:  "text-emerald-600 bg-emerald-500/10",
+  paid:      "text-emerald-600 bg-emerald-500/10",
+  completed: "text-blue-600 bg-blue-500/10",
+  pending:   "text-amber-600 bg-amber-500/10",
+  rejected:  "text-red-600 bg-red-500/10",
 };
 
 const COMPLETED_STATUSES = new Set(["approved", "paid", "completed"]);
 
 function HistoriquePage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const currencyLocale = dateLocale;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [reversements, setReversements] = useState<Reversement[]>([]);
@@ -123,7 +127,7 @@ function HistoriquePage() {
       fin: r.end_date ?? "",
       jours: r.days_count ?? "",
       montant_eur: r.total_price ?? "",
-      statut: STATUS_LABELS[r.status]?.label ?? r.status,
+      statut: t(`proprietaire.historique.status_${r.status}`, r.status),
       date_reception: r.created_at,
     }));
     downloadCsv(rows, `movespot-reversements-${new Date().toISOString().slice(0, 10)}.csv`);
@@ -132,7 +136,7 @@ function HistoriquePage() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Chargement…
+        {t("proprietaire.historique.loading")}
       </div>
     );
 
@@ -142,13 +146,13 @@ function HistoriquePage() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Historique des reversements</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("proprietaire.historique.title")}</h1>
           </div>
           <Link
             to="/proprietaire"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4" /> Retour
+            <ArrowLeft className="w-4 h-4" /> {t("proprietaire.historique.back")}
           </Link>
         </div>
       </header>
@@ -160,40 +164,34 @@ function HistoriquePage() {
           </div>
         )}
 
-        {/* Summary cards */}
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Campagnes acceptées</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("proprietaire.historique.kpi_campaigns")}</p>
             <p className="font-display text-3xl font-bold">{reversements.length}</p>
           </div>
           <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Revenus totaux</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("proprietaire.historique.kpi_total")}</p>
             <p className="font-display text-3xl font-bold text-primary">
-              {totalEarnings.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {totalEarnings.toLocaleString(currencyLocale, { style: "currency", currency: "EUR" })}
             </p>
           </div>
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-1">
             <div className="flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Reversements réalisés</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("proprietaire.historique.kpi_completed")}</p>
             </div>
             <p className="font-display text-3xl font-bold text-emerald-600">
-              {completedEarnings.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {completedEarnings.toLocaleString(currencyLocale, { style: "currency", currency: "EUR" })}
             </p>
           </div>
         </div>
 
         {reversements.length === 0 ? (
           <div className="rounded-2xl border border-border bg-card p-10 text-center">
-            <p className="text-muted-foreground text-sm">Aucune campagne acceptée pour l'instant.</p>
-            <p className="text-muted-foreground text-xs mt-1">
-              Les reversements apparaîtront ici dès qu'une demande sera acceptée.
-            </p>
-            <Link
-              to="/proprietaire"
-              className="mt-4 inline-block text-sm text-primary underline"
-            >
-              Consulter les demandes →
+            <p className="text-muted-foreground text-sm">{t("proprietaire.historique.empty")}</p>
+            <p className="text-muted-foreground text-xs mt-1">{t("proprietaire.historique.empty_hint")}</p>
+            <Link to="/proprietaire" className="mt-4 inline-block text-sm text-primary underline">
+              {t("proprietaire.historique.empty_link")}
             </Link>
           </div>
         ) : (
@@ -204,13 +202,14 @@ function HistoriquePage() {
                 onClick={exportCsv}
                 className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
               >
-                ⬇ Export CSV
+                {t("proprietaire.historique.export_csv")}
               </button>
             </div>
 
             <div className="space-y-3">
               {reversements.map((r) => {
-                const st = STATUS_LABELS[r.status] ?? { label: r.status, color: "text-muted-foreground bg-muted" };
+                const statusLabel = t(`proprietaire.historique.status_${r.status}`, r.status);
+                const statusColor = STATUS_COLORS[r.status] ?? "text-muted-foreground bg-muted";
                 return (
                   <div key={r.id} className="rounded-2xl border border-border bg-card p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -219,8 +218,8 @@ function HistoriquePage() {
                           <span className="text-xs uppercase tracking-widest text-muted-foreground">
                             {r.spot_name}
                           </span>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${st.color}`}>
-                            {st.label}
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor}`}>
+                            {statusLabel}
                           </span>
                         </div>
                         <h3 className="font-semibold mt-0.5">{r.company}</h3>
@@ -231,11 +230,11 @@ function HistoriquePage() {
                       <div className="text-right shrink-0">
                         {r.total_price != null && (
                           <p className="font-display text-xl font-bold text-primary">
-                            {r.total_price.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                            {r.total_price.toLocaleString(currencyLocale, { style: "currency", currency: "EUR" })}
                           </p>
                         )}
                         {r.days_count != null && (
-                          <p className="text-xs text-muted-foreground">{r.days_count} jour{r.days_count > 1 ? "s" : ""}</p>
+                          <p className="text-xs text-muted-foreground">{t("proprietaire.historique.days", { count: r.days_count })}</p>
                         )}
                       </div>
                     </div>
@@ -243,16 +242,16 @@ function HistoriquePage() {
                       <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-4 text-xs text-muted-foreground">
                         {r.start_date && (
                           <span>
-                            Début : <strong className="text-foreground">{new Date(r.start_date).toLocaleDateString("fr-FR")}</strong>
+                            {t("proprietaire.historique.date_start")} <strong className="text-foreground">{new Date(r.start_date).toLocaleDateString(dateLocale)}</strong>
                           </span>
                         )}
                         {r.end_date && (
                           <span>
-                            Fin : <strong className="text-foreground">{new Date(r.end_date).toLocaleDateString("fr-FR")}</strong>
+                            {t("proprietaire.historique.date_end")} <strong className="text-foreground">{new Date(r.end_date).toLocaleDateString(dateLocale)}</strong>
                           </span>
                         )}
                         <span className="ml-auto">
-                          Reçu le {new Date(r.created_at).toLocaleDateString("fr-FR")}
+                          {t("proprietaire.historique.received_at", { date: new Date(r.created_at).toLocaleDateString(dateLocale) })}
                         </span>
                       </div>
                     )}

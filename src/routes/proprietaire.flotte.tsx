@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -60,6 +61,8 @@ type Position = { vehicle_id: string; lat: number; lng: number; speed: number | 
 type Campaign = { id: string; vehicle_id: string; spot_name: string; company: string; start_date: string; end_date: string; total_price: number | null; status: string };
 
 function FleetPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
   const qc = useQueryClient();
   const fetchOverview = useServerFn(getFleetOverview);
   const fetchDrivers = useServerFn(listDrivers);
@@ -117,7 +120,7 @@ function FleetPage() {
 
   // KPIs
   const approvedCount = vehicles.filter((v) => v.status === "approved").length;
-  const activeNow = positions.length; // dernières 30 min
+  const activeNow = positions.length;
   const occupancyRate = approvedCount > 0 ? Math.round((activeCampaigns.length / approvedCount) * 100) : 0;
   const monthlyRevenue = activeCampaigns.reduce((s, c) => s + (c.total_price ?? 0), 0);
 
@@ -156,7 +159,7 @@ function FleetPage() {
       for (const p of positions) {
         seen.add(p.vehicle_id);
         const v = vehicles.find((x) => x.id === p.vehicle_id);
-        const label = v?.name ?? "Véhicule";
+        const label = v?.name ?? t("proprietaire.flotte.vehicle_fallback");
         let m = markersRef.current.get(p.vehicle_id);
         if (!m) {
           const el = document.createElement("div");
@@ -166,17 +169,16 @@ function FleetPage() {
           el.textContent = (v?.name ?? "?").slice(0, 2).toUpperCase();
           m = new mgl.Marker({ element: el })
             .setLngLat([p.lng, p.lat])
-            .setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString("fr-FR")}`))
+            .setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString(dateLocale)}`))
             .addTo(map);
           markersRef.current.set(p.vehicle_id, m);
         } else {
           m.setLngLat([p.lng, p.lat]);
-          m.setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString("fr-FR")}`));
+          m.setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString(dateLocale)}`));
         }
         bounds.extend([p.lng, p.lat]);
         hasAny = true;
       }
-      // remove stale
       for (const [id, m] of markersRef.current) {
         if (!seen.has(id)) { m.remove(); markersRef.current.delete(id); }
       }
@@ -186,7 +188,7 @@ function FleetPage() {
     };
     if (map.isStyleLoaded()) update();
     else map.once("load", update);
-  }, [positions, vehicles]);
+  }, [positions, vehicles, t, dateLocale]);
 
   // Driver dialog
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
@@ -207,10 +209,10 @@ function FleetPage() {
     try {
       if (editingDriver) {
         await updateFn({ data: { id: editingDriver.id, ...payload } });
-        toast.success("Chauffeur mis à jour");
+        toast.success(t("proprietaire.flotte.toast_driver_updated"));
       } else {
         await createFn({ data: payload });
-        toast.success("Chauffeur ajouté");
+        toast.success(t("proprietaire.flotte.toast_driver_created"));
       }
       setDriverOpen(false);
       setEditingDriver(null);
@@ -222,10 +224,10 @@ function FleetPage() {
   }
 
   async function removeDriver(id: string) {
-    if (!confirm("Supprimer ce chauffeur ?")) return;
+    if (!confirm(t("proprietaire.flotte.confirm_delete_driver"))) return;
     try {
       await deleteFn({ data: { id } });
-      toast.success("Chauffeur supprimé");
+      toast.success(t("proprietaire.flotte.toast_driver_deleted"));
       qc.invalidateQueries({ queryKey: ["fleet-drivers"] });
       qc.invalidateQueries({ queryKey: ["fleet-overview"] });
     } catch (e) { toast.error((e as Error).message); }
@@ -238,38 +240,41 @@ function FleetPage() {
     } catch (e) { toast.error((e as Error).message); }
   }
 
+  // suppress unused lint warning for driversById — used externally via map
+  void driversById;
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Ma flotte</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("proprietaire.flotte.title")}</h1>
           </div>
-          <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Tableau de bord</Link>
+          <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">{t("proprietaire.flotte.back")}</Link>
         </div>
       </header>
 
       <main id="main-content" className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Kpi icon={<Truck className="h-4 w-4" />} label="Véhicules approuvés" value={approvedCount} />
-          <Kpi icon={<Activity className="h-4 w-4" />} label="Actifs (30 dernières min)" value={activeNow} />
-          <Kpi icon={<Users className="h-4 w-4" />} label="Taux d'occupation" value={`${occupancyRate}%`} />
-          <Kpi icon={<Euro className="h-4 w-4" />} label="Revenus campagnes actives" value={`${monthlyRevenue.toLocaleString("fr-FR")} €`} />
+          <Kpi icon={<Truck className="h-4 w-4" />} label={t("proprietaire.flotte.kpi_approved")} value={approvedCount} />
+          <Kpi icon={<Activity className="h-4 w-4" />} label={t("proprietaire.flotte.kpi_active")} value={activeNow} />
+          <Kpi icon={<Users className="h-4 w-4" />} label={t("proprietaire.flotte.kpi_occupancy")} value={`${occupancyRate}%`} />
+          <Kpi icon={<Euro className="h-4 w-4" />} label={t("proprietaire.flotte.kpi_revenue")} value={`${monthlyRevenue.toLocaleString(dateLocale)} €`} />
         </div>
 
         {/* Map */}
         <Card>
           <CardHeader>
-            <CardTitle>Carte temps réel</CardTitle>
+            <CardTitle>{t("proprietaire.flotte.map_title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <MapConsentGate className="h-[420px]">
               <div ref={mapContainer} className="h-[420px] w-full rounded-md border" />
             </MapConsentGate>
             <p className="mt-2 text-xs text-muted-foreground">
-              {positions.length} véhicule(s) avec position récente · refresh auto 30s
+              {t("proprietaire.flotte.map_positions", { count: positions.length })}
             </p>
           </CardContent>
         </Card>
@@ -278,33 +283,33 @@ function FleetPage() {
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <CardTitle>Véhicules ({filteredVehicles.length}/{vehicles.length})</CardTitle>
-              <Link to="/proprietaire/vehicules/nouveau" className="text-sm text-primary hover:underline">+ Ajouter</Link>
+              <CardTitle>{t("proprietaire.flotte.vehicles_title", { filtered: filteredVehicles.length, total: vehicles.length })}</CardTitle>
+              <Link to="/proprietaire/vehicules/nouveau" className="text-sm text-primary hover:underline">{t("proprietaire.flotte.vehicles_add")}</Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-              <Input placeholder="Rechercher…" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder={t("proprietaire.flotte.filter_search")} value={search} onChange={(e) => setSearch(e.target.value)} />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger><SelectValue placeholder="Statut" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("proprietaire.flotte.col_status")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous statuts</SelectItem>
-                  <SelectItem value="approved">Approuvé</SelectItem>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="rejected">Refusé</SelectItem>
-                  <SelectItem value="paused">En pause</SelectItem>
+                  <SelectItem value="all">{t("proprietaire.flotte.filter_status_all")}</SelectItem>
+                  <SelectItem value="approved">{t("proprietaire.flotte.filter_status_approved")}</SelectItem>
+                  <SelectItem value="pending">{t("proprietaire.flotte.filter_status_pending")}</SelectItem>
+                  <SelectItem value="rejected">{t("proprietaire.flotte.filter_status_rejected")}</SelectItem>
+                  <SelectItem value="paused">{t("proprietaire.flotte.filter_status_paused")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={formatFilter} onValueChange={setFormatFilter}>
-                <SelectTrigger><SelectValue placeholder="Format" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("proprietaire.flotte.col_format")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous formats</SelectItem>
+                  <SelectItem value="all">{t("proprietaire.flotte.filter_format_all")}</SelectItem>
                   {formats.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Select value={driverFilter} onValueChange={setDriverFilter}>
-                <SelectTrigger><SelectValue placeholder="Chauffeur" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("proprietaire.flotte.col_driver")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous chauffeurs</SelectItem>
-                  <SelectItem value="none">Sans chauffeur</SelectItem>
+                  <SelectItem value="all">{t("proprietaire.flotte.filter_driver_all")}</SelectItem>
+                  <SelectItem value="none">{t("proprietaire.flotte.filter_driver_none")}</SelectItem>
                   {drivers.map((d) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -315,12 +320,12 @@ function FleetPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Véhicule</TableHead>
-                    <TableHead>Format</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Chauffeur</TableHead>
-                    <TableHead>Campagne active</TableHead>
-                    <TableHead>Dernière position</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_vehicle")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_format")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_status")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_driver")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_campaign")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_position")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -339,7 +344,7 @@ function FleetPage() {
                           <Select value={v.driver_id ?? "none"} onValueChange={(val) => assignDriver(v.id, val)}>
                             <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue /></SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="none">— Non assigné —</SelectItem>
+                              <SelectItem value="none">{t("proprietaire.flotte.no_driver")}</SelectItem>
                               {drivers.filter((d) => d.status === "active").map((d) => (
                                 <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
                               ))}
@@ -355,14 +360,14 @@ function FleetPage() {
                         </TableCell>
                         <TableCell className="text-xs font-mono">
                           {pos ? (
-                            <span className="text-green-600">● {new Date(pos.recorded_at).toLocaleTimeString("fr-FR")}</span>
+                            <span className="text-green-600">● {new Date(pos.recorded_at).toLocaleTimeString(dateLocale)}</span>
                           ) : <span className="text-muted-foreground">—</span>}
                         </TableCell>
                       </TableRow>
                     );
                   })}
                   {filteredVehicles.length === 0 && (
-                    <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">Aucun véhicule</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">{t("proprietaire.flotte.no_vehicles")}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -374,43 +379,43 @@ function FleetPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Chauffeurs ({drivers.length})</CardTitle>
+              <CardTitle>{t("proprietaire.flotte.drivers_title", { count: drivers.length })}</CardTitle>
               <Dialog open={driverOpen} onOpenChange={(o) => { setDriverOpen(o); if (!o) setEditingDriver(null); }}>
                 <DialogTrigger asChild>
-                  <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nouveau</Button>
+                  <Button size="sm"><Plus className="h-4 w-4 mr-1" /> {t("proprietaire.flotte.driver_new_btn")}</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>{editingDriver ? "Modifier" : "Nouveau chauffeur"}</DialogTitle>
+                    <DialogTitle>{editingDriver ? t("proprietaire.flotte.driver_dialog_edit") : t("proprietaire.flotte.driver_dialog_create")}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={(e) => { e.preventDefault(); saveDriver(new FormData(e.currentTarget)); }} className="space-y-3">
                     <div>
-                      <label className="text-xs font-medium">Nom complet *</label>
+                      <label className="text-xs font-medium">{t("proprietaire.flotte.driver_name_label")}</label>
                       <Input name="full_name" required defaultValue={editingDriver?.full_name ?? ""} />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-xs font-medium">Téléphone</label>
+                        <label className="text-xs font-medium">{t("proprietaire.flotte.driver_phone_label")}</label>
                         <Input name="phone" defaultValue={editingDriver?.phone ?? ""} />
                       </div>
                       <div>
-                        <label className="text-xs font-medium">Email</label>
+                        <label className="text-xs font-medium">{t("proprietaire.flotte.driver_email_label")}</label>
                         <Input name="email" type="email" defaultValue={editingDriver?.email ?? ""} />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium">Statut</label>
+                      <label className="text-xs font-medium">{t("proprietaire.flotte.driver_status_label")}</label>
                       <select name="status" defaultValue={editingDriver?.status ?? "active"} className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm">
-                        <option value="active">Actif</option>
-                        <option value="inactive">Inactif</option>
+                        <option value="active">{t("proprietaire.flotte.driver_status_active")}</option>
+                        <option value="inactive">{t("proprietaire.flotte.driver_status_inactive")}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs font-medium">Notes</label>
+                      <label className="text-xs font-medium">{t("proprietaire.flotte.driver_notes_label")}</label>
                       <Input name="notes" defaultValue={editingDriver?.notes ?? ""} />
                     </div>
                     <DialogFooter>
-                      <Button type="submit">{editingDriver ? "Enregistrer" : "Créer"}</Button>
+                      <Button type="submit">{editingDriver ? t("proprietaire.flotte.driver_save") : t("proprietaire.flotte.driver_create")}</Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
@@ -422,11 +427,11 @@ function FleetPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Véhicules assignés</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_name")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_contact")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_status")}</TableHead>
+                    <TableHead>{t("proprietaire.flotte.col_assigned")}</TableHead>
+                    <TableHead className="text-right">{t("proprietaire.flotte.col_actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -441,7 +446,7 @@ function FleetPage() {
                         </TableCell>
                         <TableCell>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${d.status === "active" ? "bg-green-500/15 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                            {d.status === "active" ? "Actif" : "Inactif"}
+                            {d.status === "active" ? t("proprietaire.flotte.driver_status_active") : t("proprietaire.flotte.driver_status_inactive")}
                           </span>
                         </TableCell>
                         <TableCell className="text-xs">
@@ -459,7 +464,7 @@ function FleetPage() {
                     );
                   })}
                   {drivers.length === 0 && (
-                    <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6">Aucun chauffeur — ajoutez votre premier pour assigner un véhicule.</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6">{t("proprietaire.flotte.no_drivers")}</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -483,11 +488,12 @@ function Kpi({ icon, label, value }: { icon: React.ReactNode; label: string; val
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: "En attente", cls: "bg-secondary text-foreground" },
-    approved: { label: "Approuvé", cls: "bg-green-500/15 text-green-700" },
-    rejected: { label: "Refusé", cls: "bg-destructive/15 text-destructive" },
-    paused: { label: "Pause", cls: "bg-muted text-muted-foreground" },
+    pending: { label: t("proprietaire.flotte.status_pending"), cls: "bg-secondary text-foreground" },
+    approved: { label: t("proprietaire.flotte.status_approved"), cls: "bg-green-500/15 text-green-700" },
+    rejected: { label: t("proprietaire.flotte.status_rejected"), cls: "bg-destructive/15 text-destructive" },
+    paused: { label: t("proprietaire.flotte.status_paused"), cls: "bg-muted text-muted-foreground" },
   };
   const x = map[status] ?? { label: status, cls: "bg-secondary" };
   return <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${x.cls}`}>{x.label}</span>;

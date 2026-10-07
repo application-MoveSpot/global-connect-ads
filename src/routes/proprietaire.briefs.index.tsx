@@ -5,6 +5,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/proprietaire/briefs/")({
   head: () => ({
@@ -36,6 +37,8 @@ type Proposal = { id: string; brief_id: string; status: string; price_per_day: n
 const PAGE_SIZE = 20;
 
 function OpenBriefsPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -115,7 +118,7 @@ function OpenBriefsPage() {
     const channel = supabase
       .channel(`owner-briefs-${ownerId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "advertiser_briefs" }, () => {
-        pushNotification("Nouveau brief publié", "Un brief pourrait correspondre à vos véhicules.");
+        pushNotification(t("proprietaire.briefs.index.notif_new_brief"), t("proprietaire.briefs.index.notif_new_brief_body"));
         setPage(0);
         void loadPage(ownerIdRef.current!, myTypesRef.current, 0);
       })
@@ -124,15 +127,15 @@ function OpenBriefsPage() {
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `owner_id=eq.${ownerId}` }, (payload) => {
         const newStatus = (payload.new as Record<string, unknown>).status as string | undefined;
-        if (newStatus === "accepted") pushNotification("Proposition acceptée !", "Un annonceur a accepté votre proposition.");
-        else if (newStatus === "rejected") pushNotification("Proposition refusée", "Un annonceur a refusé votre proposition.");
+        if (newStatus === "accepted") pushNotification(t("proprietaire.briefs.index.notif_accepted"), t("proprietaire.briefs.index.notif_accepted_body"));
+        else if (newStatus === "rejected") pushNotification(t("proprietaire.briefs.index.notif_rejected"), t("proprietaire.briefs.index.notif_rejected_body"));
         void loadPage(ownerIdRef.current!, myTypesRef.current, pageRef.current);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [ownerId, loadPage]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("proprietaire.briefs.index.loading")}</div>;
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -143,25 +146,27 @@ function OpenBriefsPage() {
           <LogoLink />
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
-            <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+            <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("proprietaire.briefs.index.back")}
+            </Link>
           </div>
         </div>
       </header>
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="font-display text-3xl font-bold mb-2">Briefs ouverts</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("proprietaire.briefs.index.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8">
           {myTypes.length === 0
-            ? "Faites approuver au moins un véhicule pour voir des briefs compatibles."
-            : `Briefs compatibles avec vos véhicules approuvés (${myTypes.join(", ")}).`}
+            ? t("proprietaire.briefs.index.desc_no_vehicles")
+            : t("proprietaire.briefs.index.desc_types", { types: myTypes.join(", ") })}
         </p>
 
         {pageLoading ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center text-muted-foreground animate-pulse">
-            Chargement…
+            {t("proprietaire.briefs.index.page_loading")}
           </div>
         ) : briefs.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center text-muted-foreground">
-            Aucun brief compatible pour le moment.
+            {t("proprietaire.briefs.index.empty")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -174,15 +179,23 @@ function OpenBriefsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="font-display text-lg font-semibold">{b.title}</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        Du {new Date(b.start_date).toLocaleDateString("fr-FR")} au {new Date(b.end_date).toLocaleDateString("fr-FR")}
+                        {t("proprietaire.briefs.index.dates", {
+                          from: new Date(b.start_date).toLocaleDateString(dateLocale),
+                          to: new Date(b.end_date).toLocaleDateString(dateLocale),
+                        })}
                         {b.zones.length > 0 && <> · {b.zones.slice(0, 3).join(", ")}</>}
                       </div>
                       <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{b.description}</p>
-                      <div className="text-xs text-muted-foreground mt-2">Types : {b.vehicle_types.join(", ")}{b.budget_max ? ` · Budget max ${b.budget_max}€` : ""}</div>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        {t("proprietaire.briefs.index.types_label")} {b.vehicle_types.join(", ")}
+                        {b.budget_max ? ` · ${t("proprietaire.briefs.index.budget_max", { amount: b.budget_max })}` : ""}
+                      </div>
                     </div>
                     {mine && (
                       <span className="text-xs px-2.5 py-1 rounded-full bg-primary/20 text-primary font-semibold flex-shrink-0">
-                        Proposition {mine.status === "pending" ? "envoyée" : mine.status}
+                        {mine.status === "pending"
+                          ? t("proprietaire.briefs.index.proposal_sent")
+                          : t("proprietaire.briefs.index.proposal_status", { status: mine.status })}
                       </span>
                     )}
                   </div>
@@ -199,17 +212,17 @@ function OpenBriefsPage() {
               disabled={page === 0 || pageLoading}
               className="rounded-lg border border-border px-3 py-1.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              ← Précédent
+              {t("proprietaire.briefs.index.prev")}
             </button>
             <span className="text-muted-foreground">
-              Page {page + 1} / {totalPages} · {total} brief{total > 1 ? "s" : ""}
+              {t("proprietaire.briefs.index.pagination", { page: page + 1, total_pages: totalPages, count: total })}
             </span>
             <button
               onClick={() => { userChangedPage.current = true; setPage((p) => Math.min(totalPages - 1, p + 1)); }}
               disabled={page >= totalPages - 1 || pageLoading}
               className="rounded-lg border border-border px-3 py-1.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Suivant →
+              {t("proprietaire.briefs.index.next")}
             </button>
           </div>
         )}
