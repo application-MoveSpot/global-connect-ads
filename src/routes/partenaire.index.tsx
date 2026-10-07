@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { PartnerSubscriptionCard } from "@/components/partner/PartnerSubscriptionCard";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/partenaire/")({
   head: () => ({
@@ -34,6 +35,7 @@ type PartnerProfile = {
 };
 
 function PartnerDashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<PartnerProfile | null>(null);
@@ -54,7 +56,7 @@ function PartnerDashboard() {
   useEffect(() => { load(); }, [load]);
 
   if (loading || !profile) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
   }
 
   return (
@@ -73,12 +75,12 @@ function PartnerDashboard() {
             >
               <Instagram className="h-4 w-4" />
             </a>
-            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">Paramètres</Link>
+            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("common.settings")}</Link>
             <button
               onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
             >
-              Se déconnecter
+              {t("common.logout")}
             </button>
           </div>
         </div>
@@ -87,20 +89,20 @@ function PartnerDashboard() {
       <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
           <div>
-            <h1 className="font-display text-3xl font-bold">Espace partenaire</h1>
-            <p className="text-sm text-muted-foreground mt-1">Bienvenue, {profile.full_name}.</p>
+            <h1 className="font-display text-3xl font-bold">{t("partenaire.dashboard.title")}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t("partenaire.dashboard.welcome", { name: profile.full_name })}</p>
           </div>
           <StatusBadge status={profile.status} />
         </div>
 
         {profile.status === "pending" && (
           <div className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-            ⏳ Votre candidature est en cours d'examen par MoveSpot. Vous recevrez une réponse par email.
+            {t("partenaire.dashboard.pending_notice")}
           </div>
         )}
         {profile.status === "rejected" && (
           <div className="mb-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
-            ⛔ Candidature refusée.{profile.admin_notes && <span> Motif : {profile.admin_notes}</span>}
+            {t("partenaire.dashboard.rejected_notice")}{profile.admin_notes && <span> {t("common.reason_label")} {profile.admin_notes}</span>}
           </div>
         )}
 
@@ -113,13 +115,13 @@ function PartnerDashboard() {
         {/* Referral link */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-1">Votre lien partenaire</h2>
+            <h2 className="font-display text-lg font-bold mb-1">{t("partenaire.dashboard.referral_link_title")}</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Partagez ce lien avec vos prospects. MoveSpot identifie les clients que vous apportez et vous crédite la commission correspondante.
+              {t("partenaire.dashboard.referral_link_body")}
             </p>
             <ReferralLinkBox partnerId={profile.id} />
             <p className="mt-3 text-xs text-muted-foreground">
-              Ce lien est unique et personnel — ne le divulguez pas en dehors de vos démarches commerciales.
+              {t("partenaire.dashboard.referral_link_warning")}
             </p>
           </section>
         )}
@@ -127,28 +129,28 @@ function PartnerDashboard() {
         {/* How it works */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-4">Comment fonctionne le partenariat</h2>
+            <h2 className="font-display text-lg font-bold mb-4">{t("partenaire.dashboard.how_it_works_title")}</h2>
             <ol className="space-y-3 text-sm text-muted-foreground list-none">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">1</span>
-                <span>Vous présentez MoveSpot à vos contacts (annonceurs, propriétaires de flotte).</span>
+                <span>{t("partenaire.dashboard.step1")}</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">2</span>
-                <span>Vos prospects s'inscrivent via votre lien partenaire ou vous mentionnent lors de leur prise de contact.</span>
+                <span>{t("partenaire.dashboard.step2")}</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">3</span>
-                <span>Dès la première campagne activée, MoveSpot calcule votre commission et vous la verse sur votre IBAN.</span>
+                <span>{t("partenaire.dashboard.step3")}</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">4</span>
-                <span>Vous recevez un récapitulatif mensuel des apports et reversements.</span>
+                <span>{t("partenaire.dashboard.step4")}</span>
               </li>
             </ol>
             <div className="mt-4 rounded-xl bg-primary/5 border border-primary/20 px-4 py-3 text-sm">
-              <span className="font-semibold text-primary">Taux de commission MoveSpot :</span>{" "}
-              <span className="text-muted-foreground">contactez votre référent MoveSpot pour connaître les conditions spécifiques à votre contrat.</span>
+              <span className="font-semibold text-primary">{t("partenaire.dashboard.commission_label")}</span>{" "}
+              <span className="text-muted-foreground">{t("partenaire.dashboard.commission_value")}</span>
             </div>
           </section>
         )}
@@ -156,33 +158,33 @@ function PartnerDashboard() {
         {/* Resources */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-4">Kit commercial</h2>
+            <h2 className="font-display text-lg font-bold mb-4">{t("partenaire.dashboard.resources_title")}</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Ressources prêtes à l'emploi pour présenter MoveSpot à vos prospects.
+              {t("partenaire.dashboard.resources_subtitle")}
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
               <ResourceCard
                 icon="📄"
-                title="Présentation MoveSpot"
-                description="Slidedeck à envoyer à vos prospects annonceurs"
+                title={t("partenaire.dashboard.resource1_title")}
+                description={t("partenaire.dashboard.resource1_desc")}
                 href="/kit"
               />
               <ResourceCard
                 icon="📊"
-                title="Grille tarifaire"
-                description="Tarifs campagnes et formules disponibles"
+                title={t("partenaire.dashboard.resource2_title")}
+                description={t("partenaire.dashboard.resource2_desc")}
                 href="/tarifs"
               />
               <ResourceCard
                 icon="🖼️"
-                title="Kit média & identité"
-                description="Palette de marque, chiffres clés et contacts presse"
+                title={t("partenaire.dashboard.resource3_title")}
+                description={t("partenaire.dashboard.resource3_desc")}
                 href="/kit"
               />
               <ResourceCard
                 icon="📋"
-                title="FAQ partenaire"
-                description="Réponses aux questions fréquentes de vos prospects"
+                title={t("partenaire.dashboard.resource4_title")}
+                description={t("partenaire.dashboard.resource4_desc")}
                 href="mailto:partenaires@move-spot.com?subject=FAQ%20partenaire"
               />
             </div>
@@ -192,37 +194,37 @@ function PartnerDashboard() {
         {/* Contact */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-2">Votre référent MoveSpot</h2>
+            <h2 className="font-display text-lg font-bold mb-2">{t("partenaire.dashboard.contact_title")}</h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Une question, un prospect à qualifier, une opportunité à discuter — votre référent est disponible.
+              {t("partenaire.dashboard.contact_body")}
             </p>
             <a
               href="mailto:partenaires@move-spot.com"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition"
             >
-              ✉️ Contacter l'équipe partenaire
+              {t("partenaire.dashboard.contact_btn")}
             </a>
           </section>
         )}
 
         <section className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="font-display text-lg font-bold mb-4">Votre profil partenaire</h2>
+          <h2 className="font-display text-lg font-bold mb-4">{t("partenaire.dashboard.profile_title")}</h2>
           <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-            <Row label="Entreprise" value={profile.company} />
-            <Row label="Responsable" value={profile.full_name} />
-            <Row label="Email" value={profile.email} />
-            {profile.phone && <Row label="Téléphone" value={profile.phone} />}
-            {profile.website && <Row label="Site web" value={profile.website} />}
+            <Row label={t("common.company")} value={profile.company} />
+            <Row label={t("common.manager")} value={profile.full_name} />
+            <Row label={t("auth.email")} value={profile.email} />
+            {profile.phone && <Row label={t("common.phone")} value={profile.phone} />}
+            {profile.website && <Row label={t("common.website")} value={profile.website} />}
           </dl>
           {profile.description && (
             <div className="mt-4">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Description</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{t("common.description")}</div>
               <p className="text-sm whitespace-pre-wrap">{profile.description}</p>
             </div>
           )}
           <div className="mt-4">
             <Link to="/partenaire/inscription" className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary">
-              Modifier mon profil
+              {t("partenaire.dashboard.edit_profile")}
             </Link>
           </div>
         </section>
@@ -241,17 +243,19 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const m: Record<string, { l: string; c: string }> = {
-    pending:  { l: "En attente",  c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
-    approved: { l: "Approuvé",    c: "bg-signal/20 text-signal" },
-    rejected: { l: "Refusé",      c: "bg-destructive/15 text-destructive" },
-    suspended:{ l: "Suspendu",    c: "bg-secondary" },
+    pending:  { l: t("partenaire.dashboard.status_pending"),   c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    approved: { l: t("partenaire.dashboard.status_approved"),  c: "bg-signal/20 text-signal" },
+    rejected: { l: t("partenaire.dashboard.status_rejected"),  c: "bg-destructive/15 text-destructive" },
+    suspended:{ l: t("partenaire.dashboard.status_suspended"), c: "bg-secondary" },
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
 }
 
 function ReferralLinkBox({ partnerId }: { partnerId: string }) {
+  const { t } = useTranslation();
   const url = `https://move-spot.com/?ref=${partnerId}`;
   const [copied, setCopied] = useState(false);
 
@@ -259,10 +263,10 @@ function ReferralLinkBox({ partnerId }: { partnerId: string }) {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast.success("Lien copié !");
+      toast.success(t("partenaire.dashboard.link_copied"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Impossible de copier — copiez manuellement.");
+      toast.error(t("partenaire.dashboard.copy_failed"));
     }
   };
 
@@ -273,7 +277,7 @@ function ReferralLinkBox({ partnerId }: { partnerId: string }) {
         onClick={handleCopy}
         className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
       >
-        {copied ? "✅ Copié" : "Copier"}
+        {copied ? `✅ ${t("partenaire.dashboard.copied")}` : t("common.copy")}
       </button>
     </div>
   );

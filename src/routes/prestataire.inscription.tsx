@@ -14,6 +14,7 @@ import { verifyWebsite } from "@/lib/providers/website-verify.functions";
 import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functions";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/prestataire/inscription")({
   head: () => ({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/prestataire/inscription")({
 });
 
 function ProviderSignupPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<"auth" | "profile">("auth");
@@ -119,12 +121,12 @@ function ProviderSignupPage() {
       return;
     }
     if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
-      setError("Un compte existe déjà avec cet email.");
+      setError(t("auth.error.email_exists"));
       setLoading(false);
       return;
     }
     if (!signUpData.session) {
-      setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+      setError(t("auth.error.check_email"));
       setLoading(false);
       return;
     }
@@ -139,15 +141,15 @@ function ProviderSignupPage() {
     const companyTrim = company.trim();
     const fullNameTrim = fullName.trim();
     if (companyTrim.length < 2) {
-      setError("Nom de l'entreprise invalide.");
+      setError(t("auth.error.invalid_company"));
       return;
     }
     if (services.length === 0) {
-      setError("Sélectionnez au moins un type de prestation.");
+      setError(t("prestataire.inscription.error.no_service"));
       return;
     }
     if (!siretCheck.verified) {
-      setError("Veuillez vérifier le SIRET de votre entreprise.");
+      setError(t("prestataire.inscription.error.check_siret"));
       return;
     }
     const norm = (s: string) =>
@@ -172,24 +174,24 @@ function ProviderSignupPage() {
       !typed.includes(denom)
     ) {
       setError(
-        `Le nom de l'entreprise ne correspond pas au SIRET (INSEE : « ${siretCheck.denomination} »).`,
+        t("prestataire.inscription.error.siret_mismatch"),
       );
       return;
     }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullNameTrim)) {
       setError(
-        "Indiquez le prénom et le nom du responsable / contact principal (lettres uniquement).",
+        t("prestataire.inscription.error.invalid_name"),
       );
       return;
     }
     if (description.trim().length < 30) {
-      setError("Décrivez votre activité en au moins 30 caractères.");
+      setError(t("prestataire.inscription.error.short_description"));
       return;
     }
     const phoneTrim = phone.trim();
     if (!/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
-      setError("Numéro de téléphone invalide.");
+      setError(t("auth.error.invalid_phone"));
       return;
     }
     const websiteTrim = website.trim();
@@ -198,23 +200,23 @@ function ProviderSignupPage() {
       try {
         const u = new URL(websiteTrim);
         if (u.protocol !== "https:") {
-          setError("Le site web doit utiliser HTTPS (https://...).");
+          setError(t("auth.error.https_required"));
           return;
         }
         websiteValue = u.toString();
       } catch {
-        setError("URL de site web invalide.");
+        setError(t("auth.error.invalid_url"));
         return;
       }
       if (!websiteCheck?.ok) {
-        setError("Veuillez vérifier votre site web avant de soumettre.");
+        setError(t("prestataire.inscription.error.verify_site"));
         return;
       }
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
-      setError("Session expirée");
+      setError(t("auth.error.session_expired"));
       setLoading(false);
       return;
     }
@@ -253,15 +255,14 @@ function ProviderSignupPage() {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Accueil
+            {t("common.back_home")}
           </Link>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
-        <h1 className="font-display text-3xl font-bold mb-2">Devenir prestataire MoveSpot</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("prestataire.inscription.title")}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Proposez vos services d'impression covering véhicule aux annonceurs. Votre fiche sera
-          publiée après validation par MoveSpot.
+          {t("prestataire.inscription.subtitle")}
         </p>
 
         {step === "auth" ? (
@@ -270,9 +271,9 @@ function ProviderSignupPage() {
             className="space-y-4 rounded-2xl border border-border bg-card p-6"
           >
             <HoneypotField value={honeypot} onChange={setHoneypot} />
-            <Input label="Email" type="email" value={email} onChange={setEmail} required />
+            <Input label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
             <Input
-              label="Mot de passe (min. 8 caractères)"
+              label={t("prestataire.inscription.password_label")}
               type="password"
               value={password}
               onChange={setPassword}
@@ -287,7 +288,7 @@ function ProviderSignupPage() {
                       to="/prestataire/connexion"
                       className="font-medium text-primary hover:underline"
                     >
-                      → Se connecter à mon espace prestataire
+                      {t("prestataire.inscription.signin_link")}
                     </Link>
                   </p>
                 )}
@@ -297,15 +298,15 @@ function ProviderSignupPage() {
               disabled={loading}
               className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? "…" : "Créer mon compte"}
+              {loading ? "…" : t("common.create_account")}
             </button>
             <p className="text-center text-sm text-muted-foreground pt-1">
-              Déjà prestataire MoveSpot ?{" "}
+              {t("prestataire.inscription.already_provider")}{" "}
               <Link
                 to="/prestataire/connexion"
                 className="font-medium text-foreground hover:underline"
               >
-                Se connecter
+                {t("common.sign_in")}
               </Link>
             </p>
           </form>
@@ -316,18 +317,18 @@ function ProviderSignupPage() {
           >
             {sessionEmail && (
               <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
-                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                {t("auth.connected_as")} <strong className="text-foreground">{sessionEmail}</strong> —{" "}
                 <button
                   type="button"
                   onClick={handleSignOut}
                   className="underline hover:text-foreground"
                 >
-                  se déconnecter pour créer un autre compte
+                  {t("auth.sign_out_lowercase")}
                 </button>
               </div>
             )}
             <Input
-              label="Société (raison sociale ou nom commercial)"
+              label={t("prestataire.inscription.company_label")}
               value={company}
               onChange={setCompany}
               required
@@ -335,22 +336,22 @@ function ProviderSignupPage() {
             />
             <SiretField value={siretCheck} onChange={setSiretCheck} required />
             <Input
-              label="Nom et prénom du responsable / contact principal"
+              label={t("prestataire.inscription.fullname_label")}
               value={fullName}
               onChange={setFullName}
               required
               placeholder="Ex. Marie Dupont"
-              hint="Ce nom sera affiché comme interlocuteur commercial sur votre fiche publique."
+              hint={t("prestataire.inscription.fullname_hint")}
             />
             <Input
-              label="Téléphone"
+              label={t("common.phone")}
               type="tel"
               value={phone}
               onChange={setPhone}
               required
               placeholder="Ex. +33 6 12 34 56 78"
             />
-            <Field label="Site web (optionnel)">
+            <Field label={t("common.website_optional")}>
               <div className="flex gap-2">
                 <input
                   type="url"
@@ -376,19 +377,19 @@ function ProviderSignupPage() {
                         setWebsiteCheck({ ok: false });
                       } else setWebsiteCheck({ ok: true, title: r.title, warnings: r.warnings });
                     } catch {
-                      setError("Erreur lors de la vérification du site.");
+                      setError(t("prestataire.inscription.error.site_verify"));
                     } finally {
                       setVerifyingSite(false);
                     }
                   }}
                   className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary disabled:opacity-50"
                 >
-                  {verifyingSite ? "…" : "Vérifier"}
+                  {verifyingSite ? "…" : t("common.verify")}
                 </button>
               </div>
               {websiteCheck?.ok && (
                 <div className="mt-2 text-xs rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-2 text-emerald-700 dark:text-emerald-300">
-                  ✅ Site sécurisé (HTTPS) accessible
+                  {t("prestataire.inscription.site_ok")}
                   {websiteCheck.title ? ` — « ${websiteCheck.title} »` : ""}.
                   {websiteCheck.warnings && websiteCheck.warnings.length > 0 && (
                     <ul className="mt-1 list-disc pl-4 text-amber-700 dark:text-amber-300">
@@ -400,9 +401,9 @@ function ProviderSignupPage() {
                 </div>
               )}
             </Field>
-            <Field label="Types de prestations proposées">
+            <Field label={t("prestataire.inscription.services_label")}>
               <p className="text-xs text-muted-foreground mb-2">
-                Cochez tout ce que vous proposez. Vous pouvez cumuler plusieurs rôles.
+                {t("prestataire.inscription.services_hint")}
               </p>
               <div className="space-y-2">
                 {PROVIDER_SERVICES.map((s) => {
@@ -427,7 +428,7 @@ function ProviderSignupPage() {
                 })}
               </div>
             </Field>
-            <Field label="Description de votre activité">
+            <Field label={t("prestataire.inscription.description_label")}>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -438,7 +439,7 @@ function ProviderSignupPage() {
                 placeholder="Expertise, machines, types de covering, délais habituels…"
               />
             </Field>
-            <Field label="Zones d'intervention (une par ligne ou virgules)">
+            <Field label={t("prestataire.inscription.coverage_label")}>
               <textarea
                 value={coverage}
                 onChange={(e) => setCoverage(e.target.value)}
@@ -447,13 +448,13 @@ function ProviderSignupPage() {
                 placeholder="Paris&#10;Île-de-France&#10;Lyon"
               />
             </Field>
-            <Field label="Indication tarifaire">
+            <Field label={t("prestataire.inscription.pricing_label")}>
               <div className="rounded-xl border border-border bg-secondary/30 p-4 mb-2">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
-                    <div className="text-sm font-semibold">Estimation IA des tarifs</div>
+                    <div className="text-sm font-semibold">{t("prestataire.inscription.ai_estimate_title")}</div>
                     <div className="text-xs text-muted-foreground">
-                      Basée sur l'étude de marché MoveSpot — ajustez selon votre positionnement.
+                      {t("prestataire.inscription.ai_estimate_subtitle")}
                     </div>
                   </div>
                   <button
@@ -477,19 +478,19 @@ function ProviderSignupPage() {
                         setPricingEstimate(res);
                         if (res.pricing_text) setPricingInfo(res.pricing_text);
                       } catch (e) {
-                        setError(e instanceof Error ? e.message : "Erreur estimation tarifaire");
+                        setError(e instanceof Error ? e.message : t("prestataire.inscription.error.pricing_estimate"));
                       } finally {
                         setEstimatingPricing(false);
                       }
                     }}
                     className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap shrink-0"
                   >
-                    {estimatingPricing ? "Analyse…" : "✦ Estimer mes tarifs"}
+                    {estimatingPricing ? t("prestataire.inscription.estimating") : t("prestataire.inscription.estimate_btn")}
                   </button>
                 </div>
                 {services.length === 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Sélectionnez au moins un type de prestation ci-dessus pour lancer l'estimation.
+                    {t("prestataire.inscription.select_service_hint")}
                   </p>
                 )}
                 {pricingEstimate && (
@@ -515,7 +516,7 @@ function ProviderSignupPage() {
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Le texte ci-dessous a été pré-rempli automatiquement — modifiez-le librement.
+                      {t("prestataire.inscription.prefilled_hint")}
                     </p>
                   </div>
                 )}
@@ -529,7 +530,7 @@ function ProviderSignupPage() {
                 placeholder="Ex. À partir de 450 € pour un demi-covering, 900 € pour un total covering."
               />
             </Field>
-            <Field label="Portfolio — images et vidéos de vos réalisations">
+            <Field label={t("prestataire.inscription.portfolio_label")}>
               <ProviderPortfolioUploader value={portfolio} onChange={setPortfolio} />
             </Field>
             {error && <ErrorBox>{error}</ErrorBox>}
@@ -537,7 +538,7 @@ function ProviderSignupPage() {
               disabled={loading}
               className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? "Envoi…" : "Soumettre ma fiche pour validation"}
+              {loading ? t("common.sending") : t("prestataire.inscription.submit_btn")}
             </button>
           </form>
         )}
