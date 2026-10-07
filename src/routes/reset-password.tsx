@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPasswordPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"request" | "update">("request");
   const [email, setEmail] = useState("");
@@ -41,19 +43,19 @@ function ResetPasswordPage() {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) setError(error.message);
-    else setInfo("Si un compte existe pour cet email, un lien de réinitialisation vient d'être envoyé.");
+    else setInfo(t("reset_password.email_sent"));
     setLoading(false);
   };
 
   const updatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); setInfo(""); setLoading(true);
-    if (password.length < 8) { setError("Le mot de passe doit faire au moins 8 caractères."); setLoading(false); return; }
-    if (password !== password2) { setError("Les mots de passe ne correspondent pas."); setLoading(false); return; }
+    if (password.length < 8) { setError(t("reset_password.password_too_short")); setLoading(false); return; }
+    if (password !== password2) { setError(t("reset_password.passwords_mismatch")); setLoading(false); return; }
     const { error } = await supabase.auth.updateUser({ password });
     if (error) setError(error.message);
     else {
-      setInfo("Mot de passe mis à jour. Redirection…");
+      setInfo(t("reset_password.updated"));
       setTimeout(() => navigate({ to: "/admin" }), 1200);
     }
     setLoading(false);
@@ -62,20 +64,20 @@ function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
-        <Link to="/auth" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Connexion</Link>
+        <Link to="/auth" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">{t("reset_password.back_to_login")}</Link>
         <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-          {mode === "request" ? "Mot de passe oublié" : "Nouveau mot de passe"}
+          {mode === "request" ? t("reset_password.title_request") : t("reset_password.title_update")}
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
           {mode === "request"
-            ? "Saisissez votre email, nous vous enverrons un lien sécurisé."
-            : "Choisissez un nouveau mot de passe (min. 8 caractères)."}
+            ? t("reset_password.subtitle_request")
+            : t("reset_password.subtitle_update")}
         </p>
 
         {mode === "request" ? (
           <form onSubmit={requestReset} className="space-y-4">
             <div>
-              <label htmlFor="reset-email" className="block text-sm font-medium mb-1.5">Email</label>
+              <label htmlFor="reset-email" className="block text-sm font-medium mb-1.5">{t("auth.email")}</label>
               <input id="reset-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
@@ -83,18 +85,18 @@ function ResetPasswordPage() {
             {info && <div className="rounded-lg bg-primary/10 border border-primary/30 p-3 text-sm">{info}</div>}
             <button type="submit" disabled={loading}
               className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-              {loading ? "..." : "Envoyer le lien"}
+              {loading ? "..." : t("reset_password.send_link_btn")}
             </button>
           </form>
         ) : (
           <form onSubmit={updatePassword} className="space-y-4">
             <div>
-              <label htmlFor="new-password" className="block text-sm font-medium mb-1.5">Nouveau mot de passe</label>
+              <label htmlFor="new-password" className="block text-sm font-medium mb-1.5">{t("reset_password.new_password_label")}</label>
               <input id="new-password" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium mb-1.5">Confirmer</label>
+              <label htmlFor="confirm-password" className="block text-sm font-medium mb-1.5">{t("reset_password.confirm_label")}</label>
               <input id="confirm-password" type="password" required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)}
                 className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
@@ -102,7 +104,7 @@ function ResetPasswordPage() {
             {info && <div className="rounded-lg bg-primary/10 border border-primary/30 p-3 text-sm">{info}</div>}
             <button type="submit" disabled={loading}
               className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-              {loading ? "..." : "Mettre à jour"}
+              {loading ? "..." : t("reset_password.update_btn")}
             </button>
           </form>
         )}

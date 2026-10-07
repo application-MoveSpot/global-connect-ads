@@ -1632,6 +1632,15 @@
         "site_verify": "Error while verifying the site.",
         "pricing_estimate": "Pricing estimation error"
       }
+    },
+    "connexion": {
+      "title": "Provider account",
+      "subtitle": "Sign in to access your dashboard and manage quote requests.",
+      "forgot_password": "Forgot password?",
+      "invalid_credentials": "Incorrect email or password.",
+      "signing_in": "Signing in…",
+      "no_account": "Not yet a MoveSpot provider?",
+      "create_account": "Create my account"
     }
   },
   "prestataires": {
@@ -1721,5 +1730,20 @@
         "short_description": "Describe your activity in at least 30 characters."
       }
     }
+  },
+  "reset_password": {
+    "back_to_login": "← Sign in",
+    "title_request": "Forgot password",
+    "title_update": "New password",
+    "subtitle_request": "Enter your email and we will send you a secure link.",
+    "subtitle_update": "Choose a new password (min. 8 characters).",
+    "email_sent": "If an account exists for this email, a reset link has been sent.",
+    "send_link_btn": "Send link",
+    "password_too_short": "Password must be at least 8 characters.",
+    "passwords_mismatch": "Passwords do not match.",
+    "updated": "Password updated. Redirecting…",
+    "new_password_label": "New password",
+    "confirm_label": "Confirm",
+    "update_btn": "Update"
   }
 }
