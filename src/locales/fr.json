@@ -125,7 +125,8 @@
     "become_partner": "Devenir partenaire",
     "advertiser": "Espace annonceur",
     "owner": "Espace propriétaire",
-    "book": "Réserver"
+    "book": "Réserver",
+    "signup": "S'inscrire"
   },
   "hero": {
     "badge": "Plateforme en ligne · suivi GPS & paiements actifs",
@@ -1892,5 +1893,22 @@
       "bus": "🚌 Bus",
       "autre": "🚗 Autre"
     }
+  },
+  "stepper": {
+    "submitted": "Soumise",
+    "validated": "Validée",
+    "rejected": "Refusée",
+    "validation": "Validation",
+    "payment": "Paiement",
+    "paid": "Payée",
+    "refunded": "Remboursée",
+    "to_pay": "À payer",
+    "installation": "Installation",
+    "installed": "Posée",
+    "installation_rejected": "Pose refusée",
+    "installing": "En pose",
+    "broadcasting": "En diffusion",
+    "active": "Active",
+    "ended": "Terminée"
   }
 }

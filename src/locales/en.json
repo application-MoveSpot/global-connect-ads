@@ -125,7 +125,8 @@
     "become_partner": "Become a partner",
     "advertiser": "Advertiser space",
     "owner": "Owner space",
-    "book": "Book"
+    "book": "Book",
+    "signup": "Sign up"
   },
   "hero": {
     "badge": "Live platform · GPS tracking & payments active",
@@ -1892,5 +1893,22 @@
       "bus": "🚌 Bus",
       "autre": "🚗 Other"
     }
+  },
+  "stepper": {
+    "submitted": "Submitted",
+    "validated": "Validated",
+    "rejected": "Rejected",
+    "validation": "Validation",
+    "payment": "Payment",
+    "paid": "Paid",
+    "refunded": "Refunded",
+    "to_pay": "To pay",
+    "installation": "Installation",
+    "installed": "Installed",
+    "installation_rejected": "Install rejected",
+    "installing": "Installing",
+    "broadcasting": "Broadcasting",
+    "active": "Active",
+    "ended": "Ended"
   }
 }
