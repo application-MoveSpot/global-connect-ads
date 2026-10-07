@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { listBankTransfersForAdmin, reviewBankTransfer } from "@/lib/payments/bank-transfers.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ function fmt(cents: number) {
 }
 
 function AdminBankTransfers() {
+  const { t, i18n } = useTranslation();
   const fetchRows = useServerFn(listBankTransfersForAdmin);
   const review = useServerFn(reviewBankTransfer);
   const [rows, setRows] = useState<Row[]>([]);
@@ -57,7 +59,7 @@ function AdminBankTransfers() {
     setBusy(true);
     setError(null);
     try {
-      const notes = approve ? undefined : window.prompt("Motif du refus ?") ?? undefined;
+      const notes = approve ? undefined : window.prompt(t("admin.virements.reject_reason")) ?? undefined;
       await review({ data: { requestId: id, approve, notes } });
       await reload();
     } catch (e) {
@@ -73,18 +75,18 @@ function AdminBankTransfers() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <LogoLink />
           <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Admin
+            ← {t("admin.back")}
           </Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-        <h1 className="font-display text-3xl font-bold">Virements bancaires</h1>
+        <h1 className="font-display text-3xl font-bold">{t("admin.virements.title")}</h1>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         {rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            Aucune demande de virement.
+            {t("admin.virements.empty")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -93,20 +95,20 @@ function AdminBankTransfers() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="font-semibold">
-                      {fmt(row.amount_cents)} · réf. <span className="font-mono">{row.reference}</span>
+                      {fmt(row.amount_cents)} · {t("admin.virements.ref")} <span className="font-mono">{row.reference}</span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(row.created_at).toLocaleString("fr-FR")} — statut : {row.status}
+                      {new Date(row.created_at).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US")} — {t("admin.virements.status")} : {row.status}
                     </div>
                     {row.campaign_request_id ? (
                       <div className="text-xs text-primary">
-                        Paiement de campagne — la validation marquera la campagne comme payée
+                        {t("admin.virements.campaign_payment")}
                       </div>
                     ) : (
-                      <div className="text-xs text-muted-foreground">Recharge de portefeuille</div>
+                      <div className="text-xs text-muted-foreground">{t("admin.virements.wallet_topup")}</div>
                     )}
                     {row.admin_notes ? (
-                      <div className="text-xs text-muted-foreground">Note : {row.admin_notes}</div>
+                      <div className="text-xs text-muted-foreground">{t("admin.virements.note")} : {row.admin_notes}</div>
                     ) : null}
                   </div>
                   <div className="flex items-center gap-2">
@@ -117,18 +119,18 @@ function AdminBankTransfers() {
                         rel="noreferrer"
                         className="text-xs text-primary underline"
                       >
-                        Voir le reçu
+                        {t("admin.virements.see_receipt")}
                       </a>
                     ) : (
-                      <span className="text-xs text-muted-foreground">Aucun reçu</span>
+                      <span className="text-xs text-muted-foreground">{t("admin.virements.no_receipt")}</span>
                     )}
                     {row.status !== "approved" && row.status !== "rejected" ? (
                       <>
                         <Button size="sm" disabled={busy} onClick={() => onReview(row.id, true)}>
-                          Valider et créditer
+                          {t("admin.virements.approve")}
                         </Button>
                         <Button size="sm" variant="outline" disabled={busy} onClick={() => onReview(row.id, false)}>
-                          Refuser
+                          {t("admin.virements.reject")}
                         </Button>
                       </>
                     ) : null}

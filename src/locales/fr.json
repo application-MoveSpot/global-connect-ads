@@ -1910,5 +1910,34 @@
     "broadcasting": "En diffusion",
     "active": "Active",
     "ended": "Terminée"
+  },
+  "admin": {
+    "commerciaux": {
+      "title": "Apporteurs d'affaires",
+      "loading": "Chargement…",
+      "empty": "Aucun apporteur d'affaires pour l'instant.",
+      "inactive": "Inactif",
+      "commission": "% commission",
+      "since": "depuis le {{date}}"
+    },
+    "virements": {
+      "title": "Virements bancaires",
+      "empty": "Aucune demande de virement.",
+      "campaign_payment": "Paiement de campagne — la validation marquera la campagne comme payée",
+      "wallet_topup": "Recharge de portefeuille",
+      "view_receipt": "Voir le reçu",
+      "no_receipt": "Aucun reçu",
+      "approve_btn": "Valider et créditer",
+      "reject_btn": "Refuser",
+      "reject_prompt": "Motif du refus ?",
+      "ref": "réf.",
+      "status": "statut",
+      "note": "Note",
+      "see_receipt": "Voir le reçu",
+      "approve": "Valider et créditer",
+      "reject": "Refuser",
+      "reject_reason": "Motif du refus ?"
+    },
+    "back": "← Admin"
   }
 }

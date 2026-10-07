@@ -1910,5 +1910,34 @@
     "broadcasting": "Broadcasting",
     "active": "Active",
     "ended": "Ended"
+  },
+  "admin": {
+    "commerciaux": {
+      "title": "Business introducers",
+      "loading": "Loading…",
+      "empty": "No business introducers yet.",
+      "inactive": "Inactive",
+      "commission": "% commission",
+      "since": "since {{date}}"
+    },
+    "virements": {
+      "title": "Bank transfers",
+      "empty": "No transfer requests.",
+      "campaign_payment": "Campaign payment — approval will mark campaign as paid",
+      "wallet_topup": "Wallet top-up",
+      "view_receipt": "View receipt",
+      "no_receipt": "No receipt",
+      "approve_btn": "Approve and credit",
+      "reject_btn": "Reject",
+      "reject_prompt": "Reason for rejection?",
+      "ref": "ref.",
+      "status": "status",
+      "note": "Note",
+      "see_receipt": "View receipt",
+      "approve": "Approve and credit",
+      "reject": "Reject",
+      "reject_reason": "Reason for rejection?"
+    },
+    "back": "← Admin"
   }
 }
