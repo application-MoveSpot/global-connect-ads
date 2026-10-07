@@ -1745,5 +1745,34 @@
     "new_password_label": "New password",
     "confirm_label": "Confirm",
     "update_btn": "Update"
+  },
+  "campaign_qr": {
+    "crossed_company": "You just crossed {{company}}",
+    "crossed_ad": "an ad",
+    "campaign_name": "Campaign « {{name}} » — powered",
+    "ad_runs": "This ad is rolling",
+    "by_movespot": "by MoveSpot, the mobile vehicle advertising network.",
+    "title_fallback": "This ad is rolling with MoveSpot",
+    "subtitle_fallback": "The mobile vehicle advertising network: taxis, VTC, vans, food trucks…",
+    "cta_advertise": "I want to advertise on a vehicle",
+    "cta_how": "How it works"
+  },
+  "commercial": {
+    "inscription": {
+      "title_signup": "Become a business referral partner",
+      "title_signin": "Commercial sign in",
+      "subtitle_signup": "Bring advertisers to MoveSpot and earn 10 % commission on each campaign.",
+      "subtitle_signin": "Access your commercial account.",
+      "already_account": "Already have an account? Sign in",
+      "not_registered": "Not registered yet? Create an account",
+      "profile_title": "Your commercial profile",
+      "profile_subtitle": "Your referral link will be generated automatically.",
+      "fullname_label": "Full name *",
+      "company_label": "Company / Self-employed",
+      "city_label": "City",
+      "cgu_text": "I accept MoveSpot's commercial conduct rules: I commit to presenting MoveSpot honestly (a matchmaking platform), without promising guaranteed income, without aggressive practices, and without assimilating this partnership to a pyramid scheme (MLM). Any breach may result in account deactivation.",
+      "submit_btn": "Create my commercial account",
+      "back": "← Back"
+    }
   }
 }

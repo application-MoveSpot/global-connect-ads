@@ -1745,5 +1745,34 @@
     "new_password_label": "Nouveau mot de passe",
     "confirm_label": "Confirmer",
     "update_btn": "Mettre à jour"
+  },
+  "campaign_qr": {
+    "crossed_company": "Vous venez de croiser {{company}}",
+    "crossed_ad": "une pub",
+    "campaign_name": "Campagne « {{name}} » — propulsée",
+    "ad_runs": "Cette publicité roule",
+    "by_movespot": "par MoveSpot, le réseau de publicité mobile sur véhicules.",
+    "title_fallback": "Cette pub roule avec MoveSpot",
+    "subtitle_fallback": "Le réseau de publicité mobile sur véhicules : taxis, VTC, vans, food trucks…",
+    "cta_advertise": "Je veux annoncer sur un véhicule",
+    "cta_how": "Comment ça marche"
+  },
+  "commercial": {
+    "inscription": {
+      "title_signup": "Devenir apporteur d'affaires",
+      "title_signin": "Connexion commercial",
+      "subtitle_signup": "Apportez des annonceurs sur MoveSpot et touchez 10 % de commission sur chaque campagne.",
+      "subtitle_signin": "Accédez à votre espace commercial.",
+      "already_account": "Déjà un compte ? Se connecter",
+      "not_registered": "Pas encore inscrit ? Créer un compte",
+      "profile_title": "Votre profil commercial",
+      "profile_subtitle": "Votre lien de parrainage sera généré automatiquement.",
+      "fullname_label": "Nom complet *",
+      "company_label": "Entreprise / Auto-entrepreneur",
+      "city_label": "Ville",
+      "cgu_text": "J'accepte les règles de conduite commerciale MoveSpot : je m'engage à présenter MoveSpot honnêtement (plateforme de mise en relation), sans promettre de revenus garantis, sans pratiques agressives, et sans assimiler ce partenariat à un système pyramidal (MLM). Tout manquement peut entraîner la désactivation de mon compte.",
+      "submit_btn": "Créer mon espace commercial",
+      "back": "← Retour"
+    }
   }
 }

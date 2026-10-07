@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { getPublicCampaignInfo } from "@/lib/campaigns/public-campaign.functions";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/c/$campaignId")({
 type State = { loading: boolean; found: boolean; company?: string; spotName?: string };
 
 function PublicCampaignPage() {
+  const { t } = useTranslation();
   const { campaignId } = Route.useParams();
   const fetchInfo = useServerFn(getPublicCampaignInfo);
   const [state, setState] = useState<State>({ loading: true, found: false });
@@ -41,18 +43,20 @@ function PublicCampaignPage() {
         {state.loading ? null : state.found ? (
           <>
             <h1 className="font-display text-3xl md:text-4xl font-bold">
-              Vous venez de croiser {state.company ? <span className="text-primary">{state.company}</span> : "une pub"}
+              {state.company
+                ? <>{t("campaign_qr.crossed_company", { company: "" })}<span className="text-primary">{state.company}</span></>
+                : t("campaign_qr.crossed_company", { company: t("campaign_qr.crossed_ad") })}
             </h1>
             <p className="mt-4 text-muted-foreground">
-              {state.spotName ? `Campagne « ${state.spotName} » — propulsée` : "Cette publicité roule"} par{" "}
-              <strong>MoveSpot</strong>, le réseau de publicité mobile sur véhicules.
+              {state.spotName ? t("campaign_qr.campaign_name", { name: state.spotName }) : t("campaign_qr.ad_runs")}{" "}
+              {t("campaign_qr.by_movespot")}
             </p>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl md:text-4xl font-bold">Cette pub roule avec MoveSpot</h1>
+            <h1 className="font-display text-3xl md:text-4xl font-bold">{t("campaign_qr.title_fallback")}</h1>
             <p className="mt-4 text-muted-foreground">
-              Le réseau de publicité mobile sur véhicules : taxis, VTC, vans, food trucks…
+              {t("campaign_qr.subtitle_fallback")}
             </p>
           </>
         )}
@@ -62,13 +66,13 @@ function PublicCampaignPage() {
             to="/annonceur/inscription"
             className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
-            Je veux annoncer sur un véhicule
+            {t("campaign_qr.cta_advertise")}
           </Link>
           <Link
             to="/comment-ca-marche"
             className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary/50"
           >
-            Comment ça marche
+            {t("campaign_qr.cta_how")}
           </Link>
         </div>
       </main>
