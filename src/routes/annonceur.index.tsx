@@ -186,7 +186,7 @@ function AnnonceurDashboard() {
   const handlePay = async (r: Req) => {
     const cents = Math.round(Number(r.total_price ?? 0) * 100);
     if (cents > balanceCents) {
-      toast.error(`Solde insuffisant. Manque ${((cents - balanceCents) / 100).toFixed(2)} €.`);
+      toast.error(t("annonceur.insufficient_balance", { missing: ((cents - balanceCents) / 100).toFixed(2) }));
       navigate({ to: "/annonceur/portefeuille" });
       return;
     }
@@ -194,11 +194,11 @@ function AnnonceurDashboard() {
     try {
       await payFn({ data: { campaignRequestId: r.id } });
       void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
-      toast.success("Paiement effectué ✓");
+      toast.success(t("annonceur.payment_success"));
       const { data: sess } = await supabase.auth.getSession();
       if (sess.session) await reload(sess.session.user.id);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Échec du paiement");
+      toast.error(e instanceof Error ? e.message : t("annonceur.payment_failed"));
     } finally {
       setPaying(null);
     }
@@ -275,7 +275,7 @@ function AnnonceurDashboard() {
               to="/annonceur/portefeuille"
               className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
             >
-              💳 Portefeuille · {(balanceCents / 100).toFixed(2)} €
+              {t("annonceur.nav.wallet", { balance: (balanceCents / 100).toFixed(2) })}
             </Link>
             {isIndividual ? (
               <>
@@ -283,13 +283,13 @@ function AnnonceurDashboard() {
                   to="/annonceur/pack"
                   className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
                 >
-                  🎪 Packs événement
+                  {t("annonceur.nav.packs")}
                 </Link>
                 <Link
                   to="/annonceur/exemples"
                   className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
                 >
-                  📖 Exemples
+                  {t("annonceur.nav.examples")}
                 </Link>
               </>
             ) : (
@@ -298,13 +298,13 @@ function AnnonceurDashboard() {
                   to="/prestataires"
                   className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
                 >
-                  🎨 Prestataires covering
+                  {t("annonceur.nav.providers")}
                 </Link>
                 <Link
                   to="/annonceur/etude-marche"
                   className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
                 >
-                  📊 Étude de marché
+                  {t("annonceur.nav.market_study")}
                 </Link>
               </>
             )}
@@ -312,19 +312,19 @@ function AnnonceurDashboard() {
               to="/annonceur/briefs"
               className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
             >
-              Mes briefs
+              {t("annonceur.nav.briefs")}
             </Link>
             <Link
               to="/annonceur/remboursement"
               className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
             >
-              💸 Remboursements
+              {t("annonceur.nav.refunds")}
             </Link>
             <Link
               to="/annonceur/briefs/nouveau"
               className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
             >
-              + {isIndividual ? "Créer mon brief" : "Nouvelle campagne"}
+              {isIndividual ? t("annonceur.nav.new_brief") : t("annonceur.nav.new_campaign")}
             </Link>
             {!isIndividual && (
               <Link
@@ -332,7 +332,7 @@ function AnnonceurDashboard() {
                 hash="spots"
                 className="rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/20 transition"
               >
-                Parcourir les spots
+                {t("annonceur.nav.browse_spots")}
               </Link>
             )}
             {requests.length > 0 && (
@@ -353,29 +353,29 @@ function AnnonceurDashboard() {
             <div className="text-4xl flex-shrink-0">🎉</div>
             <div className="flex-1 text-center sm:text-left">
               <h2 className="font-semibold text-base mb-1">
-                Touchez votre quartier pour votre événement
+                {t("annonceur.promo_individual.title")}
               </h2>
               <p className="text-sm text-muted-foreground mb-3">
-                Association, inauguration, festival… Créez un brief en 5 minutes et choisissez vos véhicules locaux.
+                {t("annonceur.promo_individual.subtitle")}
               </p>
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <Link
                   to="/annonceur/briefs/nouveau"
                   className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
                 >
-                  + Créer mon brief
+                  {t("annonceur.promo_individual.cta_brief")}
                 </Link>
                 <Link
                   to="/annonceur/pack"
                   className="rounded-full border border-primary/40 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/10 transition"
                 >
-                  🎪 Voir les packs événement
+                  {t("annonceur.promo_individual.cta_packs")}
                 </Link>
                 <Link
                   to="/annonceur/exemples"
                   className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition"
                 >
-                  Exemples de campagnes →
+                  {t("annonceur.promo_individual.cta_examples")}
                 </Link>
               </div>
             </div>
@@ -477,15 +477,14 @@ function AnnonceurDashboard() {
                       border: "1px solid rgba(60,120,255,0.25)",
                     }}
                   >
-                    Nouveau
+                    {t("annonceur.promo_led.badge")}
                   </span>
                 </div>
                 <h2 className="text-lg font-bold text-white mb-1">
-                  Camion Écran LED — Affichage Mobile Haute Visibilité
+                  {t("annonceur.promo_led.title")}
                 </h2>
                 <p className="text-sm mb-3" style={{ color: "rgba(180,200,240,0.7)" }}>
-                  3 faces LED IP67 · 3200×1920 px · Vidéo MP4 / Image / Flux HTML5 · Jusqu'à 20 000
-                  contacts/jour
+                  {t("annonceur.promo_led.subtitle")}
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                   <Link
@@ -493,7 +492,7 @@ function AnnonceurDashboard() {
                     className="rounded-full px-5 py-2 text-sm font-semibold transition"
                     style={{ background: "rgba(60,120,255,0.85)", color: "#fff" }}
                   >
-                    + Créer un brief Camion LED
+                    {t("annonceur.promo_led.cta_brief")}
                   </Link>
                   <Link
                     to="/annonceur/etude-marche"
@@ -504,7 +503,7 @@ function AnnonceurDashboard() {
                       border: "1px solid rgba(255,255,255,0.08)",
                     }}
                   >
-                    Voir les tarifs →
+                    {t("annonceur.promo_led.cta_rates")}
                   </Link>
                 </div>
               </div>
@@ -546,14 +545,14 @@ function AnnonceurDashboard() {
                 />
                 {r.admin_notes && (
                   <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
-                    <strong>Motif :</strong> {r.admin_notes}
+                    <strong>{t("common.reason_label")}</strong> {r.admin_notes}
                   </div>
                 )}
                 <StatusHistory
                   entityType="campaign_status"
                   entityId={r.id}
-                  statusLabel={{ pending: "En attente", approved: "Validée", rejected: "Refusée" }}
-                  triggerLabel="Historique de la demande"
+                  statusLabel={{ pending: t("annonceur.campaign.status_pending"), approved: t("annonceur.campaign.status_approved"), rejected: t("annonceur.campaign.status_rejected") }}
+                  triggerLabel={t("annonceur.campaign.status_history_label")}
                 />
                 <RouteSummary
                   zones={r.route_zones}
@@ -588,7 +587,7 @@ function AnnonceurDashboard() {
                       params={{ campaignId: r.id }}
                       className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/20 transition"
                     >
-                      📍 Suivre en direct
+                      {t("annonceur.campaign.track")}
                     </Link>
                     {r.payment_status === "paid" && (
                       <Link
@@ -596,7 +595,7 @@ function AnnonceurDashboard() {
                         params={{ campaignId: r.id }}
                         className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
                       >
-                        🧾 Facture PDF
+                        {t("annonceur.campaign.invoice")}
                       </Link>
                     )}
                     {(r.installation_status === "approved" || r.installation_status === "pending_approval") && (
@@ -605,7 +604,7 @@ function AnnonceurDashboard() {
                         params={{ campaignId: r.id }}
                         className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${r.installation_status === "approved" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20" : "border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"}`}
                       >
-                        📸 {r.installation_status === "approved" ? "Pose validée — voir photos" : "Photos de pose en attente"}
+                        📸 {r.installation_status === "approved" ? t("annonceur.campaign.installation_approved") : t("annonceur.campaign.installation_pending")}
                       </Link>
                     )}
                   </div>
@@ -658,32 +657,34 @@ function AnnonceurDashboard() {
 }
 
 function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
+  const { t } = useTranslation();
+
   const stepsIndividual = [
     {
       icon: "✅",
-      title: "Compte créé",
-      desc: "Votre espace particulier est prêt.",
+      title: t("annonceur.onboarding.step_i1_title"),
+      desc: t("annonceur.onboarding.step_i1_desc"),
       done: true,
       cta: null,
     },
     {
       icon: "🎪",
-      title: "Choisissez un pack événement",
-      desc: "Week-end (3 j · 49 €), Événement (7 j · 79 €) ou Lancement (14 j · 149 €). Paiement unique, aucun abonnement.",
+      title: t("annonceur.onboarding.step_i2_title"),
+      desc: t("annonceur.onboarding.step_i2_desc"),
       done: false,
-      cta: { label: "Voir les packs", to: "/annonceur/pack" } as const,
+      cta: { label: t("annonceur.onboarding.step_i2_cta"), to: "/annonceur/pack" } as const,
     },
     {
       icon: "📋",
-      title: "Créez votre brief en 5 minutes",
-      desc: "Décrivez votre événement, choisissez votre zone et vos dates. Un modèle prérempli vous guide selon le type d'événement.",
+      title: t("annonceur.onboarding.step_i3_title"),
+      desc: t("annonceur.onboarding.step_i3_desc"),
       done: false,
-      cta: { label: "Créer mon brief", to: "/annonceur/briefs/nouveau" } as const,
+      cta: { label: t("annonceur.onboarding.step_i3_cta"), to: "/annonceur/briefs/nouveau" } as const,
     },
     {
       icon: "🚗",
-      title: "Un propriétaire local accepte",
-      desc: "Le véhicule de votre choix démarre dans votre quartier. Vous suivez la campagne en temps réel.",
+      title: t("annonceur.onboarding.step_i4_title"),
+      desc: t("annonceur.onboarding.step_i4_desc"),
       done: false,
       cta: null,
     },
@@ -692,29 +693,29 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
   const stepsBusiness = [
     {
       icon: "✅",
-      title: "Compte créé",
-      desc: "Votre espace annonceur est prêt.",
+      title: t("annonceur.onboarding.step_b1_title"),
+      desc: t("annonceur.onboarding.step_b1_desc"),
       done: true,
       cta: null,
     },
     {
       icon: "🔍",
-      title: "Parcourez les véhicules disponibles",
-      desc: "Choisissez un taxi, VTC, camionnette ou camion LED selon votre zone cible et votre budget.",
+      title: t("annonceur.onboarding.step_b2_title"),
+      desc: t("annonceur.onboarding.step_b2_desc"),
       done: false,
-      cta: { label: "Voir les spots disponibles", to: "/", hash: "spots" } as const,
+      cta: { label: t("annonceur.onboarding.step_b2_cta"), to: "/", hash: "spots" } as const,
     },
     {
       icon: "📋",
-      title: "Soumettez votre campagne",
-      desc: "Remplissez un brief en quelques minutes : zone géographique, durée, visuels. Vous pouvez aussi répondre à des propositions de propriétaires.",
+      title: t("annonceur.onboarding.step_b3_title"),
+      desc: t("annonceur.onboarding.step_b3_desc"),
       done: false,
-      cta: { label: "Créer un brief", to: "/annonceur/briefs/nouveau" } as const,
+      cta: { label: t("annonceur.onboarding.step_b3_cta"), to: "/annonceur/briefs/nouveau" } as const,
     },
     {
       icon: "🚀",
-      title: "Validation et lancement",
-      desc: "L'équipe MoveSpot valide votre campagne sous 48 h. Payez via votre portefeuille, votre publicité démarre.",
+      title: t("annonceur.onboarding.step_b4_title"),
+      desc: t("annonceur.onboarding.step_b4_desc"),
       done: false,
       cta: null,
     },
@@ -727,19 +728,17 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">{isIndividual ? "🎉" : "📣"}</div>
         <h2 className="font-display text-2xl font-bold">
-          {isIndividual ? "Annoncez votre événement" : "Lancez votre première campagne"}
+          {isIndividual ? t("annonceur.onboarding.title_individual") : t("annonceur.onboarding.title_business")}
         </h2>
         <p className="text-muted-foreground text-sm mt-2">
-          {isIndividual
-            ? "Touchez votre quartier en quelques clics — pour un mariage, une ouverture, un festival ou n'importe quel événement local."
-            : "Suivez ces étapes pour diffuser votre publicité sur des véhicules en circulation."}
+          {isIndividual ? t("annonceur.onboarding.subtitle_individual") : t("annonceur.onboarding.subtitle_business")}
         </p>
         {isIndividual && (
           <Link
             to="/annonceur/exemples"
             className="inline-block mt-3 text-xs text-primary hover:underline"
           >
-            Voir des exemples de campagnes particuliers →
+            {t("annonceur.onboarding.see_examples")}
           </Link>
         )}
       </div>
@@ -754,7 +753,7 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm">{step.icon} {step.title}</span>
                 {step.done && (
-                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">Fait</span>
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">{t("annonceur.onboarding.done")}</span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
@@ -781,15 +780,13 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
 
       <div className="mt-6 pt-5 border-t border-border flex items-center justify-between flex-wrap gap-3">
         <p className="text-xs text-muted-foreground">
-          {isIndividual
-            ? "Rechargez votre portefeuille à l'avance pour payer instantanément à la validation."
-            : "Vous pouvez aussi recharger votre portefeuille en avance pour payer rapidement à la validation."}
+          {isIndividual ? t("annonceur.onboarding.wallet_tip_individual") : t("annonceur.onboarding.wallet_tip_business")}
         </p>
         <Link
           to="/annonceur/portefeuille"
           className="text-xs text-primary font-semibold hover:underline"
         >
-          💳 Charger mon portefeuille
+          {t("annonceur.onboarding.load_wallet")}
         </Link>
       </div>
     </div>

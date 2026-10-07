@@ -81,7 +81,7 @@ function SecuritePage() {
     const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: enroll.factorId });
     if (chErr || !ch) {
       setBusy(false);
-      setError(chErr?.message ?? "Erreur lors de la création du challenge");
+      setError(chErr?.message ?? t("securite.challenge_error"));
       return;
     }
     const { error: vErr } = await supabase.auth.mfa.verify({

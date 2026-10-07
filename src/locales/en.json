@@ -82,7 +82,20 @@
       "campaign_debit": "Campaign",
       "refund": "Refund",
       "admin_adjustment": "Adjustment"
-    }
+    },
+    "topup_success": "Balance credited! Your wallet has been topped up.",
+    "back_to_dashboard": "← My space",
+    "subtitle_individual": "Top up the amount of your event pack — used automatically when an owner accepts your brief.",
+    "subtitle_business": "Prepaid credits usable instantly for your campaigns.",
+    "see_packs": "See event packs (€49 · €79 · €149) →",
+    "topup_card_title": "Top up by card",
+    "topup_card_subtitle": "Secure payment via Stripe. Balance credited instantly.",
+    "topup_btn": "Top up {{amount}} €",
+    "history_title": "Wallet history",
+    "export_csv_btn": "↓ Export CSV",
+    "prev": "← Previous",
+    "next": "Next →",
+    "page_info": "Page {{current}} / {{total}} · {{count}} transactions"
   },
   "briefs": {
     "page_title": "My briefs — MoveSpot",
@@ -265,7 +278,8 @@
     "enrolled": "Authenticator activated ✓",
     "removed": "Authenticator removed",
     "verified": "verified",
-    "error_generic": "Something went wrong"
+    "error_generic": "Something went wrong",
+    "challenge_error": "Error creating challenge"
   },
   "chauffeur": {
     "page_title": "Driver — MoveSpot",
@@ -1008,7 +1022,77 @@
       "cta_desc": "Submit a brief in a few minutes and receive proposals within 24–72 hours.",
       "cta_create": "Create a brief now",
       "cta_browse": "Browse vehicles"
-    }
+    },
+    "nav": {
+      "wallet": "💳 Wallet · {{balance}} €",
+      "packs": "🎪 Event packs",
+      "examples": "📖 Examples",
+      "providers": "🎨 Covering providers",
+      "market_study": "📊 Market study",
+      "briefs": "My briefs",
+      "refunds": "💸 Refunds",
+      "new_brief": "+ Create my brief",
+      "new_campaign": "+ New campaign",
+      "browse_spots": "Browse spots"
+    },
+    "promo_individual": {
+      "title": "Reach your neighborhood for your event",
+      "subtitle": "Association, opening, festival… Create a brief in 5 minutes and choose your local vehicles.",
+      "cta_brief": "+ Create my brief",
+      "cta_packs": "🎪 See event packs",
+      "cta_examples": "Campaign examples →"
+    },
+    "promo_led": {
+      "badge": "New",
+      "title": "LED Truck Screen — High-Visibility Mobile Display",
+      "subtitle": "3 LED faces IP67 · 3200×1920 px · MP4 Video / Image / HTML5 · Up to 20,000 contacts/day",
+      "cta_brief": "+ Create a LED Truck brief",
+      "cta_rates": "See pricing →"
+    },
+    "campaign": {
+      "status_history_label": "Request history",
+      "status_pending": "Pending",
+      "status_approved": "Approved",
+      "status_rejected": "Rejected",
+      "track": "📍 Track live",
+      "invoice": "🧾 PDF Invoice",
+      "installation_approved": "Installation approved — see photos",
+      "installation_pending": "Installation photos pending"
+    },
+    "onboarding": {
+      "done": "Done",
+      "title_individual": "Promote your event",
+      "title_business": "Launch your first campaign",
+      "subtitle_individual": "Reach your neighborhood in a few clicks — for a wedding, an opening, a festival or any local event.",
+      "subtitle_business": "Follow these steps to broadcast your ad on vehicles in circulation.",
+      "see_examples": "See examples of individual campaigns →",
+      "wallet_tip_individual": "Top up your wallet in advance to pay instantly upon approval.",
+      "wallet_tip_business": "You can also top up your wallet in advance to pay quickly upon approval.",
+      "load_wallet": "💳 Top up my wallet",
+      "step_i1_title": "Account created",
+      "step_i1_desc": "Your individual account is ready.",
+      "step_i2_title": "Choose an event pack",
+      "step_i2_desc": "Weekend (3d · €49), Event (7d · €79) or Launch (14d · €149). One-time payment, no subscription.",
+      "step_i2_cta": "See packs",
+      "step_i3_title": "Create your brief in 5 minutes",
+      "step_i3_desc": "Describe your event, choose your area and dates. A pre-filled template guides you by event type.",
+      "step_i3_cta": "Create my brief",
+      "step_i4_title": "A local owner accepts",
+      "step_i4_desc": "The vehicle of your choice starts in your neighborhood. You track the campaign in real time.",
+      "step_b1_title": "Account created",
+      "step_b1_desc": "Your advertiser account is ready.",
+      "step_b2_title": "Browse available vehicles",
+      "step_b2_desc": "Choose a taxi, VTC, van or LED truck by target area and budget.",
+      "step_b2_cta": "See available spots",
+      "step_b3_title": "Submit your campaign",
+      "step_b3_desc": "Fill in a brief in a few minutes: geographic area, duration, visuals. You can also respond to owner proposals.",
+      "step_b3_cta": "Create a brief",
+      "step_b4_title": "Validation and launch",
+      "step_b4_desc": "The MoveSpot team validates your campaign within 48h. Pay via your wallet, your ad starts."
+    },
+    "insufficient_balance": "Insufficient balance. Missing {{missing}} €.",
+    "payment_success": "Payment successful ✓",
+    "payment_failed": "Payment failed"
   },
   "proprietaire": {
     "dashboard_title": "Owner space — MoveSpot",

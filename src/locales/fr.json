@@ -82,7 +82,20 @@
       "campaign_debit": "Campagne",
       "refund": "Remboursement",
       "admin_adjustment": "Ajustement"
-    }
+    },
+    "topup_success": "Solde crédité ! Votre portefeuille a été rechargé.",
+    "back_to_dashboard": "← Mon espace",
+    "subtitle_individual": "Rechargez le montant de votre pack événement — utilisé automatiquement quand un propriétaire accepte votre brief.",
+    "subtitle_business": "Crédits prépayés utilisables instantanément pour vos campagnes.",
+    "see_packs": "Voir les packs événement (49 € · 79 € · 149 €) →",
+    "topup_card_title": "Recharger par carte bancaire",
+    "topup_card_subtitle": "Paiement sécurisé via Stripe. Le solde est crédité instantanément.",
+    "topup_btn": "Recharger {{amount}} €",
+    "history_title": "Historique du portefeuille",
+    "export_csv_btn": "↓ Exporter CSV",
+    "prev": "← Précédent",
+    "next": "Suivant →",
+    "page_info": "Page {{current}} / {{total}} · {{count}} transactions"
   },
   "briefs": {
     "page_title": "Mes briefs — MoveSpot",
@@ -265,7 +278,8 @@
     "enrolled": "Authenticator activé ✓",
     "removed": "Authenticator supprimé",
     "verified": "vérifié",
-    "error_generic": "Une erreur est survenue"
+    "error_generic": "Une erreur est survenue",
+    "challenge_error": "Erreur lors de la création du challenge"
   },
   "chauffeur": {
     "page_title": "Chauffeur — MoveSpot",
@@ -1008,7 +1022,77 @@
       "cta_desc": "Déposez un brief en quelques minutes et recevez des propositions sous 24–72 h.",
       "cta_create": "Créer un brief maintenant",
       "cta_browse": "Parcourir les véhicules"
-    }
+    },
+    "nav": {
+      "wallet": "💳 Portefeuille · {{balance}} €",
+      "packs": "🎪 Packs événement",
+      "examples": "📖 Exemples",
+      "providers": "🎨 Prestataires covering",
+      "market_study": "📊 Étude de marché",
+      "briefs": "Mes briefs",
+      "refunds": "💸 Remboursements",
+      "new_brief": "+ Créer mon brief",
+      "new_campaign": "+ Nouvelle campagne",
+      "browse_spots": "Parcourir les spots"
+    },
+    "promo_individual": {
+      "title": "Touchez votre quartier pour votre événement",
+      "subtitle": "Association, inauguration, festival… Créez un brief en 5 minutes et choisissez vos véhicules locaux.",
+      "cta_brief": "+ Créer mon brief",
+      "cta_packs": "🎪 Voir les packs événement",
+      "cta_examples": "Exemples de campagnes →"
+    },
+    "promo_led": {
+      "badge": "Nouveau",
+      "title": "Camion Écran LED — Affichage Mobile Haute Visibilité",
+      "subtitle": "3 faces LED IP67 · 3200×1920 px · Vidéo MP4 / Image / Flux HTML5 · Jusqu'à 20 000 contacts/jour",
+      "cta_brief": "+ Créer un brief Camion LED",
+      "cta_rates": "Voir les tarifs →"
+    },
+    "campaign": {
+      "status_history_label": "Historique de la demande",
+      "status_pending": "En attente",
+      "status_approved": "Validée",
+      "status_rejected": "Refusée",
+      "track": "📍 Suivre en direct",
+      "invoice": "🧾 Facture PDF",
+      "installation_approved": "Pose validée — voir photos",
+      "installation_pending": "Photos de pose en attente"
+    },
+    "onboarding": {
+      "done": "Fait",
+      "title_individual": "Annoncez votre événement",
+      "title_business": "Lancez votre première campagne",
+      "subtitle_individual": "Touchez votre quartier en quelques clics — pour un mariage, une ouverture, un festival ou n'importe quel événement local.",
+      "subtitle_business": "Suivez ces étapes pour diffuser votre publicité sur des véhicules en circulation.",
+      "see_examples": "Voir des exemples de campagnes particuliers →",
+      "wallet_tip_individual": "Rechargez votre portefeuille à l'avance pour payer instantanément à la validation.",
+      "wallet_tip_business": "Vous pouvez aussi recharger votre portefeuille en avance pour payer rapidement à la validation.",
+      "load_wallet": "💳 Charger mon portefeuille",
+      "step_i1_title": "Compte créé",
+      "step_i1_desc": "Votre espace particulier est prêt.",
+      "step_i2_title": "Choisissez un pack événement",
+      "step_i2_desc": "Week-end (3 j · 49 €), Événement (7 j · 79 €) ou Lancement (14 j · 149 €). Paiement unique, aucun abonnement.",
+      "step_i2_cta": "Voir les packs",
+      "step_i3_title": "Créez votre brief en 5 minutes",
+      "step_i3_desc": "Décrivez votre événement, choisissez votre zone et vos dates. Un modèle prérempli vous guide selon le type d'événement.",
+      "step_i3_cta": "Créer mon brief",
+      "step_i4_title": "Un propriétaire local accepte",
+      "step_i4_desc": "Le véhicule de votre choix démarre dans votre quartier. Vous suivez la campagne en temps réel.",
+      "step_b1_title": "Compte créé",
+      "step_b1_desc": "Votre espace annonceur est prêt.",
+      "step_b2_title": "Parcourez les véhicules disponibles",
+      "step_b2_desc": "Choisissez un taxi, VTC, camionnette ou camion LED selon votre zone cible et votre budget.",
+      "step_b2_cta": "Voir les spots disponibles",
+      "step_b3_title": "Soumettez votre campagne",
+      "step_b3_desc": "Remplissez un brief en quelques minutes : zone géographique, durée, visuels. Vous pouvez aussi répondre à des propositions de propriétaires.",
+      "step_b3_cta": "Créer un brief",
+      "step_b4_title": "Validation et lancement",
+      "step_b4_desc": "L'équipe MoveSpot valide votre campagne sous 48 h. Payez via votre portefeuille, votre publicité démarre."
+    },
+    "insufficient_balance": "Solde insuffisant. Manque {{missing}} €.",
+    "payment_success": "Paiement effectué ✓",
+    "payment_failed": "Échec du paiement"
   },
   "proprietaire": {
     "dashboard_title": "Espace propriétaire — MoveSpot",

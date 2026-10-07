@@ -108,7 +108,7 @@ function WalletPage() {
         (payload) => {
           const tx = payload.new as { amount_cents: number; kind: string };
           setBalanceCents((prev) => prev + tx.amount_cents);
-          if (tx.kind === "topup") toast.success("Solde crédité ! Votre portefeuille a été rechargé.");
+          if (tx.kind === "topup") toast.success(t("wallet.topup_success"));
           void loadTransactionsRef.current(filterKindRef.current, pageRef.current);
         },
       )
@@ -163,21 +163,21 @@ function WalletPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">{t("wallet.back_to_dashboard")}</Link>
         </div>
       </header>
 
       <main id="main-content" className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         <section>
-          <h1 className="font-display text-3xl font-bold mb-2">Mon portefeuille</h1>
+          <h1 className="font-display text-3xl font-bold mb-2">{t("wallet.title")}</h1>
           <p className="text-sm text-muted-foreground">
             {accountType === "individual"
-              ? "Rechargez le montant de votre pack événement — utilisé automatiquement quand un propriétaire accepte votre brief."
-              : "Crédits prépayés utilisables instantanément pour vos campagnes."}
+              ? t("wallet.subtitle_individual")
+              : t("wallet.subtitle_business")}
           </p>
           {accountType === "individual" && (
             <Link to="/annonceur/pack" className="inline-block mt-1 text-xs text-primary hover:underline">
-              Voir les packs événement (49 € · 79 € · 149 €) →
+              {t("wallet.see_packs")}
             </Link>
           )}
         </section>
@@ -188,8 +188,8 @@ function WalletPage() {
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
-          <h2 className="font-display text-xl font-semibold">Recharger par carte bancaire</h2>
-          <p className="text-sm text-muted-foreground">Paiement sécurisé via Stripe. Le solde est crédité instantanément.</p>
+          <h2 className="font-display text-xl font-semibold">{t("wallet.topup_card_title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("wallet.topup_card_subtitle")}</p>
           <div className="flex flex-wrap items-center gap-2">
             {(accountType === "individual"
               ? [{ v: 49, label: "49 € · Week-end" }, { v: 79, label: "79 € · Événement" }, { v: 149, label: "149 € · Lancement" }]
@@ -211,7 +211,7 @@ function WalletPage() {
               className="w-28 px-3 py-1.5 rounded-lg border border-border bg-background text-sm"
             />
           </div>
-          <WalletTopupCheckout amountEuros={amount} buttonLabel={`Recharger ${amount} €`} />
+          <WalletTopupCheckout amountEuros={amount} buttonLabel={t("wallet.topup_btn", { amount })} />
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6">
@@ -220,13 +220,13 @@ function WalletPage() {
 
         <section>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <h2 className="font-display text-xl font-semibold">Historique du portefeuille</h2>
+            <h2 className="font-display text-xl font-semibold">{t("wallet.history_title")}</h2>
             <button
               onClick={exportCsv}
               disabled={txLoading || total === 0}
               className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              ↓ Exporter CSV
+              {t("wallet.export_csv_btn")}
             </button>
           </div>
 
@@ -250,11 +250,11 @@ function WalletPage() {
           {/* Table */}
           {txLoading ? (
             <div className="rounded-xl border border-border bg-card/30 p-8 text-center text-muted-foreground text-sm animate-pulse">
-              Chargement…
+              {t("common.loading")}
             </div>
           ) : transactions.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border bg-card/30 p-8 text-center text-muted-foreground text-sm">
-              Aucun mouvement pour ce filtre.
+              {t("wallet.no_transactions")}
             </div>
           ) : (
             <div className="rounded-xl border border-border bg-card overflow-x-auto">
@@ -302,17 +302,17 @@ function WalletPage() {
                 disabled={page === 0 || txLoading}
                 className="rounded-lg border border-border px-3 py-1.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                ← Précédent
+                {t("wallet.prev")}
               </button>
               <span className="text-muted-foreground">
-                Page {page + 1} / {totalPages} · {total} transaction{total > 1 ? "s" : ""}
+                {t("wallet.page_info", { current: page + 1, total: totalPages, count: total })}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1 || txLoading}
                 className="rounded-lg border border-border px-3 py-1.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Suivant →
+                {t("wallet.next")}
               </button>
             </div>
           )}
