@@ -1858,5 +1858,39 @@
     "used": "Ce lien a déjà été utilisé : vous êtes déjà désinscrit.",
     "invalid": "Ce lien de désinscription est invalide ou a expiré.",
     "error": "Une erreur est survenue. Merci de réessayer dans quelques instants."
+  },
+  "campaigns": {
+    "page": {
+      "title": "Campagnes en cours",
+      "subtitle": "Voici les campagnes publicitaires mobiles actuellement diffusées sur nos véhicules en France.",
+      "active_count_one": "{{count}} campagne active ce jour.",
+      "active_count_other": "{{count}} campagnes actives ce jour.",
+      "empty_title": "Aucune campagne active pour le moment",
+      "empty_hint": "Revenez bientôt ou lancez la vôtre.",
+      "start_cta": "Démarrer une campagne",
+      "join_title": "Rejoignez MoveSpot",
+      "join_subtitle": "Diffusez votre marque sur des véhicules en circulation — taxis, VTC, camions — et touchez des milliers de personnes par jour.",
+      "join_advertiser": "Je suis annonceur →",
+      "join_owner": "J'ai un véhicule →"
+    },
+    "card": {
+      "active_badge": "En cours",
+      "vehicle_fallback": "🚗 Véhicule",
+      "zones_one": "{{count}} zone",
+      "zones_other": "{{count}} zones",
+      "impressions_label": "Impressions est.",
+      "days_left_label": "Jours restants"
+    },
+    "vehicle": {
+      "taxi": "🚕 Taxi",
+      "vtc": "🚗 VTC",
+      "trottinette": "🛴 Trottinette",
+      "velo": "🚲 Vélo",
+      "camion": "🚚 Camion",
+      "camion_led": "📺 Camion LED",
+      "moto": "🏍️ Moto",
+      "bus": "🚌 Bus",
+      "autre": "🚗 Autre"
+    }
   }
 }

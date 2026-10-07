@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { getPublicActiveCampaigns } from "@/lib/campaigns/rating.functions";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -16,18 +17,6 @@ export const Route = createFileRoute("/_public/campagnes")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-const VEHICLE_LABELS: Record<string, string> = {
-  taxi: "🚕 Taxi",
-  vtc: "🚗 VTC",
-  trottinette: "🛴 Trottinette",
-  velo: "🚲 Vélo",
-  camion: "🚚 Camion",
-  camion_led: "📺 Camion LED",
-  moto: "🏍️ Moto",
-  bus: "🚌 Bus",
-  autre: "🚗 Autre",
-};
-
 type Campaign = {
   id: string;
   spotName: string;
@@ -42,6 +31,7 @@ type Campaign = {
 };
 
 function CampagnesPage() {
+  const { t } = useTranslation();
   const fetchCampaigns = useServerFn(getPublicActiveCampaigns);
   const { data, isLoading } = useQuery({
     queryKey: ["public-campaigns"],
@@ -55,11 +45,11 @@ function CampagnesPage() {
     <div className="min-h-screen bg-background">
       <main className="max-w-6xl mx-auto px-6 py-12">
         <div className="mb-10 text-center">
-          <h1 className="font-display text-4xl font-bold mb-3">Campagnes en cours</h1>
+          <h1 className="font-display text-4xl font-bold mb-3">{t("campaigns.page.title")}</h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Voici les campagnes publicitaires mobiles actuellement diffusées sur nos véhicules en France.
+            {t("campaigns.page.subtitle")}
             {campaigns.length > 0 && (
-              <span> <strong>{campaigns.length}</strong> campagne{campaigns.length > 1 ? "s" : ""} active{campaigns.length > 1 ? "s" : ""} ce jour.</span>
+              <span> <strong>{campaigns.length}</strong> {t(`campaigns.page.active_count_${campaigns.length > 1 ? "other" : "one"}`, { count: campaigns.length })}</span>
             )}
           </p>
         </div>
@@ -77,13 +67,13 @@ function CampagnesPage() {
         ) : campaigns.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
             <div className="text-5xl mb-4">📭</div>
-            <p className="text-lg font-semibold">Aucune campagne active pour le moment</p>
-            <p className="text-sm mt-2">Revenez bientôt ou lancez la vôtre.</p>
+            <p className="text-lg font-semibold">{t("campaigns.page.empty_title")}</p>
+            <p className="text-sm mt-2">{t("campaigns.page.empty_hint")}</p>
             <Link
               to="/annonceur/inscription"
               className="inline-block mt-6 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
             >
-              Démarrer une campagne
+              {t("campaigns.page.start_cta")}
             </Link>
           </div>
         ) : (
@@ -95,22 +85,22 @@ function CampagnesPage() {
         )}
 
         <div className="mt-16 rounded-2xl border border-border bg-card p-8 text-center">
-          <h2 className="font-display text-2xl font-bold mb-3">Rejoignez MoveSpot</h2>
+          <h2 className="font-display text-2xl font-bold mb-3">{t("campaigns.page.join_title")}</h2>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto text-sm">
-            Diffusez votre marque sur des véhicules en circulation — taxis, VTC, camions — et touchez des milliers de personnes par jour.
+            {t("campaigns.page.join_subtitle")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
               to="/annonceur/inscription"
               className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
             >
-              Je suis annonceur →
+              {t("campaigns.page.join_advertiser")}
             </Link>
             <Link
               to="/proprietaire/inscription"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary transition"
             >
-              J'ai un véhicule →
+              {t("campaigns.page.join_owner")}
             </Link>
           </div>
         </div>
@@ -120,18 +110,21 @@ function CampagnesPage() {
 }
 
 function CampaignCard({ campaign: c }: { campaign: Campaign }) {
+  const { t, i18n } = useTranslation();
   const totalImpressions = (c.impressionsPerDay ?? 0) * (c.daysCount ?? 1);
   const endDate = new Date(c.endDate);
   const today = new Date();
   const daysLeft = Math.ceil((endDate.getTime() - today.getTime()) / 86400000);
-  const vehicleLabel = c.vehicleType ? (VEHICLE_LABELS[c.vehicleType] ?? `🚗 ${c.vehicleType}`) : "🚗 Véhicule";
+  const vehicleLabel = c.vehicleType
+    ? t(`campaigns.vehicle.${c.vehicleType}`, { defaultValue: `🚗 ${c.vehicleType}` })
+    : t("campaigns.card.vehicle_fallback");
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6 flex flex-col gap-3 hover:border-primary/40 transition">
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold text-base leading-tight">{c.spotName}</h3>
         <span className="text-xs bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 rounded-full px-2 py-0.5 shrink-0 font-medium">
-          En cours
+          {t("campaigns.card.active_badge")}
         </span>
       </div>
 
@@ -145,7 +138,7 @@ function CampaignCard({ campaign: c }: { campaign: Campaign }) {
         <span className="text-xs bg-secondary rounded-full px-2 py-0.5">{vehicleLabel}</span>
         {c.zoneCount > 0 && (
           <span className="text-xs bg-secondary rounded-full px-2 py-0.5">
-            {c.zoneCount} zone{c.zoneCount > 1 ? "s" : ""}
+            {t(`campaigns.card.zones_${c.zoneCount > 1 ? "other" : "one"}`, { count: c.zoneCount })}
           </span>
         )}
       </div>
@@ -153,21 +146,22 @@ function CampaignCard({ campaign: c }: { campaign: Campaign }) {
       <div className="grid grid-cols-2 gap-2 mt-1">
         {totalImpressions > 0 && (
           <div className="rounded-lg bg-muted/40 p-2 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Impressions est.</p>
-            <p className="font-bold text-sm">{totalImpressions.toLocaleString("fr-FR")}</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("campaigns.card.impressions_label")}</p>
+            <p className="font-bold text-sm">{totalImpressions.toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US")}</p>
           </div>
         )}
         {daysLeft > 0 && (
           <div className="rounded-lg bg-muted/40 p-2 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Jours restants</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("campaigns.card.days_left_label")}</p>
             <p className="font-bold text-sm">{daysLeft}</p>
           </div>
         )}
       </div>
 
       <p className="text-xs text-muted-foreground mt-auto">
-        Du {new Date(c.startDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} au{" "}
-        {new Date(c.endDate).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+        {new Date(c.startDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "short" })}
+        {" – "}
+        {new Date(c.endDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "short", year: "numeric" })}
       </p>
     </div>
   );

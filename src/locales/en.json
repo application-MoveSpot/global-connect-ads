@@ -1858,5 +1858,39 @@
     "used": "This link has already been used: you are already unsubscribed.",
     "invalid": "This unsubscribe link is invalid or has expired.",
     "error": "An error occurred. Please try again in a moment."
+  },
+  "campaigns": {
+    "page": {
+      "title": "Active campaigns",
+      "subtitle": "Here are the mobile advertising campaigns currently running on our vehicles in France.",
+      "active_count_one": "{{count}} active campaign today.",
+      "active_count_other": "{{count}} active campaigns today.",
+      "empty_title": "No active campaigns at the moment",
+      "empty_hint": "Come back soon or launch yours.",
+      "start_cta": "Start a campaign",
+      "join_title": "Join MoveSpot",
+      "join_subtitle": "Broadcast your brand on moving vehicles — taxis, ride-hails, trucks — and reach thousands of people every day.",
+      "join_advertiser": "I am an advertiser →",
+      "join_owner": "I have a vehicle →"
+    },
+    "card": {
+      "active_badge": "Active",
+      "vehicle_fallback": "🚗 Vehicle",
+      "zones_one": "{{count}} zone",
+      "zones_other": "{{count}} zones",
+      "impressions_label": "Est. impressions",
+      "days_left_label": "Days left"
+    },
+    "vehicle": {
+      "taxi": "🚕 Taxi",
+      "vtc": "🚗 Rideshare",
+      "trottinette": "🛴 Scooter",
+      "velo": "🚲 Bike",
+      "camion": "🚚 Truck",
+      "camion_led": "📺 LED Truck",
+      "moto": "🏍️ Motorcycle",
+      "bus": "🚌 Bus",
+      "autre": "🚗 Other"
+    }
   }
 }
