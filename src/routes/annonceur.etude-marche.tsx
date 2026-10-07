@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LogoLink } from "@/components/app/LogoLink";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/app/RouteError";
@@ -65,6 +66,7 @@ const fmt = (n: number | string) => new Intl.NumberFormat("fr-FR", { maximumFrac
 type Tab = "marche" | "catalogue" | "previsionnel";
 
 function EtudeMarche() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("marche");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleEntry | null>(null);
 
@@ -75,10 +77,10 @@ function EtudeMarche() {
           <LogoLink />
           <nav className="flex items-center gap-2">
             <Link to="/annonceur/" className="text-sm text-muted-foreground hover:text-foreground transition px-3 py-1.5 rounded-full hover:bg-secondary">
-              ← Dashboard
+              {t("annonceur.etude_marche.back")}
             </Link>
             <Link to="/annonceur/briefs/nouveau" className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition">
-              + Nouveau brief
+              {t("annonceur.etude_marche.new_brief_btn")}
             </Link>
           </nav>
         </div>
@@ -87,21 +89,21 @@ function EtudeMarche() {
       <main id="main-content" className="max-w-6xl mx-auto px-6 py-10">
         {/* En-tête */}
         <div className="mb-8">
-          <h1 className="font-display text-4xl font-bold mb-2">Étude de marché &amp; Prévisionnel</h1>
+          <h1 className="font-display text-4xl font-bold mb-2">{t("annonceur.etude_marche.title")}</h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
-            Analyse complète du marché OOH mobile, catalogue des supports, modèle économique et projections financières 5 ans.
+            {t("annonceur.etude_marche.subtitle")}
           </p>
         </div>
 
         {/* KPI top */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           {[
-            { v: "7 Mds €",      l: "Marché OOH France",     s: "+6 %/an" },
-            { v: "+18 %",        l: "Croissance mobile",      s: "Segment le plus rapide" },
-            { v: "30 %",         l: "Commission MoveSpot",    s: "Sur GMV annonceurs" },
-            { v: "901 836 €",    l: "CA cible An 5",          s: "Marge nette 50 %" },
-            { v: "650",          l: "Véhicules An 5",         s: "Démarrage : 15" },
-            { v: "3 006 120 €",  l: "GMV cible An 5",         s: "70 % reversé propriétaires" },
+            { v: "7 Mds €",      l: t("annonceur.etude_marche.kpi_market"),      s: "+6 %/an" },
+            { v: "+18 %",        l: t("annonceur.etude_marche.kpi_growth"),       s: "Segment le plus rapide" },
+            { v: "30 %",         l: t("annonceur.etude_marche.kpi_commission"),   s: "Sur GMV annonceurs" },
+            { v: "901 836 €",    l: t("annonceur.etude_marche.kpi_ca"),           s: "Marge nette 50 %" },
+            { v: "650",          l: t("annonceur.etude_marche.kpi_vehicles"),     s: "Démarrage : 15" },
+            { v: "3 006 120 €",  l: t("annonceur.etude_marche.kpi_gmv"),          s: "70 % reversé propriétaires" },
           ].map((k) => (
             <div key={k.l} className="rounded-xl border border-border bg-card p-4">
               <div className="font-display text-xl font-bold text-primary tabular-nums">{k.v}</div>
@@ -113,16 +115,16 @@ function EtudeMarche() {
 
         {/* Onglets */}
         <div className="flex gap-1 mb-6 border border-border rounded-xl p-1 bg-card/50 w-fit">
-          {(["marche", "catalogue", "previsionnel"] as Tab[]).map((t) => (
+          {(["marche", "catalogue", "previsionnel"] as Tab[]).map((tabKey) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={tabKey}
+              onClick={() => setTab(tabKey)}
               className={cn(
                 "px-5 py-2 rounded-lg text-sm font-medium transition",
-                tab === t ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                tab === tabKey ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {t === "marche" ? "📊 Marché & stratégie" : t === "catalogue" ? "🚗 Catalogue supports" : "💹 Prévisionnel 5 ans"}
+              {tabKey === "marche" ? t("annonceur.etude_marche.tab_marche") : tabKey === "catalogue" ? t("annonceur.etude_marche.tab_catalogue") : t("annonceur.etude_marche.tab_previsionnel")}
             </button>
           ))}
         </div>
@@ -339,10 +341,10 @@ function EtudeMarche() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
                   {[
-                    { l: "Prix/jour/véhicule", v: `${selectedVehicle.prixMin}–${selectedVehicle.prixMax} €` },
-                    { l: "Impressions/jour", v: `${selectedVehicle.impressionsMin.toLocaleString("fr-FR")}–${selectedVehicle.impressionsMax.toLocaleString("fr-FR")}` },
-                    { l: "Demande annonceurs", v: selectedVehicle.demandePct > 0 ? `${selectedVehicle.demandePct} %` : "Disponible" },
-                    { l: "Zones principales", v: selectedVehicle.zones.slice(0, 2).join(", ") },
+                    { l: t("annonceur.etude_marche.detail_prix_jour"), v: `${selectedVehicle.prixMin}–${selectedVehicle.prixMax} €` },
+                    { l: t("annonceur.etude_marche.detail_impressions_jour"), v: `${selectedVehicle.impressionsMin.toLocaleString("fr-FR")}–${selectedVehicle.impressionsMax.toLocaleString("fr-FR")}` },
+                    { l: t("annonceur.etude_marche.detail_demande"), v: selectedVehicle.demandePct > 0 ? `${selectedVehicle.demandePct} %` : t("annonceur.etude_marche.detail_demande_available") },
+                    { l: t("annonceur.etude_marche.detail_zones"), v: selectedVehicle.zones.slice(0, 2).join(", ") },
                   ].map((s) => (
                     <div key={s.l} className="bg-secondary/40 rounded-xl p-3">
                       <div className="text-xs text-muted-foreground mb-1">{s.l}</div>
@@ -352,7 +354,7 @@ function EtudeMarche() {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4 mb-5">
                   <div>
-                    <h4 className="text-sm font-semibold mb-2">Formats publicitaires</h4>
+                    <h4 className="text-sm font-semibold mb-2">{t("annonceur.etude_marche.detail_formats_title")}</h4>
                     <ul className="space-y-1">
                       {selectedVehicle.formats.map((f) => (
                         <li key={f} className="text-sm text-muted-foreground flex items-center gap-2">
@@ -362,7 +364,7 @@ function EtudeMarche() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold mb-2">Zones de diffusion</h4>
+                    <h4 className="text-sm font-semibold mb-2">{t("annonceur.etude_marche.detail_zones_title")}</h4>
                     <div className="flex flex-wrap gap-2">
                       {selectedVehicle.zones.map((z) => (
                         <span key={z} className="text-xs bg-secondary px-2.5 py-1 rounded-full">{z}</span>
@@ -372,10 +374,10 @@ function EtudeMarche() {
                 </div>
                 <div className="flex gap-3 pt-4 border-t border-border">
                   <Link to="/annonceur/briefs/nouveau" className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition">
-                    Créer un brief {selectedVehicle.label}
+                    {t("annonceur.etude_marche.detail_create_brief", { label: selectedVehicle.label })}
                   </Link>
                   <button onClick={() => setSelectedVehicle(null)} className="rounded-full border border-border px-5 py-2.5 text-sm hover:bg-secondary transition">
-                    Fermer
+                    {t("annonceur.etude_marche.detail_close")}
                   </button>
                 </div>
               </div>
@@ -387,7 +389,7 @@ function EtudeMarche() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border bg-secondary/30">
-                      {["Support", "Formats", "Prix/j", "Impressions/j", "CPM estimé", "Zones"].map((h) => (
+                      {[t("annonceur.etude_marche.col_support"), t("annonceur.etude_marche.col_formats"), t("annonceur.etude_marche.col_prix_j"), t("annonceur.etude_marche.col_impressions_j"), t("annonceur.etude_marche.col_cpm_est"), t("annonceur.etude_marche.col_zones")].map((h) => (
                         <th key={h} className="text-left py-2.5 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap first:pl-4">{h}</th>
                       ))}
                     </tr>
@@ -456,8 +458,8 @@ function EtudeMarche() {
                 ))}
               </div>
               <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-primary shrink-0" />Commission 30 %</span>
-                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-border shrink-0" />Reversé propriétaires 70 %</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-primary shrink-0" />{t("annonceur.etude_marche.previsionnel_gmv_legend_commission")}</span>
+                <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-border shrink-0" />{t("annonceur.etude_marche.previsionnel_gmv_legend_revers")}</span>
               </div>
             </Card>
 
@@ -549,7 +551,7 @@ function EtudeMarche() {
                       </ul>
                       <div className="mt-3 pt-3 border-t border-border/50">
                         <div className="font-display text-lg font-bold text-primary tabular-nums">{p.gmv}</div>
-                        <div className="text-xs text-muted-foreground">GMV cible</div>
+                        <div className="text-xs text-muted-foreground">{t("annonceur.etude_marche.roadmap_gmv_label")}</div>
                       </div>
                     </div>
                   </div>
@@ -559,14 +561,14 @@ function EtudeMarche() {
 
             {/* Appel à l'action */}
             <div className="rounded-2xl bg-primary/10 border border-primary/30 p-8 text-center">
-              <h2 className="font-display text-2xl font-bold mb-2">Prêt à lancer votre campagne ?</h2>
-              <p className="text-muted-foreground mb-6">Déposez un brief en quelques minutes et recevez des propositions sous 24–72 h.</p>
+              <h2 className="font-display text-2xl font-bold mb-2">{t("annonceur.etude_marche.cta_title")}</h2>
+              <p className="text-muted-foreground mb-6">{t("annonceur.etude_marche.cta_desc")}</p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Link to="/annonceur/briefs/nouveau" className="rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition">
-                  Créer un brief maintenant
+                  {t("annonceur.etude_marche.cta_create")}
                 </Link>
                 <Link to="/" hash="spots" className="rounded-full border border-primary/40 text-primary px-8 py-3 font-semibold hover:bg-primary/10 transition">
-                  Parcourir les véhicules
+                  {t("annonceur.etude_marche.cta_browse")}
                 </Link>
               </div>
             </div>
@@ -614,6 +616,7 @@ function DataRow({ label, values, format, bold }: { label: string; values: (numb
 // ─── Simulateur ROI ────────────────────────────────────────────────────────────
 
 function SimulateurROI() {
+  const { t } = useTranslation();
   const [jours, setJours] = useState(30);
   const [vehicules, setVehicules] = useState(5);
   const [prixJour, setPrixJour] = useState(30);
@@ -625,11 +628,11 @@ function SimulateurROI() {
   const cpm = budget > 0 && impressions > 0 ? ((budget / impressions) * 1000).toFixed(2) : "—";
 
   return (
-    <Card title="Simulateur ROI personnalisé">
+    <Card title={t("annonceur.etude_marche.sim_title")}>
       <div className="grid sm:grid-cols-2 gap-6">
         <div className="space-y-5">
           <div>
-            <label htmlFor="sim-vehicle-type" className="text-sm font-medium block mb-2">Type de véhicule</label>
+            <label htmlFor="sim-vehicle-type" className="text-sm font-medium block mb-2">{t("annonceur.etude_marche.sim_vehicle_label")}</label>
             <select
               id="sim-vehicle-type"
               value={typeV.key}
@@ -640,18 +643,18 @@ function SimulateurROI() {
             </select>
           </div>
           <div>
-            <label htmlFor="sim-jours" className="text-sm font-medium block mb-2">Durée : <span className="text-primary font-bold">{jours} jours</span></label>
+            <label htmlFor="sim-jours" className="text-sm font-medium block mb-2">{t("annonceur.etude_marche.sim_jours_label", { n: jours })}</label>
             <input id="sim-jours" type="range" min={1} max={180} value={jours} aria-valuetext={`${jours} jours`} onChange={(e) => setJours(Number(e.target.value))} className="w-full accent-primary" />
             <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1 j</span><span>180 j</span></div>
           </div>
           <div>
-            <label htmlFor="sim-vehicules" className="text-sm font-medium block mb-2">Nombre de véhicules : <span className="text-primary font-bold">{vehicules}</span></label>
+            <label htmlFor="sim-vehicules" className="text-sm font-medium block mb-2">{t("annonceur.etude_marche.sim_vehicules_label")} : <span className="text-primary font-bold">{vehicules}</span></label>
             <input id="sim-vehicules" type="range" min={1} max={50} value={vehicules} aria-valuetext={`${vehicules} véhicule${vehicules > 1 ? "s" : ""}`} onChange={(e) => setVehicules(Number(e.target.value))} className="w-full accent-primary" />
             <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1</span><span>50</span></div>
           </div>
           <div>
             <label htmlFor="sim-prix" className="text-sm font-medium block mb-2">
-              Prix/véhicule/jour : <span className="text-primary font-bold">{prixJour} €</span>
+              {t("annonceur.etude_marche.sim_prix_label")} : <span className="text-primary font-bold">{prixJour} €</span>
               <span className="text-xs text-muted-foreground ml-2">({typeV.prixMin}–{typeV.prixMax} €)</span>
             </label>
             <input id="sim-prix" type="range" min={typeV.prixMin} max={typeV.prixMax} value={prixJour} aria-valuetext={`${prixJour} € par jour`} onChange={(e) => setPrixJour(Number(e.target.value))} className="w-full accent-primary" />
@@ -660,23 +663,23 @@ function SimulateurROI() {
         <div className="flex flex-col justify-center gap-4">
           <div className="rounded-xl bg-primary/10 border border-primary/20 p-5 text-center">
             <div className="font-display text-4xl font-bold text-primary mb-1 tabular-nums">{budget.toLocaleString("fr-FR")} €</div>
-            <div className="text-sm text-muted-foreground">Budget total de campagne</div>
+            <div className="text-sm text-muted-foreground">{t("annonceur.etude_marche.sim_budget_label")}</div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-secondary/50 p-4 text-center">
               <div className="text-xl font-bold tabular-nums">{impressions.toLocaleString("fr-FR")}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">Impressions estimées</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{t("annonceur.etude_marche.sim_impressions_label")}</div>
             </div>
             <div className="rounded-xl bg-secondary/50 p-4 text-center">
               <div className="text-xl font-bold font-mono tabular-nums">{cpm} €</div>
-              <div className="text-xs text-muted-foreground mt-0.5">CPM</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{t("annonceur.etude_marche.sim_cpm_label")}</div>
             </div>
           </div>
           <div className="text-xs text-muted-foreground bg-secondary/30 rounded-xl p-3">
             <strong>{typeV.emoji} {typeV.label}</strong> — {typeV.atout}
           </div>
           <Link to="/annonceur/briefs/nouveau" className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition text-center">
-            Créer ce brief →
+            {t("annonceur.etude_marche.sim_create_brief")}
           </Link>
         </div>
       </div>
