@@ -1939,5 +1939,142 @@
       "reject_reason": "Reason for rejection?"
     },
     "back": "← Admin"
+  },
+  "partner": {
+    "badge": "🚐 Owner space",
+    "hero_line1": "Your kilometres,",
+    "hero_line2": "your new income.",
+    "hero_subtitle": "Own a food truck, van, taxi, scooter or fleet of vehicles? List your advertising space on MoveSpot and generate passive income on your daily routes.",
+    "cta_signup": "Create my owner account",
+    "cta_existing": "I already have an account",
+    "steps": {
+      "s1_title": "Create your profile",
+      "s1_desc": "Sign up in 2 minutes. Enter your details and add your first vehicle with photos.",
+      "s2_title": "Validation by MoveSpot",
+      "s2_desc": "MoveSpot verifies your vehicle within 48h to guarantee marketplace quality.",
+      "s3_title": "Receive campaigns",
+      "s3_desc": "Advertisers contact you. Accept or decline each request and pocket the revenue."
+    },
+    "vehicles_title": "Which vehicles?",
+    "legal": {
+      "title": "Outdoor advertising: what the regulations say",
+      "p1": "Vehicle and public-space advertising is governed by the Environmental Code (articles L.581-1 et seq.) and the local advertising regulations (RLP) of each municipality.",
+      "item1": "<strong>Illuminated advertising</strong> is prohibited in towns with fewer than 10,000 inhabitants that are not part of an urban unit of more than 100,000.",
+      "item2": "Advertising is prohibited on <strong>listed or registered buildings</strong>, historic monuments, trees, and in protected sites (national parks, nature reserves).",
+      "item3": "<strong>Vehicles used or equipped primarily for advertising purposes</strong> may not park or travel in certain zones (article R.581-48 of the Environmental Code).",
+      "item4": "Formats, surfaces and locations must comply with the <strong>local advertising plan (RLP)</strong> of the municipality concerned.",
+      "source": "Source:",
+      "source_link": "service-public.fr — Outdoor advertising regulations",
+      "note": "MoveSpot verifies every campaign to guarantee compliance."
+    },
+    "faq_badge": "💬 Frequently asked questions",
+    "faq_title": "Everything you need to know",
+    "cta_bottom_title": "Ready to monetize your routes?",
+    "cta_start": "Get started now",
+    "partner_promo": "Are you a business referrer, agency or reseller?",
+    "partner_link": "Join the partner programme",
+    "vehicle": {
+      "taxi": "Taxi / Rideshare",
+      "van": "Utility van",
+      "foodtruck": "Food truck",
+      "scooter": "Delivery scooter",
+      "voiture": "Personal car",
+      "flotte": "Company fleet"
+    },
+    "city": {
+      "paris": "Paris / IDF",
+      "lyon": "Lyon",
+      "marseille": "Marseille",
+      "bordeaux": "Bordeaux",
+      "toulouse": "Toulouse",
+      "autre": "Other city",
+      "dense_note": "✦ Dense zone: rate increased ×1.5 for advertisers"
+    },
+    "sim": {
+      "badge": "💶 Revenue simulator",
+      "title": "How much can you earn?",
+      "subtitle_pre": "Based on MoveSpot's real model — ",
+      "subtitle_mid": " comes back to you directly, with a guaranteed minimum of ",
+      "vehicle_label": "Vehicle type",
+      "city_label": "Main city",
+      "days_label": "Active days / month: {{days}} days",
+      "vehicles_label": "Number of vehicles: {{nb}}",
+      "per_day_label": "Per vehicle / day",
+      "campaign_pct": "70% of campaign",
+      "monthly_label": "Estimated monthly income",
+      "monthly_detail": "{{days}} d × {{nb}} veh.",
+      "yearly_label": "Annual projection",
+      "yearly_detail": "× 12 months",
+      "calc_label": "How is it calculated? ",
+      "calc_text": "Min. advertiser campaign 25 €/vehicle/day → you receive 70 % i.e. 17.50 € guaranteed/day. Campaigns across larger zones or major cities generate more. Non-contractual estimate — revenues depend on active campaigns in your area.",
+      "cta": "Create my owner account →"
+    },
+    "faq": {
+      "q0": "How much can I earn per month with MoveSpot?",
+      "a0": "The guaranteed minimum is €17.50 per vehicle per active day (= 70% of the advertiser floor rate of €25). With 15 active days per month, that is at least €262 in net supplementary income. In dense areas (Paris, Lyon, Marseille), campaigns are more expensive and revenues can reach €49/day for a taxi.",
+      "q1": "Which vehicles are accepted on MoveSpot?",
+      "a1": "Food trucks, utility vans, taxis, rideshare cars, delivery scooters, personal cars and company fleets. The vehicle must be roadworthy and have a usable glass or body surface for display. Validation includes 4 photos.",
+      "q2": "Is it compatible with my taxi or rideshare activity?",
+      "a2": "Yes. MoveSpot is designed as 100% passive supplementary income: you drive as usual, GPS tracking validates the kilometres driven in the campaign zone. No additional route constraints.",
+      "q3": "How and when am I paid?",
+      "a3": "Your earnings accumulate in your MoveSpot wallet as active campaigns run. You can request a bank transfer from a balance of €50. Transfers are processed within 3 to 5 business days.",
+      "q4": "Can I refuse an advertising campaign?",
+      "a4": "Yes. Each campaign request is submitted to you with the details (brand, visual, zone, duration). You accept or refuse freely, with no justification required. You keep control of what you carry.",
+      "q5": "Are there any registration fees?",
+      "a5": "Registration is completely free. MoveSpot takes a 30% commission on each campaign, only when you generate income. No fixed fees, no subscription for owners.",
+      "q6": "How long does vehicle validation take?",
+      "a6": "Validation generally takes 48 business hours after submitting your profile and the 4 photos of your vehicle. Once validated, you appear on the marketplace and can receive proposals from advertisers."
+    },
+    "chatbot": {
+      "s0": "Which vehicles can I register?",
+      "s1": "How much can I earn per month?",
+      "s2": "How long does vehicle validation take?",
+      "s3": "What do the regulations say about mobile advertising?"
+    }
+  },
+  "refund": {
+    "back": "← Home",
+    "title": "Refund Policy",
+    "last_updated": "Last updated: September 2026",
+    "general_title": "General principle",
+    "general_text": "MoveSpot is committed to handling any refund request fairly within the stipulated timeframes. Refunds are processed in euros to the original payment method (MoveSpot wallet or bank transfer as applicable). No cash refunds are issued.",
+    "eligible_title": "Eligible refund cases",
+    "eligible": {
+      "0_title": "Campaign cancelled before start",
+      "0_desc": "Full refund if the campaign has not yet started and no provider has incurred costs.",
+      "1_title": "Proven non-performance",
+      "1_desc": "If no vehicle was deployed over the planned period, a pro-rata refund is applied.",
+      "2_title": "Billing error",
+      "2_desc": "Amount charged different from the approved quote: the difference is refunded within 5 business days.",
+      "3_title": "Double payment",
+      "3_desc": "In the event of a confirmed double charge, the overpayment is fully refunded."
+    },
+    "non_eligible_title": "Non-eligible cases",
+    "non_eligible": {
+      "0": "Campaign already in progress or completed, except in cases of proven non-performance.",
+      "1": "Brief refused for non-compliance with the content charter (prohibited content, banned words).",
+      "2": "Cancellation made less than 48 hours before the start date.",
+      "3": "Provider fees (installation/removal) incurred and confirmed.",
+      "4": "Results deemed insufficient without any technical failure on the part of MoveSpot."
+    },
+    "delays_title": "Processing times",
+    "delay": {
+      "0_label": "Acknowledgement of receipt",
+      "0_value": "Immediate",
+      "1_label": "Decision (approved / refused)",
+      "1_value": "5 business days",
+      "2_label": "Effective transfer",
+      "2_value": "5–10 business days"
+    },
+    "request_title": "How to submit a request?",
+    "step1": "Log in to your MoveSpot advertiser space.",
+    "step2_pre": "Go to ",
+    "step2_bold": "My refunds",
+    "step2_post": " from your dashboard.",
+    "step3": "Fill in the form specifying the campaign concerned, the requested amount and the detailed reason.",
+    "step4": "Our team reviews the request and notifies you by email within 5 business days.",
+    "cta": "Submit a request →",
+    "contact_title": "Contact",
+    "contact_text": "For any question relating to a refund:"
   }
 }

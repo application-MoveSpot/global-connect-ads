@@ -1939,5 +1939,142 @@
       "reject_reason": "Motif du refus ?"
     },
     "back": "← Admin"
+  },
+  "partner": {
+    "badge": "🚐 Espace propriétaires",
+    "hero_line1": "Vos kilomètres,",
+    "hero_line2": "votre nouveau revenu.",
+    "hero_subtitle": "Propriétaire d'un food truck, van, taxi, scooter ou flotte de véhicules ? Proposez vos espaces publicitaires sur MoveSpot et générez un revenu passif sur vos trajets quotidiens.",
+    "cta_signup": "Créer mon espace propriétaire",
+    "cta_existing": "J'ai déjà un compte",
+    "steps": {
+      "s1_title": "Créez votre profil",
+      "s1_desc": "Inscription en 2 minutes. Renseignez vos informations et ajoutez votre premier véhicule avec photos.",
+      "s2_title": "Validation par MoveSpot",
+      "s2_desc": "MoveSpot vérifie votre véhicule sous 48h pour garantir la qualité de la marketplace.",
+      "s3_title": "Recevez des campagnes",
+      "s3_desc": "Les annonceurs vous contactent. Vous acceptez ou refusez chaque demande, et empochez le revenu."
+    },
+    "vehicles_title": "Quels véhicules ?",
+    "legal": {
+      "title": "Publicité extérieure : ce que dit la réglementation",
+      "p1": "L'affichage publicitaire sur véhicules et dans l'espace public est encadré par le Code de l'environnement (articles L.581-1 et suivants) et le règlement local de publicité (RLP) de chaque commune.",
+      "item1": "La <strong>publicité lumineuse</strong> est interdite dans les agglomérations de moins de 10 000 habitants ne faisant pas partie d'une unité urbaine de plus de 100 000 habitants.",
+      "item2": "La publicité est interdite sur les <strong>immeubles classés ou inscrits</strong>, monuments historiques, arbres, et dans les sites protégés (parcs nationaux, réserves naturelles).",
+      "item3": "Les <strong>véhicules utilisés ou équipés principalement à des fins publicitaires</strong> ne peuvent pas stationner ou circuler dans certaines zones (article R.581-48 du Code de l'environnement).",
+      "item4": "Les formats, surfaces et emplacements doivent respecter le <strong>RLP de la commune</strong> concernée.",
+      "source": "Source :",
+      "source_link": "service-public.fr — Réglementation de la publicité extérieure",
+      "note": "MoveSpot vérifie chaque campagne pour garantir sa conformité."
+    },
+    "faq_badge": "💬 Questions fréquentes",
+    "faq_title": "Tout ce qu'il faut savoir",
+    "cta_bottom_title": "Prêt à monétiser vos trajets ?",
+    "cta_start": "Commencer maintenant",
+    "partner_promo": "Vous êtes apporteur d'affaires, agence ou revendeur ?",
+    "partner_link": "Rejoignez le programme partenaire",
+    "vehicle": {
+      "taxi": "Taxi / VTC",
+      "van": "Van utilitaire",
+      "foodtruck": "Food truck",
+      "scooter": "Scooter livraison",
+      "voiture": "Voiture personnelle",
+      "flotte": "Flotte d'entreprise"
+    },
+    "city": {
+      "paris": "Paris / IDF",
+      "lyon": "Lyon",
+      "marseille": "Marseille",
+      "bordeaux": "Bordeaux",
+      "toulouse": "Toulouse",
+      "autre": "Autre ville",
+      "dense_note": "✦ Zone dense : tarif majoré ×1,5 pour les annonceurs"
+    },
+    "sim": {
+      "badge": "💶 Simulateur de revenus",
+      "title": "Combien pouvez-vous gagner ?",
+      "subtitle_pre": "Basé sur le modèle réel MoveSpot — ",
+      "subtitle_mid": " vous revient directement, avec un minimum garanti de ",
+      "vehicle_label": "Type de véhicule",
+      "city_label": "Ville principale",
+      "days_label": "Jours actifs / mois : {{days}} jours",
+      "vehicles_label": "Nombre de véhicules : {{nb}}",
+      "per_day_label": "Par véhicule / jour",
+      "campaign_pct": "70 % de la campagne",
+      "monthly_label": "Revenu mensuel estimé",
+      "monthly_detail": "{{days}} j × {{nb}} véh.",
+      "yearly_label": "Projection annuelle",
+      "yearly_detail": "× 12 mois",
+      "calc_label": "Comment c'est calculé ? ",
+      "calc_text": "Campagne annonceur min. 25 €/véhicule/jour → vous recevez 70 % soit 17,50 € garanti/jour. Les campagnes sur zones plus larges ou en grande agglomération génèrent davantage. Estimation non contractuelle — les revenus dépendent des campagnes actives dans votre zone.",
+      "cta": "Créer mon espace propriétaire →"
+    },
+    "faq": {
+      "q0": "Combien puis-je gagner par mois avec MoveSpot ?",
+      "a0": "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher annonceur de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
+      "q1": "Quels véhicules sont acceptés sur MoveSpot ?",
+      "a1": "Food trucks, vans utilitaires, taxis, VTC, scooters de livraison, voitures personnelles et flottes d'entreprise. Le véhicule doit être en état de circuler et disposer d'une surface vitrée ou carrossée utilisable pour l'affichage. La validation inclut 4 photos.",
+      "q2": "Est-ce compatible avec mon activité de taxi ou de VTC ?",
+      "a2": "Oui. MoveSpot est conçu comme un revenu complémentaire 100 % passif : vous roulez comme d'habitude, le suivi GPS valide les kilomètres parcourus dans la zone de la campagne. Aucune contrainte de trajet supplémentaire.",
+      "q3": "Comment et quand suis-je payé ?",
+      "a3": "Vos revenus s'accumulent dans votre portefeuille MoveSpot au fil des campagnes actives. Vous pouvez demander un virement bancaire dès 50 € de solde. Les virements sont traités sous 3 à 5 jours ouvrés.",
+      "q4": "Puis-je refuser une campagne publicitaire ?",
+      "a4": "Oui. Chaque demande de campagne vous est soumise avec les détails (marque, visuel, zone, durée). Vous l'acceptez ou la refusez librement, sans justification requise. Vous gardez le contrôle de ce que vous portez.",
+      "q5": "Y a-t-il des frais d'inscription ?",
+      "a5": "L'inscription est totalement gratuite. MoveSpot prélève une commission de 30 % sur chaque campagne, uniquement lorsque vous générez un revenu. Pas de frais fixes, pas d'abonnement pour les propriétaires.",
+      "q6": "Combien de temps dure la validation de mon véhicule ?",
+      "a6": "La validation prend généralement 48 heures ouvrées après soumission de votre profil et des 4 photos de votre véhicule. Une fois validé, vous apparaissez sur la marketplace et pouvez recevoir des propositions d'annonceurs."
+    },
+    "chatbot": {
+      "s0": "Quels véhicules puis-je inscrire ?",
+      "s1": "Combien je peux gagner par mois ?",
+      "s2": "Combien de temps prend la validation de mon véhicule ?",
+      "s3": "Que dit la réglementation sur la pub mobile ?"
+    }
+  },
+  "refund": {
+    "back": "← Accueil",
+    "title": "Politique de remboursement",
+    "last_updated": "Dernière mise à jour : septembre 2026",
+    "general_title": "Principe général",
+    "general_text": "MoveSpot s'engage à traiter toute demande de remboursement équitable dans les délais prévus. Les remboursements sont traités en euros sur le mode de paiement d'origine (portefeuille MoveSpot ou virement bancaire selon le cas). Aucun remboursement en espèces n'est effectué.",
+    "eligible_title": "Cas éligibles au remboursement",
+    "eligible": {
+      "0_title": "Campagne annulée avant démarrage",
+      "0_desc": "Remboursement intégral si la campagne n'a pas encore démarré et qu'aucun prestataire n'a engagé de frais.",
+      "1_title": "Inexécution prouvée",
+      "1_desc": "Si aucun véhicule n'a été déployé sur la période prévue, un remboursement au prorata est appliqué.",
+      "2_title": "Erreur de facturation",
+      "2_desc": "Montant débité différent du devis validé : remboursement de la différence sous 5 jours ouvrés.",
+      "3_title": "Double paiement",
+      "3_desc": "En cas de débit en double avéré, le trop-perçu est remboursé intégralement."
+    },
+    "non_eligible_title": "Cas non éligibles",
+    "non_eligible": {
+      "0": "Campagne déjà en cours ou terminée, sauf inexécution prouvée.",
+      "1": "Brief refusé pour non-conformité à la charte de contenu (contenu interdit, mots prohibés).",
+      "2": "Annulation effectuée moins de 48 h avant la date de démarrage.",
+      "3": "Frais de prestataire (pose/dépose) engagés et confirmés.",
+      "4": "Résultats jugés insuffisants sans défaillance technique de MoveSpot."
+    },
+    "delays_title": "Délais de traitement",
+    "delay": {
+      "0_label": "Accusé de réception",
+      "0_value": "Immédiat",
+      "1_label": "Décision (approuvé / refusé)",
+      "1_value": "5 jours ouvrés",
+      "2_label": "Virement effectif",
+      "2_value": "5–10 jours ouvrés"
+    },
+    "request_title": "Comment faire une demande ?",
+    "step1": "Connectez-vous à votre espace annonceur MoveSpot.",
+    "step2_pre": "Accédez à ",
+    "step2_bold": "Mes remboursements",
+    "step2_post": " depuis votre tableau de bord.",
+    "step3": "Remplissez le formulaire en précisant la campagne concernée, le montant souhaité et le motif détaillé.",
+    "step4": "Notre équipe examine la demande et vous notifie par email sous 5 jours ouvrés.",
+    "cta": "Faire une demande →",
+    "contact_title": "Contact",
+    "contact_text": "Pour toute question relative à un remboursement :"
   }
 }
