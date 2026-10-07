@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { CheckCircle, Clock, Star, Zap } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/annonceur/briefs/confirmation/$briefId")({
   head: () => ({
@@ -23,12 +24,13 @@ function daysUntil(dateStr: string | null | undefined) {
   return Math.round((target.getTime() - today.getTime()) / 86400000);
 }
 
-function fmtDate(d: string | null | undefined) {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
-}
-
 function ConfirmationPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const fmtDate = (d: string | null | undefined) => {
+    if (!d) return null;
+    return new Date(d).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
+  };
   const { briefId } = Route.useParams();
   const navigate = useNavigate();
   const [brief, setBrief] = useState<{
@@ -68,12 +70,22 @@ function ConfirmationPage() {
   }, [briefId, navigate]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("annonceur.briefs_confirm.loading")}</div>;
   }
 
   const days = daysUntil(brief?.start_date);
   const urgent = days !== null && days >= 0 && days <= 7;
   const zoneLabel = brief?.zones?.length ? brief.zones[0] : null;
+  const daysStr = days === 0
+    ? t("annonceur.briefs_confirm.urgent_days_zero")
+    : t("annonceur.briefs_confirm.urgent_days" as never, { count: days ?? 0 });
+
+  const STEPS = [
+    { icon: "📬", key: "step1" as const },
+    { icon: "👀", key: "step2" as const },
+    { icon: "✅", key: "step3" as const },
+    { icon: "🚗", key: "step4" as const },
+  ];
 
   if (isIndividual) {
     return (
@@ -81,85 +93,72 @@ function ConfirmationPage() {
         <header className="border-b border-border">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
             <LogoLink />
-            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+            <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">{t("annonceur.briefs_confirm.back")}</Link>
           </div>
         </header>
 
         <main className="max-w-2xl mx-auto px-4 py-12">
-          {/* Header succès */}
           <div className="text-center mb-10">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/15 mb-4">
               <CheckCircle className="w-8 h-8 text-emerald-600" />
             </div>
             <div className="text-4xl mb-3">🎉</div>
             <h1 className="font-display text-3xl font-bold mb-2">
-              Votre annonce est en ligne !
+              {t("annonceur.briefs_confirm.ind_title")}
             </h1>
             <p className="text-muted-foreground">
-              Les propriétaires de véhicules vont pouvoir la voir et vous envoyer des propositions.
+              {t("annonceur.briefs_confirm.ind_desc")}
             </p>
           </div>
 
-          {/* Urgence */}
           {urgent && days !== null && (
             <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 mb-6 flex items-start gap-3">
               <Clock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
               <div className="text-sm text-amber-900 dark:text-amber-200">
-                <strong>Votre événement est dans {days === 0 ? "moins d'1 jour" : `${days} jour${days > 1 ? "s" : ""}`}.</strong>{" "}
-                Répondez aux propositions rapidement pour sécuriser votre véhicule à temps.
+                <strong>{t("annonceur.briefs_confirm.urgent_intro", { days: daysStr })}</strong>{" "}
+                {t("annonceur.briefs_confirm.urgent_body_cta")}
               </div>
             </div>
           )}
 
-          {/* Résumé brief */}
           <div className="rounded-2xl border border-border bg-card p-6 mb-6 space-y-3">
-            <h2 className="font-display font-bold text-lg mb-1">Récapitulatif de votre annonce</h2>
-            {brief?.title && <Row label="Titre" value={brief.title} />}
-            {brief?.start_date && <Row label="Date de début" value={fmtDate(brief.start_date)!} />}
-            {brief?.end_date && <Row label="Date de fin" value={fmtDate(brief.end_date)!} />}
-            {zoneLabel && <Row label="Zone de diffusion" value={zoneLabel} />}
+            <h2 className="font-display font-bold text-lg mb-1">{t("annonceur.briefs_confirm.summary_title")}</h2>
+            {brief?.title && <Row label={t("annonceur.briefs_confirm.row_title")} value={brief.title} />}
+            {brief?.start_date && <Row label={t("annonceur.briefs_confirm.row_start")} value={fmtDate(brief.start_date)!} />}
+            {brief?.end_date && <Row label={t("annonceur.briefs_confirm.row_end")} value={fmtDate(brief.end_date)!} />}
+            {zoneLabel && <Row label={t("annonceur.briefs_confirm.row_zone")} value={zoneLabel} />}
           </div>
 
-          {/* Étapes suivantes */}
           <div className="rounded-2xl border border-border bg-card p-6 mb-6">
-            <h2 className="font-display font-bold text-lg mb-4">Ce qui va se passer</h2>
+            <h2 className="font-display font-bold text-lg mb-4">{t("annonceur.briefs_confirm.next_title")}</h2>
             <ol className="space-y-4">
-              {[
-                { icon: "📬", step: "Les propriétaires de véhicules reçoivent votre annonce et peuvent vous envoyer une proposition avec leur tarif." },
-                { icon: "👀", step: "Vous recevez un email dès qu'une proposition arrive. Vous pouvez en comparer plusieurs." },
-                { icon: "✅", step: "Vous choisissez le véhicule qui vous convient — un seul clic pour confirmer." },
-                { icon: "🚗", step: "Votre publicité est affichée sur le véhicule pour votre événement." },
-              ].map(({ icon, step }, i) => (
+              {STEPS.map(({ icon, key }, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
                   <span className="flex-shrink-0 w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-base">{icon}</span>
-                  <span className="text-muted-foreground pt-0.5">{step}</span>
+                  <span className="text-muted-foreground pt-0.5">{t(`annonceur.briefs_confirm.${key}`)}</span>
                 </li>
               ))}
             </ol>
           </div>
 
-          {/* Conseil */}
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 mb-8 flex items-start gap-3">
             <Star className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">Conseil :</strong> Ajoutez votre visuel dès maintenant — les propriétaires acceptent en priorité les annonces avec un visuel prêt.
-            </p>
+            <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: t("annonceur.briefs_confirm.tip") }} />
           </div>
 
-          {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               to="/annonceur/briefs/$briefId"
               params={{ briefId }}
               className="flex-1 rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold text-center hover:bg-primary/90 transition"
             >
-              Voir mon annonce →
+              {t("annonceur.briefs_confirm.cta_brief")}
             </Link>
             <Link
               to="/annonceur"
               className="flex-1 rounded-full border border-border bg-card px-6 py-3 font-semibold text-center hover:bg-secondary transition"
             >
-              Mon espace
+              {t("annonceur.briefs_confirm.cta_home")}
             </Link>
           </div>
         </main>
@@ -173,22 +172,22 @@ function ConfirmationPage() {
       <header className="border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">{t("annonceur.briefs_confirm.back")}</Link>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-12 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/15 mb-6">
           <Zap className="w-8 h-8 text-emerald-600" />
         </div>
-        <h1 className="font-display text-3xl font-bold mb-3">Brief publié avec succès</h1>
+        <h1 className="font-display text-3xl font-bold mb-3">{t("annonceur.briefs_confirm.biz_title")}</h1>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          Votre brief est maintenant visible par les propriétaires de flotte. Vous recevrez leurs propositions directement dans votre espace annonceur.
+          {t("annonceur.briefs_confirm.biz_desc")}
         </p>
         <div className="rounded-2xl border border-border bg-card p-6 mb-8 text-left space-y-3">
-          {brief?.title && <Row label="Nom du brief" value={brief.title} />}
-          {brief?.start_date && <Row label="Début" value={fmtDate(brief.start_date)!} />}
-          {brief?.end_date && <Row label="Fin" value={fmtDate(brief.end_date)!} />}
-          {zoneLabel && <Row label="Zone" value={zoneLabel} />}
+          {brief?.title && <Row label={t("annonceur.briefs_confirm.biz_row_name")} value={brief.title} />}
+          {brief?.start_date && <Row label={t("annonceur.briefs_confirm.biz_row_start")} value={fmtDate(brief.start_date)!} />}
+          {brief?.end_date && <Row label={t("annonceur.briefs_confirm.biz_row_end")} value={fmtDate(brief.end_date)!} />}
+          {zoneLabel && <Row label={t("annonceur.briefs_confirm.biz_row_zone")} value={zoneLabel} />}
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
@@ -196,13 +195,13 @@ function ConfirmationPage() {
             params={{ briefId }}
             className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition"
           >
-            Voir le brief →
+            {t("annonceur.briefs_confirm.biz_cta_brief")}
           </Link>
           <Link
             to="/annonceur"
             className="rounded-full border border-border bg-card px-6 py-3 font-semibold hover:bg-secondary transition"
           >
-            Tableau de bord
+            {t("annonceur.briefs_confirm.biz_cta_home")}
           </Link>
         </div>
       </main>

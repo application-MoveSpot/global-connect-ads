@@ -9,6 +9,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { RouteError } from "@/components/app/RouteError";
 import { resolveReferralCode } from "@/lib/commercial/commercial.functions";
+import { useTranslation } from "react-i18next";
 
 type Search = { redirect?: string; ref?: string; mode?: "signin" | "signup" };
 
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/annonceur/inscription")({
 type AccountType = "business" | "individual";
 
 function AnnonceurInscription() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { redirect, ref, mode: modeParam } = useSearch({ from: "/annonceur/inscription" });
   const [mode, setMode] = useState<"signup" | "signin">(modeParam ?? "signup");
@@ -114,13 +116,13 @@ function AnnonceurInscription() {
         signUpData.user.identities.length === 0
       ) {
         setMode("signin");
-        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setError(t("annonceur.inscription.error_duplicate"));
         setLoading(false);
         return;
       }
       if (!signUpData.session) {
         setMode("signin");
-        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setError(t("annonceur.inscription.error_verify_email"));
         setLoading(false);
         return;
       }
@@ -152,21 +154,21 @@ function AnnonceurInscription() {
     e.preventDefault();
     setError("");
     if (!acceptedCharte) {
-      setError("Vous devez accepter la charte de contenu MoveSpot pour continuer.");
+      setError(t("annonceur.inscription.error_charte"));
       return;
     }
     if (accountType === "business" && !siret.verified) {
-      setError("Merci de vérifier votre numéro SIRET avant de continuer.");
+      setError(t("annonceur.inscription.error_siret"));
       return;
     }
     if (accountType === "individual" && address.trim().length < 5) {
-      setError("Merci d'indiquer une adresse postale complète.");
+      setError(t("annonceur.inscription.error_address"));
       return;
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
-      setError("Session expirée");
+      setError(t("annonceur.inscription.error_session"));
       setLoading(false);
       return;
     }
@@ -210,37 +212,35 @@ function AnnonceurInscription() {
           to="/"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
         >
-          ← Retour
+          {t("annonceur.inscription.back")}
         </Link>
 
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? "Créer un compte annonceur" : "Connexion annonceur"}
+              {mode === "signup" ? t("annonceur.inscription.auth_signup_title") : t("annonceur.inscription.auth_signin_title")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
-              {mode === "signup"
-                ? "Entreprise, association ou particulier — créez votre compte pour réserver des espaces publicitaires."
-                : "Accédez à votre espace annonceur et vos campagnes."}
+              {mode === "signup" ? t("annonceur.inscription.auth_signup_desc") : t("annonceur.inscription.auth_signin_desc")}
               {mode === "signup" && (
                 <>
                   {" "}
                   <Link to="/annonceur/briefs/nouveau" className="text-primary underline text-xs">
-                    Créer un brief sans compte →
+                    {t("annonceur.inscription.no_account_link")}
                   </Link>
                   {" · "}
                   <Link to="/annonceur/exemples" className="text-primary underline text-xs">
-                    Voir des exemples →
+                    {t("annonceur.inscription.examples_link")}
                   </Link>
                 </>
               )}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
-              <Input label="Email" type="email" value={email} onChange={setEmail} required />
+              <Input label={t("annonceur.inscription.label_email")} type="email" value={email} onChange={setEmail} required />
               <div>
                 <Input
-                  label="Mot de passe"
+                  label={t("annonceur.inscription.label_password")}
                   type="password"
                   value={password}
                   onChange={setPassword}
@@ -253,7 +253,7 @@ function AnnonceurInscription() {
                       to="/reset-password"
                       className="text-xs text-muted-foreground hover:text-foreground underline"
                     >
-                      Mot de passe oublié ?
+                      {t("annonceur.inscription.forgot_password")}
                     </Link>
                   </div>
                 )}
@@ -264,7 +264,7 @@ function AnnonceurInscription() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+                {loading ? "..." : mode === "signup" ? t("annonceur.inscription.btn_signup") : t("annonceur.inscription.btn_signin")}
               </button>
             </form>
             <button
@@ -274,72 +274,66 @@ function AnnonceurInscription() {
               }}
               className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
             >
-              {mode === "signup"
-                ? "Déjà un compte ? Se connecter"
-                : "Pas encore inscrit ? Créer un compte"}
+              {mode === "signup" ? t("annonceur.inscription.toggle_to_signin") : t("annonceur.inscription.toggle_to_signup")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil annonceur</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("annonceur.inscription.profile_title")}</h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
             {commercialName && (
-              <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400">
-                Invitation de <strong>{commercialName}</strong> — vous serez associé à ce
-                commercial.
-              </div>
+              <div
+                className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400"
+                dangerouslySetInnerHTML={{ __html: t("annonceur.inscription.referral_banner", { name: commercialName }) }}
+              />
             )}
             <p className="text-sm text-muted-foreground mt-4 mb-6">
-              Choisissez le type de compte qui vous correspond.
+              {t("annonceur.inscription.profile_desc")}
             </p>
 
             <div className="grid grid-cols-2 gap-2 mb-6 p-1 rounded-lg bg-secondary">
-              {(["business", "individual"] as AccountType[]).map((t) => (
+              {(["business", "individual"] as AccountType[]).map((type) => (
                 <button
-                  key={t}
+                  key={type}
                   type="button"
-                  onClick={() => setAccountType(t)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${accountType === t ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setAccountType(type)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition ${accountType === type ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  {t === "business" ? "Entreprise / Asso" : "Particulier"}
+                  {type === "business" ? t("annonceur.inscription.type_business") : t("annonceur.inscription.type_individual")}
                 </button>
               ))}
             </div>
 
             <form onSubmit={handleProfile} className="space-y-4">
-              <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
+              <Input label={t("annonceur.inscription.label_full_name")} value={fullName} onChange={setFullName} required />
 
               {accountType === "business" ? (
                 <>
                   <SiretField value={siret} onChange={setSiret} />
-                  <Input label="Entreprise / Association" value={company} onChange={setCompany} />
+                  <Input label={t("annonceur.inscription.label_company")} value={company} onChange={setCompany} />
                 </>
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Adresse postale *</label>
+                    <label className="block text-sm font-medium mb-1.5">{t("annonceur.inscription.label_address")}</label>
                     <textarea
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
                       rows={2}
-                      placeholder="N°, rue, code postal, ville"
+                      placeholder={t("annonceur.inscription.address_placeholder")}
                       className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
-                  <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-                    <strong>Particulier :</strong> vous pouvez publier des briefs pour un mariage,
-                    une association locale, l'ouverture d'un commerce, un événement culturel… <br />
-                    <strong className="block mt-1">⛔ Strictement interdits :</strong> anniversaires
-                    personnels, contenus religieux, politiques ou électoraux, sexistes,
-                    pornographiques ou violents. Tout brief non conforme sera refusé sans
-                    remboursement des frais de contrôle.
-                  </div>
+                  <div
+                    className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200"
+                    dangerouslySetInnerHTML={{ __html: t("annonceur.inscription.individual_warning") }}
+                  />
                 </>
               )}
 
-              <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} />
-              <Input label="Ville" value={city} onChange={setCity} />
+              <Input label={t("annonceur.inscription.label_phone")} type="tel" value={phone} onChange={setPhone} />
+              <Input label={t("annonceur.inscription.label_city")} value={city} onChange={setCity} />
 
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input
@@ -348,16 +342,7 @@ function AnnonceurInscription() {
                   onChange={(e) => setAcceptedCharte(e.target.checked)}
                   className="mt-0.5 h-4 w-4 rounded border-border"
                 />
-                <span>
-                  J'ai lu et j'accepte les{" "}
-                  <Link to="/cgu" className="underline hover:text-foreground">
-                    Conditions Générales d'Utilisation
-                  </Link>{" "}
-                  MoveSpot, notamment la charte de contenu publicitaire et l'
-                  <strong>obligation d'exclusivité des transactions sur la plateforme</strong> (art.
-                  22). Je comprends que tout accord conclu hors-plateforme reste soumis à la
-                  commission MoveSpot.
-                </span>
+                <span dangerouslySetInnerHTML={{ __html: t("annonceur.inscription.cgu_label") }} />
               </label>
 
               {error && <Err msg={error} />}
@@ -366,7 +351,7 @@ function AnnonceurInscription() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : "Continuer"}
+                {loading ? "..." : t("annonceur.inscription.btn_continue")}
               </button>
             </form>
           </>
