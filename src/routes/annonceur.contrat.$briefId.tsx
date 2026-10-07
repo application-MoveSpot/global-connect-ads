@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getContractData } from "@/lib/campaigns/contract.functions";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/annonceur/contrat/$briefId")({
   head: () => ({ meta: [{ title: "Devis — MoveSpot" }] }),
@@ -13,6 +14,8 @@ export const Route = createFileRoute("/annonceur/contrat/$briefId")({
 });
 
 function ContratPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
   const { briefId } = Route.useParams();
   const fetchContract = useServerFn(getContractData);
   const printed = useRef(false);
@@ -34,7 +37,7 @@ function ContratPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Génération du devis…
+        {t("annonceur.contrat.loading")}
       </div>
     );
   }
@@ -42,19 +45,19 @@ function ContratPage() {
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center text-destructive p-8 text-center">
-        {error instanceof Error ? error.message : "Devis introuvable."}
+        {error instanceof Error ? error.message : t("annonceur.contrat.error_not_found")}
       </div>
     );
   }
 
   const contractNumber = `DEV-${new Date(data.generatedAt).getFullYear()}-${briefId.slice(0, 8).toUpperCase()}`;
-  const generatedAt = new Date(data.generatedAt).toLocaleDateString("fr-FR", {
+  const generatedAt = new Date(data.generatedAt).toLocaleDateString(dateLocale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
   const fmt = (d: string) =>
-    new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+    new Date(d).toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" });
 
   return (
     <>
@@ -69,13 +72,13 @@ function ContratPage() {
       {/* Toolbar */}
       <div className="no-print bg-muted border-b py-3 px-6 flex items-center justify-between">
         <Link to="/annonceur/briefs/$briefId" params={{ briefId }} className="text-sm text-muted-foreground hover:text-foreground">
-          ← Retour au brief
+          {t("annonceur.contrat.back")}
         </Link>
         <button
           onClick={() => window.print()}
           className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
         >
-          🖨 Imprimer / Enregistrer en PDF
+          {t("annonceur.contrat.print_btn")}
         </button>
       </div>
 
@@ -88,14 +91,14 @@ function ContratPage() {
           <div className="flex justify-between items-start mb-8">
             <div>
               <div className="text-2xl font-bold text-gray-900 tracking-tight">MoveSpot</div>
-              <div className="text-xs text-gray-500 mt-0.5">Publicité mobile sur véhicules</div>
+              <div className="text-xs text-gray-500 mt-0.5">{t("annonceur.contrat.tagline")}</div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 uppercase tracking-wide">Devis</div>
+              <div className="text-lg font-bold text-gray-900 uppercase tracking-wide">{t("annonceur.contrat.doc_type")}</div>
               <div className="text-xs text-gray-500 mt-0.5">{contractNumber}</div>
-              <div className="text-xs text-gray-500">Établi le {generatedAt}</div>
+              <div className="text-xs text-gray-500">{t("annonceur.contrat.established", { date: generatedAt })}</div>
               <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
-                ⏳ À valider par les parties
+                {t("annonceur.contrat.status_pending")}
               </div>
             </div>
           </div>
@@ -103,10 +106,10 @@ function ContratPage() {
           {/* Parties */}
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Annonceur (client)</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{t("annonceur.contrat.party_advertiser")}</div>
               <div className="font-semibold text-gray-900">{data.advertiser.fullName}</div>
               {data.advertiser.company && <div className="text-xs text-gray-700">{data.advertiser.company}</div>}
-              {data.advertiser.siret && <div className="text-xs text-gray-500">SIRET : {data.advertiser.siret}</div>}
+              {data.advertiser.siret && <div className="text-xs text-gray-500">{t("annonceur.contrat.siret_label")} {data.advertiser.siret}</div>}
               {data.advertiser.address && (
                 <div className="text-xs text-gray-600 leading-relaxed mt-0.5 whitespace-pre-line">{data.advertiser.address}</div>
               )}
@@ -114,7 +117,7 @@ function ContratPage() {
               {data.advertiser.phone && <div className="text-xs text-gray-500">{data.advertiser.phone}</div>}
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Prestataire (régie)</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{t("annonceur.contrat.party_provider")}</div>
               <div className="font-semibold text-gray-900">RAKOUN KLUB</div>
               <div className="text-xs text-gray-700">MoveSpot</div>
               <div className="text-xs text-gray-600 leading-relaxed mt-0.5">
@@ -130,16 +133,16 @@ function ContratPage() {
 
           {/* Campaign details */}
           <div className="mb-6">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Objet de la campagne</div>
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t("annonceur.contrat.section_campaign")}</div>
             <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
               <tbody>
-                <Row label="Intitulé" value={data.briefTitle} />
-                <Row label="Description" value={data.description} />
-                <Row label="Période" value={`${fmt(data.startDate)} → ${fmt(data.endDate)} (${data.daysCount} jour${data.daysCount > 1 ? "s" : ""})`} />
-                <Row label="Zones de diffusion" value={data.zones.length > 0 ? data.zones.join(", ") : "—"} />
-                {data.adFormat && <Row label="Format publicitaire" value={data.adFormat} />}
-                <Row label="Types de véhicules" value={data.vehicleTypes.join(", ")} />
-                {data.audienceTarget && <Row label="Audience cible" value={data.audienceTarget} />}
+                <Row label={t("annonceur.contrat.row_title")} value={data.briefTitle} />
+                <Row label={t("annonceur.contrat.row_description")} value={data.description} />
+                <Row label={t("annonceur.contrat.row_period")} value={t("annonceur.contrat.row_period_value", { from: fmt(data.startDate), to: fmt(data.endDate), count: data.daysCount } as never)} />
+                <Row label={t("annonceur.contrat.row_zones")} value={data.zones.length > 0 ? data.zones.join(", ") : "—"} />
+                {data.adFormat && <Row label={t("annonceur.contrat.row_format")} value={data.adFormat} />}
+                <Row label={t("annonceur.contrat.row_vehicle_types")} value={data.vehicleTypes.join(", ")} />
+                {data.audienceTarget && <Row label={t("annonceur.contrat.row_audience")} value={data.audienceTarget} />}
               </tbody>
             </table>
           </div>
@@ -149,15 +152,15 @@ function ContratPage() {
           {/* Vehicles table */}
           <div className="mb-6">
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Véhicules retenus ({data.vehicles.length})
+              {t("annonceur.contrat.section_vehicles", { count: data.vehicles.length })}
             </div>
             <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                  <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Véhicule / Propriétaire</th>
-                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Qté (j)</th>
-                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">P.U.</th>
-                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sous-total</th>
+                  <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.contrat.col_vehicle")}</th>
+                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.contrat.col_qty")}</th>
+                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.contrat.col_unit")}</th>
+                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.contrat.col_subtotal")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -169,7 +172,7 @@ function ContratPage() {
                         {v.vehicleType}{v.formatPublicitaire ? ` · ${v.formatPublicitaire}` : ""}
                         {v.surfaceM2 ? ` · ${v.surfaceM2} m²` : ""}
                       </div>
-                      <div className="text-gray-400 italic">Propriétaire : {v.ownerName}{v.ownerCompany ? ` (${v.ownerCompany})` : ""}</div>
+                      <div className="text-gray-400 italic">{t("annonceur.contrat.owner_label")} {v.ownerName}{v.ownerCompany ? ` (${v.ownerCompany})` : ""}</div>
                       {v.proposalMessage && (
                         <div className="text-gray-500 mt-0.5 italic">« {v.proposalMessage} »</div>
                       )}
@@ -187,18 +190,18 @@ function ContratPage() {
           <div className="flex justify-end mb-6">
             <div className="w-56">
               <div className="flex justify-between py-1.5 text-gray-600">
-                <span>Sous-total HT</span>
+                <span>{t("annonceur.contrat.subtotal_ht")}</span>
                 <span>{data.totalHT.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between py-1.5 text-gray-500 text-xs">
-                <span>TVA</span>
-                <span>Exonéré (Art. 294 CGI)</span>
+                <span>{t("annonceur.contrat.vat")}</span>
+                <span>{t("annonceur.contrat.vat_exempt")}</span>
               </div>
               <div
                 className="flex justify-between py-2 mt-1 font-bold text-gray-900 text-base"
                 style={{ borderTop: "2px solid #111827" }}
               >
-                <span>Total TTC</span>
+                <span>{t("annonceur.contrat.total_ttc")}</span>
                 <span>{data.totalHT.toFixed(2)} €</span>
               </div>
             </div>
@@ -206,13 +209,11 @@ function ContratPage() {
 
           {/* Conditions */}
           <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-600 mb-8">
-            <div className="font-semibold text-gray-800 mb-2">Conditions générales (extrait)</div>
+            <div className="font-semibold text-gray-800 mb-2">{t("annonceur.contrat.conditions_title")}</div>
             <ul className="space-y-1 list-disc list-inside text-gray-500">
-              <li>MoveSpot conserve 30 % du montant et reverse 70 % au(x) propriétaire(s) du/des véhicule(s) à l'issue de la diffusion.</li>
-              <li>L'annonceur garantit détenir tous les droits sur les visuels fournis (marque, image, droits d'auteur).</li>
-              <li>La pose du covering est réalisée par un poseur certifié MoveSpot. Les photos d'installation sont transmises à l'annonceur.</li>
-              <li>En cas d'annulation après acceptation, des frais peuvent être retenus selon les délais (CGV complètes disponibles sur movespot.fr).</li>
-              <li>Exonéré de TVA en application de l'article 294 du Code Général des Impôts (DOM).</li>
+              {([1, 2, 3, 4, 5] as const).map((n) => (
+                <li key={n}>{t(`annonceur.contrat.condition${n}` as never)}</li>
+              ))}
             </ul>
           </div>
 
@@ -220,20 +221,20 @@ function ContratPage() {
           <div className="grid grid-cols-2 gap-8 mb-4">
             <div>
               <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                L'annonceur
+                {t("annonceur.contrat.sig_advertiser")}
               </div>
               <div className="text-xs text-gray-500 mb-1">{data.advertiser.fullName}</div>
               {data.advertiser.company && <div className="text-xs text-gray-400">{data.advertiser.company}</div>}
               <div className="mt-6 border-t border-gray-300" style={{ height: 48 }} />
-              <div className="text-xs text-gray-400 mt-1">Signature &amp; date</div>
+              <div className="text-xs text-gray-400 mt-1">{t("annonceur.contrat.sig_date")}</div>
             </div>
             <div>
               <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Pour MoveSpot — RAKOUN KLUB
+                {t("annonceur.contrat.sig_movespot")}
               </div>
-              <div className="text-xs text-gray-500 mb-1">Gérant</div>
+              <div className="text-xs text-gray-500 mb-1">{t("annonceur.contrat.sig_manager")}</div>
               <div className="mt-6 border-t border-gray-300" style={{ height: 48 }} />
-              <div className="text-xs text-gray-400 mt-1">Signature &amp; cachet</div>
+              <div className="text-xs text-gray-400 mt-1">{t("annonceur.contrat.sig_stamp")}</div>
             </div>
           </div>
 
@@ -241,7 +242,7 @@ function ContratPage() {
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
             MoveSpot — RAKOUN KLUB · contact@movespot.fr<br />
             1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe<br />
-            Devis valable 30 jours à compter du {generatedAt} · Réf. {contractNumber}
+            {t("annonceur.contrat.footer", { date: generatedAt, ref: contractNumber })}
           </div>
         </div>
       </div>

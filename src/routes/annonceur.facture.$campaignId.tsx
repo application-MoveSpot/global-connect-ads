@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoiceData } from "@/lib/campaigns/invoice.functions";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/annonceur/facture/$campaignId")({
   head: () => ({ meta: [{ title: "Facture — MoveSpot" }] }),
@@ -13,6 +14,8 @@ export const Route = createFileRoute("/annonceur/facture/$campaignId")({
 });
 
 function FacturePage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
   const { campaignId } = Route.useParams();
   const fetchInvoice = useServerFn(getInvoiceData);
   const printed = useRef(false);
@@ -35,7 +38,7 @@ function FacturePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Chargement de la facture…
+        {t("annonceur.facture.loading")}
       </div>
     );
   }
@@ -43,7 +46,7 @@ function FacturePage() {
   if (error || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center text-destructive p-8 text-center">
-        {error instanceof Error ? error.message : "Facture introuvable."}
+        {error instanceof Error ? error.message : t("annonceur.facture.error_not_found")}
       </div>
     );
   }
@@ -55,7 +58,7 @@ function FacturePage() {
   const totalHT = campaign.total_price ?? 0;
 
   const fmt = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" }) : "—";
+    d ? new Date(d).toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" }) : "—";
 
   return (
     <>
@@ -71,13 +74,13 @@ function FacturePage() {
       {/* Toolbar — hidden on print */}
       <div className="no-print bg-muted border-b py-3 px-6 flex items-center justify-between">
         <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Retour au tableau de bord
+          {t("annonceur.facture.back")}
         </Link>
         <button
           onClick={() => window.print()}
           className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
         >
-          🖨 Imprimer / Enregistrer en PDF
+          {t("annonceur.facture.print_btn")}
         </button>
       </div>
 
@@ -91,13 +94,13 @@ function FacturePage() {
           <div className="flex justify-between items-start mb-8">
             <div>
               <div className="text-2xl font-bold text-gray-900 tracking-tight">MoveSpot</div>
-              <div className="text-xs text-gray-500 mt-0.5">Publicité mobile sur véhicules</div>
+              <div className="text-xs text-gray-500 mt-0.5">{t("annonceur.facture.tagline")}</div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-gray-900">FACTURE</div>
+              <div className="text-lg font-bold text-gray-900">{t("annonceur.facture.doc_type")}</div>
               <div className="text-xs text-gray-500 mt-0.5">{invoiceNumber}</div>
               <div className="text-xs text-gray-500">
-                Date : {fmt(campaign.created_at)}
+                {t("annonceur.facture.date_label", { date: fmt(campaign.created_at) })}
               </div>
             </div>
           </div>
@@ -105,14 +108,14 @@ function FacturePage() {
           {/* Paid badge */}
           {isPaid && (
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-300 px-4 py-1.5 text-emerald-700 text-xs font-bold uppercase tracking-wide">
-              ✓ Facture acquittée
+              {t("annonceur.facture.paid_badge")}
             </div>
           )}
 
           {/* From / To */}
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Émetteur</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{t("annonceur.facture.from_label")}</div>
               <div className="font-semibold text-gray-900">RAKOUN KLUB</div>
               <div className="text-gray-600 text-xs leading-relaxed mt-0.5">
                 1 Lot, Immeuble Sud Jarry<br />
@@ -122,13 +125,13 @@ function FacturePage() {
               </div>
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Client</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{t("annonceur.facture.to_label")}</div>
               <div className="font-semibold text-gray-900">{profile.full_name}</div>
               {profile.company && (
                 <div className="text-gray-700 text-xs">{profile.company}</div>
               )}
               {profile.siret && (
-                <div className="text-gray-500 text-xs">SIRET : {profile.siret}</div>
+                <div className="text-gray-500 text-xs">{t("annonceur.facture.siret_label")} {profile.siret}</div>
               )}
               {profile.address && (
                 <div className="text-gray-600 text-xs leading-relaxed mt-0.5 whitespace-pre-line">{profile.address}</div>
@@ -144,10 +147,10 @@ function FacturePage() {
           <table className="w-full text-sm mb-6" style={{ borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Qté</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">P.U.</th>
-                <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+                <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.facture.col_description")}</th>
+                <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.facture.col_qty")}</th>
+                <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.facture.col_unit")}</th>
+                <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("annonceur.facture.col_total")}</th>
               </tr>
             </thead>
             <tbody>
@@ -159,17 +162,17 @@ function FacturePage() {
                   )}
                   {(campaign.start_date || campaign.end_date) && (
                     <div className="text-xs text-gray-500">
-                      Période : {fmt(campaign.start_date)} → {fmt(campaign.end_date)}
+                      {t("annonceur.facture.period", { from: fmt(campaign.start_date), to: fmt(campaign.end_date) })}
                     </div>
                   )}
                   {campaign.estimated_impressions_per_day && (
                     <div className="text-xs text-gray-400">
-                      ~{campaign.estimated_impressions_per_day.toLocaleString("fr-FR")} contacts/jour estimés
+                      {t("annonceur.facture.impressions", { n: campaign.estimated_impressions_per_day.toLocaleString(dateLocale) })}
                     </div>
                   )}
                 </td>
                 <td className="py-3 text-right text-gray-700">
-                  {campaign.days_count ?? "—"} j
+                  {campaign.days_count != null ? t("annonceur.facture.qty_days", { count: campaign.days_count }) : "—"}
                 </td>
                 <td className="py-3 text-right text-gray-700">
                   {campaign.spot_price != null ? `${Number(campaign.spot_price).toFixed(2)} €` : "—"}
@@ -185,18 +188,18 @@ function FacturePage() {
           <div className="flex justify-end mb-6">
             <div className="w-56">
               <div className="flex justify-between py-1.5 text-gray-600">
-                <span>Sous-total HT</span>
+                <span>{t("annonceur.facture.subtotal_ht")}</span>
                 <span>{totalHT.toFixed(2)} €</span>
               </div>
               <div className="flex justify-between py-1.5 text-gray-500 text-xs">
-                <span>TVA</span>
-                <span>Exonéré (Art. 294 CGI)</span>
+                <span>{t("annonceur.facture.vat")}</span>
+                <span>{t("annonceur.facture.vat_exempt")}</span>
               </div>
               <div
                 className="flex justify-between py-2 mt-1 font-bold text-gray-900 text-base"
                 style={{ borderTop: "2px solid #111827" }}
               >
-                <span>Total TTC</span>
+                <span>{t("annonceur.facture.total_ttc")}</span>
                 <span>{totalHT.toFixed(2)} €</span>
               </div>
             </div>
@@ -204,14 +207,13 @@ function FacturePage() {
 
           {/* TVA note */}
           <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-500 mb-8">
-            Exonéré de TVA en application de l'article 294 du Code Général des Impôts (DOM).
-            MoveSpot conserve 30 % du montant et reverse 70 % au propriétaire du véhicule à l'issue de la diffusion.
+            {t("annonceur.facture.tva_note")}
           </div>
 
           {/* Route zones */}
           {campaign.route_zones && campaign.route_zones.length > 0 && (
             <div className="mb-6">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Zones de diffusion</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{t("annonceur.facture.zones_label")}</div>
               <div className="text-xs text-gray-600">{campaign.route_zones.join(", ")}</div>
             </div>
           )}
