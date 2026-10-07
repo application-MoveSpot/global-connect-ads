@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { verifyDriverToken, getVehicleActiveCampaignVideo } from "@/lib/qr/qr.functions";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -35,7 +36,9 @@ function isWithinDailyWindow(start: string | null, end: string | null): boolean 
 }
 
 function ScreenPage() {
-  const { t } = Route.useSearch();
+  const { t: tokenParam } = Route.useSearch();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
   const verify = useServerFn(verifyDriverToken);
   const fetchVideo = useServerFn(getVehicleActiveCampaignVideo);
 
@@ -46,7 +49,7 @@ function ScreenPage() {
   const [error, setError] = useState<string | null>(null);
   const [inWindow, setInWindow] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const tokenRef = useRef<string>(t);
+  const tokenRef = useRef<string>(tokenParam);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadCampaign = useCallback(async (tok: string) => {
@@ -68,8 +71,8 @@ function ScreenPage() {
 
   useEffect(() => {
     const stored = typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
-    const tok = t || stored || "";
-    if (!tok) { setPhase("invalid"); setError("Aucun token. Scannez le QR de votre véhicule."); return; }
+    const tok = tokenParam || stored || "";
+    if (!tok) { setPhase("invalid"); setError(t("chauffeur.ecran.no_token")); return; }
     tokenRef.current = tok;
 
     verify({ data: { token: tok } }).then((r: Awaited<ReturnType<typeof verify>>) => {
@@ -78,10 +81,10 @@ function ScreenPage() {
       setPhase("ready");
       try { localStorage.setItem("movespot_driver_token", tok); } catch {}
       loadCampaign(tok);
-    }).catch(() => { setPhase("invalid"); setError("Erreur de vérification."); });
+    }).catch(() => { setPhase("invalid"); setError(t("chauffeur.ecran.error_verify")); });
 
     return () => { if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current); };
-  }, [t, verify, loadCampaign]);
+  }, [tokenParam, verify, loadCampaign, t]);
 
   // Check daily window every minute
   useEffect(() => {
@@ -107,7 +110,7 @@ function ScreenPage() {
   if (phase === "verifying") {
     return (
       <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <p className="text-white/60 text-sm animate-pulse">Vérification…</p>
+        <p className="text-white/60 text-sm animate-pulse">{t("chauffeur.ecran.verifying")}</p>
       </div>
     );
   }
@@ -116,7 +119,7 @@ function ScreenPage() {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-4 p-8 text-center">
         <p className="text-white/50 text-2xl">⛔</p>
-        <p className="text-white/70 text-sm max-w-xs">{error ?? "QR invalide."}</p>
+        <p className="text-white/70 text-sm max-w-xs">{error ?? t("chauffeur.ecran.invalid_qr")}</p>
       </div>
     );
   }
@@ -126,10 +129,10 @@ function ScreenPage() {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-3 p-8 text-center">
         <p className="text-white/20 text-5xl font-bold tracking-widest">
-          {new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+          {new Date().toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
         </p>
         <p className="text-white/40 text-xs">
-          Diffusion de {campaign.dailyStart} à {campaign.dailyEnd} · {campaign.company}
+          {t("chauffeur.ecran.broadcast_window", { start: campaign.dailyStart, end: campaign.dailyEnd, company: campaign.company })}
         </p>
         <p className="text-white/20 text-[10px] mt-6">{vehicle?.name}</p>
       </div>
@@ -141,7 +144,7 @@ function ScreenPage() {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-4">
         <div className="text-white/10 text-6xl font-black tracking-widest">MOVESPOT</div>
-        <p className="text-white/20 text-xs tracking-widest uppercase">Aucune campagne active</p>
+        <p className="text-white/20 text-xs tracking-widest uppercase">{t("chauffeur.ecran.no_campaign")}</p>
         {vehicle && <p className="text-white/10 text-[10px] mt-6">{vehicle.name}</p>}
       </div>
     );

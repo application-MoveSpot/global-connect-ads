@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
@@ -34,15 +35,11 @@ export const Route = createFileRoute("/chauffeur/inscription")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-const VEHICLE_KINDS = [
-  ["micro_mobility", "Micro-mobilité (vélo, triporteur, scooter)"],
-  ["voiture", "Voiture"],
-  ["utilitaire", "Utilitaire / camion"],
-] as const;
-
-type VehicleKind = (typeof VEHICLE_KINDS)[number][0];
+const VEHICLE_KIND_VALUES = ["micro_mobility", "voiture", "utilitaire"] as const;
+type VehicleKind = (typeof VEHICLE_KIND_VALUES)[number];
 
 function ChauffeurInscription() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
@@ -105,13 +102,13 @@ function ChauffeurInscription() {
         signUpData.user.identities.length === 0
       ) {
         setMode("signin");
-        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setError(t("chauffeur.inscription.error_email_exists"));
         setLoading(false);
         return;
       }
       if (!signUpData.session) {
         setMode("signin");
-        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setError(t("chauffeur.inscription.error_confirm_email"));
         setLoading(false);
         return;
       }
@@ -143,17 +140,17 @@ function ChauffeurInscription() {
     e.preventDefault();
     setError("");
     if (!acceptedCGU) {
-      setError("Vous devez accepter les CGU MoveSpot pour continuer.");
+      setError(t("chauffeur.inscription.error_cgu"));
       return;
     }
     if (hasCompany && !siret.verified) {
-      setError("Merci de vérifier votre numéro SIRET avant de continuer.");
+      setError(t("chauffeur.inscription.error_siret"));
       return;
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
-      setError("Session expirée");
+      setError(t("chauffeur.inscription.error_session"));
       setLoading(false);
       return;
     }
@@ -194,25 +191,23 @@ function ChauffeurInscription() {
           to="/"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
         >
-          ← Retour
+          {t("chauffeur.inscription.back")}
         </Link>
 
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? "Devenir chauffeur / poseur" : "Connexion prestataire"}
+              {mode === "signup" ? t("chauffeur.inscription.title_signup") : t("chauffeur.inscription.title_signin")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
-              {mode === "signup"
-                ? "Roulez avec une campagne ou posez les coverings — et recevez vos reversements directement sur votre IBAN."
-                : "Accédez à votre espace chauffeur / poseur."}
+              {mode === "signup" ? t("chauffeur.inscription.desc_signup") : t("chauffeur.inscription.desc_signin")}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
-              <Input label="Email" type="email" value={email} onChange={setEmail} required />
+              <Input label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
               <div>
                 <Input
-                  label="Mot de passe"
+                  label={t("auth.password")}
                   type="password"
                   value={password}
                   onChange={setPassword}
@@ -225,7 +220,7 @@ function ChauffeurInscription() {
                       to="/reset-password"
                       className="text-xs text-muted-foreground hover:text-foreground underline"
                     >
-                      Mot de passe oublié ?
+                      {t("chauffeur.inscription.forgot_password")}
                     </Link>
                   </div>
                 )}
@@ -236,7 +231,7 @@ function ChauffeurInscription() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+                {loading ? "..." : mode === "signup" ? t("chauffeur.inscription.submit_signup") : t("chauffeur.inscription.submit_signin")}
               </button>
             </form>
             <button
@@ -246,27 +241,25 @@ function ChauffeurInscription() {
               }}
               className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
             >
-              {mode === "signup"
-                ? "Déjà un compte ? Se connecter"
-                : "Pas encore inscrit ? Créer un compte"}
+              {mode === "signup" ? t("chauffeur.inscription.switch_to_signin") : t("chauffeur.inscription.switch_to_signup")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil chauffeur / poseur</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("chauffeur.inscription.profile_title")}</h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
             <p className="text-sm text-muted-foreground mb-6">
-              Étape 1/2 — vos informations. Étape 2 : liaison de votre IBAN via Stripe.
+              {t("chauffeur.inscription.profile_step")}
             </p>
             <form onSubmit={handleProfile} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Votre rôle *</label>
+                <label className="block text-sm font-medium mb-1.5">{t("chauffeur.inscription.role_label")}</label>
                 <div className="grid gap-2">
                   {(
                     [
-                      ["driver", "Chauffeur — je roule avec une campagne"],
-                      ["installer", "Poseur — je pose les coverings / adhésifs"],
-                      ["both", "Les deux"],
+                      ["driver", t("chauffeur.inscription.role_driver")],
+                      ["installer", t("chauffeur.inscription.role_installer")],
+                      ["both", t("chauffeur.inscription.role_both")],
                     ] as [Kind, string][]
                   ).map(([value, label]) => (
                     <label
@@ -286,27 +279,27 @@ function ChauffeurInscription() {
                 </div>
               </div>
 
-              <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
-              <Input label="Téléphone" type="tel" value={phone} onChange={setPhone} />
-              <Input label="Ville / zone d'intervention" value={city} onChange={setCity} />
+              <Input label={t("chauffeur.inscription.name_label")} value={fullName} onChange={setFullName} required />
+              <Input label={t("chauffeur.inscription.phone_label")} type="tel" value={phone} onChange={setPhone} />
+              <Input label={t("chauffeur.inscription.city_label")} value={city} onChange={setCity} />
 
               {kind !== "installer" && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Type de véhicule *</label>
+                    <label className="block text-sm font-medium mb-1.5">{t("chauffeur.inscription.vehicle_type_label")}</label>
                     <select
                       value={vehicleKind}
                       onChange={(e) => setVehicleKind(e.target.value as VehicleKind)}
                       className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     >
-                      {VEHICLE_KINDS.map(([value, label]) => (
+                      {VEHICLE_KIND_VALUES.map((value) => (
                         <option key={value} value={value}>
-                          {label}
+                          {t(`vehicle_types.${value}`)}
                         </option>
                       ))}
                     </select>
                   </div>
-                  <Input label="Immatriculation" value={vehiclePlate} onChange={setVehiclePlate} />
+                  <Input label={t("chauffeur.inscription.plate_label")} value={vehiclePlate} onChange={setVehiclePlate} />
                 </>
               )}
 
@@ -317,7 +310,7 @@ function ChauffeurInscription() {
                   onChange={(e) => setHasCompany(e.target.checked)}
                   className="mt-0.5 h-4 w-4 rounded border-border"
                 />
-                <span>Je suis auto-entrepreneur / société (avec SIRET)</span>
+                <span>{t("chauffeur.inscription.company_checkbox")}</span>
               </label>
 
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
@@ -328,14 +321,13 @@ function ChauffeurInscription() {
                   className="mt-0.5 h-4 w-4 rounded border-border"
                 />
                 <span>
-                  J'ai lu et j'accepte les{" "}
+                  {t("chauffeur.inscription.cgu_accept")}{" "}
                   <Link to="/cgu" className="underline hover:text-foreground">
-                    Conditions Générales d'Utilisation
+                    {t("chauffeur.inscription.cgu_link_label")}
                   </Link>{" "}
-                  MoveSpot, notamment l'
-                  <strong>obligation d'exclusivité des transactions sur la plateforme</strong> (art.
-                  22). Je comprends que tout accord conclu hors-plateforme reste soumis à la
-                  commission MoveSpot.
+                  {t("chauffeur.inscription.cgu_before_strong")}
+                  <strong>{t("chauffeur.inscription.cgu_strong")}</strong>
+                  {t("chauffeur.inscription.cgu_after_strong")}
                 </span>
               </label>
               {hasCompany && <SiretField value={siret} onChange={setSiret} />}
@@ -346,7 +338,7 @@ function ChauffeurInscription() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : "Continuer vers la liaison IBAN"}
+                {loading ? "..." : t("chauffeur.inscription.submit_continue")}
               </button>
             </form>
           </>
