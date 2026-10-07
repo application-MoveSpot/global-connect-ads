@@ -1813,5 +1813,50 @@
       "payment_note_body": "Commissions are calculated and paid by bank transfer at the end of each month, after validation and payment of the relevant campaigns. Contact",
       "payment_note_suffix": "for your bank details."
     }
+  },
+  "contact": {
+    "header_badge": "Enterprise · On quote",
+    "initial_message": "Hello! I am MoveSpot's commercial assistant 👋\n\nI am here to build a tailored Enterprise offer with you — negotiated commission, dedicated account manager, annual framework agreement.\n\nTo get started, could you give me your first and last name, and your company name?",
+    "chat": {
+      "title": "Let's build your offer together",
+      "subtitle": "Our assistant asks you a few questions, then our team gets back to you within 24 business hours.",
+      "writing": "Writing…",
+      "success_title": "Request sent successfully",
+      "success_msg": "A confirmation email has been sent to you.",
+      "placeholder": "Your message… (Enter to send)",
+      "send_label": "Send",
+      "back_home": "← Back to home",
+      "prefer_form": "Do you prefer a classic form?",
+      "click_here": "Click here",
+      "or_email": "— or email us at"
+    },
+    "form": {
+      "title": "Contact form",
+      "subtitle": "Fill in this form and our team will get back to you within 24 business hours.",
+      "success_title": "Request sent successfully",
+      "success_msg": "A confirmation email has been sent to you.",
+      "name_label": "Full name *",
+      "email_label": "Business email *",
+      "company_label": "Company",
+      "phone_label": "Phone",
+      "message_label": "Your project",
+      "message_placeholder": "Describe your campaign, goals, budget…",
+      "submit_btn": "Send my request",
+      "prefer_chat": "Do you prefer our AI assistant?",
+      "start_chat": "Start chat",
+      "error_fallback": "An error occurred. Email us at contact@move-spot.com"
+    }
+  },
+  "unsubscribe": {
+    "title": "Email preferences",
+    "loading": "Verifying your link…",
+    "valid_msg": "You are about to stop receiving MoveSpot emails{{addr}}. Emails related to account security will continue to be sent.",
+    "valid_addr": " at {{email}}",
+    "confirm_btn": "Confirm unsubscribe",
+    "processing": "Processing…",
+    "done": "Done — you will no longer receive MoveSpot notification emails.",
+    "used": "This link has already been used: you are already unsubscribed.",
+    "invalid": "This unsubscribe link is invalid or has expired.",
+    "error": "An error occurred. Please try again in a moment."
   }
 }

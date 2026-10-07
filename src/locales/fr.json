@@ -1813,5 +1813,50 @@
       "payment_note_body": "Les commissions sont calculées et versées par virement bancaire à la fin de chaque mois, après validation et paiement des campagnes concernées. Contactez",
       "payment_note_suffix": "pour vos coordonnées bancaires."
     }
+  },
+  "contact": {
+    "header_badge": "Grande entreprise · Sur devis",
+    "initial_message": "Bonjour ! Je suis l'assistant commercial de MoveSpot 👋\n\nJe suis là pour construire avec vous une offre Grand Compte sur mesure — commission négociée, account manager dédié, contrat-cadre annuel.\n\nPour commencer, pourriez-vous me donner votre prénom et nom, ainsi que le nom de votre entreprise ?",
+    "chat": {
+      "title": "Construisons votre offre ensemble",
+      "subtitle": "Notre assistant vous pose quelques questions, puis notre équipe vous recontacte sous 24h ouvrées.",
+      "writing": "En train d'écrire…",
+      "success_title": "Demande transmise avec succès",
+      "success_msg": "Un email de confirmation vient de vous être envoyé.",
+      "placeholder": "Votre message… (Entrée pour envoyer)",
+      "send_label": "Envoyer",
+      "back_home": "← Retour à l'accueil",
+      "prefer_form": "Préférez-vous un formulaire classique ?",
+      "click_here": "Cliquez ici",
+      "or_email": "— ou écrivez-nous à"
+    },
+    "form": {
+      "title": "Formulaire de contact",
+      "subtitle": "Remplissez ce formulaire et notre équipe vous répond sous 24h ouvrées.",
+      "success_title": "Demande envoyée avec succès",
+      "success_msg": "Un email de confirmation vient de vous être envoyé.",
+      "name_label": "Nom complet *",
+      "email_label": "Email professionnel *",
+      "company_label": "Entreprise",
+      "phone_label": "Téléphone",
+      "message_label": "Votre projet",
+      "message_placeholder": "Décrivez votre campagne, vos objectifs, votre budget…",
+      "submit_btn": "Envoyer ma demande",
+      "prefer_chat": "Préférez-vous notre assistant IA ?",
+      "start_chat": "Démarrer le chat",
+      "error_fallback": "Une erreur est survenue. Écrivez-nous à contact@move-spot.com"
+    }
+  },
+  "unsubscribe": {
+    "title": "Préférences d'emails",
+    "loading": "Vérification de votre lien…",
+    "valid_msg": "Vous êtes sur le point de ne plus recevoir d'emails MoveSpot{{addr}}. Les emails liés à la sécurité de votre compte continueront d'être envoyés.",
+    "valid_addr": " à l'adresse {{email}}",
+    "confirm_btn": "Confirmer ma désinscription",
+    "processing": "Traitement…",
+    "done": "C'est fait — vous ne recevrez plus d'emails de notification MoveSpot.",
+    "used": "Ce lien a déjà été utilisé : vous êtes déjà désinscrit.",
+    "invalid": "Ce lien de désinscription est invalide ou a expiré.",
+    "error": "Une erreur est survenue. Merci de réessayer dans quelques instants."
   }
 }

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { sendLeadChatMessage, type LeadData } from "@/lib/ai/lead-chat.functions";
 import { submitContactLead } from "@/lib/leads/contact.functions";
 import { CheckCircle2, Send, Loader2 } from "lucide-react";
@@ -25,12 +26,6 @@ type Message = {
   content: string;
 };
 
-const INITIAL_MESSAGE: Message = {
-  role: "assistant",
-  content:
-    "Bonjour ! Je suis l'assistant commercial de MoveSpot 👋\n\nJe suis là pour construire avec vous une offre Grand Compte sur mesure — commission négociée, account manager dédié, contrat-cadre annuel.\n\nPour commencer, pourriez-vous me donner votre prénom et nom, ainsi que le nom de votre entreprise ?",
-};
-
 function ContactPage() {
   const { form } = Route.useSearch();
   const navigate = useNavigate();
@@ -43,8 +38,12 @@ function ContactPage() {
 }
 
 function ChatPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [messages, setMessages] = useState<Message[]>(() => [{
+    role: "assistant",
+    content: t("contact.initial_message"),
+  }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -131,17 +130,16 @@ function ChatPage() {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
-            Grande entreprise · Sur devis
+            {t("contact.header_badge")}
           </span>
         </div>
       </header>
 
-
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-6 gap-4">
         <div className="text-center mb-2">
-          <h1 className="text-2xl font-bold">Construisons votre offre ensemble</h1>
+          <h1 className="text-2xl font-bold">{t("contact.chat.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Notre assistant vous pose quelques questions, puis notre équipe vous recontacte sous 24h ouvrées.
+            {t("contact.chat.subtitle")}
           </p>
         </div>
 
@@ -153,15 +151,15 @@ function ChatPage() {
           {loading && (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>En train d'écrire…</span>
+              <span>{t("contact.chat.writing")}</span>
             </div>
           )}
           {done && (
             <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
               <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Demande transmise avec succès</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Un email de confirmation vient de vous être envoyé.</p>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{t("contact.chat.success_title")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("contact.chat.success_msg")}</p>
               </div>
             </div>
           )}
@@ -180,7 +178,7 @@ function ChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
               rows={2}
-              placeholder="Votre message… (Entrée pour envoyer)"
+              placeholder={t("contact.chat.placeholder")}
               disabled={loading}
               className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
             />
@@ -188,7 +186,7 @@ function ChatPage() {
               onClick={() => void send()}
               disabled={loading || !input.trim()}
               className="rounded-xl bg-[#F05A28] text-white p-3 hover:bg-[#d94e20] transition disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-              aria-label="Envoyer"
+              aria-label={t("contact.chat.send_label")}
             >
               <Send className="h-5 w-5" />
             </button>
@@ -197,20 +195,20 @@ function ChatPage() {
 
         {done && (
           <div className="text-center">
-            <Link to="/" className="text-sm text-primary hover:underline">← Retour à l'accueil</Link>
+            <Link to="/" className="text-sm text-primary hover:underline">{t("contact.chat.back_home")}</Link>
           </div>
         )}
 
         <p className="text-center text-xs text-muted-foreground">
-          Préférez-vous un formulaire classique ?{" "}
+          {t("contact.chat.prefer_form")}{" "}
           <button
             type="button"
             className="underline hover:text-foreground"
             onClick={() => navigate({ to: "/contact", search: { plan: "enterprise", form: "1" } })}
           >
-            Cliquez ici
+            {t("contact.chat.click_here")}
           </button>
-          {" "}— ou écrivez-nous à{" "}
+          {" "}{t("contact.chat.or_email")}{" "}
           <a href="mailto:contact@move-spot.com" className="underline hover:text-foreground">contact@move-spot.com</a>
         </p>
       </main>
@@ -219,6 +217,7 @@ function ChatPage() {
 }
 
 function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
+  const { t } = useTranslation();
   const doSubmit = useServerFn(submitContactLead);
   const [fields, setFields] = useState({ name: "", email: "", company: "", phone: "", message: "" });
   const [loading, setLoading] = useState(false);
@@ -243,7 +242,7 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
       });
       setDone(true);
     } catch {
-      setError("Une erreur est survenue. Écrivez-nous à contact@move-spot.com");
+      setError(t("contact.form.error_fallback"));
     } finally {
       setLoading(false);
     }
@@ -255,15 +254,15 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
-            Grande entreprise · Sur devis
+            {t("contact.header_badge")}
           </span>
         </div>
       </header>
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold">Formulaire de contact</h1>
+          <h1 className="text-2xl font-bold">{t("contact.form.title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Remplissez ce formulaire et notre équipe vous répond sous 24h ouvrées.
+            {t("contact.form.subtitle")}
           </p>
         </div>
         {done ? (
@@ -271,17 +270,17 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
             <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 w-full max-w-md">
               <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Demande envoyée avec succès</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Un email de confirmation vient de vous être envoyé.</p>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{t("contact.form.success_title")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("contact.form.success_msg")}</p>
               </div>
             </div>
-            <Link to="/" className="text-sm text-primary hover:underline">← Retour à l'accueil</Link>
+            <Link to="/" className="text-sm text-primary hover:underline">{t("contact.chat.back_home")}</Link>
           </div>
         ) : (
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 max-w-lg mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium mb-1">Nom complet *</label>
+                <label className="block text-xs font-medium mb-1">{t("contact.form.name_label")}</label>
                 <input
                   type="text" required value={fields.name}
                   onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
@@ -290,7 +289,7 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1">Email professionnel *</label>
+                <label className="block text-xs font-medium mb-1">{t("contact.form.email_label")}</label>
                 <input
                   type="email" required value={fields.email}
                   onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))}
@@ -299,7 +298,7 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1">Entreprise</label>
+                <label className="block text-xs font-medium mb-1">{t("contact.form.company_label")}</label>
                 <input
                   type="text" value={fields.company}
                   onChange={(e) => setFields((f) => ({ ...f, company: e.target.value }))}
@@ -308,7 +307,7 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1">Téléphone</label>
+                <label className="block text-xs font-medium mb-1">{t("contact.form.phone_label")}</label>
                 <input
                   type="tel" value={fields.phone}
                   onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
@@ -318,12 +317,12 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Votre projet</label>
+              <label className="block text-xs font-medium mb-1">{t("contact.form.message_label")}</label>
               <textarea
                 rows={4} value={fields.message}
                 onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
-                placeholder="Décrivez votre campagne, vos objectifs, votre budget…"
+                placeholder={t("contact.form.message_placeholder")}
               />
             </div>
             {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">{error}</p>}
@@ -332,12 +331,12 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
               className="w-full rounded-xl bg-[#F05A28] text-white py-3 text-sm font-semibold hover:bg-[#d94e20] transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Envoyer ma demande
+              {t("contact.form.submit_btn")}
             </button>
             <p className="text-center text-xs text-muted-foreground">
-              Préférez-vous notre assistant IA ?{" "}
+              {t("contact.form.prefer_chat")}{" "}
               <button type="button" className="underline hover:text-foreground" onClick={onSwitchToChat}>
-                Démarrer le chat
+                {t("contact.form.start_chat")}
               </button>
             </p>
           </form>
