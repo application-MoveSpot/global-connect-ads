@@ -17,7 +17,9 @@ let stripePromise: Promise<Stripe | null> | null = null;
 
 export function getStripe(): Promise<Stripe | null> {
   // Ne pas charger le script Stripe (dépôt de cookies tiers) sans consentement explicite
-  if (getConsent() !== "accepted") return Promise.resolve(null);
+  // Bloqué uniquement sur refus explicite : un consentement non encore exprimé
+  // (null) ne doit pas empêcher le paiement, comme pour MapConsentGate.
+  if (getConsent() === "refused") return Promise.resolve(null);
 
   if (!stripePromise) {
     stripePromise = getPaymentsConfig().then((config) =>

@@ -32,7 +32,7 @@ const PAGE_SIZE = 25;
 function WalletPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { fmt, locale } = useCurrency();
+  const { fmt, locale, fromEurCents } = useCurrency();
   const fetchWallet = useServerFn(getMyWallet);
   const fetchTransactions = useServerFn(getWalletTransactions);
 
