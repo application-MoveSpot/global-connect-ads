@@ -184,7 +184,7 @@ function WalletPage() {
 
         <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/15 to-card p-8">
           <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("wallet.balance")}</div>
-          <div className="font-display text-5xl font-bold mt-2">{fmt(balanceCents)}</div>
+          <div className="font-display text-5xl font-bold mt-2">{fmt(fromEurCents(balanceCents))}</div>
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
@@ -285,7 +285,7 @@ function WalletPage() {
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{tx.description ?? "—"}</td>
                       <td className={`px-4 py-3 text-right font-semibold font-mono whitespace-nowrap ${tx.amount_cents >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
-                        {tx.amount_cents >= 0 ? "+" : ""}{fmt(tx.amount_cents)}
+                        {tx.amount_cents >= 0 ? "+" : ""}{fmt(fromEurCents(tx.amount_cents))}
                       </td>
                     </tr>
                   ))}
