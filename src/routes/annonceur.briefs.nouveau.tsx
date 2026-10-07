@@ -27,6 +27,7 @@ import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
 import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/annonceur/briefs/nouveau")({
   head: () => ({
@@ -162,6 +163,7 @@ function addDays(base: Date, n: number): string {
 }
 
 function NewBriefPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
@@ -680,15 +682,15 @@ function NewBriefPage() {
           <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
             <LogoLink />
             <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
-              ← Retour
+              {t("annonceur.briefs.nouveau.back")}
             </Link>
           </div>
         </header>
         <main className="max-w-3xl mx-auto px-4 py-10">
           <div className="mb-8 text-center">
-            <h1 className="font-display text-3xl font-bold mb-2">Quel type d'affichage ?</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">{t("annonceur.briefs.nouveau.display_type_title")}</h1>
             <p className="text-sm text-muted-foreground">
-              Deux technologies différentes — choisissez celle qui correspond à votre besoin.
+              {t("annonceur.briefs.nouveau.display_type_subtitle")}
             </p>
           </div>
 
@@ -715,7 +717,7 @@ function NewBriefPage() {
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">📺</span>
-                  <span className="font-bold text-white text-base">Affichage numérique</span>
+                  <span className="font-bold text-white text-base">{t("annonceur.briefs.nouveau.digital_label")}</span>
                   <span
                     className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ml-auto"
                     style={{
@@ -731,15 +733,14 @@ function NewBriefPage() {
                   className="text-xs mb-3"
                   style={{ color: "rgba(147,197,253,0.75)", lineHeight: 1.6 }}
                 >
-                  Fourgon équipé d'écrans LED intégrés. Diffusion de vidéos MP4, images dynamiques
-                  ou flux HTML5.
+                  {t("annonceur.briefs.nouveau.digital_desc")}
                 </p>
                 <ul className="space-y-1">
                   {[
-                    "✅ Contenu vidéo & animé",
-                    "✅ Visible jour et nuit",
-                    "✅ Idéal pour événements",
-                    "✅ Changement de visuel à distance",
+                    t("annonceur.briefs.nouveau.digital_feature_1"),
+                    t("annonceur.briefs.nouveau.digital_feature_2"),
+                    t("annonceur.briefs.nouveau.digital_feature_3"),
+                    t("annonceur.briefs.nouveau.digital_feature_4"),
                   ].map((item) => (
                     <li
                       key={item}
@@ -754,7 +755,7 @@ function NewBriefPage() {
                   className="mt-4 text-xs font-semibold"
                   style={{ color: "rgba(96,165,250,0.9)" }}
                 >
-                  150–800 €/semaine · 5 000–20 000 impressions/j →
+                  {t("annonceur.briefs.nouveau.digital_pricing")}
                 </div>
               </div>
             </button>
@@ -774,17 +775,17 @@ function NewBriefPage() {
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">🎨</span>
-                  <span className="font-bold text-base">Affichage traditionnel</span>
+                  <span className="font-bold text-base">{t("annonceur.briefs.nouveau.traditional_label")}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-                  Covering vinyle adhésif posé sur le véhicule. Visuel imprimé fixe.
+                  {t("annonceur.briefs.nouveau.traditional_desc")}
                 </p>
                 <ul className="space-y-1">
                   {[
-                    "✅ Visuel permanent & durable",
-                    "✅ Coût maîtrisé",
-                    "✅ Large choix de véhicules",
-                    "✅ Idéal image de marque locale",
+                    t("annonceur.briefs.nouveau.traditional_feature_1"),
+                    t("annonceur.briefs.nouveau.traditional_feature_2"),
+                    t("annonceur.briefs.nouveau.traditional_feature_3"),
+                    t("annonceur.briefs.nouveau.traditional_feature_4"),
                   ].map((item) => (
                     <li key={item} className="text-[11px] text-muted-foreground">
                       {item}
@@ -792,7 +793,7 @@ function NewBriefPage() {
                   ))}
                 </ul>
                 <div className="mt-4 text-xs font-semibold text-primary">
-                  À partir de {MIN_EUR_PER_DAY} €/jour · Tous types de véhicules →
+                  {t("annonceur.briefs.nouveau.traditional_pricing", { min: MIN_EUR_PER_DAY })}
                 </div>
               </div>
             </button>
@@ -809,15 +810,15 @@ function NewBriefPage() {
           <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
             <LogoLink />
             <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
-              ← Retour
+              {t("annonceur.briefs.nouveau.back")}
             </Link>
           </div>
         </header>
         <main className="max-w-3xl mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold mb-2">Quel est votre projet ?</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">{t("annonceur.briefs.nouveau.event_type_title")}</h1>
             <p className="text-sm text-muted-foreground">
-              Choisissez un type d'événement — le formulaire sera pré-rempli pour vous.
+              {t("annonceur.briefs.nouveau.event_type_subtitle")}
             </p>
           </div>
 
@@ -844,11 +845,11 @@ function NewBriefPage() {
                     </span>
                   ))}
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
-                    {tpl.days} jours
+                    {t("annonceur.briefs.nouveau.event_type_days", { count: tpl.days })}
                   </span>
                 </div>
                 <p className="mt-2 text-[11px] text-primary font-medium">
-                  À partir de {MIN_EUR_PER_DAY * tpl.days} € pour 1 véhicule
+                  {t("annonceur.briefs.nouveau.event_type_starting_at", { amount: MIN_EUR_PER_DAY * tpl.days })}
                 </p>
               </button>
             ))}
@@ -860,7 +861,7 @@ function NewBriefPage() {
               onClick={() => setWizardStep("form")}
               className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-2"
             >
-              Remplir manuellement sans modèle →
+              {t("annonceur.briefs.nouveau.event_type_manual")}
             </button>
           </div>
         </main>
@@ -874,16 +875,16 @@ function NewBriefPage() {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Retour
+            {t("annonceur.briefs.nouveau.back")}
           </Link>
         </div>
       </header>
       <main id="main-content" className="max-w-3xl mx-auto px-4 py-8">
         {created && (
           <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/5 p-6">
-            <h2 className="font-display text-2xl font-bold">Récapitulatif du devis</h2>
+            <h2 className="font-display text-2xl font-bold">{t("annonceur.briefs.nouveau.recap_title")}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Brief enregistré. Montant calculé d'après la zone dessinée et la durée de campagne :{" "}
+              {t("annonceur.briefs.nouveau.recap_desc")}{" "}
               <strong className="text-foreground">
                 {created.amount.toLocaleString("fr-FR")} €
               </strong>{" "}
@@ -892,14 +893,14 @@ function NewBriefPage() {
               <WalletTopupCheckout
                 amountEuros={created.amount}
                 campaignBriefId={created.id}
-                buttonLabel="Valider et Payer la Campagne"
+                buttonLabel={t("annonceur.briefs.nouveau.recap_pay_btn")}
               />
               <Link
                 to="/annonceur/briefs/$briefId"
                 params={{ briefId: created.id }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Payer plus tard → voir le brief
+                {t("annonceur.briefs.nouveau.recap_pay_later")}
               </Link>
             </div>
           </div>
@@ -912,7 +913,7 @@ function NewBriefPage() {
               onClick={() => setWizardStep("event-type")}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              ← Changer de type d'événement
+              {t("annonceur.briefs.nouveau.change_event_type")}
             </button>
             {selectedTemplate && (
               <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
@@ -922,9 +923,9 @@ function NewBriefPage() {
           </div>
         )}
 
-        <h1 className="font-display text-3xl font-bold mb-2">Publier un brief</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("annonceur.briefs.nouveau.form_title")}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.
+          {t("annonceur.briefs.nouveau.form_subtitle")}
         </p>
 
         {/* ── Rappel discret du type choisi (numérique) ── */}
@@ -932,15 +933,14 @@ function NewBriefPage() {
           <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-center gap-2 text-sm">
             <span>📺</span>
             <span className="text-blue-700 dark:text-blue-300 font-medium">
-              Affichage numérique LED — les propriétaires de fourgons équipés d'écrans LED pourront
-              répondre à ce brief.
+              {t("annonceur.briefs.nouveau.digital_reminder")}
             </span>
           </div>
         )}
 
         {draftRestored && !created && (
           <div className="mb-2 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
-            <span>📝 Brouillon restauré — vos données ont été conservées.</span>
+            <span>{t("annonceur.briefs.nouveau.draft_restored")}</span>
             <button
               type="button"
               onClick={() => {
@@ -966,7 +966,7 @@ function NewBriefPage() {
               }}
               className="ml-4 underline hover:no-underline shrink-0"
             >
-              Effacer
+              {t("annonceur.briefs.nouveau.draft_clear")}
             </button>
           </div>
         )}
@@ -987,10 +987,10 @@ function NewBriefPage() {
                 <span className="text-xl">✨</span>
                 <div>
                   <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
-                    Remplir avec l'IA
+                    {t("annonceur.briefs.nouveau.ai_panel_title")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Décrivez votre activité — l'IA génère le titre, la description et l'audience.
+                    {t("annonceur.briefs.nouveau.ai_panel_desc")}
                   </p>
                 </div>
               </div>
@@ -1000,7 +1000,7 @@ function NewBriefPage() {
             {aiPanelOpen && (
               <div className="px-5 pb-5 border-t border-violet-500/20 pt-4 space-y-3">
                 <label className="block text-sm font-medium">
-                  Décrivez votre activité / projet en quelques phrases
+                  {t("annonceur.briefs.nouveau.ai_label")}
                 </label>
                 <textarea
                   value={aiContext}
@@ -1012,13 +1012,13 @@ function NewBriefPage() {
                 />
                 {aiSessionExpired && (
                   <p className="text-xs text-destructive">
-                    Session expirée —{" "}
+                    {t("annonceur.briefs.nouveau.ai_session_expired")}{" "}
                     <Link
                       to="/annonceur/inscription"
                       search={{ mode: "signin" }}
                       className="underline hover:no-underline"
                     >
-                      reconnectez-vous
+                      {t("annonceur.briefs.nouveau.ai_reconnect")}
                     </Link>{" "}
                     puis réessayez.
                   </p>
@@ -1036,10 +1036,10 @@ function NewBriefPage() {
                     {aiLoading ? (
                       <>
                         <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Génération…
+                        {t("annonceur.briefs.nouveau.ai_btn_loading")}
                       </>
                     ) : (
-                      "✨ Générer"
+                      t("annonceur.briefs.nouveau.ai_btn")
                     )}
                   </button>
                   <span className="text-xs text-muted-foreground">
@@ -1047,14 +1047,13 @@ function NewBriefPage() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Le contenu généré sera pré-rempli dans les champs ci-dessous — vous pouvez le
-                  modifier librement avant de publier.
+                  {t("annonceur.briefs.nouveau.ai_disclaimer")}
                 </p>
               </div>
             )}
           </div>
 
-          <Field label="Titre du brief">
+          <Field label={t("annonceur.briefs.nouveau.field_title")}>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -1065,7 +1064,7 @@ function NewBriefPage() {
             />
           </Field>
 
-          <Field label="Description">
+          <Field label={t("annonceur.briefs.nouveau.field_description")}>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -1085,11 +1084,11 @@ function NewBriefPage() {
               className={`rounded-xl border px-4 py-3 text-xs transition-all ${qualityLoading ? "border-border bg-secondary/20 animate-pulse" : qualityScore && qualityScore.global >= 7 ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}`}
             >
               {qualityLoading ? (
-                <p className="text-muted-foreground">✨ Analyse qualité en cours…</p>
+                <p className="text-muted-foreground">{t("annonceur.briefs.nouveau.quality_loading")}</p>
               ) : qualityScore ? (
                 <>
                   <div className="flex items-center gap-3 flex-wrap mb-2">
-                    <span className="font-semibold text-sm">Score qualité du brief</span>
+                    <span className="font-semibold text-sm">{t("annonceur.briefs.nouveau.quality_title")}</span>
                     <span
                       className={`text-xl font-bold ${qualityScore.global >= 7 ? "text-emerald-600" : qualityScore.global >= 5 ? "text-amber-600" : "text-destructive"}`}
                     >
@@ -1097,19 +1096,19 @@ function NewBriefPage() {
                     </span>
                     <div className="flex gap-2 text-muted-foreground flex-wrap">
                       <span>
-                        Message:{" "}
+                        {t("annonceur.briefs.nouveau.quality_message")}{" "}
                         <strong className="text-foreground">
                           {qualityScore.scores.message}/10
                         </strong>
                       </span>
                       <span>
-                        Audience:{" "}
+                        {t("annonceur.briefs.nouveau.quality_audience_label")}{" "}
                         <strong className="text-foreground">
                           {qualityScore.scores.audience}/10
                         </strong>
                       </span>
                       <span>
-                        Zone:{" "}
+                        {t("annonceur.briefs.nouveau.quality_zone_label")}{" "}
                         <strong className="text-foreground">{qualityScore.scores.zone}/10</strong>
                       </span>
                     </div>
@@ -1128,7 +1127,7 @@ function NewBriefPage() {
             </div>
           )}
 
-          <Field label="Types de véhicules recherchés">
+          <Field label={t("annonceur.briefs.nouveau.field_vehicles")}>
             {displayType && (
               <button
                 type="button"
@@ -1140,7 +1139,7 @@ function NewBriefPage() {
                 }}
                 className="mb-3 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
-                ← Changer de type d'affichage
+                {t("annonceur.briefs.nouveau.change_display_type")}
               </button>
             )}
             {/* ── Fourgon LED numérique — puce simple (mode digital uniquement) */}
@@ -1154,7 +1153,7 @@ function NewBriefPage() {
                     : "bg-card border-border hover:bg-secondary"
                 }`}
               >
-                📺 Fourgon Écran LED numérique
+                {t("annonceur.briefs.nouveau.vehicle_led_btn")}
               </button>
             )}
 
@@ -1162,7 +1161,7 @@ function NewBriefPage() {
             {displayType !== "digital" && (
               <>
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-                  {displayType === "traditionnel" ? "Véhicules disponibles" : "Autres véhicules"}
+                  {displayType === "traditionnel" ? t("annonceur.briefs.nouveau.vehicles_available") : t("annonceur.briefs.nouveau.vehicles_other")}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {VEHICLE_TYPES.filter((t) => t.v !== "camion_led").map((t) => {
@@ -1195,17 +1194,14 @@ function NewBriefPage() {
                 </div>
                 {adFormat === "boxled" && (
                   <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                    ⚠️ Le format <strong>Écran LED/Vidéo</strong> est réservé aux fourgons
-                    publicitaires numériques. Food truck, scooter, vélo cargo et triporteur sont
-                    incompatibles.
+                    {t("annonceur.briefs.nouveau.boxled_warning")}
                   </p>
                 )}
               </>
             )}
             {displayType === "digital" && (
               <div className="mt-1 rounded-lg border border-blue-500/20 bg-blue-500/5 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
-                📺 Fourgon publicitaire numérique sélectionné — contenu vidéo/image diffusé sur
-                écrans LED intégrés.
+                {t("annonceur.briefs.nouveau.digital_selected_msg")}
               </div>
             )}
           </Field>
@@ -1214,9 +1210,9 @@ function NewBriefPage() {
           {vehicleTypes.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-medium">🎨 Aperçu sur véhicule réel</span>
+                <span className="text-sm font-medium">{t("annonceur.briefs.nouveau.preview_label")}</span>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground">Couleur de marque</label>
+                  <label className="text-xs text-muted-foreground">{t("annonceur.briefs.nouveau.preview_color_label")}</label>
                   <input
                     type="color"
                     value={brandColor}
@@ -1225,7 +1221,7 @@ function NewBriefPage() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground">Logo (optionnel)</label>
+                  <label className="text-xs text-muted-foreground">{t("annonceur.briefs.nouveau.preview_logo_label")}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -1249,7 +1245,7 @@ function NewBriefPage() {
               {previewSearching ? (
                 <div className="h-48 rounded-xl bg-secondary/40 flex items-center justify-center animate-pulse">
                   <span className="text-sm text-muted-foreground">
-                    Recherche d'un véhicule disponible…
+                    {t("annonceur.briefs.nouveau.preview_searching")}
                   </span>
                 </div>
               ) : previewVehicleId ? (
@@ -1260,9 +1256,9 @@ function NewBriefPage() {
                 />
               ) : (
                 <div className="rounded-xl border border-dashed border-border bg-secondary/10 p-5 text-center text-sm text-muted-foreground">
-                  <p>📷 Aucun véhicule de ce type n'a encore mis ses photos en ligne.</p>
+                  <p>{t("annonceur.briefs.nouveau.preview_empty")}</p>
                   <p className="text-xs mt-1 opacity-70">
-                    L'aperçu apparaîtra automatiquement dès qu'un propriétaire ajoutera ses photos.
+                    {t("annonceur.briefs.nouveau.preview_empty_sub")}
                   </p>
                 </div>
               )}
@@ -1270,7 +1266,7 @@ function NewBriefPage() {
           )}
 
           {vehicleTypes.includes("autre") && (
-            <Field label="Précisez le véhicule « Autre » recherché *">
+            <Field label={t("annonceur.briefs.nouveau.field_autre")}>
               <input
                 type="text"
                 maxLength={120}
@@ -1280,13 +1276,12 @@ function NewBriefPage() {
                 className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Cette précision aide les propriétaires à évaluer si leur véhicule correspond à votre
-                besoin.
+                {t("annonceur.briefs.nouveau.autre_hint")}
               </p>
             </Field>
           )}
 
-          <Field label="Format publicitaire">
+          <Field label={t("annonceur.briefs.nouveau.field_format")}>
             <div className="flex flex-wrap gap-2">
               {AD_FORMATS.map((f) => {
                 const incompatible =
@@ -1322,14 +1317,12 @@ function NewBriefPage() {
             </div>
             {isFormatIncompatible(vehicleTypes, "boxled") && vehicleTypes.length > 0 && (
               <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                ⚠️ <strong>Écran LED/Vidéo (BoxLED)</strong> non disponible : un ou plusieurs
-                véhicules sélectionnés (food truck, scooter, vélo cargo, triporteur) n'existent pas
-                en version BoxLED de série.
+                {t("annonceur.briefs.nouveau.boxled_incompatible")}
               </p>
             )}
           </Field>
 
-          <Field label="Zone de ciblage sur la carte (optionnel)">
+          <Field label={t("annonceur.briefs.nouveau.field_zone_map")}>
             <ZoneSelector
               searchQuery={zoneSearchQuery}
               vehicleTypes={vehicleTypes}
@@ -1342,7 +1335,7 @@ function NewBriefPage() {
             />
           </Field>
 
-          <Field label="Zones / quartiers cibles">
+          <Field label={t("annonceur.briefs.nouveau.field_zones")}>
             <textarea
               value={zones}
               onChange={(e) => {
@@ -1354,7 +1347,7 @@ function NewBriefPage() {
               placeholder="Tapez un quartier pour centrer la carte, ou dessinez sur la carte"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Rempli automatiquement quand vous dessinez sur la carte — modifiable.
+              {t("annonceur.briefs.nouveau.zones_hint")}
             </p>
             {zonePolygon &&
               estimatedDays > 0 &&
@@ -1367,7 +1360,7 @@ function NewBriefPage() {
                 );
                 return (
                   <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
-                    <p className="font-medium">Budget estimé pour cette zone</p>
+                    <p className="font-medium">{t("annonceur.briefs.nouveau.zone_budget_title")}</p>
                     <p className="mt-1 text-muted-foreground">
                       {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
                       <strong className="text-foreground">
@@ -1377,8 +1370,7 @@ function NewBriefPage() {
                     </p>
                     {est.denseMetro && (
                       <p className="mt-2 text-xs text-foreground">
-                        🏙️ Zone dense détectée ({est.denseMetro}) : coefficient ×{est.multiplier}{" "}
-                        appliqué pour forte visibilité.
+                        {t("annonceur.briefs.nouveau.zone_dense", { metro: est.denseMetro, mult: est.multiplier })}
                       </p>
                     )}
                   </div>
@@ -1387,7 +1379,7 @@ function NewBriefPage() {
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Date de début">
+            <Field label={t("annonceur.briefs.nouveau.field_start")}>
               <input
                 type="date"
                 value={startDate}
@@ -1396,7 +1388,7 @@ function NewBriefPage() {
                 className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               />
             </Field>
-            <Field label="Date de fin">
+            <Field label={t("annonceur.briefs.nouveau.field_end")}>
               <input
                 type="date"
                 value={endDate}
@@ -1414,7 +1406,7 @@ function NewBriefPage() {
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Budget max (€, optionnel)">
+            <Field label={t("annonceur.briefs.nouveau.field_budget")}>
               <input
                 type="number"
                 min={0}
@@ -1423,7 +1415,7 @@ function NewBriefPage() {
                 className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               />
             </Field>
-            <Field label="Audience cible (optionnel)">
+            <Field label={t("annonceur.briefs.nouveau.field_audience")}>
               <input
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
@@ -1434,7 +1426,7 @@ function NewBriefPage() {
             </Field>
           </div>
 
-          <Field label="Visuels publicitaires (optionnel)">
+          <Field label={t("annonceur.briefs.nouveau.field_creatives")}>
             <input
               type="file"
               multiple
@@ -1448,13 +1440,13 @@ function NewBriefPage() {
             />
             {files.length > 0 && (
               <p className="text-xs text-muted-foreground mt-1">
-                {files.length} fichier(s) sélectionné(s)
+                {t("annonceur.briefs.nouveau.creatives_count", { count: files.length })}
               </p>
             )}
             {creativeValidating && (
               <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
                 <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
-                Analyse IA des visuels en cours…
+                {t("annonceur.briefs.nouveau.creatives_analyzing")}
               </div>
             )}
             {creativeValidation.length > 0 && !creativeValidating && (
@@ -1487,10 +1479,8 @@ function NewBriefPage() {
           </Field>
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
-            <strong className="text-foreground">📜 Propriété intellectuelle :</strong> en soumettant
-            un visuel publicitaire, vous garantissez en détenir tous les droits (créations, marques,
-            droit à l'image, musiques) et vous engagez à respecter la législation française et
-            européenne.
+            <strong className="text-foreground">{t("annonceur.briefs.nouveau.ip_notice")}</strong>{" "}
+            {t("annonceur.briefs.nouveau.ip_notice_body")}
           </div>
 
           {error && (
@@ -1505,16 +1495,15 @@ function NewBriefPage() {
               className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 space-y-4"
             >
               <div>
-                <p className="font-semibold text-sm">Créez votre compte pour publier</p>
+                <p className="font-semibold text-sm">{t("annonceur.briefs.nouveau.guest_title")}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Votre brief sera publié immédiatement. Retrouvez-le et suivez les réponses depuis
-                  votre espace annonceur.
+                  {t("annonceur.briefs.nouveau.guest_desc")}
                 </p>
               </div>
               <div className="space-y-3">
                 <div className="space-y-1">
                   <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                    Email
+                    {t("annonceur.briefs.nouveau.guest_email")}
                   </label>
                   <input
                     type="email"
@@ -1527,7 +1516,7 @@ function NewBriefPage() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                    Mot de passe
+                    {t("annonceur.briefs.nouveau.guest_password")}
                   </label>
                   <input
                     type="password"
@@ -1540,9 +1529,9 @@ function NewBriefPage() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                Déjà un compte ?{" "}
+                {t("annonceur.briefs.nouveau.guest_signin_prefix")}{" "}
                 <Link to="/annonceur/inscription" className="text-primary underline">
-                  Se connecter
+                  {t("annonceur.briefs.nouveau.guest_signin_link")}
                 </Link>
               </p>
             </div>
@@ -1554,12 +1543,12 @@ function NewBriefPage() {
             className="w-full rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {loading
-              ? "Publication…"
+              ? t("annonceur.briefs.nouveau.submit_loading")
               : showGuestSignup && !userId
-                ? "Créer mon compte et publier →"
+                ? t("annonceur.briefs.nouveau.submit_create_account")
                 : userId
-                  ? "Publier le brief"
-                  : "Continuer →"}
+                  ? t("annonceur.briefs.nouveau.submit_publish")
+                  : t("annonceur.briefs.nouveau.submit_continue")}
           </button>
         </form>
       </main>
@@ -1568,6 +1557,7 @@ function NewBriefPage() {
 }
 
 function ContentChecker({ text }: { text: string }) {
+  const { t } = useTranslation();
   const [match, setMatch] = useState<ReturnType<typeof findForbiddenMatch>>(null);
   const [checked, setChecked] = useState(false);
   const safeText = text ?? "";
@@ -1590,11 +1580,11 @@ function ContentChecker({ text }: { text: string }) {
           ⛔ Contenu non conforme — {match.category}
         </p>
         <p className="text-xs text-destructive/80">
-          Le terme <strong>« {match.keyword} »</strong> est interdit par la charte MoveSpot.
+          {t("annonceur.briefs.nouveau.content_nok_term")} <strong>« {match.keyword} »</strong> {t("annonceur.briefs.nouveau.content_nok_forbidden")}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed">{match.advice}</p>
         <p className="text-xs font-medium text-destructive">
-          Ce brief sera refusé automatiquement si vous le soumettez tel quel.
+          {t("annonceur.briefs.nouveau.content_nok_warning")}
         </p>
       </div>
     );
@@ -1604,7 +1594,7 @@ function ContentChecker({ text }: { text: string }) {
     <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 flex items-center gap-2">
       <span className="text-emerald-500 text-sm">✓</span>
       <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-        Contenu conforme à la charte MoveSpot
+        {t("annonceur.briefs.nouveau.content_ok")}
       </p>
     </div>
   );
@@ -1619,6 +1609,7 @@ function LiveBudgetEstimator({
   vehicleCount: number;
   zonePolygon: ZonePolygon | null;
 }) {
+  const { t } = useTranslation();
   if (days <= 0 && vehicleCount === 0) return null;
 
   const v = Math.max(1, vehicleCount);
@@ -1653,15 +1644,15 @@ function LiveBudgetEstimator({
   return (
     <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <p className="font-semibold text-sm">Estimation de budget</p>
+        <p className="font-semibold text-sm">{t("annonceur.briefs.nouveau.budget_title")}</p>
         <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-          {zonePolygon ? "zone dessinée ✓" : "mise à jour en temps réel"}
+          {zonePolygon ? t("annonceur.briefs.nouveau.budget_zone_drawn") : t("annonceur.briefs.nouveau.budget_realtime")}
         </span>
       </div>
 
       {days <= 0 ? (
         <p className="text-xs text-muted-foreground">
-          Sélectionnez des dates pour affiner l'estimation.
+          {t("annonceur.briefs.nouveau.budget_select_dates")}
         </p>
       ) : (
         <>
@@ -1669,9 +1660,9 @@ function LiveBudgetEstimator({
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="text-xs text-muted-foreground border-b border-border">
-                  <th className="text-left py-1.5 font-medium">Véhicules retenus</th>
-                  <th className="text-right py-1.5 font-medium">Estimation totale</th>
-                  <th className="text-right py-1.5 font-medium">Par jour</th>
+                  <th className="text-left py-1.5 font-medium">{t("annonceur.briefs.nouveau.budget_col_vehicles")}</th>
+                  <th className="text-right py-1.5 font-medium">{t("annonceur.briefs.nouveau.budget_col_total")}</th>
+                  <th className="text-right py-1.5 font-medium">{t("annonceur.briefs.nouveau.budget_col_per_day")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1681,10 +1672,10 @@ function LiveBudgetEstimator({
                     className={`border-b border-border/40 ${n === v ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                   >
                     <td className="py-2">
-                      {n} véhicule{n > 1 ? "s" : ""}
+                      {t("annonceur.briefs.nouveau.budget_vehicle", { count: n })}
                       {n === v && vehicleCount > 0 && (
                         <span className="ml-2 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
-                          sélectionné
+                          {t("annonceur.briefs.nouveau.budget_selected")}
                         </span>
                       )}
                     </td>
@@ -1698,19 +1689,18 @@ function LiveBudgetEstimator({
 
           {isDense && (
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              🏙️ Zone dense ({isDense}) — coefficient ×1,5 inclus dans l'estimation.
+              {t("annonceur.briefs.nouveau.budget_dense", { metro: isDense })}
             </p>
           )}
 
           <div className="rounded-lg bg-background/60 border border-border p-3 text-xs text-muted-foreground space-y-1">
             <p>
               • Estimation basée sur{" "}
-              {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : "le tarif plancher"}{" "}
+              {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : t("annonceur.briefs.nouveau.budget_note_floor")}{" "}
               × {d} jour{d > 1 ? "s" : ""}.
             </p>
             <p>
-              • Le montant final dépend des propositions des propriétaires — vous ne payez qu'à la
-              validation.
+              • {t("annonceur.briefs.nouveau.budget_note_2")}
             </p>
           </div>
 
@@ -1719,13 +1709,13 @@ function LiveBudgetEstimator({
               to="/annonceur/portefeuille"
               className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition"
             >
-              💳 Préparer {approxForV.toLocaleString("fr-FR")} €
+              {t("annonceur.briefs.nouveau.budget_prepare", { amount: approxForV.toLocaleString("fr-FR") })}
             </Link>
             <Link
               to="/annonceur/pack"
               className="text-xs text-muted-foreground hover:text-foreground underline"
             >
-              Ou acheter un pack →
+              {t("annonceur.briefs.nouveau.budget_buy_pack")}
             </Link>
           </div>
         </>
