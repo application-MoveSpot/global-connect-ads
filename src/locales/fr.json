@@ -2846,7 +2846,11 @@
     "ref_label": "réf. {{ref}}",
     "movespot_note": "Note MoveSpot : {{note}}",
     "replace_receipt": "Remplacer le justificatif",
-    "attach_receipt": "Joindre mon justificatif"
+    "attach_receipt": "Joindre mon justificatif",
+    "title": "Virement bancaire",
+    "err_generic": "Erreur",
+    "err_session": "Session expirée",
+    "err_file_size": "Fichier trop lourd (10 Mo max)"
   },
   "install_jobs": {
     "loading": "Chargement des missions…",

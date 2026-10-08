@@ -24,8 +24,8 @@ type TransferRow = {
 };
 
 
-function fmt(cents: number) {
-  return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+function fmt(cents: number, lang: string) {
+  return (cents / 100).toLocaleString(lang, { style: "currency", currency: "EUR" });
 }
 
 function LockIcon() {
@@ -57,7 +57,7 @@ function CopyButton({ value }: { value: string }) {
 export function BankTransferPanel({
   onCredited,
   campaignRequestId,
-  title = "Virement bancaire",
+  title,
   subtitle,
   fixedAmountEuros,
 }: {
@@ -67,7 +67,7 @@ export function BankTransferPanel({
   subtitle?: string;
   fixedAmountEuros?: number;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const fetchDetails = useServerFn(getBankDetails);
   const createRequest = useServerFn(createBankTransferRequest);
   const attachReceipt = useServerFn(attachBankTransferReceipt);
@@ -107,7 +107,7 @@ export function BankTransferPanel({
       await createRequest({ data: { amountEuros: amount, campaignRequestId } });
       await reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
+      setError(e instanceof Error ? e.message : t("bank_transfer.err_generic"));
     } finally {
       setBusy(false);
     }
@@ -119,8 +119,8 @@ export function BankTransferPanel({
     try {
       const { data: sess } = await supabase.auth.getUser();
       const userId = sess.user?.id;
-      if (!userId) throw new Error("Session expirée");
-      if (file.size > 10 * 1024 * 1024) throw new Error("Fichier trop lourd (10 Mo max)");
+      if (!userId) throw new Error(t("bank_transfer.err_session"));
+      if (file.size > 10 * 1024 * 1024) throw new Error(t("bank_transfer.err_file_size"));
 
       const resized = await resizeImageFile(file, 1600, 0.85);
       const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "pdf";
@@ -134,7 +134,7 @@ export function BankTransferPanel({
       await reload();
       onCredited?.();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
+      setError(e instanceof Error ? e.message : t("bank_transfer.err_generic"));
     } finally {
       setBusy(false);
     }
@@ -144,7 +144,7 @@ export function BankTransferPanel({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="font-display text-xl font-semibold">{title}</h2>
+        <h2 className="font-display text-xl font-semibold">{title ?? t("bank_transfer.title")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {subtitle ?? t("bank_transfer.default_subtitle")}
         </p>
@@ -260,11 +260,11 @@ export function BankTransferPanel({
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
                       <div className="font-semibold">
-                        {fmt(row.amount_cents)}
+                        {fmt(row.amount_cents, i18n.language)}
                         <span className="ml-2 font-mono text-xs text-muted-foreground">{t("bank_transfer.ref_label", { ref: row.reference })}</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {new Date(row.created_at).toLocaleString("fr-FR")}
+                        {new Date(row.created_at).toLocaleString(i18n.language)}
                       </div>
                     </div>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${sc.className}`}>

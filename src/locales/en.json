@@ -2846,7 +2846,11 @@
     "ref_label": "ref. {{ref}}",
     "movespot_note": "MoveSpot note: {{note}}",
     "replace_receipt": "Replace receipt",
-    "attach_receipt": "Attach receipt"
+    "attach_receipt": "Attach receipt",
+    "title": "Bank transfer",
+    "err_generic": "Error",
+    "err_session": "Session expired",
+    "err_file_size": "File too large (10 MB max)"
   },
   "install_jobs": {
     "loading": "Loading jobs…",
