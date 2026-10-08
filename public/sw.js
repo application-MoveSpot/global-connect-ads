@@ -1,4 +1,5 @@
-const CACHE = "movespot-v1";
+// Rotate the cache so installed apps discard previously stored branding assets.
+const CACHE = "movespot-official-logo-v2";
 const PRECACHE = ["/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
