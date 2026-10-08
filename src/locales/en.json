@@ -3400,5 +3400,63 @@
     "subscription_billing_one": "The subscription is billed for <strong>{{count}} vehicle</strong> × monthly rate. No charge for 14 days · cancel anytime during the trial.",
     "subscription_billing_other": "The subscription is billed for <strong>{{count}} vehicles</strong> × monthly rate. No charge for 14 days · cancel anytime during the trial.",
     "btn_trial": "Activate the 14-day free trial"
+  },
+  "installation_kit": {
+    "title": "🖼 Installation kit — visual/video and QR code to attach",
+    "no_creative": "No visual provided by the advertiser yet — come back later or contact MoveSpot.",
+    "qr_alt": "QR code to attach",
+    "qr_instructions": "Print this QR code and attach it next to the visual on the vehicle.",
+    "btn_download": "Download QR code"
+  },
+  "installation_photo_grid": {
+    "empty": "No installation photos submitted yet.",
+    "alt_prefix": "Wrap installation",
+    "missing": "Missing"
+  },
+  "installation_view": {
+    "front": "Front",
+    "left": "Left side",
+    "right": "Right side",
+    "rear": "Rear"
+  },
+  "vehicle_photo_preview": {
+    "loading": "Loading photos…",
+    "no_photos": "Photos pending — owner hasn't uploaded yet",
+    "no_photos_hint": "The preview will be available once the owner has uploaded their photos.",
+    "aria_prev": "Previous photo",
+    "aria_next": "Next photo",
+    "caption_video": "Preview of your video on the vehicle — plays automatically on loop.",
+    "caption_image": "Indicative preview — the exact placement will be confirmed by the owner in their proposal."
+  },
+  "portfolio_uploader": {
+    "err_max_files": "Maximum {{max}} files.",
+    "err_format": "Unsupported format: {{name}}",
+    "err_size": "File too large (>50 MB): {{name}}",
+    "accepted_hint": "Images (JPG, PNG, WebP, GIF) or videos (MP4, WebM, MOV). 50 MB max per file."
+  },
+  "itinerary_planner": {
+    "title": "🗺 Broadcast route",
+    "subtitle": "— zones, POIs and impressions calculated automatically",
+    "steps_label": "Route stops (one per line)",
+    "step_placeholder": "Stop {{n}} (e.g. Gare de Lyon, Paris)",
+    "step_remove_aria": "Remove stop {{n}}",
+    "btn_add_step": "➕ Add a stop",
+    "zones_label": "Targeted zones / neighbourhoods",
+    "zones_empty": "Waiting for input…",
+    "pois_label": "Points of interest covered nearby",
+    "detecting": "Detecting…",
+    "no_pois": "No points detected yet.",
+    "impressions_label": "Estimated impressions / day",
+    "impressions_unit": "impressions / day",
+    "calc_formula": "{{km}} km route × {{density}} people reached/km{{coefSuffix}}",
+    "calc_coef_suffix": " × coef {{coef}}",
+    "hint_add_steps": "Enter at least two stops to start the calculation.",
+    "err_geocode": "Address lookup unavailable at the moment.",
+    "err_no_route": "No road route found between these stops.",
+    "err_unavailable": "Route calculation unavailable at the moment.",
+    "geocoding_consent": "Geocoding uses Mapbox (third-party service).",
+    "consent_link": "Accept cookies",
+    "consent_suffix": "to enable route calculation.",
+    "map_not_configured": "Map service not configured."
   }
 }

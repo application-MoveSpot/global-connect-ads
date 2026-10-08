@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFile }: Props) {
+  const { t } = useTranslation();
   const [rawPhotos, setRawPhotos] = useState<string[] | null>(null);
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
@@ -36,7 +38,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   if (rawPhotos === null) {
     return (
       <div className="h-56 rounded-xl bg-secondary/40 flex items-center justify-center animate-pulse">
-        <span className="text-sm text-muted-foreground">Chargement des photos…</span>
+        <span className="text-sm text-muted-foreground">{t("vehicle_photo_preview.loading")}</span>
       </div>
     );
   }
@@ -45,8 +47,8 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
     return (
       <div className="h-56 rounded-xl bg-secondary/40 border border-dashed border-border flex flex-col items-center justify-center gap-2">
         <span className="text-2xl">📷</span>
-        <p className="text-sm text-muted-foreground">Photos en attente d'ajout par le propriétaire</p>
-        <p className="text-xs text-muted-foreground/60">L'aperçu sera disponible dès qu'il aura mis en ligne ses photos.</p>
+        <p className="text-sm text-muted-foreground">{t("vehicle_photo_preview.no_photos")}</p>
+        <p className="text-xs text-muted-foreground/60">{t("vehicle_photo_preview.no_photos_hint")}</p>
       </div>
     );
   }
@@ -59,7 +61,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
       <div className="relative rounded-xl overflow-hidden bg-black" style={{ aspectRatio: "16/9" }}>
         <img
           src={photos[index]}
-          alt="Véhicule"
+          alt={t("ad_spots.vehicle_fallback")}
           draggable={false}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
@@ -123,7 +125,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             <button
               type="button"
               onClick={prev}
-              aria-label="Photo précédente"
+              aria-label={t("vehicle_photo_preview.aria_prev")}
               className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 hover:bg-background transition flex items-center justify-center text-lg"
               style={{ zIndex: 2 }}
             >
@@ -132,7 +134,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             <button
               type="button"
               onClick={next}
-              aria-label="Photo suivante"
+              aria-label={t("vehicle_photo_preview.aria_next")}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 hover:bg-background transition flex items-center justify-center text-lg"
               style={{ zIndex: 2 }}
             >
@@ -168,8 +170,8 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
 
       <p className="text-[11px] text-muted-foreground">
         {videoObjectUrl
-          ? "Aperçu de votre vidéo sur le véhicule — lecture automatique en boucle."
-          : "Aperçu indicatif — l'emplacement exact sera précisé par le propriétaire dans sa proposition."}
+          ? t("vehicle_photo_preview.caption_video")
+          : t("vehicle_photo_preview.caption_image")}
       </p>
     </div>
   );

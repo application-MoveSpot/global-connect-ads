@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { INSTALLATION_VIEWS, INSTALLATION_VIEW_LABEL, type InstallationView } from "@/lib/providers/installation.functions";
+import { INSTALLATION_VIEWS, type InstallationView } from "@/lib/providers/installation.functions";
 
 export type InstallationPhotos = Partial<Record<InstallationView, string>> & { submitted_at?: string };
 
@@ -17,6 +18,7 @@ export function parseInstallationPhotos(value: unknown): InstallationPhotos | nu
 
 /** Grille des 4 vues de pose avec URLs signées (bucket privé). */
 export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos | null }) {
+  const { t } = useTranslation();
   const [urls, setUrls] = useState<Record<string, string>>({});
   const paths = INSTALLATION_VIEWS.map((v) => photos?.[v]).filter((p): p is string => Boolean(p));
 
@@ -42,7 +44,7 @@ export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos |
   if (paths.length === 0) {
     return (
       <p className="rounded-lg border border-dashed border-border p-4 text-xs text-muted-foreground">
-        Aucune photo de pose transmise pour l'instant.
+        {t("installation_photo_grid.empty")}
       </p>
     );
   }
@@ -52,23 +54,24 @@ export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos |
       {INSTALLATION_VIEWS.map((view) => {
         const path = photos?.[view];
         const url = path ? urls[path] : undefined;
+        const viewLabel = t(`installation_view.${view}`);
         return (
           <div key={view} className="overflow-hidden rounded-lg border border-border bg-background">
             <div className="border-b border-border px-2 py-1 text-[11px] font-semibold text-muted-foreground">
-              {INSTALLATION_VIEW_LABEL[view]}
+              {viewLabel}
             </div>
             {url ? (
               <a href={url} target="_blank" rel="noopener noreferrer">
                 <img
                   src={url}
-                  alt={`Pose covering — ${INSTALLATION_VIEW_LABEL[view]}`}
+                  alt={`${t("installation_photo_grid.alt_prefix")} — ${viewLabel}`}
                   className="h-36 w-full object-cover"
                   loading="lazy"
                 />
               </a>
             ) : (
               <div className="flex h-36 items-center justify-center text-[11px] text-muted-foreground">
-                {path ? "Chargement…" : "Manquante"}
+                {path ? t("common.loading") : t("installation_photo_grid.missing")}
               </div>
             )}
           </div>

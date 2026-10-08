@@ -3400,5 +3400,63 @@
     "subscription_billing_one": "L'abonnement est facturé <strong>{{count}} véhicule</strong> × tarif mensuel. Aucun prélèvement pendant 14 jours · annulable à tout moment pendant l'essai.",
     "subscription_billing_other": "L'abonnement est facturé <strong>{{count}} véhicules</strong> × tarif mensuel. Aucun prélèvement pendant 14 jours · annulable à tout moment pendant l'essai.",
     "btn_trial": "Activer l'essai gratuit de 14 jours"
+  },
+  "installation_kit": {
+    "title": "🖼 Kit de pose — affiche/vidéo et QR code à coller",
+    "no_creative": "Aucun visuel fourni par l'annonceur pour le moment — revenez plus tard ou contactez MoveSpot.",
+    "qr_alt": "QR code à coller",
+    "qr_instructions": "Imprimez ce QR et collez-le à côté du visuel sur le véhicule.",
+    "btn_download": "Télécharger le QR"
+  },
+  "installation_photo_grid": {
+    "empty": "Aucune photo de pose transmise pour l'instant.",
+    "alt_prefix": "Pose covering",
+    "missing": "Manquante"
+  },
+  "installation_view": {
+    "front": "Face avant",
+    "left": "Côté gauche",
+    "right": "Côté droit",
+    "rear": "Face arrière"
+  },
+  "vehicle_photo_preview": {
+    "loading": "Chargement des photos…",
+    "no_photos": "Photos en attente d'ajout par le propriétaire",
+    "no_photos_hint": "L'aperçu sera disponible dès qu'il aura mis en ligne ses photos.",
+    "aria_prev": "Photo précédente",
+    "aria_next": "Photo suivante",
+    "caption_video": "Aperçu de votre vidéo sur le véhicule — lecture automatique en boucle.",
+    "caption_image": "Aperçu indicatif — l'emplacement exact sera précisé par le propriétaire dans sa proposition."
+  },
+  "portfolio_uploader": {
+    "err_max_files": "Maximum {{max}} fichiers.",
+    "err_format": "Format non supporté : {{name}}",
+    "err_size": "Fichier trop volumineux (>50 Mo) : {{name}}",
+    "accepted_hint": "Images (JPG, PNG, WebP, GIF) ou vidéos (MP4, WebM, MOV). 50 Mo max par fichier."
+  },
+  "itinerary_planner": {
+    "title": "🗺 Itinéraire de diffusion",
+    "subtitle": "— zones, POI et impressions calculés automatiquement",
+    "steps_label": "Étapes du parcours (une par ligne)",
+    "step_placeholder": "Étape {{n}} (ex : Gare de Lyon, Paris)",
+    "step_remove_aria": "Supprimer l'étape {{n}}",
+    "btn_add_step": "➕ Ajouter une étape",
+    "zones_label": "Zones / quartiers ciblés",
+    "zones_empty": "En attente de saisie…",
+    "pois_label": "Points d'intérêt couverts à proximité",
+    "detecting": "Détection en cours…",
+    "no_pois": "Aucun point détecté pour le moment.",
+    "impressions_label": "Impressions estimées / jour",
+    "impressions_unit": "impressions / jour",
+    "calc_formula": "{{km}} km de parcours × {{density}} personnes croisées/km{{coefSuffix}}",
+    "calc_coef_suffix": " × coef {{coef}}",
+    "hint_add_steps": "Saisissez au moins deux étapes pour lancer le calcul.",
+    "err_geocode": "Recherche d'adresse indisponible pour le moment.",
+    "err_no_route": "Aucun itinéraire routier entre ces étapes.",
+    "err_unavailable": "Calcul de l'itinéraire indisponible pour le moment.",
+    "geocoding_consent": "Le géocodage utilise Mapbox (service tiers).",
+    "consent_link": "Acceptez les cookies",
+    "consent_suffix": "pour activer le calcul d'itinéraire.",
+    "map_not_configured": "Service cartographique non configuré."
   }
 }
