@@ -36,6 +36,9 @@ import {
   adminListDeposePending,
   adminReviewVehicle,
   adminSendStripeReminder,
+  adminListReferrals,
+  adminCreditReferral,
+  type AdminReferralRow,
 } from "@/lib/admin.functions";
 import {
   transferToPoseInstaller,
@@ -79,7 +82,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   },
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "deposes" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes";
+type Tab = "briefs" | "vehicules" | "poses" | "deposes" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes" | "referral";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -242,6 +245,8 @@ function AdminDashboard() {
   const getAnalytics = useServerFn(adminAnalyticsData);
   const getRevenue = useServerFn(adminRevenueData);
   const getUsers = useServerFn(adminListUsers);
+  const getReferrals = useServerFn(adminListReferrals);
+  const creditReferralFn = useServerFn(adminCreditReferral);
 
   const analyticsQuery = useQuery({
     queryKey: ["admin-analytics"],
@@ -261,6 +266,13 @@ function AdminDashboard() {
     queryKey: ["admin-users"],
     queryFn: () => getUsers(),
     enabled: ready && tab === "utilisateurs",
+    staleTime: 2 * 60 * 1000,
+    retry: false,
+  });
+  const referralQuery = useQuery({
+    queryKey: ["admin-referrals"],
+    queryFn: () => getReferrals(),
+    enabled: ready && tab === "referral",
     staleTime: 2 * 60 * 1000,
     retry: false,
   });
@@ -413,6 +425,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "alertes"} onClick={() => setTab("alertes")}>
             {t("admin.dashboard.tab_alertes")}
+          </TabBtn>
+          <TabBtn active={tab === "referral"} onClick={() => setTab("referral")}>
+            {t("admin.dashboard.tab_referral")}
           </TabBtn>
         </div>
 
@@ -1190,6 +1205,24 @@ function AdminDashboard() {
           </div>
         ) : null}
 
+        {tab === "referral" ? (
+          referralQuery.isLoading ? (
+            <Skeleton />
+          ) : referralQuery.isError ? (
+            <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+              {(referralQuery.error as Error).message}
+            </div>
+          ) : (
+            <ReferralTab
+              data={referralQuery.data!}
+              onCredit={async (refereeUserId: string) => {
+                await creditReferralFn({ data: { refereeUserId } });
+                await referralQuery.refetch();
+              }}
+            />
+          )
+        ) : null}
+
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
             <Skeleton />
@@ -1553,10 +1586,109 @@ function AdminAlertesPanel() {
           </div>
         </details>
       )}
+
     </div>
   );
 }
 
+function ReferralTab({
+  data,
+  onCredit,
+}: {
+  data: { rows: AdminReferralRow[]; pending: number; credited: number; total: number };
+  onCredit: (refereeUserId: string) => Promise<void>;
+}) {
+  const { t, i18n } = useTranslation();
+  const [crediting, setCrediting] = useState<string | null>(null);
+
+  const handleCredit = async (row: AdminReferralRow) => {
+    if (!row.referee_user_id) return;
+    setCrediting(row.id);
+    try {
+      await onCredit(row.referee_user_id);
+      toast.success(t("admin.dashboard.referral_credit_success"));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t("admin.dashboard.referral_credit_error"));
+    } finally {
+      setCrediting(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-4">
+        <div className="rounded-2xl border border-border bg-card px-6 py-4 min-w-[140px]">
+          <div className="text-3xl font-bold tabular-nums">{data.total}</div>
+          <div className="text-xs text-muted-foreground mt-1">{t("admin.dashboard.referral_stat_total")}</div>
+        </div>
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 px-6 py-4 min-w-[140px]">
+          <div className="text-3xl font-bold tabular-nums text-amber-600">{data.pending}</div>
+          <div className="text-xs text-muted-foreground mt-1">{t("admin.dashboard.referral_stat_pending")}</div>
+        </div>
+        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-6 py-4 min-w-[140px]">
+          <div className="text-3xl font-bold tabular-nums text-emerald-600">{data.credited}</div>
+          <div className="text-xs text-muted-foreground mt-1">{t("admin.dashboard.referral_stat_credited")}</div>
+        </div>
+      </div>
+
+      {data.rows.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("admin.dashboard.referral_empty")}</p>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/40">
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground">{t("admin.dashboard.referral_col_referrer")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground">{t("admin.dashboard.referral_col_code")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground">{t("admin.dashboard.referral_col_referee")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground">{t("admin.dashboard.referral_col_status")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground">{t("admin.dashboard.referral_col_date")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider text-muted-foreground">{t("admin.dashboard.referral_col_actions")}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {data.rows.map((row) => (
+                <tr key={row.id} className="hover:bg-muted/20">
+                  <td className="px-4 py-3 font-medium">{row.referrer_name}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{row.referrer_code}</td>
+                  <td className="px-4 py-3">{row.referee_name}</td>
+                  <td className="px-4 py-3">
+                    {row.status === "credited" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                        ✅ {t("admin.dashboard.referral_status_credited")}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                        ⏳ {t("admin.dashboard.referral_status_pending")}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    <div>{new Date(row.created_at).toLocaleDateString(i18n.language)}</div>
+                    {row.credited_at ? (
+                      <div className="text-emerald-600">{new Date(row.credited_at).toLocaleDateString(i18n.language)}</div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3">
+                    {row.status === "pending" && row.referee_user_id ? (
+                      <button
+                        onClick={() => void handleCredit(row)}
+                        disabled={crediting === row.id}
+                        className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition"
+                      >
+                        {crediting === row.id ? "…" : t("admin.dashboard.referral_credit_btn")}
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
 function TabBtn({
   active,
   onClick,
