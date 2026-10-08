@@ -3025,6 +3025,51 @@
     "placeholder": "Votre question…",
     "aria_send": "Envoyer"
   },
+  "status_banner": {
+    "webgl_warn": "Les cartes interactives fonctionnent en mode simplifié sur cet appareil (WebGL non disponible).",
+    "btn_close": "Fermer"
+  },
+  "fleet_map": {
+    "token_missing": "Carte indisponible : le jeton Mapbox n'est pas configuré.",
+    "btn_immersive": "Vue immersive 3D",
+    "btn_flat": "Vue plane",
+    "btn_orbit": "Rotation 360°",
+    "btn_stop_orbit": "Stopper la rotation",
+    "popup_campaign": "Campagne"
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur MoveSpot",
+    "aria_close": "Fermer",
+    "btn_prev": "Précédent",
+    "btn_next": "Suivant →",
+    "btn_discover_packs": "Découvrir les packs →",
+    "btn_create_campaign": "Créer ma première campagne →",
+    "btn_skip": "Passer l'introduction",
+    "step_1_title": "Définissez votre campagne",
+    "step_1_desc": "Choisissez votre zone géographique, le type de véhicule, la durée et votre budget. Notre formulaire vous guide étape par étape.",
+    "step_2_title": "On trouve le véhicule",
+    "step_2_desc": "MoveSpot met en relation avec les propriétaires de véhicules qui correspondent à vos critères. Vous recevez une proposition tarifaire.",
+    "step_3_title": "Validation de la pose",
+    "step_3_desc": "Un poseur certifié installe votre covering. Vous recevez des photos de confirmation et validez la pose avant le début de la diffusion.",
+    "step_4_title": "Suivi GPS en temps réel",
+    "step_4_desc": "Pendant toute la campagne, suivez l'itinéraire du véhicule, la couverture de zone et les métriques de performance dans votre espace."
+  },
+  "owner_connect": {
+    "title": "Mes reversements",
+    "subtitle": "Powered by Stripe Connect",
+    "active_msg": "Compte Stripe actif — vous recevez automatiquement 70 % de chaque campagne validée sur vos véhicules.",
+    "btn_update": "Mettre à jour mes informations bancaires",
+    "pending_msg": "Vérification en cours — finalisez l'onboarding pour recevoir vos paiements.",
+    "btn_finalize": "Finaliser la vérification Stripe",
+    "not_connected_desc": "Connectez votre compte bancaire pour recevoir automatiquement 70 % de chaque campagne publicitaire validée sur vos véhicules, sans aucune démarche manuelle.",
+    "step_1": "Vérification d'identité (pièce d'identité)",
+    "step_2": "Saisie de votre IBAN directement sur Stripe",
+    "step_3": "Reversements automatiques à chaque campagne validée (70 %)",
+    "btn_connect": "Connecter mon compte via Stripe",
+    "btn_loading": "Chargement…",
+    "err_generic": "Erreur",
+    "trust_badge": "Vos coordonnées bancaires (IBAN) sont saisies directement sur Stripe et restent hébergées chez eux. MoveSpot n'a jamais accès à ces informations."
+  },
   "notif_bell": {
     "aria_label": "Notifications",
     "header": "Notifications",
@@ -3123,5 +3168,50 @@
     "toast_released": "Mission libérée.",
     "err_claim": "Erreur lors de la réservation.",
     "err_release": "Erreur."
+  },
+  "status_banner": {
+    "webgl_warn": "Votre navigateur ne supporte pas WebGL — la carte 3D est remplacée par une carte standard.",
+    "btn_close": "Fermer"
+  },
+  "fleet_map": {
+    "popup_campaign": "Campagne",
+    "token_missing": "Carte indisponible : le jeton Mapbox n'est pas configuré.",
+    "btn_flat": "Vue plane",
+    "btn_immersive": "Vue immersive 3D",
+    "btn_stop_orbit": "Stopper la rotation",
+    "btn_orbit": "Rotation 360°"
+  },
+  "onboarding": {
+    "welcome": "Bienvenue sur MoveSpot",
+    "aria_close": "Fermer",
+    "btn_prev": "Précédent",
+    "btn_next": "Suivant →",
+    "btn_discover_packs": "Découvrir les packs →",
+    "btn_create_campaign": "Créer ma première campagne →",
+    "btn_skip": "Passer l'introduction",
+    "step1_title": "Définissez votre campagne",
+    "step1_desc": "Choisissez votre zone géographique, le type de véhicule, la durée et votre budget. Notre formulaire vous guide étape par étape.",
+    "step2_title": "On trouve le véhicule",
+    "step2_desc": "MoveSpot met en relation avec les propriétaires de véhicules qui correspondent à vos critères. Vous recevez une proposition tarifaire.",
+    "step3_title": "Validation de la pose",
+    "step3_desc": "Un poseur certifié installe votre covering. Vous recevez des photos de confirmation et validez la pose avant le début de la diffusion.",
+    "step4_title": "Suivi GPS en temps réel",
+    "step4_desc": "Pendant toute la campagne, suivez l'itinéraire du véhicule, la couverture de zone et les métriques de performance dans votre espace."
+  },
+  "owner_connect": {
+    "title": "Mes reversements",
+    "subtitle": "Powered by Stripe Connect",
+    "active_msg": "Compte Stripe actif — vous recevez automatiquement 70 % de chaque campagne validée sur vos véhicules.",
+    "pending_msg": "Vérification en cours — finalisez l'onboarding pour recevoir vos paiements.",
+    "not_connected_desc": "Connectez votre compte bancaire pour recevoir automatiquement <strong>70 %</strong> de chaque campagne publicitaire validée sur vos véhicules, sans aucune démarche manuelle.",
+    "step1": "Vérification d'identité (pièce d'identité)",
+    "step2": "Saisie de votre IBAN directement sur Stripe",
+    "step3": "Reversements automatiques à chaque campagne validée (70 %)",
+    "btn_loading": "Chargement…",
+    "btn_connect": "Connecter mon compte via Stripe",
+    "btn_finalize": "Finaliser la vérification Stripe",
+    "btn_update": "Mettre à jour mes informations bancaires",
+    "err_generic": "Erreur",
+    "trust_badge": "Vos coordonnées bancaires (IBAN) sont saisies directement sur <strong>Stripe</strong> et restent hébergées chez eux. MoveSpot n'a jamais accès à ces informations."
   }
 }
