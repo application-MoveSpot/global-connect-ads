@@ -3362,5 +3362,43 @@
     "btn_show": "History",
     "btn_hide": "Hide history",
     "empty": "No status changes recorded yet."
+  },
+  "test_env_banner": {
+    "msg": "⚠ TEST ENVIRONMENT — Data shown is fictional. Do not make real payments."
+  },
+  "payment_test_mode_banner": {
+    "not_configured": "Card payment is not yet configured. Add your Stripe keys to accept payments.",
+    "sandbox": "Payments are currently in test mode."
+  },
+  "offline_banner": {
+    "msg": "No connection — your changes are not being saved"
+  },
+  "map_consent_gate": {
+    "msg": "The map uses Mapbox, a third-party service. Accept cookies to display it.",
+    "btn_manage": "Manage my preferences →"
+  },
+  "signed_in_banner": {
+    "connected_as": "Signed in as",
+    "signout_label": "sign out to create another account"
+  },
+  "campaign_trial": {
+    "btn_default": "Activate my 14-day free trial",
+    "err_no_session": "Stripe did not return a payment session.",
+    "err_stripe": "Stripe error",
+    "err_not_configured": "Card payment is not yet configured. Add your Stripe keys to activate it.",
+    "dialog_title": "14-day free trial",
+    "dialog_desc": "No charge for 14 days. You can cancel anytime before the trial ends."
+  },
+  "payment_mode": {
+    "question": "How would you like to pay for this campaign?",
+    "onetime_title": "One-time payment",
+    "onetime_desc": "{{price}} € — wallet, card or bank transfer",
+    "onetime_badge": "One-off campaign",
+    "subscription_title": "Monthly subscription",
+    "subscription_desc": "14-day free trial — cancel anytime",
+    "subscription_badge": "Recurring campaign",
+    "subscription_billing_one": "The subscription is billed for <strong>{{count}} vehicle</strong> × monthly rate. No charge for 14 days · cancel anytime during the trial.",
+    "subscription_billing_other": "The subscription is billed for <strong>{{count}} vehicles</strong> × monthly rate. No charge for 14 days · cancel anytime during the trial.",
+    "btn_trial": "Activate the 14-day free trial"
   }
 }

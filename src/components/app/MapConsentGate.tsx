@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 
 interface MapConsentGateProps {
@@ -13,6 +14,7 @@ interface MapConsentGateProps {
  * les enfants sont rendus normalement.
  */
 export function MapConsentGate({ children, className }: MapConsentGateProps) {
+  const { t } = useTranslation();
   const consent = useCookieConsent();
 
   if (consent === "refused") {
@@ -22,13 +24,13 @@ export function MapConsentGate({ children, className }: MapConsentGateProps) {
       >
         <MapPin className="h-8 w-8 text-muted-foreground/50" />
         <p className="text-sm text-muted-foreground max-w-xs">
-          La carte utilise Mapbox, un service tiers. Acceptez les cookies pour l'afficher.
+          {t("map_consent_gate.msg")}
         </p>
         <Link
           to="/cookies"
           className="text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
         >
-          Gérer mes préférences →
+          {t("map_consent_gate.btn_manage")}
         </Link>
       </div>
     );

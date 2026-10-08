@@ -3362,5 +3362,43 @@
     "btn_show": "Historique",
     "btn_hide": "Masquer l'historique",
     "empty": "Aucun changement de statut enregistré pour l'instant."
+  },
+  "test_env_banner": {
+    "msg": "⚠ ENVIRONNEMENT DE TEST — Les données affichées sont fictives. Ne pas effectuer de paiements réels."
+  },
+  "payment_test_mode_banner": {
+    "not_configured": "Le paiement par carte n'est pas encore configuré. Ajoutez vos clés Stripe pour accepter les paiements.",
+    "sandbox": "Les paiements sont actuellement en mode test."
+  },
+  "offline_banner": {
+    "msg": "Pas de connexion — vos modifications ne sont pas envoyées"
+  },
+  "map_consent_gate": {
+    "msg": "La carte utilise Mapbox, un service tiers. Acceptez les cookies pour l'afficher.",
+    "btn_manage": "Gérer mes préférences →"
+  },
+  "signed_in_banner": {
+    "connected_as": "Connecté en tant que",
+    "signout_label": "se déconnecter pour créer un autre compte"
+  },
+  "campaign_trial": {
+    "btn_default": "Activer mon essai gratuit de 14 jours",
+    "err_no_session": "Stripe n'a pas retourné de session de paiement.",
+    "err_stripe": "Erreur Stripe",
+    "err_not_configured": "Le paiement par carte n'est pas encore configuré. Ajoutez vos clés Stripe pour l'activer.",
+    "dialog_title": "Essai gratuit de 14 jours",
+    "dialog_desc": "Aucun prélèvement pendant 14 jours. Vous pouvez annuler à tout moment avant la fin de l'essai."
+  },
+  "payment_mode": {
+    "question": "Comment souhaitez-vous régler cette campagne ?",
+    "onetime_title": "Paiement unique",
+    "onetime_desc": "{{price}} € — portefeuille, carte ou virement",
+    "onetime_badge": "Campagne ponctuelle",
+    "subscription_title": "Abonnement mensuel",
+    "subscription_desc": "14 jours d'essai gratuit — résiliable à tout moment",
+    "subscription_badge": "Campagne récurrente",
+    "subscription_billing_one": "L'abonnement est facturé <strong>{{count}} véhicule</strong> × tarif mensuel. Aucun prélèvement pendant 14 jours · annulable à tout moment pendant l'essai.",
+    "subscription_billing_other": "L'abonnement est facturé <strong>{{count}} véhicules</strong> × tarif mensuel. Aucun prélèvement pendant 14 jours · annulable à tout moment pendant l'essai.",
+    "btn_trial": "Activer l'essai gratuit de 14 jours"
   }
 }
