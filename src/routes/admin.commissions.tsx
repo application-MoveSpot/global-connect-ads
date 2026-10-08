@@ -52,7 +52,7 @@ function CommissionsAdmin() {
   const [saving, setSaving] = useState(false);
 
   function fmt(cents: number) {
-    return (cents / 100).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+    return (cents / 100).toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
   }
 
   useEffect(() => {
@@ -122,7 +122,7 @@ function CommissionsAdmin() {
     return { tier, rate: r ?? null };
   });
 
-  const loc = i18n.language === "fr" ? "fr-FR" : "en-US";
+  const loc = i18n.language;
 
   return (
     <div className="min-h-screen bg-background">

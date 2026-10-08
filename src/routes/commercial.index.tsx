@@ -88,7 +88,7 @@ function KitMessage({
 }
 
 function CommercialDashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dashFn = useServerFn(getCommercialDashboard);
   const [loading, setLoading] = useState(true);
@@ -307,7 +307,7 @@ function CommercialDashboard() {
               {t("commercial.dashboard.commissions_generated")}
             </p>
             <p className="font-display text-3xl font-bold text-primary">
-              {(totalCents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {(totalCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
             </p>
           </div>
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-1">
@@ -318,7 +318,7 @@ function CommercialDashboard() {
               </p>
             </div>
             <p className="font-display text-3xl font-bold text-emerald-600">
-              {(paidCents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {(paidCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
             </p>
           </div>
         </div>
@@ -345,7 +345,7 @@ function CommercialDashboard() {
                     {c.company && <p className="text-xs text-muted-foreground">{c.company}</p>}
                   </div>
                   <span className="text-xs text-muted-foreground shrink-0">
-                    {new Date(c.created_at).toLocaleDateString("fr-FR")}
+                    {new Date(c.created_at).toLocaleDateString(i18n.language)}
                   </span>
                 </div>
               ))}
@@ -391,7 +391,7 @@ function CommercialDashboard() {
                       <div className="text-right shrink-0">
                         {camp.commission_amount_cents != null && (
                           <p className="font-display text-lg font-bold text-primary">
-                            {(camp.commission_amount_cents / 100).toLocaleString("fr-FR", {
+                            {(camp.commission_amount_cents / 100).toLocaleString(i18n.language, {
                               style: "currency",
                               currency: "EUR",
                             })}
@@ -400,7 +400,7 @@ function CommercialDashboard() {
                         {camp.total_price != null && (
                           <p className="text-xs text-muted-foreground">
                             {t("commercial.dashboard.campaign_amount")}{" "}
-                            {camp.total_price.toLocaleString("fr-FR", {
+                            {camp.total_price.toLocaleString(i18n.language, {
                               style: "currency",
                               currency: "EUR",
                             })}

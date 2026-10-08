@@ -37,7 +37,7 @@ const CONDITION_VALUES = ["excellent", "bon", "moyen", "mauvais"] as const;
 type ConditionValue = (typeof CONDITION_VALUES)[number];
 
 function NewVehiclePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -453,7 +453,7 @@ function NewVehiclePage() {
                     </div>
                     <div className="rounded-lg bg-card p-2.5">
                       <div className="text-[11px] text-muted-foreground uppercase">{t("proprietaire.vehicules.nouveau.estimate_impressions")}</div>
-                      <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString("fr-FR")} /j</div>
+                      <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString(i18n.language)} /j</div>
                     </div>
                   </div>
 

@@ -56,7 +56,7 @@ export const Route = createFileRoute("/chauffeur/espace")({
 
 function ChauffeurEspace() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const eur = (cents: number) => (cents / 100).toLocaleString(dateLocale, { style: "currency", currency: "EUR" });
   const navigate = useNavigate();
   const fetchEarnings = useServerFn(getPayeeEarnings);

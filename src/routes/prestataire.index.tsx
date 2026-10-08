@@ -287,7 +287,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Quote; vehicle?: VehicleId; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onOpenImpossible: (id: string) => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
   return (
@@ -295,7 +295,7 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
       <div className="flex items-start justify-between gap-3 mb-2">
         <div>
           <div className="font-semibold">{t("prestataire.dashboard.quote_request")}{q.id.slice(0, 8)}</div>
-          <div className="text-xs text-muted-foreground">{new Date(q.created_at).toLocaleString("fr-FR")}</div>
+          <div className="text-xs text-muted-foreground">{new Date(q.created_at).toLocaleString(i18n.language)}</div>
         </div>
         <QuoteBadge status={q.status} />
       </div>
@@ -303,7 +303,7 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
         {q.vehicle_type && <div><strong className="text-foreground">{t("prestataire.dashboard.quote_type")}</strong> {q.vehicle_type}</div>}
         {q.format && <div><strong className="text-foreground">{t("prestataire.dashboard.quote_format")}</strong> {q.format}</div>}
         {q.quantity && <div><strong className="text-foreground">{t("prestataire.dashboard.quote_qty")}</strong> {q.quantity}</div>}
-        {q.deadline && <div><strong className="text-foreground">{t("prestataire.dashboard.quote_deadline")}</strong> {new Date(q.deadline).toLocaleDateString("fr-FR")}</div>}
+        {q.deadline && <div><strong className="text-foreground">{t("prestataire.dashboard.quote_deadline")}</strong> {new Date(q.deadline).toLocaleDateString(i18n.language)}</div>}
         {q.zone && <div className="col-span-2"><strong className="text-foreground">{t("prestataire.dashboard.quote_zone")}</strong> {q.zone}</div>}
       </div>
       {vehicle && (

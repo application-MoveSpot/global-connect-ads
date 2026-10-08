@@ -479,14 +479,14 @@ function AdminDashboard() {
                           )}
                           <p className="text-muted-foreground">
                             Prix estimé : {v.ai_verification.suggested_price_min}–{v.ai_verification.suggested_price_max} €/j
-                            · {v.ai_verification.estimated_impressions_per_day?.toLocaleString("fr-FR")} imp./j
+                            · {v.ai_verification.estimated_impressions_per_day?.toLocaleString(i18n.language)} imp./j
                           </p>
                         </div>
                       )}
                       {v.admin_notes && (
                         <p className="text-xs italic text-muted-foreground">{v.admin_notes}</p>
                       )}
-                      <p className="text-xs text-muted-foreground">{new Date(v.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(v.created_at).toLocaleDateString(i18n.language)}</p>
                     </div>
                     <div className="flex flex-col gap-2 items-end">
                       {v.status === "pending" ? (
@@ -979,7 +979,7 @@ function AdminDashboard() {
                       <XAxis dataKey="label" tick={{ fontSize: 11 }} />
                       <YAxis allowDecimals={false} tick={{ fontSize: 11 }} unit="€" />
                       <Tooltip
-                        formatter={(v: number) => `${v.toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" })}`}
+                        formatter={(v: number) => `${v.toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}`}
                         contentStyle={{
                           borderRadius: "0.75rem",
                           border: "1px solid hsl(var(--border))",
@@ -1018,18 +1018,18 @@ function AdminDashboard() {
                           <td className="px-4 py-3 font-medium">{r.company ?? "—"}</td>
                           <td className="px-4 py-3 text-muted-foreground">{r.spotName ?? "—"}</td>
                           <td className="px-4 py-3 font-semibold text-primary">
-                            {r.totalPrice.toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" })}
+                            {r.totalPrice.toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
                           </td>
                           <td className="px-4 py-3 text-green-600">
-                            {r.commission.toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" })}
+                            {r.commission.toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-foreground">
-                            {r.startDate ? new Date(r.startDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US") : "—"}
+                            {r.startDate ? new Date(r.startDate).toLocaleDateString(i18n.language) : "—"}
                             {" → "}
-                            {r.endDate ? new Date(r.endDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US") : "—"}
+                            {r.endDate ? new Date(r.endDate).toLocaleDateString(i18n.language) : "—"}
                           </td>
                           <td className="px-4 py-3 text-xs text-muted-foreground">
-                            {new Date(r.createdAt).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}
+                            {new Date(r.createdAt).toLocaleDateString(i18n.language)}
                           </td>
                         </tr>
                       ))}
@@ -1150,7 +1150,7 @@ function AdminDashboard() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-xs text-muted-foreground">
-                              {new Date(u.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}
+                              {new Date(u.created_at).toLocaleDateString(i18n.language)}
                             </td>
                           </tr>
                         );
@@ -1262,7 +1262,7 @@ function AdminDashboard() {
 function StatCard({ label, value, format }: { label: string; value: number; format?: "currency" | "percent" }) {
   const { i18n } = useTranslation();
   const display = format === "currency"
-    ? value.toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })
+    ? value.toLocaleString(i18n.language, { style: "currency", currency: "EUR", maximumFractionDigits: 0 })
     : format === "percent"
     ? `${value} %`
     : value;
@@ -1377,7 +1377,7 @@ function AdminModerationPanel() {
             <div key={b.id} className="rounded-2xl border border-border bg-card p-4">
               <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
                 <p className="font-semibold text-sm">{b.title}</p>
-                <span className="text-xs text-muted-foreground">{new Date(b.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}</span>
+                <span className="text-xs text-muted-foreground">{new Date(b.created_at).toLocaleDateString(i18n.language)}</span>
               </div>
               <div className="space-y-2">
                 {(b.creative_files ?? []).map((path) => {
@@ -1498,7 +1498,7 @@ function AdminAlertesPanel() {
                 <div>
                   <p className="font-semibold text-sm">{t.subject}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t.user_email} · {new Date(t.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    {t.user_email} · {new Date(t.created_at).toLocaleDateString(i18n.language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                   </p>
                   {t.context_url && (
                     <p className="text-xs text-muted-foreground">{i18n.language === "fr" ? "Contexte" : "Context"} : {t.context_url}</p>
@@ -1541,7 +1541,7 @@ function AdminAlertesPanel() {
                   <p className="font-semibold text-sm">{t.subject}</p>
                   <span className="text-xs text-emerald-600 font-medium">✅ {i18n.t("admin.dashboard.alertes_resolved_badge")}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">{t.user_email} · {new Date(t.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}</p>
+                <p className="text-xs text-muted-foreground">{t.user_email} · {new Date(t.created_at).toLocaleDateString(i18n.language)}</p>
                 <p className="text-sm">{t.message}</p>
                 {t.admin_response && (
                   <p className="text-sm text-muted-foreground border-l-2 border-primary/30 pl-2 mt-1">
@@ -1706,7 +1706,7 @@ function InstallationReviewCard({
   const [notes, setNotes] = useState("");
   const photos = parseInstallationPhotos(item.installation_photos);
   const eur = (cents: number | null) =>
-    cents != null ? (cents / 100).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" }) : "—";
+    cents != null ? (cents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" }) : "—";
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -1826,7 +1826,7 @@ function DeposeReviewCard({
   const [notes, setNotes] = useState("");
   const photos = parseInstallationPhotos(item.depose_photos);
   const eur = (cents: number | null) =>
-    cents != null ? (cents / 100).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" }) : "—";
+    cents != null ? (cents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" }) : "—";
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
@@ -1990,12 +1990,12 @@ function AdminObstacleReportsPanel() {
                   {r.description && <p className="text-xs text-muted-foreground mt-0.5">{r.description}</p>}
                 </div>
                 <div className="text-right text-xs text-muted-foreground">
-                  <div>{new Date(r.reported_at).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US")}</div>
+                  <div>{new Date(r.reported_at).toLocaleString(i18n.language)}</div>
                   {r.impact_start && r.impact_end && (
                     <div className="text-amber-600 dark:text-amber-400 mt-0.5">
-                      {t("admin.dashboard.obstacle_impact_label")} : {new Date(r.impact_start).toLocaleTimeString(i18n.language === "fr" ? "fr-FR" : "en-US", { hour: "2-digit", minute: "2-digit" })}
+                      {t("admin.dashboard.obstacle_impact_label")} : {new Date(r.impact_start).toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })}
                       {" → "}
-                      {new Date(r.impact_end).toLocaleTimeString(i18n.language === "fr" ? "fr-FR" : "en-US", { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(r.impact_end).toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })}
                     </div>
                   )}
                   {r.impact_start && !r.impact_end && (
@@ -2070,7 +2070,7 @@ function AdminObstacleReportsPanel() {
                   <span className="font-medium">{r.vehicle_name ?? t("admin.dashboard.obstacle_vehicle_label")}</span>
                   <span className="ml-2 text-muted-foreground">{t(`admin.dashboard.obstacle_type_${r.obstacle_type}`, { defaultValue: r.obstacle_type })}</span>
                 </div>
-                <span>{new Date(r.reported_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US")}</span>
+                <span>{new Date(r.reported_at).toLocaleDateString(i18n.language)}</span>
               </div>
             ))}
           </div>

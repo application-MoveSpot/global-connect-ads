@@ -28,7 +28,7 @@ type Position = { lat: number; lng: number; recorded_at: string; speed: number |
 
 function SuiviPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const { campaignId } = Route.useParams();
   const fetchPositions = useServerFn(getCampaignPositions);
   const fetchToken = useServerFn(getMapboxToken);

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/annonceur/rapport/$campaignId")({
 
 function RapportPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const { campaignId } = Route.useParams();
   const fetchMetrics = useServerFn(getCampaignMetrics);
   const fetchInvoice = useServerFn(getInvoiceData);

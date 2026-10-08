@@ -190,7 +190,7 @@ function AdminPage() {
     );
   }
 
-  const loc = i18n.language === "fr" ? "fr-FR" : "en-US";
+  const loc = i18n.language;
 
   return (
     <div className="min-h-screen bg-background">
@@ -332,7 +332,7 @@ function VehicleCard({ v, onUpdate }: { v: Vehicle; onUpdate: (id: string, statu
     : ai?.photo_match === "mismatch" ? "bg-destructive/20 text-destructive"
     : "bg-muted text-muted-foreground";
 
-  const loc = i18n.language === "fr" ? "fr-FR" : "en-US";
+  const loc = i18n.language;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6">

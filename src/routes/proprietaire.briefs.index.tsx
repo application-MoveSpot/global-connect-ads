@@ -38,7 +38,7 @@ const PAGE_SIZE = 20;
 
 function OpenBriefsPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);

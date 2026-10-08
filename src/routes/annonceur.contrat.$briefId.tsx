@@ -15,7 +15,7 @@ export const Route = createFileRoute("/annonceur/contrat/$briefId")({
 
 function ContratPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const { briefId } = Route.useParams();
   const fetchContract = useServerFn(getContractData);
   const printed = useRef(false);

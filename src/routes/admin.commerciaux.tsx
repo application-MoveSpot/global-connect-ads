@@ -74,7 +74,7 @@ function AdminCommerciauxPage() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold">{Math.round(r.commission_rate * 100)} {t("admin.commerciaux.commission")}</p>
-                  <p className="text-xs text-muted-foreground">{t("admin.commerciaux.since", { date: new Date(r.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US") })}</p>
+                  <p className="text-xs text-muted-foreground">{t("admin.commerciaux.since", { date: new Date(r.created_at).toLocaleDateString(i18n.language) })}</p>
                 </div>
               </div>
             ))}

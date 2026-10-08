@@ -62,7 +62,7 @@ type Campaign = { id: string; vehicle_id: string; spot_name: string; company: st
 
 function FleetPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const qc = useQueryClient();
   const fetchOverview = useServerFn(getFleetOverview);
   const fetchDrivers = useServerFn(listDrivers);

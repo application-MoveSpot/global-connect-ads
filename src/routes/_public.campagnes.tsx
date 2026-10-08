@@ -147,7 +147,7 @@ function CampaignCard({ campaign: c }: { campaign: Campaign }) {
         {totalImpressions > 0 && (
           <div className="rounded-lg bg-muted/40 p-2 text-center">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("campaigns.card.impressions_label")}</p>
-            <p className="font-bold text-sm">{totalImpressions.toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US")}</p>
+            <p className="font-bold text-sm">{totalImpressions.toLocaleString(i18n.language)}</p>
           </div>
         )}
         {daysLeft > 0 && (
@@ -159,9 +159,9 @@ function CampaignCard({ campaign: c }: { campaign: Campaign }) {
       </div>
 
       <p className="text-xs text-muted-foreground mt-auto">
-        {new Date(c.startDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "short" })}
+        {new Date(c.startDate).toLocaleDateString(i18n.language, { day: "numeric", month: "short" })}
         {" – "}
-        {new Date(c.endDate).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "short", year: "numeric" })}
+        {new Date(c.endDate).toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}
       </p>
     </div>
   );

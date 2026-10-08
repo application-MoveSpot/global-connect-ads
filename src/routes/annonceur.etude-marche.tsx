@@ -59,14 +59,14 @@ const VEHICULES = [15,     60,      180,     380,     650];
 const MARGE    = [22.7,   49.2,    46.7,    48.8,    50.2];
 const STRUCTURE = ["Micro-BIC", "Micro-BIC", "SASU (IS)", "SASU (IS)", "SASU (IS)"];
 
-const fmt = (n: number | string) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Number(n)) + " €";
+const fmt = (n: number | string, lang: string) => new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(Number(n)) + " €";
 
 // ─── Composant principal ───────────────────────────────────────────────────────
 
 type Tab = "marche" | "catalogue" | "previsionnel";
 
 function EtudeMarche() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<Tab>("marche");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleEntry | null>(null);
 
@@ -342,7 +342,7 @@ function EtudeMarche() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
                   {[
                     { l: t("annonceur.etude_marche.detail_prix_jour"), v: `${selectedVehicle.prixMin}–${selectedVehicle.prixMax} €` },
-                    { l: t("annonceur.etude_marche.detail_impressions_jour"), v: `${selectedVehicle.impressionsMin.toLocaleString("fr-FR")}–${selectedVehicle.impressionsMax.toLocaleString("fr-FR")}` },
+                    { l: t("annonceur.etude_marche.detail_impressions_jour"), v: `${selectedVehicle.impressionsMin.toLocaleString(i18n.language)}–${selectedVehicle.impressionsMax.toLocaleString(i18n.language)}` },
                     { l: t("annonceur.etude_marche.detail_demande"), v: selectedVehicle.demandePct > 0 ? `${selectedVehicle.demandePct} %` : t("annonceur.etude_marche.detail_demande_available") },
                     { l: t("annonceur.etude_marche.detail_zones"), v: selectedVehicle.zones.slice(0, 2).join(", ") },
                   ].map((s) => (
@@ -404,7 +404,7 @@ function EtudeMarche() {
                           <td className="py-2.5 pl-4 pr-3 font-medium">{v.emoji} {v.label}{v.demandePct >= 20 && <span className="ml-1.5 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">⭐</span>}</td>
                           <td className="py-2.5 px-3 text-xs text-muted-foreground">{v.formats[0]}</td>
                           <td className="py-2.5 px-3 text-primary font-semibold tabular-nums whitespace-nowrap">{v.prixMin}–{v.prixMax} €</td>
-                          <td className="py-2.5 px-3 text-muted-foreground text-xs tabular-nums whitespace-nowrap">{v.impressionsMin.toLocaleString("fr-FR")}–{v.impressionsMax.toLocaleString("fr-FR")}</td>
+                          <td className="py-2.5 px-3 text-muted-foreground text-xs tabular-nums whitespace-nowrap">{v.impressionsMin.toLocaleString(i18n.language)}–{v.impressionsMax.toLocaleString(i18n.language)}</td>
                           <td className="py-2.5 px-3 font-mono text-xs tabular-nums">{cpm} €</td>
                           <td className="py-2.5 px-3 text-xs text-muted-foreground">{v.zones[0]}</td>
                         </tr>
@@ -453,7 +453,7 @@ function EtudeMarche() {
                       <div className="h-full bg-primary rounded-l-lg" style={{ width: `${(COMM[i] / GMV[4]) * 100}%` }} />
                       <div className="h-full bg-border" style={{ width: `${(REVERS[i] / GMV[4]) * 100}%`, marginLeft: 2 }} />
                     </div>
-                    <div className="text-xs tabular-nums font-semibold text-foreground w-24 text-right shrink-0">{fmt(GMV[i])}</div>
+                    <div className="text-xs tabular-nums font-semibold text-foreground w-24 text-right shrink-0">{fmt(GMV[i], i18n.language)}</div>
                   </div>
                 ))}
               </div>
@@ -471,10 +471,10 @@ function EtudeMarche() {
                     <div className="text-xs font-semibold text-muted-foreground w-8 shrink-0">{y}</div>
                     <div className="flex-1 h-6 bg-secondary/40 rounded-lg overflow-hidden">
                       <div className="h-full bg-green-500 rounded-lg flex items-center justify-end pr-2" style={{ width: `${(NET[i] / NET[4]) * 100}%` }}>
-                        {NET[i] > 50000 && <span className="text-xs font-semibold text-white tabular-nums">{fmt(NET[i])}</span>}
+                        {NET[i] > 50000 && <span className="text-xs font-semibold text-white tabular-nums">{fmt(NET[i], i18n.language)}</span>}
                       </div>
                     </div>
-                    {NET[i] <= 50000 && <div className="text-xs tabular-nums font-semibold text-green-600 dark:text-green-400 w-24 text-right shrink-0">{fmt(NET[i])}</div>}
+                    {NET[i] <= 50000 && <div className="text-xs tabular-nums font-semibold text-green-600 dark:text-green-400 w-24 text-right shrink-0">{fmt(NET[i], i18n.language)}</div>}
                     {NET[i] > 50000 && <div className="w-24 shrink-0" />}
                   </div>
                 ))}
@@ -501,12 +501,12 @@ function EtudeMarche() {
                     <DataRow label="Commission MoveSpot = CA (30 %)" values={COMM} format={fmt} bold />
                     <SectionRow label="Charges & fiscalité" />
                     <DataRow label="Charges d'exploitation" values={CHARGES} format={fmt} />
-                    <DataRow label="URSSAF micro (21,2 % — An 1-2)" values={[2393, 12204, 0, 0, 0]} format={(v) => v === 0 ? "—" : fmt(v)} />
-                    <DataRow label="Versement libératoire IR (1,7 %)" values={[192, 979, 0, 0, 0]} format={(v) => v === 0 ? "—" : fmt(v)} />
-                    <DataRow label="Impôt sur les sociétés (25 % — An 3-5)" values={[0, 0, 31246, 78140, 150832]} format={(v) => v === 0 ? "—" : fmt(v)} />
+                    <DataRow label="URSSAF micro (21,2 % — An 1-2)" values={[2393, 12204, 0, 0, 0]} format={(v) => v === 0 ? "—" : fmt(v, i18n.language)} />
+                    <DataRow label="Versement libératoire IR (1,7 %)" values={[192, 979, 0, 0, 0]} format={(v) => v === 0 ? "—" : fmt(v, i18n.language)} />
+                    <DataRow label="Impôt sur les sociétés (25 % — An 3-5)" values={[0, 0, 31246, 78140, 150832]} format={(v) => v === 0 ? "—" : fmt(v, i18n.language)} />
                     <tr className="border-t-2 border-border bg-secondary/30">
                       <td className="py-2.5 px-3 font-bold text-foreground">Résultat net (cash après impôts)</td>
-                      {NET.map((v, i) => <td key={i} className="py-2.5 px-3 text-right font-bold tabular-nums text-green-600 dark:text-green-400 whitespace-nowrap">{fmt(v)}</td>)}
+                      {NET.map((v, i) => <td key={i} className="py-2.5 px-3 text-right font-bold tabular-nums text-green-600 dark:text-green-400 whitespace-nowrap">{fmt(v, i18n.language)}</td>)}
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2.5 px-3 font-semibold text-foreground">Marge nette / CA</td>
@@ -514,7 +514,7 @@ function EtudeMarche() {
                     </tr>
                     <tr className="border-b border-border/50">
                       <td className="py-2.5 px-3 font-semibold text-foreground">Trésorerie cumulée fin de période</td>
-                      {TRESO.map((v, i) => <td key={i} className="py-2.5 px-3 text-right font-semibold tabular-nums text-foreground whitespace-nowrap">{fmt(v)}</td>)}
+                      {TRESO.map((v, i) => <td key={i} className="py-2.5 px-3 text-right font-semibold tabular-nums text-foreground whitespace-nowrap">{fmt(v, i18n.language)}</td>)}
                     </tr>
                   </tbody>
                 </table>
@@ -616,7 +616,7 @@ function DataRow({ label, values, format, bold }: { label: string; values: (numb
 // ─── Simulateur ROI ────────────────────────────────────────────────────────────
 
 function SimulateurROI() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [jours, setJours] = useState(30);
   const [vehicules, setVehicules] = useState(5);
   const [prixJour, setPrixJour] = useState(30);
@@ -662,12 +662,12 @@ function SimulateurROI() {
         </div>
         <div className="flex flex-col justify-center gap-4">
           <div className="rounded-xl bg-primary/10 border border-primary/20 p-5 text-center">
-            <div className="font-display text-4xl font-bold text-primary mb-1 tabular-nums">{budget.toLocaleString("fr-FR")} €</div>
+            <div className="font-display text-4xl font-bold text-primary mb-1 tabular-nums">{budget.toLocaleString(i18n.language)} €</div>
             <div className="text-sm text-muted-foreground">{t("annonceur.etude_marche.sim_budget_label")}</div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-secondary/50 p-4 text-center">
-              <div className="text-xl font-bold tabular-nums">{impressions.toLocaleString("fr-FR")}</div>
+              <div className="text-xl font-bold tabular-nums">{impressions.toLocaleString(i18n.language)}</div>
               <div className="text-xs text-muted-foreground mt-0.5">{t("annonceur.etude_marche.sim_impressions_label")}</div>
             </div>
             <div className="rounded-xl bg-secondary/50 p-4 text-center">

@@ -47,7 +47,7 @@ const statusColor: Record<Hub["status"], string> = {
 };
 
 export function MobilityMap() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const getVehicleLabel = (type: string) => {
     const labels: Record<string, string> = {
       taxi: t("mobility_map.type_taxi"),
@@ -256,7 +256,7 @@ export function MobilityMap() {
             <div>
               <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("mobility_map.vehicles_available")}</div>
               <div className="font-display text-4xl font-bold tabular-nums text-primary">
-                {currentVehicles.toLocaleString("fr-FR")}
+                {currentVehicles.toLocaleString(i18n.language)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
                 {currentVehicles === 0 ? t("mobility_map.launching_city") : t("mobility_map.verified")}
@@ -270,7 +270,7 @@ export function MobilityMap() {
                     <Stat
                       key={type}
                       label={getVehicleLabel(type)}
-                      value={count.toLocaleString("fr-FR")}
+                      value={count.toLocaleString(i18n.language)}
                     />
                   ))}
                 </div>

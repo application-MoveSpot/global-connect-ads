@@ -15,7 +15,7 @@ export const Route = createFileRoute("/annonceur/facture/$campaignId")({
 
 function FacturePage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const { campaignId } = Route.useParams();
   const fetchInvoice = useServerFn(getInvoiceData);
   const printed = useRef(false);

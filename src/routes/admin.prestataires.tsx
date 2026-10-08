@@ -109,7 +109,7 @@ function AdminProvidersPage() {
                       {r.vehicle_type && <div className="text-xs text-muted-foreground">{t("admin.prestataires.vehicle", { type: r.vehicle_type })}</div>}
                       {r.impossible_at && (
                         <div className="text-xs text-muted-foreground">
-                          {t("admin.prestataires.reported_at", { date: new Date(r.impossible_at).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US") })}
+                          {t("admin.prestataires.reported_at", { date: new Date(r.impossible_at).toLocaleString(i18n.language) })}
                         </div>
                       )}
                     </div>

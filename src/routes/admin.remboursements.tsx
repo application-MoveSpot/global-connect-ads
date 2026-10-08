@@ -41,7 +41,7 @@ function AdminRemboursementsPage() {
 
   function fmt(cents: number | null) {
     if (cents == null) return "—";
-    return (cents / 100).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" });
+    return (cents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
   }
 
   const reload = async (f = filter) => {
@@ -161,7 +161,7 @@ function AdminRemboursementsPage() {
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {t("admin.refunds.submitted_at", { date: new Date(r.created_at).toLocaleDateString(i18n.language === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "long", year: "numeric" }) })}
+                      {t("admin.refunds.submitted_at", { date: new Date(r.created_at).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric" }) })}
                     </p>
                   </div>
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${STATUS_COLOR[r.status] ?? ""}`}>

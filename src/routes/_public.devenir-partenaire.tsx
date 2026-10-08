@@ -116,7 +116,7 @@ function RevenueSimulator() {
   const minAn   = minMois * 12;
   const maxAn   = maxMois * 12;
 
-  const loc = i18n.language === "fr" ? "fr-FR" : "en-US";
+  const loc = i18n.language;
 
   return (
     <section className="max-w-4xl mx-auto px-6 py-16">

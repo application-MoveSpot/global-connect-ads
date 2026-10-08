@@ -31,7 +31,7 @@ export const Route = createFileRoute("/proprietaire/tracking")({
 
 function TrackingPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const navigate = useNavigate();
   const fetchVehicles = useServerFn(getOwnerVehiclesForTracking);
   const fetchCampaign = useServerFn(getActiveCampaignForVehicle);

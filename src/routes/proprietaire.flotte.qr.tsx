@@ -41,7 +41,7 @@ function formatDate(unix: number, locale: string) {
 
 function QrPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const fetchFleet = useServerFn(getFleetOverview);
   const genToken = useServerFn(generateVehicleQrToken);
   const { data, isLoading } = useQuery({

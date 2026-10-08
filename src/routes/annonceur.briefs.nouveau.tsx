@@ -163,7 +163,7 @@ function addDays(base: Date, n: number): string {
 }
 
 function NewBriefPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
@@ -886,7 +886,7 @@ function NewBriefPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               {t("annonceur.briefs.nouveau.recap_desc")}{" "}
               <strong className="text-foreground">
-                {created.amount.toLocaleString("fr-FR")} €
+                {created.amount.toLocaleString(i18n.language)} €
               </strong>{" "}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -1364,7 +1364,7 @@ function NewBriefPage() {
                     <p className="mt-1 text-muted-foreground">
                       {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
                       <strong className="text-foreground">
-                        {est.total.toLocaleString("fr-FR")} €
+                        {est.total.toLocaleString(i18n.language)} €
                       </strong>{" "}
                       ({est.perDay} €/jour · {est.ratePerKm2PerDay} €/km²/jour)
                     </p>
@@ -1679,7 +1679,7 @@ function LiveBudgetEstimator({
                         </span>
                       )}
                     </td>
-                    <td className="text-right py-2">{total.toLocaleString("fr-FR")} €</td>
+                    <td className="text-right py-2">{total.toLocaleString(i18n.language)} €</td>
                     <td className="text-right py-2 text-xs">{Math.round(total / d)} €/j</td>
                   </tr>
                 ))}
@@ -1709,7 +1709,7 @@ function LiveBudgetEstimator({
               to="/annonceur/portefeuille"
               className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition"
             >
-              {t("annonceur.briefs.nouveau.budget_prepare", { amount: approxForV.toLocaleString("fr-FR") })}
+              {t("annonceur.briefs.nouveau.budget_prepare", { amount: approxForV.toLocaleString(i18n.language) })}
             </Link>
             <Link
               to="/annonceur/pack"

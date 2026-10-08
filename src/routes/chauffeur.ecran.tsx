@@ -38,7 +38,7 @@ function isWithinDailyWindow(start: string | null, end: string | null): boolean 
 function ScreenPage() {
   const { t: tokenParam } = Route.useSearch();
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const verify = useServerFn(verifyDriverToken);
   const fetchVideo = useServerFn(getVehicleActiveCampaignVideo);
 

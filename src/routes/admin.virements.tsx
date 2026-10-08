@@ -30,8 +30,8 @@ type Row = {
   campaign_request_id: string | null;
 };
 
-function fmt(cents: number) {
-  return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+function fmt(cents: number, lang: string) {
+  return (cents / 100).toLocaleString(lang, { style: "currency", currency: "EUR" });
 }
 
 function AdminBankTransfers() {
@@ -95,10 +95,10 @@ function AdminBankTransfers() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="font-semibold">
-                      {fmt(row.amount_cents)} · {t("admin.virements.ref")} <span className="font-mono">{row.reference}</span>
+                      {fmt(row.amount_cents, i18n.language)} ·{t("admin.virements.ref")} <span className="font-mono">{row.reference}</span>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(row.created_at).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US")} — {t("admin.virements.status")} : {row.status}
+                      {new Date(row.created_at).toLocaleString(i18n.language)} — {t("admin.virements.status")} : {row.status}
                     </div>
                     {row.campaign_request_id ? (
                       <div className="text-xs text-primary">

@@ -34,7 +34,7 @@ const STATUS_COLOR: Record<string, string> = {
 
 function RemboursementAnnonceurPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const fetchRequests = useServerFn(listMyRefundRequests);
   const submit = useServerFn(submitRefundRequest);
 

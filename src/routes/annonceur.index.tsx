@@ -204,7 +204,7 @@ function AnnonceurDashboard() {
     }
   };
 
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
 
   if (loading && !loadError)
     return (

@@ -66,7 +66,7 @@ function AdminAuditPage() {
   const [loadingFraud, setLoadingFraud] = useState(false);
 
   function fmt(cents: number) {
-    return (cents / 100).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" });
+    return (cents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
   }
 
   function severityLabel(s: "high" | "medium" | "low") {

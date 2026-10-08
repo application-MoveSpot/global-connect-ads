@@ -26,7 +26,7 @@ function daysUntil(dateStr: string | null | undefined) {
 
 function ConfirmationPage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const fmtDate = (d: string | null | undefined) => {
     if (!d) return null;
     return new Date(d).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });

@@ -45,7 +45,7 @@ const COMPLETED_STATUSES = new Set(["approved", "paid", "completed"]);
 
 function HistoriquePage() {
   const { t, i18n } = useTranslation();
-  const dateLocale = i18n.resolvedLanguage === "en" ? "en-US" : "fr-FR";
+  const dateLocale = i18n.language;
   const currencyLocale = dateLocale;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
