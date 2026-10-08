@@ -4,6 +4,7 @@ import {
   createRootRouteWithContext,
   HeadContent,
   Scripts,
+  useRouter,
 } from "@tanstack/react-router";
 import { CSP_HEADER } from "@/lib/security/csp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import { OfflineBanner } from "@/components/app/OfflineBanner";
 import { initSentry, Sentry } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
 import { captureUtm } from "@/lib/analytics/utm";
+import { initPixels, firePixelEvent } from "@/lib/analytics/pixels";
 import appCss from "../styles.css?url";
 
 initSentry();
@@ -168,9 +170,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
 
   useEffect(() => {
     captureUtm();
+    initPixels();
+    firePixelEvent("PageView");
+
+    return router.subscribe("onResolved", () => {
+      firePixelEvent("PageView");
+    });
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});

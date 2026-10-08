@@ -21,6 +21,7 @@ import { CampaignMetricsRow } from "@/components/advertiser/CampaignMetricsRow";
 import { RouteError } from "@/components/app/RouteError";
 import { OnboardingModal } from "@/components/advertiser/OnboardingModal";
 import { getMyReferralStats } from "@/lib/referral/advertiser-referral.functions";
+import { firePixelEvent } from "@/lib/analytics/pixels";
 
 type Req = {
   id: string;
@@ -195,6 +196,7 @@ function AnnonceurDashboard() {
     try {
       await payFn({ data: { campaignRequestId: r.id } });
       void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
+      firePixelEvent("Purchase", { value: (r.total_price ?? 0) / 100, currency: "EUR", content_name: "campaign" });
       toast.success(t("annonceur.payment_success"));
       const { data: sess } = await supabase.auth.getSession();
       if (sess.session) await reload(sess.session.user.id);

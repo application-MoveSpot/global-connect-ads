@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
+import { firePixelEvent } from "@/lib/analytics/pixels";
 import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
@@ -571,6 +572,7 @@ function NewBriefPage() {
       vehicle_types: vehicleTypes,
       has_zone: !!zonePolygon,
     });
+    firePixelEvent("Lead", { content_name: "brief_created" });
     void notifyBriefCreated({ data: { briefId: data!.id } });
 
     const computed = zonePolygon

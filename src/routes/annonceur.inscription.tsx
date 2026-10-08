@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
+import { firePixelEvent } from "@/lib/analytics/pixels";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -217,6 +218,7 @@ function AnnonceurInscription() {
       return;
     }
     void track("signup_completed", { role: "annonceur", account_type: accountType });
+    firePixelEvent("CompleteRegistration", { content_name: "annonceur" });
     goNext();
   };
 
