@@ -1938,7 +1938,36 @@
       "reject": "Reject",
       "reject_reason": "Reason for rejection?"
     },
-    "back": "← Admin"
+    "back": "← Admin",
+    "prestataires": {
+      "title": "Provider moderation",
+      "impossible_title": "⚠ Impossible installations to verify ({{count}})",
+      "quote": "Quote #{{id}}",
+      "vehicle": "Vehicle: {{type}}",
+      "reported_at": "Reported on {{date}}",
+      "in_review": "Under review",
+      "reason": "Reason:",
+      "confirm_impossible": "✓ Confirm — start refund",
+      "reject_report": "✕ Reject report",
+      "reject_report_reason": "Reason for rejecting the report (will be visible to the provider):",
+      "empty": "No profiles.",
+      "siret": "SIRET: {{siret}}",
+      "zones": "Zones:",
+      "pricing": "Pricing:",
+      "portfolio": "Portfolio:",
+      "note": "Note:",
+      "status_pending": "Pending",
+      "status_approved": "Approved",
+      "status_rejected": "Rejected",
+      "status_suspended": "Suspended",
+      "approve": "✓ Approve",
+      "reject": "✕ Reject",
+      "suspend": "Suspend",
+      "reject_reason": "Reason for rejection:",
+      "suspend_reason": "Reason for suspension:"
+    },
+    "loading": "Loading…",
+    "access_denied": "Access denied."
   },
   "partner": {
     "badge": "🚐 Owner space",

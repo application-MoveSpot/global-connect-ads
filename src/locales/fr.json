@@ -1938,7 +1938,36 @@
       "reject": "Refuser",
       "reject_reason": "Motif du refus ?"
     },
-    "back": "← Admin"
+    "back": "← Admin",
+    "prestataires": {
+      "title": "Modération prestataires",
+      "impossible_title": "⚠ Poses impossibles à vérifier ({{count}})",
+      "quote": "Devis #{{id}}",
+      "vehicle": "Véhicule : {{type}}",
+      "reported_at": "Signalé le {{date}}",
+      "in_review": "Vérification en cours",
+      "reason": "Motif :",
+      "confirm_impossible": "✓ Confirmer — lancer le remboursement",
+      "reject_report": "✕ Rejeter le signalement",
+      "reject_report_reason": "Motif de rejet du signalement (sera visible pour le prestataire) :",
+      "empty": "Aucune fiche.",
+      "siret": "SIRET : {{siret}}",
+      "zones": "Zones :",
+      "pricing": "Tarifs :",
+      "portfolio": "Portfolio :",
+      "note": "Note :",
+      "status_pending": "En attente",
+      "status_approved": "Approuvée",
+      "status_rejected": "Refusée",
+      "status_suspended": "Suspendue",
+      "approve": "✓ Approuver",
+      "reject": "✕ Refuser",
+      "suspend": "Suspendre",
+      "reject_reason": "Motif de refus :",
+      "suspend_reason": "Motif de suspension :"
+    },
+    "loading": "Chargement…",
+    "access_denied": "Accès refusé."
   },
   "partner": {
     "badge": "🚐 Espace propriétaires",
