@@ -526,6 +526,15 @@
     "map_title": "Illustrative overview of vehicle flows",
     "map_desc": "Indicative visualization — live data progressively connected.",
     "ip_notice": "📜 Intellectual property: by submitting an advertising visual, you guarantee you hold all rights (creations, trademarks, image rights, music) and agree to comply with French and European law. Any disputed content will be refused.",
+    "referral": {
+      "title": "Refer an advertiser",
+      "desc": "Invite an advertiser to join MoveSpot with your personal link. You get €15 in your wallet as soon as they launch their first campaign, and they get a €10 welcome bonus.",
+      "credited": "Active referrals",
+      "pending": "Pending",
+      "copy": "Copy link",
+      "copied": "Copied!",
+      "bonus_detail": "Credits are paid automatically to both wallets on your referral's first campaign."
+    },
     "pack": {
       "loading": "Loading…",
       "back": "← My space",
@@ -632,6 +641,7 @@
       "toggle_to_signup": "Not registered yet? Create an account",
       "profile_title": "Your advertiser profile",
       "referral_banner": "Invitation from <strong>{{name}}</strong> — you will be associated with this sales representative.",
+      "invite_banner": "You were invited by {{name}} — you will receive €10 in your wallet when you activate your first campaign.",
       "profile_desc": "Choose the account type that suits you.",
       "type_business": "Business / Org",
       "type_individual": "Individual",

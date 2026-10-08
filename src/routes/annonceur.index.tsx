@@ -20,6 +20,7 @@ import { withRetry } from "@/lib/retry";
 import { CampaignMetricsRow } from "@/components/advertiser/CampaignMetricsRow";
 import { RouteError } from "@/components/app/RouteError";
 import { OnboardingModal } from "@/components/advertiser/OnboardingModal";
+import { getMyReferralStats } from "@/lib/referral/advertiser-referral.functions";
 
 type Req = {
   id: string;
@@ -624,6 +625,10 @@ function AnnonceurDashboard() {
           <MobilityMap />
         </section>
 
+        <section className="mt-12">
+          <ReferralWidget />
+        </section>
+
         <div className="mt-10 rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
           {t("annonceur.ip_notice")}
         </div>
@@ -789,6 +794,77 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
           {t("annonceur.onboarding.load_wallet")}
         </Link>
       </div>
+    </div>
+  );
+}
+
+function ReferralWidget() {
+  const { t } = useTranslation();
+  const statsFn = useServerFn(getMyReferralStats);
+  const [code, setCode] = useState<string | null>(null);
+  const [credited, setCredited] = useState(0);
+  const [pending, setPending] = useState(0);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    statsFn({}).then((res) => {
+      if (!res.ok) return;
+      setCode(res.referralCode);
+      setCredited(res.rewards.filter((r) => r.status === "credited").length);
+      setPending(res.rewards.filter((r) => r.status === "pending").length);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const inviteUrl = code ? `${window.location.origin}/annonceur/inscription?invite=${code}` : null;
+
+  const handleCopy = async () => {
+    if (!inviteUrl) return;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable — select text fallback
+    }
+  };
+
+  if (!code) return null;
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="font-display text-xl font-bold mb-1">🎁 {t("annonceur.referral.title")}</h2>
+          <p className="text-sm text-muted-foreground max-w-md">{t("annonceur.referral.desc")}</p>
+        </div>
+        <div className="flex gap-4 text-center shrink-0">
+          <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-5 py-3">
+            <div className="text-2xl font-bold text-emerald-600 tabular-nums">{credited}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{t("annonceur.referral.credited")}</div>
+          </div>
+          {pending > 0 && (
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-5 py-3">
+              <div className="text-2xl font-bold text-amber-600 tabular-nums">{pending}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{t("annonceur.referral.pending")}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-5 flex items-center gap-2 flex-wrap">
+        <div className="flex-1 min-w-0 rounded-lg border border-border bg-secondary/30 px-4 py-2.5 text-sm font-mono truncate select-all">
+          {inviteUrl}
+        </div>
+        <button
+          onClick={handleCopy}
+          className="shrink-0 rounded-lg bg-primary text-primary-foreground px-4 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
+        >
+          {copied ? t("annonceur.referral.copied") : t("annonceur.referral.copy")}
+        </button>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">{t("annonceur.referral.bonus_detail")}</p>
     </div>
   );
 }

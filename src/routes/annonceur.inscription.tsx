@@ -9,9 +9,10 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { RouteError } from "@/components/app/RouteError";
 import { resolveReferralCode } from "@/lib/commercial/commercial.functions";
+import { resolveAdvertiserInviteCode } from "@/lib/referral/advertiser-referral.functions";
 import { useTranslation } from "react-i18next";
 
-type Search = { redirect?: string; ref?: string; mode?: "signin" | "signup" };
+type Search = { redirect?: string; ref?: string; invite?: string; mode?: "signin" | "signup" };
 
 export const Route = createFileRoute("/annonceur/inscription")({
   head: () => ({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/annonceur/inscription")({
   validateSearch: (s: Record<string, unknown>): Search => ({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
     ref: typeof s.ref === "string" ? s.ref.toUpperCase() : undefined,
+    invite: typeof s.invite === "string" ? s.invite.toUpperCase() : undefined,
     mode: s.mode === "signin" || s.mode === "signup" ? s.mode : undefined,
   }),
   component: AnnonceurInscription,
@@ -34,7 +36,7 @@ type AccountType = "business" | "individual";
 function AnnonceurInscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { redirect, ref, mode: modeParam } = useSearch({ from: "/annonceur/inscription" });
+  const { redirect, ref, invite, mode: modeParam } = useSearch({ from: "/annonceur/inscription" });
   const [mode, setMode] = useState<"signup" | "signin">(modeParam ?? "signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [accountType, setAccountType] = useState<AccountType>("business");
@@ -56,7 +58,10 @@ function AnnonceurInscription() {
   const [honeypot, setHoneypot] = useState("");
   const [commercialId, setCommercialId] = useState<string | null>(null);
   const [commercialName, setCommercialName] = useState<string | null>(null);
+  const [inviteAdvertiserId, setInviteAdvertiserId] = useState<string | null>(null);
+  const [inviterName, setInviterName] = useState<string | null>(null);
   const resolveRefFn = useServerFn(resolveReferralCode);
+  const resolveInviteFn = useServerFn(resolveAdvertiserInviteCode);
 
   const goNext = () => {
     if (redirect) window.location.href = redirect;
@@ -74,6 +79,18 @@ function AnnonceurInscription() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
+
+  useEffect(() => {
+    if (invite) {
+      resolveInviteFn({ data: { code: invite } }).then((res: any) => {
+        if (res.ok) {
+          setInviteAdvertiserId(res.advertiserId);
+          setInviterName(res.name);
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invite]);
 
   useEffect(() => {
     (async () => {
@@ -182,6 +199,7 @@ function AnnonceurInscription() {
       cgu_version: CGU_VERSION,
       cgu_accepted_at: new Date().toISOString(),
       commercial_id: commercialId ?? null,
+      referred_by_advertiser_id: inviteAdvertiserId ?? null,
     };
     if (accountType === "business") {
       payload.company = company || siret.denomination;
@@ -286,6 +304,11 @@ function AnnonceurInscription() {
                 className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400"
                 dangerouslySetInnerHTML={{ __html: t("annonceur.inscription.referral_banner", { name: commercialName }) }}
               />
+            )}
+            {inviterName && (
+              <div className="mt-3 rounded-lg border border-violet-500/30 bg-violet-500/5 px-4 py-2.5 text-xs text-violet-700 dark:text-violet-400">
+                🎁 {t("annonceur.inscription.invite_banner", { name: inviterName })}
+              </div>
             )}
             <p className="text-sm text-muted-foreground mt-4 mb-6">
               {t("annonceur.inscription.profile_desc")}

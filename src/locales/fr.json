@@ -526,6 +526,15 @@
     "map_title": "Aperçu illustratif des flux de véhicules",
     "map_desc": "Visualisation indicative — données réelles branchées progressivement.",
     "ip_notice": "📜 Propriété intellectuelle : en soumettant un visuel publicitaire, vous garantissez en détenir tous les droits (créations, marques, droit à l'image, musiques) et vous engagez à respecter la législation française et européenne. Tout contenu litigieux est refusé.",
+    "referral": {
+      "title": "Parrainez un annonceur",
+      "desc": "Invitez un annonceur à rejoindre MoveSpot avec votre lien personnel. Vous recevez 15 € sur votre portefeuille dès qu'il lance sa première campagne, et lui bénéficie de 10 € de bienvenue.",
+      "credited": "Parrainages actifs",
+      "pending": "En attente",
+      "copy": "Copier le lien",
+      "copied": "Copié !",
+      "bonus_detail": "Les crédits sont versés automatiquement dans vos portefeuilles à la première campagne de votre filleul."
+    },
     "pack": {
       "loading": "Chargement…",
       "back": "← Mon espace",
@@ -632,6 +641,7 @@
       "toggle_to_signup": "Pas encore inscrit ? Créer un compte",
       "profile_title": "Votre profil annonceur",
       "referral_banner": "Invitation de <strong>{{name}}</strong> — vous serez associé à ce commercial.",
+      "invite_banner": "Vous avez été invité par {{name}} — vous recevrez 10 € sur votre portefeuille à l'activation de votre première campagne.",
       "profile_desc": "Choisissez le type de compte qui vous correspond.",
       "type_business": "Entreprise / Asso",
       "type_individual": "Particulier",
