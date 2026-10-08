@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import {
   adminExportAuditData,
   adminDetectGpsFraud,
@@ -20,23 +21,6 @@ export const Route = createFileRoute("/admin/audit")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-function fmt(cents: number) {
-  return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
-}
-
-function severityBadge(s: "high" | "medium" | "low") {
-  const cls =
-    s === "high" ? "bg-destructive/15 text-destructive border-destructive/30" :
-    s === "medium" ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/30" :
-    "bg-secondary text-muted-foreground border-border";
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
-      {s === "high" ? "Critique" : s === "medium" ? "Moyen" : "Faible"}
-    </span>
-  );
-}
-
-// Convertit les données en CSV
 function toCSV(rows: Record<string, unknown>[]): string {
   if (!rows.length) return "";
   const headers = Object.keys(rows[0]);
@@ -55,7 +39,7 @@ function toCSV(rows: Record<string, unknown>[]): string {
 }
 
 function downloadCSV(content: string, filename: string) {
-  const bom = "﻿"; // BOM UTF-8 pour Excel
+  const bom = "﻿";
   const blob = new Blob([bom + content], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -66,30 +50,49 @@ function downloadCSV(content: string, filename: string) {
 }
 
 function AdminAuditPage() {
+  const { t, i18n } = useTranslation();
   const exportAudit = useServerFn(adminExportAuditData);
   const detectGps = useServerFn(adminDetectGpsFraud);
   const detectIdentity = useServerFn(adminDetectIdentityFraud);
 
-  // Période
   const currentYear = new Date().getFullYear();
   const [dateFrom, setDateFrom] = useState(`${currentYear}-01-01`);
   const [dateTo, setDateTo] = useState(new Date().toISOString().slice(0, 10));
 
-  // États
   const [auditData, setAuditData] = useState<AuditExportResult | null>(null);
   const [gpsFrauds, setGpsFrauds] = useState<GpsFraudFlag[] | null>(null);
   const [idFrauds, setIdFrauds] = useState<IdentityFraudFlag[] | null>(null);
   const [loadingAudit, setLoadingAudit] = useState(false);
   const [loadingFraud, setLoadingFraud] = useState(false);
 
+  function fmt(cents: number) {
+    return (cents / 100).toLocaleString(i18n.language === "fr" ? "fr-FR" : "en-US", { style: "currency", currency: "EUR" });
+  }
+
+  function severityLabel(s: "high" | "medium" | "low") {
+    return s === "high" ? t("admin.audit.severity_high") : s === "medium" ? t("admin.audit.severity_medium") : t("admin.audit.severity_low");
+  }
+
+  function severityBadge(s: "high" | "medium" | "low") {
+    const cls =
+      s === "high" ? "bg-destructive/15 text-destructive border-destructive/30" :
+      s === "medium" ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/30" :
+      "bg-secondary text-muted-foreground border-border";
+    return (
+      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
+        {severityLabel(s)}
+      </span>
+    );
+  }
+
   const handleExport = async () => {
     setLoadingAudit(true);
     try {
       const result = await exportAudit({ data: { dateFrom, dateTo } });
       setAuditData(result);
-      toast.success("Données d'audit chargées");
+      toast.success(t("admin.audit.loaded"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Erreur lors de l'export");
+      toast.error(e?.message ?? t("admin.audit.load_error"));
     } finally {
       setLoadingAudit(false);
     }
@@ -105,10 +108,10 @@ function AdminAuditPage() {
       setGpsFrauds(gps.flags);
       setIdFrauds(identity.flags);
       const total = gps.flags.length + identity.flags.length;
-      if (total === 0) toast.success(`Aucune anomalie détectée sur ${gps.analyzedPoints} points GPS analysés`);
-      else toast.warning(`${total} anomalie(s) détectée(s)`);
+      if (total === 0) toast.success(t("admin.audit.no_anomaly", { n: gps.analyzedPoints }));
+      else toast.warning(t("admin.audit.anomalies_found", { total }));
     } catch (e: any) {
-      toast.error(e?.message ?? "Erreur lors de la détection");
+      toast.error(e?.message ?? t("admin.audit.detect_error"));
     } finally {
       setLoadingFraud(false);
     }
@@ -165,7 +168,7 @@ function AdminAuditPage() {
       `movespot_virements_${ts}.csv`,
     );
 
-    toast.success("3 fichiers CSV téléchargés (campagnes, transactions, virements)");
+    toast.success(t("admin.audit.csv_downloaded"));
   };
 
   return (
@@ -174,26 +177,24 @@ function AdminAuditPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <nav className="flex gap-4 text-sm text-muted-foreground">
-            <Link to="/admin/dashboard" className="hover:text-foreground">Dashboard</Link>
-            <Link to="/admin/virements" className="hover:text-foreground">Virements</Link>
+            <Link to="/admin/dashboard" className="hover:text-foreground">{t("admin.audit.nav_dashboard")}</Link>
+            <Link to="/admin/virements" className="hover:text-foreground">{t("admin.audit.nav_transfers")}</Link>
           </nav>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
         <div>
-          <h1 className="font-display text-3xl font-bold">Audit & Conformité</h1>
-          <p className="text-muted-foreground mt-1">
-            Export des données pour contrôle DGFIP / URSSAF / CNIL · Détection de fraude GPS et identitaire
-          </p>
+          <h1 className="font-display text-3xl font-bold">{t("admin.audit.title")}</h1>
+          <p className="text-muted-foreground mt-1">{t("admin.audit.desc")}</p>
         </div>
 
-        {/* ── Sélecteur de période ── */}
+        {/* Sélecteur de période */}
         <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <h2 className="font-semibold flex items-center gap-2"><FileText className="w-4 h-4" /> Période d'analyse</h2>
+          <h2 className="font-semibold flex items-center gap-2"><FileText className="w-4 h-4" /> {t("admin.audit.period_section")}</h2>
           <div className="flex flex-wrap gap-4 items-end">
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">Du</label>
+              <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("admin.audit.from")}</label>
               <input
                 type="date"
                 value={dateFrom}
@@ -202,7 +203,7 @@ function AdminAuditPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">Au</label>
+              <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("admin.audit.to")}</label>
               <input
                 type="date"
                 value={dateTo}
@@ -217,7 +218,7 @@ function AdminAuditPage() {
                 className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
               >
                 {loadingAudit ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                Charger les données
+                {t("admin.audit.load_btn")}
               </button>
               <button
                 onClick={handleDetectFraud}
@@ -225,26 +226,26 @@ function AdminAuditPage() {
                 className="flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 text-destructive px-4 py-2 text-sm font-semibold hover:bg-destructive/20 disabled:opacity-50"
               >
                 {loadingFraud ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldAlert className="w-4 h-4" />}
-                Détecter les fraudes
+                {t("admin.audit.detect_btn")}
               </button>
             </div>
           </div>
         </section>
 
-        {/* ── Résumé + téléchargement ── */}
+        {/* Résumé + téléchargement */}
         {auditData && (
           <section className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
-                { label: "Campagnes", value: auditData.summary.totalCampaigns },
-                { label: "Chiffre d'affaires", value: fmt(auditData.summary.totalRevenueCents) },
-                { label: "Commissions MoveSpot", value: fmt(auditData.summary.totalCommissionsCents) },
-                { label: "Virements validés", value: fmt(auditData.summary.totalTransfersCents) },
-                { label: "Annonceurs", value: auditData.summary.uniqueAdvertisers },
-                { label: "Propriétaires", value: auditData.summary.uniqueOwners },
+                { labelKey: "admin.audit.kpi_campaigns", value: auditData.summary.totalCampaigns },
+                { labelKey: "admin.audit.kpi_revenue", value: fmt(auditData.summary.totalRevenueCents) },
+                { labelKey: "admin.audit.kpi_commissions", value: fmt(auditData.summary.totalCommissionsCents) },
+                { labelKey: "admin.audit.kpi_transfers", value: fmt(auditData.summary.totalTransfersCents) },
+                { labelKey: "admin.audit.kpi_advertisers", value: auditData.summary.uniqueAdvertisers },
+                { labelKey: "admin.audit.kpi_owners", value: auditData.summary.uniqueOwners },
               ].map((s) => (
-                <div key={s.label} className="rounded-xl border border-border bg-card p-3 text-center">
-                  <div className="text-xs text-muted-foreground">{s.label}</div>
+                <div key={s.labelKey} className="rounded-xl border border-border bg-card p-3 text-center">
+                  <div className="text-xs text-muted-foreground">{t(s.labelKey)}</div>
                   <div className="font-bold text-sm mt-0.5">{s.value}</div>
                 </div>
               ))}
@@ -255,23 +256,25 @@ function AdminAuditPage() {
               className="flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/20 transition-colors"
             >
               <Download className="w-4 h-4" />
-              Télécharger les 3 CSV (campagnes · transactions · virements)
+              {t("admin.audit.download_csv")}
             </button>
 
-            <p className="text-xs text-muted-foreground">
-              Les fichiers CSV sont encodés en UTF-8 avec BOM (compatibles Excel). Chaque fichier correspond à un tableau de la comptabilité. À conserver 10 ans (art. L123-22 Code de commerce).
-            </p>
+            <p className="text-xs text-muted-foreground">{t("admin.audit.csv_note")}</p>
 
             {/* Tableau campagnes */}
             <details className="rounded-2xl border border-border bg-card overflow-hidden">
               <summary className="px-5 py-3 font-semibold text-sm cursor-pointer hover:bg-secondary/30">
-                Campagnes ({auditData.campaigns.length})
+                {t("admin.audit.campaigns_summary", { n: auditData.campaigns.length })}
               </summary>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead className="bg-secondary/50">
                     <tr>
-                      {["Date", "Annonceur", "SIRET", "Véhicule", "Spot", "Début", "Fin", "Montant", "Paiement", "Points GPS"].map((h) => (
+                      {[
+                        t("admin.audit.col_date"), t("admin.audit.col_advertiser"), t("admin.audit.col_siret"),
+                        t("admin.audit.col_vehicle"), t("admin.audit.col_spot"), t("admin.audit.col_start"),
+                        t("admin.audit.col_end"), t("admin.audit.col_amount"), t("admin.audit.col_payment"), t("admin.audit.col_gps"),
+                      ].map((h) => (
                         <th key={h} className="px-3 py-2 text-left font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
@@ -294,24 +297,24 @@ function AdminAuditPage() {
                   </tbody>
                 </table>
                 {auditData.campaigns.length > 50 && (
-                  <p className="px-5 py-2 text-xs text-muted-foreground">… et {auditData.campaigns.length - 50} autres dans le CSV</p>
+                  <p className="px-5 py-2 text-xs text-muted-foreground">{t("admin.audit.more_in_csv", { n: auditData.campaigns.length - 50 })}</p>
                 )}
               </div>
             </details>
           </section>
         )}
 
-        {/* ── Fraudes GPS ── */}
+        {/* Fraudes GPS */}
         {gpsFrauds !== null && (
           <section className="space-y-3">
             <h2 className="font-semibold flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-destructive" />
-              Anomalies GPS ({gpsFrauds.length})
+              {t("admin.audit.gps_section", { n: gpsFrauds.length })}
             </h2>
 
             {gpsFrauds.length === 0 ? (
               <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
-                <Shield className="w-4 h-4" /> Aucune anomalie GPS détectée sur la période.
+                <Shield className="w-4 h-4" /> {t("admin.audit.gps_clear")}
               </div>
             ) : (
               <div className="space-y-3">
@@ -327,9 +330,9 @@ function AdminAuditPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">{f.description}</p>
                     <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">
-                      {f.flagType === "speed_anomaly" ? "Vitesse impossible" :
-                       f.flagType === "static_spoofing" ? "GPS statique / spoofing" :
-                       f.flagType === "no_movement" ? "Absence de mouvement" : f.flagType}
+                      {f.flagType === "speed_anomaly" ? t("admin.audit.flag_speed") :
+                       f.flagType === "static_spoofing" ? t("admin.audit.flag_spoofing") :
+                       f.flagType === "no_movement" ? t("admin.audit.flag_no_movement") : f.flagType}
                     </div>
                   </div>
                 ))}
@@ -338,17 +341,17 @@ function AdminAuditPage() {
           </section>
         )}
 
-        {/* ── Fraudes identité / paiement ── */}
+        {/* Fraudes identité / paiement */}
         {idFrauds !== null && (
           <section className="space-y-3">
             <h2 className="font-semibold flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-amber-600" />
-              Anomalies identité & paiement ({idFrauds.length})
+              {t("admin.audit.id_section", { n: idFrauds.length })}
             </h2>
 
             {idFrauds.length === 0 ? (
               <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-400 flex items-center gap-2">
-                <Shield className="w-4 h-4" /> Aucune anomalie identitaire ou de paiement détectée.
+                <Shield className="w-4 h-4" /> {t("admin.audit.id_clear")}
               </div>
             ) : (
               <div className="space-y-3">
@@ -360,7 +363,7 @@ function AdminAuditPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">{f.description}</p>
                     <p className="text-[10px] font-mono text-muted-foreground/60">
-                      IDs : {f.affectedUserIds.join(", ")}
+                      {t("admin.audit.ids_prefix")} {f.affectedUserIds.join(", ")}
                     </p>
                   </div>
                 ))}
