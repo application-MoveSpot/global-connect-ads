@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { getStoredUtm } from "@/lib/analytics/utm";
 import { LogoLink } from "@/components/app/LogoLink";
 
 export const Route = createFileRoute("/auth")({
@@ -75,10 +76,14 @@ function AuthPage() {
     setError("");
     setLoading(true);
     if (mode === "signup") {
+      const utm = getStoredUtm();
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}${next ?? "/admin"}` },
+        options: {
+          emailRedirectTo: `${window.location.origin}${next ?? "/admin"}`,
+          ...(utm ? { data: { utm } } : {}),
+        },
       });
       if (error) setError(error.message);
       else goNext();

@@ -18,6 +18,7 @@ import { CookieBanner } from "@/components/app/CookieBanner";
 import { OfflineBanner } from "@/components/app/OfflineBanner";
 import { initSentry, Sentry } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
+import { captureUtm } from "@/lib/analytics/utm";
 import appCss from "../styles.css?url";
 
 initSentry();
@@ -169,6 +170,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    captureUtm();
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
