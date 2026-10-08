@@ -1967,7 +1967,32 @@
       "suspend_reason": "Motif de suspension :"
     },
     "loading": "Chargement…",
-    "access_denied": "Accès refusé."
+    "access_denied": "Accès refusé.",
+    "refunds": {
+      "title": "Remboursements",
+      "back": "← Dashboard",
+      "empty": "Aucune demande dans cette catégorie.",
+      "loading_error": "Erreur de chargement",
+      "updated": "Demande mise à jour.",
+      "campaign": "Campagne :",
+      "submitted_at": "Déposée le {{date}}",
+      "admin_note": "Note admin :",
+      "stripe_refund_id": "Stripe refund ID :",
+      "approve": "✓ Approuver",
+      "reject": "✕ Refuser",
+      "mark_processed": "💸 Marquer comme remboursé",
+      "reject_reason": "Motif du refus (visible par l'annonceur) :",
+      "stripe_refund_prompt": "ID de remboursement Stripe (optionnel) :",
+      "status_pending": "En attente",
+      "status_approved": "Approuvée",
+      "status_rejected": "Refusée",
+      "status_processed": "Remboursée",
+      "filter_pending": "En attente",
+      "filter_approved": "Approuvées",
+      "filter_rejected": "Refusées",
+      "filter_processed": "Remboursées",
+      "filter_all": "Toutes"
+    }
   },
   "partner": {
     "badge": "🚐 Espace propriétaires",
