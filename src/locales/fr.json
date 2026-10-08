@@ -3300,5 +3300,67 @@
     "inactive_msg": "Activez votre abonnement pour accéder aux fonctionnalités partenaires et être référencé sur la plateforme.",
     "btn_subscribe": "Devenir partenaire — 149 € HT/mois",
     "dialog_title": "Abonnement partenaire MoveSpot"
+  },
+  "payee_connect": {
+    "active_msg": "Compte Stripe actif — vos prestations sont reversées automatiquement sur votre IBAN.",
+    "not_connected_desc": "Liez votre compte bancaire en quelques minutes pour recevoir automatiquement vos reversements dès qu'une prestation est validée.",
+    "step3": "Reversements automatiques à chaque campagne validée",
+    "btn_connect": "Configurer mes virements bancaires"
+  },
+  "ad_spots": {
+    "vehicle_alt": "véhicule",
+    "vehicle_fallback": "Véhicule",
+    "zone_tbc": "Zone à confirmer",
+    "impressions": "{{count}} impressions/jour",
+    "title": "Véhicules disponibles",
+    "subtitle": "Sélection de véhicules partenaires proposant des espaces publicitaires mobiles.",
+    "link_owner": "Vous avez un véhicule ? →",
+    "available_badge": "● Disponible",
+    "audience_label": "Audience",
+    "from_label": "À partir de",
+    "btn_book": "Réserver cet espace",
+    "empty_title": "La marketplace s'ouvre aux premiers partenaires",
+    "empty_desc": "Soyez parmi les premiers propriétaires à proposer votre véhicule sur MoveSpot et bénéficiez d'une visibilité maximale auprès des annonceurs.",
+    "empty_cta": "Devenir partenaire"
+  },
+  "signalement": {
+    "trigger_label": "Signaler un problème",
+    "dialog_title": "Signaler un problème",
+    "label_subject": "Sujet",
+    "placeholder_subject": "Ex : problème de paiement, contenu inapproprié...",
+    "label_message": "Description",
+    "placeholder_message": "Décrivez le problème en détail...",
+    "btn_submit": "Envoyer le signalement",
+    "btn_sending": "Envoi...",
+    "toast_success": "Signalement envoyé. L'équipe vous répondra rapidement.",
+    "toast_error": "Erreur lors de l'envoi du signalement."
+  },
+  "siret": {
+    "placeholder": "14 chiffres",
+    "btn_verify": "Vérifier",
+    "btn_verified": "✓ Vérifié",
+    "individual_note": "(entreprise individuelle — l'identité légale est le nom du chef d'entreprise)",
+    "digit_count": "{{count}}/14 chiffres",
+    "err_verify": "Erreur lors de la vérification."
+  },
+  "creative_files": {
+    "header": "🎨 Créa fournie ({{count}})",
+    "btn_view_360": "Vue 360°",
+    "btn_close_360": "Fermer 360°",
+    "btn_open": "Ouvrir",
+    "viewer_label": "Projection de pose 360° — {{name}}"
+  },
+  "route_summary": {
+    "title": "🗺 Itinéraire demandé",
+    "impressions_per_day": "impressions/jour estimées",
+    "impressions_total": "· soit ~{{total}} sur {{days}} j",
+    "zones_label": "Zones ciblées",
+    "waypoints_label": "Étapes du parcours",
+    "pois_label": "Points d'intérêt à couvrir"
+  },
+  "status_history": {
+    "btn_show": "Historique",
+    "btn_hide": "Masquer l'historique",
+    "empty": "Aucun changement de statut enregistré pour l'instant."
   }
 }

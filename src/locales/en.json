@@ -3300,5 +3300,67 @@
     "inactive_msg": "Activate your subscription to access partner features and be listed on the platform.",
     "btn_subscribe": "Become a partner — €149 excl. VAT/month",
     "dialog_title": "MoveSpot partner subscription"
+  },
+  "payee_connect": {
+    "active_msg": "Stripe account active — your earnings are automatically transferred to your IBAN.",
+    "not_connected_desc": "Link your bank account in minutes to automatically receive payouts as soon as a service is validated.",
+    "step3": "Automatic payouts for every validated campaign",
+    "btn_connect": "Set up my bank transfers"
+  },
+  "ad_spots": {
+    "vehicle_alt": "vehicle",
+    "vehicle_fallback": "Vehicle",
+    "zone_tbc": "Zone to be confirmed",
+    "impressions": "{{count}} impressions/day",
+    "title": "Available vehicles",
+    "subtitle": "Selection of partner vehicles offering mobile advertising spaces.",
+    "link_owner": "Do you have a vehicle? →",
+    "available_badge": "● Available",
+    "audience_label": "Audience",
+    "from_label": "From",
+    "btn_book": "Book this space",
+    "empty_title": "The marketplace is opening to first partners",
+    "empty_desc": "Be among the first owners to list your vehicle on MoveSpot and gain maximum visibility with advertisers.",
+    "empty_cta": "Become a partner"
+  },
+  "signalement": {
+    "trigger_label": "Report an issue",
+    "dialog_title": "Report an issue",
+    "label_subject": "Subject",
+    "placeholder_subject": "E.g. payment issue, inappropriate content…",
+    "label_message": "Description",
+    "placeholder_message": "Describe the issue in detail…",
+    "btn_submit": "Submit report",
+    "btn_sending": "Sending…",
+    "toast_success": "Report sent. The team will reply shortly.",
+    "toast_error": "Error sending the report."
+  },
+  "siret": {
+    "placeholder": "14 digits",
+    "btn_verify": "Verify",
+    "btn_verified": "✓ Verified",
+    "individual_note": "(sole trader — the legal identity is the business owner's name)",
+    "digit_count": "{{count}}/14 digits",
+    "err_verify": "Verification error."
+  },
+  "creative_files": {
+    "header": "🎨 Provided creatives ({{count}})",
+    "btn_view_360": "360° view",
+    "btn_close_360": "Close 360°",
+    "btn_open": "Open",
+    "viewer_label": "360° wrap projection — {{name}}"
+  },
+  "route_summary": {
+    "title": "🗺 Requested route",
+    "impressions_per_day": "estimated impressions/day",
+    "impressions_total": "· i.e. ~{{total}} over {{days}} d",
+    "zones_label": "Targeted zones",
+    "waypoints_label": "Route stops",
+    "pois_label": "Points of interest to cover"
+  },
+  "status_history": {
+    "btn_show": "History",
+    "btn_hide": "Hide history",
+    "empty": "No status changes recorded yet."
   }
 }

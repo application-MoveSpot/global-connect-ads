@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,10 +24,11 @@ interface SignalementDialogProps {
 
 export function SignalementDialog({
   contextUrl,
-  triggerLabel = "Signaler un problème",
+  triggerLabel,
   variant = "ghost",
   size = "sm",
 }: SignalementDialogProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -38,12 +40,12 @@ export function SignalementDialog({
     setLoading(true);
     try {
       await submitSignalement({ subject: subject.trim(), message: message.trim(), contextUrl });
-      toast.success("Signalement envoyé. L'équipe vous répondra rapidement.");
+      toast.success(t("signalement.toast_success"));
       setOpen(false);
       setSubject("");
       setMessage("");
-    } catch (err) {
-      toast.error("Erreur lors de l'envoi du signalement.");
+    } catch {
+      toast.error(t("signalement.toast_error"));
     } finally {
       setLoading(false);
     }
@@ -54,19 +56,19 @@ export function SignalementDialog({
       <DialogTrigger asChild>
         <Button variant={variant} size={size} className="gap-1.5 text-muted-foreground">
           <Flag className="h-3.5 w-3.5" />
-          {triggerLabel}
+          {triggerLabel ?? t("signalement.trigger_label")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Signaler un problème</DialogTitle>
+          <DialogTitle>{t("signalement.dialog_title")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-1.5">
-            <Label htmlFor="signal-subject">Sujet</Label>
+            <Label htmlFor="signal-subject">{t("signalement.label_subject")}</Label>
             <Input
               id="signal-subject"
-              placeholder="Ex : problème de paiement, contenu inapproprié..."
+              placeholder={t("signalement.placeholder_subject")}
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               maxLength={200}
@@ -74,10 +76,10 @@ export function SignalementDialog({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="signal-message">Description</Label>
+            <Label htmlFor="signal-message">{t("signalement.label_message")}</Label>
             <Textarea
               id="signal-message"
-              placeholder="Décrivez le problème en détail..."
+              placeholder={t("signalement.placeholder_message")}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               maxLength={2000}
@@ -88,10 +90,10 @@ export function SignalementDialog({
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={loading}>
-              Annuler
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={loading || !subject.trim() || !message.trim()}>
-              {loading ? "Envoi..." : "Envoyer le signalement"}
+              {loading ? t("signalement.btn_sending") : t("signalement.btn_submit")}
             </Button>
           </div>
         </form>
