@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
@@ -32,19 +33,6 @@ const FRENCH_CITIES: Omit<Hub, "vehicles" | "status">[] = [
 // Types qui ne sont PAS des véhicules et ne doivent jamais apparaître dans les stats
 const EXCLUDED_TYPES = new Set(["sac_a_dos_lcd", "sac_a_dos_affiche"]);
 
-const VEHICLE_TYPE_LABELS: Record<string, string> = {
-  taxi: "Taxi/VTC",
-  van: "Vans",
-  food_truck: "Food trucks",
-  scooter: "Scooters",
-  voiture: "Voitures",
-  velo_cargo: "Vélos cargo",
-  velo_remorque: "Vélos",
-  triporteur: "Triporteurs",
-  camion_led: "Camions LED",
-  tutuk: "Tutuks",
-  autre: "Autres",
-};
 
 function vehicleStatus(count: number): Hub["status"] {
   if (count >= 20) return "high";
@@ -59,6 +47,23 @@ const statusColor: Record<Hub["status"], string> = {
 };
 
 export function MobilityMap() {
+  const { t } = useTranslation();
+  const getVehicleLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      taxi: t("mobility_map.type_taxi"),
+      van: t("mobility_map.type_van"),
+      food_truck: t("mobility_map.type_food_truck"),
+      scooter: t("mobility_map.type_scooter"),
+      voiture: t("mobility_map.type_voiture"),
+      velo_cargo: t("mobility_map.type_velo_cargo"),
+      velo_remorque: t("mobility_map.type_velo_remorque"),
+      triporteur: t("mobility_map.type_triporteur"),
+      camion_led: t("mobility_map.type_camion_led"),
+      tutuk: t("mobility_map.type_tutuk"),
+      autre: t("mobility_map.type_autre"),
+    };
+    return labels[type] ?? type;
+  };
   const [hubs, setHubs] = useState<Hub[]>([]);
   const [selected, setSelected] = useState<Hub | null>(null);
   // type counts per city id: { "par": [{type, count}, ...], ... }
@@ -214,15 +219,15 @@ export function MobilityMap() {
         ) : (
           <div className="absolute inset-0 flex items-center justify-center grid-pattern">
             <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
-              Chargement de la carte…
+              {t("mobility_map.loading_map")}
             </div>
           </div>
         )}
         {token && (
           <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-muted-foreground bg-card/80 backdrop-blur px-3 py-2 rounded-lg border border-border">
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal" /> Haute</span>
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-warning" /> Moyenne</span>
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-destructive" /> Faible</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal" /> {t("mobility_map.legend_high")}</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-warning" /> {t("mobility_map.legend_medium")}</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-destructive" /> {t("mobility_map.legend_low")}</span>
           </div>
         )}
       </div>
@@ -231,30 +236,30 @@ export function MobilityMap() {
       <div className="rounded-2xl border border-border bg-gradient-card p-6 flex flex-col gap-4">
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">Chargement…</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">{t("mobility_map.loading")}</div>
           </div>
         ) : isLaunching ? (
           <LaunchingState />
         ) : (
           <>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Ville sélectionnée</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("mobility_map.selected_city")}</div>
             {selected && (
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{selected.flag}</span>
                 <div>
                   <div className="font-display text-2xl font-semibold">{selected.city}</div>
-                  <div className="text-sm text-muted-foreground">France</div>
+                  <div className="text-sm text-muted-foreground">{t("mobility_map.city_country")}</div>
                 </div>
               </div>
             )}
             <div className="h-px bg-border" />
             <div>
-              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Véhicules disponibles</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("mobility_map.vehicles_available")}</div>
               <div className="font-display text-4xl font-bold tabular-nums text-primary">
                 {currentVehicles.toLocaleString("fr-FR")}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                {currentVehicles === 0 ? "En cours de lancement dans cette ville" : "Véhicules vérifiés par MoveSpot"}
+                {currentVehicles === 0 ? t("mobility_map.launching_city") : t("mobility_map.verified")}
               </div>
             </div>
             {currentVehicles > 0 && currentTypeCounts.length > 0 && (
@@ -264,7 +269,7 @@ export function MobilityMap() {
                   {currentTypeCounts.map(({ type, count }) => (
                     <Stat
                       key={type}
-                      label={VEHICLE_TYPE_LABELS[type] ?? type}
+                      label={getVehicleLabel(type)}
                       value={count.toLocaleString("fr-FR")}
                     />
                   ))}
@@ -279,18 +284,19 @@ export function MobilityMap() {
 }
 
 function LaunchingState() {
+  const { t } = useTranslation();
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-4">
       <span className="text-3xl">🚀</span>
-      <div className="font-display text-xl font-bold">Lancement en cours</div>
+      <div className="font-display text-xl font-bold">{t("mobility_map.launching_title")}</div>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        MoveSpot ouvre ses portes en France. Les premiers propriétaires rejoignent la plateforme.
+        {t("mobility_map.launching_desc")}
       </p>
       <a
         href="/devenir-partenaire"
         className="mt-2 text-xs font-semibold text-primary hover:underline"
       >
-        Inscrire mon véhicule →
+        {t("mobility_map.register_vehicle")}
       </a>
     </div>
   );
