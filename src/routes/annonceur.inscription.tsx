@@ -11,6 +11,7 @@ import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { RouteError } from "@/components/app/RouteError";
 import { resolveReferralCode } from "@/lib/commercial/commercial.functions";
 import { resolveAdvertiserInviteCode } from "@/lib/referral/advertiser-referral.functions";
+import { sendAdvertiserWelcomeEmail } from "@/lib/email/email.functions";
 import { useTranslation } from "react-i18next";
 
 type Search = { redirect?: string; ref?: string; invite?: string; mode?: "signin" | "signup" };
@@ -63,6 +64,7 @@ function AnnonceurInscription() {
   const [inviterName, setInviterName] = useState<string | null>(null);
   const resolveRefFn = useServerFn(resolveReferralCode);
   const resolveInviteFn = useServerFn(resolveAdvertiserInviteCode);
+  const welcomeEmailFn = useServerFn(sendAdvertiserWelcomeEmail);
 
   const goNext = () => {
     if (redirect) window.location.href = redirect;
@@ -219,6 +221,7 @@ function AnnonceurInscription() {
     }
     void track("signup_completed", { role: "annonceur", account_type: accountType });
     firePixelEvent("CompleteRegistration", { content_name: "annonceur" });
+    void welcomeEmailFn({ data: {} });
     goNext();
   };
 
