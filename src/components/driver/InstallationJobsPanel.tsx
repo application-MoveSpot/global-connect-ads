@@ -36,9 +36,9 @@ type CompletedJob = {
   total_price: number | null;
 };
 
-const fr = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
-const eur = (n: number | null) =>
-  n != null ? n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : null;
+const fr = (d: string | null, lang: string) => (d ? new Date(d).toLocaleDateString(lang) : "—");
+const eur = (n: number | null, lang: string) =>
+  n != null ? n.toLocaleString(lang, { style: "currency", currency: "EUR" }) : null;
 
 function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
@@ -57,7 +57,7 @@ function isClaimed(photos: unknown): boolean {
 }
 
 export function InstallationJobsPanel() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const fetchJobs = useServerFn(listInstallationJobs);
   const fetchCompleted = useServerFn(listCompletedInstallationJobs);
   const doClaim = useServerFn(claimInstallationJob);
@@ -184,11 +184,11 @@ export function InstallationJobsPanel() {
                       <div className="text-right space-y-0.5">
                         {job.total_price != null && (
                           <p className="text-xs font-semibold text-primary">
-                            {t("install_jobs.budget", { amount: eur(job.total_price) })}
+                            {t("install_jobs.budget", { amount: eur(job.total_price, i18n.language) })}
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          {fr(job.start_date)} → {fr(job.end_date)}
+                          {fr(job.start_date, i18n.language)} → {fr(job.end_date, i18n.language)}
                         </p>
                       </div>
                     </div>
@@ -199,7 +199,7 @@ export function InstallationJobsPanel() {
                         <span>{urgent ? "⏰" : "📅"}</span>
                         {days === 0
                           ? t("install_jobs.urgent_today")
-                          : t("install_jobs.due_before", { date: fr(job.start_date), days })}
+                          : t("install_jobs.due_before", { date: fr(job.start_date, i18n.language), days })}
                       </div>
                     )}
                     {overdue && (
@@ -283,7 +283,7 @@ export function InstallationJobsPanel() {
                         <p className="font-semibold text-sm">{job.spot_name}</p>
                         <p className="text-xs text-muted-foreground">{job.company}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {fr(job.start_date)} → {fr(job.end_date)}
+                          {fr(job.start_date, i18n.language)} → {fr(job.end_date, i18n.language)}
                         </p>
                       </div>
                       <div className="text-right">
@@ -291,7 +291,7 @@ export function InstallationJobsPanel() {
                           {t("install_jobs.validated")}
                         </span>
                         {job.total_price != null && (
-                          <p className="text-xs text-muted-foreground mt-1">{eur(job.total_price)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{eur(job.total_price, i18n.language)}</p>
                         )}
                       </div>
                     </div>

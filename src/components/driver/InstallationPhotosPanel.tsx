@@ -7,7 +7,6 @@ import { resizeImageFile } from "@/lib/images/resize";
 import { captureError } from "@/lib/sentry";
 import {
   INSTALLATION_VIEWS,
-  INSTALLATION_VIEW_LABEL,
   submitInstallationPhotos,
   type InstallationView,
 } from "@/lib/providers/installation.functions";
@@ -194,7 +193,7 @@ export function InstallationPhotosPanel({
             {INSTALLATION_VIEWS.map((view) => (
               <label key={view} className="text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  {INSTALLATION_VIEW_LABEL[view]}
+                  {t(`installation_view.${view}`)}
                   {aiValidation?.perView[view] && (
                     <span>{aiValidation.perView[view].ok ? "✅" : "⚠️"}</span>
                   )}

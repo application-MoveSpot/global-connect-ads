@@ -24,9 +24,9 @@ type DeposeJob = {
   depose_fee_cents: number | null;
 };
 
-const fr = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
-const eur = (n: number | null) =>
-  n != null ? (n / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : null;
+const fr = (d: string | null, lang: string) => (d ? new Date(d).toLocaleDateString(lang) : "—");
+const eur = (n: number | null, lang: string) =>
+  n != null ? (n / 100).toLocaleString(lang, { style: "currency", currency: "EUR" }) : null;
 
 function daysAfter(dateStr: string | null): number | null {
   if (!dateStr) return null;
@@ -45,7 +45,7 @@ function isClaimed(photos: unknown): boolean {
 }
 
 export function DeposeJobsPanel() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const fetchJobs = useServerFn(listDeposeJobs);
   const doClaim = useServerFn(claimDeposeJob);
   const doUnclaim = useServerFn(unclaimDeposeJob);
@@ -147,11 +147,11 @@ export function DeposeJobsPanel() {
                   <div className="text-right space-y-0.5">
                     {job.depose_fee_cents != null && (
                       <p className="text-xs font-semibold text-primary">
-                        {t("depose_jobs.remuneration", { amount: eur(job.depose_fee_cents) })}
+                        {t("depose_jobs.remuneration", { amount: eur(job.depose_fee_cents, i18n.language) })}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {fr(job.start_date)} → {fr(job.end_date)}
+                      {fr(job.start_date, i18n.language)} → {fr(job.end_date, i18n.language)}
                     </p>
                   </div>
                 </div>
