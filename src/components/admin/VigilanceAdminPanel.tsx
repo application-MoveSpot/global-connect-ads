@@ -97,13 +97,13 @@ function AttestationCard({
   const analyse = useServerFn(adminAnalyseAttestation);
   const review = useServerFn(reviewVigilance);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [analysisResult, setAnalysisResult] = useState<AttestationAnalyse | null>(null);
   const [analysing, setAnalysing] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectNotes, setRejectNotes] = useState("");
 
-  const gainsEuros = (row.gains_centimes / 100).toLocaleString("fr-FR", {
+  const gainsEuros = (row.gains_centimes / 100).toLocaleString(i18n.language, {
     style: "currency",
     currency: "EUR",
   });
@@ -181,7 +181,7 @@ function AttestationCard({
           <p className="text-xs text-muted-foreground">
             {t("vigil_admin.profile_id_label", { id: row.id.slice(0, 8) })}
             {row.seuil_atteint_at && (
-              <>{t("vigil_admin.threshold_date", { date: new Date(row.seuil_atteint_at).toLocaleDateString("fr-FR") })}</>
+              <>{t("vigil_admin.threshold_date", { date: new Date(row.seuil_atteint_at).toLocaleDateString(i18n.language) })}</>
             )}
           </p>
         </div>

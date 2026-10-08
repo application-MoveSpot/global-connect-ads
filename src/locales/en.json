@@ -2896,6 +2896,7 @@
     "upload_hint": "PDF, JPG, PNG — max 10 MB",
     "err_format": "Format not supported. Use a PDF or image (JPG, PNG).",
     "err_size": "File too large (max 10 MB).",
+    "err_upload": "Upload error.",
     "how_title": "How to get your Urssaf certificate?",
     "how_step1": "Log in to urssaf.fr",
     "how_step2": "Go to \"My account\" → \"Vigilance certificate\"",

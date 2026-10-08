@@ -45,10 +45,10 @@ function IconUpload({ className }: { className?: string }) {
 // ─── Barre de progression des gains ──────────────────────────────────────────
 
 function GainsProgress({ gainsCentimes }: { gainsCentimes: number }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const pct = Math.min(100, (gainsCentimes / VIGILANCE_SEUIL_CENTIMES) * 100);
-  const gainsEuros = (gainsCentimes / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
-  const seuilEuros = (VIGILANCE_SEUIL_CENTIMES / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+  const gainsEuros = (gainsCentimes / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
+  const seuilEuros = (VIGILANCE_SEUIL_CENTIMES / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
 
   return (
     <div className="space-y-1">
@@ -114,7 +114,7 @@ function UploadAttestation({
       await submitFn({ data: { storagePath } });
       onSuccess();
     } catch (e) {
-      setErreur(e instanceof Error ? e.message : "Erreur lors de l'envoi.");
+      setErreur(e instanceof Error ? e.message : t("vig.err_upload"));
     } finally {
       setUploading(false);
     }
@@ -167,7 +167,7 @@ function UploadAttestation({
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export function VigAlerte() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const fetchStatus = useServerFn(getMyVigilanceStatus);
   const [info, setInfo] = useState<VigilanceInfo>(null);
   const [chargement, setChargement] = useState(true);
@@ -284,7 +284,7 @@ export function VigAlerte() {
           {t("vig.valid_text")}{" "}
           {info.dateVerification && (
             <span className="font-normal text-muted-foreground">
-              {t("vig.valid_date", { date: new Date(info.dateVerification).toLocaleDateString("fr-FR") })}
+              {t("vig.valid_date", { date: new Date(info.dateVerification).toLocaleDateString(i18n.language) })}
             </span>
           )}
         </p>

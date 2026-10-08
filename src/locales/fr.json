@@ -2896,6 +2896,7 @@
     "upload_hint": "PDF, JPG, PNG — max 10 Mo",
     "err_format": "Format non supporté. Utilisez un PDF ou une image (JPG, PNG).",
     "err_size": "Fichier trop volumineux (max 10 Mo).",
+    "err_upload": "Erreur lors de l'envoi.",
     "how_title": "Comment obtenir votre attestation Urssaf ?",
     "how_step1": "Connectez-vous sur urssaf.fr",
     "how_step2": "Rendez-vous dans « Mon compte » → « Attestation de vigilance »",
