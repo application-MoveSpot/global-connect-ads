@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,13 +25,6 @@ type Props = {
   onSubmitted?: () => void;
 };
 
-const STATUS: Record<string, { label: string; className: string }> = {
-  pending: { label: "Dépose non transmise", className: "text-muted-foreground" },
-  pending_approval: { label: "⏳ En attente de validation MoveSpot", className: "text-amber-500" },
-  approved: { label: "✅ Dépose validée", className: "text-emerald-500" },
-  rejected: { label: "⛔ Dépose refusée — nouvelle dépose requise", className: "text-destructive" },
-};
-
 function getGeolocation(): Promise<{ lat: number; lng: number } | null> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) { resolve(null); return; }
@@ -49,10 +43,18 @@ export function DeposePhotosPanel({
   deposeNotes,
   onSubmitted,
 }: Props) {
+  const { t } = useTranslation();
   const submit = useServerFn(submitDeposePhotos);
   const [files, setFiles] = useState<Partial<Record<InstallationView, File>>>({});
   const [busy, setBusy] = useState(false);
   const [geoStatus, setGeoStatus] = useState<"idle" | "locating" | "ok" | "skipped">("idle");
+
+  const STATUS: Record<string, { label: string; className: string }> = {
+    pending: { label: t("depose_photos.status_pending"), className: "text-muted-foreground" },
+    pending_approval: { label: t("depose_photos.status_pending_approval"), className: "text-amber-500" },
+    approved: { label: t("depose_photos.status_approved"), className: "text-emerald-500" },
+    rejected: { label: t("depose_photos.status_rejected"), className: "text-destructive" },
+  };
 
   const existing = parseInstallationPhotos(deposePhotos);
   const status = STATUS[deposeStatus ?? "pending"] ?? STATUS["pending"]!;
@@ -69,7 +71,7 @@ export function DeposePhotosPanel({
 
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
-      if (!uid) throw new Error("Session expirée, reconnectez-vous.");
+      if (!uid) throw new Error(t("depose_photos.err_session"));
 
       const paths: Record<string, string> = {};
       for (const view of INSTALLATION_VIEWS) {
@@ -92,7 +94,7 @@ export function DeposePhotosPanel({
           lng: coords?.lng ?? null,
         },
       });
-      toast.success("Photos de dépose transmises — en attente de validation MoveSpot.");
+      toast.success(t("depose_photos.toast_success"));
       setFiles({});
       setGeoStatus("idle");
       onSubmitted?.();
@@ -108,12 +110,12 @@ export function DeposePhotosPanel({
   return (
     <div className="mb-4 rounded-xl border border-border bg-secondary/20 p-4">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-semibold">📸 Validation du retrait du support publicitaire</p>
+        <p className="text-sm font-semibold">{t("depose_photos.panel_title")}</p>
         <span className={`text-xs font-semibold ${status.className}`}>{status.label}</span>
       </div>
       {deposeNotes ? (
         <p className="mb-3 rounded-lg border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
-          Motif MoveSpot : {deposeNotes}
+          {t("depose_photos.notes_prefix", { notes: deposeNotes })}
         </p>
       ) : null}
 
@@ -122,12 +124,12 @@ export function DeposePhotosPanel({
           entityType="campaign_depose"
           entityId={campaignRequestId}
           statusLabel={{
-            pending: "Dépose non transmise",
-            pending_approval: "En attente de validation",
-            approved: "Dépose validée",
-            rejected: "Dépose refusée",
+            pending: t("depose_photos.status_history_pending"),
+            pending_approval: t("depose_photos.status_history_pending_approval"),
+            approved: t("depose_photos.status_history_approved"),
+            rejected: t("depose_photos.status_history_rejected"),
           }}
-          triggerLabel="Historique des déposes / refus"
+          triggerLabel={t("depose_photos.history_trigger")}
         />
       </div>
 
@@ -140,7 +142,7 @@ export function DeposePhotosPanel({
       {deposeStatus !== "approved" ? (
         <>
           <p className="mb-2 text-xs text-muted-foreground">
-            Transmettez les quatre vues du véhicule après retrait du covering.
+            {t("depose_photos.instructions")}
           </p>
           <div className="grid gap-2 sm:grid-cols-4">
             {INSTALLATION_VIEWS.map((view) => (
@@ -158,17 +160,17 @@ export function DeposePhotosPanel({
 
           {geoStatus === "locating" && (
             <p className="mt-2 text-[11px] text-muted-foreground animate-pulse">
-              📍 Localisation en cours…
+              {t("depose_photos.geo_locating")}
             </p>
           )}
           {geoStatus === "ok" && (
             <p className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400">
-              📍 Position GPS capturée
+              {t("depose_photos.geo_ok")}
             </p>
           )}
           {geoStatus === "skipped" && (
             <p className="mt-2 text-[11px] text-muted-foreground">
-              📍 Position GPS non disponible (continuez sans)
+              {t("depose_photos.geo_skipped")}
             </p>
           )}
 
@@ -177,7 +179,7 @@ export function DeposePhotosPanel({
             disabled={!canSubmit}
             className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            {busy ? "Envoi…" : "Transmettre les 4 photos de dépose"}
+            {busy ? t("depose_photos.btn_sending") : t("depose_photos.btn_submit")}
           </button>
         </>
       ) : null}

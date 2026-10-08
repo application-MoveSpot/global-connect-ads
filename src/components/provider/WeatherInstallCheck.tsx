@@ -11,6 +11,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type DayForecast = {
   date: string;        // ISO date
@@ -29,33 +30,35 @@ function assess(day: DayForecast): Assessment {
   return "favorable";
 }
 
-const WMO_LABEL: Record<number, string> = {
-  0: "Ciel dégagé", 1: "Peu nuageux", 2: "Partiellement nuageux", 3: "Couvert",
-  45: "Brouillard", 48: "Brouillard givrant",
-  51: "Bruine légère", 53: "Bruine", 55: "Bruine forte",
-  61: "Pluie légère", 63: "Pluie", 65: "Pluie forte",
-  71: "Neige légère", 73: "Neige", 75: "Neige forte",
-  80: "Averses légères", 81: "Averses", 82: "Averses violentes",
-  85: "Averses de neige", 86: "Averses de neige fortes",
-  95: "Orage", 96: "Orage avec grêle", 99: "Orage violent avec grêle",
-};
-
-function wmoLabel(code: number): string {
-  return WMO_LABEL[code] ?? `Code ${code}`;
-}
-
 function extractCity(zone: string): string {
   const first = zone.split(",")[0].trim();
-  // Retire les suffixes d'arrondissement : "Paris 11e" → "Paris"
   return first.replace(/\s+\d+(e|er|ème|eme)\b/gi, "").trim() || first;
 }
 
 type Props = { zone: string | null };
 
 export function WeatherInstallCheck({ zone }: Props) {
+  const { t, i18n } = useTranslation();
   const [days, setDays] = useState<DayForecast[]>([]);
   const [city, setCity] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+
+  const WMO_LABEL: Record<number, string> = {
+    0: t("weather_install.wmo_0"), 1: t("weather_install.wmo_1"), 2: t("weather_install.wmo_2"), 3: t("weather_install.wmo_3"),
+    45: t("weather_install.wmo_45"), 48: t("weather_install.wmo_48"),
+    51: t("weather_install.wmo_51"), 53: t("weather_install.wmo_53"), 55: t("weather_install.wmo_55"),
+    61: t("weather_install.wmo_61"), 63: t("weather_install.wmo_63"), 65: t("weather_install.wmo_65"),
+    71: t("weather_install.wmo_71"), 73: t("weather_install.wmo_73"), 75: t("weather_install.wmo_75"),
+    80: t("weather_install.wmo_80"), 81: t("weather_install.wmo_81"), 82: t("weather_install.wmo_82"),
+    85: t("weather_install.wmo_85"), 86: t("weather_install.wmo_86"),
+    95: t("weather_install.wmo_95"), 96: t("weather_install.wmo_96"), 99: t("weather_install.wmo_99"),
+  };
+
+  const bannerText: Record<Assessment, string> = {
+    favorable:   t("weather_install.assessment_favorable"),
+    risque:      t("weather_install.assessment_risque"),
+    deconseille: t("weather_install.assessment_deconseille"),
+  };
 
   useEffect(() => {
     if (!zone) return;
@@ -64,7 +67,6 @@ export function WeatherInstallCheck({ zone }: Props) {
 
     (async () => {
       try {
-        // 1. Géocodage Open-Meteo (gratuit, CORS ok)
         const geoRes = await fetch(
           `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=fr&format=json`
         );
@@ -74,7 +76,6 @@ export function WeatherInstallCheck({ zone }: Props) {
 
         setCity(loc.name);
 
-        // 2. Prévisions 3 jours
         const fxRes = await fetch(
           `https://api.open-meteo.com/v1/forecast` +
           `?latitude=${loc.latitude}&longitude=${loc.longitude}` +
@@ -104,7 +105,7 @@ export function WeatherInstallCheck({ zone }: Props) {
   if (status === "loading") {
     return (
       <div className="mt-3 rounded-lg border border-border bg-secondary/30 px-3 py-2 text-xs text-muted-foreground animate-pulse">
-        Chargement des conditions météo…
+        {t("weather_install.loading")}
       </div>
     );
   }
@@ -112,7 +113,7 @@ export function WeatherInstallCheck({ zone }: Props) {
   if (status === "error") {
     return (
       <div className="mt-3 rounded-lg border border-border bg-secondary/30 px-3 py-2 text-xs text-muted-foreground">
-        🌫️ Météo indisponible pour cette zone.
+        {t("weather_install.error")}
       </div>
     );
   }
@@ -134,24 +135,19 @@ export function WeatherInstallCheck({ zone }: Props) {
     risque:      "⚠️",
     deconseille: "❌",
   };
-  const bannerText: Record<Assessment, string> = {
-    favorable:   "Conditions favorables à la pose de vinyle",
-    risque:      "Conditions à risque — vérifiez avant d'intervenir",
-    deconseille: "Pose déconseillée — conditions défavorables au vinyle",
-  };
 
   return (
     <div className={`mt-3 rounded-lg border p-3 ${bannerStyle[globalAssessment]}`}>
       <div className="flex items-center gap-1.5 mb-2">
         <span>{bannerIcon[globalAssessment]}</span>
-        <span className="text-xs font-semibold">Météo pose — {city}</span>
+        <span className="text-xs font-semibold">{t("weather_install.header", { city })}</span>
       </div>
       <p className="text-xs mb-2">{bannerText[globalAssessment]}</p>
 
       <div className="grid grid-cols-3 gap-2">
         {days.map((day) => {
           const a = assess(day);
-          const dayLabel = new Date(day.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+          const dayLabel = new Date(day.date + "T12:00:00").toLocaleDateString(i18n.language, { weekday: "short", day: "numeric", month: "short" });
           const dot: Record<Assessment, string> = {
             favorable:   "bg-emerald-500",
             risque:      "bg-amber-500",
@@ -163,7 +159,7 @@ export function WeatherInstallCheck({ zone }: Props) {
                 <span className={`w-2 h-2 rounded-full shrink-0 ${dot[a]}`} />
                 {dayLabel}
               </div>
-              <div className="text-muted-foreground">{wmoLabel(day.weathercode)}</div>
+              <div className="text-muted-foreground">{WMO_LABEL[day.weathercode] ?? `Code ${day.weathercode}`}</div>
               <div>{day.tempMin.toFixed(0)}° / {day.tempMax.toFixed(0)} °C</div>
               {day.precipitation > 0 && (
                 <div>💧 {day.precipitation.toFixed(1)} mm</div>
@@ -175,7 +171,7 @@ export function WeatherInstallCheck({ zone }: Props) {
       </div>
 
       <p className="mt-2 text-[10px] text-muted-foreground">
-        Vinyle : adhérence optimale ≥ 10 °C, sans pluie, vent &lt; 40 km/h · Source Open-Meteo
+        {t("weather_install.tip")}
       </p>
     </div>
   );
