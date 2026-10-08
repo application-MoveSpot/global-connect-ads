@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,12 +26,6 @@ type Props = {
   onSubmitted?: () => void;
 };
 
-const STATUS: Record<string, { label: string; className: string }> = {
-  pending: { label: "Pose non transmise", className: "text-muted-foreground" },
-  pending_approval: { label: "⏳ En attente de validation MoveSpot", className: "text-amber-500" },
-  approved: { label: "✅ Pose validée — diffusion autorisée", className: "text-emerald-500" },
-  rejected: { label: "⛔ Pose refusée — nouvelle pose conforme requise", className: "text-destructive" },
-};
 
 function getGeolocation(): Promise<{ lat: number; lng: number } | null> {
   return new Promise((resolve) => {
@@ -50,12 +45,20 @@ export function InstallationPhotosPanel({
   installationNotes,
   onSubmitted,
 }: Props) {
+  const { t } = useTranslation();
   const submit = useServerFn(submitInstallationPhotos);
   const [files, setFiles] = useState<Partial<Record<InstallationView, File>>>({});
   const [busy, setBusy] = useState(false);
   const [geoStatus, setGeoStatus] = useState<"idle" | "locating" | "ok" | "skipped">("idle");
   const [aiValidation, setAiValidation] = useState<InstallationPhotoResult | null>(null);
   const [aiValidating, setAiValidating] = useState(false);
+
+  const STATUS: Record<string, { label: string; className: string }> = {
+    pending: { label: t("install_photos.status_pending"), className: "text-muted-foreground" },
+    pending_approval: { label: t("install_photos.status_pending_approval"), className: "text-amber-500" },
+    approved: { label: t("install_photos.status_approved"), className: "text-emerald-500" },
+    rejected: { label: t("install_photos.status_rejected"), className: "text-destructive" },
+  };
 
   const existing = parseInstallationPhotos(installationPhotos);
   const status = STATUS[installationStatus ?? "pending"] ?? STATUS["pending"]!;
@@ -106,7 +109,7 @@ export function InstallationPhotosPanel({
 
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
-      if (!uid) throw new Error("Session expirée, reconnectez-vous.");
+      if (!uid) throw new Error(t("install_photos.err_session"));
 
       const paths: Record<string, string> = {};
       for (const view of INSTALLATION_VIEWS) {
@@ -129,7 +132,7 @@ export function InstallationPhotosPanel({
           lng: coords?.lng ?? null,
         },
       });
-      toast.success("Photos de pose transmises — en attente de validation MoveSpot.");
+      toast.success(t("install_photos.toast_success"));
       setFiles({});
       setGeoStatus("idle");
       onSubmitted?.();
@@ -145,12 +148,12 @@ export function InstallationPhotosPanel({
   return (
     <div className="mb-4 rounded-xl border border-border bg-secondary/20 p-4">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-semibold">📸 Validation de la pose du support publicitaire</p>
+        <p className="text-sm font-semibold">{t("install_photos.panel_title")}</p>
         <span className={`text-xs font-semibold ${status.className}`}>{status.label}</span>
       </div>
       {installationNotes ? (
         <p className="mb-3 rounded-lg border border-destructive/30 bg-destructive/10 p-2 text-xs text-destructive">
-          Motif MoveSpot : {installationNotes}
+          {t("install_photos.notes_prefix", { notes: installationNotes })}
         </p>
       ) : null}
 
@@ -159,12 +162,12 @@ export function InstallationPhotosPanel({
           entityType="campaign_installation"
           entityId={campaignRequestId}
           statusLabel={{
-            pending: "Pose non transmise",
-            pending_approval: "En attente de validation",
-            approved: "Pose validée",
-            rejected: "Pose refusée",
+            pending: t("install_photos.history_label_pending"),
+            pending_approval: t("install_photos.history_label_pending_approval"),
+            approved: t("install_photos.history_label_approved"),
+            rejected: t("install_photos.history_label_rejected"),
           }}
-          triggerLabel="Historique des poses / refus"
+          triggerLabel={t("install_photos.history_trigger")}
         />
       </div>
 
@@ -177,15 +180,15 @@ export function InstallationPhotosPanel({
       {installationStatus !== "approved" ? (
         <>
           <div className="mb-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300 space-y-1">
-            <p className="font-semibold">✔ Checklist avant de transmettre les photos</p>
+            <p className="font-semibold">{t("install_photos.checklist_title")}</p>
             <ul className="list-disc list-inside space-y-0.5">
-              <li>Visuel bien posé — pas de bulles, bords collés sur les 4 faces</li>
-              <li>QR code intact, lisible au scan depuis 50 cm</li>
-              <li>Aucun élément du véhicule caché (feux, plaque, signalétique)</li>
+              <li>{t("install_photos.checklist_1")}</li>
+              <li>{t("install_photos.checklist_2")}</li>
+              <li>{t("install_photos.checklist_3")}</li>
             </ul>
           </div>
           <p className="mb-2 text-xs text-muted-foreground">
-            Transmettez les quatre vues du véhicule après pose du covering.
+            {t("install_photos.instructions")}
           </p>
           <div className="grid gap-2 sm:grid-cols-4">
             {INSTALLATION_VIEWS.map((view) => (
@@ -214,7 +217,7 @@ export function InstallationPhotosPanel({
           {aiValidating && (
             <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
               <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
-              Vérification IA des photos de pose…
+              {t("install_photos.ai_validating")}
             </div>
           )}
 
@@ -228,17 +231,17 @@ export function InstallationPhotosPanel({
 
           {geoStatus === "locating" && (
             <p className="mt-2 text-[11px] text-muted-foreground animate-pulse">
-              📍 Localisation en cours…
+              {t("install_photos.geo_locating")}
             </p>
           )}
           {geoStatus === "ok" && (
             <p className="mt-2 text-[11px] text-emerald-600 dark:text-emerald-400">
-              📍 Position GPS capturée
+              {t("install_photos.geo_ok")}
             </p>
           )}
           {geoStatus === "skipped" && (
             <p className="mt-2 text-[11px] text-muted-foreground">
-              📍 Position GPS non disponible (continuez sans)
+              {t("install_photos.geo_skipped")}
             </p>
           )}
 
@@ -247,7 +250,7 @@ export function InstallationPhotosPanel({
             disabled={!canSubmit}
             className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            {busy ? "Envoi…" : "Transmettre les 4 photos de pose"}
+            {busy ? t("install_photos.btn_sending") : t("install_photos.btn_submit")}
           </button>
         </>
       ) : null}
