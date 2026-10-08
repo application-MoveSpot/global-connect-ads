@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { resizeImageFile } from "@/lib/images/resize";
@@ -22,12 +23,6 @@ type TransferRow = {
   campaign_request_id: string | null;
 };
 
-const statusConfig: Record<string, { label: string; className: string }> = {
-  pending: { label: "En attente du virement", className: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
-  submitted: { label: "Reçu en cours de vérification", className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
-  approved: { label: "Validé et crédité", className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
-  rejected: { label: "Refusé", className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
-};
 
 function fmt(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
@@ -42,6 +37,7 @@ function LockIcon() {
 }
 
 function CopyButton({ value }: { value: string }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard?.writeText(value);
@@ -53,7 +49,7 @@ function CopyButton({ value }: { value: string }) {
       onClick={copy}
       className="rounded px-1.5 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors"
     >
-      {copied ? "Copié !" : "Copier"}
+      {copied ? t("bank_transfer.copied") : t("bank_transfer.copy_btn")}
     </button>
   );
 }
@@ -71,10 +67,18 @@ export function BankTransferPanel({
   subtitle?: string;
   fixedAmountEuros?: number;
 }) {
+  const { t } = useTranslation();
   const fetchDetails = useServerFn(getBankDetails);
   const createRequest = useServerFn(createBankTransferRequest);
   const attachReceipt = useServerFn(attachBankTransferReceipt);
   const fetchList = useServerFn(listMyBankTransfers);
+
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    pending: { label: t("bank_transfer.status_pending"), className: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
+    submitted: { label: t("bank_transfer.status_submitted"), className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
+    approved: { label: t("bank_transfer.status_approved"), className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
+    rejected: { label: t("bank_transfer.status_rejected"), className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
+  };
 
   const [details, setDetails] = useState<BankDetails | null>(null);
   const [detailsLoaded, setDetailsLoaded] = useState(false);
@@ -142,8 +146,7 @@ export function BankTransferPanel({
       <div>
         <h2 className="font-display text-xl font-semibold">{title}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {subtitle ??
-            "Recommandé pour les montants importants. Votre solde est crédité après vérification du virement par notre équipe (généralement sous 1 à 2 jours ouvrés)."}
+          {subtitle ?? t("bank_transfer.default_subtitle")}
         </p>
       </div>
 
@@ -151,7 +154,7 @@ export function BankTransferPanel({
       <div>
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">1</span>
-          <span className="text-sm font-medium">Effectuez votre virement vers MoveSpot</span>
+          <span className="text-sm font-medium">{t("bank_transfer.step1_label")}</span>
         </div>
 
         {!detailsLoaded ? (
@@ -164,27 +167,27 @@ export function BankTransferPanel({
           <div className="rounded-xl border border-border bg-card p-4 text-sm space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                Coordonnées bancaires MoveSpot
+                {t("bank_transfer.bank_coords_title")}
               </span>
               <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
                 <LockIcon />
-                Sécurisé
+                {t("bank_transfer.secured")}
               </span>
             </div>
             <div className="space-y-2 border-t border-border pt-3">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground">Titulaire</span>
+                <span className="text-muted-foreground">{t("bank_transfer.account_holder")}</span>
                 <strong>{details.accountHolder}</strong>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground">IBAN</span>
+                <span className="text-muted-foreground">{t("bank_transfer.iban_label")}</span>
                 <span className="flex items-center gap-1.5">
                   <strong className="font-mono text-xs tracking-wide">{details.iban}</strong>
                   <CopyButton value={details.iban} />
                 </span>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <span className="text-muted-foreground">BIC / SWIFT</span>
+                <span className="text-muted-foreground">{t("bank_transfer.bic_label")}</span>
                 <span className="flex items-center gap-1.5">
                   <strong className="font-mono">{details.bic}</strong>
                   <CopyButton value={details.bic} />
@@ -192,14 +195,14 @@ export function BankTransferPanel({
               </div>
             </div>
             <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-              Mentionnez impérativement la référence de votre demande (étape 2) dans le libellé du virement pour un traitement rapide.
+              {t("bank_transfer.ref_warning")}
             </p>
           </div>
         ) : (
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-sm">
-            <p className="font-medium">Coordonnées bancaires disponibles sur demande</p>
+            <p className="font-medium">{t("bank_transfer.no_coords_title")}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Enregistrez votre demande à l'étape 2 — nos coordonnées vous seront communiquées par e-mail dans les 24 h ouvrées.
+              {t("bank_transfer.no_coords_desc")}
             </p>
           </div>
         )}
@@ -209,7 +212,7 @@ export function BankTransferPanel({
       <div>
         <div className="mb-2 flex items-center gap-2">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">2</span>
-          <span className="text-sm font-medium">Enregistrez votre virement et obtenez une référence</span>
+          <span className="text-sm font-medium">{t("bank_transfer.step2_label")}</span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {fixedAmountEuros == null
@@ -236,7 +239,7 @@ export function BankTransferPanel({
             className="w-28 rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
           />
           <Button onClick={onCreate} disabled={busy || amount < 10} variant="secondary">
-            {busy ? "Création…" : "Générer ma référence de virement"}
+            {busy ? t("bank_transfer.generating") : t("bank_transfer.generate_ref_btn")}
           </Button>
         </div>
         {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
@@ -247,7 +250,7 @@ export function BankTransferPanel({
         <div>
           <div className="mb-2 flex items-center gap-2">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">3</span>
-            <span className="text-sm font-medium">Envoyez votre justificatif de virement</span>
+            <span className="text-sm font-medium">{t("bank_transfer.step3_label")}</span>
           </div>
           <div className="space-y-3">
             {rows.map((row) => {
@@ -258,7 +261,7 @@ export function BankTransferPanel({
                     <div className="space-y-1">
                       <div className="font-semibold">
                         {fmt(row.amount_cents)}
-                        <span className="ml-2 font-mono text-xs text-muted-foreground">réf. {row.reference}</span>
+                        <span className="ml-2 font-mono text-xs text-muted-foreground">{t("bank_transfer.ref_label", { ref: row.reference })}</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {new Date(row.created_at).toLocaleString("fr-FR")}
@@ -270,7 +273,7 @@ export function BankTransferPanel({
                   </div>
                   {row.admin_notes ? (
                     <p className="rounded-lg bg-secondary/50 px-3 py-2 text-xs text-muted-foreground">
-                      Note MoveSpot : {row.admin_notes}
+                      {t("bank_transfer.movespot_note", { note: row.admin_notes })}
                     </p>
                   ) : null}
                   {row.status === "pending" || row.status === "submitted" ? (
@@ -279,7 +282,7 @@ export function BankTransferPanel({
                         <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
                         <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                       </svg>
-                      {row.receipt_path ? "Remplacer le justificatif" : "Joindre mon justificatif"}
+                      {row.receipt_path ? t("bank_transfer.replace_receipt") : t("bank_transfer.attach_receipt")}
                       <input
                         type="file"
                         accept="image/*,application/pdf"

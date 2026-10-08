@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
@@ -76,6 +77,7 @@ type AuthState =
 const SCREEN_VEHICLE_TYPES = ["camion_led", "sac_a_dos_lcd"];
 
 export function BookingForm({ spot, onClose }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [message, setMessage] = useState("");
@@ -261,78 +263,78 @@ export function BookingForm({ spot, onClose }: Props) {
     const match = FORBIDDEN_KEYWORDS.find((k) => lower.includes(k));
     if (match) {
       setStatus("rejected");
-      setReason(`Contenu interdit détecté : « ${match} ». Les publicités religieuses, sexistes, pornographiques ou incitant à la violence ne sont pas acceptées.`);
+      setReason(t("booking.err_forbidden", { match }));
       return;
     }
     const contactHit = detectContact(message);
     if (contactHit) {
       setStatus("rejected");
-      setReason(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté dans le message. Les coordonnées personnelles ne sont pas autorisées — tous les échanges doivent rester sur la plateforme MoveSpot.`);
+      setReason(t("booking.err_contact", { label: contactHit.label }));
       return;
     }
     if (!accepted) {
       setStatus("rejected");
-      setReason("Vous devez accepter la charte de contenu.");
+      setReason(t("booking.err_charter"));
       return;
     }
     // Validation calendrier
     if (!startDate || !endDate) {
       setStatus("rejected");
-      setReason("Veuillez choisir une date de début et une date de fin.");
+      setReason(t("booking.err_no_dates"));
       return;
     }
     if (new Date(startDate) < minStart) {
       setStatus("rejected");
-      setReason(`La date de début doit être au moins ${MIN_LEAD_DAYS} jours après aujourd'hui (le temps de valider la campagne).`);
+      setReason(t("booking.err_date_too_soon", { min: MIN_LEAD_DAYS }));
       return;
     }
     if (daysCount < 1) {
       setStatus("rejected");
-      setReason("La date de fin doit être postérieure ou égale à la date de début.");
+      setReason(t("booking.err_date_order"));
       return;
     }
     if (daysCount > MAX_DURATION_DAYS) {
       setStatus("rejected");
-      setReason(`La durée maximale d'une campagne est de ${MAX_DURATION_DAYS} jours.`);
+      setReason(t("booking.err_duration_max", { max: MAX_DURATION_DAYS }));
       return;
     }
     if (dailyStart < DAILY_START_MIN) {
       setStatus("rejected");
-      setReason(`L'heure de début ne peut pas être avant ${DAILY_START_MIN} (respect du repos nocturne des conducteurs).`);
+      setReason(t("booking.err_time_start_min", { min: DAILY_START_MIN }));
       return;
     }
     if (dailyEnd > DAILY_END_MAX) {
       setStatus("rejected");
-      setReason(`L'heure de fin ne peut pas dépasser ${DAILY_END_MAX} (protection des conducteurs — travail de nuit).`);
+      setReason(t("booking.err_time_end_max", { max: DAILY_END_MAX }));
       return;
     }
     if (dailyEnd <= dailyStart) {
       setStatus("rejected");
-      setReason("L'heure de fin de diffusion doit être après l'heure de début.");
+      setReason(t("booking.err_time_order"));
       return;
     }
     if (hoursPerDay > MAX_HOURS_PER_DAY) {
       setStatus("rejected");
-      setReason(`La durée de diffusion ne peut pas dépasser ${MAX_HOURS_PER_DAY}h/jour (Règlement CE 561/2006 sur la conduite).`);
+      setReason(t("booking.err_hours_max", { max: MAX_HOURS_PER_DAY }));
       return;
     }
     if (hoursPerDay < MIN_HOURS_PER_DAY) {
       setStatus("rejected");
-      setReason(`La durée de diffusion doit être d'au moins ${MIN_HOURS_PER_DAY}h/jour.`);
+      setReason(t("booking.err_hours_min", { min: MIN_HOURS_PER_DAY }));
       return;
     }
 
     // Block if the advertiser has an unpaid approved campaign
     if (hasUnpaidCampaign) {
       setStatus("rejected");
-      setReason("Vous avez une campagne approuvée en attente de paiement. Réglez-la depuis votre espace annonceur avant de soumettre une nouvelle demande.");
+      setReason(t("booking.err_unpaid"));
       return;
     }
 
     // Block if availability couldn't be verified (RPC failed)
     if (periodsError || periodsLoading) {
       setStatus("rejected");
-      setReason("Impossible de vérifier les disponibilités du véhicule. Veuillez rafraîchir la page avant de soumettre.");
+      setReason(t("booking.err_avail_check"));
       return;
     }
 
@@ -364,7 +366,7 @@ export function BookingForm({ spot, onClose }: Props) {
           .upload(path, resized, { upsert: false, contentType: resized.type });
         if (upErr) {
           setStatus("rejected");
-          setReason(`Erreur lors de l'upload de « ${f.name} ». Réessayez.`);
+          setReason(t("booking.err_upload", { name: f.name }));
           return;
         }
         uploadedPaths.push(path);
@@ -406,7 +408,7 @@ export function BookingForm({ spot, onClose }: Props) {
 
     if (error) {
       setStatus("rejected");
-      setReason("Erreur lors de l'envoi. Veuillez réessayer.");
+      setReason(t("booking.err_send"));
       return;
     }
 
@@ -421,7 +423,7 @@ export function BookingForm({ spot, onClose }: Props) {
           .then(({ data: fresh, error: rpcErr }: { data: BookedPeriod[] | null; error: unknown }) => {
             if (rpcErr || !fresh) {
               setStatus("rejected");
-              setReason("Ces dates viennent d'être réservées. Veuillez rafraîchir la page.");
+              setReason(t("booking.err_conflict_refresh"));
               return;
             }
             const freshPeriods = fresh as BookedPeriod[];
@@ -435,11 +437,11 @@ export function BookingForm({ spot, onClose }: Props) {
           })
           .catch(() => {
             setStatus("rejected");
-            setReason("Ces dates viennent d'être réservées. Choisissez d'autres dates.");
+            setReason(t("booking.err_conflict_choose"));
           });
       } else {
         setStatus("rejected");
-        setReason("Ces dates viennent d'être réservées. Choisissez d'autres dates.");
+        setReason(t("booking.err_conflict_choose"));
       }
       return;
     }
@@ -460,7 +462,7 @@ export function BookingForm({ spot, onClose }: Props) {
       const max = isVid ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
       if (f.size > max) {
         setStatus("rejected");
-        setReason(`« ${f.name} » dépasse la taille max (${isVid ? "200" : "50"} Mo).`);
+        setReason(t("booking.err_size", { name: f.name, max: isVid ? "200" : "50" }));
         continue;
       }
       filtered.push(f);
@@ -476,27 +478,27 @@ export function BookingForm({ spot, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {auth.kind === "loading" ? (
-          <div className="py-10 text-center text-muted-foreground text-sm">Chargement…</div>
+          <div className="py-10 text-center text-muted-foreground text-sm">{t("booking.loading")}</div>
         ) : auth.kind === "anon" ? (
           <div className="text-center py-6">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Connexion requise</div>
-            <h3 className="font-display text-2xl font-bold mb-3">Réservez {spot.name}</h3>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("booking.login_required")}</div>
+            <h3 className="font-display text-2xl font-bold mb-3">{t("booking.book_spot", { name: spot.name })}</h3>
             <p className="text-sm text-muted-foreground mb-6">
-              Pour soumettre une campagne, vous devez créer un compte annonceur (ou vous connecter). Cela nous permet de suivre vos demandes et de protéger les propriétaires.
+              {t("booking.anon_desc")}
             </p>
             <div className="flex flex-col gap-3">
               <button onClick={goSignIn} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
-                Créer un compte / Se connecter
+                {t("booking.signin_btn")}
               </button>
-              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Annuler</button>
+              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">{t("booking.cancel")}</button>
             </div>
           </div>
         ) : auth.kind === "no-profile" ? (
           <div className="text-center py-6">
-            <h3 className="font-display text-2xl font-bold mb-3">Profil incomplet</h3>
-            <p className="text-sm text-muted-foreground mb-6">Finalisez votre profil annonceur pour continuer.</p>
+            <h3 className="font-display text-2xl font-bold mb-3">{t("booking.incomplete_profile")}</h3>
+            <p className="text-sm text-muted-foreground mb-6">{t("booking.complete_profile_desc")}</p>
             <button onClick={goSignIn} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
-              Compléter mon profil
+              {t("booking.complete_profile_btn")}
             </button>
           </div>
         ) : status === "success" ? (
@@ -506,27 +508,27 @@ export function BookingForm({ spot, onClose }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="font-display text-2xl font-bold mb-2">Demande envoyée</h3>
-            <p className="text-muted-foreground mb-4">Votre campagne pour <strong>{spot.name}</strong> est en cours de validation.</p>
+            <h3 className="font-display text-2xl font-bold mb-2">{t("booking.success_title")}</h3>
+            <p className="text-muted-foreground mb-4">{t("booking.success_desc", { name: spot.name })}</p>
             <div className="rounded-lg bg-secondary/40 border border-border p-3 text-left text-xs text-muted-foreground mb-6 space-y-1.5">
-              <div>⏱ <strong className="text-foreground">Réponse immédiate</strong> : si le véhicule est libre sur vos dates, la campagne est validée automatiquement.</div>
-              <div>❌ En cas de refus (dates indisponibles, véhicule non approuvé, contenu non conforme), le motif s'affiche immédiatement dans votre espace annonceur.</div>
-              <div>📩 Le propriétaire est notifié et peut vous contacter sous <strong className="text-foreground">48 h</strong> pour préciser l'itinéraire.</div>
+              <div>{t("booking.success_step1")}</div>
+              <div>{t("booking.success_step2")}</div>
+              <div>{t("booking.success_step3")}</div>
             </div>
             <div className="flex flex-col gap-2">
               {campaignId ? (
-                <button onClick={() => navigate({ to: "/annonceur/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Suivre ma campagne →</button>
+                <button onClick={() => navigate({ to: "/annonceur/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.track_campaign")}</button>
               ) : (
-                <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">Voir mes campagnes</button>
+                <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.see_campaigns")}</button>
               )}
-              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Fermer</button>
+              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">{t("booking.close")}</button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="flex items-start justify-between mb-6">
               <div>
-                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Réservation</div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("booking.reservation_eyebrow")}</div>
                 <h3 className="font-display text-2xl font-bold">{spot.name}</h3>
                 <p className="text-sm text-muted-foreground">{spot.location} · {spot.price}€/jour</p>
               </div>
@@ -534,7 +536,7 @@ export function BookingForm({ spot, onClose }: Props) {
             </div>
 
             <div className="rounded-lg bg-secondary/40 border border-border p-3 mb-4 text-xs text-muted-foreground">
-              Connecté en tant que <strong className="text-foreground">{auth.profile.full_name}</strong>
+              {t("booking.connected_as", { name: auth.profile.full_name })}
               {auth.profile.company ? ` (${auth.profile.company})` : ""} · {auth.profile.email}
             </div>
 
@@ -542,38 +544,37 @@ export function BookingForm({ spot, onClose }: Props) {
               <div className="rounded-lg border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 mb-4 text-sm text-amber-800 dark:text-amber-300 flex gap-2">
                 <span className="shrink-0">⚠️</span>
                 <span>
-                  Vous avez une <strong>campagne approuvée en attente de paiement</strong>. Réglez-la depuis votre{" "}
-                  <a href="/annonceur" className="underline font-medium">espace annonceur</a> avant de soumettre une nouvelle demande.
+                  {t("booking.unpaid_warning")}
                 </span>
               </div>
             )}
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Message de la campagne</label>
+                <label className="block text-sm font-medium mb-1.5">{t("booking.msg_label")}</label>
                 <textarea
                   value={message}
                   onChange={(e) => { setMessage(e.target.value); setStatus("idle"); }}
                   rows={4}
                   required
                   maxLength={500}
-                  placeholder="Décrivez le contenu de votre publicité..."
+                  placeholder={t("booking.msg_placeholder")}
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <div className="text-xs text-muted-foreground mt-1">{message.length}/500</div>
                 {detectContact(message) && (
                   <div className="mt-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                    🚫 {detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages. Les échanges doivent rester sur la plateforme.
+                    🚫 {t("booking.contact_detected", { label: detectContact(message)!.label })}
                   </div>
                 )}
               </div>
 
               {/* Aperçu publicitaire sur les photos réelles du véhicule */}
               <div className="rounded-lg border border-border bg-secondary/10 p-4 space-y-3">
-                <div className="text-sm font-semibold">🎨 Aperçu publicitaire sur le véhicule</div>
+                <div className="text-sm font-semibold">{t("booking.ad_preview_title")}</div>
                 <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium">Couleur de marque</label>
+                    <label className="text-xs font-medium">{t("booking.brand_color")}</label>
                     <input
                       type="color"
                       value={brandColor}
@@ -583,7 +584,7 @@ export function BookingForm({ spot, onClose }: Props) {
                     <span className="text-xs text-muted-foreground font-mono">{brandColor}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-medium">Logo (optionnel)</label>
+                    <label className="text-xs font-medium">{t("booking.logo_optional")}</label>
                     <input
                       type="file"
                       accept="image/*"
@@ -607,13 +608,13 @@ export function BookingForm({ spot, onClose }: Props) {
                   />
                 ) : (
                   <div className="h-32 rounded-xl bg-secondary/40 flex items-center justify-center text-xs text-muted-foreground">
-                    Aperçu non disponible
+                    {t("booking.preview_unavailable")}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5">Pays / Territoire de diffusion</label>
+                <label className="block text-sm font-medium mb-1.5">{t("booking.country_label")}</label>
                 <select
                   value={countryKey}
                   onChange={(e) => setCountryKey(e.target.value)}
@@ -624,18 +625,18 @@ export function BookingForm({ spot, onClose }: Props) {
                   ))}
                 </select>
                 <p className="text-[11px] text-muted-foreground mt-1">
-                  Détermine le fuseau horaire des plages de diffusion et la réglementation applicable aux pauses conducteur.
+                  {t("booking.country_hint")}
                 </p>
               </div>
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">📅 Période de diffusion</div>
+                  <div className="text-sm font-semibold">{t("booking.period_title")}</div>
                   {periodsLoading && (
-                    <span className="text-[11px] text-muted-foreground animate-pulse">Chargement des disponibilités…</span>
+                    <span className="text-[11px] text-muted-foreground animate-pulse">{t("booking.avail_loading")}</span>
                   )}
                   {periodsError && (
-                    <span className="text-[11px] text-destructive font-medium">⚠ Disponibilités non chargées — rafraîchissez</span>
+                    <span className="text-[11px] text-destructive font-medium">{t("booking.avail_error")}</span>
                   )}
                 </div>
                 <div className="flex flex-col items-center gap-2">
@@ -653,21 +654,21 @@ export function BookingForm({ spot, onClose }: Props) {
                   <div className="flex items-center gap-4 text-[11px] text-muted-foreground self-start">
                     <span className="flex items-center gap-1.5">
                       <span className="inline-block h-3 w-3 rounded-sm bg-primary" />
-                      Sélectionnée
+                      {t("booking.cal_selected")}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <span className="inline-block h-3 w-3 rounded-sm bg-red-200 dark:bg-red-900" />
-                      Réservée
+                      {t("booking.cal_booked")}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <span className="inline-block h-3 w-3 rounded-sm bg-muted opacity-50" />
-                      Non disponible
+                      {t("booking.cal_unavailable")}
                     </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Heure de début (par jour)</label>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">{t("booking.daily_start_label")}</label>
                     <input
                       type="time"
                       value={dailyStart}
@@ -678,7 +679,7 @@ export function BookingForm({ spot, onClose }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-muted-foreground">Heure de fin (par jour)</label>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">{t("booking.daily_end_label")}</label>
                     <input
                       type="time"
                       value={dailyEnd}
@@ -698,7 +699,7 @@ export function BookingForm({ spot, onClose }: Props) {
                 )}
                 {daysCount > 6 && (
                   <div className="rounded-md border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
-                    <strong>Repos hebdomadaire</strong> — Cette campagne couvre {Math.floor(daysCount / 7)} semaine{Math.floor(daysCount / 7) > 1 ? "s" : ""} complète{Math.floor(daysCount / 7) > 1 ? "s" : ""}. La Directive 2003/88/CE impose au conducteur au minimum 1 jour de repos par période de 7 jours. Pensez à convenir avec le propriétaire d'un jour off par semaine.
+                    {t("booking.weekly_rest_warning", { weeks: Math.floor(daysCount / 7), s: Math.floor(daysCount / 7) > 1 ? "s" : "" })}
                   </div>
                 )}
                 {/* Conflict banner */}
@@ -707,18 +708,17 @@ export function BookingForm({ spot, onClose }: Props) {
                     <div className="flex items-start gap-2">
                       <div>
                         <p className="text-sm font-semibold text-destructive">
-                          ⛔ Refus automatique — Le véhicule est déjà réservé sur la période du{" "}
-                          {fmtDate(dateConflict.conflictStart)} au {fmtDate(dateConflict.conflictEnd)}.
+                          {t("booking.conflict_title", { start: fmtDate(dateConflict.conflictStart), end: fmtDate(dateConflict.conflictEnd) })}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Votre message et vos visuels sont conservés — choisissez simplement d'autres dates.
+                          {t("booking.conflict_hint")}
                         </p>
                       </div>
                     </div>
                     {dateConflict.suggestion && (
                       <div>
                         <p className="text-xs font-medium text-amber-800 dark:text-amber-300 mb-1.5">
-                          Première disponibilité suggérée :
+                          {t("booking.first_slot")}
                         </p>
                         <button
                           type="button"
@@ -742,7 +742,7 @@ export function BookingForm({ spot, onClose }: Props) {
                               <span className="ml-1.5 text-xs opacity-70">({daysCount} jour{daysCount > 1 ? "s" : ""})</span>
                             )}
                           </span>
-                          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Choisir →</span>
+                          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{t("booking.choose")}</span>
                         </button>
                       </div>
                     )}
@@ -750,10 +750,10 @@ export function BookingForm({ spot, onClose }: Props) {
                 )}
 
                 <p className="text-[11px] text-muted-foreground">
-                  Réservation possible à partir de <strong>{MIN_LEAD_DAYS} jours</strong> et jusqu'à <strong>{MAX_DURATION_DAYS} jours</strong> consécutifs. Les dates passées ou déjà réservées sont automatiquement refusées.
+                  {t("booking.booking_constraints", { min: MIN_LEAD_DAYS, max: MAX_DURATION_DAYS })}
                 </p>
                 <p className="text-[11px] text-amber-700 dark:text-amber-400">
-                  ⚖ Plage autorisée : <strong>{DAILY_START_MIN} – {DAILY_END_MAX}</strong>, maximum <strong>{MAX_HOURS_PER_DAY}h/jour</strong>. Le suivi GPS s'active et se coupe automatiquement selon cette fenêtre — les déplacements hors plage ne sont jamais transmis à l'annonceur.
+                  {t("booking.time_window", { start: DAILY_START_MIN, end: DAILY_END_MAX, hours: MAX_HOURS_PER_DAY })}
                 </p>
               </div>
 
@@ -772,23 +772,17 @@ export function BookingForm({ spot, onClose }: Props) {
 
               {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") && (
                 <div className="rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-4 text-sm space-y-1">
-                  <div className="font-semibold text-indigo-300">📺 Véhicule écran</div>
-                  <p className="text-xs text-indigo-200/80">
-                    Ce véhicule est équipé d'un écran pour diffuser votre campagne.
-                    <strong className="text-indigo-200"> Uploadez un fichier MP4 ou MOV</strong> (durée recommandée : 15 – 30 s,
-                    poids max 200 Mo). La vidéo est lue en boucle automatique pendant la plage horaire choisie.
-                  </p>
-                  <p className="text-xs text-indigo-200/60">
-                    Format H.264, codec AAC conseillé. Images statiques acceptées en complément (affichées 8 s chacune).
-                  </p>
+                  <div className="font-semibold text-indigo-300">{t("booking.screen_vehicle_title")}</div>
+                  <p className="text-xs text-indigo-200/80">{t("booking.screen_vehicle_desc")}</p>
+                  <p className="text-xs text-indigo-200/60">{t("booking.screen_vehicle_format")}</p>
                 </div>
               )}
 
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="text-sm font-semibold">
-                    {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? "Vidéo de la campagne" : "Fichiers de la créa"}
-                    {" "}<span className="text-muted-foreground font-normal">{SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? "(MP4 requis)" : "(optionnel)"}</span>
+                    {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? t("booking.video_label") : t("booking.crea_label")}
+                    {" "}<span className="text-muted-foreground font-normal">{SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? t("booking.video_required") : t("booking.crea_optional")}</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
                 </div>
@@ -812,21 +806,21 @@ export function BookingForm({ spot, onClose }: Props) {
                           type="button"
                           onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
                           className="text-muted-foreground hover:text-destructive shrink-0"
-                          aria-label="Retirer"
+                          aria-label={t("booking.remove_file")}
                         >×</button>
                       </li>
                     ))}
                   </ul>
                 )}
                 <p className="text-[11px] text-muted-foreground">
-                  JPG, PNG, WebP, PDF (max 50 Mo) · MP4, MOV (max 200 Mo) · {MAX_FILES} fichiers max. Les fichiers ne sont visibles que par vous, le propriétaire du véhicule et MoveSpot.
+                  {t("booking.files_hint", { max: MAX_FILES })}
                 </p>
               </div>
 
 
               <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
-                <div className="font-semibold text-foreground mb-2">⚠ Contenus refusés</div>
-                <p>Publicités à caractère religieux ou fêtes religieuses, politique ou électoral, sexistes, pornographiques ou incitant à la violence.</p>
+                <div className="font-semibold text-foreground mb-2">{t("booking.forbidden_title")}</div>
+                <p>{t("booking.forbidden_desc")}</p>
               </div>
 
 
@@ -839,7 +833,7 @@ export function BookingForm({ spot, onClose }: Props) {
                   onChange={(e) => { setAccepted(e.target.checked); setStatus("idle"); }}
                   className="mt-0.5 h-4 w-4 rounded accent-primary"
                 />
-                <span className="text-muted-foreground">J'accepte la charte de contenu et confirme que ma publicité respecte ces règles.</span>
+                <span className="text-muted-foreground">{t("booking.accept_label")}</span>
               </label>
 
               {status === "rejected" && (
@@ -849,11 +843,11 @@ export function BookingForm({ spot, onClose }: Props) {
               )}
 
               <div className="rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
-                ⚠ Tout accord conclu <strong>hors de la plateforme</strong> (paiement direct, contrat privé) n'est pas couvert par les garanties MoveSpot — ni la modération, ni le suivi GPS, ni le reversement sécurisé.
+                {t("booking.offplatform_warning")}
               </div>
 
               <button type="submit" disabled={status === "loading" || !accepted || !!dateConflict || periodsLoading || periodsError} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
-                {status === "loading" ? "Envoi..." : "Soumettre la campagne"}
+                {status === "loading" ? t("booking.submitting") : t("booking.submit_btn")}
               </button>
             </div>
           </form>
@@ -864,14 +858,15 @@ export function BookingForm({ spot, onClose }: Props) {
 }
 
 function ValidationChecklist() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const items = [
-    { ok: true,  label: "Message décrit clairement l'objectif de la campagne" },
-    { ok: true,  label: "Visuels conformes à la charte (pas d'alcool, tabac, jeux d'argent)" },
-    { ok: true,  label: "Pas de contenu choquant, trompeur ou portant atteinte à des tiers" },
-    { ok: true,  label: "Dates réalistes : minimum 3 jours, maximum 30 jours" },
-    { ok: true,  label: "Itinéraire renseigné avec zones et points de passage" },
-    { ok: true,  label: "Tous les droits sur les visuels sont détenus par l'annonceur" },
+    { ok: true, label: t("booking.checklist_1") },
+    { ok: true, label: t("booking.checklist_2") },
+    { ok: true, label: t("booking.checklist_3") },
+    { ok: true, label: t("booking.checklist_4") },
+    { ok: true, label: t("booking.checklist_5") },
+    { ok: true, label: t("booking.checklist_6") },
   ];
   return (
     <div className="rounded-lg border border-border bg-secondary/30">
@@ -880,8 +875,8 @@ function ValidationChecklist() {
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-left"
       >
-        <span>📋 Critères de validation</span>
-        <span className="text-muted-foreground text-xs">{open ? "Masquer" : "Voir les critères"}</span>
+        <span>{t("booking.checklist_title")}</span>
+        <span className="text-muted-foreground text-xs">{open ? t("booking.checklist_hide") : t("booking.checklist_show")}</span>
       </button>
       {open && (
         <ul className="px-4 pb-4 space-y-2">
@@ -892,7 +887,7 @@ function ValidationChecklist() {
             </li>
           ))}
           <li className="text-xs text-muted-foreground pt-1 border-t border-border mt-2">
-            Notre équipe vérifie chaque demande sous <strong>48h ouvrées</strong>. Vous recevrez un email à chaque étape.
+            {t("booking.checklist_review")}
           </li>
         </ul>
       )}

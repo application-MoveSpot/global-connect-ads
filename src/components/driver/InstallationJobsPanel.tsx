@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -56,6 +57,7 @@ function isClaimed(photos: unknown): boolean {
 }
 
 export function InstallationJobsPanel() {
+  const { t } = useTranslation();
   const fetchJobs = useServerFn(listInstallationJobs);
   const fetchCompleted = useServerFn(listCompletedInstallationJobs);
   const doClaim = useServerFn(claimInstallationJob);
@@ -91,10 +93,10 @@ export function InstallationJobsPanel() {
     setClaiming(jobId);
     try {
       await doClaim({ data: { campaignRequestId: jobId } });
-      toast.success("Mission réservée — elle n'est plus visible par les autres poseurs.");
+      toast.success(t("install_jobs.toast_claimed"));
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erreur lors de la réservation.");
+      toast.error(e instanceof Error ? e.message : t("install_jobs.toast_claim_err"));
     } finally {
       setClaiming(null);
     }
@@ -104,10 +106,10 @@ export function InstallationJobsPanel() {
     setClaiming(jobId);
     try {
       await doUnclaim({ data: { campaignRequestId: jobId } });
-      toast.success("Mission libérée.");
+      toast.success(t("install_jobs.toast_released"));
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erreur.");
+      toast.error(e instanceof Error ? e.message : t("install_jobs.toast_release_err"));
     } finally {
       setClaiming(null);
     }
@@ -116,7 +118,7 @@ export function InstallationJobsPanel() {
   if (jobs === null) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
-        Chargement des missions…
+        {t("install_jobs.loading")}
       </div>
     );
   }
@@ -124,10 +126,9 @@ export function InstallationJobsPanel() {
   if (!isInstaller) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-display text-lg font-semibold">Missions de pose</h3>
+        <h3 className="font-display text-lg font-semibold">{t("install_jobs.title")}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Réservé aux poseurs certifiés MoveSpot. Dès votre certification validée, les campagnes à équiper
-          apparaîtront ici.
+          {t("install_jobs.not_installer")}
         </p>
       </div>
     );
@@ -136,19 +137,19 @@ export function InstallationJobsPanel() {
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-lg font-semibold">Missions de pose</h3>
+        <h3 className="font-display text-lg font-semibold">{t("install_jobs.title")}</h3>
         <div className="flex gap-1 rounded-lg border border-border p-1 text-xs">
           <button
             onClick={() => setTab("pending")}
             className={`rounded px-3 py-1 font-semibold transition ${tab === "pending" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            En cours ({jobs.length})
+            {t("install_jobs.tab_pending", { n: jobs.length })}
           </button>
           <button
             onClick={() => setTab("done")}
             className={`rounded px-3 py-1 font-semibold transition ${tab === "done" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            Terminées ({completedJobs.length})
+            {t("install_jobs.tab_done", { n: completedJobs.length })}
           </button>
         </div>
       </div>
@@ -156,11 +157,10 @@ export function InstallationJobsPanel() {
       {tab === "pending" && (
         <>
           <p className="mb-4 text-sm text-muted-foreground">
-            Réservez une mission, posez le covering, photographiez les 4 vues et transmettez. La diffusion et la
-            rémunération démarrent après validation MoveSpot.
+            {t("install_jobs.pending_desc")}
           </p>
           {jobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucune pose en attente pour le moment.</p>
+            <p className="text-sm text-muted-foreground">{t("install_jobs.none_pending")}</p>
           ) : (
             <div className="space-y-4">
               {jobs.map((job) => {
@@ -184,7 +184,7 @@ export function InstallationJobsPanel() {
                       <div className="text-right space-y-0.5">
                         {job.total_price != null && (
                           <p className="text-xs font-semibold text-primary">
-                            Budget : {eur(job.total_price)}
+                            {t("install_jobs.budget", { amount: eur(job.total_price) })}
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground">
@@ -198,13 +198,13 @@ export function InstallationJobsPanel() {
                       <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}>
                         <span>{urgent ? "⏰" : "📅"}</span>
                         {days === 0
-                          ? "Campagne démarre aujourd'hui — pose urgente !"
-                          : `Pose à réaliser avant ${fr(job.start_date)} (J-${days})`}
+                          ? t("install_jobs.urgent_today")
+                          : t("install_jobs.due_before", { date: fr(job.start_date), days })}
                       </div>
                     )}
                     {overdue && (
                       <div className="mb-3 flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive">
-                        ⛔ Campagne déjà démarrée — pose en retard
+                        {t("install_jobs.overdue")}
                       </div>
                     )}
 
@@ -212,7 +212,7 @@ export function InstallationJobsPanel() {
                     {(job.spot_location || maps) && (
                       <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
                         <span>📍</span>
-                        <span>{job.spot_location ?? "Localisation non précisée"}</span>
+                        <span>{job.spot_location ?? t("install_jobs.location_unknown")}</span>
                         {maps && (
                           <a
                             href={maps}
@@ -220,7 +220,7 @@ export function InstallationJobsPanel() {
                             rel="noopener noreferrer"
                             className="ml-auto shrink-0 rounded-lg border border-border bg-card px-2 py-1 font-semibold text-primary hover:bg-secondary transition"
                           >
-                            Itinéraire →
+                            {t("install_jobs.directions")}
                           </a>
                         )}
                       </div>
@@ -233,12 +233,12 @@ export function InstallationJobsPanel() {
                         disabled={claiming === job.id}
                         className="mb-3 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
                       >
-                        {claiming === job.id ? "Réservation…" : "✋ Je prends cette mission"}
+                        {claiming === job.id ? t("install_jobs.booking") : t("install_jobs.take_job")}
                       </button>
                     ) : (
                       <div className="mb-3 flex items-center justify-between gap-2">
                         <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                          ✅ Mission réservée par vous
+                          {t("install_jobs.job_claimed")}
                         </span>
                         {job.installation_status === "pending" && (
                           <button
@@ -246,7 +246,7 @@ export function InstallationJobsPanel() {
                             disabled={claiming === job.id}
                             className="text-xs text-muted-foreground hover:text-destructive underline transition disabled:opacity-50"
                           >
-                            Libérer
+                            {t("install_jobs.release")}
                           </button>
                         )}
                       </div>
@@ -271,7 +271,7 @@ export function InstallationJobsPanel() {
       {tab === "done" && (
         <>
           {completedJobs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucune mission terminée pour le moment.</p>
+            <p className="text-sm text-muted-foreground">{t("install_jobs.none_done")}</p>
           ) : (
             <div className="space-y-3">
               {completedJobs.map((job) => {
@@ -288,7 +288,7 @@ export function InstallationJobsPanel() {
                       </div>
                       <div className="text-right">
                         <span className="inline-block rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[11px] font-semibold">
-                          ✅ Validée
+                          {t("install_jobs.validated")}
                         </span>
                         {job.total_price != null && (
                           <p className="text-xs text-muted-foreground mt-1">{eur(job.total_price)}</p>
