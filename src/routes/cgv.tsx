@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
@@ -17,9 +18,10 @@ export const Route = createFileRoute("/cgv")({
 });
 
 function CGV() {
+  const { t } = useTranslation();
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales de Vente" updatedAt="12 août 2026">
-      <LegalSection title="1. Objet">
+    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="12 août 2026">
+      <LegalSection title={t("cgv.s1")}>
         <p>
           Les présentes Conditions Générales de Vente (« CGV ») régissent les relations contractuelles entre MoveSpot
           et tout client (ci-après « l'Annonceur ») souhaitant diffuser une campagne de publicité mobile sur les
@@ -27,7 +29,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Description des services">
+      <LegalSection title={t("cgv.s2")}>
         <p>
           MoveSpot est une marketplace de publicité mobile : elle met en relation des annonceurs avec des
           propriétaires de véhicules, des chauffeurs et des prestataires certifiés (pose de covering, production
@@ -40,7 +42,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Commande et devis">
+      <LegalSection title={t("cgv.s3")}>
         <p>
           L'Annonceur crée un brief depuis son espace, dessine sa zone de diffusion sur la carte et obtient un
           récapitulatif de devis. La commande est validée par l'acceptation de ce devis puis par le règlement.
@@ -58,7 +60,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Tarifs et taxes">
+      <LegalSection title={t("cgv.s4")}>
         <p>
           Le budget est calculé automatiquement à partir de la surface réelle de la zone dessinée : 1,80 € par km² et
           par jour, porté à 2,70 € par km² et par jour (coefficient de densité 1,5×) dans les grandes agglomérations.
@@ -125,7 +127,7 @@ function CGV() {
       </LegalSection>
 
 
-      <LegalSection title="5. Modalités de paiement">
+      <LegalSection title={t("cgv.s5")}>
         <p>Les modes de règlement suivants sont proposés :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
@@ -157,7 +159,7 @@ function CGV() {
       </LegalSection>
 
 
-      <LegalSection title="6. Commission et reversements">
+      <LegalSection title={t("cgv.s6")}>
         <p>
           MoveSpot prélève une commission d'intermédiation de 30 % du montant hors taxes. Les 70 % restants sont
           répartis entre le propriétaire du véhicule, le chauffeur et, le cas échéant, le prestataire de pose. Les
@@ -167,7 +169,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Validation du contenu et de la pose">
+      <LegalSection title={t("cgv.s7")}>
         <p>
           Conformément à la charte de contenu de MoveSpot, sont refusées toutes campagnes à caractère religieux ou de
           fêtes religieuses, politique ou électoral, sexistes, pornographiques, ou incitant à la violence, ainsi que
@@ -181,7 +183,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Annulation et remboursement">
+      <LegalSection title={t("cgv.s8")}>
         <p>
           L'Annonceur peut annuler sa commande sans frais jusqu'à 72 heures avant la date de diffusion prévue. Passé
           ce délai, 50 % du montant total reste dû. Aucun remboursement n'est possible une fois la diffusion
@@ -191,7 +193,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Responsabilité de l'Annonceur">
+      <LegalSection title={t("cgv.s9")}>
         <p>
           L'Annonceur garantit qu'il détient l'ensemble des droits nécessaires sur les éléments fournis (images,
           textes, marques, vidéos) et qu'il respecte la législation applicable en matière de publicité. Il garantit
@@ -199,7 +201,7 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Responsabilité de MoveSpot">
+      <LegalSection title={t("cgv.s10")}>
         <p>
           MoveSpot agit en qualité d'intermédiaire et met en œuvre tous les moyens raisonnables pour assurer la bonne
           exécution des campagnes. Sa responsabilité est limitée au montant effectivement payé par l'Annonceur pour la
@@ -208,14 +210,14 @@ function CGV() {
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Données personnelles">
+      <LegalSection title={t("cgv.s11")}>
         <p>
           Les données collectées dans le cadre de la commande sont traitées conformément à notre
           <a href="/confidentialite" className="text-primary hover:underline"> Politique de confidentialité</a>.
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Droit applicable et litiges">
+      <LegalSection title={t("cgv.s12")}>
         <p>
           Les présentes CGV sont soumises au droit français. À défaut de résolution amiable, tout litige sera porté
           devant les tribunaux compétents du ressort du siège de MoveSpot.

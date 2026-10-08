@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
@@ -17,9 +18,10 @@ export const Route = createFileRoute("/confidentialite")({
 });
 
 function Privacy() {
+  const { t } = useTranslation();
   return (
-    <LegalPage eyebrow="RGPD" title="Politique de confidentialité" updatedAt="6 octobre 2026">
-      <LegalSection title="1. Préambule">
+    <LegalPage eyebrow={t("confidentialite.eyebrow")} title={t("confidentialite.title")} updatedAt="6 octobre 2026">
+      <LegalSection title={t("confidentialite.s1")}>
         <p>
           MoveSpot accorde une importance particulière à la protection des données personnelles. La présente politique
           décrit la manière dont vos données sont collectées, utilisées et protégées, conformément au Règlement
@@ -27,7 +29,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Responsable du traitement">
+      <LegalSection title={t("confidentialite.s2")}>
         <p>
           Le responsable du traitement est RAKOUN KLUB, entreprise individuelle exploitant MoveSpot (voir les{" "}
           <a href="/mentions-legales" className="text-primary hover:underline">mentions légales</a>).
@@ -36,7 +38,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="3. Données collectées">
+      <LegalSection title={t("confidentialite.s3")}>
         <p>Nous collectons les catégories de données suivantes :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li><strong>Données d'identification</strong> : nom, prénom, dénomination ou nom du chef d'entreprise, fonction, SIREN/SIRET.</li>
@@ -50,12 +52,12 @@ function Privacy() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="4. Finalités et bases légales">
+      <LegalSection title={t("confidentialite.s4")}>
         <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
           <thead className="bg-secondary/50">
             <tr>
-              <th className="text-left p-3 font-medium">Finalité</th>
-              <th className="text-left p-3 font-medium">Base légale</th>
+              <th className="text-left p-3 font-medium">{t("confidentialite.col_purpose")}</th>
+              <th className="text-left p-3 font-medium">{t("confidentialite.col_legal_basis")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -73,7 +75,7 @@ function Privacy() {
         </table>
       </LegalSection>
 
-      <LegalSection title="5. Géolocalisation : périmètre et garanties">
+      <LegalSection title={t("confidentialite.s5")}>
         <p>
           Les positions GPS sont collectées uniquement lorsque le chauffeur active le suivi, et uniquement pendant les
           périodes de conduite déclarées d'une campagne. Elles sont mises en mémoire tampon sur le terminal puis
@@ -87,7 +89,7 @@ function Privacy() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="6. Durée de conservation">
+      <LegalSection title={t("confidentialite.s6")}>
         <ul className="list-disc pl-6 space-y-2">
           <li>Données client actif : pendant toute la durée de la relation contractuelle.</li>
           <li>Positions GPS brutes : 13 mois maximum. Métriques agrégées : durée de conservation comptable.</li>
@@ -98,7 +100,7 @@ function Privacy() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="7. Destinataires et sous-traitants">
+      <LegalSection title={t("confidentialite.s7")}>
         <p>
           Vos données sont destinées à MoveSpot (administration, modération, comptabilité) et à ses sous-traitants
           techniques, chacun agissant sur instructions et dans le cadre d'engagements conformes au RGPD :
@@ -114,7 +116,7 @@ function Privacy() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="8. Décisions automatisées">
+      <LegalSection title={t("confidentialite.s8")}>
         <p>
           Certaines vérifications sont assistées par des traitements automatisés : analyse des photographies de
           véhicules (cohérence avec la déclaration, détection d'images générées) et contrôle de mots-clés interdits sur
@@ -123,7 +125,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Notifications par email">
+      <LegalSection title={t("confidentialite.s9")}>
         <p>
           Deux catégories d'emails sont émises depuis le domaine <strong>notify.move-spot.com</strong> :
         </p>
@@ -146,7 +148,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Accès par des agents et outils tiers">
+      <LegalSection title={t("confidentialite.s10")}>
         <p>
           La Plateforme propose des intégrations permettant à des applications ou agents tiers de consulter, en
           lecture seule, vos propres données (flotte, briefs, campagnes, solde). Cet accès n'est possible qu'après
@@ -155,7 +157,7 @@ function Privacy() {
       </LegalSection>
 
 
-      <LegalSection title="11. Transferts hors UE">
+      <LegalSection title={t("confidentialite.s11")}>
         <p>
           Certains de nos prestataires peuvent traiter des données en dehors de l'Union européenne. Dans ce cas, nous
           nous assurons que des garanties appropriées sont mises en place (clauses contractuelles types de la
@@ -163,7 +165,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="12. Vos droits">
+      <LegalSection title={t("confidentialite.s12")}>
         <p>Conformément au RGPD, vous disposez des droits suivants :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>Droit d'accès, de rectification et d'effacement de vos données ;</li>
@@ -180,7 +182,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="13. Sécurité">
+      <LegalSection title={t("confidentialite.s13")}>
         <p>
           MoveSpot met en œuvre des mesures techniques et organisationnelles appropriées : chiffrement des échanges
           (HTTPS/TLS), cloisonnement des accès par règles de sécurité au niveau de la base de données, séparation des
@@ -195,7 +197,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="14. Droits des résidents américains (CCPA / FDBR)">
+      <LegalSection title={t("confidentialite.s14")}>
         <p>
           Cette section s'adresse aux résidents de Californie au titre du <em>California Consumer Privacy Act</em> tel
           qu'amendé par le <em>California Privacy Rights Act</em> (CCPA/CPRA, Cal. Civ. Code § 1798.100 et s.), et aux
@@ -252,7 +254,7 @@ function Privacy() {
         </p>
       </LegalSection>
 
-      <LegalSection title="15. Modifications">
+      <LegalSection title={t("confidentialite.s15")}>
         <p>
           La présente politique peut être mise à jour à tout moment. Toute modification substantielle vous sera
           notifiée par email ou via la Plateforme.

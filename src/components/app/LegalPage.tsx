@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { LogoLink } from "@/components/app/LogoLink";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, children }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background">
       {showHeader && (
@@ -21,7 +23,7 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
               to="/"
               className="rounded-full border border-border bg-card/50 backdrop-blur px-4 py-2 text-sm font-medium hover:bg-card transition"
             >
-              ← Retour à l'accueil
+              {t("legal.back_home")}
             </Link>
           </div>
         </header>
@@ -33,7 +35,7 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
         <div className="relative max-w-4xl mx-auto px-6 pt-16 pb-12">
           <div className="text-xs uppercase tracking-widest text-primary mb-3">{eyebrow}</div>
           <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">{title}</h1>
-          <p className="mt-4 text-sm text-muted-foreground">Dernière mise à jour : {updatedAt}</p>
+          <p className="mt-4 text-sm text-muted-foreground">{t("legal.updated_at", { date: updatedAt })}</p>
         </div>
       </section>
 
@@ -45,7 +47,7 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
 
       <footer className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} MoveSpot. Tous droits réservés.</div>
+          <div>{t("legal.copyright", { year: new Date().getFullYear() })}</div>
           <div className="flex flex-wrap items-center gap-4">
             <Link to="/cgu" className="hover:text-foreground transition">CGU</Link>
             <Link to="/cgv" className="hover:text-foreground transition">CGV</Link>

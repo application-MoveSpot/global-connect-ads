@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
@@ -17,10 +18,11 @@ export const Route = createFileRoute("/mentions-legales")({
 });
 
 function MentionsLegales() {
+  const { t } = useTranslation();
   return (
-    <LegalPage eyebrow="Informations obligatoires" title="Mentions légales" updatedAt="12 août 2026">
+    <LegalPage eyebrow={t("mentions.eyebrow")} title={t("mentions.title")} updatedAt="12 août 2026">
 
-      <LegalSection title="Éditeur du site">
+      <LegalSection title={t("mentions.s_editor")}>
         <p>
           La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>RAKOUN KLUB</strong>,
           entreprise individuelle.
@@ -38,14 +40,14 @@ function MentionsLegales() {
       </LegalSection>
 
 
-      <LegalSection title="Directeur de la publication">
+      <LegalSection title={t("mentions.s_director")}>
         <p>
           Le directeur de la publication est <strong>Garry PALERME</strong>,
           en sa qualité d'entrepreneur individuel exploitant MoveSpot.
         </p>
       </LegalSection>
 
-      <LegalSection title="Coordonnées">
+      <LegalSection title={t("mentions.s_contact")}>
         <p>
           <strong>Email</strong> :{" "}
           <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
@@ -58,7 +60,7 @@ function MentionsLegales() {
       </LegalSection>
 
 
-      <LegalSection title="Hébergeur">
+      <LegalSection title={t("mentions.s_host")}>
         <p>
           Le Site est hébergé par <strong>Lovable GPT AB</strong>.
         </p>
@@ -68,7 +70,7 @@ function MentionsLegales() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="Propriété intellectuelle">
+      <LegalSection title={t("mentions.s_ip")}>
         <p>
           Le nom commercial <strong>MoveSpot</strong> est exploité par RAKOUN KLUB, entreprise
           individuelle, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
@@ -96,7 +98,7 @@ function MentionsLegales() {
       </LegalSection>
 
 
-      <LegalSection title="Données personnelles et cookies">
+      <LegalSection title={t("mentions.s_data")}>
         <p>
           Pour toute information relative à la collecte et au traitement de vos données personnelles,
           veuillez consulter notre{" "}
@@ -108,7 +110,7 @@ function MentionsLegales() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Services tiers utilisés par le Site">
+      <LegalSection title={t("mentions.s_services")}>
         <ul className="list-disc pl-6 space-y-2">
           <li><strong>Paiements</strong> : Stripe Payments Europe, Ltd. — paiements par carte, abonnements mensuels par véhicule, comptes de paiement partenaires (Stripe Connect) et reversements.</li>
           <li><strong>Virements bancaires</strong> : établissement bancaire de MoveSpot, pour les règlements B2B entrants et les virements SEPA sortants.</li>
@@ -120,7 +122,7 @@ function MentionsLegales() {
 
       </LegalSection>
 
-      <LegalSection title="Médiation de la consommation">
+      <LegalSection title={t("mentions.s_mediation")}>
         <p>
           Conformément à l'article L.612-1 du Code de la consommation, tout consommateur peut recourir gratuitement à
           un médiateur de la consommation en vue de la résolution amiable d'un litige. Pour toute demande, écrivez à{" "}
@@ -129,7 +131,7 @@ function MentionsLegales() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Signalement de contenu">
+      <LegalSection title={t("mentions.s_report")}>
         <p>
           Tout contenu publicitaire diffusé via la Plateforme peut être signalé à l'adresse{" "}
           <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">contact@move-spot.com</a>.
@@ -137,7 +139,7 @@ function MentionsLegales() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Crédits">
+      <LegalSection title={t("mentions.s_credits")}>
         <p>
           Conception et développement du Site : <strong>MoveSpot</strong>.
         </p>

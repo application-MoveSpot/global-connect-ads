@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { Printer } from "lucide-react";
 
 export const Route = createFileRoute("/kit")({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/kit")({
 });
 
 function KitMedia() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex justify-end px-6 py-4 print:hidden">
@@ -24,7 +26,7 @@ function KitMedia() {
           className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
         >
           <Printer className="w-4 h-4" />
-          Imprimer / PDF
+          {t("kit.print_btn")}
         </button>
       </div>
 
@@ -32,7 +34,7 @@ function KitMedia() {
         {/* En-tête */}
         <section className="flex flex-col sm:flex-row items-start sm:items-center gap-6 border-b border-border pb-10 print:pb-6">
           <div className="flex-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Kit média · {new Date().getFullYear()}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("kit.eyebrow", { year: new Date().getFullYear() })}</p>
             <h1 className="text-4xl font-black tracking-tight mb-3">MoveSpot</h1>
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
               La mobilité mondiale, monétisée localement. Publicité mobile sur véhicules —
@@ -50,7 +52,7 @@ function KitMedia() {
 
         {/* Chiffres clés */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">Chiffres clés</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.stats_heading")}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
               { value: "1,80 €", label: "par km²/jour (ville)", sub: "2,70 € grandes agglomérations" },
@@ -69,7 +71,7 @@ function KitMedia() {
 
         {/* Types de véhicules */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">Véhicules acceptés</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.vehicles_heading")}</h2>
           <div className="flex flex-wrap gap-2">
             {["Taxi", "VTC", "Van publicitaire", "Scooter", "Vélo cargo", "Food truck", "Camion léger", "Voiture", "Autre"].map((v) => (
               <span key={v} className="rounded-full border border-border px-3 py-1 text-sm">{v}</span>
@@ -79,7 +81,7 @@ function KitMedia() {
 
         {/* Proposition de valeur par rôle */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">Pour chaque acteur</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.actors_heading")}</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               {
@@ -116,14 +118,14 @@ function KitMedia() {
 
         {/* Tarifs résumé */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">Tarifs résumé</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.prices_heading")}</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 pr-6 font-semibold">Profil</th>
-                  <th className="text-left py-2 pr-6 font-semibold">Modèle</th>
-                  <th className="text-left py-2 font-semibold">Détail</th>
+                  <th className="text-left py-2 pr-6 font-semibold">{t("kit.table_profil")}</th>
+                  <th className="text-left py-2 pr-6 font-semibold">{t("kit.table_modele")}</th>
+                  <th className="text-left py-2 font-semibold">{t("kit.table_detail")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -146,13 +148,13 @@ function KitMedia() {
             </table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Grille complète sur <a href="/tarifs" className="underline underline-offset-2">move-spot.com/tarifs</a>
+            {t("kit.prices_full_link")} <a href="/tarifs" className="underline underline-offset-2">move-spot.com/tarifs</a>
           </p>
         </section>
 
         {/* Identité visuelle */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">Palette de marque</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.brand_heading")}</h2>
           <div className="flex flex-wrap gap-3">
             {[
               { name: "Signal", hex: "#FF6B35", text: "white" },
@@ -171,24 +173,24 @@ function KitMedia() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3">Police principale : Inter (sans-serif). Logo disponible sur demande.</p>
+          <p className="text-xs text-muted-foreground mt-3">{t("kit.font_note")}</p>
         </section>
 
         {/* Contact */}
         <section className="rounded-xl border border-border p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="font-bold mb-1">Contact partenariat & presse</h2>
-            <p className="text-sm text-muted-foreground">Pour toute demande de ressources, interview ou co-marketing :</p>
+            <h2 className="font-bold mb-1">{t("kit.contact_heading")}</h2>
+            <p className="text-sm text-muted-foreground">{t("kit.contact_desc")}</p>
           </div>
           <div className="text-sm space-y-1 shrink-0">
             <p><a href="mailto:partenaires@move-spot.com" className="font-semibold underline underline-offset-2">partenaires@move-spot.com</a></p>
-            <p className="text-muted-foreground">Réponse sous 48 h ouvrées</p>
+            <p className="text-muted-foreground">{t("kit.contact_response")}</p>
           </div>
         </section>
 
         {/* Footer impression */}
         <footer className="text-xs text-muted-foreground pt-4 border-t border-border flex flex-col sm:flex-row justify-between gap-2 print:pt-4">
-          <span>© {new Date().getFullYear()} MoveSpot SAS — Tous droits réservés</span>
+          <span>{t("kit.copyright", { year: new Date().getFullYear() })}</span>
           <span>move-spot.com · partenaires@move-spot.com</span>
         </footer>
       </main>
