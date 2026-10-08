@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Bell, BellOff } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function NotificationBell({ userId = null }: Props) {
+  const { t } = useTranslation();
   const { notifications, unreadCount, markAllRead, clearAll } = useNotifications();
   const { state: pushState, subscribe } = usePushSubscription(userId);
   const [open, setOpen] = useState(false);
@@ -42,7 +44,7 @@ export function NotificationBell({ userId = null }: Props) {
       <button
         onClick={handleOpen}
         className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition"
-        aria-label="Notifications"
+        aria-label={t("notif_bell.aria_label")}
       >
         <Bell size={18} />
         {unreadCount > 0 && (
@@ -55,26 +57,26 @@ export function NotificationBell({ userId = null }: Props) {
       {open && (
         <div className="absolute right-0 mt-2 w-80 rounded-xl border border-border bg-card shadow-xl z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <span className="text-sm font-semibold">Notifications</span>
+            <span className="text-sm font-semibold">{t("notif_bell.header")}</span>
             {notifications.length > 0 && (
               <button
                 onClick={clearAll}
                 className="text-xs text-muted-foreground hover:text-foreground transition"
               >
-                Tout effacer
+                {t("notif_bell.btn_clear_all")}
               </button>
             )}
           </div>
 
           {showPushPrompt && (
             <div className="px-4 py-2.5 bg-primary/5 border-b border-primary/15 flex items-center justify-between gap-3 text-xs text-primary">
-              <span>Recevez les alertes même navigateur fermé.</span>
+              <span>{t("notif_bell.push_prompt")}</span>
               <button
                 onClick={handleSubscribe}
                 disabled={subscribing}
                 className="font-semibold underline whitespace-nowrap disabled:opacity-50"
               >
-                {subscribing ? "…" : "Activer"}
+                {subscribing ? t("notif_bell.btn_activating") : t("notif_bell.btn_activate")}
               </button>
             </div>
           )}
@@ -82,20 +84,20 @@ export function NotificationBell({ userId = null }: Props) {
           {pushDenied && (
             <div className="px-4 py-2.5 bg-secondary/40 border-b border-border flex items-center gap-2 text-xs text-muted-foreground">
               <BellOff size={12} className="shrink-0" />
-              <span>Notifications bloquées — modifiez les permissions dans votre navigateur.</span>
+              <span>{t("notif_bell.push_denied")}</span>
             </div>
           )}
 
           {pushState === "subscribed" && (
             <div className="px-4 py-2.5 bg-emerald-500/8 border-b border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-400">
-              ✓ Notifications push activées sur cet appareil.
+              {t("notif_bell.push_subscribed")}
             </div>
           )}
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="py-10 text-center text-sm text-muted-foreground">
-                Aucune notification pour l'instant.
+                {t("notif_bell.empty")}
               </div>
             ) : (
               <ul className="divide-y divide-border">
@@ -122,12 +124,13 @@ export function NotificationBell({ userId = null }: Props) {
 }
 
 function NotifContent({ n }: { n: { title: string; body?: string; timestamp: number } }) {
+  const { i18n } = useTranslation();
   return (
     <>
       <p className="text-sm font-medium text-foreground">{n.title}</p>
       {n.body && <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>}
       <p className="text-[10px] text-muted-foreground/60 mt-1">
-        {new Date(n.timestamp).toLocaleString("fr-FR", {
+        {new Date(n.timestamp).toLocaleString(i18n.language, {
           day: "numeric",
           month: "short",
           hour: "2-digit",
