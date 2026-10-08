@@ -2514,7 +2514,10 @@
       "severity_medium": "Medium",
       "severity_low": "Low"
     },
-    "photo_label": "Photo"
+    "photo_label": "Photo",
+    "ai_detected": "⚠ AI detected",
+    "price_estimate": "Est. price: {{min}}–{{max}} €/day",
+    "imp_per_day": "imp./day"
   },
   "partner": {
     "badge": "🚐 Owner space",

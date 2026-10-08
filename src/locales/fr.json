@@ -2514,7 +2514,10 @@
       "severity_medium": "Moyen",
       "severity_low": "Faible"
     },
-    "photo_label": "Photo"
+    "photo_label": "Photo",
+    "ai_detected": "⚠ IA détectée",
+    "price_estimate": "Prix estimé : {{min}}–{{max}} €/j",
+    "imp_per_day": "imp./j"
   },
   "partner": {
     "badge": "🚐 Espace propriétaires",

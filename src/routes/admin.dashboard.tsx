@@ -475,11 +475,11 @@ function AdminDashboard() {
                             <p className="text-destructive">{v.ai_verification.condition_alert}</p>
                           )}
                           {v.ai_verification.ai_generated_detected && (
-                            <p className="text-destructive">⚠ IA détectée — {v.ai_verification.ai_generated_notes}</p>
+                            <p className="text-destructive">{t("admin.ai_detected")} — {v.ai_verification.ai_generated_notes}</p>
                           )}
                           <p className="text-muted-foreground">
-                            Prix estimé : {v.ai_verification.suggested_price_min}–{v.ai_verification.suggested_price_max} €/j
-                            · {v.ai_verification.estimated_impressions_per_day?.toLocaleString(i18n.language)} imp./j
+                            {t("admin.price_estimate", { min: v.ai_verification.suggested_price_min, max: v.ai_verification.suggested_price_max })}
+                            · {v.ai_verification.estimated_impressions_per_day?.toLocaleString(i18n.language)} {t("admin.imp_per_day")}
                           </p>
                         </div>
                       )}
