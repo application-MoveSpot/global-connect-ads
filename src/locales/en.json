@@ -117,6 +117,32 @@
       "display_type": "Format",
       "event_type": "Event type",
       "form": "Details"
+    },
+    "vehicle": {
+      "food_truck": "Food truck",
+      "van": "Utility van",
+      "taxi": "Taxi / Ride-hailing",
+      "scooter": "Delivery scooter",
+      "velo_cargo": "Cargo bike",
+      "velo_remorque": "Trailer bike",
+      "triporteur": "Cargo tricycle",
+      "tutuk": "Tuk-tuk",
+      "voiture": "Car",
+      "autre": "Other"
+    },
+    "ad_format": {
+      "covering_total": "Full wrap",
+      "demi_covering": "Half wrap",
+      "stickers": "Stickers",
+      "affiche": "Poster panel",
+      "boxled": "LED/Video screen"
+    },
+    "ad_format_desc": {
+      "covering_total": "Full vehicle wrap",
+      "demi_covering": "Lower half",
+      "stickers": "Targeted decals",
+      "affiche": "Fixed panel",
+      "boxled": "Digital advertising truck (3 LED faces)"
     }
   },
   "nav": {
@@ -931,7 +957,9 @@
         "budget_note_floor": "the floor rate",
         "budget_note_2": "The final amount depends on the owners' proposals — you only pay on validation.",
         "budget_prepare": "💳 Prepare {{amount}} €",
-        "budget_buy_pack": "Or buy a pack →"
+        "budget_buy_pack": "Or buy a pack →",
+        "boxled_incompatible_title": "Incompatible with LED/Video screen format (BoxLED)",
+        "boxled_vehicle_incompatible_title": "Incompatible with selected vehicle(s) — BoxLED reserved for advertising trucks"
       }
     },
     "suivi": {
@@ -2690,7 +2718,7 @@
   "kit": {
     "print_btn": "Print / PDF",
     "eyebrow": "Media Kit · {{year}}",
-    "tagline": "Global mobility, monetized locally. Mobile advertising on vehicles — precise geographic targeting, real-time GPS tracking, campaigns from €25/day per vehicle.",
+    "tagline": "Global mobility, monetised locally. Mobile advertising on vehicles — precise geographic targeting, real-time GPS tracking, campaigns from €25/day per vehicle.",
     "founded": "Founded in 2024",
     "stats_heading": "Key figures",
     "vehicles_heading": "Accepted vehicles",
@@ -3544,5 +3572,19 @@
     "item2_d": "Maximum visibility for the weekend — 3 days · from €49",
     "cta": "Create my personal account →",
     "cta2": "See campaign examples"
+  },
+  "viewer360": {
+    "alt": "360° view",
+    "webgl_unavailable": "Flat preview — WebGL not available on this device",
+    "drag_hint": "360° · drag to explore"
+  },
+  "metrics": {
+    "broadcasting": "Broadcasting",
+    "gps_full": "Full GPS tracking",
+    "waiting_gps": "Waiting for the first GPS positions from the vehicle.",
+    "label_km": "traveled",
+    "label_min": "active",
+    "label_coverage": "zone coverage",
+    "zone_km": "of which {{km}} km in your targeted zone"
   }
 }

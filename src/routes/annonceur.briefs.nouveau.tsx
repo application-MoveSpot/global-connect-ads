@@ -164,6 +164,9 @@ function addDays(base: Date, n: number): string {
 
 function NewBriefPage() {
   const { t, i18n } = useTranslation();
+  const vtLabel = (v: string) => t(`briefs.vehicle.${v}`, { defaultValue: VEHICLE_TYPES.find((vt) => vt.v === v)?.l ?? v });
+  const fmtLabel = (v: string, fallback: string) => t(`briefs.ad_format.${v}`, { defaultValue: fallback });
+  const fmtDesc = (v: string, fallback: string) => t(`briefs.ad_format_desc.${v}`, { defaultValue: fallback });
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
@@ -841,7 +844,7 @@ function NewBriefPage() {
                       key={v}
                       className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground"
                     >
-                      {VEHICLE_TYPES.find((t) => t.v === v)?.l ?? v}
+                      {vtLabel(v)}
                     </span>
                   ))}
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
@@ -1164,21 +1167,21 @@ function NewBriefPage() {
                   {displayType === "traditionnel" ? t("annonceur.briefs.nouveau.vehicles_available") : t("annonceur.briefs.nouveau.vehicles_other")}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {VEHICLE_TYPES.filter((t) => t.v !== "camion_led").map((t) => {
+                  {VEHICLE_TYPES.filter((vt) => vt.v !== "camion_led").map((vt) => {
                     const blockedByBoxled =
-                      adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(t.v as VehicleKey);
-                    const isSelected = vehicleTypes.includes(t.v);
+                      adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(vt.v as VehicleKey);
+                    const isSelected = vehicleTypes.includes(vt.v);
                     return (
                       <button
                         type="button"
-                        key={t.v}
+                        key={vt.v}
                         disabled={blockedByBoxled}
                         title={
                           blockedByBoxled
-                            ? "Incompatible avec le format Écran LED/Vidéo (BoxLED)"
-                            : t.tip
+                            ? t("annonceur.briefs.nouveau.boxled_incompatible_title")
+                            : vt.tip
                         }
-                        onClick={() => toggleType(t.v)}
+                        onClick={() => toggleType(vt.v)}
                         className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
                           blockedByBoxled
                             ? "opacity-40 cursor-not-allowed bg-card border-border"
@@ -1187,7 +1190,7 @@ function NewBriefPage() {
                               : "bg-card border-border hover:bg-secondary"
                         }`}
                       >
-                        {t.l}
+                        {vtLabel(vt.v)}
                       </button>
                     );
                   })}
@@ -1295,8 +1298,8 @@ function NewBriefPage() {
                     disabled={incompatible}
                     title={
                       incompatible
-                        ? "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux fourgons publicitaires"
-                        : f.desc
+                        ? t("annonceur.briefs.nouveau.boxled_vehicle_incompatible_title")
+                        : fmtDesc(f.v, f.desc)
                     }
                     onClick={() => {
                       if (incompatible) return;
@@ -1310,7 +1313,7 @@ function NewBriefPage() {
                           : "bg-card border-border hover:bg-secondary"
                     }`}
                   >
-                    {f.l}
+                    {fmtLabel(f.v, f.l)}
                   </button>
                 );
               })}

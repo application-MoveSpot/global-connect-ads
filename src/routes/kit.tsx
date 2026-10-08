@@ -37,12 +37,11 @@ function KitMedia() {
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("kit.eyebrow", { year: new Date().getFullYear() })}</p>
             <h1 className="text-4xl font-black tracking-tight mb-3">MoveSpot</h1>
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
-              La mobilité mondiale, monétisée localement. Publicité mobile sur véhicules —
-              ciblage géographique précis, suivi GPS temps réel, campagnes dès 25 €/jour par véhicule.
+              {t("kit.tagline")}
             </p>
           </div>
           <div className="shrink-0 text-right print:text-left">
-            <p className="text-xs text-muted-foreground">Fondée en 2024</p>
+            <p className="text-xs text-muted-foreground">{t("kit.founded")}</p>
             <p className="text-xs text-muted-foreground">Paris, France</p>
             <p className="text-xs text-muted-foreground mt-2">
               <a href="https://move-spot.com" className="underline underline-offset-2">move-spot.com</a>

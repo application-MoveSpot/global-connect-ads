@@ -117,6 +117,32 @@
       "display_type": "Format",
       "event_type": "Type d'événement",
       "form": "Détails"
+    },
+    "vehicle": {
+      "food_truck": "Food truck",
+      "van": "Van utilitaire",
+      "taxi": "Taxi / VTC",
+      "scooter": "Scooter livraison",
+      "velo_cargo": "Vélo cargo",
+      "velo_remorque": "Vélo remorque",
+      "triporteur": "Triporteur",
+      "tutuk": "Tutuk",
+      "voiture": "Voiture",
+      "autre": "Autre"
+    },
+    "ad_format": {
+      "covering_total": "Covering total",
+      "demi_covering": "Demi-covering",
+      "stickers": "Stickers",
+      "affiche": "Affiche",
+      "boxled": "Écran LED/Vidéo"
+    },
+    "ad_format_desc": {
+      "covering_total": "Habillage complet du véhicule",
+      "demi_covering": "Moitié inférieure",
+      "stickers": "Autocollants ciblés",
+      "affiche": "Panneau fixe",
+      "boxled": "Fourgon publicitaire numérique (3 faces LED)"
     }
   },
   "nav": {
@@ -931,7 +957,9 @@
         "budget_note_floor": "le tarif plancher",
         "budget_note_2": "Le montant final dépend des propositions des propriétaires — vous ne payez qu'à la validation.",
         "budget_prepare": "💳 Préparer {{amount}} €",
-        "budget_buy_pack": "Ou acheter un pack →"
+        "budget_buy_pack": "Ou acheter un pack →",
+        "boxled_incompatible_title": "Incompatible avec le format Écran LED/Vidéo (BoxLED)",
+        "boxled_vehicle_incompatible_title": "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux fourgons publicitaires"
       }
     },
     "suivi": {
@@ -3544,5 +3572,19 @@
     "item2_d": "Visibilité maximale le week-end — 3 jours · à partir de 49 €",
     "cta": "Créer mon compte particulier →",
     "cta2": "Voir des exemples de campagnes"
+  },
+  "viewer360": {
+    "alt": "Vue 360°",
+    "webgl_unavailable": "Aperçu plat — WebGL non disponible sur cet appareil",
+    "drag_hint": "360° · glisser pour explorer"
+  },
+  "metrics": {
+    "broadcasting": "Diffusion en cours",
+    "gps_full": "Suivi GPS complet",
+    "waiting_gps": "En attente des premières positions GPS du véhicule.",
+    "label_km": "parcourus",
+    "label_min": "actives",
+    "label_coverage": "couverture zone",
+    "zone_km": "dont {{km}} km dans votre zone ciblée"
   }
 }
