@@ -261,10 +261,10 @@ function WalletPage() {
               <table className="w-full text-sm">
                 <thead className="bg-secondary/40 text-xs uppercase tracking-widest text-muted-foreground">
                   <tr>
-                    <th className="text-left px-4 py-3">Date</th>
-                    <th className="text-left px-4 py-3">Type</th>
-                    <th className="text-left px-4 py-3">Description</th>
-                    <th className="text-right px-4 py-3">Montant</th>
+                    <th className="text-left px-4 py-3">{t("wallet.col_date")}</th>
+                    <th className="text-left px-4 py-3">{t("wallet.col_type")}</th>
+                    <th className="text-left px-4 py-3">{t("wallet.col_desc")}</th>
+                    <th className="text-right px-4 py-3">{t("wallet.col_amount")}</th>
                   </tr>
                 </thead>
                 <tbody>

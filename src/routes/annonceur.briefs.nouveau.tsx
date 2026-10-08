@@ -1609,7 +1609,7 @@ function LiveBudgetEstimator({
   vehicleCount: number;
   zonePolygon: ZonePolygon | null;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   if (days <= 0 && vehicleCount === 0) return null;
 
   const v = Math.max(1, vehicleCount);

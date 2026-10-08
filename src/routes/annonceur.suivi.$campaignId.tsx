@@ -19,9 +19,10 @@ import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/annonceur/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
   component: SuiviPage,
-  errorComponent: ({ error }: { error: Error }) => (
-    <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
-  ),
+  errorComponent: ({ error }: { error: Error }) => {
+    const { t } = useTranslation();
+    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+  },
 });
 
 type Position = { lat: number; lng: number; recorded_at: string; speed: number | null; heading: number | null };

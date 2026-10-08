@@ -468,7 +468,7 @@ function AdminDashboard() {
                       )}
                       {v.ai_verification && (
                         <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs space-y-1">
-                          <p>Photo : <span className={v.ai_verification.photo_match === "ok" ? "text-green-600" : "text-amber-600"}>{v.ai_verification.photo_match}</span>
+                          <p>{t("admin.photo_label")} : <span className={v.ai_verification.photo_match === "ok" ? "text-green-600" : "text-amber-600"}>{v.ai_verification.photo_match}</span>
                             {v.ai_verification.photo_notes ? ` — ${v.ai_verification.photo_notes}` : ""}
                           </p>
                           {v.ai_verification.condition_alert && (

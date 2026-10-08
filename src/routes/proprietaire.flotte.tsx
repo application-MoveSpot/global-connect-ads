@@ -33,9 +33,10 @@ import { LogoLink } from "@/components/app/LogoLink";
 export const Route = createFileRoute("/proprietaire/flotte")({
   head: () => ({ meta: [{ title: "Ma flotte — MoveSpot" }] }),
   component: FleetPage,
-  errorComponent: ({ error }: { error: Error }) => (
-    <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
-  ),
+  errorComponent: ({ error }: { error: Error }) => {
+    const { t } = useTranslation();
+    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+  },
 });
 
 type Vehicle = {

@@ -95,7 +95,11 @@
     "export_csv_btn": "↓ Export CSV",
     "prev": "← Previous",
     "next": "Next →",
-    "page_info": "Page {{current}} / {{total}} · {{count}} transactions"
+    "page_info": "Page {{current}} / {{total}} · {{count}} transactions",
+    "col_date": "Date",
+    "col_type": "Type",
+    "col_desc": "Description",
+    "col_amount": "Amount"
   },
   "briefs": {
     "page_title": "My briefs — MoveSpot",
@@ -167,7 +171,11 @@
     "confidentialite": "Privacy",
     "cookies": "Cookies",
     "mentions": "Legal notice",
-    "admin": "Admin"
+    "admin": "Admin",
+    "payment_secure": "Secure payment:",
+    "transactions_3ds": "· 3D Secure transactions",
+    "follow_us": "Follow us:",
+    "b2b": "B2B solution"
   },
   "root": {
     "skip_to_content": "Skip to main content",
@@ -182,7 +190,8 @@
     "title": "Something went wrong",
     "reload": "Reload",
     "network": "Unable to load data. Check your connection.",
-    "retrying": "Reloading…"
+    "retrying": "Reloading…",
+    "prefix": "Error"
   },
   "auth": {
     "page_title": "Sign in — MoveSpot",
@@ -810,7 +819,8 @@
         "install_approved": "✓ Installed",
         "install_rejected": "❌ Declined",
         "report_btn": "Report →",
-        "vehicle_fallback": "Vehicle"
+        "vehicle_fallback": "Vehicle",
+        "gps_btn": "GPS Tracking"
       },
       "nouveau": {
         "back": "← Back",
@@ -2449,7 +2459,8 @@
       "severity_high": "Critical",
       "severity_medium": "Medium",
       "severity_low": "Low"
-    }
+    },
+    "photo_label": "Photo"
   },
   "partner": {
     "badge": "🚐 Owner space",
@@ -3061,16 +3072,16 @@
     "aria_send": "Send"
   },
   "status_banner": {
-    "webgl_warn": "Interactive maps run in simplified mode on this device (WebGL unavailable).",
+    "webgl_warn": "Your browser does not support WebGL — the 3D map has been replaced with a standard map.",
     "btn_close": "Close"
   },
   "fleet_map": {
+    "popup_campaign": "Campaign",
     "token_missing": "Map unavailable: the Mapbox token is not configured.",
-    "btn_immersive": "Immersive 3D view",
     "btn_flat": "Flat view",
-    "btn_orbit": "360° rotation",
+    "btn_immersive": "Immersive 3D view",
     "btn_stop_orbit": "Stop rotation",
-    "popup_campaign": "Campaign"
+    "btn_orbit": "360° rotation"
   },
   "onboarding": {
     "welcome": "Welcome to MoveSpot",
@@ -3080,30 +3091,30 @@
     "btn_discover_packs": "Discover packs →",
     "btn_create_campaign": "Create my first campaign →",
     "btn_skip": "Skip introduction",
-    "step_1_title": "Define your campaign",
-    "step_1_desc": "Choose your geographic zone, vehicle type, duration and budget. Our form guides you step by step.",
-    "step_2_title": "We find the vehicle",
-    "step_2_desc": "MoveSpot connects you with vehicle owners matching your criteria. You receive a price proposal.",
-    "step_3_title": "Installation validation",
-    "step_3_desc": "A certified installer applies your covering. You receive confirmation photos and validate the installation before broadcast begins.",
-    "step_4_title": "Real-time GPS tracking",
-    "step_4_desc": "Throughout the campaign, follow the vehicle's route, zone coverage and performance metrics in your space."
+    "step1_title": "Define your campaign",
+    "step1_desc": "Choose your geographic zone, vehicle type, duration and budget. Our form guides you step by step.",
+    "step2_title": "We find the vehicle",
+    "step2_desc": "MoveSpot connects you with vehicle owners matching your criteria. You receive a price proposal.",
+    "step3_title": "Installation validation",
+    "step3_desc": "A certified installer fits your covering. You receive confirmation photos and validate the installation before the campaign starts.",
+    "step4_title": "Real-time GPS tracking",
+    "step4_desc": "Throughout the campaign, track the vehicle's route, zone coverage and performance metrics in your dashboard."
   },
   "owner_connect": {
     "title": "My payouts",
     "subtitle": "Powered by Stripe Connect",
-    "active_msg": "Stripe account active — you automatically receive 70% of each validated campaign on your vehicles.",
-    "btn_update": "Update my banking details",
-    "pending_msg": "Verification in progress — complete onboarding to receive payments.",
-    "btn_finalize": "Complete Stripe verification",
-    "not_connected_desc": "Connect your bank account to automatically receive 70% of each validated advertising campaign on your vehicles, with no manual steps.",
-    "step_1": "Identity verification (ID document)",
-    "step_2": "Enter your IBAN directly on Stripe",
-    "step_3": "Automatic payouts for each validated campaign (70%)",
-    "btn_connect": "Connect my account via Stripe",
+    "active_msg": "Stripe account active — you automatically receive 70% of every validated campaign on your vehicles.",
+    "pending_msg": "Verification in progress — complete onboarding to receive your payments.",
+    "not_connected_desc": "Connect your bank account to automatically receive <strong>70%</strong> of every validated advertising campaign on your vehicles, with no manual steps.",
+    "step1": "Identity verification (ID document)",
+    "step2": "Enter your IBAN directly on Stripe",
+    "step3": "Automatic payouts for every validated campaign (70%)",
     "btn_loading": "Loading…",
+    "btn_connect": "Connect my account via Stripe",
+    "btn_finalize": "Complete Stripe verification",
+    "btn_update": "Update my bank details",
     "err_generic": "Error",
-    "trust_badge": "Your banking details (IBAN) are entered directly on Stripe and stored with them. MoveSpot never has access to this information."
+    "trust_badge": "Your bank details (IBAN) are entered directly on <strong>Stripe</strong> and remain hosted with them. MoveSpot never has access to this information."
   },
   "notif_bell": {
     "aria_label": "Notifications",
@@ -3204,51 +3215,6 @@
     "err_claim": "Error while reserving.",
     "err_release": "Error."
   },
-  "status_banner": {
-    "webgl_warn": "Your browser does not support WebGL — the 3D map has been replaced with a standard map.",
-    "btn_close": "Close"
-  },
-  "fleet_map": {
-    "popup_campaign": "Campaign",
-    "token_missing": "Map unavailable: the Mapbox token is not configured.",
-    "btn_flat": "Flat view",
-    "btn_immersive": "Immersive 3D view",
-    "btn_stop_orbit": "Stop rotation",
-    "btn_orbit": "360° rotation"
-  },
-  "onboarding": {
-    "welcome": "Welcome to MoveSpot",
-    "aria_close": "Close",
-    "btn_prev": "Previous",
-    "btn_next": "Next →",
-    "btn_discover_packs": "Discover packs →",
-    "btn_create_campaign": "Create my first campaign →",
-    "btn_skip": "Skip introduction",
-    "step1_title": "Define your campaign",
-    "step1_desc": "Choose your geographic zone, vehicle type, duration and budget. Our form guides you step by step.",
-    "step2_title": "We find the vehicle",
-    "step2_desc": "MoveSpot connects you with vehicle owners matching your criteria. You receive a price proposal.",
-    "step3_title": "Installation validation",
-    "step3_desc": "A certified installer fits your covering. You receive confirmation photos and validate the installation before the campaign starts.",
-    "step4_title": "Real-time GPS tracking",
-    "step4_desc": "Throughout the campaign, track the vehicle's route, zone coverage and performance metrics in your dashboard."
-  },
-  "owner_connect": {
-    "title": "My payouts",
-    "subtitle": "Powered by Stripe Connect",
-    "active_msg": "Stripe account active — you automatically receive 70% of every validated campaign on your vehicles.",
-    "pending_msg": "Verification in progress — complete onboarding to receive your payments.",
-    "not_connected_desc": "Connect your bank account to automatically receive <strong>70%</strong> of every validated advertising campaign on your vehicles, with no manual steps.",
-    "step1": "Identity verification (ID document)",
-    "step2": "Enter your IBAN directly on Stripe",
-    "step3": "Automatic payouts for every validated campaign (70%)",
-    "btn_loading": "Loading…",
-    "btn_connect": "Connect my account via Stripe",
-    "btn_finalize": "Complete Stripe verification",
-    "btn_update": "Update my bank details",
-    "err_generic": "Error",
-    "trust_badge": "Your bank details (IBAN) are entered directly on <strong>Stripe</strong> and remain hosted with them. MoveSpot never has access to this information."
-  },
   "wallet_topup": {
     "btn_default": "Top up {{amount}} €",
     "dialog_title": "Top up wallet",
@@ -3286,14 +3252,29 @@
     "assessment_risque": "Risky conditions — check before proceeding",
     "assessment_deconseille": "Installation not recommended — unfavourable conditions for vinyl",
     "tip": "Vinyl: optimal adhesion ≥ 10 °C, no rain, wind < 40 km/h · Source Open-Meteo",
-    "wmo_0": "Clear sky", "wmo_1": "Mainly clear", "wmo_2": "Partly cloudy", "wmo_3": "Overcast",
-    "wmo_45": "Fog", "wmo_48": "Icy fog",
-    "wmo_51": "Light drizzle", "wmo_53": "Drizzle", "wmo_55": "Heavy drizzle",
-    "wmo_61": "Light rain", "wmo_63": "Rain", "wmo_65": "Heavy rain",
-    "wmo_71": "Light snow", "wmo_73": "Snow", "wmo_75": "Heavy snow",
-    "wmo_80": "Light showers", "wmo_81": "Showers", "wmo_82": "Violent showers",
-    "wmo_85": "Snow showers", "wmo_86": "Heavy snow showers",
-    "wmo_95": "Thunderstorm", "wmo_96": "Thunderstorm with hail", "wmo_99": "Severe thunderstorm with hail"
+    "wmo_0": "Clear sky",
+    "wmo_1": "Mainly clear",
+    "wmo_2": "Partly cloudy",
+    "wmo_3": "Overcast",
+    "wmo_45": "Fog",
+    "wmo_48": "Icy fog",
+    "wmo_51": "Light drizzle",
+    "wmo_53": "Drizzle",
+    "wmo_55": "Heavy drizzle",
+    "wmo_61": "Light rain",
+    "wmo_63": "Rain",
+    "wmo_65": "Heavy rain",
+    "wmo_71": "Light snow",
+    "wmo_73": "Snow",
+    "wmo_75": "Heavy snow",
+    "wmo_80": "Light showers",
+    "wmo_81": "Showers",
+    "wmo_82": "Violent showers",
+    "wmo_85": "Snow showers",
+    "wmo_86": "Heavy snow showers",
+    "wmo_95": "Thunderstorm",
+    "wmo_96": "Thunderstorm with hail",
+    "wmo_99": "Severe thunderstorm with hail"
   },
   "subscription": {
     "status_active": "Active",
@@ -3493,5 +3474,75 @@
     "consent_link": "Accept cookies",
     "consent_suffix": "to enable route calculation.",
     "map_not_configured": "Map service not configured."
+  },
+  "comp": {
+    "badge": "Positioning",
+    "h2": "MoveSpot vs the competition",
+    "desc": "Unlike traditional agencies or fixed billboards, MoveSpot connects you directly with vehicle owners — no middleman, no commitment, with real-time audience measurement.",
+    "col_ag": "Traditional agency",
+    "col_bb": "Billboard / Bus shelter",
+    "row0_l": "Launch time",
+    "row0_ms": "5 minutes",
+    "row0_ag": "3 to 6 weeks",
+    "row0_bb": "2 to 4 weeks",
+    "row1_l": "Minimum price",
+    "row1_ms": "€25/day",
+    "row1_ag": "€1,000 + fees",
+    "row1_bb": "€500/week",
+    "row2_l": "No commitment",
+    "row2_ms": "✓",
+    "row2_ag": "✗ (contract)",
+    "row2_bb": "✗ (contract)",
+    "row3_l": "GPS audience measurement",
+    "row3_ms": "✓ Real-time",
+    "row3_ag": "Estimated",
+    "row3_bb": "✗",
+    "row4_l": "Zone targeting",
+    "row4_ms": "✓ Precise to the km",
+    "row4_ag": "Approximate",
+    "row4_bb": "✗ Fixed zone",
+    "row5_l": "Available in France",
+    "row5_ms": "✓",
+    "row5_ag": "✓",
+    "row5_bb": "✓",
+    "row6_l": "Access for SMEs & individuals",
+    "row6_ms": "✓",
+    "row6_ag": "✗ Enterprise only",
+    "row6_bb": "✗ Enterprise only",
+    "link": "Learn more about our advantages →"
+  },
+  "audience": {
+    "badge": "Audience measurement",
+    "h2": "Real data, not estimates",
+    "desc": "Every partner vehicle transmits its GPS position in real time. MoveSpot automatically calculates impressions based on zones covered, population density and traffic times.",
+    "item0_l": "Real-time GPS tracking",
+    "item0_d": "Exact position every 30 seconds",
+    "item1_l": "Automatically calculated impressions",
+    "item1_d": "Based on km driven × zone density",
+    "item2_l": "Detailed campaign report",
+    "item2_d": "Zones covered, hours, repetitions",
+    "item3_l": "Geographic zone targeting",
+    "item3_d": "Custom polygons on interactive map",
+    "kpi0_l": "Impressions per vehicle",
+    "kpi0_s": "per month, dense urban area",
+    "kpi1_l": "Average CPM",
+    "kpi1_s": "cost per 1,000 contacts",
+    "kpi2_l": "Launch time",
+    "kpi2_s": "brief → vehicle on the road",
+    "kpi3_l": "Certified GPS measurement",
+    "kpi3_s": "zero approximate estimation"
+  },
+  "particular": {
+    "badge": "Individuals",
+    "h2": "You don't need to be a company",
+    "desc": "Association, shop opening, local festival… Advertise your event in your neighbourhood from €49, no subscription needed.",
+    "item0_l": "Association & local event",
+    "item0_d": "Sports club, events committee, cultural association… — 1 week · from €79",
+    "item1_l": "Shop opening",
+    "item1_d": "Establish your presence in the neighbourhood — 2 weeks · from €149",
+    "item2_l": "Festival & event",
+    "item2_d": "Maximum visibility for the weekend — 3 days · from €49",
+    "cta": "Create my personal account →",
+    "cta2": "See campaign examples"
   }
 }

@@ -95,7 +95,11 @@
     "export_csv_btn": "↓ Exporter CSV",
     "prev": "← Précédent",
     "next": "Suivant →",
-    "page_info": "Page {{current}} / {{total}} · {{count}} transactions"
+    "page_info": "Page {{current}} / {{total}} · {{count}} transactions",
+    "col_date": "Date",
+    "col_type": "Type",
+    "col_desc": "Description",
+    "col_amount": "Montant"
   },
   "briefs": {
     "page_title": "Mes briefs — MoveSpot",
@@ -167,7 +171,11 @@
     "confidentialite": "Confidentialité",
     "cookies": "Cookies",
     "mentions": "Mentions légales",
-    "admin": "Admin"
+    "admin": "Admin",
+    "payment_secure": "Paiement sécurisé :",
+    "transactions_3ds": "· Transactions 3D Secure",
+    "follow_us": "Suivez-nous :",
+    "b2b": "Solution B2B"
   },
   "root": {
     "skip_to_content": "Aller au contenu principal",
@@ -182,7 +190,8 @@
     "title": "Une erreur est survenue",
     "reload": "Recharger",
     "network": "Impossible de charger les données. Vérifiez votre connexion.",
-    "retrying": "Rechargement…"
+    "retrying": "Rechargement…",
+    "prefix": "Erreur"
   },
   "auth": {
     "page_title": "Connexion — MoveSpot",
@@ -810,7 +819,8 @@
         "install_approved": "✓ Posée",
         "install_rejected": "❌ Refusée",
         "report_btn": "Rapport →",
-        "vehicle_fallback": "Véhicule"
+        "vehicle_fallback": "Véhicule",
+        "gps_btn": "Suivi GPS"
       },
       "nouveau": {
         "back": "← Retour",
@@ -2449,7 +2459,8 @@
       "severity_high": "Critique",
       "severity_medium": "Moyen",
       "severity_low": "Faible"
-    }
+    },
+    "photo_label": "Photo"
   },
   "partner": {
     "badge": "🚐 Espace propriétaires",
@@ -3061,16 +3072,16 @@
     "aria_send": "Envoyer"
   },
   "status_banner": {
-    "webgl_warn": "Les cartes interactives fonctionnent en mode simplifié sur cet appareil (WebGL non disponible).",
+    "webgl_warn": "Votre navigateur ne supporte pas WebGL — la carte 3D est remplacée par une carte standard.",
     "btn_close": "Fermer"
   },
   "fleet_map": {
+    "popup_campaign": "Campagne",
     "token_missing": "Carte indisponible : le jeton Mapbox n'est pas configuré.",
-    "btn_immersive": "Vue immersive 3D",
     "btn_flat": "Vue plane",
-    "btn_orbit": "Rotation 360°",
+    "btn_immersive": "Vue immersive 3D",
     "btn_stop_orbit": "Stopper la rotation",
-    "popup_campaign": "Campagne"
+    "btn_orbit": "Rotation 360°"
   },
   "onboarding": {
     "welcome": "Bienvenue sur MoveSpot",
@@ -3080,30 +3091,30 @@
     "btn_discover_packs": "Découvrir les packs →",
     "btn_create_campaign": "Créer ma première campagne →",
     "btn_skip": "Passer l'introduction",
-    "step_1_title": "Définissez votre campagne",
-    "step_1_desc": "Choisissez votre zone géographique, le type de véhicule, la durée et votre budget. Notre formulaire vous guide étape par étape.",
-    "step_2_title": "On trouve le véhicule",
-    "step_2_desc": "MoveSpot met en relation avec les propriétaires de véhicules qui correspondent à vos critères. Vous recevez une proposition tarifaire.",
-    "step_3_title": "Validation de la pose",
-    "step_3_desc": "Un poseur certifié installe votre covering. Vous recevez des photos de confirmation et validez la pose avant le début de la diffusion.",
-    "step_4_title": "Suivi GPS en temps réel",
-    "step_4_desc": "Pendant toute la campagne, suivez l'itinéraire du véhicule, la couverture de zone et les métriques de performance dans votre espace."
+    "step1_title": "Définissez votre campagne",
+    "step1_desc": "Choisissez votre zone géographique, le type de véhicule, la durée et votre budget. Notre formulaire vous guide étape par étape.",
+    "step2_title": "On trouve le véhicule",
+    "step2_desc": "MoveSpot met en relation avec les propriétaires de véhicules qui correspondent à vos critères. Vous recevez une proposition tarifaire.",
+    "step3_title": "Validation de la pose",
+    "step3_desc": "Un poseur certifié installe votre covering. Vous recevez des photos de confirmation et validez la pose avant le début de la diffusion.",
+    "step4_title": "Suivi GPS en temps réel",
+    "step4_desc": "Pendant toute la campagne, suivez l'itinéraire du véhicule, la couverture de zone et les métriques de performance dans votre espace."
   },
   "owner_connect": {
     "title": "Mes reversements",
     "subtitle": "Powered by Stripe Connect",
     "active_msg": "Compte Stripe actif — vous recevez automatiquement 70 % de chaque campagne validée sur vos véhicules.",
-    "btn_update": "Mettre à jour mes informations bancaires",
     "pending_msg": "Vérification en cours — finalisez l'onboarding pour recevoir vos paiements.",
-    "btn_finalize": "Finaliser la vérification Stripe",
-    "not_connected_desc": "Connectez votre compte bancaire pour recevoir automatiquement 70 % de chaque campagne publicitaire validée sur vos véhicules, sans aucune démarche manuelle.",
-    "step_1": "Vérification d'identité (pièce d'identité)",
-    "step_2": "Saisie de votre IBAN directement sur Stripe",
-    "step_3": "Reversements automatiques à chaque campagne validée (70 %)",
-    "btn_connect": "Connecter mon compte via Stripe",
+    "not_connected_desc": "Connectez votre compte bancaire pour recevoir automatiquement <strong>70 %</strong> de chaque campagne publicitaire validée sur vos véhicules, sans aucune démarche manuelle.",
+    "step1": "Vérification d'identité (pièce d'identité)",
+    "step2": "Saisie de votre IBAN directement sur Stripe",
+    "step3": "Reversements automatiques à chaque campagne validée (70 %)",
     "btn_loading": "Chargement…",
+    "btn_connect": "Connecter mon compte via Stripe",
+    "btn_finalize": "Finaliser la vérification Stripe",
+    "btn_update": "Mettre à jour mes informations bancaires",
     "err_generic": "Erreur",
-    "trust_badge": "Vos coordonnées bancaires (IBAN) sont saisies directement sur Stripe et restent hébergées chez eux. MoveSpot n'a jamais accès à ces informations."
+    "trust_badge": "Vos coordonnées bancaires (IBAN) sont saisies directement sur <strong>Stripe</strong> et restent hébergées chez eux. MoveSpot n'a jamais accès à ces informations."
   },
   "notif_bell": {
     "aria_label": "Notifications",
@@ -3204,51 +3215,6 @@
     "err_claim": "Erreur lors de la réservation.",
     "err_release": "Erreur."
   },
-  "status_banner": {
-    "webgl_warn": "Votre navigateur ne supporte pas WebGL — la carte 3D est remplacée par une carte standard.",
-    "btn_close": "Fermer"
-  },
-  "fleet_map": {
-    "popup_campaign": "Campagne",
-    "token_missing": "Carte indisponible : le jeton Mapbox n'est pas configuré.",
-    "btn_flat": "Vue plane",
-    "btn_immersive": "Vue immersive 3D",
-    "btn_stop_orbit": "Stopper la rotation",
-    "btn_orbit": "Rotation 360°"
-  },
-  "onboarding": {
-    "welcome": "Bienvenue sur MoveSpot",
-    "aria_close": "Fermer",
-    "btn_prev": "Précédent",
-    "btn_next": "Suivant →",
-    "btn_discover_packs": "Découvrir les packs →",
-    "btn_create_campaign": "Créer ma première campagne →",
-    "btn_skip": "Passer l'introduction",
-    "step1_title": "Définissez votre campagne",
-    "step1_desc": "Choisissez votre zone géographique, le type de véhicule, la durée et votre budget. Notre formulaire vous guide étape par étape.",
-    "step2_title": "On trouve le véhicule",
-    "step2_desc": "MoveSpot met en relation avec les propriétaires de véhicules qui correspondent à vos critères. Vous recevez une proposition tarifaire.",
-    "step3_title": "Validation de la pose",
-    "step3_desc": "Un poseur certifié installe votre covering. Vous recevez des photos de confirmation et validez la pose avant le début de la diffusion.",
-    "step4_title": "Suivi GPS en temps réel",
-    "step4_desc": "Pendant toute la campagne, suivez l'itinéraire du véhicule, la couverture de zone et les métriques de performance dans votre espace."
-  },
-  "owner_connect": {
-    "title": "Mes reversements",
-    "subtitle": "Powered by Stripe Connect",
-    "active_msg": "Compte Stripe actif — vous recevez automatiquement 70 % de chaque campagne validée sur vos véhicules.",
-    "pending_msg": "Vérification en cours — finalisez l'onboarding pour recevoir vos paiements.",
-    "not_connected_desc": "Connectez votre compte bancaire pour recevoir automatiquement <strong>70 %</strong> de chaque campagne publicitaire validée sur vos véhicules, sans aucune démarche manuelle.",
-    "step1": "Vérification d'identité (pièce d'identité)",
-    "step2": "Saisie de votre IBAN directement sur Stripe",
-    "step3": "Reversements automatiques à chaque campagne validée (70 %)",
-    "btn_loading": "Chargement…",
-    "btn_connect": "Connecter mon compte via Stripe",
-    "btn_finalize": "Finaliser la vérification Stripe",
-    "btn_update": "Mettre à jour mes informations bancaires",
-    "err_generic": "Erreur",
-    "trust_badge": "Vos coordonnées bancaires (IBAN) sont saisies directement sur <strong>Stripe</strong> et restent hébergées chez eux. MoveSpot n'a jamais accès à ces informations."
-  },
   "wallet_topup": {
     "btn_default": "Recharger {{amount}} €",
     "dialog_title": "Recharge portefeuille",
@@ -3286,14 +3252,29 @@
     "assessment_risque": "Conditions à risque — vérifiez avant d'intervenir",
     "assessment_deconseille": "Pose déconseillée — conditions défavorables au vinyle",
     "tip": "Vinyle : adhérence optimale ≥ 10 °C, sans pluie, vent < 40 km/h · Source Open-Meteo",
-    "wmo_0": "Ciel dégagé", "wmo_1": "Peu nuageux", "wmo_2": "Partiellement nuageux", "wmo_3": "Couvert",
-    "wmo_45": "Brouillard", "wmo_48": "Brouillard givrant",
-    "wmo_51": "Bruine légère", "wmo_53": "Bruine", "wmo_55": "Bruine forte",
-    "wmo_61": "Pluie légère", "wmo_63": "Pluie", "wmo_65": "Pluie forte",
-    "wmo_71": "Neige légère", "wmo_73": "Neige", "wmo_75": "Neige forte",
-    "wmo_80": "Averses légères", "wmo_81": "Averses", "wmo_82": "Averses violentes",
-    "wmo_85": "Averses de neige", "wmo_86": "Averses de neige fortes",
-    "wmo_95": "Orage", "wmo_96": "Orage avec grêle", "wmo_99": "Orage violent avec grêle"
+    "wmo_0": "Ciel dégagé",
+    "wmo_1": "Peu nuageux",
+    "wmo_2": "Partiellement nuageux",
+    "wmo_3": "Couvert",
+    "wmo_45": "Brouillard",
+    "wmo_48": "Brouillard givrant",
+    "wmo_51": "Bruine légère",
+    "wmo_53": "Bruine",
+    "wmo_55": "Bruine forte",
+    "wmo_61": "Pluie légère",
+    "wmo_63": "Pluie",
+    "wmo_65": "Pluie forte",
+    "wmo_71": "Neige légère",
+    "wmo_73": "Neige",
+    "wmo_75": "Neige forte",
+    "wmo_80": "Averses légères",
+    "wmo_81": "Averses",
+    "wmo_82": "Averses violentes",
+    "wmo_85": "Averses de neige",
+    "wmo_86": "Averses de neige fortes",
+    "wmo_95": "Orage",
+    "wmo_96": "Orage avec grêle",
+    "wmo_99": "Orage violent avec grêle"
   },
   "subscription": {
     "status_active": "Actif",
@@ -3493,5 +3474,75 @@
     "consent_link": "Acceptez les cookies",
     "consent_suffix": "pour activer le calcul d'itinéraire.",
     "map_not_configured": "Service cartographique non configuré."
+  },
+  "comp": {
+    "badge": "Positionnement",
+    "h2": "MoveSpot vs la concurrence",
+    "desc": "Contrairement aux agences traditionnelles ou aux panneaux fixes, MoveSpot vous connecte directement aux propriétaires de véhicules — sans intermédiaire, sans engagement, avec une mesure d'audience en temps réel.",
+    "col_ag": "Agence traditionnelle",
+    "col_bb": "Billboard / Abribus",
+    "row0_l": "Délai de lancement",
+    "row0_ms": "5 minutes",
+    "row0_ag": "3 à 6 semaines",
+    "row0_bb": "2 à 4 semaines",
+    "row1_l": "Prix minimum",
+    "row1_ms": "25 €/jour",
+    "row1_ag": "1 000 € + frais",
+    "row1_bb": "500 €/semaine",
+    "row2_l": "Sans engagement",
+    "row2_ms": "✓",
+    "row2_ag": "✗ (contrat)",
+    "row2_bb": "✗ (contrat)",
+    "row3_l": "Mesure d'audience GPS",
+    "row3_ms": "✓ Temps réel",
+    "row3_ag": "Estimée",
+    "row3_bb": "✗",
+    "row4_l": "Ciblage par zone",
+    "row4_ms": "✓ Précis au km",
+    "row4_ag": "Approximatif",
+    "row4_bb": "✗ Zone fixe",
+    "row5_l": "Disponible en France",
+    "row5_ms": "✓",
+    "row5_ag": "✓",
+    "row5_bb": "✓",
+    "row6_l": "Accès PME & particuliers",
+    "row6_ms": "✓",
+    "row6_ag": "✗ Grands comptes",
+    "row6_bb": "✗ Grands comptes",
+    "link": "En savoir plus sur nos avantages →"
+  },
+  "audience": {
+    "badge": "Mesure d'audience",
+    "h2": "Des données réelles, pas des estimations",
+    "desc": "Chaque véhicule partenaire transmet sa position GPS en temps réel. MoveSpot calcule automatiquement les impressions générées selon les zones traversées, la densité de population et les horaires de circulation.",
+    "item0_l": "Tracking GPS en temps réel",
+    "item0_d": "Position exacte toutes les 30 secondes",
+    "item1_l": "Impressions calculées automatiquement",
+    "item1_d": "Basées sur km parcourus × densité de zone",
+    "item2_l": "Rapport de campagne détaillé",
+    "item2_d": "Zones couvertes, heures, répétitions",
+    "item3_l": "Ciblage par zone géographique",
+    "item3_d": "Polygones personnalisés sur carte interactive",
+    "kpi0_l": "Impressions par véhicule",
+    "kpi0_s": "par mois, zone urbaine dense",
+    "kpi1_l": "CPM moyen",
+    "kpi1_s": "coût pour 1 000 contacts",
+    "kpi2_l": "Délai de lancement",
+    "kpi2_s": "brief → véhicule en route",
+    "kpi3_l": "Mesure GPS certifiée",
+    "kpi3_s": "zéro estimation approximative"
+  },
+  "particular": {
+    "badge": "Particuliers",
+    "h2": "Pas besoin d'être une entreprise",
+    "desc": "Association, inauguration de commerce, festival local… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.",
+    "item0_l": "Association & événement local",
+    "item0_d": "Club sportif, comité des fêtes, association culturelle… — 1 semaine · à partir de 79 €",
+    "item1_l": "Ouverture de commerce",
+    "item1_d": "Installez votre présence dans le quartier — 2 semaines · à partir de 149 €",
+    "item2_l": "Festival & événement",
+    "item2_d": "Visibilité maximale le week-end — 3 jours · à partir de 49 €",
+    "cta": "Créer mon compte particulier →",
+    "cta2": "Voir des exemples de campagnes"
   }
 }

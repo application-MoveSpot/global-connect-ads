@@ -9,9 +9,10 @@ import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/annonceur/rapport/$campaignId")({
   head: () => ({ meta: [{ title: "Rapport de diffusion GPS certifié — MoveSpot" }] }),
   component: RapportPage,
-  errorComponent: ({ error }: { error: Error }) => (
-    <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
-  ),
+  errorComponent: ({ error }: { error: Error }) => {
+    const { t } = useTranslation();
+    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+  },
 });
 
 function RapportPage() {

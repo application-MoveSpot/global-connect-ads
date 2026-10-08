@@ -369,7 +369,7 @@ function BriefDetailPage() {
                             params={{ campaignId: cr.id }}
                             className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90 transition"
                           >
-                            <Navigation className="h-3 w-3" />Suivi GPS
+                            <Navigation className="h-3 w-3" />{t("annonceur.briefs.detail.gps_btn")}
                           </Link>
                           <Link
                             to="/annonceur/rapport/$campaignId"

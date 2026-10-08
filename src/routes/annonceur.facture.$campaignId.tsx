@@ -8,9 +8,10 @@ import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/annonceur/facture/$campaignId")({
   head: () => ({ meta: [{ title: "Facture — MoveSpot" }] }),
   component: FacturePage,
-  errorComponent: ({ error }: { error: Error }) => (
-    <div className="p-8 text-center text-destructive">Erreur : {error.message}</div>
-  ),
+  errorComponent: ({ error }: { error: Error }) => {
+    const { t } = useTranslation();
+    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+  },
 });
 
 function FacturePage() {

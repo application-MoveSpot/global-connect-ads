@@ -496,11 +496,11 @@ function EtudeMarche() {
                     <DataRow label="Régime juridique" values={STRUCTURE} format={(v) => String(v)} />
                     <DataRow label="Véhicules partenaires" values={VEHICULES} format={(v) => String(v)} />
                     <SectionRow label="Flux financiers" />
-                    <DataRow label="GMV — facturé aux annonceurs" values={GMV} format={fmt} />
-                    <DataRow label="Reversé propriétaires (70 %)" values={REVERS} format={fmt} />
-                    <DataRow label="Commission MoveSpot = CA (30 %)" values={COMM} format={fmt} bold />
+                    <DataRow label="GMV — facturé aux annonceurs" values={GMV} format={(v) => fmt(v, i18n.language)} />
+                    <DataRow label="Reversé propriétaires (70 %)" values={REVERS} format={(v) => fmt(v, i18n.language)} />
+                    <DataRow label="Commission MoveSpot = CA (30 %)" values={COMM} format={(v) => fmt(v, i18n.language)} bold />
                     <SectionRow label="Charges & fiscalité" />
-                    <DataRow label="Charges d'exploitation" values={CHARGES} format={fmt} />
+                    <DataRow label="Charges d'exploitation" values={CHARGES} format={(v) => fmt(v, i18n.language)} />
                     <DataRow label="URSSAF micro (21,2 % — An 1-2)" values={[2393, 12204, 0, 0, 0]} format={(v) => v === 0 ? "—" : fmt(v, i18n.language)} />
                     <DataRow label="Versement libératoire IR (1,7 %)" values={[192, 979, 0, 0, 0]} format={(v) => v === 0 ? "—" : fmt(v, i18n.language)} />
                     <DataRow label="Impôt sur les sociétés (25 % — An 3-5)" values={[0, 0, 31246, 78140, 150832]} format={(v) => v === 0 ? "—" : fmt(v, i18n.language)} />
