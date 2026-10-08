@@ -2591,7 +2591,11 @@
   "legal": {
     "back_home": "← Back to home",
     "updated_at": "Last updated: {{date}}",
-    "copyright": "© {{year}} MoveSpot. All rights reserved."
+    "copyright": "© {{year}} MoveSpot. All rights reserved.",
+    "link_cgu": "Terms of Use",
+    "link_cgv": "Terms of Sale",
+    "link_privacy": "Privacy",
+    "link_cookies": "Cookies"
   },
   "cgv": {
     "eyebrow": "Legal",
@@ -2762,8 +2766,12 @@
     "checklist_hide": "Hide",
     "checklist_show": "See criteria",
     "checklist_review": "Our team reviews each request within 48 business hours. You'll receive an email at each step.",
+    "days_label_one": "day",
+    "days_label_other": "days",
+    "per_day_label": "/day",
+    "total_label": "Estimated total:",
     "itinerary_hint": "The owner will use these details to plan the route. Approval remains automatic if dates and the vehicle are free.",
-    "itinerary_fallback": "Without an itinerary, the vehicle estimate is used ({{count}} views/day).",
+    "itinerary_fallback": " Without an itinerary, the vehicle estimate is used ({{n}} views/day).",
     "err_forbidden": "Prohibited content detected: \"{{match}}\". Religious, sexist, pornographic or violent ads are not accepted.",
     "err_contact": "{{label}} detected in message. Personal contact details are not allowed — all communication must stay on the MoveSpot platform.",
     "err_charter": "You must accept the content charter.",
@@ -2789,6 +2797,28 @@
     "checklist_4": "Realistic dates: minimum 3 days, maximum 30 days",
     "checklist_5": "Itinerary filled in with zones and waypoints",
     "checklist_6": "The advertiser holds all rights to the visuals"
+  },
+  "prev": {
+    "title": "🧮 Subscription Simulator",
+    "subtitle": "MoveSpot 30% commission on vehicle subscriptions, projected over 12 months.",
+    "vehicles_label": "Number of simultaneously active vehicles",
+    "vehicles_count": "{{n}} vehicles",
+    "scenario1_label": "Scenario 1 — Single price",
+    "per_year": "/ yr",
+    "per_vehicle_month": "{{price}} € / vehicle / month",
+    "scenario2_label": "Scenario 2 — Multi-plan",
+    "weighted_avg": "{{avg}} € weighted average",
+    "col_formule": "Plan",
+    "col_inclus": "Included",
+    "col_prix": "Price / month",
+    "col_mix": "Mix",
+    "col_vehicles": "Vehicles",
+    "col_ca": "MoveSpot revenue / yr",
+    "formule_starter_detail": "1 vehicle, single zone",
+    "formule_standard_detail": "Extended zone + reporting",
+    "formule_pro_detail": "Multi-zone, driver priority",
+    "gain_label": "Net annual gain for MoveSpot: +{{amount}}",
+    "gain_pct": "i.e. +{{pct}} % revenue at the same volume"
   },
   "zone": {
     "mode_route": "🗺️ Trace a route",

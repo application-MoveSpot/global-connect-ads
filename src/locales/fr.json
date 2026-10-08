@@ -2591,7 +2591,11 @@
   "legal": {
     "back_home": "← Retour à l'accueil",
     "updated_at": "Dernière mise à jour : {{date}}",
-    "copyright": "© {{year}} MoveSpot. Tous droits réservés."
+    "copyright": "© {{year}} MoveSpot. Tous droits réservés.",
+    "link_cgu": "CGU",
+    "link_cgv": "CGV",
+    "link_privacy": "Confidentialité",
+    "link_cookies": "Cookies"
   },
   "cgv": {
     "eyebrow": "Mentions légales",
@@ -2762,8 +2766,12 @@
     "checklist_hide": "Masquer",
     "checklist_show": "Voir les critères",
     "checklist_review": "Notre équipe vérifie chaque demande sous 48h ouvrées. Vous recevrez un email à chaque étape.",
+    "days_label_one": "jour",
+    "days_label_other": "jours",
+    "per_day_label": "/jour",
+    "total_label": "Total estimé :",
     "itinerary_hint": "Le propriétaire utilisera ces indications pour planifier la tournée. La validation reste automatique si les dates et le véhicule sont libres.",
-    "itinerary_fallback": "À défaut d'itinéraire, l'estimation du véhicule est utilisée ({{count}} vues/jour).",
+    "itinerary_fallback": " À défaut d'itinéraire, l'estimation du véhicule est utilisée ({{n}} vues/jour).",
     "err_forbidden": "Contenu interdit détecté : « {{match}} ». Les publicités religieuses, sexistes, pornographiques ou incitant à la violence ne sont pas acceptées.",
     "err_contact": "{{label}} détecté dans le message. Les coordonnées personnelles ne sont pas autorisées — tous les échanges doivent rester sur la plateforme MoveSpot.",
     "err_charter": "Vous devez accepter la charte de contenu.",
@@ -2789,6 +2797,28 @@
     "checklist_4": "Dates réalistes : minimum 3 jours, maximum 30 jours",
     "checklist_5": "Itinéraire renseigné avec zones et points de passage",
     "checklist_6": "Tous les droits sur les visuels sont détenus par l'annonceur"
+  },
+  "prev": {
+    "title": "🧮 Simulateur d'abonnement",
+    "subtitle": "Commission MoveSpot de 30 % sur les abonnements véhicules, projetée sur 12 mois.",
+    "vehicles_label": "Nombre de véhicules actifs simultanément",
+    "vehicles_count": "{{n}} véhicules",
+    "scenario1_label": "Scénario 1 — Prix unique",
+    "per_year": "/ an",
+    "per_vehicle_month": "{{price}} € / véhicule / mois",
+    "scenario2_label": "Scénario 2 — Multi-formules",
+    "weighted_avg": "{{avg}} € moyen pondéré",
+    "col_formule": "Formule",
+    "col_inclus": "Inclus",
+    "col_prix": "Prix / mois",
+    "col_mix": "Mix",
+    "col_vehicles": "Véhicules",
+    "col_ca": "CA MoveSpot / an",
+    "formule_starter_detail": "1 véhicule, zone unique",
+    "formule_standard_detail": "Zone étendue + reporting",
+    "formule_pro_detail": "Multi-zones, priorité chauffeurs",
+    "gain_label": "Gain net annuel pour MoveSpot : +{{amount}}",
+    "gain_pct": "soit +{{pct}} % de CA à volume identique"
   },
   "zone": {
     "mode_route": "🗺️ Tracer une route",

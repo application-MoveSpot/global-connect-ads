@@ -77,7 +77,7 @@ type AuthState =
 const SCREEN_VEHICLE_TYPES = ["camion_led", "sac_a_dos_lcd"];
 
 export function BookingForm({ spot, onClose }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [message, setMessage] = useState("");
@@ -692,9 +692,9 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
                 {daysCount > 0 && (
                   <div className="rounded-md bg-primary/10 text-primary px-3 py-2 text-xs flex flex-wrap items-baseline gap-x-3">
-                    <span><strong>{daysCount}</strong> jour{daysCount > 1 ? "s" : ""} · <strong>{hoursPerDay.toFixed(1)}h</strong>/jour</span>
+                    <span><strong>{daysCount}</strong> {t("booking.days_label", { count: daysCount })} · <strong>{hoursPerDay.toFixed(1)}h</strong>{t("booking.per_day_label")}</span>
                     <span className="opacity-80">·</span>
-                    <span>Total estimé : <strong>{totalPrice.toLocaleString("fr-FR")} €</strong></span>
+                    <span>{t("booking.total_label")} <strong>{totalPrice.toLocaleString(i18n.language)} €</strong></span>
                   </div>
                 )}
                 {daysCount > 6 && (
@@ -763,9 +763,9 @@ export function BookingForm({ spot, onClose }: Props) {
                 onChange={setItinerary}
               />
               <p className="text-[11px] text-muted-foreground">
-                Le propriétaire utilisera ces indications pour planifier la tournée. La validation reste automatique si les dates et le véhicule sont libres.
+                {t("booking.itinerary_hint")}
                 {suggestedImpressions && itinerary.impressionsPerDay === 0
-                  ? ` À défaut d'itinéraire, l'estimation du véhicule est utilisée (${suggestedImpressions.toLocaleString("fr-FR")} vues/jour).`
+                  ? t("booking.itinerary_fallback", { n: suggestedImpressions.toLocaleString(i18n.language) })
                   : ""}
               </p>
 

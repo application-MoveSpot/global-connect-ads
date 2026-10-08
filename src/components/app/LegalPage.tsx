@@ -49,10 +49,10 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
           <div>{t("legal.copyright", { year: new Date().getFullYear() })}</div>
           <div className="flex flex-wrap items-center gap-4">
-            <Link to="/cgu" className="hover:text-foreground transition">CGU</Link>
-            <Link to="/cgv" className="hover:text-foreground transition">CGV</Link>
-            <Link to="/confidentialite" className="hover:text-foreground transition">Confidentialité</Link>
-            <Link to="/cookies" className="hover:text-foreground transition">Cookies</Link>
+            <Link to="/cgu" className="hover:text-foreground transition">{t("legal.link_cgu")}</Link>
+            <Link to="/cgv" className="hover:text-foreground transition">{t("legal.link_cgv")}</Link>
+            <Link to="/confidentialite" className="hover:text-foreground transition">{t("legal.link_privacy")}</Link>
+            <Link to="/cookies" className="hover:text-foreground transition">{t("legal.link_cookies")}</Link>
           </div>
         </div>
       </footer>
