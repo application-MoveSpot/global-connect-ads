@@ -826,18 +826,18 @@ function NewBriefPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            {EVENT_TEMPLATES.map((tpl) => (
+            {EVENT_TEMPLATES.map((tpl, idx) => (
               <button
-                key={tpl.id}
+                key={`${tpl.id}-${idx}`}
                 type="button"
                 onClick={() => applyTemplate(tpl)}
                 className="text-left rounded-2xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all p-5 group"
               >
                 <div className="text-3xl mb-3">{tpl.icon}</div>
                 <p className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">
-                  {tpl.label}
+                  {t(`briefs.template.t${idx}.label`, { defaultValue: tpl.label })}
                 </p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{tpl.desc}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{t(`briefs.template.t${idx}.desc`, { defaultValue: tpl.desc })}</p>
                 <div className="mt-3 flex flex-wrap gap-1">
                   {tpl.vehicleTypes.map((v) => (
                     <span

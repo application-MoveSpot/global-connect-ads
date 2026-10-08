@@ -143,6 +143,32 @@
       "stickers": "Autocollants ciblés",
       "affiche": "Panneau fixe",
       "boxled": "Fourgon publicitaire numérique (3 faces LED)"
+    },
+    "template": {
+      "t0": {
+        "label": "Association & événement local",
+        "desc": "Club sportif, comité des fêtes, association culturelle…"
+      },
+      "t1": {
+        "label": "Ouverture de commerce",
+        "desc": "Boutique, restaurant, salon, studio…"
+      },
+      "t2": {
+        "label": "Association / Bénévolat",
+        "desc": "Appel aux membres, collecte, événement"
+      },
+      "t3": {
+        "label": "Événement culturel",
+        "desc": "Concert, expo, spectacle, projection"
+      },
+      "t4": {
+        "label": "Festival / Marché",
+        "desc": "Marché artisanal, festival, fête locale"
+      },
+      "t5": {
+        "label": "Inauguration / Lancement",
+        "desc": "Nouveau local, produit, service, projet"
+      }
     }
   },
   "nav": {
@@ -3586,5 +3612,13 @@
     "label_min": "actives",
     "label_coverage": "couverture zone",
     "zone_km": "dont {{km}} km dans votre zone ciblée"
+  },
+  "oauth": {
+    "load_error": "Impossible de charger cette demande d'autorisation",
+    "this_app": "cette application",
+    "authorize_title": "Autoriser {{name}} ?",
+    "authorize_desc": "{{name}} pourra utiliser les outils MoveSpot en votre nom : consulter vos véhicules, vos campagnes, vos briefs, le solde de votre portefeuille et l'annuaire des prestataires.",
+    "authorize_btn": "Autoriser",
+    "deny_btn": "Refuser"
   }
 }

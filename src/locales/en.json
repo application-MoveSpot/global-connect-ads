@@ -143,6 +143,32 @@
       "stickers": "Targeted decals",
       "affiche": "Fixed panel",
       "boxled": "Digital advertising truck (3 LED faces)"
+    },
+    "template": {
+      "t0": {
+        "label": "Association & local event",
+        "desc": "Sports club, festivities committee, cultural association…"
+      },
+      "t1": {
+        "label": "Business opening",
+        "desc": "Shop, restaurant, salon, studio…"
+      },
+      "t2": {
+        "label": "Association / Volunteering",
+        "desc": "Member recruitment, fundraising, event"
+      },
+      "t3": {
+        "label": "Cultural event",
+        "desc": "Concert, exhibition, show, screening"
+      },
+      "t4": {
+        "label": "Festival / Market",
+        "desc": "Craft market, festival, local fair"
+      },
+      "t5": {
+        "label": "Inauguration / Launch",
+        "desc": "New premises, product, service, project"
+      }
     }
   },
   "nav": {
@@ -3586,5 +3612,13 @@
     "label_min": "active",
     "label_coverage": "zone coverage",
     "zone_km": "of which {{km}} km in your targeted zone"
+  },
+  "oauth": {
+    "load_error": "Unable to load this authorization request",
+    "this_app": "this application",
+    "authorize_title": "Authorize {{name}}?",
+    "authorize_desc": "{{name}} will be able to use MoveSpot tools on your behalf: view your vehicles, campaigns, briefs, wallet balance, and the installer directory.",
+    "authorize_btn": "Authorize",
+    "deny_btn": "Deny"
   }
 }

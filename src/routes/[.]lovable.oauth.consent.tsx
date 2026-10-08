@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
@@ -28,13 +29,16 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     return data;
   },
   component: Consent,
-  errorComponent: ({ error }: { error: Error }) => (
-    <main className="min-h-screen flex items-center justify-center p-6 text-center">
-      <p className="text-sm text-muted-foreground">
-        Impossible de charger cette demande d'autorisation : {String((error as Error)?.message ?? error)}
-      </p>
-    </main>
-  ),
+  errorComponent: ({ error }: { error: Error }) => {
+    const { t } = useTranslation();
+    return (
+      <main className="min-h-screen flex items-center justify-center p-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          {t("oauth.load_error")} : {String((error as Error)?.message ?? error)}
+        </p>
+      </main>
+    );
+  },
 });
 
 type AuthorizationDetails = {
@@ -44,11 +48,12 @@ type AuthorizationDetails = {
 };
 
 function Consent() {
+  const { t } = useTranslation();
   const details = Route.useLoaderData() as AuthorizationDetails | null;
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const clientName = details?.client?.name ?? "cette application";
+  const clientName = details?.client?.name ?? t("oauth.this_app");
 
   async function decide(approve: boolean) {
     setBusy(true);
@@ -79,10 +84,9 @@ function Consent() {
   return (
     <main className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated space-y-4">
-        <h1 className="font-display text-xl font-bold">Autoriser {clientName} ?</h1>
+        <h1 className="font-display text-xl font-bold">{t("oauth.authorize_title", { name: clientName })}</h1>
         <p className="text-sm text-muted-foreground">
-          {clientName} pourra utiliser les outils MoveSpot en votre nom : consulter vos véhicules, vos campagnes,
-          vos briefs, le solde de votre portefeuille et l'annuaire des prestataires.
+          {t("oauth.authorize_desc", { name: clientName })}
         </p>
         {error && (
           <p role="alert" className="text-sm text-destructive">
@@ -96,7 +100,7 @@ function Consent() {
             onClick={() => decide(true)}
             className="flex-1 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-50"
           >
-            Autoriser
+            {t("oauth.authorize_btn")}
           </button>
           <button
             type="button"
@@ -104,7 +108,7 @@ function Consent() {
             onClick={() => decide(false)}
             className="flex-1 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition disabled:opacity-50"
           >
-            Refuser
+            {t("oauth.deny_btn")}
           </button>
         </div>
       </div>
