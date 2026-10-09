@@ -3,13 +3,17 @@ import { hreflangLinks } from "@/lib/seo";
 import { lazy, Suspense, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Instagram } from "lucide-react";
-import { toast } from "sonner";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
+import { getPublicStats } from "@/lib/stats/public-stats.functions";
 
 const MobilityMap = lazy(() => import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })));
 const BookingForm = lazy(() => import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })));
 
 export const Route = createFileRoute("/_public/")({
+  loader: async () => {
+    try { return await getPublicStats(); }
+    catch { return { vehiclesApproved: 0, campaignsLaunched: 0 }; }
+  },
   head: () => ({
     meta: [
       { title: "MoveSpot — Marketplace de publicité mobile sur véhicules" },
@@ -97,6 +101,7 @@ function Index() {
   const { t } = useTranslation();
   const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+  const { vehiclesApproved, campaignsLaunched } = Route.useLoaderData();
 
   const stats: { k: string; vKey: string; fallback: string }[] = [
     { k: "1,80 €", vKey: "hero.stat0_v", fallback: "par km² et par jour (2,70 € en grande agglomération)" },
@@ -184,12 +189,12 @@ function Index() {
             />
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#map" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
-              {tx("hero.cta_primary", "Découvrir l'aperçu")}
-            </a>
-            <a href="/pitch" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
-              {tx("hero.cta_secondary", "Voir le pitch")}
-            </a>
+            <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+              {tx("hero.cta_primary", "Lancer ma campagne →")}
+            </Link>
+            <Link to="/devenir-partenaire" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+              {tx("hero.cta_secondary", "Je suis propriétaire →")}
+            </Link>
           </div>
           <dl className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
             {stats.map((s) => (
@@ -199,6 +204,36 @@ function Index() {
               </div>
             ))}
           </dl>
+        </div>
+      </section>
+
+      {/* Social proof */}
+      <section className="border-y border-border bg-card/30">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-muted-foreground">
+          {vehiclesApproved > 0 && (
+            <span className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+              <strong className="text-foreground">{vehiclesApproved}</strong>&nbsp;véhicule{vehiclesApproved > 1 ? "s" : ""} actif{vehiclesApproved > 1 ? "s" : ""}
+            </span>
+          )}
+          {campaignsLaunched > 0 && (
+            <span className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+              <strong className="text-foreground">{campaignsLaunched}</strong>&nbsp;campagne{campaignsLaunched > 1 ? "s" : ""} diffusée{campaignsLaunched > 1 ? "s" : ""}
+            </span>
+          )}
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
+            14 j d'essai gratuit
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
+            Sans engagement
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
+            Mesure GPS certifiée
+          </span>
         </div>
       </section>
 
@@ -216,6 +251,42 @@ function Index() {
         </div>
         <div className="mt-6">
           <Link to="/comment-ca-marche" className="text-sm text-primary hover:underline">{tx("features.link", "Voir le parcours complet →")}</Link>
+        </div>
+      </section>
+
+      {/* Particuliers */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="rounded-3xl border border-primary/20 bg-primary/5 px-8 py-10">
+          <div className="text-xs uppercase tracking-widest text-primary mb-2">{tx("particular.badge", "Particuliers")}</div>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
+            {tx("particular.h2", "Pas besoin d'être une entreprise")}
+          </h2>
+          <p className="text-muted-foreground max-w-xl mb-8">
+            {tx("particular.desc", "Association, inauguration de commerce, festival local… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.")}
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4 mb-8">
+            {particularItems.map((e) => (
+              <div key={e.key} className="rounded-2xl border border-border bg-card p-5">
+                <div className="text-3xl mb-3">{e.icon}</div>
+                <div className="font-semibold text-sm mb-1">{tx(`particular.${e.key}_l`, e.label)}</div>
+                <div className="text-xs text-muted-foreground leading-relaxed">{tx(`particular.${e.key}_d`, e.desc)}</div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/annonceur/inscription"
+              className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
+            >
+              {tx("particular.cta", "Créer mon compte particulier →")}
+            </Link>
+            <Link
+              to="/annonceur/exemples"
+              className="rounded-full border border-border bg-card px-5 py-3 text-sm font-medium hover:bg-secondary transition"
+            >
+              {tx("particular.cta2", "Voir des exemples de campagnes")}
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -280,42 +351,6 @@ function Index() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Particuliers */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="rounded-3xl border border-primary/20 bg-primary/5 px-8 py-10">
-          <div className="text-xs uppercase tracking-widest text-primary mb-2">{tx("particular.badge", "Particuliers")}</div>
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
-            {tx("particular.h2", "Pas besoin d'être une entreprise")}
-          </h2>
-          <p className="text-muted-foreground max-w-xl mb-8">
-            {tx("particular.desc", "Association, inauguration de commerce, festival local… Annoncez votre événement dans votre quartier à partir de 49 €, sans abonnement.")}
-          </p>
-          <div className="grid sm:grid-cols-3 gap-4 mb-8">
-            {particularItems.map((e) => (
-              <div key={e.key} className="rounded-2xl border border-border bg-card p-5">
-                <div className="text-3xl mb-3">{e.icon}</div>
-                <div className="font-semibold text-sm mb-1">{tx(`particular.${e.key}_l`, e.label)}</div>
-                <div className="text-xs text-muted-foreground leading-relaxed">{tx(`particular.${e.key}_d`, e.desc)}</div>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              to="/annonceur/inscription"
-              className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
-            >
-              {tx("particular.cta", "Créer mon compte particulier →")}
-            </Link>
-            <Link
-              to="/annonceur/exemples"
-              className="rounded-full border border-border bg-card px-5 py-3 text-sm font-medium hover:bg-secondary transition"
-            >
-              {tx("particular.cta2", "Voir des exemples de campagnes")}
-            </Link>
           </div>
         </div>
       </section>
