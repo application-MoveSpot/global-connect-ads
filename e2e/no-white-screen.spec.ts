@@ -178,12 +178,14 @@ test.describe("Fonctionnalités critiques — régression Camion LED", () => {
     expect(src).toContain("camion_led");
   });
 
-  test("annonceur index : 'Camion LED' présent dans le code source", () => {
+  test("annonceur index : section Camion LED présente dans le code source", () => {
+    // Le texte "Camion LED" est dans fr.json (annonceur.promo_led.title) ;
+    // on vérifie que la clé de traduction est bien référencée dans la page.
     const src = fs.readFileSync(
       path.join(process.cwd(), "src/routes/annonceur.index.tsx"),
       "utf-8"
     );
-    expect(src).toContain("Camion LED");
+    expect(src).toContain("promo_led");
   });
 });
 

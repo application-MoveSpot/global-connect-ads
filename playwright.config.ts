@@ -19,6 +19,7 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "off",
+    locale: "fr-FR",
     launchOptions: ccrLaunchOptions,
   },
   projects: [
