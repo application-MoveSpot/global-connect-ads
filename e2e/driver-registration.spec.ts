@@ -86,7 +86,7 @@ test.describe("Inscription chauffeur — switch Connexion / Créer un compte", (
   test("le toggle 'Se connecter' est présent", async ({ page }) => {
     await dismissCookieBanner(page);
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
-    const loginToggle = page.getByText(/se connecter|connexion|déjà.*compte/i).first();
+    const loginToggle = page.getByText(/se connecter|connexion|déjà.*compte|log.?in|sign.?in|already.*account/i).first();
     await expect(loginToggle).toBeVisible();
   });
 
@@ -99,7 +99,7 @@ test.describe("Inscription chauffeur — switch Connexion / Créer un compte", (
     await page.waitForTimeout(200);
 
     // Utiliser getByRole pour cibler précisément le bouton toggle (pas un parent div)
-    const toggle = page.getByRole("button", { name: /déjà un compte|se connecter/i });
+    const toggle = page.getByRole("button", { name: /déjà un compte|se connecter|already.*account|log.?in/i });
     const hasToggle = await toggle.isVisible().catch(() => false);
     if (!hasToggle) return; // Skip si le toggle n'est pas rendu (Supabase non dispo en CI)
 

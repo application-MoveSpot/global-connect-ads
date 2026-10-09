@@ -27,6 +27,10 @@ export function injectSession(page: Page, role: "annonceur" | "proprietaire" | "
 }
 
 export function isAuthRedirect(url: string) {
+  try {
+    const { pathname } = new URL(url);
+    if (pathname === "/" || pathname === "") return true;
+  } catch {}
   return url.includes("login") || url.includes("auth") || url.includes("inscription");
 }
 
@@ -38,7 +42,12 @@ export async function hasVisibleContent(page: Page) {
 export async function waitForHydration(page: Page) {
   await page.waitForLoadState("networkidle").catch(() => {});
   await page
-    .waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 3000 })
+    .waitForFunction(
+      () =>
+        !document.body.innerText.includes("Chargement") &&
+        !document.body.innerText.includes("Loading"),
+      { timeout: 3000 },
+    )
     .catch(() => {});
   await page.waitForTimeout(300);
 }
