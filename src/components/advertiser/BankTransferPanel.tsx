@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
+import { getCurrencyFromLang, CURRENCY_CONFIGS } from "@/lib/currency";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { resizeImageFile } from "@/lib/images/resize";
@@ -25,7 +27,9 @@ type TransferRow = {
 
 
 function fmt(cents: number, lang: string) {
-  return (cents / 100).toLocaleString(lang, { style: "currency", currency: "EUR" });
+  const currency = getCurrencyFromLang(lang);
+  const { locale, code } = CURRENCY_CONFIGS[currency];
+  return (cents / 100).toLocaleString(locale, { style: "currency", currency: code });
 }
 
 function LockIcon() {
@@ -68,6 +72,7 @@ export function BankTransferPanel({
   fixedAmountEuros?: number;
 }) {
   const { t, i18n } = useTranslation();
+  const { fmtAmount } = useCurrency();
   const fetchDetails = useServerFn(getBankDetails);
   const createRequest = useServerFn(createBankTransferRequest);
   const attachReceipt = useServerFn(attachBankTransferReceipt);
@@ -226,7 +231,7 @@ export function BankTransferPanel({
                       : "border-border hover:bg-secondary"
                   }`}
                 >
-                  {v} €
+                  {fmtAmount(v)}
                 </button>
               ))
             : null}

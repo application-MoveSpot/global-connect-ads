@@ -5,6 +5,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -45,10 +46,11 @@ function IconUpload({ className }: { className?: string }) {
 // ─── Barre de progression des gains ──────────────────────────────────────────
 
 function GainsProgress({ gainsCentimes }: { gainsCentimes: number }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const { fmtExact } = useCurrency();
   const pct = Math.min(100, (gainsCentimes / VIGILANCE_SEUIL_CENTIMES) * 100);
-  const gainsEuros = (gainsCentimes / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
-  const seuilEuros = (VIGILANCE_SEUIL_CENTIMES / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
+  const gainsEuros = fmtExact(gainsCentimes);
+  const seuilEuros = fmtExact(VIGILANCE_SEUIL_CENTIMES);
 
   return (
     <div className="space-y-1">

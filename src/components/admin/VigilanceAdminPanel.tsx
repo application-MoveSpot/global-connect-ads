@@ -4,6 +4,7 @@
  */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -98,15 +99,13 @@ function AttestationCard({
   const review = useServerFn(reviewVigilance);
 
   const { t, i18n } = useTranslation();
+  const { fmtExact } = useCurrency();
   const [analysisResult, setAnalysisResult] = useState<AttestationAnalyse | null>(null);
   const [analysing, setAnalysing] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectNotes, setRejectNotes] = useState("");
 
-  const gainsEuros = (row.gains_centimes / 100).toLocaleString(i18n.language, {
-    style: "currency",
-    currency: "EUR",
-  });
+  const gainsEuros = fmtExact(row.gains_centimes);
   const pct = Math.min(100, (row.gains_centimes / VIGILANCE_SEUIL_CENTIMES) * 100);
 
   const handleViewAttestation = async () => {
