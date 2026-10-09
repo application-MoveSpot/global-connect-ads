@@ -1,12 +1,11 @@
 // Content categories and their US market restrictions for mobile fleet advertising.
 // Used to gate brief submission and surface jurisdiction-specific warnings.
 //
-// Application-level refusals (globallyBlocked: true) — blocked regardless of city:
-//   Cannabis:  MoveSpot policy + federal Schedule I classification.
-//   Tobacco/vaping: MoveSpot policy + FDA FSPTCA advertising restrictions.
-//   Gambling:  MoveSpot policy + too complex a regulatory patchwork to handle safely.
+// NOT listed here (outside MoveSpot's scope entirely — not accepted, not shown):
+//   Cannabis / CBD, Tobacco / Vaping, Gambling / Sports Betting.
+//   These are handled as forbidden keywords in forbidden-keywords.ts.
 //
-// City-level restrictions:
+// City-level restrictions for accepted categories:
 //   Alcohol:   FTC/TTB rules; state ABC laws; 500 ft buffer from schools/churches (most states).
 //   Pharma:    FDA 21 CFR Part 202; mandatory brief summary for Rx drugs.
 //   Financial: SEC/FINRA Rule 2210; state-level investment adviser restrictions.
@@ -15,9 +14,6 @@ export type ContentCategory = {
   id: string;
   labelEn: string;
   labelFr: string;
-  // Blocked at the application level regardless of city (MoveSpot policy refusal).
-  globallyBlocked?: boolean;
-  globalBlockReason?: string;
   // Cities where this category requires a disclaimer (shown as ⚠ warning).
   restrictedIn: string[];
   // Cities where this category is entirely blocked (blocks submission).
@@ -143,43 +139,6 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "of side effects and contraindications. OTC drug and medical device claims must not be false or misleading (FTC Act §5). " +
       "A regulatory review by a qualified specialist is strongly recommended before launch.",
   },
-  // ── Globally blocked — MoveSpot application-level refusal ────────────────
-  {
-    id: "cannabis_cbd",
-    labelEn: "Cannabis / CBD",
-    labelFr: "Cannabis / CBD",
-    globallyBlocked: true,
-    globalBlockReason:
-      "MoveSpot n'accepte pas les campagnes cannabis / CBD. " +
-      "Le cannabis reste une substance classée Schedule I par la loi fédérale américaine, " +
-      "et la réglementation OOH varie trop radicalement d'un État à l'autre pour être gérée de façon sécurisée sur notre plateforme.",
-    restrictedIn: [],
-    blockedIn: [],
-  },
-  {
-    id: "tobacco_vaping",
-    labelEn: "Tobacco / Vaping / E-cigarettes",
-    labelFr: "Tabac / Vapotage / E-cigarettes",
-    globallyBlocked: true,
-    globalBlockReason:
-      "MoveSpot n'accepte pas les campagnes tabac, cigarettes électroniques ou produits de vapotage. " +
-      "Ces catégories font l'objet d'interdictions OOH dans de nombreuses villes et sont soumises à la loi " +
-      "fédérale FDA FSPTCA, dont la complexité dépasse le cadre de notre offre actuelle.",
-    restrictedIn: [],
-    blockedIn: [],
-  },
-  {
-    id: "gambling_betting",
-    labelEn: "Gambling / Sports Betting",
-    labelFr: "Jeux / Paris sportifs",
-    globallyBlocked: true,
-    globalBlockReason:
-      "MoveSpot n'accepte pas les campagnes jeux d'argent et paris sportifs. " +
-      "La réglementation est gérée État par État par les Gaming Control Boards et nécessite " +
-      "des licences publicitaires spécifiques que MoveSpot n'est pas en mesure de vérifier à ce stade.",
-    restrictedIn: [],
-    blockedIn: [],
-  },
 ];
 
 export type ContentComplianceResult =
@@ -193,13 +152,6 @@ export function checkContentCompliance(
 ): ContentComplianceResult {
   const cat = CONTENT_CATEGORIES.find((c) => c.id === categoryId);
   if (!cat) return { status: "ok" };
-
-  if (cat.globallyBlocked) {
-    return {
-      status: "blocked",
-      reason: cat.globalBlockReason ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée sur MoveSpot.`,
-    };
-  }
 
   if (cat.blockedIn.includes(cityId)) {
     return {
