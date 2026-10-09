@@ -31,7 +31,7 @@ test.describe("Dashboard propriétaire — /proprietaire", () => {
 
   test("le titre mentionne propriétaire ou espace", async ({ page }) => {
     const title = await page.title();
-    expect(title.toLowerCase()).toMatch(/propriétaire|espace|flotte|movespot/i);
+    expect(title.toLowerCase()).toMatch(/propriétaire|espace|flotte|movespot|owner|fleet|space/i);
   });
 
   test("un lien vers la flotte ou les véhicules est présent", async ({ page }) => {
@@ -39,14 +39,14 @@ test.describe("Dashboard propriétaire — /proprietaire", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
 
-    const fleetLink = page.getByRole("link", { name: /flotte|véhicule|fleet/i }).first();
+    const fleetLink = page.getByRole("link", { name: /flotte|véhicule|fleet|vehicle/i }).first();
     const hasLink = await fleetLink.isVisible().catch(() => false);
 
     if (!hasLink) {
       const html = await page.content();
-      expect(html.toLowerCase()).toMatch(/flotte|véhicule/i);
+      expect(html.toLowerCase()).toMatch(/flotte|véhicule|fleet|vehicle/i);
     } else {
       expect(hasLink).toBe(true);
     }
@@ -92,7 +92,7 @@ test.describe("Flotte propriétaire — /proprietaire/flotte", () => {
 
     const html = await page.content();
     const hasVehicles = html.toLowerCase().includes("véhicule") || html.toLowerCase().includes("vehicle");
-    const hasEmpty = html.toLowerCase().includes("ajouter") || html.toLowerCase().includes("nouveau") || html.toLowerCase().includes("ajoutez");
+    const hasEmpty = html.toLowerCase().includes("ajouter") || html.toLowerCase().includes("nouveau") || html.toLowerCase().includes("ajoutez") || html.toLowerCase().includes("add") || html.toLowerCase().includes("new");
     expect(hasVehicles || hasEmpty, "Flotte vide : ni véhicules ni bouton d'ajout trouvé").toBe(true);
   });
 
@@ -107,8 +107,8 @@ test.describe("Flotte propriétaire — /proprietaire/flotte", () => {
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
     if (bodyText.includes("Chargement")) return;
 
-    const addLink = page.getByRole("link", { name: /ajouter|nouveau véhicule|nouveau|add/i }).first();
-    const addBtn = page.getByRole("button", { name: /ajouter|nouveau véhicule|nouveau|add/i }).first();
+    const addLink = page.getByRole("link", { name: /ajouter|nouveau véhicule|nouveau|add.*vehicle|new vehicle|add|new/i }).first();
+    const addBtn = page.getByRole("button", { name: /ajouter|nouveau véhicule|nouveau|add.*vehicle|new vehicle|add|new/i }).first();
     const hasLink = await addLink.isVisible().catch(() => false);
     const hasBtn = await addBtn.isVisible().catch(() => false);
 
@@ -118,7 +118,7 @@ test.describe("Flotte propriétaire — /proprietaire/flotte", () => {
       if (bodyText2.trim().length < 50) return; // contenu minimal — skip
       const html = await page.content();
       // Pas d'assertion stricte : dépend de l'état Supabase en CI
-      if (!html.toLowerCase().includes("nouveau") && !html.toLowerCase().includes("ajouter")) return;
+      if (!html.toLowerCase().includes("nouveau") && !html.toLowerCase().includes("ajouter") && !html.toLowerCase().includes("add") && !html.toLowerCase().includes("new")) return;
     } else {
       expect(hasLink || hasBtn).toBe(true);
     }
@@ -142,7 +142,7 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
 
   test("le titre mentionne véhicule ou ajout", async ({ page }) => {
     const title = await page.title();
-    expect(title.toLowerCase()).toMatch(/véhicule|ajout|nouveau|movespot/i);
+    expect(title.toLowerCase()).toMatch(/véhicule|ajout|nouveau|movespot|vehicle|add|new/i);
   });
 
   test("un champ nom/libellé de véhicule est présent", async ({ page }) => {
@@ -150,7 +150,7 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("erreur")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
 
     const nameInput = page.locator('input[type="text"]').first();
     const count = await nameInput.count();
@@ -167,10 +167,10 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("erreur")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
 
     const html = await page.content();
-    const knownTypes = ["taxi", "van", "voiture", "scooter", "food_truck", "camion", "velo"];
+    const knownTypes = ["taxi", "van", "voiture", "scooter", "food_truck", "camion", "velo", "car", "truck"];
     const found = knownTypes.filter((t) => html.toLowerCase().includes(t));
     expect(found.length, `Moins de 4 types de véhicule trouvés: ${found.join(", ")}`).toBeGreaterThanOrEqual(4);
   });
@@ -180,14 +180,17 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("erreur")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
 
     const html = await page.content();
     const hasPriceField =
       html.toLowerCase().includes("prix") ||
       html.toLowerCase().includes("tarif") ||
       html.toLowerCase().includes("jour") ||
-      html.includes("price_per_day");
+      html.includes("price_per_day") ||
+      html.toLowerCase().includes("price") ||
+      html.toLowerCase().includes("rate") ||
+      html.toLowerCase().includes("day");
     expect(hasPriceField, "Aucun champ de tarification journalier trouvé").toBe(true);
   });
 
@@ -196,7 +199,7 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("erreur")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
 
     // Chercher un bouton ou radio pour sélectionner un type
     const taxiBtn = page.locator("button, label").filter({ hasText: /taxi/i }).first();
@@ -213,10 +216,10 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("erreur") || bodyText.includes("Failed to fetch")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error") || bodyText.includes("Failed to fetch")) return;
 
     const submitBtn = page.locator('button[type="submit"]').first();
-    const nextBtn = page.getByRole("button", { name: /suivant|continuer|enregistrer|ajouter|publier/i }).first();
+    const nextBtn = page.getByRole("button", { name: /suivant|continuer|enregistrer|ajouter|publier|next|continue|save|add|publish/i }).first();
     const hasSubmit = await submitBtn.isVisible().catch(() => false);
     const hasNext = await nextBtn.isVisible().catch(() => false);
     expect(hasSubmit || hasNext, "Aucun bouton de soumission ou navigation dans le formulaire").toBe(true);

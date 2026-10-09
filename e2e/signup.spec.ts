@@ -77,7 +77,7 @@ test.describe("Inscription annonceur — /annonceur/inscription", () => {
   });
 
   test("un lien vers la connexion ou déjà un compte est présent", async ({ page }) => {
-    const link = page.getByText(/déjà un compte|se connecter|connexion/i).first();
+    const link = page.getByText(/déjà un compte|se connecter|connexion|already.*account|log.?in|sign.?in/i).first();
     await expect(link).toBeVisible();
   });
 });

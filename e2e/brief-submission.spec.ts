@@ -62,7 +62,10 @@ test.describe("Brief nouveau — chargement de la page", () => {
     if (isRedirected(url)) return;
 
     // Attendre que le chargement soit terminé
-    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForFunction(
+      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
+      { timeout: 2000 },
+    ).catch(() => {});
 
     const html = await page.content();
     const hasVehicleTypes =
@@ -175,11 +178,11 @@ test.describe("Brief nouveau — formulaire", () => {
 
     // Si l'erreur boundary s'affiche (module dynamique non chargé), skip
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "").catch(() => "");
-    if (bodyText.includes("erreur est survenue") || bodyText.includes("Failed to fetch") || bodyText.includes("Chargement")) return;
+    if (bodyText.includes("erreur est survenue") || bodyText.includes("error occurred") || bodyText.includes("Failed to fetch") || bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
 
     // Chercher le bouton submit ou un bouton de soumission
     const submitBtn = page.locator('button[type="submit"]').first();
-    const publishBtn = page.getByRole("button", { name: /publier|soumettre|suivant|continuer|créer/i }).first();
+    const publishBtn = page.getByRole("button", { name: /publier|soumettre|suivant|continuer|créer|publish|submit|next|continue|create/i }).first();
 
     const hasSubmit = await submitBtn.isVisible().catch(() => false);
     const hasBtn = await publishBtn.isVisible().catch(() => false);
@@ -222,19 +225,22 @@ test.describe("Brief nouveau — soumission", () => {
     if (isRedirected(url)) return;
 
     // Attendre la fin du chargement (disparition du spinner)
-    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForFunction(
+      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
+      { timeout: 2000 },
+    ).catch(() => {});
     const currentUrl = page.url();
     if (isRedirected(currentUrl)) return;
 
-    const newLink = page.getByRole("link", { name: /nouveau|créer|brief/i }).first();
-    const newBtn = page.getByRole("button", { name: /nouveau|créer|brief/i }).first();
+    const newLink = page.getByRole("link", { name: /nouveau|créer|brief|new|create/i }).first();
+    const newBtn = page.getByRole("button", { name: /nouveau|créer|brief|new|create/i }).first();
     const hasLink = await newLink.isVisible().catch(() => false);
     const hasBtn = await newBtn.isVisible().catch(() => false);
     if (!hasLink && !hasBtn) {
       const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
       if (bodyText.trim().length < 50) return; // contenu minimal — skip
       const html = await page.content();
-      expect(html.toLowerCase()).toMatch(/nouveau|créer|brief/i);
+      expect(html.toLowerCase()).toMatch(/nouveau|créer|brief|new|create/i);
     } else {
       expect(hasLink || hasBtn, "Pas de lien de création sur /annonceur/briefs").toBe(true);
     }

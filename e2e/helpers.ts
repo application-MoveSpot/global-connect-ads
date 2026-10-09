@@ -38,7 +38,12 @@ export async function hasVisibleContent(page: Page) {
 export async function waitForHydration(page: Page) {
   await page.waitForLoadState("networkidle").catch(() => {});
   await page
-    .waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 3000 })
+    .waitForFunction(
+      () =>
+        !document.body.innerText.includes("Chargement") &&
+        !document.body.innerText.includes("Loading"),
+      { timeout: 3000 },
+    )
     .catch(() => {});
   await page.waitForTimeout(300);
 }

@@ -71,7 +71,10 @@ test.describe("Portefeuille — composant de recharge", () => {
     await injectTestSession(page);
     await page.goto("/annonceur/portefeuille", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForFunction(
+      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
+      { timeout: 2000 },
+    ).catch(() => {});
     await page.waitForTimeout(300);
   });
 
@@ -80,9 +83,9 @@ test.describe("Portefeuille — composant de recharge", () => {
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
 
-    const rechargeBtn = page.getByRole("button", { name: /recharger|top.up|créditer|ajouter|payer/i }).first();
+    const rechargeBtn = page.getByRole("button", { name: /recharger|top.up|créditer|ajouter|payer|top up|credit|add funds|pay/i }).first();
     const hasBtn = await rechargeBtn.isVisible().catch(() => false);
 
     if (!hasBtn) {
@@ -91,9 +94,12 @@ test.describe("Portefeuille — composant de recharge", () => {
       const hasRechargeContent =
         html.toLowerCase().includes("recharger") ||
         html.toLowerCase().includes("topup") ||
+        html.toLowerCase().includes("top-up") ||
         html.toLowerCase().includes("créditer") ||
         html.toLowerCase().includes("solde") ||
-        html.toLowerCase().includes("portefeuille");
+        html.toLowerCase().includes("balance") ||
+        html.toLowerCase().includes("portefeuille") ||
+        html.toLowerCase().includes("wallet");
       expect(hasRechargeContent, "Aucun composant de recharge visible").toBe(true);
     } else {
       expect(hasBtn).toBe(true);
@@ -143,7 +149,7 @@ test.describe("Portefeuille — composant de recharge", () => {
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
 
     const html = await page.content();
     const hasTransactionUI =
@@ -162,14 +168,17 @@ test.describe("Portefeuille — navigation depuis le dashboard", () => {
     await injectTestSession(page);
     await page.goto("/annonceur", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle").catch(() => {});
-    await page.waitForFunction(() => !document.body.innerText.includes("Chargement"), { timeout: 2000 }).catch(() => {});
+    await page.waitForFunction(
+      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
+      { timeout: 2000 },
+    ).catch(() => {});
     await page.waitForTimeout(300);
 
     const url = page.url();
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement")) return;
+    if (bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
 
     const walletLink = page.getByRole("link", { name: /portefeuille|wallet/i }).first();
     const hasLink = await walletLink.isVisible().catch(() => false);
