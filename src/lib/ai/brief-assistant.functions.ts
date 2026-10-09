@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { hasAuthenticatedBriefRequest } from "./brief-auth.server";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
+import { captureServerException } from "@/lib/sentry.server";
 
 const BriefGenerateInput = z.object({
   businessContext: z.string().min(10).max(600),
@@ -83,7 +84,8 @@ Réponds UNIQUEMENT en JSON strict :
           audience: String(parsed.audience ?? "").slice(0, 200),
         },
       };
-    } catch {
+    } catch (err) {
+      captureServerException(err, { category: "ai" });
       return {
         ok: false,
         code: "AI_UNAVAILABLE",

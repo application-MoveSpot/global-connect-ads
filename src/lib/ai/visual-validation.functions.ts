@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertRateLimit } from "@/lib/rateLimit.server";
+import { captureServerException } from "@/lib/sentry.server";
 
 // Shared helper: analyse an image (base64) via Lovable AI gateway vision
 async function analyseImageBase64(
@@ -81,7 +82,8 @@ Réponds UNIQUEMENT en JSON strict :
         issues: Array.isArray(parsed.issues) ? (parsed.issues as string[]).slice(0, 5) : [],
         tips: Array.isArray(parsed.tips) ? (parsed.tips as string[]).slice(0, 5) : [],
       };
-    } catch {
+    } catch (err) {
+      captureServerException(err, { category: "ai", userId: context.userId });
       return { ok: true, score: 50, issues: [], tips: [] };
     }
   });
@@ -143,7 +145,7 @@ Si problème : { "ok": false, "note": "Bulle d'air visible sur le tiers gauche �
         perView[r.value.view] = { ok: r.value.ok, note: r.value.note };
         if (!r.value.ok) allOk = false;
       } else {
-        // L'analyse a échoué — on ne bloque pas
+        captureServerException(r.reason, { category: "ai", userId: context.userId });
         perView["unknown"] = { ok: true, note: "Analyse indisponible." };
       }
     }
@@ -242,7 +244,8 @@ Réponds UNIQUEMENT en JSON strict :
           ? parsed.verdict
           : "conforme") as VisualModerationResult["verdict"],
       };
-    } catch {
+    } catch (err) {
+      captureServerException(err, { category: "ai", userId: context.userId });
       return { safe: true, score_risque: 0, issues: [], verdict: "conforme" };
     }
   });

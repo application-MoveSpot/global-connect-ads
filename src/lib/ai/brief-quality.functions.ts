@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { assertRateLimit } from "@/lib/rateLimit.server";
+import { captureServerException } from "@/lib/sentry.server";
 
 const BriefQualityInput = z.object({
   title: z.string().max(200),
@@ -55,7 +56,13 @@ Réponds UNIQUEMENT en JSON strict :
   "tips": ["Conseil 1 court (max 80 chars)", "Conseil 2", "Conseil 3"]
 }`;
 
-    const { text } = await generateText({ model, prompt, temperature: 0.3, maxOutputTokens: 300 });
+    let text: string;
+    try {
+      ({ text } = await generateText({ model, prompt, temperature: 0.3, maxOutputTokens: 300 }));
+    } catch (err) {
+      captureServerException(err, { category: "ai", userId: context.userId });
+      throw err;
+    }
 
     try {
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { withSentryCapture } from "@/lib/sentry.server";
 
 // ----- Read current wallet & history (authenticated user) -----
 export const getMyWallet = createServerFn({ method: "GET" })
@@ -64,7 +65,8 @@ const RefundInput = z.object({
 export const issueCampaignRefund = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof RefundInput>) => RefundInput.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(({ data, context }) =>
+    withSentryCapture(async () => {
     const { supabase, userId: callerId } = context;
     const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: callerId, _role: "admin" });
     if (!isAdmin) throw new Error("Admin requis");
@@ -112,7 +114,8 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
     await supabaseAdmin.from("refunds").update({ status: "succeeded" } as never).eq("id", refundRow.id);
 
     return { ok: true, refundId: refundRow.id };
-  });
+    }, "payment", { userId: context.userId })
+  );
 
 // ----- Advertiser: pay an approved campaign with prepaid wallet credits -----
 const PayInput = z.object({ campaignRequestId: z.string().uuid() });
@@ -120,7 +123,8 @@ const PayInput = z.object({ campaignRequestId: z.string().uuid() });
 export const payCampaignWithWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof PayInput>) => PayInput.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(({ data, context }) =>
+    withSentryCapture(async () => {
     const { supabase, userId } = context;
     const { data: campaign, error } = await supabase
       .from("campaign_requests")
@@ -135,4 +139,5 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
 
     const { settleCampaignFromWallet } = await import("@/lib/campaigns/campaign-settlement.server");
     return settleCampaignFromWallet({ campaignRequestId: campaign.id });
-  });
+    }, "payment", { userId: context.userId })
+  );

@@ -92,3 +92,22 @@ export function captureServerException(error: unknown, opts: CaptureOptions = {}
     // Silently drop — logging infra must never break the app
   });
 }
+
+/**
+ * Wraps an async function so any unhandled exception is reported to Sentry
+ * before being re-thrown. Use inside createServerFn handlers:
+ *
+ *   .handler(({ data, context }) =>
+ *     withSentryCapture(() => myLogic(data, context), "payment", { userId: context.userId })
+ *   )
+ */
+export function withSentryCapture<T>(
+  fn: () => Promise<T>,
+  category: CaptureOptions["category"] = "api",
+  opts: Omit<CaptureOptions, "category"> = {},
+): Promise<T> {
+  return fn().catch((err: unknown) => {
+    captureServerException(err, { category, ...opts });
+    throw err;
+  });
+}
