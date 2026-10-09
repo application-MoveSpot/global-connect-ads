@@ -17,6 +17,7 @@ import { getDriverVehicleQrTokens } from "@/lib/qr/qr.functions";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { RouteError } from "@/components/app/RouteError";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
+import { ControlPhotoPrompt } from "@/components/driver/ControlPhotoPrompt";
 
 type Profile = {
   id: string;
@@ -361,6 +362,10 @@ function ChauffeurEspace() {
       <div className="mt-8 pt-6 border-t border-border flex justify-end px-4 pb-4">
         <SignalementDialog contextUrl="/driver/espace" triggerLabel="Signaler un problème" />
       </div>
+      {/* Bannière de contrôle photo anti-fraude — une par véhicule assigné */}
+      {driverQrs.map((q) => (
+        <ControlPhotoPrompt key={q.vehicleId} vehicleId={q.vehicleId} />
+      ))}
     </div>
   );
 }
