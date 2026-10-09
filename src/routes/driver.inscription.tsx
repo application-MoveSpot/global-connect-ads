@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
 import { track } from "@/lib/analytics/track";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -147,6 +148,10 @@ function ChauffeurInscription() {
       setError(t("driver.inscription.error_siret"));
       return;
     }
+    if (phone && !isValidFrenchPhone(phone)) {
+      setError(t("common.phone_invalid"));
+      return;
+    }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
@@ -159,7 +164,7 @@ function ChauffeurInscription() {
       user_id: sess.session.user.id,
       kind,
       full_name: fullName,
-      phone: phone || null,
+      phone: phone ? (normalizePhone(phone) ?? null) : null,
       city: city || null,
       vehicle_kind: kind === "installer" ? null : vehicleKind,
       vehicle_plate: kind === "installer" ? null : vehiclePlate || null,

@@ -60,7 +60,8 @@
     "siret_label": "SIRET:",
     "pricing": "Pricing",
     "sign_in": "Sign in",
-    "create_account": "Create my account"
+    "create_account": "Create my account",
+    "phone_invalid": "Invalid French phone number (e.g. 06 12 34 56 78)"
   },
   "wallet": {
     "page_title": "My wallet — MoveSpot",

@@ -1,8 +1,10 @@
 // Détecte les coordonnées personnelles dans un champ texte libre pour
 // prévenir les accords hors-plateforme (téléphone, email, lien, IBAN).
 
+// Catches all French phone number formats: mobiles (06/07), fixed lines (01-05, 08, 09),
+// international (+33 / 0033), with optional space/dot/dash separators.
 const PHONE_RE =
-  /0[67][\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}|\+33[\s.\-]?[67][\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}[\s.\-]?\d{2}/;
+  /(?:\+33|0033|0)[1-9](?:[\s.\-]?\d{2}){4}/;
 
 const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/;
 

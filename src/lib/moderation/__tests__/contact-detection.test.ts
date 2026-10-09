@@ -24,8 +24,8 @@ describe("detectContact — téléphone", () => {
     assert.equal(detectContact("Je suis à Paris 75013"), null);
   });
 
-  it("ne détecte pas un numéro fixe 01", () => {
-    assert.equal(detectContact("01 42 56 78 90"), null);
+  it("détecte un numéro fixe 01", () => {
+    assert.equal(detectContact("01 42 56 78 90")?.kind, "phone");
   });
 });
 

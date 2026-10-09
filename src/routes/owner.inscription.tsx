@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -128,6 +129,10 @@ function InscriptionPage() {
       setError(t("owner.inscription.error_siret"));
       return;
     }
+    if (phone && !isValidFrenchPhone(phone)) {
+      setError(t("common.phone_invalid"));
+      return;
+    }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
@@ -138,7 +143,7 @@ function InscriptionPage() {
     const { error } = await supabase.from("owner_profiles").upsert({
       user_id: sess.session.user.id,
       full_name: fullName,
-      phone: phone || null,
+      phone: phone ? (normalizePhone(phone) ?? null) : null,
       company: isParticulier
         ? null
         : company || siret.denomination,

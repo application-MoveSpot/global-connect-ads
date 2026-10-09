@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-r
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
 import { track } from "@/lib/analytics/track";
 import { firePixelEvent } from "@/lib/analytics/pixels";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
@@ -185,6 +186,10 @@ function AnnonceurInscription() {
       setError(t("advertiser.inscription.error_address"));
       return;
     }
+    if (phone && !isValidFrenchPhone(phone)) {
+      setError(t("common.phone_invalid"));
+      return;
+    }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
@@ -196,7 +201,7 @@ function AnnonceurInscription() {
     const payload: Record<string, unknown> = {
       user_id: sess.session.user.id,
       full_name: fullName,
-      phone: phone || null,
+      phone: phone ? (normalizePhone(phone) ?? null) : null,
       city: city || null,
       account_type: accountType,
       cgu_version: CGU_VERSION,

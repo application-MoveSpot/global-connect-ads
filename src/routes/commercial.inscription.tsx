@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { createCommercialProfile } from "@/lib/commercial/commercial.functions";
+import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -92,8 +93,12 @@ function CommercialInscription() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (phone && !isValidFrenchPhone(phone)) {
+      setError(t("common.phone_invalid"));
+      return;
+    }
     setLoading(true);
-    const result = await createProfileFn({ data: { fullName, phone, company, city } });
+    const result = await createProfileFn({ data: { fullName, phone: phone ? (normalizePhone(phone) ?? phone) : "", company, city } });
     if (!result.ok) { setError(result.error ?? t("common.error")); setLoading(false); return; }
     navigate({ to: "/commercial" });
   };

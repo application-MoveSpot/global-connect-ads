@@ -60,7 +60,8 @@
     "siret_label": "SIRET :",
     "pricing": "Tarifs",
     "sign_in": "Se connecter",
-    "create_account": "Créer mon compte"
+    "create_account": "Créer mon compte",
+    "phone_invalid": "Numéro de téléphone français invalide (ex : 06 12 34 56 78)"
   },
   "wallet": {
     "page_title": "Mon portefeuille — MoveSpot",
