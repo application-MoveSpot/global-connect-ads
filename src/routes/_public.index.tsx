@@ -281,10 +281,10 @@ function Index() {
               {tx("particular.cta", "Créer mon compte particulier →")}
             </Link>
             <Link
-              to="/annonceur/exemples"
+              to="/comment-ca-marche"
               className="rounded-full border border-border bg-card px-5 py-3 text-sm font-medium hover:bg-secondary transition"
             >
-              {tx("particular.cta2", "Voir des exemples de campagnes")}
+              {tx("particular.cta2", "Comment ça marche →")}
             </Link>
           </div>
         </div>
