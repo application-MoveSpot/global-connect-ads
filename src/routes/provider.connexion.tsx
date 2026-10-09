@@ -1,0 +1,160 @@
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { LogoLink } from "@/components/app/LogoLink";
+import { RouteError } from "@/components/app/RouteError";
+
+export const Route = createFileRoute("/provider/connexion")({
+  head: () => ({
+    meta: [
+      { title: "Connexion provider — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
+  component: ProviderLoginPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
+});
+
+function ProviderLoginPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        const { data: profile } = await supabase
+          .from("provider_profiles")
+          .select("user_id")
+          .eq("user_id", data.session.user.id)
+          .maybeSingle();
+        if (profile) {
+          navigate({ to: "/provider" });
+        } else {
+          navigate({ to: "/provider/inscription" });
+        }
+        return;
+      }
+      setChecking(false);
+    })();
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      setError(
+        error.message === "Invalid login credentials"
+          ? t("provider.connexion.invalid_credentials")
+          : error.message
+      );
+      setLoading(false);
+      return;
+    }
+    const { data: profile } = await supabase
+      .from("provider_profiles")
+      .select("user_id")
+      .eq("user_id", data.session.user.id)
+      .maybeSingle();
+    if (profile) {
+      navigate({ to: "/provider" });
+    } else {
+      navigate({ to: "/provider/inscription" });
+    }
+  };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <LogoLink />
+          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("common.back_home")}
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-md mx-auto px-4 py-16">
+        <h1 className="font-display text-3xl font-bold mb-2">{t("provider.connexion.title")}</h1>
+        <p className="text-sm text-muted-foreground mb-8">
+          {t("provider.connexion.subtitle")}
+        </p>
+
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{t("auth.email")}</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              placeholder="vous@entreprise.fr"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium">{t("auth.password")}</label>
+              <Link
+                to="/reset-password"
+                className="text-xs text-muted-foreground hover:text-foreground underline"
+              >
+                {t("provider.connexion.forgot_password")}
+              </Link>
+            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2"
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
+          >
+            {loading ? t("provider.connexion.signing_in") : t("common.sign_in")}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          {t("provider.connexion.no_account")}{" "}
+          <Link
+            to="/provider/inscription"
+            className="font-medium text-foreground hover:underline"
+          >
+            {t("provider.connexion.create_account")}
+          </Link>
+        </p>
+      </main>
+    </div>
+  );
+}

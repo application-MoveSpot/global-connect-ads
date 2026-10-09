@@ -55,7 +55,7 @@ function Cookies() {
             </tr>
             <tr>
               <td className="p-3">Stockage local technique</td>
-              <td className="p-3">Mémoire tampon des positions GPS du chauffeur avant envoi par lots (aucune lecture publicitaire)</td>
+              <td className="p-3">Mémoire tampon des positions GPS du driver avant envoi par lots (aucune lecture publicitaire)</td>
               <td className="p-3">Jusqu'à l'envoi</td>
               <td className="p-3">Non requis</td>
             </tr>

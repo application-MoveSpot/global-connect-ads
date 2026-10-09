@@ -69,13 +69,13 @@ export function Navbar() {
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <LanguageSwitcher className="hidden lg:flex" />
           <Link
-            to="/annonceur"
+            to="/advertiser"
             className="hidden sm:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition"
           >
             {tx("nav.advertiser", "Espace annonceur")}
           </Link>
           <Link
-            to="/proprietaire"
+            to="/owner"
             className="hidden xl:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition"
           >
             {tx("nav.owner", "Espace propriétaire")}
@@ -157,14 +157,14 @@ export function Navbar() {
             </Link>
             <div className="h-px bg-header-border my-2" />
             <Link
-              to="/annonceur"
+              to="/advertiser"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 font-medium text-header-foreground"
             >
               {tx("nav.advertiser", "Espace annonceur")}
             </Link>
             <Link
-              to="/proprietaire"
+              to="/owner"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 font-medium text-header-foreground"
             >

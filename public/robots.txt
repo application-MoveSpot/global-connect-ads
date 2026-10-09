@@ -2,11 +2,12 @@ User-agent: *
 Allow: /
 
 Disallow: /admin
-Disallow: /annonceur
-Disallow: /proprietaire
-Disallow: /chauffeur
-Disallow: /prestataire
-Disallow: /partenaire
+Disallow: /advertiser
+Disallow: /owner
+Disallow: /driver
+Disallow: /provider
+Disallow: /providers
+Disallow: /partner
 Disallow: /auth
 Disallow: /reset-password
 Disallow: /unsubscribe

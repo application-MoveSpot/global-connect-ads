@@ -84,7 +84,7 @@ export const runBriefMatching = createServerFn({ method: "POST" })
         await sendWebPushToUser(owner.userId, {
           title: "🎯 Nouveaux briefs pour vous",
           body,
-          url: "/proprietaire/briefs",
+          url: "/owner/briefs",
         });
         ownersNotified++;
       } catch {

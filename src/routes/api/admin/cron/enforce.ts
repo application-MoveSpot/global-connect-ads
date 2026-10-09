@@ -68,7 +68,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 templateData: {
                   fullName: cr.company,
                   spotName: cr.spot_name,
-                  dashboardUrl: "https://move-spot.com/annonceur",
+                  dashboardUrl: "https://move-spot.com/advertiser",
                 },
                 idempotencyKey: `expired-${cr.id}`,
               });
@@ -77,7 +77,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 await sendWebPushToUser(cr.user_id, {
                   title: "❌ Campagne annulée",
                   body: `La campagne "${cr.spot_name}" a été annulée faute de paiement.`,
-                  url: "/annonceur",
+                  url: "/advertiser",
                 });
               }
               paymentResults.expired++;
@@ -91,7 +91,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                   spotName: cr.spot_name,
                   totalPrice: cr.total_price ? `${cr.total_price} €` : undefined,
                   daysLeft,
-                  payUrl: "https://move-spot.com/annonceur",
+                  payUrl: "https://move-spot.com/advertiser",
                 },
                 idempotencyKey: `reminder-6d-${cr.id}`,
               });
@@ -100,7 +100,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 await sendWebPushToUser(cr.user_id, {
                   title: "⚠️ Paiement urgent",
                   body: `Dernière chance — votre campagne "${cr.spot_name}" expire dans ${daysLeft} jour(s).`,
-                  url: "/annonceur",
+                  url: "/advertiser",
                 });
               }
               paymentResults.reminders6d++;
@@ -114,7 +114,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                   spotName: cr.spot_name,
                   totalPrice: cr.total_price ? `${cr.total_price} €` : undefined,
                   daysLeft,
-                  payUrl: "https://move-spot.com/annonceur",
+                  payUrl: "https://move-spot.com/advertiser",
                 },
                 idempotencyKey: `reminder-3d-${cr.id}`,
               });
@@ -123,7 +123,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 await sendWebPushToUser(cr.user_id, {
                   title: "💳 Rappel paiement",
                   body: `Votre campagne "${cr.spot_name}" est en attente de paiement (${daysLeft}j restants).`,
-                  url: "/annonceur",
+                  url: "/advertiser",
                 });
               }
               paymentResults.reminders3d++;
@@ -183,7 +183,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                     spotName: cr.spot_name,
                     startDate: fmtDate(cr.start_date),
                     delayDays,
-                    jobUrl: "https://move-spot.com/chauffeur/espace",
+                    jobUrl: "https://move-spot.com/driver/espace",
                   },
                   idempotencyKey: `install-overdue-driver-${cr.id}`,
                 });
@@ -192,7 +192,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 await sendWebPushToUser(drv.user_id, {
                   title: "🔧 Confirmation de pose requise",
                   body: `La pose pour "${cr.spot_name}" est en retard (${delayDays}j). Confirmez dès que possible.`,
-                  url: "/chauffeur/espace",
+                  url: "/driver/espace",
                 });
               }
             }
@@ -208,7 +208,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                   spotName: cr.spot_name,
                   startDate: fmtDate(cr.start_date),
                   delayDays,
-                  jobUrl: "https://move-spot.com/proprietaire",
+                  jobUrl: "https://move-spot.com/owner",
                 },
                 idempotencyKey: `install-overdue-owner-${cr.id}`,
               });
@@ -216,7 +216,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
             await sendWebPushToUser(veh.owner_id, {
               title: "🔧 Pose non confirmée",
               body: `La pose pour "${cr.spot_name}" sur "${veh.name}" est en retard.`,
-              url: "/proprietaire",
+              url: "/owner",
             });
             installResults.remindersSent++;
           }),
@@ -270,7 +270,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 templateData: {
                   vehicleName: veh.name,
                   spotName: cr.spot_name,
-                  trackingUrl: "https://move-spot.com/proprietaire/tracking",
+                  trackingUrl: "https://move-spot.com/owner/tracking",
                 },
                 idempotencyKey: `gps-inactive-${cr.id}-${yesterday}`,
               });
@@ -278,7 +278,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
             await sendWebPushToUser(veh.owner_id, {
               title: "📍 GPS inactif",
               body: `Aucun point GPS hier pour "${veh.name}" (campagne "${cr.spot_name}"). Démarrez le suivi.`,
-              url: "/proprietaire/tracking",
+              url: "/owner/tracking",
             });
             gpsResults.alertsSent++;
           }),
@@ -324,7 +324,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 body: compatible.length === 1
                   ? `"${top.title}" correspond à votre flotte — répondez en premier !`
                   : `${compatible.length} briefs correspondent à votre flotte. Ne les ratez pas !`,
-                url: "/proprietaire/briefs",
+                url: "/owner/briefs",
               }).catch(() => {/* best-effort */});
               matchingStats.notified++;
             }

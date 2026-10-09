@@ -96,7 +96,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
           body: campaign.spot_name
             ? `${campaign.spot_name} est validée — procédez au paiement pour la lancer.`
             : "Votre campagne est validée — procédez au paiement.",
-          url: "/annonceur",
+          url: "/advertiser",
         }).catch(() => {});
       }
       // Notifie les poseurs certifiés
@@ -122,7 +122,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         sendWebPushToUser(campaign.user_id as string, {
           title: "Campagne non approuvée",
           body: "Consultez les notes de l'équipe MoveSpot pour corriger votre demande.",
-          url: "/annonceur",
+          url: "/advertiser",
         }).catch(() => {});
       }
     }
@@ -209,7 +209,7 @@ async function notifyActiveProviders(campaign: {
           body: campaign.spot_name
             ? `La campagne « ${campaign.spot_name} » peut nécessiter vos services.`
             : "Une nouvelle campagne est disponible sur MoveSpot.",
-          url: "/prestataire",
+          url: "/provider",
         }),
       ]);
     }),
@@ -720,7 +720,7 @@ export const adminRevenueData = createServerFn({ method: "GET" })
 export type AdminUserRow = {
   user_id: string;
   full_name: string | null;
-  role: "annonceur" | "proprietaire" | "prestataire" | "partenaire";
+  role: "advertiser" | "owner" | "provider" | "partner";
   detail: string | null;
   status: string;
   created_at: string;
@@ -747,7 +747,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
       ...(advRes.data ?? []).map((u) => ({
         user_id: u.user_id,
         full_name: u.full_name as string | null,
-        role: "annonceur" as const,
+        role: "advertiser" as const,
         detail: ((u as { company?: string | null }).company ?? (u as { account_type?: string | null }).account_type ?? null) as string | null,
         status: "active",
         created_at: u.created_at as string,
@@ -755,7 +755,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
       ...(ownRes.data ?? []).map((u) => ({
         user_id: u.user_id,
         full_name: u.full_name as string | null,
-        role: "proprietaire" as const,
+        role: "owner" as const,
         detail: ((u as { city?: string | null }).city ?? (u as { phone?: string | null }).phone ?? null) as string | null,
         status: "active",
         created_at: u.created_at as string,
@@ -763,7 +763,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
       ...(payRes.data ?? []).map((u) => ({
         user_id: u.user_id,
         full_name: u.full_name as string | null,
-        role: "prestataire" as const,
+        role: "provider" as const,
         detail: `${(u as { kind: string }).kind} — ${(u as { certification_status: string }).certification_status}`,
         status: ((u as { status?: string | null }).status ?? "pending") as string,
         created_at: u.created_at as string,
@@ -771,7 +771,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
       ...(parRes.data ?? []).map((u) => ({
         user_id: u.user_id,
         full_name: u.full_name as string | null,
-        role: "partenaire" as const,
+        role: "partner" as const,
         detail: null,
         status: ((u as { status?: string | null }).status ?? "pending") as string,
         created_at: u.created_at as string,

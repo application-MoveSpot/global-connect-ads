@@ -231,7 +231,7 @@ export function BookingForm({ spot, onClose }: Props) {
 
   const goSignIn = () => {
     onClose();
-    navigate({ to: "/annonceur/inscription", search: { redirect: window.location.pathname + "#spots" } });
+    navigate({ to: "/advertiser/inscription", search: { redirect: window.location.pathname + "#spots" } });
   };
 
   const handleRangeSelect = (range: DateRange | undefined) => {
@@ -519,9 +519,9 @@ export function BookingForm({ spot, onClose }: Props) {
             </div>
             <div className="flex flex-col gap-2">
               {campaignId ? (
-                <button onClick={() => navigate({ to: "/annonceur/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.track_campaign")}</button>
+                <button onClick={() => navigate({ to: "/advertiser/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.track_campaign")}</button>
               ) : (
-                <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.see_campaigns")}</button>
+                <button onClick={() => navigate({ to: "/advertiser" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.see_campaigns")}</button>
               )}
               <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">{t("booking.close")}</button>
             </div>

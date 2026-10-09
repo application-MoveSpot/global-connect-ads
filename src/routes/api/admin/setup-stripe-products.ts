@@ -33,14 +33,14 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
           {
             name: "Abonnement Prestataire MoveSpot",
             description:
-              "Abonnement mensuel donnant accès à l'annuaire prestataires MoveSpot, aux demandes de devis des annonceurs et aux campagnes de covering véhicule disponibles sur votre zone d'intervention. Sans engagement, résiliable à tout moment.",
+              "Abonnement mensuel donnant accès à l'annuaire providers MoveSpot, aux demandes de devis des advertisers et aux campagnes de covering véhicule disponibles sur votre zone d'intervention. Sans engagement, résiliable à tout moment.",
             lookupKey: "provider_monthly",
             amountCents: 7900,
           },
           {
             name: "Abonnement Partenaire MoveSpot",
             description:
-              "Abonnement mensuel au programme partenaire MoveSpot. Accès au réseau d'annonceurs et de prestataires, outils de gestion et de reporting, référencement dans l'annuaire partenaires et conditions préférentielles. Sans engagement, résiliable à tout moment.",
+              "Abonnement mensuel au programme partner MoveSpot. Accès au réseau d'advertisers et de providers, outils de gestion et de reporting, référencement dans l'annuaire partners et conditions préférentielles. Sans engagement, résiliable à tout moment.",
             lookupKey: "partner_monthly",
             amountCents: 14900,
           },

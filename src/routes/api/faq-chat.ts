@@ -12,7 +12,7 @@ MoveSpot est une marketplace française de publicité mobile qui met en relation
 - des PROPRIÉTAIRES de véhicules (food trucks, vans, taxis/VTC, scooters de livraison, voitures, vélos cargo, triporteurs, flottes d'entreprise) qui louent leurs espaces publicitaires
 - des ANNONCEURS (entreprises) qui veulent diffuser leur publicité sur ces véhicules en mouvement
 - des PRESTATAIRES spécialisés (covering, production vidéo, création graphique) référencés dans un annuaire
-- des PARTENAIRES apporteurs d'affaires qui recommandent MoveSpot à des annonceurs
+- des PARTENAIRES apporteurs d'affaires qui recommandent MoveSpot à des advertisers
 
 ÉDITEUR : MoveSpot est édité par RAKOUN KLUB, entreprise individuelle (SIRET 804 671 444 00052, RCS Pointe-à-Pitre). TVA non applicable — franchise en base art. 293 B CGI. Contact général : contact@notify.move-spot.com.
 
@@ -20,10 +20,10 @@ MoveSpot est une marketplace française de publicité mobile qui met en relation
 ESPACE PROPRIÉTAIRE
 ════════════════════════════════════════
 
-INSCRIPTION (/proprietaire/inscription) :
+INSCRIPTION (/owner/inscription) :
 Renseigner nom, prénom, email, téléphone, ville. Connexion par email/mot de passe.
 
-AJOUTER UN VÉHICULE (/proprietaire/vehicules/nouveau) :
+AJOUTER UN VÉHICULE (/owner/vehicules/nouveau) :
 Renseigner : nom du véhicule, type (food truck, van, taxi, scooter, vélo cargo, voiture, triporteur…), format publicitaire, surface en m², km/jour moyens, prix/jour souhaité, photos. MoveSpot valide le véhicule sous 48h ouvrées.
 
 STATUTS D'UN VÉHICULE :
@@ -33,29 +33,29 @@ STATUTS D'UN VÉHICULE :
 - **En pause** : temporairement retiré de la marketplace
 
 DEMANDES DE CAMPAGNE :
-Onglet "Demandes reçues" dans le tableau de bord. Le propriétaire voit les demandes sur ses véhicules et peut **Accepter** ou **Refuser** chaque demande. Il voit les visuels de l'annonceur, les zones et les dates demandées.
+Onglet "Demandes reçues" dans le tableau de bord. Le propriétaire voit les demandes sur ses véhicules et peut **Accepter** ou **Refuser** chaque demande. Il voit les visuels de l'advertiser, les zones et les dates demandées.
 
 REVENUS ET PAIEMENTS :
 - MoveSpot prélève **30 % de commission** sur chaque campagne (le propriétaire touche **70 %**)
 - Les paiements sont versés via **Stripe Connect** (widget à connecter depuis le tableau de bord)
 - Renseigner un compte bancaire européen pour recevoir les virements
 
-GESTION DE FLOTTE (/proprietaire/flotte) :
+GESTION DE FLOTTE (/owner/flotte) :
 - Vue globale de tous les véhicules
-- Import CSV en masse : /proprietaire/flotte/import
-- QR codes par véhicule : /proprietaire/flotte/qr (pratique pour l'identification terrain)
+- Import CSV en masse : /owner/flotte/import
+- QR codes par véhicule : /owner/flotte/qr (pratique pour l'identification terrain)
 
-SUIVI GPS (/proprietaire/tracking) :
-Démarrer le suivi GPS en temps réel depuis le tableau de bord. Les annonceurs peuvent suivre leur campagne en direct.
+SUIVI GPS (/owner/tracking) :
+Démarrer le suivi GPS en temps réel depuis le tableau de bord. Les advertisers peuvent suivre leur campagne en direct.
 
-BRIEFS OUVERTS (/proprietaire/briefs) :
-Les annonceurs publient des "briefs" : appels d'offres ouverts. Le propriétaire peut y répondre avec une proposition de véhicule.
+BRIEFS OUVERTS (/owner/briefs) :
+Les advertisers publient des "briefs" : appels d'offres ouverts. Le propriétaire peut y répondre avec une proposition de véhicule.
 
 ════════════════════════════════════════
 ESPACE ANNONCEUR
 ════════════════════════════════════════
 
-INSCRIPTION (/annonceur/inscription) :
+INSCRIPTION (/advertiser/inscription) :
 Renseigner nom, prénom, société, SIRET (optionnel), email, téléphone, adresse. Connexion par email/mot de passe.
 
 TROUVER ET RÉSERVER UN EMPLACEMENT :
@@ -70,24 +70,24 @@ STATUTS D'UNE CAMPAGNE :
 - **Refusée** : contenu non conforme ou véhicule indisponible (motif précisé)
 
 PAIEMENT :
-- Portefeuille MoveSpot : /annonceur/portefeuille
+- Portefeuille MoveSpot : /advertiser/portefeuille
 - Recharger par **carte bancaire** (Stripe) ou **virement bancaire**
 - Une fois une campagne validée, payer directement depuis le tableau de bord avec le solde du portefeuille
 - **Annulation** : gratuite jusqu'à 72h avant le début de la diffusion ; au-delà, 50 % du montant reste dû
 
-PORTEFEUILLE (/annonceur/portefeuille) :
+PORTEFEUILLE (/advertiser/portefeuille) :
 Solde visible en temps réel. Historique de toutes les transactions (recharges, paiements de campagnes, remboursements éventuels).
 
-BRIEFS (/annonceur/briefs) :
+BRIEFS (/advertiser/briefs) :
 Publier un brief = appel d'offres ouvert aux propriétaires. Spécifier : titre, description, types de véhicules souhaités, zones géographiques, budget maximum, dates.
 - Statuts de brief : **Ouvert**, **Fermé**, **Pourvu**, **Annulé**
-- Créer un nouveau brief : /annonceur/briefs/nouveau
+- Créer un nouveau brief : /advertiser/briefs/nouveau
 
-SUIVI EN DIRECT (/annonceur/suivi) :
+SUIVI EN DIRECT (/advertiser/suivi) :
 Suivre en temps réel le véhicule diffusant votre campagne sur une carte. Impressions estimées par jour affichées.
 
-PRESTATAIRES COVERING (/prestataires) :
-Annuaire des prestataires approuvés par MoveSpot pour la production des visuels : covering véhicule, production vidéo, création graphique.
+PRESTATAIRES COVERING (/providers) :
+Annuaire des providers approuvés par MoveSpot pour la production des visuels : covering véhicule, production vidéo, création graphique.
 
 CONTENUS PUBLICITAIRES INTERDITS (charte éditoriale MoveSpot) :
 - Contenus à caractère religieux ou incitant à la haine religieuse
@@ -99,37 +99,37 @@ CONTENUS PUBLICITAIRES INTERDITS (charte éditoriale MoveSpot) :
 ESPACE PRESTATAIRE
 ════════════════════════════════════════
 
-INSCRIPTION (/prestataire/inscription) :
+INSCRIPTION (/provider/inscription) :
 Renseigner société, prénom/nom, services proposés (covering, vidéo, graphisme…), zones d'intervention, description, tarifs, portfolio. Validation par MoveSpot avant apparition dans l'annuaire.
 
 STATUTS DU COMPTE PRESTATAIRE :
 - **En attente** : dossier soumis, en cours d'examen
-- **Approuvé** : profil visible dans l'annuaire /prestataires
+- **Approuvé** : profil visible dans l'annuaire /providers
 - **Refusé** : non conforme aux critères MoveSpot
 
-ANNUAIRE (/prestataires) :
+ANNUAIRE (/providers) :
 Accessible à tous. Recherche par service (covering, vidéo, graphisme) et par nom de société. Chaque fiche : société, services, zones, description, site web, infos de contact.
 
 PORTFOLIO :
-Le prestataire peut uploader des images de réalisations depuis son espace (/prestataire).
+Le provider peut uploader des images de réalisations depuis son espace (/provider).
 
 ════════════════════════════════════════
 ESPACE PARTENAIRE
 ════════════════════════════════════════
 
-INSCRIPTION (/partenaire/inscription) :
+INSCRIPTION (/partner/inscription) :
 Renseigner nom, prénom, société (optionnel), email, téléphone, ville. Code de parrainage attribué par MoveSpot après validation du profil.
 
 PROGRAMME PARTENAIRE :
-- Le partenaire recommande MoveSpot à des entreprises annonceurs
-- Pour chaque campagne lancée par un annonceur contacté grâce à lui, **une commission est reversée au partenaire**
-- Pas de limite sur le nombre d'annonceurs apportés
+- Le partner recommande MoveSpot à des entreprises advertisers
+- Pour chaque campagne lancée par un advertiser contacté grâce à lui, **une commission est reversée au partner**
+- Pas de limite sur le nombre d'advertisers apportés
 - Programme ouvert à tous : agents commerciaux, freelances, réseaux d'entreprises
 
-ESPACE PARTENAIRE (/partenaire) :
-Tableau de bord : profil, code de parrainage, liens d'invitation vers /annonceur/inscription.
+ESPACE PARTENAIRE (/partner) :
+Tableau de bord : profil, code de parrainage, liens d'invitation vers /advertiser/inscription.
 
-Contact dédié programme partenaire : partenaires@move-spot.com
+Contact dédié programme partner : partners@move-spot.com
 
 ════════════════════════════════════════
 RÉGLEMENTATION
@@ -145,7 +145,7 @@ Conformément au Code de l'environnement (art. L.581-1 et suivants) et aux RLP c
 TARIFICATION
 ════════════════════════════════════════
 
-- **Aucun abonnement** pour annonceurs ou propriétaires
+- **Aucun abonnement** pour advertisers ou propriétaires
 - Prix à la journée fixé librement par le propriétaire (fourchette recommandée affichée lors de l'ajout)
 - **Commission MoveSpot : 30 %** sur chaque campagne ; **70 % reversés au propriétaire**
 - Essai gratuit disponible pour certains formats
@@ -155,21 +155,21 @@ CONTACTS ET PAGES LÉGALES
 ════════════════════════════════════════
 
 - Contact général : contact@notify.move-spot.com
-- Programme partenaire : partenaires@move-spot.com
+- Programme partner : partners@move-spot.com
 - CGU : /cgu | CGV : /cgv | Confidentialité : /confidentialite
 - Cookies : /cookies | Mentions légales : /mentions-legales | Sécurité : /securite
 - Comment ça marche : /comment-ca-marche
 `;
 
 const AUDIENCE_CONTEXT: Record<ChatAudience, string> = {
-  annonceur:
-    "L'utilisateur est connecté en tant qu'**ANNONCEUR** sur son tableau de bord. Il gère ses campagnes, son portefeuille, ses briefs. Priorité : processus de réservation, paiement, statuts, suivi de campagne, prestataires covering.",
-  proprietaire:
+  advertiser:
+    "L'utilisateur est connecté en tant qu'**ANNONCEUR** sur son tableau de bord. Il gère ses campagnes, son portefeuille, ses briefs. Priorité : processus de réservation, paiement, statuts, suivi de campagne, providers covering.",
+  owner:
     "L'utilisateur est connecté en tant que **PROPRIÉTAIRE** sur son tableau de bord. Il gère ses véhicules, traite les demandes de campagne, suit sa flotte. Priorité : validation de véhicule, demandes reçues, GPS, import CSV, QR codes, Stripe Connect, revenus.",
-  partenaire:
-    "L'utilisateur est connecté en tant que **PARTENAIRE APPORTEUR D'AFFAIRES**. Priorité : programme partenaire, commissions, comment recommander MoveSpot, contact partenaires@move-spot.com.",
-  prestataire:
-    "L'utilisateur est connecté en tant que **PRESTATAIRE** (covering, vidéo, graphisme). Priorité : profil, statut de validation, portfolio, visibilité dans l'annuaire /prestataires.",
+  partner:
+    "L'utilisateur est connecté en tant que **PARTENAIRE APPORTEUR D'AFFAIRES**. Priorité : programme partner, commissions, comment recommander MoveSpot, contact partners@move-spot.com.",
+  provider:
+    "L'utilisateur est connecté en tant que **PRESTATAIRE** (covering, vidéo, graphisme). Priorité : profil, statut de validation, portfolio, visibilité dans l'annuaire /providers.",
 };
 
 export const Route = createFileRoute("/api/faq-chat")({
@@ -238,7 +238,7 @@ RÈGLES ABSOLUES :
 2. Sois concis et direct : 2 à 4 phrases sauf si l'utilisateur demande des détails.
 3. Base-toi STRICTEMENT sur la base de connaissances ci-dessous. Ne jamais inventer de tarifs, de délais ou d'engagements non mentionnés.
 4. Si la question dépasse ton périmètre, dis poliment que tu n'as pas l'info et renvoie vers contact@notify.move-spot.com.
-5. Quand c'est utile, indique la page de l'application à visiter en format lien court (ex: **/annonceur/portefeuille**).
+5. Quand c'est utile, indique la page de l'application à visiter en format lien court (ex: **/advertiser/portefeuille**).
 6. Utilise du **markdown léger** (gras, listes courtes) pour structurer les réponses longues.
 7. Sois chaleureux et professionnel, jamais robotique ni répétitif.
 8. Si l'utilisateur a un contexte spécifique (solde, campagnes), prends-le en compte pour personnaliser ta réponse.

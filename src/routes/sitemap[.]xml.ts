@@ -23,13 +23,13 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/pourquoi-movespot", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/comment-ca-marche", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/tarifs", changefreq: "monthly", priority: "0.9", lastmod: today },
-          { path: "/annonceurs-entreprise", changefreq: "monthly", priority: "0.8", lastmod: today },
+          { path: "/advertisers-entreprise", changefreq: "monthly", priority: "0.8", lastmod: today },
           { path: "/commencer", changefreq: "monthly", priority: "0.8", lastmod: today },
           { path: "/campagnes", changefreq: "weekly", priority: "0.7", lastmod: today },
-          { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.7", lastmod: today },
+          { path: "/devenir-partner", changefreq: "monthly", priority: "0.7", lastmod: today },
           { path: "/remboursement", changefreq: "yearly", priority: "0.3", lastmod: today },
-          { path: "/chauffeur", changefreq: "monthly", priority: "0.7", lastmod: today },
-          { path: "/prestataires", changefreq: "weekly", priority: "0.7", lastmod: today },
+          { path: "/driver", changefreq: "monthly", priority: "0.7", lastmod: today },
+          { path: "/providers", changefreq: "weekly", priority: "0.7", lastmod: today },
           { path: "/contact", changefreq: "yearly", priority: "0.5", lastmod: today },
           { path: "/securite", changefreq: "yearly", priority: "0.4", lastmod: today },
           { path: "/mentions-legales", changefreq: "yearly", priority: "0.3", lastmod: today },
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             .select("user_id, updated_at");
           if (data) {
             dynamicEntries = data.map((p) => ({
-              path: `/prestataires/${p.user_id}`,
+              path: `/providers/${p.user_id}`,
               lastmod: p.updated_at ? new Date(p.updated_at).toISOString().slice(0, 10) : today,
               changefreq: "monthly",
               priority: "0.6",

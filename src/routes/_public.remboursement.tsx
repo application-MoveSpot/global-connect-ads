@@ -6,7 +6,7 @@ export const Route = createFileRoute("/_public/remboursement")({
   head: () => ({
     meta: [
       { title: "Politique de remboursement — MoveSpot" },
-      { name: "description", content: "Conditions et procédure de remboursement MoveSpot pour les annonceurs." },
+      { name: "description", content: "Conditions et procédure de remboursement MoveSpot pour les advertisers." },
     ],
   }),
   component: RemboursementPage,
@@ -93,7 +93,7 @@ function RemboursementPage() {
           </ol>
           <div className="pt-2">
             <Link
-              to="/annonceur"
+              to="/advertiser"
               className="inline-block rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
             >
               {t("refund.cta")}

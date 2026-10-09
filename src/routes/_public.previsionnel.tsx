@@ -57,8 +57,8 @@ for (let i = 0; i < 5; i++) {
 
 const synthese: Array<[string, (string | number)[], (n: number) => string]> = [
   ["Structure juridique", structure as any, txt as any],
-  ["Véhicules partenaires en diffusion (moy.)", [15, 60, 180, 380, 650], (n) => n.toString()],
-  ["GMV — facturé aux annonceurs", gmv, fmt],
+  ["Véhicules partners en diffusion (moy.)", [15, 60, 180, 380, 650], (n) => n.toString()],
+  ["GMV — facturé aux advertisers", gmv, fmt],
   ["Reversé aux propriétaires (flux passant, hors CA)", reversement, fmt],
   ["Commission MoveSpot = CA réel", commission, fmt],
   ["Charges d'exploitation", chargesCash, fmt],
@@ -100,7 +100,7 @@ const hypotheses: Array<{ section?: string; row?: [string, (string | number)[], 
 
 const compteResultat: Array<{ section?: string; row?: [string, (number | string)[], (n: number) => string]; bold?: boolean }> = [
   { section: "VOLUME MARKETPLACE (information — hors CA grâce au mandat)" },
-  { row: ["GMV facturé aux annonceurs", gmv, fmt] },
+  { row: ["GMV facturé aux advertisers", gmv, fmt] },
   { row: ["Reversé aux propriétaires (flux passant)", reversement, fmt] },
   { section: "CHIFFRE D'AFFAIRES MOVESPOT" },
   { row: ["Commission (take rate 30 % × GMV) = CA", commission, fmt], bold: true },
@@ -235,7 +235,7 @@ function PrevisionnelPage() {
         <header className="mb-8 border-b border-gray-300 pb-4">
           <h1 className="font-display text-3xl md:text-4xl font-bold">MoveSpot — Prévisionnel 5 ans</h1>
           <p className="text-sm text-gray-600 mt-2">
-            Marketplace d'intermédiation : propriétaires de véhicules ↔ annonceurs. MoveSpot perçoit
+            Marketplace d'intermédiation : propriétaires de véhicules ↔ advertisers. MoveSpot perçoit
             uniquement une commission (take rate 30 %) sur le GMV.
           </p>
           <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 text-xs text-gray-800">
@@ -285,7 +285,7 @@ function PrevisionnelPage() {
         <section className="mb-10 avoid-break">
           <h2 className="font-display text-2xl font-bold mb-4">Graphiques</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            <BarChart title="GMV (volume facturé aux annonceurs)" data={gmv} color="#3b82f6" />
+            <BarChart title="GMV (volume facturé aux advertisers)" data={gmv} color="#3b82f6" />
             <BarChart title="CA MoveSpot (commission)" data={commission} color="#10b981" />
             <BarChart title="Résultat net après fiscalité" data={resultatNet} color="#f59e0b" />
             <BarChart title="Trésorerie fin de période" data={tresoFin} color="#8b5cf6" />

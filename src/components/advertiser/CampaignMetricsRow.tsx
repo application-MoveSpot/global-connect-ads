@@ -41,7 +41,7 @@ export function CampaignMetricsRow({ campaignId, status, paymentStatus }: Props)
           {t("metrics.broadcasting")}
         </span>
         <Link
-          to="/annonceur/suivi/$campaignId"
+          to="/advertiser/suivi/$campaignId"
           params={{ campaignId }}
           className="text-xs text-primary hover:underline font-medium"
         >

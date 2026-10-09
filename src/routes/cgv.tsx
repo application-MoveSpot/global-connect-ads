@@ -7,7 +7,7 @@ export const Route = createFileRoute("/cgv")({
   head: () => ({
     meta: [
       { title: "Conditions Générales de Vente — MoveSpot" },
-      { name: "description", content: "Conditions Générales de Vente MoveSpot : devis cartographique, paiement par carte, portefeuille, virement bancaire B2B et reversements aux partenaires." },
+      { name: "description", content: "Conditions Générales de Vente MoveSpot : devis cartographique, paiement par carte, portefeuille, virement bancaire B2B et reversements aux partners." },
       { property: "og:title", content: "Conditions Générales de Vente — MoveSpot" },
       { property: "og:description", content: "Modalités de commande, de paiement et d'annulation des campagnes de publicité mobile MoveSpot." },
       { name: "robots", content: "index, follow" },
@@ -31,14 +31,14 @@ function CGV() {
 
       <LegalSection title={t("cgv.s2")}>
         <p>
-          MoveSpot est une marketplace de publicité mobile : elle met en relation des annonceurs avec des
-          propriétaires de véhicules, des chauffeurs et des prestataires certifiés (pose de covering, production
+          MoveSpot est une marketplace de publicité mobile : elle met en relation des advertisers avec des
+          propriétaires de véhicules, des drivers et des providers certifiés (pose de covering, production
           vidéo, création graphique). Chaque campagne est définie par une zone géographique, une période de diffusion,
           un type de véhicule et un budget.
         </p>
         <p>
           La diffusion est mesurée par géolocalisation : distance parcourue, minutes actives et part du trajet
-          réalisée dans la zone de ciblage sont restituées à l'annonceur dans son tableau de suivi.
+          réalisée dans la zone de ciblage sont restituées à l'advertiser dans son tableau de suivi.
         </p>
       </LegalSection>
 
@@ -96,7 +96,7 @@ function CGV() {
           </tbody>
         </table>
         <p>
-          L'abonnement est reconductible mensuellement et résiliable à tout moment depuis l'espace annonceur ; la
+          L'abonnement est reconductible mensuellement et résiliable à tout moment depuis l'espace advertiser ; la
           résiliation prend effet à la fin de la période en cours, sans remboursement au prorata.
         </p>
 
@@ -131,7 +131,7 @@ function CGV() {
         <p>Les modes de règlement suivants sont proposés :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
-            <strong>Carte bancaire (et moyens équivalents)</strong> via notre prestataire de paiement Stripe, en
+            <strong>Carte bancaire (et moyens équivalents)</strong> via notre provider de paiement Stripe, en
             paiement unique ou par abonnement. Certaines campagnes peuvent être proposées avec une période d'essai
             gratuite de 14 jours, à l'issue de laquelle l'abonnement est automatiquement facturé sauf résiliation
             avant son terme.
@@ -142,7 +142,7 @@ function CGV() {
           </li>
           <li>
             <strong>Cryptomonnaie (USDC)</strong> : proposée, lorsque disponible, pour le rechargement du
-            portefeuille via Stripe. La conversion est opérée par le prestataire de paiement ; si ce moyen n'est pas
+            portefeuille via Stripe. La conversion est opérée par le provider de paiement ; si ce moyen n'est pas
             disponible pour la devise ou le pays concerné, le paiement par carte est proposé automatiquement.
           </li>
           <li>
@@ -162,7 +162,7 @@ function CGV() {
       <LegalSection title={t("cgv.s6")}>
         <p>
           MoveSpot prélève une commission d'intermédiation de 30 % du montant hors taxes. Les 70 % restants sont
-          répartis entre le propriétaire du véhicule, le chauffeur et, le cas échéant, le prestataire de pose. Les
+          répartis entre le propriétaire du véhicule, le driver et, le cas échéant, le provider de pose. Les
           reversements sont effectués vers les comptes de paiement des bénéficiaires (Stripe Connect Express) ou par
           virement SEPA, après validation des métriques de campagne et finalisation de leur vérification d'identité et
           de leur IBAN.
@@ -206,7 +206,7 @@ function CGV() {
           MoveSpot agit en qualité d'intermédiaire et met en œuvre tous les moyens raisonnables pour assurer la bonne
           exécution des campagnes. Sa responsabilité est limitée au montant effectivement payé par l'Annonceur pour la
           campagne concernée. MoveSpot n'est pas responsable de l'état des véhicules, de la qualité de pose réalisée
-          par un prestataire indépendant, ni des indisponibilités liées à des cas de force majeure.
+          par un provider indépendant, ni des indisponibilités liées à des cas de force majeure.
         </p>
       </LegalSection>
 

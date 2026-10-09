@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_public/tarifs")({
   head: () => ({
     meta: [
       { title: "Pricing — MoveSpot | Tarifs MoveSpot" },
-      { name: "description", content: "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les annonceurs." },
+      { name: "description", content: "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les advertisers." },
       { property: "og:title", content: "MoveSpot Pricing — Transparent on price" },
       { property: "og:description", content: "No hidden subscription. Vehicle owners: free. Advertisers: pay per campaign. Installers: flexible plans." },
     ],
@@ -68,7 +68,7 @@ const CONTENT = {
     own_card2_price: "Gratuit",
     own_card2_price_sub: "à vie",
     own_card2_commission: "30 % par campagne (négociable à partir de 20 véhicules)",
-    own_card2_features: ["Tout ce qui est dans Particulier", "Carte flotte multi-véhicules", "Import CSV + gestion multi-chauffeurs", "Indicateurs CA, km, taux d'occupation"],
+    own_card2_features: ["Tout ce qui est dans Particulier", "Carte flotte multi-véhicules", "Import CSV + gestion multi-drivers", "Indicateurs CA, km, taux d'occupation"],
     own_card2_cta: "Inscrire ma flotte",
     own_col_feature: "Fonctionnalité",
     own_col_individual: "Particulier",
@@ -79,9 +79,9 @@ const CONTENT = {
     prov_sub: "Accédez aux demandes de pose géolocalisées autour de votre secteur. Résiliable à tout moment.",
     prov_trial: "14 jours d'essai gratuit",
     prov_plans: [
-      { name: "Starter", price: "29 €", unit: "/mois", features: ["5 demandes/mois", "Profil vérifié", "Messagerie intégrée"], cta: "Essayer gratuitement", href: "/prestataire/inscription", highlight: false },
-      { name: "Standard", price: "42 €", unit: "/mois", features: ["20 demandes/mois", "Profil vérifié + portfolio", "Messagerie + devis intégrés", "Badge partenaire certifié"], cta: "Essayer gratuitement", href: "/prestataire/inscription", highlight: true },
-      { name: "Pro", price: "59 €", unit: "/mois", features: ["Demandes illimitées", "Tout dans Standard", "Mise en avant dans les résultats", "Accès prioritaire aux grands comptes"], cta: "Essayer gratuitement", href: "/prestataire/inscription", highlight: false },
+      { name: "Starter", price: "29 €", unit: "/mois", features: ["5 demandes/mois", "Profil vérifié", "Messagerie intégrée"], cta: "Essayer gratuitement", href: "/provider/inscription", highlight: false },
+      { name: "Standard", price: "42 €", unit: "/mois", features: ["20 demandes/mois", "Profil vérifié + portfolio", "Messagerie + devis intégrés", "Badge partner certifié"], cta: "Essayer gratuitement", href: "/provider/inscription", highlight: true },
+      { name: "Pro", price: "59 €", unit: "/mois", features: ["Demandes illimitées", "Tout dans Standard", "Mise en avant dans les résultats", "Accès prioritaire aux grands comptes"], cta: "Essayer gratuitement", href: "/provider/inscription", highlight: false },
     ],
     prov_recommended: "★ Recommandé",
     // FAQ
@@ -91,7 +91,7 @@ const CONTENT = {
       { q: "Quand suis-je payé en tant que propriétaire ?", a: "Après validation de la campagne (fin de mission + confirmation du propriétaire). Le virement est émis sous 5 jours ouvrés via Stripe Connect." },
       { q: "Puis-je lancer une campagne sans créer de compte ?", a: "Non. Un compte est requis pour créer un brief, suivre la campagne en temps réel et accéder à vos factures." },
       { q: "La commission de 25 % pour PME est-elle automatique ?", a: "Oui, dès qu'un SIRET valide est associé à votre compte, le taux passe à 25 % automatiquement." },
-      { q: "Les prestataires peuvent-ils résilier à tout moment ?", a: "Oui, sans frais ni préavis. L'abonnement se poursuit jusqu'à la fin de la période en cours." },
+      { q: "Les providers peuvent-ils résilier à tout moment ?", a: "Oui, sans frais ni préavis. L'abonnement se poursuit jusqu'à la fin de la période en cours." },
     ],
     // CTA
     cta_h2: "Prêt à démarrer ?",
@@ -122,7 +122,7 @@ const CONTENT = {
       { label: "Carte flotte multi-véhicules", particulier: false, pro: true },
       { label: "Import CSV de la flotte", particulier: false, pro: true },
       { label: "Indicateurs CA / km", particulier: false, pro: true },
-      { label: "Gestion multi-chauffeurs", particulier: false, pro: true },
+      { label: "Gestion multi-drivers", particulier: false, pro: true },
     ] as OwnerRow[],
   },
   en: {
@@ -176,9 +176,9 @@ const CONTENT = {
     prov_sub: "Access geolocated installation requests around your area. Cancel any time.",
     prov_trial: "14-day free trial",
     prov_plans: [
-      { name: "Starter", price: "€29", unit: "/month", features: ["5 requests/month", "Verified profile", "Integrated messaging"], cta: "Try for free", href: "/prestataire/inscription", highlight: false },
-      { name: "Standard", price: "€42", unit: "/month", features: ["20 requests/month", "Verified profile + portfolio", "Messaging + integrated quotes", "Certified partner badge"], cta: "Try for free", href: "/prestataire/inscription", highlight: true },
-      { name: "Pro", price: "€59", unit: "/month", features: ["Unlimited requests", "Everything in Standard", "Featured in results", "Priority access to enterprise accounts"], cta: "Try for free", href: "/prestataire/inscription", highlight: false },
+      { name: "Starter", price: "€29", unit: "/month", features: ["5 requests/month", "Verified profile", "Integrated messaging"], cta: "Try for free", href: "/provider/inscription", highlight: false },
+      { name: "Standard", price: "€42", unit: "/month", features: ["20 requests/month", "Verified profile + portfolio", "Messaging + integrated quotes", "Certified partner badge"], cta: "Try for free", href: "/provider/inscription", highlight: true },
+      { name: "Pro", price: "€59", unit: "/month", features: ["Unlimited requests", "Everything in Standard", "Featured in results", "Priority access to enterprise accounts"], cta: "Try for free", href: "/provider/inscription", highlight: false },
     ],
     prov_recommended: "★ Recommended",
     faq_h2: "Frequently asked questions",
@@ -266,7 +266,7 @@ function Tarifs() {
                   <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
                 ))}
               </ul>
-              <Link to="/annonceur/inscription" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
+              <Link to="/advertiser/inscription" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
                 {c.card1_cta}
               </Link>
             </div>
@@ -287,7 +287,7 @@ function Tarifs() {
                   <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
                 ))}
               </ul>
-              <Link to="/annonceur/inscription" className="rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-semibold text-center hover:bg-primary/90 transition shadow-glow">
+              <Link to="/advertiser/inscription" className="rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-semibold text-center hover:bg-primary/90 transition shadow-glow">
                 {c.card2_cta}
               </Link>
             </div>
@@ -362,7 +362,7 @@ function Tarifs() {
                   <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
                 ))}
               </ul>
-              <Link to="/proprietaire/inscription" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
+              <Link to="/owner/inscription" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
                 {c.own_card1_cta}
               </Link>
             </div>
@@ -379,7 +379,7 @@ function Tarifs() {
                   <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
                 ))}
               </ul>
-              <Link to="/proprietaire/inscription" className="rounded-lg bg-signal text-white py-2.5 text-sm font-semibold text-center hover:bg-signal/90 transition">
+              <Link to="/owner/inscription" className="rounded-lg bg-signal text-white py-2.5 text-sm font-semibold text-center hover:bg-signal/90 transition">
                 {c.own_card2_cta}
               </Link>
             </div>
@@ -445,7 +445,7 @@ function Tarifs() {
                   ))}
                 </ul>
                 <Link
-                  to={plan.href as "/prestataire/inscription"}
+                  to={plan.href as "/provider/inscription"}
                   className={`rounded-lg py-2.5 text-sm font-medium text-center transition ${plan.highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : "border border-border hover:bg-secondary"}`}
                 >
                   {plan.cta}
@@ -475,10 +475,10 @@ function Tarifs() {
           <h2 className="font-display text-2xl font-bold mb-3">{c.cta_h2}</h2>
           <p className="text-muted-foreground mb-6">{c.cta_desc}</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+            <Link to="/advertiser/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
               {c.cta_advertiser}
             </Link>
-            <Link to="/proprietaire/inscription" className="rounded-full bg-card text-foreground border border-border px-6 py-3 font-semibold hover:bg-secondary transition">
+            <Link to="/owner/inscription" className="rounded-full bg-card text-foreground border border-border px-6 py-3 font-semibold hover:bg-secondary transition">
               {c.cta_owner}
             </Link>
           </div>

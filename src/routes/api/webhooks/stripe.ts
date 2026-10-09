@@ -95,7 +95,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
                 await sendWebPushToUser(owner.user_id, {
                   title: "⚠️ Action requise — Attestation Urssaf",
                   body: "Vous avez dépassé 5 000 € de gains. Fournissez votre attestation Urssaf pour débloquer vos virements.",
-                  url: "/proprietaire",
+                  url: "/owner",
                 });
               } catch {
                 // Pas d'impact sur la réponse webhook

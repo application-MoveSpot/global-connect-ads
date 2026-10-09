@@ -7,7 +7,7 @@ import { FAQChatbot } from "@/components/app/FAQChatbot";
 const FAQ_ITEMS_FR = [
   {
     q: "Combien puis-je gagner par mois avec MoveSpot ?",
-    a: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher annonceur de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
+    a: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher advertiser de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
   },
   {
     q: "Quels véhicules sont acceptés sur MoveSpot ?",
@@ -31,14 +31,14 @@ const FAQ_ITEMS_FR = [
   },
   {
     q: "Combien de temps dure la validation de mon véhicule ?",
-    a: "La validation prend généralement 48 heures ouvrées après soumission de votre profil et des 4 photos de votre véhicule. Une fois validé, vous apparaissez sur la marketplace et pouvez recevoir des propositions d'annonceurs.",
+    a: "La validation prend généralement 48 heures ouvrées après soumission de votre profil et des 4 photos de votre véhicule. Une fois validé, vous apparaissez sur la marketplace et pouvez recevoir des propositions d'advertisers.",
   },
 ];
 
-export const Route = createFileRoute("/_public/devenir-partenaire")({
+export const Route = createFileRoute("/_public/devenir-partner")({
   head: () => ({
     meta: [
-      { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partenaire MoveSpot" },
+      { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partner MoveSpot" },
       { name: "description", content: "Transformez vos kilomètres en revenu complémentaire avec MoveSpot. Taxi, VTC, food truck, van ou scooter : inscription gratuite, 70 % du budget campagne vous revient, minimum garanti 17,50 €/jour." },
       { property: "og:title", content: "Revenu complémentaire sur votre véhicule — MoveSpot" },
       { property: "og:description", content: "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h." },
@@ -61,22 +61,22 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "HowTo",
-          name: "Comment devenir partenaire MoveSpot et générer un revenu complémentaire",
-          description: "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'annonceurs locaux.",
+          name: "Comment devenir partner MoveSpot et générer un revenu complémentaire",
+          description: "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'advertisers locaux.",
           step: [
             { "@type": "HowToStep", name: "Créez votre profil gratuit", text: "Inscrivez-vous en 2 minutes avec votre email. Renseignez vos informations et ajoutez votre premier véhicule avec 4 photos." },
             { "@type": "HowToStep", name: "Validation sous 48h par MoveSpot", text: "MoveSpot vérifie votre véhicule et votre SIRET pour garantir la qualité de la marketplace. Vous recevez une confirmation par email." },
-            { "@type": "HowToStep", name: "Recevez des campagnes et encaissez", text: "Les annonceurs vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu." },
+            { "@type": "HowToStep", name: "Recevez des campagnes et encaissez", text: "Les advertisers vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu." },
           ],
         }),
       },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/devenir-partenaire" }, ...hreflangLinks("/devenir-partenaire")],
+    links: [{ rel: "canonical", href: "https://move-spot.com/devenir-partner" }, ...hreflangLinks("/devenir-partner")],
   }),
   component: DevenirPartenaire,
 });
 
-/** Revenu journalier NET propriétaire (70 % de la campagne annonceur).
+/** Revenu journalier NET propriétaire (70 % de la campagne advertiser).
  *  minPerDay = plancher absolu : 25 € MIN_EUR_PER_DAY × 70 % = 17,50 €
  *  maxPerDay = campagne typique large zone pour ce type de véhicule × 70 %
  *  cityMult  = reflet de la demande + multiplicateur zone dense (×1,5 en agglo) */
@@ -232,7 +232,7 @@ function RevenueSimulator() {
 
         <div className="text-center">
           <Link
-            to="/proprietaire/inscription"
+            to="/owner/inscription"
             className="inline-block rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
           >
             {t("partner.sim.cta")}
@@ -304,10 +304,10 @@ function DevenirPartenaire() {
           {t("partner.hero_subtitle")}
         </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <Link to="/proprietaire/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+          <Link to="/owner/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
             {t("partner.cta_signup")}
           </Link>
-          <Link to="/proprietaire" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+          <Link to="/owner" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
             {t("partner.cta_existing")}
           </Link>
         </div>
@@ -382,12 +382,12 @@ function DevenirPartenaire() {
 
       <section className="max-w-3xl mx-auto px-6 py-16 text-center">
         <h2 className="font-display text-3xl font-bold mb-4">{t("partner.cta_bottom_title")}</h2>
-        <Link to="/proprietaire/inscription" className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+        <Link to="/owner/inscription" className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
           {t("partner.cta_start")}
         </Link>
         <p className="text-sm text-muted-foreground mt-8">
           {t("partner.partner_promo")}{" "}
-          <Link to="/partenaire/inscription" className="underline hover:text-foreground">
+          <Link to="/partner/inscription" className="underline hover:text-foreground">
             {t("partner.partner_link")}
           </Link>
           .
@@ -400,7 +400,7 @@ function DevenirPartenaire() {
         </div>
       </footer>
       <FAQChatbot
-        audience="proprietaire"
+        audience="owner"
         suggestions={[
           t("partner.chatbot.s0"),
           t("partner.chatbot.s1"),

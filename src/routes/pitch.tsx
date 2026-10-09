@@ -66,7 +66,7 @@ const slides: Slide[] = [
         </p>
         <ul className="space-y-3 text-muted-foreground">
           {[
-            "L'annonceur cible une zone qu'il dessine lui-même sur la carte",
+            "L'advertiser cible une zone qu'il dessine lui-même sur la carte",
             "Le budget se calcule au km², pondéré par la densité de l'agglomération",
             "Diffusion prouvée par GPS : km réels, minutes actives, couverture de zone",
             "Charte éditoriale stricte : pas de politique, religion ou contenu violent",
@@ -87,10 +87,10 @@ const slides: Slide[] = [
     body: (
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl">
         {[
-          { step: "1", t: "L'annonceur dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls." },
+          { step: "1", t: "L'advertiser dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls." },
           { step: "2", t: "Il valide le devis et paie par carte, portefeuille prépayé ou virement B2B." },
           { step: "3", t: "MoveSpot modère la création, le véhicule, puis contrôle la pose sur 4 photos." },
-          { step: "4", t: "Le chauffeur roule : GPS agrégé, km réels et taux de couverture de zone en direct." },
+          { step: "4", t: "Le driver roule : GPS agrégé, km réels et taux de couverture de zone en direct." },
         ].map((s) => (
           <div key={s.step} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6">
             <div className="h-10 w-10 rounded-full bg-gradient-signal flex items-center justify-center font-display font-bold text-primary-foreground shadow-glow">{s.step}</div>
@@ -141,7 +141,7 @@ const slides: Slide[] = [
           Le prix suit la surface réellement couverte : 1,80 € par km² et par jour, 2,70 € dans les
           grandes agglomérations. Pour les campagnes récurrentes, trois formules d'abonnement mensuel par véhicule —
           Starter 29 €, Standard 42 €, Pro 59 € — pour un panier moyen de 42,50 €. MoveSpot prélève 30 % de commission
-          d'intermédiation, 70 % vont au propriétaire, au chauffeur et au poseur.
+          d'intermédiation, 70 % vont au propriétaire, au driver et au poseur.
         </p>
 
         <div className="grid md:grid-cols-3 gap-4">
@@ -171,7 +171,7 @@ const slides: Slide[] = [
           "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
           "Des preuves plutôt que des promesses : chaque euro facturé s'appuie sur des kilomètres réellement parcourus dans la zone.",
           "Un outil simple et accessible : un commerçant peut lancer une campagne dès 25 €/jour par véhicule, sans jargon publicitaire.",
-          "Un écosystème de prestataires spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
+          "Un écosystème de providers spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
           "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (
           <li key={l} className="flex items-start gap-3">

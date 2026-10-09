@@ -111,7 +111,7 @@ export function OnboardingModal({ isIndividual = false }: Props) {
             {isLast ? (
               <div className="flex flex-col gap-2 flex-1">
                 <Link
-                  to={isIndividual ? "/annonceur/pack" : "/prestataires"}
+                  to={isIndividual ? "/advertiser/pack" : "/providers"}
                   onClick={dismiss}
                   className="block text-center rounded-full bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
                 >

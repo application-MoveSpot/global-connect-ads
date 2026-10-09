@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/_public/annonceurs-entreprise")({
+export const Route = createFileRoute("/_public/advertisers-entreprise")({
   head: () => ({
     meta: [
       { title: "GPS-certified mobile advertising for businesses — MoveSpot | Publicité mobile certifiée GPS pour entreprises" },
@@ -34,8 +34,8 @@ export const Route = createFileRoute("/_public/annonceurs-entreprise")({
       },
     ],
     links: [
-      { rel: "canonical", href: "https://move-spot.com/annonceurs-entreprise" },
-      ...hreflangLinks("/annonceurs-entreprise"),
+      { rel: "canonical", href: "https://move-spot.com/advertisers-entreprise" },
+      ...hreflangLinks("/advertisers-entreprise"),
     ],
   }),
   component: AnnonceursEntreprise,
@@ -101,7 +101,7 @@ const CONTENT = {
     report_mock_cert: "Attestation de diffusion certifiée MoveSpot",
     cta_h2: "Prêt à lancer votre pilote ?",
     cta_desc: "Démarrez avec 1 véhicule sur 7 jours pour valider le concept. Pas d'engagement, rapport GPS certifié inclus, facturation à la fin de la campagne.",
-    cta_btn: "Créer mon compte annonceur",
+    cta_btn: "Créer mon compte advertiser",
     cta_contact: "Vous avez des questions ?",
     cta_contact_link: "Contactez-nous",
     cta_how: "comment ça marche",
@@ -194,7 +194,7 @@ function AnnonceursEntreprise() {
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">{c.hero_desc}</p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+          <Link to="/advertiser/inscription" className="rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
             {c.cta_primary}
           </Link>
           <Link to="/comment-ca-marche" className="rounded-full border border-border bg-card/50 backdrop-blur px-8 py-3 font-semibold hover:bg-card transition">
@@ -339,7 +339,7 @@ function AnnonceursEntreprise() {
       <section className="max-w-3xl mx-auto px-6 py-16 text-center">
         <h2 className="font-display text-3xl font-bold mb-3">{c.cta_h2}</h2>
         <p className="text-muted-foreground mb-8 max-w-xl mx-auto">{c.cta_desc}</p>
-        <Link to="/annonceur/inscription" className="inline-block rounded-full bg-primary text-primary-foreground px-10 py-4 font-semibold text-lg hover:bg-primary/90 transition shadow-glow">
+        <Link to="/advertiser/inscription" className="inline-block rounded-full bg-primary text-primary-foreground px-10 py-4 font-semibold text-lg hover:bg-primary/90 transition shadow-glow">
           {c.cta_btn}
         </Link>
         <p className="text-xs text-muted-foreground mt-4">
@@ -353,7 +353,7 @@ function AnnonceursEntreprise() {
       <footer className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 py-6 text-sm text-muted-foreground text-center">
           © {new Date().getFullYear()} MoveSpot —{" "}
-          <Link to="/devenir-partenaire" className="hover:text-foreground">{c.footer_owners}</Link>
+          <Link to="/devenir-partner" className="hover:text-foreground">{c.footer_owners}</Link>
           {" · "}
           <Link to="/comment-ca-marche" className="hover:text-foreground">{c.footer_how}</Link>
         </div>

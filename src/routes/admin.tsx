@@ -209,7 +209,7 @@ function AdminPage() {
           <div className="flex gap-2 flex-wrap">
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>{t("admin.dashboard.tab_requests")}{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
             <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>{t("admin.dashboard.tab_vehicles")}{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
-            <Link to="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_providers")}</Link>
+            <Link to="/admin/providers" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_providers")}</Link>
             <Link to="/admin/virements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_transfers")}</Link>
             <Link to="/admin/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_moderation")}</Link>
             <Link to="/admin/commissions" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_commissions")}</Link>
