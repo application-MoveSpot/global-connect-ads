@@ -3441,6 +3441,7 @@
     "btn_verified": "✓ Vérifié",
     "individual_note": "(entreprise individuelle — l'identité légale est le nom du chef d'entreprise)",
     "digit_count": "{{count}}/14 chiffres",
+    "err_luhn": "Numéro invalide — vérifiez les chiffres saisis.",
     "err_verify": "Erreur lors de la vérification."
   },
   "creative_files": {

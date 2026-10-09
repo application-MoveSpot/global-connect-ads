@@ -3441,6 +3441,7 @@
     "btn_verified": "✓ Verified",
     "individual_note": "(sole trader — the legal identity is the business owner's name)",
     "digit_count": "{{count}}/14 digits",
+    "err_luhn": "Invalid number — please check the digits.",
     "err_verify": "Verification error."
   },
   "creative_files": {
