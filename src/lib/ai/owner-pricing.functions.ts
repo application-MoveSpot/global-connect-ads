@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { assertRateLimit } from "@/lib/rateLimit.server";
 
 const OwnerPricingInput = z.object({
   vehicleId: z.string().uuid(),
@@ -20,6 +21,7 @@ export const recommendVehiclePrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof OwnerPricingInput>) => OwnerPricingInput.parse(d))
   .handler(async ({ data, context }): Promise<PricingRecommendation> => {
+    assertRateLimit(`owner-pricing:${context.userId}`, { maxRequests: 30, windowMs: 60_000 });
     const { supabase, userId } = context;
 
     // Charger le véhicule (vérif propriétaire)

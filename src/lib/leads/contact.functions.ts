@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 
 const ContactLeadInput = z.object({
   plan: z.enum(["enterprise", "partenaire", "autre"]).default("enterprise"),
@@ -15,6 +16,7 @@ const ContactLeadInput = z.object({
 export const submitContactLead = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof ContactLeadInput>) => ContactLeadInput.parse(d))
   .handler(async ({ data }) => {
+    assertRateLimit(`contact-lead:${getRequestIp()}`, { maxRequests: 5, windowMs: 10 * 60_000 });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const db = supabaseAdmin as unknown as {

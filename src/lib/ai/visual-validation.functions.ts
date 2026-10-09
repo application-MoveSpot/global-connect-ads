@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertRateLimit } from "@/lib/rateLimit.server";
 
 // Shared helper: analyse an image (base64) via Lovable AI gateway vision
 async function analyseImageBase64(
@@ -51,7 +52,8 @@ export type CreativeValidationResult = {
 export const validateBriefCreative = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof ValidateCreativeInput>) => ValidateCreativeInput.parse(d))
-  .handler(async ({ data }): Promise<CreativeValidationResult> => {
+  .handler(async ({ data, context }): Promise<CreativeValidationResult> => {
+    assertRateLimit(`validate-creative:${context.userId}`, { maxRequests: 20, windowMs: 60_000 });
     const prompt = `Tu es expert en création publicitaire pour véhicules en France.
 Analyse ce visuel publicitaire et vérifie :
 1. Lisibilité du texte (taille, contraste, police)
@@ -104,7 +106,8 @@ export type InstallationPhotoResult = {
 export const validateInstallationPhotos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof ValidateInstallationInput>) => ValidateInstallationInput.parse(d))
-  .handler(async ({ data }): Promise<InstallationPhotoResult> => {
+  .handler(async ({ data, context }): Promise<InstallationPhotoResult> => {
+    assertRateLimit(`validate-photos:${context.userId}`, { maxRequests: 20, windowMs: 60_000 });
     const views = ["front", "left", "right", "rear"] as const;
     const labels: Record<string, string> = {
       front: "Vue de face",

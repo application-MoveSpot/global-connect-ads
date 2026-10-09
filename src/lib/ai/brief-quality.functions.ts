@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { assertRateLimit } from "@/lib/rateLimit.server";
 
 const BriefQualityInput = z.object({
   title: z.string().max(200),
@@ -24,7 +25,8 @@ export type BriefQualityResult = {
 export const scoreBriefQuality = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof BriefQualityInput>) => BriefQualityInput.parse(d))
-  .handler(async ({ data }): Promise<BriefQualityResult> => {
+  .handler(async ({ data, context }): Promise<BriefQualityResult> => {
+    assertRateLimit(`brief-quality:${context.userId}`, { maxRequests: 30, windowMs: 60_000 });
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 

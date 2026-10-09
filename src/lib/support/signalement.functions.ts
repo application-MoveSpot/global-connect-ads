@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertRateLimit } from "@/lib/rateLimit.server";
 
 const SubmitSignalementInput = z.object({
   subject: z.string().min(5).max(200),
@@ -14,6 +15,7 @@ export const submitSignalement = createServerFn({ method: "POST" })
     SubmitSignalementInput.parse(d),
   )
   .handler(async ({ data, context }) => {
+    assertRateLimit(`signalement:${context.userId}`, { maxRequests: 10, windowMs: 10 * 60_000 });
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
