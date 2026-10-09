@@ -177,7 +177,7 @@ function RootComponent() {
     initPixels();
     firePixelEvent("PageView");
 
-    return router.subscribe("onResolved", () => {
+    const unsubRouter = router.subscribe("onResolved", () => {
       firePixelEvent("PageView");
     });
 
@@ -185,16 +185,26 @@ function RootComponent() {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        Sentry.setUser({ id: session.user.id, email: session.user.email });
-      } else {
-        Sentry.setUser(null);
-      }
-    });
-    return () => subscription.unsubscribe();
+    let unsubAuth: (() => void) | undefined;
+    try {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          Sentry.setUser({ id: session.user.id, email: session.user.email });
+        } else {
+          Sentry.setUser(null);
+        }
+      });
+      unsubAuth = () => subscription.unsubscribe();
+    } catch {
+      // Supabase env vars missing (CI/dev without credentials)
+    }
+
+    return () => {
+      unsubRouter();
+      unsubAuth?.();
+    };
   }, []);
 
   return (
@@ -212,19 +222,18 @@ function RootComponent() {
 }
 
 function ErrorFallback() {
-  const { t } = useTranslation();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-4xl font-bold text-foreground mb-4">{t("root.error_title")}</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-4">Une erreur est survenue</h1>
         <p className="text-muted-foreground mb-6">
-          {t("root.error_desc")}
+          Veuillez recharger la page.
         </p>
         <button
           onClick={() => window.location.reload()}
           className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          {t("root.error_reload")}
+          Recharger
         </button>
       </div>
     </div>
