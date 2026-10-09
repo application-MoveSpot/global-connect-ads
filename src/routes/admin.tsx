@@ -209,12 +209,12 @@ function AdminPage() {
           <div className="flex gap-2 flex-wrap">
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>{t("admin.dashboard.tab_requests")}{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
             <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>{t("admin.dashboard.tab_vehicles")}{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
-            <a href="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_providers")}</a>
-            <a href="/admin/virements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_transfers")}</a>
-            <a href="/admin/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_moderation")}</a>
-            <a href="/admin/commissions" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_commissions")}</a>
-            <a href="/admin/audit" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_audit")}</a>
-            <a href="/admin/remboursements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_refunds")}</a>
+            <Link to="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_providers")}</Link>
+            <Link to="/admin/virements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_transfers")}</Link>
+            <Link to="/admin/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_moderation")}</Link>
+            <Link to="/admin/commissions" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_commissions")}</Link>
+            <Link to="/admin/audit" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_audit")}</Link>
+            <Link to="/admin/remboursements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_refunds")}</Link>
           </div>
           <div className="flex gap-2">
             <a
@@ -225,12 +225,12 @@ function AdminPage() {
             >
               {t("admin.dashboard.nav_previsionnel")}
             </a>
-            <a
-              href="/kit"
+            <Link
+              to="/kit"
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
             >
               {t("admin.dashboard.nav_kit")}
-            </a>
+            </Link>
           </div>
         </div>
 
