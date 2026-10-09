@@ -478,7 +478,9 @@ function ProviderSignupPage() {
                         setPricingEstimate(res);
                         if (res.pricing_text) setPricingInfo(res.pricing_text);
                       } catch (e) {
-                        setError(e instanceof Error ? e.message : t("prestataire.inscription.error.pricing_estimate"));
+                        const msg = e instanceof Error ? e.message : "";
+                        const isTechnical = /API_KEY|secret|token|supabase|postgres|prisma|internal server/i.test(msg);
+                        setError(isTechnical || !msg ? t("prestataire.inscription.error.pricing_estimate") : msg);
                       } finally {
                         setEstimatingPricing(false);
                       }

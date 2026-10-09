@@ -185,7 +185,9 @@ function NewVehiclePage() {
       setEstimate({ ...res, uploaded_urls: paths });
     } catch (e) {
       if (e instanceof Error && e.message.startsWith("Upload")) captureError(e, "upload", { flow: "vehicle_photo" });
-      setError(e instanceof Error ? e.message : t("proprietaire.vehicules.nouveau.error_estimate_generic"));
+      const msg = e instanceof Error ? e.message : "";
+      const isTechnical = /API_KEY|secret|token|supabase|postgres|prisma|internal server/i.test(msg);
+      setError(isTechnical || !msg ? t("proprietaire.vehicules.nouveau.error_estimate_generic") : msg);
     } finally {
       setEstimating(false);
     }
