@@ -1525,24 +1525,24 @@ function AdminAlertesPanel() {
           <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400">
             🚨 {t("admin.dashboard.alertes_open_count", { count: open.length })}
           </h3>
-          {open.map((t) => (
-            <div key={t.id} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
+          {open.map((ticket) => (
+            <div key={ticket.id} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
               <div className="flex items-start justify-between gap-2 flex-wrap">
                 <div>
-                  <p className="font-semibold text-sm">{t.subject}</p>
+                  <p className="font-semibold text-sm">{ticket.subject}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t.user_email} · {new Date(t.created_at).toLocaleDateString(i18n.language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    {ticket.user_email} · {new Date(ticket.created_at).toLocaleDateString(i18n.language, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                   </p>
-                  {t.context_url && (
-                    <p className="text-xs text-muted-foreground">{i18n.language === "fr" ? "Contexte" : "Context"} : {t.context_url}</p>
+                  {ticket.context_url && (
+                    <p className="text-xs text-muted-foreground">{i18n.language === "fr" ? "Contexte" : "Context"} : {ticket.context_url}</p>
                   )}
                 </div>
               </div>
-              <p className="text-sm whitespace-pre-wrap">{t.message}</p>
+              <p className="text-sm whitespace-pre-wrap">{ticket.message}</p>
               <div className="flex gap-2 mt-2">
                 <textarea
-                  value={responses[t.id] ?? ""}
-                  onChange={(e) => setResponses((p) => ({ ...p, [t.id]: e.target.value }))}
+                  value={responses[ticket.id] ?? ""}
+                  onChange={(e) => setResponses((p) => ({ ...p, [ticket.id]: e.target.value }))}
                   placeholder={t("admin.dashboard.alertes_response_placeholder")}
                   rows={2}
                   maxLength={1000}
@@ -1550,11 +1550,11 @@ function AdminAlertesPanel() {
                 />
                 <button
                   type="button"
-                  disabled={!responses[t.id]?.trim() || resolving[t.id]}
-                  onClick={() => void handleResolve(t.id)}
+                  disabled={!responses[ticket.id]?.trim() || resolving[ticket.id]}
+                  onClick={() => void handleResolve(ticket.id)}
                   className="shrink-0 self-end rounded-full bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50"
                 >
-                  {resolving[t.id] ? "…" : t("admin.dashboard.alertes_resolve_btn")}
+                  {resolving[ticket.id] ? "…" : t("admin.dashboard.alertes_resolve_btn")}
                 </button>
               </div>
             </div>

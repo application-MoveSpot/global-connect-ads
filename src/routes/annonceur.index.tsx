@@ -809,7 +809,7 @@ function ReferralWidget() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    statsFn({}).then((res) => {
+    void (statsFn({}) as Promise<{ ok: false } | { ok: true; referralCode: string; rewards: Array<{ id: string; status: string; credited_at: string | null; created_at: string }> }>).then((res) => {
       if (!res.ok) return;
       setCode(res.referralCode);
       setCredited(res.rewards.filter((r) => r.status === "credited").length);

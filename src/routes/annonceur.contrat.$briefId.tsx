@@ -139,7 +139,7 @@ function ContratPage() {
               <tbody>
                 <Row label={t("annonceur.contrat.row_title")} value={data.briefTitle} />
                 <Row label={t("annonceur.contrat.row_description")} value={data.description} />
-                <Row label={t("annonceur.contrat.row_period")} value={t("annonceur.contrat.row_period_value", { from: fmt(data.startDate), to: fmt(data.endDate), count: data.daysCount } as never)} />
+                <Row label={t("annonceur.contrat.row_period")} value={String(t("annonceur.contrat.row_period_value", { from: fmt(data.startDate), to: fmt(data.endDate), count: data.daysCount } as never))} />
                 <Row label={t("annonceur.contrat.row_zones")} value={data.zones.length > 0 ? data.zones.join(", ") : "—"} />
                 {data.adFormat && <Row label={t("annonceur.contrat.row_format")} value={data.adFormat} />}
                 <Row label={t("annonceur.contrat.row_vehicle_types")} value={data.vehicleTypes.join(", ")} />
