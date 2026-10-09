@@ -40,26 +40,26 @@ function isRedirected(url: string) {
 }
 
 test.describe("Brief nouveau — chargement", () => {
-  test("la page /annonceur/briefs/nouveau charge sans écran blanc", async ({ page }) => {
-    await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
+  test("la page /advertiser/briefs/nouveau charge sans écran blanc", async ({ page }) => {
+    await page.goto("/advertiser/briefs/nouveau", { waitUntil: "domcontentloaded" });
 
     const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
     const url = page.url();
     const isRedirected = url.includes("login") || url.includes("auth") || url.includes("inscription");
 
-    expect(isRedirected || bodyText.length > 10, "Écran blanc sur /annonceur/briefs/nouveau").toBe(true);
+    expect(isRedirected || bodyText.length > 10, "Écran blanc sur /advertiser/briefs/nouveau").toBe(true);
   });
 
   test("le type de véhicule 'camion_led' est présent dans le HTML", () => {
     const src = fs.readFileSync(
-      path.join(process.cwd(), "src/routes/annonceur.briefs.nouveau.tsx"),
+      path.join(process.cwd(), "src/routes/advertiser.briefs.nouveau.tsx"),
       "utf-8"
     );
     expect(src).toContain("camion_led");
   });
 
   test("le titre mentionne brief ou campagne", async ({ page }) => {
-    await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
+    await page.goto("/advertiser/briefs/nouveau", { waitUntil: "domcontentloaded" });
     const title = await page.title();
     expect(title.toLowerCase()).toMatch(/brief|campagne|annonce|movespot/i);
   });
@@ -68,7 +68,7 @@ test.describe("Brief nouveau — chargement", () => {
 test.describe("Brief nouveau — structure du stepper", () => {
   test.beforeEach(async ({ page }) => {
     await injectTestSession(page);
-    await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
+    await page.goto("/advertiser/briefs/nouveau", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle").catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
@@ -135,19 +135,19 @@ test.describe("Brief nouveau — structure du stepper", () => {
 });
 
 test.describe("Brief nouveau — liste des briefs", () => {
-  test("la page /annonceur/briefs charge sans écran blanc", async ({ page }) => {
-    await page.goto("/annonceur/briefs", { waitUntil: "domcontentloaded" });
+  test("la page /advertiser/briefs charge sans écran blanc", async ({ page }) => {
+    await page.goto("/advertiser/briefs", { waitUntil: "domcontentloaded" });
     const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
     const url = page.url();
     const isRedirected = url.includes("login") || url.includes("auth");
-    expect(isRedirected || bodyText.length > 10, "Écran blanc sur /annonceur/briefs").toBe(true);
+    expect(isRedirected || bodyText.length > 10, "Écran blanc sur /advertiser/briefs").toBe(true);
   });
 
   test("un lien 'Nouveau brief' ou 'Créer' est visible sur la liste des briefs", async ({
     page,
   }) => {
     await injectTestSession(page);
-    await page.goto("/annonceur/briefs", { waitUntil: "domcontentloaded" });
+    await page.goto("/advertiser/briefs", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle").catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
