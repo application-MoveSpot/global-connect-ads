@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import "@/lib/i18n";
+import i18n from "@/lib/i18n";
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
 import { TestEnvBanner } from "@/components/app/TestEnvBanner";
@@ -138,11 +138,10 @@ export const Route = (createRootRouteWithContext as any)()({
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  const { t, i18n: i18nInstance } = useTranslation();
-  // useTranslation() already re-renders on language change — no need for
-  // a manual useState + i18nInstance.on() subscription (which was crashing
-  // in production with "r.on is not a function").
-  const lang = i18nInstance.resolvedLanguage ?? "fr";
+  const { t } = useTranslation();
+  // useTranslation() re-renders on language change; read lang from the i18n
+  // singleton imported at module scope so Rollup cannot tree-shake the import.
+  const lang = i18n.resolvedLanguage ?? "fr";
 
   return (
     <html lang={lang}>
