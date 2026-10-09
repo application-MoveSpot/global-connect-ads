@@ -4,8 +4,17 @@
 // French phone numbers: mobile 06/07, fixed 01-09, international +33/0033,
 // with optional space / dot / dash separators.
 // Lookbehind (?<!\d) prevents matching digit runs inside IBAN / account numbers.
-const PHONE_RE =
+const PHONE_FR_RE =
   /(?:\+33|0033)\s?[1-9](?:[\s.\-]?\d{2}){4}|(?<!\d)0[1-9](?:[\s.\-]?\d{2}){4}/;
+
+// US phone numbers: (555) 123-4567 | 555-123-4567 | +1 555 123 4567 etc.
+// Lookbehind (?<!\d) prevents matching digit runs inside credit card numbers.
+const PHONE_US_RE =
+  /(?<!\d)(?:\+1[\s.\-]?)?(?:\(\d{3}\)|\d{3})[\s.\-]\d{3}[\s.\-]\d{4}(?!\d)/;
+
+const PHONE_RE = new RegExp(
+  `${PHONE_FR_RE.source}|${PHONE_US_RE.source}`,
+);
 
 // Standard email address.
 const EMAIL_RE = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/;

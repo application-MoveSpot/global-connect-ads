@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-r
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
+import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
+import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
 import { firePixelEvent } from "@/lib/analytics/pixels";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
@@ -39,6 +40,7 @@ type AccountType = "business" | "individual";
 function AnnonceurInscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [market] = useMarket();
   const { redirect, ref, invite, mode: modeParam } = useSearch({ from: "/advertiser/inscription" });
   const [mode, setMode] = useState<"signup" | "signin">(modeParam ?? "signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
@@ -186,8 +188,8 @@ function AnnonceurInscription() {
       setError(t("advertiser.inscription.error_address"));
       return;
     }
-    if (phone && !isValidFrenchPhone(phone)) {
-      setError(t("common.phone_invalid"));
+    if (phone && !isValidPhone(phone, market)) {
+      setError(t(market === "US" ? "common.phone_invalid_us" : "common.phone_invalid"));
       return;
     }
     setLoading(true);
@@ -201,7 +203,7 @@ function AnnonceurInscription() {
     const payload: Record<string, unknown> = {
       user_id: sess.session.user.id,
       full_name: fullName,
-      phone: phone ? (normalizePhone(phone) ?? null) : null,
+      phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
       city: city || null,
       account_type: accountType,
       cgu_version: CGU_VERSION,
@@ -365,7 +367,7 @@ function AnnonceurInscription() {
                 </>
               )}
 
-              <Input label={t("advertiser.inscription.label_phone")} type="tel" value={phone} onChange={setPhone} />
+              <Input label={t("advertiser.inscription.label_phone")} type="tel" value={phone} onChange={setPhone} placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"} />
               <Input label={t("advertiser.inscription.label_city")} value={city} onChange={setCity} />
 
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
@@ -401,6 +403,7 @@ function Input({
   type = "text",
   required,
   minLength,
+  placeholder,
 }: {
   label: string;
   value: string;
@@ -408,6 +411,7 @@ function Input({
   type?: string;
   required?: boolean;
   minLength?: number;
+  placeholder?: string;
 }) {
   return (
     <div>
@@ -416,6 +420,7 @@ function Input({
         type={type}
         required={required}
         minLength={minLength}
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"

@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
+import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
+import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/owner/inscription")({
 function InscriptionPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [market] = useMarket();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
@@ -129,8 +131,8 @@ function InscriptionPage() {
       setError(t("owner.inscription.error_siret"));
       return;
     }
-    if (phone && !isValidFrenchPhone(phone)) {
-      setError(t("common.phone_invalid"));
+    if (phone && !isValidPhone(phone, market)) {
+      setError(t(market === "US" ? "common.phone_invalid_us" : "common.phone_invalid"));
       return;
     }
     setLoading(true);
@@ -143,7 +145,7 @@ function InscriptionPage() {
     const { error } = await supabase.from("owner_profiles").upsert({
       user_id: sess.session.user.id,
       full_name: fullName,
-      phone: phone ? (normalizePhone(phone) ?? null) : null,
+      phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
       company: isParticulier
         ? null
         : company || siret.denomination,
@@ -310,7 +312,7 @@ function InscriptionPage() {
                   )}
                 </>
               )}
-              <Input label={t("owner.inscription.phone_label")} value={phone} onChange={setPhone} type="tel" />
+              <Input label={t("owner.inscription.phone_label")} value={phone} onChange={setPhone} type="tel" placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"} />
               <Input label={t("owner.inscription.city_label")} value={city} onChange={setCity} />
               <div>
                 <label className="block text-sm font-medium mb-1.5">{t("owner.inscription.bio_label")}</label>
@@ -345,6 +347,7 @@ function Input({
   type = "text",
   required,
   minLength,
+  placeholder,
 }: {
   label: string;
   value: string;
@@ -352,6 +355,7 @@ function Input({
   type?: string;
   required?: boolean;
   minLength?: number;
+  placeholder?: string;
 }) {
   return (
     <div>
@@ -360,6 +364,7 @@ function Input({
         type={type}
         required={required}
         minLength={minLength}
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"

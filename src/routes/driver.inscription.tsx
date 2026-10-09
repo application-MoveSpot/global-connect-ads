@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
+import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
+import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -42,6 +43,7 @@ type VehicleKind = (typeof VEHICLE_KIND_VALUES)[number];
 function ChauffeurInscription() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [market] = useMarket();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [email, setEmail] = useState("");
@@ -58,6 +60,7 @@ function ChauffeurInscription() {
     denomination: null,
     verified: false,
   });
+  const [ein, setEin] = useState("");
   const [acceptedCGU, setAcceptedCGU] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -144,12 +147,16 @@ function ChauffeurInscription() {
       setError(t("driver.inscription.error_cgu"));
       return;
     }
-    if (hasCompany && !siret.verified) {
+    if (hasCompany && market !== "US" && !siret.verified) {
       setError(t("driver.inscription.error_siret"));
       return;
     }
-    if (phone && !isValidFrenchPhone(phone)) {
-      setError(t("common.phone_invalid"));
+    if (hasCompany && market === "US" && !ein.trim()) {
+      setError(t("driver.inscription.error_siret"));
+      return;
+    }
+    if (phone && !isValidPhone(phone, market)) {
+      setError(t(market === "US" ? "common.phone_invalid_us" : "common.phone_invalid"));
       return;
     }
     setLoading(true);
@@ -164,7 +171,7 @@ function ChauffeurInscription() {
       user_id: sess.session.user.id,
       kind,
       full_name: fullName,
-      phone: phone ? (normalizePhone(phone) ?? null) : null,
+      phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
       city: city || null,
       vehicle_kind: kind === "installer" ? null : vehicleKind,
       vehicle_plate: kind === "installer" ? null : vehiclePlate || null,
@@ -172,9 +179,15 @@ function ChauffeurInscription() {
       cgu_accepted_at: new Date().toISOString(),
     };
     if (hasCompany) {
-      payload.siret = siret.siret;
-      payload.siret_denomination = siret.denomination;
-      payload.siret_verified_at = new Date().toISOString();
+      if (market === "US") {
+        payload.siret = ein.trim();
+        payload.siret_denomination = null;
+        payload.siret_verified_at = new Date().toISOString();
+      } else {
+        payload.siret = siret.siret;
+        payload.siret_denomination = siret.denomination;
+        payload.siret_verified_at = new Date().toISOString();
+      }
     }
     const { error } = await supabase.from("payee_profiles").insert(payload as never);
     if (error) {
@@ -285,8 +298,19 @@ function ChauffeurInscription() {
               </div>
 
               <Input label={t("driver.inscription.name_label")} value={fullName} onChange={setFullName} required />
-              <Input label={t("driver.inscription.phone_label")} type="tel" value={phone} onChange={setPhone} />
-              <Input label={t("driver.inscription.city_label")} value={city} onChange={setCity} />
+              <Input
+                label={t("driver.inscription.phone_label")}
+                type="tel"
+                value={phone}
+                onChange={setPhone}
+                placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"}
+              />
+              <Input
+                label={market === "US" ? t("driver.inscription.city_label_us") : t("driver.inscription.city_label")}
+                value={city}
+                onChange={setCity}
+                placeholder={market === "US" ? "Miami, FL" : undefined}
+              />
 
               {kind !== "installer" && (
                 <>
@@ -335,7 +359,11 @@ function ChauffeurInscription() {
                   {t("driver.inscription.cgu_after_strong")}
                 </span>
               </label>
-              {hasCompany && <SiretField value={siret} onChange={setSiret} />}
+              {hasCompany && (
+                market === "US"
+                  ? <Input label={t("common.ein_label")} value={ein} onChange={setEin} placeholder="12-3456789" required />
+                  : <SiretField value={siret} onChange={setSiret} />
+              )}
 
               {error && <Err msg={error} />}
               <button
