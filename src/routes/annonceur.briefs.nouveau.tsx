@@ -466,7 +466,12 @@ function NewBriefPage() {
           issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)],
         });
       } catch {
-        results.push({ name: file.name, ok: true, score: 50, issues: [] });
+        results.push({
+          name: file.name,
+          ok: false,
+          score: 0,
+          issues: ["⚠️ Validation IA indisponible — ce visuel sera examiné manuellement par notre équipe."],
+        });
       }
     }
     setCreativeValidation(results);
