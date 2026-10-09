@@ -3651,5 +3651,14 @@
     "authorize_desc": "{{name}} will be able to use MoveSpot tools on your behalf: view your vehicles, campaigns, briefs, wallet balance, and the installer directory.",
     "authorize_btn": "Authorize",
     "deny_btn": "Deny"
+  },
+  "compliance": {
+    "market_label": "Target market",
+    "us_city_label": "US city / market",
+    "us_city_placeholder": "Select a city…",
+    "content_category_label": "Content category",
+    "content_category_placeholder": "Select a category…",
+    "content_ok": "Category is permitted in this city.",
+    "us_legal_note": "MoveSpot verifies regulatory compliance for each US market. The advertiser remains solely responsible for compliance with local laws applicable to their industry."
   }
 }
