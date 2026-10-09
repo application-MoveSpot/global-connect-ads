@@ -181,11 +181,6 @@ const CONTENT = {
     comparatif_label: "Comparatif",
     comparatif_h2: "MoveSpot vs la concurrence",
     comparatif_headers: ["MoveSpot", "Agence trad.", "Billboard", "Wrapify (US)"],
-    testimonials_label: "Témoignages",
-    testimonials_h2: "Ils ont choisi MoveSpot",
-    testimonials_placeholder: "Les premiers témoignages arrivent bientôt",
-    testimonials_desc: "Vous avez utilisé MoveSpot pour votre campagne ? Nous serions ravis de partager votre expérience.",
-    testimonials_cta: "Partager mon expérience →",
     cta_h2: "Prêt à lancer votre campagne ?",
     cta_desc: "Rejoignez les annonceurs qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
     cta_final_primary: "Créer mon compte gratuitement →",
@@ -211,11 +206,6 @@ const CONTENT = {
     comparatif_label: "Comparison",
     comparatif_h2: "MoveSpot vs the competition",
     comparatif_headers: ["MoveSpot", "Trad. agency", "Billboard", "Wrapify (US)"],
-    testimonials_label: "Testimonials",
-    testimonials_h2: "They chose MoveSpot",
-    testimonials_placeholder: "First testimonials coming soon",
-    testimonials_desc: "Have you used MoveSpot for your campaign? We'd love to share your experience.",
-    testimonials_cta: "Share my experience →",
     cta_h2: "Ready to launch your campaign?",
     cta_desc: "Join advertisers who chose mobile advertising without an agency. Free account, first campaign in 5 minutes.",
     cta_final_primary: "Create my free account →",
@@ -341,23 +331,6 @@ function PourquoiMovespot() {
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
-
-      {/* Témoignages */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="text-xs uppercase tracking-widest text-primary mb-2">{c.testimonials_label}</div>
-        <h2 className="font-display text-3xl md:text-4xl font-bold mb-10">{c.testimonials_h2}</h2>
-        <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-          <p className="text-4xl mb-4">💬</p>
-          <p className="font-semibold text-lg mb-2">{c.testimonials_placeholder}</p>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">{c.testimonials_desc}</p>
-          <a
-            href="mailto:contact@move-spot.com?subject=Témoignage MoveSpot"
-            className="inline-flex items-center gap-2 mt-6 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium hover:bg-secondary transition-colors"
-          >
-            {c.testimonials_cta}
-          </a>
         </div>
       </section>
 
