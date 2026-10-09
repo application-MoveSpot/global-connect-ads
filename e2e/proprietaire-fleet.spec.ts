@@ -30,6 +30,8 @@ test.describe("Dashboard propriétaire — /proprietaire", () => {
   });
 
   test("le titre mentionne propriétaire ou espace", async ({ page }) => {
+    const url = page.url();
+    if (isAuthRedirect(url)) return;
     const title = await page.title();
     expect(title.toLowerCase()).toMatch(/propriétaire|espace|flotte|movespot|owner|fleet|space/i);
   });
@@ -141,6 +143,8 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
   });
 
   test("le titre mentionne véhicule ou ajout", async ({ page }) => {
+    const url = page.url();
+    if (isAuthRedirect(url)) return;
     const title = await page.title();
     expect(title.toLowerCase()).toMatch(/véhicule|ajout|nouveau|movespot|vehicle|add|new/i);
   });

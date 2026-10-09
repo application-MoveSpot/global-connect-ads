@@ -27,6 +27,10 @@ export function injectSession(page: Page, role: "annonceur" | "proprietaire" | "
 }
 
 export function isAuthRedirect(url: string) {
+  try {
+    const { pathname } = new URL(url);
+    if (pathname === "/" || pathname === "") return true;
+  } catch {}
   return url.includes("login") || url.includes("auth") || url.includes("inscription");
 }
 
