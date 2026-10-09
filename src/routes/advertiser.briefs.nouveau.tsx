@@ -6,6 +6,7 @@ import { firePixelEvent } from "@/lib/analytics/pixels";
 import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
+import { detectContact } from "@/lib/moderation/contact-detection";
 import {
   ZoneSelector,
   polygonToEwkt,
@@ -621,6 +622,15 @@ function NewBriefPage() {
     if (forbidden) {
       setError(
         `Contenu interdit détecté : « ${forbidden} ». Charte MoveSpot : pas de campagne religieuse, politique/électorale, sexiste, pornographique, violente, ni d'anniversaire personnel.`,
+      );
+      return;
+    }
+
+    const allFreeText = [title, description, audience, autreVehicleNote].filter(Boolean).join(" ");
+    const contactHit = detectContact(allFreeText);
+    if (contactHit) {
+      setError(
+        `Coordonnées personnelles détectées (${contactHit.label}). Retirez-les du brief — MoveSpot sécurise toutes les mises en relation via la plateforme.`,
       );
       return;
     }
