@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { CSP_HEADER } from "@/lib/security/csp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import "@/lib/i18n";
@@ -139,13 +139,10 @@ export const Route = (createRootRouteWithContext as any)()({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   const { t, i18n: i18nInstance } = useTranslation();
-  const [lang, setLang] = useState(i18nInstance.resolvedLanguage ?? "fr");
-
-  useEffect(() => {
-    const onLangChange = (lng: string) => setLang(lng);
-    i18nInstance.on("languageChanged", onLangChange);
-    return () => i18nInstance.off("languageChanged", onLangChange);
-  }, [i18nInstance]);
+  // useTranslation() already re-renders on language change — no need for
+  // a manual useState + i18nInstance.on() subscription (which was crashing
+  // in production with "r.on is not a function").
+  const lang = i18nInstance.resolvedLanguage ?? "fr";
 
   return (
     <html lang={lang}>
