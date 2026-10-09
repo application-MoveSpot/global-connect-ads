@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Instagram } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,27 +66,6 @@ const TYPE_LABELS: Record<string, string> = {
   autre: "Autre",
 };
 
-const FORMAT_PAR_TYPE: Record<string, string> = {
-  camion_led: "Écran LED numérique",
-  food_truck: "Covering latéral / toiture",
-  van: "Covering latéral / arrière",
-  taxi: "Covering latéral / toit",
-  voiture: "Covering latéral",
-  scooter: "Box arrière publicitaire",
-  velo_cargo: "Box cargo / flancs",
-  velo_remorque: "Remorque publicitaire",
-  triporteur: "Box triporteur / flancs",
-  tutuk: "Covering latéral",
-  autre: "Format personnalisé",
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  excellent: "Excellent état",
-  bon: "Bon état",
-  moyen: "État moyen",
-  mauvais: "Mauvais état",
-};
-
 type Request = {
   id: string;
   vehicle_id: string | null;
@@ -110,6 +90,8 @@ type Request = {
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language;
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
@@ -162,7 +144,7 @@ function DashboardPage() {
         setLoadError(
           err instanceof Error
             ? err.message
-            : "Impossible de charger les données. Vérifiez votre connexion.",
+            : t("errors.network"),
         );
         setLoading(false);
       } finally {
@@ -188,8 +170,8 @@ function DashboardPage() {
           if ((payload as { eventType?: string }).eventType === "INSERT") {
             const company = (payload.new as Record<string, unknown>).company as string | undefined;
             pushNotification(
-              "Nouvelle demande de campagne",
-              company ? `${company} souhaite louer un espace publicitaire.` : undefined,
+              t("proprietaire.new_campaign_notif"),
+              company ? t("proprietaire.notif_new_campaign_body", { company }) : undefined,
             );
           }
           void loadWithRetry();
@@ -209,13 +191,13 @@ function DashboardPage() {
           const vName = row.name as string | undefined;
           if (newStatus === "approved")
             pushNotification(
-              "Véhicule approuvé !",
-              vName ? `${vName} est maintenant visible par les annonceurs.` : undefined,
+              t("proprietaire.vehicle_approved_notif"),
+              vName ? t("proprietaire.notif_vehicle_approved_body", { name: vName }) : undefined,
             );
           else if (newStatus === "rejected")
             pushNotification(
-              "Véhicule refusé",
-              vName ? `${vName} n'a pas été approuvé. Consultez les notes.` : undefined,
+              t("proprietaire.vehicle_rejected_notif"),
+              vName ? t("proprietaire.notif_vehicle_rejected_body", { name: vName }) : undefined,
             );
           void loadWithRetry();
         },
@@ -268,7 +250,7 @@ function DashboardPage() {
   if (loading && !loadError)
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Chargement...
+        {t("common.loading")}
       </div>
     );
 
@@ -278,7 +260,7 @@ function DashboardPage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Bonjour, {profile?.full_name}</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("proprietaire.welcome", { name: profile?.full_name })}</h1>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
@@ -295,13 +277,13 @@ function DashboardPage() {
               to="/parametres"
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              Paramètres
+              {t("common.settings")}
             </Link>
             <button
               onClick={logout}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              Déconnexion
+              {t("common.logout")}
             </button>
           </div>
         </div>
@@ -329,56 +311,56 @@ function DashboardPage() {
               onClick={() => setTab("vehicles")}
               count={vehicles.length}
             >
-              Mes véhicules
+              {t("proprietaire.my_vehicles")}
             </Tab>
             <Tab
               active={tab === "requests"}
               onClick={() => setTab("requests")}
               count={requests.length}
             >
-              Demandes reçues
+              {t("proprietaire.requests_tab")}
             </Tab>
             <Link
               to="/proprietaire/briefs"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              Briefs ouverts →
+              {t("proprietaire.nav_briefs")}
             </Link>
             <Link
               to="/proprietaire/tracking"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition"
             >
-              📍 Démarrer suivi GPS
+              {t("proprietaire.nav_tracking")}
             </Link>
             <Link
               to="/proprietaire/flotte"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-foreground hover:opacity-90 transition"
             >
-              🚚 Gérer ma flotte
+              {t("proprietaire.nav_fleet")}
             </Link>
             <Link
               to="/proprietaire/flotte/import"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              📥 Import CSV
+              {t("proprietaire.nav_import")}
             </Link>
             <Link
               to="/proprietaire/flotte/qr"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              🔳 QR codes véhicules
+              {t("proprietaire.nav_qr")}
             </Link>
             <Link
               to="/proprietaire/carte"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
-              🪪 Carte de visite
+              {t("proprietaire.nav_carte")}
             </Link>
             <Link
               to="/proprietaire/historique"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition"
             >
-              💰 Mes reversements
+              {t("proprietaire.nav_historique")}
             </Link>
           </div>
           <div className="flex gap-2">
@@ -388,7 +370,7 @@ function DashboardPage() {
                 onClick={exportVehiclesCsv}
                 className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
               >
-                ⬇ Export CSV
+                {t("common.export_csv")}
               </button>
             )}
             {tab === "requests" && requests.length > 0 && (
@@ -397,7 +379,7 @@ function DashboardPage() {
                 onClick={exportRequestsCsv}
                 className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
               >
-                ⬇ Export CSV
+                {t("common.export_csv")}
               </button>
             )}
             {tab === "vehicles" && (
@@ -405,7 +387,7 @@ function DashboardPage() {
                 to="/proprietaire/vehicules/nouveau"
                 className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
               >
-                + Ajouter un véhicule
+                + {t("proprietaire.add_vehicle")}
               </Link>
             )}
           </div>
@@ -437,7 +419,7 @@ function DashboardPage() {
                   <div className="text-right">
                     <ResponseBadge response={r.owner_response} />
                     <div className="text-xs text-muted-foreground mt-1">
-                      {new Date(r.created_at).toLocaleString("fr-FR")}
+                      {new Date(r.created_at).toLocaleString(dateLocale)}
                     </div>
                   </div>
                 </div>
@@ -454,7 +436,7 @@ function DashboardPage() {
                 <CreativeFiles paths={r.creative_files} />
                 {r.admin_notes && (
                   <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs mb-4">
-                    <strong>Motif :</strong> {r.admin_notes}
+                    <strong>{t("proprietaire.reason_label")}</strong> {r.admin_notes}
                   </div>
                 )}
                 {r.owner_response === "pending" && (
@@ -463,13 +445,13 @@ function DashboardPage() {
                       onClick={() => respond(r.id, "accepted")}
                       className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-2 text-sm font-semibold hover:bg-signal/30"
                     >
-                      ✓ Accepter
+                      ✓ {t("common.accept")}
                     </button>
                     <button
                       onClick={() => respond(r.id, "rejected")}
                       className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-2 text-sm font-semibold hover:bg-destructive/25"
                     >
-                      ✕ Refuser
+                      ✕ {t("common.reject")}
                     </button>
                   </div>
                 )}
@@ -480,28 +462,28 @@ function DashboardPage() {
 
         <section className="mt-12">
           <h2 className="font-display text-2xl font-bold mb-2">
-            Aperçu illustratif des flux de véhicules
+            {t("proprietaire.map_title")}
           </h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Visualisation indicative — données réelles branchées progressivement.
+            {t("proprietaire.map_desc")}
           </p>
           <Suspense fallback={<div className="h-64 rounded-xl bg-secondary/40 animate-pulse" />}>
             <MobilityMap />
           </Suspense>
         </section>
         <div className="mt-6 flex justify-end">
-          <SignalementDialog contextUrl="/proprietaire" triggerLabel="Signaler un problème" />
+          <SignalementDialog contextUrl="/proprietaire" triggerLabel={t("proprietaire.signalement_label")} />
         </div>
       </main>
 
       <FAQChatbot
         audience="proprietaire"
         suggestions={[
-          "Comment ajouter un nouveau véhicule ?",
-          "Combien de temps prend la validation ?",
-          "Comment connecter Stripe pour recevoir mes paiements ?",
-          "Comment accepter ou refuser une demande de campagne ?",
-          "Comment démarrer le suivi GPS ?",
+          t("proprietaire.faq_suggestion_1"),
+          t("proprietaire.faq_suggestion_2"),
+          t("proprietaire.faq_suggestion_3"),
+          t("proprietaire.faq_suggestion_4"),
+          t("proprietaire.faq_suggestion_5"),
         ]}
       />
     </div>
@@ -509,39 +491,41 @@ function DashboardPage() {
 }
 
 function OwnerVehicleOnboarding() {
+  const { t } = useTranslation();
+
   const steps = [
     {
       icon: "✅",
-      title: "Compte propriétaire créé",
-      desc: "Votre espace est prêt. Vous pouvez gérer vos véhicules et répondre aux annonceurs.",
+      title: t("proprietaire.onboarding_step1_title"),
+      desc: t("proprietaire.onboarding_step1_desc"),
       done: true,
       cta: null,
     },
     {
       icon: "🚗",
-      title: "Ajoutez votre premier véhicule",
-      desc: "Photos, type, format publicitaire, tarif journalier. L'inscription prend moins de 5 minutes.",
+      title: t("proprietaire.onboarding_step2_title"),
+      desc: t("proprietaire.onboarding_step2_desc"),
       done: false,
-      cta: { label: "Ajouter un véhicule", to: "/proprietaire/vehicules/nouveau" } as const,
+      cta: { label: t("proprietaire.onboarding_step2_cta"), to: "/proprietaire/vehicules/nouveau" } as const,
     },
     {
       icon: "🔍",
-      title: "Validation par l'équipe MoveSpot",
-      desc: "Nous vérifions les informations et approuvons votre véhicule sous 48 h. Vous recevez une notification.",
+      title: t("proprietaire.onboarding_step3_title"),
+      desc: t("proprietaire.onboarding_step3_desc"),
       done: false,
       cta: null,
     },
     {
       icon: "💳",
-      title: "Connectez Stripe pour recevoir vos paiements",
-      desc: "Reliez votre compte bancaire via Stripe Connect. MoveSpot vous reverse 70 % du montant à la fin de chaque diffusion.",
+      title: t("proprietaire.onboarding_step4_title"),
+      desc: t("proprietaire.onboarding_step4_desc"),
       done: false,
-      cta: { label: "Connecter Stripe", to: "/proprietaire/stripe-connect" } as const,
+      cta: { label: t("proprietaire.onboarding_step4_cta"), to: "/proprietaire/stripe-connect" } as const,
     },
     {
       icon: "📣",
-      title: "Recevez des demandes d'annonceurs",
-      desc: "Votre véhicule apparaît dans le catalogue. Les annonceurs vous envoient des demandes — acceptez ou refusez en un clic.",
+      title: t("proprietaire.onboarding_step5_title"),
+      desc: t("proprietaire.onboarding_step5_desc"),
       done: false,
       cta: null,
     },
@@ -551,9 +535,9 @@ function OwnerVehicleOnboarding() {
     <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">🚀</div>
-        <h2 className="font-display text-2xl font-bold">Démarrez en 4 étapes</h2>
+        <h2 className="font-display text-2xl font-bold">{t("proprietaire.onboarding_title")}</h2>
         <p className="text-muted-foreground text-sm mt-2">
-          Votre véhicule peut commencer à générer des revenus publicitaires dès cette semaine.
+          {t("proprietaire.onboarding_desc")}
         </p>
       </div>
 
@@ -584,7 +568,7 @@ function OwnerVehicleOnboarding() {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm">{step.icon} {step.title}</span>
                 {step.done && (
-                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">Fait</span>
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">{t("proprietaire.onboarding_step_done")}</span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
@@ -607,17 +591,17 @@ function OwnerVehicleOnboarding() {
 
       <div className="mt-6 pt-5 border-t border-border">
         <p className="text-xs text-muted-foreground text-center">
-          Vous pouvez aussi importer une flotte entière via CSV ou générer des QR codes pour vos véhicules.
+          {t("proprietaire.onboarding_footer")}
         </p>
         <div className="flex justify-center gap-3 mt-3">
           <Link to="/proprietaire/flotte/import" className="text-xs text-primary hover:underline font-medium">
-            📥 Import CSV flotte
+            {t("proprietaire.onboarding_import")}
           </Link>
           <Link to="/proprietaire/flotte/qr" className="text-xs text-primary hover:underline font-medium">
-            🔳 QR codes
+            {t("proprietaire.onboarding_qr")}
           </Link>
           <Link to="/proprietaire/carte" className="text-xs text-primary hover:underline font-medium">
-            🪪 Carte de visite
+            {t("proprietaire.onboarding_carte")}
           </Link>
         </div>
       </div>
@@ -632,19 +616,21 @@ function OwnerRequestsEmpty({
   hasVehicles: boolean;
   hasApproved: boolean;
 }) {
+  const { t } = useTranslation();
+
   if (!hasVehicles) {
     return (
       <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center max-w-lg mx-auto">
         <div className="text-3xl mb-3">🚗</div>
-        <h3 className="font-semibold mb-1">Aucun véhicule enregistré</h3>
+        <h3 className="font-semibold mb-1">{t("proprietaire.no_vehicle_title")}</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Ajoutez au moins un véhicule pour commencer à recevoir des demandes de campagne.
+          {t("proprietaire.no_vehicle_desc")}
         </p>
         <Link
           to="/proprietaire/vehicules/nouveau"
           className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
         >
-          Ajouter un véhicule
+          {t("proprietaire.add_vehicle")}
         </Link>
       </div>
     );
@@ -654,10 +640,9 @@ function OwnerRequestsEmpty({
     return (
       <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-10 text-center max-w-lg mx-auto">
         <div className="text-3xl mb-3">⏳</div>
-        <h3 className="font-semibold mb-1">Validation en cours</h3>
+        <h3 className="font-semibold mb-1">{t("proprietaire.validation_pending_title")}</h3>
         <p className="text-sm text-muted-foreground">
-          Votre véhicule est en attente de validation par l'équipe MoveSpot (sous 48 h).
-          Les demandes d'annonceurs arriveront dès qu'il sera approuvé.
+          {t("proprietaire.validation_pending_desc")}
         </p>
       </div>
     );
@@ -666,18 +651,18 @@ function OwnerRequestsEmpty({
   return (
     <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center max-w-lg mx-auto">
       <div className="text-3xl mb-3">📭</div>
-      <h3 className="font-semibold mb-1">Pas encore de demande</h3>
+      <h3 className="font-semibold mb-1">{t("proprietaire.no_requests_title")}</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Votre véhicule est approuvé et visible des annonceurs. Les demandes apparaîtront ici dès qu'un annonceur choisira votre espace.
+        {t("proprietaire.no_requests_desc")}
       </p>
       <p className="text-xs text-muted-foreground">
-        Vous pouvez aussi consulter les briefs ouverts et proposer votre véhicule directement.
+        {t("proprietaire.no_requests_hint")}
       </p>
       <Link
         to="/proprietaire/briefs"
         className="inline-block mt-3 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
       >
-        Voir les briefs ouverts →
+        {t("proprietaire.open_briefs_link")}
       </Link>
     </div>
   );
@@ -705,11 +690,12 @@ function Tab({
 }
 
 function OwnerVehicleCard({ v }: { v: Vehicle }) {
+  const { t } = useTranslation();
   const photoUrls = useVehiclePhotoUrls(v.photos);
-  const typeLabel = TYPE_LABELS[v.type] ?? v.type;
+  const typeLabel = t(`vehicle_types.${v.type}`, { defaultValue: TYPE_LABELS[v.type] ?? v.type });
   const formatLabel = v.format_publicitaire === "boxled"
-    ? "Écran LED numérique"
-    : (v.format_publicitaire || FORMAT_PAR_TYPE[v.type] || "—");
+    ? t("proprietaire.format_boxled")
+    : (v.format_publicitaire || t(`proprietaire.vehicle_formats.${v.type}`, "—"));
   const [pricing, setPricing] = useState<PricingRecommendation | null>(null);
   const [pricingLoading, setPricingLoading] = useState(false);
 
@@ -743,14 +729,14 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
         <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{typeLabel}</span>
         <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium">{formatLabel}</span>
         {v.condition && (
-          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{CONDITION_LABELS[v.condition] ?? v.condition}</span>
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{t(`proprietaire.vehicle_condition.${v.condition}`, v.condition)}</span>
         )}
       </div>
 
       {/* Caractéristiques */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
-        {v.surface_m2 != null && <span>Surface : <strong>{v.surface_m2} m²</strong></span>}
-        {v.km_per_day != null && <span>Km/jour : <strong>{v.km_per_day} km</strong></span>}
+        {v.surface_m2 != null && <span>{t("proprietaire.vehicle_surface", { value: v.surface_m2 })}</span>}
+        {v.km_per_day != null && <span>{t("proprietaire.vehicle_km_per_day", { value: v.km_per_day })}</span>}
       </div>
 
       {/* Zones */}
@@ -769,7 +755,7 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
 
       <div className="flex items-center gap-3 flex-wrap">
         <div className="font-display text-xl font-bold text-primary">
-          {v.price_per_day}€<span className="text-sm text-muted-foreground font-normal">/jour</span>
+          {t("proprietaire.vehicle_price_day", { price: v.price_per_day })}
         </div>
         {v.status === "approved" && !pricing && (
           <button
@@ -781,9 +767,9 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
             {pricingLoading ? (
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-2.5 h-2.5 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
-                Analyse…
+                {t("proprietaire.ai_pricing_loading")}
               </span>
-            ) : "💡 Prix recommandé IA"}
+            ) : t("proprietaire.ai_pricing_cta")}
           </button>
         )}
       </div>
@@ -791,8 +777,8 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
       {pricing && (
         <div className="mt-2 rounded-xl border border-violet-500/30 bg-violet-500/5 p-3 text-xs space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-violet-700 dark:text-violet-300">Prix optimal : {pricing.suggested} €/jour</span>
-            <span className="text-muted-foreground">fourchette {pricing.min}–{pricing.max} €</span>
+            <span className="font-semibold text-violet-700 dark:text-violet-300">{t("proprietaire.ai_pricing_title", { price: pricing.suggested })}</span>
+            <span className="text-muted-foreground">{t("proprietaire.ai_pricing_range", { min: pricing.min, max: pricing.max })}</span>
             <button type="button" onClick={() => setPricing(null)} className="ml-auto text-muted-foreground hover:text-foreground text-[10px]">✕</button>
           </div>
           <p className="text-muted-foreground leading-relaxed">{pricing.rationale}</p>
@@ -806,7 +792,7 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
 
       {v.admin_notes && (
         <div className="mt-3 text-xs rounded-lg bg-secondary/40 p-3 border border-border">
-          <strong>Note admin :</strong> {v.admin_notes}
+          <strong>{t("proprietaire.note_label")}</strong> {v.admin_notes}
         </div>
       )}
     </div>
@@ -814,30 +800,45 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: "En attente validation", cls: "bg-secondary text-foreground" },
-    approved: { label: "Approuvé", cls: "bg-signal/20 text-signal" },
-    rejected: { label: "Refusé", cls: "bg-destructive/15 text-destructive" },
-    paused: { label: "En pause", cls: "bg-muted text-muted-foreground" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending: "bg-secondary text-foreground",
+    approved: "bg-signal/20 text-signal",
+    rejected: "bg-destructive/15 text-destructive",
+    paused: "bg-muted text-muted-foreground",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
+  const labels: Record<string, string> = {
+    pending: t("proprietaire.status_pending"),
+    approved: t("proprietaire.status_approved"),
+    rejected: t("proprietaire.status_rejected"),
+    paused: t("proprietaire.status_paused"),
+  };
+  const label = labels[status] ?? status;
+  const c = cls[status] ?? "bg-secondary";
   return (
-    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>
-      {x.label}
+    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${c}`}>
+      {label}
     </span>
   );
 }
 
 function ResponseBadge({ response }: { response: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: "À traiter", cls: "bg-secondary text-foreground" },
-    accepted: { label: "Acceptée", cls: "bg-signal/20 text-signal" },
-    rejected: { label: "Refusée", cls: "bg-destructive/15 text-destructive" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending: "bg-secondary text-foreground",
+    accepted: "bg-signal/20 text-signal",
+    rejected: "bg-destructive/15 text-destructive",
   };
-  const x = map[response] ?? { label: response, cls: "bg-secondary" };
+  const labels: Record<string, string> = {
+    pending: t("proprietaire.response_pending"),
+    accepted: t("proprietaire.response_accepted"),
+    rejected: t("proprietaire.response_rejected"),
+  };
+  const label = labels[response] ?? response;
+  const c = cls[response] ?? "bg-secondary";
   return (
-    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>
-      {x.label}
+    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${c}`}>
+      {label}
     </span>
   );
 }

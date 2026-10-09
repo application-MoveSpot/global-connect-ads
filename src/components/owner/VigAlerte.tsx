@@ -4,6 +4,7 @@
  * de 5 000 € est proche (avertissement préventif).
  */
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -44,15 +45,16 @@ function IconUpload({ className }: { className?: string }) {
 // ─── Barre de progression des gains ──────────────────────────────────────────
 
 function GainsProgress({ gainsCentimes }: { gainsCentimes: number }) {
+  const { t, i18n } = useTranslation();
   const pct = Math.min(100, (gainsCentimes / VIGILANCE_SEUIL_CENTIMES) * 100);
-  const gainsEuros = (gainsCentimes / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
-  const seuilEuros = (VIGILANCE_SEUIL_CENTIMES / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+  const gainsEuros = (gainsCentimes / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
+  const seuilEuros = (VIGILANCE_SEUIL_CENTIMES / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
 
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-xs font-medium">
-        <span>Gains cumulés : <strong>{gainsEuros}</strong></span>
-        <span className="text-muted-foreground">Seuil légal : {seuilEuros}</span>
+        <span>{t("vig.gains_label", { amount: gainsEuros })}</span>
+        <span className="text-muted-foreground">{t("vig.threshold_label", { amount: seuilEuros })}</span>
       </div>
       <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
         <div
@@ -73,6 +75,7 @@ function UploadAttestation({
   userId: string;
   onSuccess: () => void;
 }) {
+  const { t } = useTranslation();
   const submitFn = useServerFn(submitAttestationUrssaf);
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -84,11 +87,11 @@ function UploadAttestation({
     // Validation côté client : PDF ou image, max 10 Mo
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      setErreur("Format non supporté. Utilisez un PDF ou une image (JPG, PNG).");
+      setErreur(t("vig.err_format"));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setErreur("Fichier trop volumineux (max 10 Mo).");
+      setErreur(t("vig.err_size"));
       return;
     }
 
@@ -111,7 +114,7 @@ function UploadAttestation({
       await submitFn({ data: { storagePath } });
       onSuccess();
     } catch (e) {
-      setErreur(e instanceof Error ? e.message : "Erreur lors de l'envoi.");
+      setErreur(e instanceof Error ? e.message : t("vig.err_upload"));
     } finally {
       setUploading(false);
     }
@@ -139,9 +142,9 @@ function UploadAttestation({
       >
         <IconUpload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
         <p className="text-sm font-medium">
-          {uploading ? "Envoi en cours…" : "Cliquez pour sélectionner votre attestation"}
+          {uploading ? t("vig.uploading") : t("vig.upload_btn")}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">PDF, JPG, PNG — max 10 Mo</p>
+        <p className="text-xs text-muted-foreground mt-1">{t("vig.upload_hint")}</p>
       </button>
 
       {erreur && (
@@ -149,12 +152,12 @@ function UploadAttestation({
       )}
 
       <div className="rounded-xl bg-secondary/50 px-4 py-3 text-xs text-muted-foreground space-y-1">
-        <p className="font-medium text-foreground">Comment obtenir votre attestation Urssaf ?</p>
+        <p className="font-medium text-foreground">{t("vig.how_title")}</p>
         <ol className="list-decimal list-inside space-y-0.5">
-          <li>Connectez-vous sur <strong>urssaf.fr</strong></li>
-          <li>Rendez-vous dans « Mon compte » → « Attestation de vigilance »</li>
-          <li>Téléchargez le document PDF (valable 6 mois)</li>
-          <li>Déposez-le ici — validation sous 48 h ouvrées</li>
+          <li>{t("vig.how_step1")}</li>
+          <li>{t("vig.how_step2")}</li>
+          <li>{t("vig.how_step3")}</li>
+          <li>{t("vig.how_step4")}</li>
         </ol>
       </div>
     </div>
@@ -164,6 +167,7 @@ function UploadAttestation({
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export function VigAlerte() {
+  const { t, i18n } = useTranslation();
   const fetchStatus = useServerFn(getMyVigilanceStatus);
   const [info, setInfo] = useState<VigilanceInfo>(null);
   const [chargement, setChargement] = useState(true);
@@ -201,10 +205,9 @@ export function VigAlerte() {
         <div className="flex items-start gap-3">
           <IconWarning className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-amber-800 dark:text-amber-300">Préparez votre attestation Urssaf</p>
+            <p className="font-semibold text-amber-800 dark:text-amber-300">{t("vig.warning_title")}</p>
             <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
-              Vous approchez du seuil légal de 5 000 €. Dès que vous l'atteignez, vos virements seront suspendus
-              jusqu'à validation de votre attestation de vigilance Urssaf.
+              {t("vig.warning_desc")}
             </p>
           </div>
         </div>
@@ -221,11 +224,9 @@ export function VigAlerte() {
         <div className="flex items-start gap-3">
           <IconWarning className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="font-bold text-destructive">Virements suspendus — Attestation Urssaf requise</p>
+            <p className="font-bold text-destructive">{t("vig.blocked_title")}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Vous avez dépassé <strong>5 000 € de gains</strong> sur MoveSpot. En vertu de l'article L.8222-1 du
-              Code du travail, nous sommes tenus de vérifier votre attestation de vigilance Urssaf avant de
-              débloquer vos prochains reversements.
+              {t("vig.blocked_desc")}
             </p>
           </div>
         </div>
@@ -235,9 +236,9 @@ export function VigAlerte() {
         {/* Étapes */}
         <div className="grid grid-cols-3 gap-2 text-xs text-center">
           {[
-            { num: "1", label: "Téléchargez votre attestation sur urssaf.fr" },
-            { num: "2", label: "Déposez-la ci-dessous" },
-            { num: "3", label: "Validation sous 48 h — virements débloqués" },
+            { num: "1", label: t("vig.step1") },
+            { num: "2", label: t("vig.step2") },
+            { num: "3", label: t("vig.step3") },
           ].map((e) => (
             <div key={e.num} className="rounded-xl border border-border bg-card p-3">
               <div className="w-7 h-7 mx-auto rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center mb-1.5">
@@ -252,8 +253,7 @@ export function VigAlerte() {
         {soumis ? (
           <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
             <IconCheck className="h-4 w-4 shrink-0" />
-            Attestation envoyée — notre équipe la vérifie sous 48 h ouvrées.
-            Vous recevrez une notification dès que vos virements seront débloqués.
+            {t("vig.submitted")}
           </div>
         ) : (
           userId && (
@@ -269,9 +269,7 @@ export function VigAlerte() {
 
         {/* Note légale */}
         <p className="text-xs text-muted-foreground">
-          Cette obligation s'applique à tout cocontractant professionnel dont la prestation dépasse 5 000 € HT
-          sur une année civile (Art. L.8222-1 et R.8222-1 du Code du travail). Sans attestation valide,
-          MoveSpot encourt une responsabilité solidaire pour le paiement des cotisations sociales dues.
+          {t("vig.legal_note")}
         </p>
       </div>
     );
@@ -283,10 +281,10 @@ export function VigAlerte() {
       <div className="flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-50/60 dark:bg-emerald-950/20 px-5 py-3.5">
         <IconCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
         <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-          Attestation Urssaf validée — virements actifs.{" "}
+          {t("vig.valid_text")}{" "}
           {info.dateVerification && (
             <span className="font-normal text-muted-foreground">
-              Validée le {new Date(info.dateVerification).toLocaleDateString("fr-FR")}
+              {t("vig.valid_date", { date: new Date(info.dateVerification).toLocaleDateString(i18n.language) })}
             </span>
           )}
         </p>

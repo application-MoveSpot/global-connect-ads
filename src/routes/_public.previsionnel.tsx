@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import PrevisionnelFormules from "@/components/shared/PrevisionnelFormules";
 
 export const Route = createFileRoute("/_public/previsionnel")({
@@ -15,8 +16,8 @@ export const Route = createFileRoute("/_public/previsionnel")({
 const years = ["Année 1", "Année 2", "Année 3", "Année 4", "Année 5"];
 const structure = ["Micro-BIC", "Micro-BIC", "SASU (IS)", "SASU (IS)", "SASU (IS)"];
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(n)) + " €";
+const fmt = (n: number, lang?: string) =>
+  new Intl.NumberFormat(lang ?? "fr", { maximumFractionDigits: 0 }).format(Math.round(n)) + " €";
 const pct = (n: number) => (n * 100).toFixed(1) + " %";
 const txt = ((s: unknown) => String(s)) as unknown as (n: number) => string;
 
@@ -136,6 +137,7 @@ const tresorerie: Array<{ section?: string; row?: [string, (number | string)[], 
 ];
 
 function BarChart({ title, data, color }: { title: string; data: number[]; color: string }) {
+  const { i18n } = useTranslation();
   const max = Math.max(...data);
   return (
     <div className="mb-6">
@@ -143,7 +145,7 @@ function BarChart({ title, data, color }: { title: string; data: number[]; color
       <div className="flex items-end gap-3 h-40 border-b border-l border-gray-300 pb-1 pl-1">
         {data.map((v, i) => (
           <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
-            <div className="text-[10px] mb-1 font-medium">{fmt(v)}</div>
+            <div className="text-[10px] mb-1 font-medium">{fmt(v, i18n.language)}</div>
             <div
               className="w-full rounded-t"
               style={{ height: `${(v / max) * 100}%`, backgroundColor: color, minHeight: 2 }}
@@ -204,6 +206,7 @@ function Table({
 }
 
 function PrevisionnelPage() {
+  const { i18n } = useTranslation();
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <style>{`

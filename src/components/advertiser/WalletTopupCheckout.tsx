@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { captureError } from "@/lib/sentry";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disabled, className, campaignBriefId, onClose }: Props) {
+  const { t } = useTranslation();
   const createTopup = useServerFn(createWalletTopupCheckout);
   const [open, setOpen] = useState(false);
   const [checkoutKey, setCheckoutKey] = useState(0);
@@ -41,15 +43,15 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
       });
 
       if ("error" in result) throw new Error(result.error);
-      if (!result.clientSecret) throw new Error("Stripe n'a pas retourné de session de paiement.");
+      if (!result.clientSecret) throw new Error(t("wallet_topup.err_no_session"));
       return result.clientSecret;
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Erreur Stripe";
+      const message = e instanceof Error ? e.message : t("wallet_topup.err_stripe");
       setError(message);
       captureError(e, "payment", { flow: "wallet_topup", amountEuros });
       throw e;
     }
-  }, [amountEuros, campaignBriefId, createTopup, returnUrl]);
+  }, [amountEuros, campaignBriefId, createTopup, returnUrl, t]);
 
   const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
 
@@ -57,7 +59,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
     setError(null);
     const config = await getPaymentsConfig();
     if (!config.publishableKey) {
-      setError("Le paiement par carte n'est pas encore configuré. Ajoutez vos clés Stripe pour l'activer.");
+      setError(t("wallet_topup.err_not_configured"));
       setOpen(true);
       return;
     }
@@ -68,7 +70,7 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
   return (
     <>
       <Button onClick={showCheckout} disabled={disabled || amountEuros < 10} className={className}>
-        {buttonLabel ?? `Recharger ${amountEuros} €`}
+        {buttonLabel ?? t("wallet_topup.btn_default", { amount: amountEuros })}
       </Button>
 
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) onClose?.(); }}>
@@ -76,11 +78,10 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
           <PaymentTestModeBanner />
           <div className="space-y-4 p-6">
             <DialogHeader>
-              <DialogTitle>Recharge portefeuille</DialogTitle>
+              <DialogTitle>{t("wallet_topup.dialog_title")}</DialogTitle>
               <DialogDescription>
-                Paiement sécurisé par carte bancaire via Stripe.
+                {t("wallet_topup.dialog_desc")}
               </DialogDescription>
-
             </DialogHeader>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             {!error ? (

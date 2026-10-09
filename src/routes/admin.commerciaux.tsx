@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
+
 import { listCommercialsForAdmin, type CommercialProfile } from "@/lib/commercial/commercial.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
@@ -20,6 +22,7 @@ export const Route = createFileRoute("/admin/commerciaux")({
 });
 
 function AdminCommerciauxPage() {
+  const { t, i18n } = useTranslation();
   const listFn = useServerFn(listCommercialsForAdmin);
   const [rows, setRows] = useState<CommercialProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,20 +40,20 @@ function AdminCommerciauxPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Apporteurs d'affaires</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("admin.commerciaux.title")}</h1>
           </div>
           <Link to="/admin" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" /> Admin
+            <ArrowLeft className="w-4 h-4" /> {t("admin.back")}
           </Link>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         {loading ? (
-          <div className="text-muted-foreground text-sm">Chargement…</div>
+          <div className="text-muted-foreground text-sm">{t("admin.commerciaux.loading")}</div>
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-border bg-card p-10 text-center">
-            <p className="text-muted-foreground text-sm">Aucun apporteur d'affaires pour l'instant.</p>
+            <p className="text-muted-foreground text-sm">{t("admin.commerciaux.empty")}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -61,7 +64,7 @@ function AdminCommerciauxPage() {
                     <p className="font-semibold text-sm">{r.full_name}</p>
                     {r.company && <span className="text-xs text-muted-foreground">{r.company}</span>}
                     {!r.active && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/30">Inactif</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/30">{t("admin.commerciaux.inactive")}</span>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -70,8 +73,8 @@ function AdminCommerciauxPage() {
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold">{Math.round(r.commission_rate * 100)} % commission</p>
-                  <p className="text-xs text-muted-foreground">depuis le {new Date(r.created_at).toLocaleDateString("fr-FR")}</p>
+                  <p className="text-sm font-semibold">{Math.round(r.commission_rate * 100)} {t("admin.commerciaux.commission")}</p>
+                  <p className="text-xs text-muted-foreground">{t("admin.commerciaux.since", { date: new Date(r.created_at).toLocaleDateString(i18n.language) })}</p>
                 </div>
               </div>
             ))}

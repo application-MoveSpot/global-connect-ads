@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/unsubscribe")({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/unsubscribe")({
 type State = "loading" | "valid" | "invalid" | "used" | "done" | "error";
 
 function UnsubscribePage() {
+  const { t } = useTranslation();
   const [state, setState] = useState<State>("loading");
   const [email, setEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -77,47 +79,39 @@ function UnsubscribePage() {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-xl flex-col justify-center px-6 py-16">
       <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">MoveSpot</p>
-      <h1 className="mt-3 font-display text-3xl font-bold">Préférences d'emails</h1>
+      <h1 className="mt-3 font-display text-3xl font-bold">{t("unsubscribe.title")}</h1>
 
       {state === "loading" ? (
-        <p className="mt-4 text-muted-foreground">Vérification de votre lien…</p>
+        <p className="mt-4 text-muted-foreground">{t("unsubscribe.loading")}</p>
       ) : null}
 
       {state === "valid" ? (
         <div className="mt-4 space-y-4">
           <p className="text-muted-foreground">
-            Vous êtes sur le point de ne plus recevoir d'emails MoveSpot
-            {email ? ` à l'adresse ${email}` : ""}. Les emails liés à la sécurité de votre compte
-            continueront d'être envoyés.
+            {t("unsubscribe.valid_msg", {
+              addr: email ? t("unsubscribe.valid_addr", { email }) : "",
+            })}
           </p>
           <Button onClick={confirm} disabled={busy}>
-            {busy ? "Traitement…" : "Confirmer ma désinscription"}
+            {busy ? t("unsubscribe.processing") : t("unsubscribe.confirm_btn")}
           </Button>
         </div>
       ) : null}
 
       {state === "done" ? (
-        <p className="mt-4 text-muted-foreground">
-          C'est fait — vous ne recevrez plus d'emails de notification MoveSpot.
-        </p>
+        <p className="mt-4 text-muted-foreground">{t("unsubscribe.done")}</p>
       ) : null}
 
       {state === "used" ? (
-        <p className="mt-4 text-muted-foreground">
-          Ce lien a déjà été utilisé : vous êtes déjà désinscrit.
-        </p>
+        <p className="mt-4 text-muted-foreground">{t("unsubscribe.used")}</p>
       ) : null}
 
       {state === "invalid" ? (
-        <p className="mt-4 text-muted-foreground">
-          Ce lien de désinscription est invalide ou a expiré.
-        </p>
+        <p className="mt-4 text-muted-foreground">{t("unsubscribe.invalid")}</p>
       ) : null}
 
       {state === "error" ? (
-        <p className="mt-4 text-destructive">
-          Une erreur est survenue. Merci de réessayer dans quelques instants.
-        </p>
+        <p className="mt-4 text-destructive">{t("unsubscribe.error")}</p>
       ) : null}
     </main>
   );

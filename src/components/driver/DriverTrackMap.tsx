@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { ChevronDown, ChevronUp, Map } from "lucide-react";
@@ -41,6 +42,7 @@ async function geocodeZone(name: string): Promise<{ lat: number; lng: number } |
 }
 
 export function DriverTrackMap({ currentPos, track, zones }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [tokenLoaded, setTokenLoaded] = useState(false);
   const [zoneMarkers, setZoneMarkers] = useState<ZoneMarker[]>([]);
@@ -204,10 +206,10 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
       >
         <span className="flex items-center gap-2">
           <Map className="w-4 h-4 text-primary" />
-          Ma trace GPS
+          {t("driver_track_map.title")}
           {track.length > 0 && (
             <span className="text-[10px] text-muted-foreground font-normal">
-              {track.length} point{track.length > 1 ? "s" : ""}
+              {t("driver_track_map.points_count", { count: track.length, s: track.length > 1 ? "s" : "" })}
             </span>
           )}
         </span>
@@ -219,7 +221,7 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
           <MapConsentGate className="h-64">
           {!tokenLoaded ? (
             <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">
-              Chargement de la carte…
+              {t("driver_track_map.loading_map")}
             </div>
           ) : (
             <div ref={containerRef} className="w-full h-64" />
@@ -228,7 +230,7 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
 
           {!hasData && tokenLoaded && (
             <p className="px-4 pb-3 text-[10px] text-muted-foreground">
-              La trace apparaîtra dès le démarrage du suivi GPS.
+              {t("driver_track_map.hint_no_data")}
             </p>
           )}
 

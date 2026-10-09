@@ -1,6 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type ChatAudience = "annonceur" | "proprietaire" | "partenaire" | "prestataire";
 
@@ -11,16 +12,6 @@ type Props = {
   userContext?: string;
 };
 
-const GREETINGS: Record<ChatAudience, string> = {
-  annonceur:
-    "Bonjour 👋 Je suis votre assistant MoveSpot. Comment puis-je vous aider — campagnes, portefeuille, briefs, ou autre chose ?",
-  proprietaire:
-    "Bonjour 👋 Je suis votre assistant MoveSpot. Besoin d'aide pour vos véhicules, les demandes de campagne, votre flotte ou vos revenus ?",
-  partenaire:
-    "Bonjour 👋 Je suis votre assistant MoveSpot. Une question sur votre espace partenaire ?",
-  prestataire:
-    "Bonjour 👋 Je suis votre assistant MoveSpot. Une question sur votre espace prestataire ou votre profil ?",
-};
 
 // Lightweight markdown renderer — handles **bold**, *italic*, and - lists
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -126,6 +117,13 @@ function TypingDots() {
 }
 
 export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
+  const { t } = useTranslation();
+  const GREETINGS: Record<ChatAudience, string> = {
+    annonceur: t("faq_chatbot.greeting_annonceur"),
+    proprietaire: t("faq_chatbot.greeting_proprietaire"),
+    partenaire: t("faq_chatbot.greeting_partenaire"),
+    prestataire: t("faq_chatbot.greeting_prestataire"),
+  };
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [hasUnread, setHasUnread] = useState(false);
@@ -161,8 +159,8 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
 
   useEffect(() => {
     if (open) {
-      const t = setTimeout(() => inputRef.current?.focus(), 120);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => inputRef.current?.focus(), 120);
+      return () => clearTimeout(timer);
     }
   }, [open]);
 
@@ -186,7 +184,7 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
       {/* Floating Action Button */}
       <button
         type="button"
-        aria-label={open ? "Fermer l'assistant" : "Ouvrir l'assistant MoveSpot"}
+        aria-label={open ? t("faq_chatbot.aria_close") : t("faq_chatbot.aria_open")}
         onClick={() => setOpen((v) => !v)}
         className={`fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-elevated transition-all duration-200 flex items-center justify-center ${
           open
@@ -211,24 +209,24 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
                 <IconChat size={16} className="text-primary" />
               </div>
               <div>
-                <div className="font-display font-semibold text-sm leading-tight">Assistant MoveSpot</div>
-                <div className="text-[11px] text-muted-foreground">Réponse instantanée · Échap pour fermer</div>
+                <div className="font-display font-semibold text-sm leading-tight">{t("faq_chatbot.header_title")}</div>
+                <div className="text-[11px] text-muted-foreground">{t("faq_chatbot.header_subtitle")}</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               {messages.length > 0 && (
                 <button
                   type="button"
-                  title="Nouvelle conversation"
+                  title={t("faq_chatbot.btn_new_title")}
                   onClick={() => { setMessages([]); setInput(""); }}
                   className="text-[11px] text-muted-foreground hover:text-foreground transition px-2 py-1 rounded-lg hover:bg-muted"
                 >
-                  Effacer
+                  {t("faq_chatbot.btn_clear")}
                 </button>
               )}
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-signal animate-pulse" />
-                <span className="text-[11px] text-muted-foreground">En ligne</span>
+                <span className="text-[11px] text-muted-foreground">{t("faq_chatbot.status_online")}</span>
               </div>
             </div>
           </div>
@@ -298,7 +296,7 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
 
             {error && (
               <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-3 py-2 text-xs text-destructive">
-                Une erreur est survenue. Réessayez dans un instant.
+                {t("faq_chatbot.error_msg")}
               </div>
             )}
           </div>
@@ -316,14 +314,14 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Votre question…"
+              placeholder={t("faq_chatbot.placeholder")}
               className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              aria-label="Envoyer"
+              aria-label={t("faq_chatbot.aria_send")}
               className="rounded-full bg-primary text-primary-foreground h-9 w-9 flex items-center justify-center hover:bg-primary/90 transition disabled:opacity-40 flex-shrink-0"
             >
               <IconSend size={15} />

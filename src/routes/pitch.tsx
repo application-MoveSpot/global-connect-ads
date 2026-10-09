@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/pitch")({
   head: () => ({
@@ -205,6 +206,7 @@ const slides: Slide[] = [
 ];
 
 function Pitch() {
+  const { t } = useTranslation();
   const [current, setCurrent] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -249,7 +251,7 @@ function Pitch() {
           className="rounded-full border border-border bg-card/50 backdrop-blur px-3 py-1.5 text-xs font-medium hover:bg-card transition"
           title="Plein écran (F)"
         >
-          ⛶ Plein écran
+          {t("pitch.fullscreen_btn")}
         </button>
       </div>
 
@@ -284,7 +286,7 @@ function Pitch() {
                 className={`h-1.5 rounded-full transition-all ${
                   i === current ? "w-8 bg-primary shadow-glow" : "w-1.5 bg-border hover:bg-muted-foreground"
                 }`}
-                aria-label={`Aller au slide ${i + 1}`}
+                aria-label={t("pitch.slide_goto", { n: i + 1 })}
               />
             ))}
           </div>

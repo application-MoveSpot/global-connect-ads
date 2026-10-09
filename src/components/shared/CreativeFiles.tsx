@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Viewer360 } from "@/components/shared/Viewer360";
 
@@ -7,9 +8,9 @@ type Props = { paths: string[] | null | undefined };
 type SignedFile = { path: string; url: string; name: string; isImage: boolean; isVideo: boolean };
 
 export function CreativeFiles({ paths }: Props) {
+  const { t } = useTranslation();
   const [files, setFiles] = useState<SignedFile[]>([]);
   const [view360, setView360] = useState<SignedFile | null>(null);
-
 
   useEffect(() => {
     if (!paths || paths.length === 0) { setFiles([]); return; }
@@ -37,7 +38,6 @@ export function CreativeFiles({ paths }: Props) {
       );
     };
     void refresh();
-    // Refresh 5 min before the 1-hour expiry so files never go stale mid-session
     const timer = setInterval(() => void refresh(), 55 * 60 * 1000);
     return () => { alive = false; clearInterval(timer); };
   }, [paths?.join("|")]);
@@ -46,7 +46,7 @@ export function CreativeFiles({ paths }: Props) {
 
   return (
     <div className="rounded-lg border border-border bg-secondary/30 p-3 text-xs mb-4 space-y-2">
-      <div className="font-semibold text-foreground">🎨 Créa fournie ({paths.length})</div>
+      <div className="font-semibold text-foreground">{t("creative_files.header", { count: paths.length })}</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {files.map((f) => (
           <div
@@ -79,10 +79,10 @@ export function CreativeFiles({ paths }: Props) {
                     onClick={() => setView360((c) => (c?.path === f.path ? null : f))}
                     className="text-[10px] text-primary hover:underline"
                   >
-                    {view360?.path === f.path ? "Fermer 360°" : "Vue 360°"}
+                    {view360?.path === f.path ? t("creative_files.btn_close_360") : t("creative_files.btn_view_360")}
                   </button>
                 )}
-                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline">Ouvrir</a>
+                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline">{t("creative_files.btn_open")}</a>
               </div>
             </div>
           </div>
@@ -90,11 +90,10 @@ export function CreativeFiles({ paths }: Props) {
       </div>
       {view360 && (
         <div className="space-y-1">
-          <div className="text-[10px] text-muted-foreground">Projection de pose 360° — {view360.name}</div>
+          <div className="text-[10px] text-muted-foreground">{t("creative_files.viewer_label", { name: view360.name })}</div>
           <Viewer360 src={view360.url} kind={view360.isVideo ? "video" : "image"} />
         </div>
       )}
     </div>
-
   );
 }

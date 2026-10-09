@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/proprietaire/inscription")({
 });
 
 function InscriptionPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
@@ -92,13 +94,13 @@ function InscriptionPage() {
         signUpData.user.identities.length === 0
       ) {
         setMode("signin");
-        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setError(t("proprietaire.inscription.error_email_exists"));
         setLoading(false);
         return;
       }
       if (!signUpData.session) {
         setMode("signin");
-        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setError(t("proprietaire.inscription.error_confirm_email"));
         setLoading(false);
         return;
       }
@@ -123,13 +125,13 @@ function InscriptionPage() {
     e.preventDefault();
     setError("");
     if (!isParticulier && !siret.verified) {
-      setError("Merci de vérifier votre numéro SIRET avant de continuer.");
+      setError(t("proprietaire.inscription.error_siret"));
       return;
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
-      setError("Session expirée");
+      setError(t("proprietaire.inscription.error_session"));
       setLoading(false);
       return;
     }
@@ -155,7 +157,11 @@ function InscriptionPage() {
     navigate({ to: "/proprietaire/vehicules/nouveau" });
   };
 
-  const steps = ["Compte", "Profil", "Véhicule"];
+  const steps = [
+    t("proprietaire.inscription.step_account"),
+    t("proprietaire.inscription.step_profile"),
+    t("proprietaire.inscription.step_vehicle"),
+  ];
   const currentStep = step === "auth" ? 0 : 1;
 
   return (
@@ -168,7 +174,7 @@ function InscriptionPage() {
           to="/commencer"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
         >
-          ← Retour
+          {t("proprietaire.inscription.back")}
         </Link>
 
         {/* Step progress indicator */}
@@ -201,19 +207,19 @@ function InscriptionPage() {
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? "Devenir partenaire" : "Connexion propriétaire"}
+              {mode === "signup" ? t("proprietaire.inscription.title_signup") : t("proprietaire.inscription.title_signin")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
               {mode === "signup"
-                ? "Inscription gratuite · Validation sous 48h · 70 % des revenus vous revient"
-                : "Accédez à votre espace propriétaire."}
+                ? t("proprietaire.inscription.desc_signup")
+                : t("proprietaire.inscription.desc_signin")}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
-              <Input label="Email" type="email" value={email} onChange={setEmail} required />
+              <Input label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
               <div>
                 <Input
-                  label="Mot de passe"
+                  label={t("auth.password")}
                   type="password"
                   value={password}
                   onChange={setPassword}
@@ -226,7 +232,7 @@ function InscriptionPage() {
                       to="/reset-password"
                       className="text-xs text-muted-foreground hover:text-foreground underline"
                     >
-                      Mot de passe oublié ?
+                      {t("auth.forgot_password")}
                     </Link>
                   </div>
                 )}
@@ -237,7 +243,7 @@ function InscriptionPage() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+                {loading ? "..." : mode === "signup" ? t("auth.submit_signup") : t("auth.submit_signin")}
               </button>
             </form>
             <button
@@ -248,27 +254,28 @@ function InscriptionPage() {
               className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
             >
               {mode === "signup"
-                ? "Déjà un compte ? Se connecter"
-                : "Pas encore inscrit ? Créer un compte"}
+                ? t("auth.switch_to_signin")
+                : t("proprietaire.inscription.switch_to_signup")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("proprietaire.inscription.profile_title")}</h1>
             {sessionEmail && (
               <div className="mb-4 rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
-                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                {t("proprietaire.inscription.signed_in_as")}{" "}
+                <strong className="text-foreground">{sessionEmail}</strong> —{" "}
                 <button
                   type="button"
                   onClick={handleSignOut}
                   className="underline hover:text-foreground"
                 >
-                  se déconnecter pour créer un autre compte
+                  {t("proprietaire.inscription.sign_out_link")}
                 </button>
               </div>
             )}
             <p className="text-sm text-muted-foreground mb-6">
-              Quelques infos pour vous identifier auprès des annonceurs.
+              {t("proprietaire.inscription.profile_desc")}
             </p>
             {/* Toggle particulier / professionnel */}
             <div className="flex rounded-lg border border-border overflow-hidden mb-6">
@@ -277,31 +284,31 @@ function InscriptionPage() {
                 onClick={() => { setIsParticulier(true); setSiret({ siret: "", denomination: null, verified: false }); setCompany(""); }}
                 className={`flex-1 py-2.5 text-sm font-medium transition ${isParticulier ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}
               >
-                Particulier
+                {t("proprietaire.inscription.tab_particulier")}
               </button>
               <button
                 type="button"
                 onClick={() => setIsParticulier(false)}
                 className={`flex-1 py-2.5 text-sm font-medium transition ${!isParticulier ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}
               >
-                Professionnel
+                {t("proprietaire.inscription.tab_professionnel")}
               </button>
             </div>
             <form onSubmit={handleProfile} className="space-y-4">
-              <Input label="Nom complet *" value={fullName} onChange={setFullName} required />
+              <Input label={t("proprietaire.inscription.name_label")} value={fullName} onChange={setFullName} required />
               {!isParticulier && (
                 <>
                   <SiretField value={siret} onChange={setSiret} />
                   {/* Nom commercial uniquement pour les sociétés (pas les EI) */}
                   {siret.verified && !siret.isIndividual && (
-                    <Input label="Nom commercial" value={company} onChange={setCompany} />
+                    <Input label={t("proprietaire.inscription.company_label")} value={company} onChange={setCompany} />
                   )}
                 </>
               )}
-              <Input label="Téléphone" value={phone} onChange={setPhone} type="tel" />
-              <Input label="Ville" value={city} onChange={setCity} />
+              <Input label={t("proprietaire.inscription.phone_label")} value={phone} onChange={setPhone} type="tel" />
+              <Input label={t("proprietaire.inscription.city_label")} value={city} onChange={setCity} />
               <div>
-                <label className="block text-sm font-medium mb-1.5">Bio courte</label>
+                <label className="block text-sm font-medium mb-1.5">{t("proprietaire.inscription.bio_label")}</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
@@ -316,7 +323,7 @@ function InscriptionPage() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : "Continuer → ajouter un véhicule"}
+                {loading ? "..." : t("proprietaire.inscription.submit_continue")}
               </button>
             </form>
           </>

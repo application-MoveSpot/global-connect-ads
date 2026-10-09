@@ -5,6 +5,7 @@ import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/partenaire/inscription")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/partenaire/inscription")({
 });
 
 function PartnerSignupPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
@@ -81,13 +83,13 @@ function PartnerSignupPage() {
       }
       if (signUpData.user?.identities?.length === 0) {
         setMode("signin");
-        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setError(t("auth.error.email_exists"));
         setLoading(false);
         return;
       }
       if (!signUpData.session) {
         setMode("signin");
-        setError("Vérifiez votre email pour confirmer votre compte, puis connectez-vous.");
+        setError(t("auth.check_email"));
         setLoading(false);
         return;
       }
@@ -112,21 +114,21 @@ function PartnerSignupPage() {
     e.preventDefault();
     setError("");
     if (company.trim().length < 2) {
-      setError("Nom de l'entreprise invalide.");
+      setError(t("auth.invalid_company"));
       return;
     }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullName.trim())) {
-      setError("Indiquez le prénom et le nom du responsable.");
+      setError(t("auth.invalid_name"));
       return;
     }
     if (description.trim().length < 30) {
-      setError("Décrivez votre activité en au moins 30 caractères.");
+      setError(t("partenaire.inscription.error.short_description"));
       return;
     }
     const phoneTrim = phone.trim();
     if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
-      setError("Numéro de téléphone invalide.");
+      setError(t("auth.invalid_phone"));
       return;
     }
     const websiteTrim = website.trim();
@@ -135,19 +137,19 @@ function PartnerSignupPage() {
       try {
         const u = new URL(websiteTrim);
         if (u.protocol !== "https:") {
-          setError("Le site web doit utiliser HTTPS.");
+          setError(t("auth.https_required"));
           return;
         }
         websiteValue = u.toString();
       } catch {
-        setError("URL de site web invalide.");
+        setError(t("auth.invalid_url"));
         return;
       }
     }
     setLoading(true);
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) {
-      setError("Session expirée");
+      setError(t("auth.session_expired"));
       setLoading(false);
       return;
     }
@@ -175,15 +177,14 @@ function PartnerSignupPage() {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Accueil
+            {t("common.back_home")}
           </Link>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
-        <h1 className="font-display text-3xl font-bold mb-2">Devenir partenaire MoveSpot</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("partenaire.inscription.title")}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          En tant que partenaire, référencez des clients, proposez des offres exclusives et
-          développez votre réseau avec MoveSpot.
+          {t("partenaire.inscription.subtitle")}
         </p>
 
         {step === "auth" ? (
@@ -198,19 +199,19 @@ function PartnerSignupPage() {
                 onClick={() => setMode("signup")}
                 className={`px-3 py-1.5 rounded-full ${mode === "signup" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
               >
-                S'inscrire
+                {t("auth.sign_up_btn")}
               </button>
               <button
                 type="button"
                 onClick={() => setMode("signin")}
                 className={`px-3 py-1.5 rounded-full ${mode === "signin" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
               >
-                J'ai déjà un compte
+                {t("auth.have_account")}
               </button>
             </div>
-            <FormInput label="Email" type="email" value={email} onChange={setEmail} required />
+            <FormInput label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
             <FormInput
-              label="Mot de passe"
+              label={t("auth.password")}
               type="password"
               value={password}
               onChange={setPassword}
@@ -221,7 +222,7 @@ function PartnerSignupPage() {
               disabled={loading}
               className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? "…" : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+              {loading ? "…" : mode === "signup" ? t("common.create_account") : t("common.sign_in")}
             </button>
           </form>
         ) : (
@@ -231,39 +232,39 @@ function PartnerSignupPage() {
           >
             {sessionEmail && (
               <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
-                Connecté en tant que <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                {t("auth.connected_as", { email: sessionEmail })}{" "}
                 <button
                   type="button"
                   onClick={handleSignOut}
                   className="underline hover:text-foreground"
                 >
-                  se déconnecter
+                  {t("auth.sign_out_lowercase")}
                 </button>
               </div>
             )}
             <FormInput
-              label="Nom de l'entreprise ou structure"
+              label={t("partenaire.inscription.company_label")}
               value={company}
               onChange={setCompany}
               required
               placeholder="Ex. Agence Marketing Pro"
             />
             <FormInput
-              label="Nom et prénom du responsable"
+              label={t("partenaire.inscription.fullname_label")}
               value={fullName}
               onChange={setFullName}
               required
               placeholder="Ex. Jean Dupont"
             />
             <FormInput
-              label="Téléphone"
+              label={t("common.phone")}
               type="tel"
               value={phone}
               onChange={setPhone}
               placeholder="Ex. +33 6 12 34 56 78"
             />
             <FormInput
-              label="Site web (optionnel)"
+              label={t("common.website_optional")}
               type="url"
               value={website}
               onChange={setWebsite}
@@ -271,7 +272,7 @@ function PartnerSignupPage() {
             />
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                Décrivez votre activité et votre intérêt pour le partenariat
+                {t("partenaire.inscription.description_label")}
               </label>
               <textarea
                 value={description}
@@ -288,7 +289,7 @@ function PartnerSignupPage() {
               disabled={loading}
               className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? "Envoi…" : "Soumettre ma candidature"}
+              {loading ? t("common.sending") : t("partenaire.inscription.submit_btn")}
             </button>
           </form>
         )}

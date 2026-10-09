@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { getCampaignMetrics } from "@/lib/tracking/tracking.functions";
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function CampaignMetricsRow({ campaignId, status, paymentStatus }: Props) {
+  const { t } = useTranslation();
   const fetchMetrics = useServerFn(getCampaignMetrics);
   const active = status === "approved" && paymentStatus === "paid";
 
@@ -36,20 +38,20 @@ export function CampaignMetricsRow({ campaignId, status, paymentStatus }: Props)
     <div className="rounded-lg border border-primary/20 bg-primary/5 p-3.5">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-          Diffusion en cours
+          {t("metrics.broadcasting")}
         </span>
         <Link
           to="/annonceur/suivi/$campaignId"
           params={{ campaignId }}
           className="text-xs text-primary hover:underline font-medium"
         >
-          Suivi GPS complet →
+          {t("metrics.gps_full")} →
         </Link>
       </div>
 
       {!hasData ? (
         <p className="text-xs text-muted-foreground italic">
-          En attente des premières positions GPS du véhicule.
+          {t("metrics.waiting_gps")}
         </p>
       ) : (
         <>
@@ -57,22 +59,22 @@ export function CampaignMetricsRow({ campaignId, status, paymentStatus }: Props)
             <MetricTile
               value={kmTotal!}
               unit="km"
-              label="parcourus"
+              label={t("metrics.label_km")}
             />
             <MetricTile
               value={String(minutes!)}
               unit="min"
-              label="actives"
+              label={t("metrics.label_min")}
             />
             <MetricTile
               value={coverage ?? "—"}
-              label="couverture zone"
+              label={t("metrics.label_coverage")}
               highlight={coverageHigh}
             />
           </div>
           {kmZone !== null && kmZone !== kmTotal && (
             <p className="mt-2 text-center text-xs text-muted-foreground">
-              dont {kmZone} km dans votre zone ciblée
+              {t("metrics.zone_km", { km: kmZone })}
             </p>
           )}
         </>

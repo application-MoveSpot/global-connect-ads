@@ -3,6 +3,7 @@
  * Analyse IA automatique : détection fraude, document flouté, expiré.
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -54,30 +55,31 @@ function IconExternalLink({ className }: { className?: string }) {
 // ─── Badge verdict IA ─────────────────────────────────────────────────────────
 
 function VerdictBadge({ analyse }: { analyse: AttestationAnalyse }) {
+  const { t } = useTranslation();
   if (analyse.auto_rejete) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-semibold text-destructive">
-        <IconX className="h-3 w-3" /> Rejeté auto
+        <IconX className="h-3 w-3" /> {t("vigil_admin.verdict_rejected_auto")}
       </span>
     );
   }
   if (analyse.verdict === "authentique" && analyse.score_fraude < 30) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-        <IconCheck className="h-3 w-3" /> Semble authentique
+        <IconCheck className="h-3 w-3" /> {t("vigil_admin.verdict_authentic")}
       </span>
     );
   }
   if (analyse.verdict === "suspect" || (analyse.score_fraude >= 50 && analyse.score_fraude < 85)) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-950/40 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
-        ⚠️ Suspect ({analyse.score_fraude}/100)
+        ⚠️ {t("vigil_admin.verdict_suspect", { score: analyse.score_fraude })}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2.5 py-1 text-xs font-semibold text-destructive">
-      🔴 Fraude probable ({analyse.score_fraude}/100)
+      🔴 {t("vigil_admin.verdict_fraud", { score: analyse.score_fraude })}
     </span>
   );
 }
@@ -95,12 +97,13 @@ function AttestationCard({
   const analyse = useServerFn(adminAnalyseAttestation);
   const review = useServerFn(reviewVigilance);
 
+  const { t, i18n } = useTranslation();
   const [analysisResult, setAnalysisResult] = useState<AttestationAnalyse | null>(null);
   const [analysing, setAnalysing] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectNotes, setRejectNotes] = useState("");
 
-  const gainsEuros = (row.gains_centimes / 100).toLocaleString("fr-FR", {
+  const gainsEuros = (row.gains_centimes / 100).toLocaleString(i18n.language, {
     style: "currency",
     currency: "EUR",
   });
@@ -112,7 +115,7 @@ function AttestationCard({
       const { url } = await getUrl({ data: { storagePath: row.attestation_url } });
       window.open(url, "_blank", "noopener");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur");
+      toast.error(e instanceof Error ? e.message : t("vigil_admin.err_generic"));
     }
   };
 
@@ -122,13 +125,13 @@ function AttestationCard({
       const result = await analyse({ data: { ownerProfileId: row.id } });
       setAnalysisResult(result);
       if (result.auto_rejete) {
-        toast.error("Rejeté automatiquement — le propriétaire a été notifié.");
+        toast.error(t("vigil_admin.auto_rejected_notify"));
         onRefresh();
       } else {
-        toast.success("Analyse terminée.");
+        toast.success(t("vigil_admin.analysis_done"));
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur d'analyse");
+      toast.error(e instanceof Error ? e.message : t("vigil_admin.err_analysis"));
     } finally {
       setAnalysing(false);
     }
@@ -138,7 +141,7 @@ function AttestationCard({
     mutationFn: () =>
       review({ data: { ownerUserId: row.user_id, decision: "VALIDE" } }),
     onSuccess: () => {
-      toast.success("Attestation validée — virements débloqués.");
+      toast.success(t("vigil_admin.validated_ok"));
       onRefresh();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -150,11 +153,11 @@ function AttestationCard({
         data: {
           ownerUserId: row.user_id,
           decision: "BLOQUE",
-          notes: rejectNotes || "Attestation non conforme.",
+          notes: rejectNotes || t("vigil_admin.default_reject_reason"),
         },
       }),
     onSuccess: () => {
-      toast.success("Attestation refusée — propriétaire notifié.");
+      toast.success(t("vigil_admin.rejected_ok"));
       setRejectOpen(false);
       onRefresh();
     },
@@ -173,14 +176,12 @@ function AttestationCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-foreground">
-            {row.full_name ?? "Propriétaire sans nom"}
+            {row.full_name ?? t("vigil_admin.no_name")}
           </p>
           <p className="text-xs text-muted-foreground">
-            Profil ID : {row.id.slice(0, 8)}…
+            {t("vigil_admin.profile_id_label", { id: row.id.slice(0, 8) })}
             {row.seuil_atteint_at && (
-              <> · Seuil atteint le{" "}
-                {new Date(row.seuil_atteint_at).toLocaleDateString("fr-FR")}
-              </>
+              <>{t("vigil_admin.threshold_date", { date: new Date(row.seuil_atteint_at).toLocaleDateString(i18n.language) })}</>
             )}
           </p>
         </div>
@@ -192,8 +193,8 @@ function AttestationCard({
       {/* Barre de progression gains */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs font-medium">
-          <span>Gains cumulés : <strong>{gainsEuros}</strong></span>
-          <span className="text-muted-foreground">{pct.toFixed(0)} % du seuil</span>
+          <span>{t("vigil_admin.gains_label")} <strong>{gainsEuros}</strong></span>
+          <span className="text-muted-foreground">{t("vigil_admin.threshold_pct", { pct: pct.toFixed(0) })}</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
           <div
@@ -222,17 +223,17 @@ function AttestationCard({
           <div className="flex flex-wrap items-center gap-2">
             <VerdictBadge analyse={analysisResult} />
             {analysisResult.siret && (
-              <span className="text-xs text-muted-foreground">SIRET : {analysisResult.siret}</span>
+              <span className="text-xs text-muted-foreground">{t("vigil_admin.siret_label", { siret: analysisResult.siret })}</span>
             )}
             {analysisResult.date_validite && (
               <span className="text-xs text-muted-foreground">
-                Validité : {analysisResult.date_validite}
-                {analysisResult.expire && <span className="text-destructive ml-1">(expirée)</span>}
+                {t("vigil_admin.validity_label", { date: analysisResult.date_validite })}
+                {analysisResult.expire && <span className="text-destructive ml-1">{t("vigil_admin.expired")}</span>}
               </span>
             )}
           </div>
           {!analysisResult.lisible && (
-            <p className="text-xs text-destructive font-medium">Document illisible ou flouté</p>
+            <p className="text-xs text-destructive font-medium">{t("vigil_admin.unreadable")}</p>
           )}
           {analysisResult.motifs.length > 0 && (
             <ul className="text-xs text-muted-foreground space-y-0.5 list-disc list-inside">
@@ -241,7 +242,7 @@ function AttestationCard({
           )}
           {analysisResult.auto_rejete && (
             <p className="text-xs font-medium text-destructive">
-              Rejeté automatiquement — le propriétaire doit soumettre une nouvelle attestation.
+              {t("vigil_admin.auto_rejected_msg")}
             </p>
           )}
         </div>
@@ -256,7 +257,7 @@ function AttestationCard({
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-secondary transition"
           >
             <IconExternalLink className="h-3.5 w-3.5" />
-            Voir document
+            {t("vigil_admin.btn_view")}
           </button>
         )}
 
@@ -267,7 +268,7 @@ function AttestationCard({
           className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <IconScan className="h-3.5 w-3.5" />
-          {analysing ? "Analyse en cours…" : "Analyser avec l'IA"}
+          {analysing ? t("vigil_admin.btn_analysing") : t("vigil_admin.btn_analyse")}
         </button>
 
         {row.statut !== "VALIDE" && !analysisResult?.auto_rejete && (
@@ -279,7 +280,7 @@ function AttestationCard({
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 transition disabled:opacity-60"
             >
               <IconCheck className="h-3.5 w-3.5" />
-              {validateMut.isPending ? "En cours…" : "Valider"}
+              {validateMut.isPending ? t("vigil_admin.btn_validating") : t("vigil_admin.btn_validate")}
             </button>
 
             {!rejectOpen ? (
@@ -289,14 +290,14 @@ function AttestationCard({
                 className="inline-flex items-center gap-1.5 rounded-lg bg-destructive/10 border border-destructive/30 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/20 transition"
               >
                 <IconX className="h-3.5 w-3.5" />
-                Rejeter
+                {t("vigil_admin.btn_reject")}
               </button>
             ) : (
               <div className="w-full space-y-2">
                 <textarea
                   value={rejectNotes}
                   onChange={(e) => setRejectNotes(e.target.value)}
-                  placeholder="Motif de refus (optionnel)…"
+                  placeholder={t("vigil_admin.reject_placeholder")}
                   rows={2}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-destructive/40"
                 />
@@ -307,14 +308,14 @@ function AttestationCard({
                     disabled={rejectMut.isPending}
                     className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90 transition disabled:opacity-60"
                   >
-                    {rejectMut.isPending ? "Envoi…" : "Confirmer le refus"}
+                    {rejectMut.isPending ? t("vigil_admin.btn_confirming") : t("vigil_admin.btn_confirm_reject")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setRejectOpen(false)}
                     className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-secondary transition"
                   >
-                    Annuler
+                    {t("vigil_admin.btn_cancel")}
                   </button>
                 </div>
               </div>
@@ -329,6 +330,7 @@ function AttestationCard({
 // ─── Panneau principal ────────────────────────────────────────────────────────
 
 export function VigilanceAdminPanel() {
+  const { t } = useTranslation();
   const listFn = useServerFn(adminListVigilancePending);
   const qc = useQueryClient();
 
@@ -368,35 +370,32 @@ export function VigilanceAdminPanel() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-4 text-center">
           <p className="text-2xl font-bold text-destructive">{pending.length}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">En attente de validation</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("vigil_admin.count_pending")}</p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4 text-center">
           <p className="text-2xl font-bold text-emerald-600">{valide.length}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Attestations validées</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("vigil_admin.count_validated")}</p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4 text-center">
           <p className="text-2xl font-bold">{rows.length}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Total soumis</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("vigil_admin.count_total")}</p>
         </div>
       </div>
 
       {/* Note IA */}
       <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-        <span className="font-semibold text-foreground">Analyse IA automatique</span> — L'IA détecte les documents
-        floutés, expirés ou falsifiés et les rejette automatiquement. Score de fraude ≥ 85/100 = rejet auto.
-        Document illisible = rejet auto. Attestation expirée (&gt; 6 mois) = rejet auto. Les documents suspects
-        (score 50-84) nécessitent une validation manuelle.
+        <span className="font-semibold text-foreground">{t("vigil_admin.ai_note_title")}</span> {t("vigil_admin.ai_note_desc")}
       </div>
 
       {/* Liste en attente */}
       {pending.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground text-sm">
-          Aucune attestation en attente de validation.
+          {t("vigil_admin.empty")}
         </div>
       ) : (
         <div className="space-y-4">
           <h3 className="font-semibold text-foreground">
-            En attente ({pending.length})
+            {t("vigil_admin.section_pending", { count: pending.length })}
           </h3>
           {pending.map((row: VigilancePendingRow) => (
             <AttestationCard key={row.id} row={row} onRefresh={refresh} />
@@ -408,7 +407,7 @@ export function VigilanceAdminPanel() {
       {valide.length > 0 && (
         <div className="space-y-4">
           <h3 className="font-semibold text-foreground text-sm text-muted-foreground">
-            Attestations validées ({valide.length})
+            {t("vigil_admin.section_validated", { count: valide.length })}
           </h3>
           {valide.map((row: VigilancePendingRow) => (
             <AttestationCard key={row.id} row={row} onRefresh={refresh} />

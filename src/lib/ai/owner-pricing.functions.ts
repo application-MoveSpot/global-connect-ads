@@ -3,6 +3,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { assertRateLimit } from "@/lib/rateLimit.server";
+import { captureServerException } from "@/lib/sentry.server";
 
 const OwnerPricingInput = z.object({
   vehicleId: z.string().uuid(),
@@ -20,6 +22,7 @@ export const recommendVehiclePrice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof OwnerPricingInput>) => OwnerPricingInput.parse(d))
   .handler(async ({ data, context }): Promise<PricingRecommendation> => {
+    assertRateLimit(`owner-pricing:${context.userId}`, { maxRequests: 30, windowMs: 60_000 });
     const { supabase, userId } = context;
 
     // Charger le véhicule (vérif propriétaire)
@@ -83,7 +86,13 @@ Réponds UNIQUEMENT en JSON strict :
   "factors": ["Facteur positif 1", "Facteur limitant 1"]
 }`;
 
-    const { text } = await generateText({ model, prompt, temperature: 0.2, maxOutputTokens: 250 });
+    let text: string;
+    try {
+      ({ text } = await generateText({ model, prompt, temperature: 0.2, maxOutputTokens: 250 }));
+    } catch (err) {
+      captureServerException(err, { category: "ai", userId: context.userId });
+      throw err;
+    }
 
     try {
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);

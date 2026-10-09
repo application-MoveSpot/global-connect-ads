@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/prestataire/connexion")({
 });
 
 function ProviderLoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,7 +53,7 @@ function ProviderLoginPage() {
     if (error) {
       setError(
         error.message === "Invalid login credentials"
-          ? "Email ou mot de passe incorrect."
+          ? t("prestataire.connexion.invalid_credentials")
           : error.message
       );
       setLoading(false);
@@ -72,7 +74,7 @@ function ProviderLoginPage() {
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Chargement…
+        {t("common.loading")}
       </div>
     );
   }
@@ -83,20 +85,20 @@ function ProviderLoginPage() {
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Accueil
+            {t("common.back_home")}
           </Link>
         </div>
       </header>
 
       <main className="max-w-md mx-auto px-4 py-16">
-        <h1 className="font-display text-3xl font-bold mb-2">Espace prestataire</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("prestataire.connexion.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8">
-          Connectez-vous pour accéder à votre tableau de bord et gérer vos demandes de devis.
+          {t("prestataire.connexion.subtitle")}
         </p>
 
         <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5">Email</label>
+            <label className="block text-sm font-medium mb-1.5">{t("auth.email")}</label>
             <input
               type="email"
               value={email}
@@ -110,12 +112,12 @@ function ProviderLoginPage() {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-sm font-medium">Mot de passe</label>
+              <label className="block text-sm font-medium">{t("auth.password")}</label>
               <Link
                 to="/reset-password"
                 className="text-xs text-muted-foreground hover:text-foreground underline"
               >
-                Mot de passe oublié ?
+                {t("prestataire.connexion.forgot_password")}
               </Link>
             </div>
             <input
@@ -139,17 +141,17 @@ function ProviderLoginPage() {
             disabled={loading}
             className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
-            {loading ? "Connexion…" : "Se connecter"}
+            {loading ? t("prestataire.connexion.signing_in") : t("common.sign_in")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Pas encore prestataire MoveSpot ?{" "}
+          {t("prestataire.connexion.no_account")}{" "}
           <Link
             to="/prestataire/inscription"
             className="font-medium text-foreground hover:underline"
           >
-            Créer mon compte
+            {t("prestataire.connexion.create_account")}
           </Link>
         </p>
       </main>

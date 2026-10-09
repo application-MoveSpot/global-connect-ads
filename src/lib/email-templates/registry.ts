@@ -23,6 +23,7 @@ import { template as enterpriseLeadNotifyTemplate } from './enterprise-lead-noti
 import { template as enterpriseLeadConfirmTemplate } from './enterprise-lead-confirm'
 import { template as briefCreatedTemplate } from './brief-created'
 import { template as briefCampaignConfirmedTemplate } from './brief-campaign-confirmed'
+import { template as advertiserWelcomeTemplate } from './advertiser-welcome'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -62,4 +63,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'enterprise-lead-confirm': enterpriseLeadConfirmTemplate,
   'brief-created': briefCreatedTemplate,
   'brief-campaign-confirmed': briefCampaignConfirmedTemplate,
+  'advertiser-welcome': advertiserWelcomeTemplate,
 }

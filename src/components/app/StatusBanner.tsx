@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
 interface Alert {
   id: string;
   level: "info" | "warn" | "error";
-  message: string;
+  message?: string;
+  messageKey?: string;
 }
 
 const DISMISS_KEY_PREFIX = "movespot_status_dismissed_";
@@ -35,6 +37,7 @@ const LEVEL_STYLES: Record<Alert["level"], string> = {
 };
 
 export function StatusBanner() {
+  const { t } = useTranslation();
   const [alerts, setAlerts] = useState<Alert[]>([]);
 
   useEffect(() => {
@@ -52,8 +55,7 @@ export function StatusBanner() {
               {
                 id: webglId,
                 level: "warn",
-                message:
-                  "Les cartes interactives fonctionnent en mode simplifié sur cet appareil (WebGL non disponible).",
+                messageKey: "status_banner.webgl_warn",
               },
             ]);
           }
@@ -88,10 +90,10 @@ export function StatusBanner() {
           role="status"
           className={`pointer-events-auto flex items-center justify-between gap-3 rounded-lg border px-4 py-2 text-sm shadow-lg backdrop-blur-sm ${LEVEL_STYLES[alert.level]}`}
         >
-          <span>{alert.message}</span>
+          <span>{alert.messageKey ? t(alert.messageKey) : alert.message}</span>
           <button
             type="button"
-            aria-label="Fermer"
+            aria-label={t("status_banner.btn_close")}
             onClick={() => close(alert.id)}
             className="shrink-0 rounded p-0.5 opacity-70 transition-opacity hover:opacity-100"
           >

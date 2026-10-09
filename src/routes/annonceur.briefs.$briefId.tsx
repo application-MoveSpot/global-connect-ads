@@ -12,6 +12,7 @@ import { RefreshCw, Wallet, FileText, Activity, Navigation } from "lucide-react"
 import { RouteError } from "@/components/app/RouteError";
 import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/annonceur/briefs/$briefId")({
   head: () => ({
@@ -64,6 +65,8 @@ type CampaignRequest = {
 };
 
 function BriefDetailPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language;
   const { briefId } = Route.useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -139,21 +142,21 @@ function BriefDetailPage() {
       setCampaignRequestIds((prev) => ({ ...prev, [id]: result.campaignRequestId }));
 
       if (result.settled) {
-        toast.success("Campagne activée ! Votre portefeuille a été débité.");
+        toast.success(t("annonceur.briefs.detail.toast_activated"));
       } else if (result.insufficientFunds) {
-        toast.warning("Proposition acceptée — rechargez votre portefeuille pour activer la campagne.");
+        toast.warning(t("annonceur.briefs.detail.toast_recharge_needed"));
       }
 
       await load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erreur lors de l'acceptation.");
+      toast.error(e instanceof Error ? e.message : t("annonceur.briefs.detail.toast_error"));
     } finally {
       setRespondingId(null);
     }
   };
 
   const cancelBrief = async () => {
-    if (!confirm("Annuler ce brief ?")) return;
+    if (!confirm(t("annonceur.briefs.detail.cancel_confirm"))) return;
     await supabase.from("advertiser_briefs").update({ status: "cancelled" }).eq("id", briefId);
     await load();
   };
@@ -166,14 +169,16 @@ function BriefDetailPage() {
     return Math.round((start.getTime() - today.getTime()) / 86400000);
   })();
 
-  if (loading || !brief) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+  if (loading || !brief) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("annonceur.briefs.detail.loading")}</div>;
+
+  const pendingCount = proposals.filter((p) => p.status === "pending").length;
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/annonceur/briefs" className="text-sm text-muted-foreground hover:text-foreground">← Mes briefs</Link>
+          <Link to="/annonceur/briefs" className="text-sm text-muted-foreground hover:text-foreground">{t("annonceur.briefs.detail.back")}</Link>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">
@@ -184,12 +189,12 @@ function BriefDetailPage() {
             <div>
               <p className={`text-sm font-semibold ${daysUntilStart <= 7 ? "text-amber-700 dark:text-amber-300" : "text-primary"}`}>
                 {daysUntilStart <= 7
-                  ? `Votre événement est dans ${daysUntilStart} jour${daysUntilStart > 1 ? "s" : ""} — acceptez une proposition rapidement.`
-                  : `J-${daysUntilStart} avant votre événement`}
+                  ? t("annonceur.briefs.detail.countdown_urgent", { count: daysUntilStart })
+                  : t("annonceur.briefs.detail.countdown_j_minus", { count: daysUntilStart })}
               </p>
-              {proposals.filter((p) => p.status === "pending").length > 0 && (
+              {pendingCount > 0 && (
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {proposals.filter((p) => p.status === "pending").length} proposition{proposals.filter((p) => p.status === "pending").length > 1 ? "s" : ""} en attente de votre réponse
+                  {t("annonceur.briefs.detail.countdown_proposals", { count: pendingCount })}
                 </p>
               )}
             </div>
@@ -200,7 +205,11 @@ function BriefDetailPage() {
           <div>
             <h1 className="font-display text-3xl font-bold">{brief.title}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Du {new Date(brief.start_date).toLocaleDateString("fr-FR")} au {new Date(brief.end_date).toLocaleDateString("fr-FR")} ({brief.days_count} jour(s))
+              {t("annonceur.briefs.detail.date_period", {
+                from: new Date(brief.start_date).toLocaleDateString(dateLocale),
+                to: new Date(brief.end_date).toLocaleDateString(dateLocale),
+                count: brief.days_count ?? 0,
+              })}
             </p>
           </div>
           <StatusBadge status={brief.status} />
@@ -208,74 +217,73 @@ function BriefDetailPage() {
 
         <section className="rounded-2xl border border-border bg-card p-6 mb-6 space-y-3">
           <p className="text-sm whitespace-pre-wrap">{brief.description}</p>
-          <div className="text-xs text-muted-foreground"><strong>Types recherchés :</strong> {brief.vehicle_types.join(", ")}</div>
-          {brief.zones.length > 0 && <div className="text-xs text-muted-foreground"><strong>Zones :</strong> {brief.zones.join(", ")}</div>}
-          {brief.budget_max && <div className="text-xs text-muted-foreground"><strong>Budget max :</strong> {brief.budget_max}€</div>}
-          {brief.audience_target && <div className="text-xs text-muted-foreground"><strong>Audience :</strong> {brief.audience_target}</div>}
+          <div className="text-xs text-muted-foreground"><strong>{t("annonceur.briefs.detail.vehicle_types_label")}</strong> {brief.vehicle_types.join(", ")}</div>
+          {brief.zones.length > 0 && <div className="text-xs text-muted-foreground"><strong>{t("annonceur.briefs.detail.zones_label")}</strong> {brief.zones.join(", ")}</div>}
+          {brief.budget_max && <div className="text-xs text-muted-foreground"><strong>{t("annonceur.briefs.detail.budget_label")}</strong> {brief.budget_max}€</div>}
+          {brief.audience_target && <div className="text-xs text-muted-foreground"><strong>{t("annonceur.briefs.detail.audience_label")}</strong> {brief.audience_target}</div>}
           <CreativeFiles paths={brief.creative_files} />
         </section>
 
         {acceptedProposals.length > 0 && (
           <section className="rounded-2xl border border-primary/40 bg-primary/5 p-6 mb-6">
             <div className="flex items-start justify-between gap-4 mb-1">
-              <h2 className="font-display text-2xl font-bold">Récapitulatif du devis</h2>
+              <h2 className="font-display text-2xl font-bold">{t("annonceur.briefs.detail.devis_title")}</h2>
               <Link
                 to="/annonceur/contrat/$briefId"
                 params={{ briefId }}
                 className="flex-shrink-0 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
               >
                 <FileText className="h-4 w-4" />
-                Devis PDF
+                {t("annonceur.briefs.detail.devis_pdf_btn")}
               </Link>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">Configuration de campagne validée.</p>
+            <p className="text-sm text-muted-foreground mt-1">{t("annonceur.briefs.detail.devis_config_ok")}</p>
 
             <dl className="mt-4 space-y-1.5 text-sm">
               <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">Véhicules retenus</dt>
+                <dt className="text-muted-foreground">{t("annonceur.briefs.detail.devis_vehicles_accepted")}</dt>
                 <dd className="font-semibold">{acceptedProposals.length}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">Durée</dt>
-                <dd className="font-semibold">{brief.days_count ?? 0} jour(s)</dd>
+                <dt className="text-muted-foreground">{t("annonceur.briefs.detail.devis_duration")}</dt>
+                <dd className="font-semibold">{t("annonceur.briefs.detail.devis_duration_value", { count: brief.days_count ?? 0 })}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-muted-foreground">Prix moyen / véhicule / jour</dt>
+                <dt className="text-muted-foreground">{t("annonceur.briefs.detail.devis_avg_price")}</dt>
                 <dd className="font-semibold">{avgPricePerDay.toFixed(2)} €</dd>
               </div>
               <div className="flex justify-between gap-4 border-t border-border pt-2 mt-2">
-                <dt className="font-semibold">Total estimé de la campagne</dt>
+                <dt className="font-semibold">{t("annonceur.briefs.detail.devis_total")}</dt>
                 <dd className="font-display text-lg font-bold text-primary">{estimatedTotal.toFixed(2)} €</dd>
               </div>
             </dl>
 
             <div className="mt-5 space-y-4">
               <p className="text-sm font-semibold text-foreground">
-                {isIndividual ? "Activez votre campagne :" : "Comment souhaitez-vous activer cette campagne ?"}
+                {isIndividual ? t("annonceur.briefs.detail.activate_title_individual") : t("annonceur.briefs.detail.activate_title_business")}
               </p>
 
               {isIndividual ? (
                 <div className="rounded-xl border border-primary bg-primary/5 p-4">
                   <div className="flex items-center gap-2.5 mb-1.5">
                     <Wallet className="h-5 w-5 text-primary" />
-                    <span className="font-semibold text-sm">Paiement via portefeuille</span>
+                    <span className="font-semibold text-sm">{t("annonceur.briefs.detail.wallet_title")}</span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                    Votre portefeuille se débite automatiquement quand vous acceptez une proposition.
-                    Si votre solde est insuffisant, rechargez le montant de votre pack événement.
+                    {t("annonceur.briefs.detail.wallet_desc")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Link
                       to="/annonceur/portefeuille"
                       className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition"
                     >
-                      💳 Mon portefeuille
+                      {t("annonceur.briefs.detail.wallet_btn")}
                     </Link>
                     <Link
                       to="/annonceur/pack"
                       className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition"
                     >
-                      🎪 Packs événement
+                      {t("annonceur.briefs.detail.wallet_pack_btn")}
                     </Link>
                   </div>
                 </div>
@@ -284,12 +292,10 @@ function BriefDetailPage() {
                   <div className="rounded-xl border border-primary bg-primary/5 p-4 ring-1 ring-primary/30">
                     <div className="flex items-center gap-2.5 mb-1.5">
                       <RefreshCw className="h-5 w-5 text-primary" />
-                      <span className="font-semibold text-sm">Abonnement mensuel</span>
+                      <span className="font-semibold text-sm">{t("annonceur.briefs.detail.trial_title")}</span>
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                      14 jours d'essai gratuit pour{" "}
-                      <strong>{acceptedProposals.length} véhicule{acceptedProposals.length > 1 ? "s" : ""}</strong>.
-                      Aucun prélèvement pendant l'essai · résiliable à tout moment.
+                      {t("annonceur.briefs.detail.trial_desc", { count: acceptedProposals.length, n: acceptedProposals.length })}
                     </p>
                     <CampaignTrialCheckout
                       campaignRequestId={
@@ -297,7 +303,7 @@ function BriefDetailPage() {
                         campaignRequestIds[acceptedProposals[0]?.id] ?? brief.id
                       }
                       vehicleQuantity={acceptedProposals.length}
-                      buttonLabel="Activer l'essai gratuit de 14 jours"
+                      buttonLabel={t("annonceur.briefs.detail.trial_btn")}
                       className="w-full"
                     />
                   </div>
@@ -305,17 +311,16 @@ function BriefDetailPage() {
                   <div className="rounded-xl border border-border bg-card p-4">
                     <div className="flex items-center gap-2.5 mb-1.5">
                       <Wallet className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-semibold text-sm">Portefeuille prépayé</span>
+                      <span className="font-semibold text-sm">{t("annonceur.briefs.detail.wallet_title")}</span>
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                      Rechargez votre portefeuille et payez vos campagnes en une fois,
-                      sans abonnement. Idéal pour les budgets B2B ou les campagnes ponctuelles.
+                      {t("annonceur.briefs.detail.wallet_desc")}
                     </p>
                     <Link
                       to="/annonceur/portefeuille"
                       className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
                     >
-                      Gérer mon portefeuille →
+                      {t("annonceur.briefs.detail.wallet_btn")} →
                     </Link>
                   </div>
                 </div>
@@ -326,14 +331,14 @@ function BriefDetailPage() {
 
 
         {brief.status === "open" && (
-          <button onClick={cancelBrief} className="mb-6 text-xs text-destructive hover:underline">Annuler ce brief</button>
+          <button onClick={cancelBrief} className="mb-6 text-xs text-destructive hover:underline">{t("annonceur.briefs.detail.cancel_btn")}</button>
         )}
 
         {campaignRequests.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-6 mb-6">
             <h2 className="font-display text-xl font-bold mb-4 flex items-center gap-2">
               <Activity className="h-5 w-5 text-primary" />
-              Vos campagnes ({campaignRequests.length})
+              {t("annonceur.briefs.detail.campaigns_title", { count: campaignRequests.length })}
             </h2>
             <div className="space-y-3">
               {campaignRequests.map((cr) => {
@@ -342,10 +347,10 @@ function BriefDetailPage() {
                   <div key={cr.id} className="rounded-xl border border-border p-4">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div className="min-w-0">
-                        <p className="font-medium text-sm">{vehicle?.name ?? "Véhicule"}</p>
+                        <p className="font-medium text-sm">{vehicle?.name ?? t("annonceur.briefs.detail.vehicle_default")}</p>
                         {cr.start_date && cr.end_date && (
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            {new Date(cr.start_date).toLocaleDateString("fr-FR")} → {new Date(cr.end_date).toLocaleDateString("fr-FR")}
+                            {new Date(cr.start_date).toLocaleDateString(dateLocale)} → {new Date(cr.end_date).toLocaleDateString(dateLocale)}
                           </p>
                         )}
                         <div className="flex flex-wrap gap-1.5 mt-2">
@@ -364,14 +369,14 @@ function BriefDetailPage() {
                             params={{ campaignId: cr.id }}
                             className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90 transition"
                           >
-                            <Navigation className="h-3 w-3" />Suivi GPS
+                            <Navigation className="h-3 w-3" />{t("annonceur.briefs.detail.gps_btn")}
                           </Link>
                           <Link
                             to="/annonceur/rapport/$campaignId"
                             params={{ campaignId: cr.id }}
                             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-secondary transition"
                           >
-                            Rapport →
+                            {t("annonceur.briefs.detail.report_btn")}
                           </Link>
                         </div>
                       </div>
@@ -384,13 +389,13 @@ function BriefDetailPage() {
         )}
 
         <h2 className="font-display text-2xl font-bold mb-4">
-          {isIndividual ? "Véhicules disponibles pour votre événement" : "Propositions reçues"} ({proposals.length})
+          {isIndividual ? t("annonceur.briefs.detail.proposals_title_individual", { count: proposals.length }) : t("annonceur.briefs.detail.proposals_title_business", { count: proposals.length })}
         </h2>
         {proposals.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
             {isIndividual
-              ? "Aucun véhicule proposé pour l'instant. Les propriétaires de votre zone seront notifiés automatiquement."
-              : "Aucune proposition pour l'instant. Les propriétaires éligibles seront notifiés."}
+              ? t("annonceur.briefs.detail.proposals_empty_individual")
+              : t("annonceur.briefs.detail.proposals_empty_business")}
           </div>
         ) : (
           <div className="space-y-3">
@@ -404,13 +409,13 @@ function BriefDetailPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="font-semibold">{v?.name ?? "Véhicule"}</div>
+                          <div className="font-semibold">{v?.name ?? t("annonceur.briefs.detail.vehicle_fallback")}</div>
                           <div className="text-xs text-muted-foreground">{v?.type} {v?.format_publicitaire && `· ${v.format_publicitaire}`}</div>
                         </div>
                         <div className="text-right">
                           <div className="font-display text-lg font-bold text-primary">{p.price_per_day}€<span className="text-xs font-normal text-muted-foreground">/jour</span></div>
                           {isIndividual && brief.days_count && (
-                            <div className="text-xs text-muted-foreground">= {totalForBrief.toFixed(0)} € total</div>
+                            <div className="text-xs text-muted-foreground">{t("annonceur.briefs.detail.total_for_brief", { total: totalForBrief.toFixed(0) })}</div>
                           )}
                           <ProposalBadge status={p.status} />
                         </div>
@@ -423,14 +428,14 @@ function BriefDetailPage() {
                             disabled={respondingId === p.id}
                             className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-4 py-1.5 text-sm font-semibold hover:bg-signal/30 disabled:opacity-50"
                           >
-                            {respondingId === p.id ? "…" : `✓ ${isIndividual ? "Choisir ce véhicule" : "Accepter"}`}
+                            {respondingId === p.id ? "…" : (isIndividual ? t("annonceur.briefs.detail.accept_individual") : t("annonceur.briefs.detail.accept_business"))}
                           </button>
                           <button
                             onClick={() => respond(p.id, "rejected")}
                             disabled={respondingId === p.id}
                             className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-4 py-1.5 text-sm font-semibold hover:bg-destructive/25 disabled:opacity-50"
                           >
-                            ✕ Refuser
+                            {t("annonceur.briefs.detail.reject")}
                           </button>
                         </div>
                       )}
@@ -444,7 +449,7 @@ function BriefDetailPage() {
         <div className="mt-8 pt-6 border-t border-border flex justify-end">
           <SignalementDialog
             contextUrl={`/annonceur/briefs/${briefId}`}
-            triggerLabel="Signaler un problème"
+            triggerLabel={t("annonceur.briefs.detail.report_problem")}
           />
         </div>
       </main>
@@ -464,59 +469,64 @@ function VehicleThumb({ src, alt }: { src: string; alt: string }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    open: { label: "Ouvert", cls: "bg-signal/20 text-signal" },
-    closed: { label: "Fermé", cls: "bg-secondary text-foreground" },
-    fulfilled: { label: "Pourvu", cls: "bg-primary/20 text-primary" },
-    cancelled: { label: "Annulé", cls: "bg-destructive/15 text-destructive" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    open: "bg-signal/20 text-signal",
+    closed: "bg-secondary text-foreground",
+    fulfilled: "bg-primary/20 text-primary",
+    cancelled: "bg-destructive/15 text-destructive",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>{x.label}</span>;
+  const label = t(`annonceur.briefs.detail.status_${status}` as never, { defaultValue: status });
+  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${cls[status] ?? "bg-secondary"}`}>{label}</span>;
 }
 
 function ProposalBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending: { label: "En attente", cls: "bg-secondary text-foreground" },
-    accepted: { label: "Acceptée", cls: "bg-signal/20 text-signal" },
-    rejected: { label: "Refusée", cls: "bg-destructive/15 text-destructive" },
-    withdrawn: { label: "Retirée", cls: "bg-muted text-muted-foreground" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending: "bg-secondary text-foreground",
+    accepted: "bg-signal/20 text-signal",
+    rejected: "bg-destructive/15 text-destructive",
+    withdrawn: "bg-muted text-muted-foreground",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+  const label = t(`annonceur.briefs.detail.proposal_${status}` as never, { defaultValue: status });
+  return <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${cls[status] ?? "bg-secondary"}`}>{label}</span>;
 }
 
 function CampaignStatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending:   { label: "En attente", cls: "bg-secondary text-foreground" },
-    approved:  { label: "Validée", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
-    active:    { label: "Active ✦", cls: "bg-signal/20 text-signal" },
-    completed: { label: "Terminée", cls: "bg-secondary text-muted-foreground" },
-    cancelled: { label: "Annulée", cls: "bg-destructive/15 text-destructive" },
-    rejected:  { label: "Refusée", cls: "bg-destructive/15 text-destructive" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending:   "bg-secondary text-foreground",
+    approved:  "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+    active:    "bg-signal/20 text-signal",
+    completed: "bg-secondary text-muted-foreground",
+    cancelled: "bg-destructive/15 text-destructive",
+    rejected:  "bg-destructive/15 text-destructive",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+  const label = t(`annonceur.briefs.detail.campaign_${status}` as never, { defaultValue: status });
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${cls[status] ?? "bg-secondary"}`}>{label}</span>;
 }
 
 function PaymentStatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending:  { label: "💳 Paiement en attente", cls: "bg-amber-500/15 text-amber-700 dark:text-amber-300" },
-    paid:     { label: "✓ Payée", cls: "bg-signal/15 text-signal" },
-    refunded: { label: "Remboursée", cls: "bg-secondary text-muted-foreground" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending:  "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+    paid:     "bg-signal/15 text-signal",
+    refunded: "bg-secondary text-muted-foreground",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+  const label = t(`annonceur.briefs.detail.payment_${status}` as never, { defaultValue: status });
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${cls[status] ?? "bg-secondary"}`}>{label}</span>;
 }
 
 function InstallBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    pending:     { label: "🔧 Installation en attente", cls: "bg-secondary text-muted-foreground" },
-    scheduled:   { label: "📅 Installation planifiée", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
-    in_progress: { label: "⚙️ En cours", cls: "bg-blue-500/15 text-blue-700 dark:text-blue-300" },
-    completed:   { label: "✓ Posée", cls: "bg-signal/15 text-signal" },
-    approved:    { label: "✓ Posée", cls: "bg-signal/15 text-signal" },
-    rejected:    { label: "❌ Refusée", cls: "bg-destructive/15 text-destructive" },
+  const { t } = useTranslation();
+  const cls: Record<string, string> = {
+    pending:     "bg-secondary text-muted-foreground",
+    scheduled:   "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+    in_progress: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+    completed:   "bg-signal/15 text-signal",
+    approved:    "bg-signal/15 text-signal",
+    rejected:    "bg-destructive/15 text-destructive",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${x.cls}`}>{x.label}</span>;
+  const label = t(`annonceur.briefs.detail.install_${status}` as never, { defaultValue: status });
+  return <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${cls[status] ?? "bg-secondary"}`}>{label}</span>;
 }

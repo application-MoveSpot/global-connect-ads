@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import type { FleetPoint } from "@/lib/admin.functions";
@@ -7,6 +8,7 @@ import { MapConsentGate } from "@/components/app/MapConsentGate";
 
 // ── Fallback Leaflet (aucune dépendance WebGL) ────────────────────────────────
 function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
+  const { t, i18n } = useTranslation();
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,8 +52,8 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
       for (const p of points) {
         L.marker([p.lat, p.lng], { icon })
           .bindPopup(
-            `<strong>${p.campaignName ?? "Campagne"}</strong><br/>${p.company ?? ""}<br/>` +
-            `${new Date(p.recordedAt).toLocaleString("fr-FR")}`,
+            `<strong>${p.campaignName ?? t("fleet_map.popup_campaign")}</strong><br/>${p.company ?? ""}<br/>` +
+            `${new Date(p.recordedAt).toLocaleString(i18n.language)}`,
           )
           .addTo(map!);
         bounds.extend([p.lat, p.lng]);
@@ -67,6 +69,7 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
 
 // ── Carte Mapbox GL 3D ────────────────────────────────────────────────────────
 function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
+  const { t, i18n } = useTranslation();
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("mapbox-gl").Map | null>(null);
   const markersRef = useRef<import("mapbox-gl").Marker[]>([]);
@@ -151,7 +154,7 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
           .setLngLat([p.lng, p.lat])
           .setPopup(
             new mapboxgl.Popup({ offset: 14 }).setHTML(
-              `<strong>${p.campaignName ?? "Campagne"}</strong><br/>${p.company ?? ""}<br/>${new Date(p.recordedAt).toLocaleString("fr-FR")}`,
+              `<strong>${p.campaignName ?? t("fleet_map.popup_campaign")}</strong><br/>${p.company ?? ""}<br/>${new Date(p.recordedAt).toLocaleString(i18n.language)}`,
             ),
           )
           .addTo(map);
@@ -200,7 +203,7 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
   if (!token) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        Carte indisponible : le jeton Mapbox n'est pas configuré.
+        {t("fleet_map.token_missing")}
       </div>
     );
   }
@@ -209,10 +212,10 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" variant={immersive ? "default" : "outline"} onClick={toggleImmersive}>
-          {immersive ? "Vue plane" : "Vue immersive 3D"}
+          {immersive ? t("fleet_map.btn_flat") : t("fleet_map.btn_immersive")}
         </Button>
         <Button type="button" size="sm" variant={orbit ? "default" : "outline"} onClick={toggleOrbit} disabled={!immersive}>
-          {orbit ? "Stopper la rotation" : "Rotation 360°"}
+          {orbit ? t("fleet_map.btn_stop_orbit") : t("fleet_map.btn_orbit")}
         </Button>
       </div>
       <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />

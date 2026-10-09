@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import area from "@turf/area";
 
 export type ZonePolygon = {
@@ -56,6 +57,9 @@ type Props = {
 };
 
 export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.8566], className }: Props) {
+  const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<unknown>(null);
   const leafletRef = useRef<unknown>(null);
@@ -71,7 +75,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
   const [detectedZones, setDetectedZones] = useState<string[]>([]);
   const [detecting, setDetecting] = useState(false);
   const [searching, setSearching] = useState(false);
-  const [hint, setHint] = useState("Cliquez pour ajouter des points, double-cliquez pour terminer");
+  const [hint, setHint] = useState(() => t("zone_draw.hint_start"));
 
   // Initialize Leaflet map
   useEffect(() => {
@@ -130,7 +134,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         }).addTo(map);
         markersRef.current.push(marker);
         refreshPolyline();
-        setHint(`${drawingRef.current.length} point(s) — double-cliquez pour terminer`);
+        setHint(tRef.current("zone_draw.hint_points", { count: drawingRef.current.length }));
       });
 
       map.on("dblclick", async () => {
@@ -142,7 +146,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         }
         const coords = drawingRef.current;
         if (coords.length < 3) {
-          setHint("Ajoutez au moins 3 points avant de double-cliquer");
+          setHint(tRef.current("zone_draw.hint_min_points"));
           return;
         }
 
@@ -161,7 +165,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         const feature = { type: "Feature", geometry: { type: "Polygon", coordinates: [ring] }, properties: {} };
         const km2 = area(feature as never) / 1_000_000;
         setAreaKm2(km2);
-        setHint("Zone dessinée — cliquez « Effacer » pour recommencer");
+        setHint(tRef.current("zone_draw.hint_done"));
         drawingRef.current = [];
 
         setDetecting(true);
@@ -243,7 +247,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
     drawingRef.current = [];
     setAreaKm2(null);
     setDetectedZones([]);
-    setHint("Cliquez pour ajouter des points, double-cliquez pour terminer");
+    setHint(t("zone_draw.hint_start"));
     onChangeRef.current(null);
   };
 
@@ -261,7 +265,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
             boxShadow: "0 1px 4px rgba(0,0,0,.2)",
           }}
         >
-          🗑 Effacer
+          🗑 {t("zone_draw.btn_clear")}
         </button>
         {searching && (
           <div style={{
@@ -269,17 +273,17 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
             padding: "4px 10px", borderRadius: 6, fontSize: 11,
             background: "white", border: "1px solid #ccc", boxShadow: "0 1px 4px rgba(0,0,0,.15)",
           }}>
-            🔍 Localisation en cours…
+            🔍 {t("zone_draw.searching")}
           </div>
         )}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
-      {detecting && <p className="mt-1 text-xs text-muted-foreground animate-pulse">Détection des quartiers…</p>}
+      {detecting && <p className="mt-1 text-xs text-muted-foreground animate-pulse">{t("zone_draw.detecting")}</p>}
       {detectedZones.length > 0 && !detecting && (
-        <p className="mt-1 text-xs text-primary font-medium">✓ Zones détectées : {detectedZones.join(", ")}</p>
+        <p className="mt-1 text-xs text-primary font-medium">✓ {t("zone_draw.zones_detected", { zones: detectedZones.join(", ") })}</p>
       )}
       {areaKm2 != null && (
-        <p className="mt-1 text-sm">Superficie : <strong>{areaKm2.toFixed(2)} km²</strong></p>
+        <p className="mt-1 text-sm">{t("zone_draw.area_label")} <strong>{areaKm2.toFixed(2)} km²</strong></p>
       )}
     </div>
   );

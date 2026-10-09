@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import area from "@turf/area";
 
 export type ZonePolygon = {
@@ -135,6 +136,9 @@ export function ZoneSelector({
   className,
   vehicleTypes = [],
 }: Props) {
+  const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
   const [mode, setMode] = useState<Mode>("route");
 
   // ── Route mode state ────────────────────────────────────────────────────────
@@ -155,9 +159,7 @@ export function ZoneSelector({
   const [simpleZones, setSimpleZones] = useState<string[]>([]);
 
   // ── Advanced mode state ─────────────────────────────────────────────────────
-  const [hint, setHint] = useState(
-    "Cliquez pour ajouter des points, double-cliquez pour terminer",
-  );
+  const [hint, setHint] = useState(() => t("zone.hint_start"));
   const [advArea, setAdvArea] = useState<number | null>(null);
   const [advZones, setAdvZones] = useState<string[]>([]);
   const [advDetecting, setAdvDetecting] = useState(false);
@@ -255,7 +257,7 @@ export function ZoneSelector({
           }).addTo(map),
         );
         refreshPolyline();
-        setHint(`${drawingRef.current.length} point(s) — double-cliquez pour terminer`);
+        setHint(tRef.current("zone.hint_points", { n: drawingRef.current.length }));
       });
 
       map.on("dblclick", async () => {
@@ -268,7 +270,7 @@ export function ZoneSelector({
         }
         const coords = drawingRef.current;
         if (coords.length < 3) {
-          setHint("Ajoutez au moins 3 points avant de double-cliquer");
+          setHint(tRef.current("zone.hint_min_points"));
           return;
         }
         ptMarkersRef.current.forEach((m) =>
@@ -297,7 +299,7 @@ export function ZoneSelector({
             properties: {},
           } as never) / 1_000_000;
         setAdvArea(km2);
-        setHint("Zone dessinée — cliquez « Effacer » pour recommencer");
+        setHint(tRef.current("zone.hint_done"));
         drawingRef.current = [];
         setAdvDetecting(true);
         const zones = await detectZonesPolygon(coords);
@@ -411,7 +413,7 @@ export function ZoneSelector({
     const from = fromAddr.trim();
     const to = toAddr.trim();
     if (!from || !to) {
-      setRouteError("Saisissez les adresses de départ et d'arrivée.");
+      setRouteError(t("zone.err_no_addresses"));
       return;
     }
     setRouteLoading(true);
@@ -420,8 +422,8 @@ export function ZoneSelector({
     setRouteZones([]);
 
     const [geoFrom, geoTo] = await Promise.all([geocodeAddress(from), geocodeAddress(to)]);
-    if (!geoFrom) { setRouteError("Adresse de départ introuvable."); setRouteLoading(false); return; }
-    if (!geoTo) { setRouteError("Adresse d'arrivée introuvable."); setRouteLoading(false); return; }
+    if (!geoFrom) { setRouteError(t("zone.err_from_not_found")); setRouteLoading(false); return; }
+    if (!geoTo) { setRouteError(t("zone.err_to_not_found")); setRouteLoading(false); return; }
 
     const profile = osrmProfile(vehicleTypesRef.current);
     try {
@@ -437,7 +439,7 @@ export function ZoneSelector({
       };
 
       if (data.code !== "Ok" || !data.routes?.length) {
-        setRouteError("Impossible de calculer l'itinéraire. Vérifiez les adresses.");
+        setRouteError(t("zone.err_route"));
         setRouteLoading(false);
         return;
       }
@@ -521,7 +523,7 @@ export function ZoneSelector({
       setRouteDetecting(false);
       onChangeRef.current({ coordinates: polygon.length > 0 ? polygon : routeCoords, areaKm2, detectedZones: deduped });
     } catch {
-      setRouteError("Erreur lors du calcul de l'itinéraire. Réessayez.");
+      setRouteError(t("zone.err_route_generic"));
     }
     setRouteLoading(false);
   };
@@ -542,7 +544,7 @@ export function ZoneSelector({
       if (searchMarkerRef.current) { map.removeLayer(searchMarkerRef.current); searchMarkerRef.current = null; }
     }
     drawingRef.current = [];
-    setHint("Cliquez pour ajouter des points, double-cliquez pour terminer");
+    setHint(t("zone.hint_start"));
     setAdvArea(null);
     setAdvZones([]);
     setSimpleZones([]);
@@ -564,7 +566,7 @@ export function ZoneSelector({
     drawingRef.current = [];
     setAdvArea(null);
     setAdvZones([]);
-    setHint("Cliquez pour ajouter des points, double-cliquez pour terminer");
+    setHint(t("zone.hint_start"));
     onChangeRef.current(null);
   };
 
@@ -577,9 +579,9 @@ export function ZoneSelector({
       <div className="flex items-center gap-1 mb-3 p-1 rounded-lg bg-secondary/40 w-fit flex-wrap">
         {(
           [
-            { v: "route" as Mode, l: "🗺️ Tracer une route" },
-            { v: "simple" as Mode, l: "⭕ Zone simple" },
-            { v: "advanced" as Mode, l: "✏️ Zone personnalisée" },
+            { v: "route" as Mode, l: t("zone.mode_route") },
+            { v: "simple" as Mode, l: t("zone.mode_simple") },
+            { v: "advanced" as Mode, l: t("zone.mode_advanced") },
           ] as { v: Mode; l: string }[]
         ).map(({ v, l }) => (
           <button
@@ -607,7 +609,7 @@ export function ZoneSelector({
                 type="text"
                 value={fromAddr}
                 onChange={(e) => setFromAddr(e.target.value)}
-                placeholder="Adresse de départ"
+                placeholder={t("zone.from_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && traceRoute()}
               />
@@ -618,7 +620,7 @@ export function ZoneSelector({
                 type="text"
                 value={toAddr}
                 onChange={(e) => setToAddr(e.target.value)}
-                placeholder="Adresse d'arrivée"
+                placeholder={t("zone.to_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && traceRoute()}
               />
@@ -630,11 +632,11 @@ export function ZoneSelector({
             disabled={routeLoading}
             className="w-full sm:w-auto rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
           >
-            {routeLoading ? "Calcul en cours…" : "Tracer la route"}
+            {routeLoading ? t("zone.tracing") : t("zone.trace_btn")}
           </button>
           {vehicleTypes.length > 0 && (
             <p className="text-xs text-muted-foreground">
-              Rayon de visibilité : <strong className="text-foreground">{(bufKm * 1000).toFixed(0)} m</strong> de chaque côté de la route selon vos véhicules sélectionnés.
+              {t("zone.visibility_radius", { m: (bufKm * 1000).toFixed(0) })}
             </p>
           )}
         </div>
@@ -648,7 +650,7 @@ export function ZoneSelector({
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Ville ou adresse (ex. Paris 11e, Lyon Confluence…)"
+              placeholder={t("zone.address_placeholder")}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5 pr-10 text-sm"
             />
             {simpleSearching && (
@@ -658,9 +660,9 @@ export function ZoneSelector({
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-sm text-muted-foreground">
-                Rayon : <strong className="text-foreground">{radiusKm} km</strong>
+                {t("zone.radius_label", { km: radiusKm })}
               </label>
-              <span className="text-xs text-muted-foreground">≈ {circleAreaKm2.toFixed(1)} km²</span>
+              <span className="text-xs text-muted-foreground">{t("zone.area_approx", { area: circleAreaKm2.toFixed(1) })}</span>
             </div>
             <input
               type="range"
@@ -703,7 +705,7 @@ export function ZoneSelector({
               boxShadow: "0 1px 4px rgba(0,0,0,.2)",
             }}
           >
-            🗑 Effacer
+            {t("zone.clear_btn")}
           </button>
         )}
         {advSearching && mode === "advanced" && (
@@ -712,7 +714,7 @@ export function ZoneSelector({
             padding: "4px 10px", borderRadius: 6, fontSize: 11,
             background: "white", border: "1px solid #ccc", boxShadow: "0 1px 4px rgba(0,0,0,.15)",
           }}>
-            🔍 Localisation en cours…
+            {t("zone.locating")}
           </div>
         )}
       </div>
@@ -723,22 +725,22 @@ export function ZoneSelector({
           {routeError && <p className="text-sm text-destructive">{routeError}</p>}
           {routeDistKm !== null && !routeError && (
             <p className="text-sm">
-              Distance : <strong>{routeDistKm.toFixed(1)} km</strong>
-              {" · "}Surface estimée : <strong>{(routeDistKm * bufKm * 2).toFixed(2)} km²</strong>
+              {t("zone.distance", { km: routeDistKm.toFixed(1) })}
+              {" · "}
+              {t("zone.area_estimated", { area: (routeDistKm * bufKm * 2).toFixed(2) })}
             </p>
           )}
           {routeDetecting && (
-            <p className="text-xs text-muted-foreground animate-pulse">Détection des zones…</p>
+            <p className="text-xs text-muted-foreground animate-pulse">{t("zone.detecting_zones")}</p>
           )}
           {routeZones.length > 0 && !routeDetecting && (
             <p className="text-xs text-primary font-medium">
-              ✓ Zones : {routeZones.join(", ")}
+              {t("zone.zones_found", { list: routeZones.join(", ") })}
             </p>
           )}
           {!routeDistKm && !routeError && (
             <p className="text-xs text-muted-foreground">
-              Saisissez les adresses puis cliquez sur « Tracer la route ».
-              La zone de visibilité s'adapte automatiquement au type de véhicule choisi.
+              {t("zone.route_hint")}
             </p>
           )}
         </div>
@@ -748,10 +750,10 @@ export function ZoneSelector({
       {mode === "simple" && (
         <div className="mt-2 space-y-1">
           {simpleZones.length > 0 && (
-            <p className="text-xs text-primary font-medium">✓ Zones : {simpleZones.join(", ")}</p>
+            <p className="text-xs text-primary font-medium">{t("zone.zones_found", { list: simpleZones.join(", ") })}</p>
           )}
           <p className="text-xs text-muted-foreground">
-            Tapez une ville pour centrer, ajustez le rayon avec le curseur.
+            {t("zone.simple_hint")}
           </p>
         </div>
       )}
@@ -761,13 +763,13 @@ export function ZoneSelector({
         <div className="mt-2 space-y-1">
           <p className="text-xs text-muted-foreground">{hint}</p>
           {advDetecting && (
-            <p className="text-xs text-muted-foreground animate-pulse">Détection des quartiers…</p>
+            <p className="text-xs text-muted-foreground animate-pulse">{t("zone.detecting_neighborhoods")}</p>
           )}
           {advZones.length > 0 && !advDetecting && (
-            <p className="text-xs text-primary font-medium">✓ Zones : {advZones.join(", ")}</p>
+            <p className="text-xs text-primary font-medium">{t("zone.zones_found", { list: advZones.join(", ") })}</p>
           )}
           {advArea != null && (
-            <p className="text-sm">Superficie : <strong>{advArea.toFixed(2)} km²</strong></p>
+            <p className="text-sm">{t("zone.area_label", { area: advArea.toFixed(2) })}</p>
           )}
         </div>
       )}

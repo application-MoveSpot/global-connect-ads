@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import QRCode from "qrcode";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 
@@ -13,6 +14,7 @@ type Props = {
  * à coller à côté, qui renvoie vers MoveSpot avec la référence de la campagne.
  */
 export function InstallationKit({ campaignRequestId, creativeFiles }: Props) {
+  const { t } = useTranslation();
   const [qrImg, setQrImg] = useState<string | null>(null);
   const origin = typeof window !== "undefined" ? window.location.origin : "https://move-spot.com";
   const qrUrl = `${origin}/c/${campaignRequestId}?utm_source=qr_vehicule`;
@@ -27,13 +29,13 @@ export function InstallationKit({ campaignRequestId, creativeFiles }: Props) {
 
   return (
     <div className="mb-3 rounded-lg border border-border bg-secondary/20 p-3">
-      <p className="mb-2 text-xs font-semibold">🖼 Kit de pose — affiche/vidéo et QR code à coller</p>
+      <p className="mb-2 text-xs font-semibold">{t("installation_kit.title")}</p>
 
       {hasCreatives ? (
         <CreativeFiles paths={creativeFiles} />
       ) : (
         <p className="mb-2 text-xs text-muted-foreground">
-          Aucun visuel fourni par l'annonceur pour le moment — revenez plus tard ou contactez MoveSpot.
+          {t("installation_kit.no_creative")}
         </p>
       )}
 
@@ -41,7 +43,7 @@ export function InstallationKit({ campaignRequestId, creativeFiles }: Props) {
         {qrImg ? (
           <img
             src={qrImg}
-            alt="QR code à coller"
+            alt={t("installation_kit.qr_alt")}
             width={88}
             height={88}
             className="rounded border border-border bg-white p-1"
@@ -50,14 +52,14 @@ export function InstallationKit({ campaignRequestId, creativeFiles }: Props) {
           <div className="h-[88px] w-[88px] shrink-0 animate-pulse rounded border border-border bg-secondary" />
         )}
         <div className="text-[11px] text-muted-foreground">
-          <p>Imprimez ce QR et collez-le à côté du visuel sur le véhicule.</p>
+          <p>{t("installation_kit.qr_instructions")}</p>
           {qrImg ? (
             <a
               href={qrImg}
               download={`qr-movespot-${campaignRequestId}.png`}
               className="text-primary hover:underline"
             >
-              Télécharger le QR
+              {t("installation_kit.btn_download")}
             </a>
           ) : null}
         </div>

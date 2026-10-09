@@ -780,3 +780,73 @@ export const adminListUsers = createServerFn({ method: "GET" })
 
     return { users, total: users.length };
   });
+
+// ============ Onglet Parrainage annonceurs ============
+
+export interface AdminReferralRow {
+  id: string;
+  status: "pending" | "credited";
+  created_at: string;
+  credited_at: string | null;
+  referrer_name: string;
+  referrer_code: string;
+  referee_name: string;
+  referee_user_id: string | null;
+}
+
+export const adminListReferrals = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data, error } = await (supabaseAdmin as any)
+      .from("advertiser_referral_rewards")
+      .select(`
+        id, status, created_at, credited_at,
+        referrer:referrer_id(full_name, company, referral_code, user_id),
+        referee:referee_id(full_name, company, user_id)
+      `)
+      .order("created_at", { ascending: false })
+      .limit(500);
+
+    if (error) throw new Error(error.message);
+
+    const rows: AdminReferralRow[] = (data ?? []).map((r: any) => ({
+      id: r.id as string,
+      status: r.status as "pending" | "credited",
+      created_at: r.created_at as string,
+      credited_at: r.credited_at as string | null,
+      referrer_name: (r.referrer?.company || r.referrer?.full_name || "—") as string,
+      referrer_code: (r.referrer?.referral_code || "—") as string,
+      referee_name: (r.referee?.company || r.referee?.full_name || "—") as string,
+      referee_user_id: (r.referee?.user_id || null) as string | null,
+    }));
+
+    const pending = rows.filter((r) => r.status === "pending").length;
+    const credited = rows.filter((r) => r.status === "credited").length;
+
+    return { rows, pending, credited, total: rows.length };
+  });
+
+export const adminCreditReferral = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ refereeUserId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await (supabaseAdmin as any).rpc("credit_advertiser_referral", {
+      p_referee_user_id: data.refereeUserId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
@@ -32,19 +33,6 @@ type Profile = {
   stripe_payouts_enabled: boolean | null;
 };
 
-const KIND_LABEL: Record<Profile["kind"], string> = {
-  driver: "Chauffeur",
-  installer: "Poseur covering",
-  both: "Chauffeur & poseur",
-};
-
-const CERTIF: Record<string, { label: string; className: string }> = {
-  pending: { label: "⏳ En attente de certification", className: "text-amber-500" },
-  certified: { label: "✅ Certifié MoveSpot", className: "text-emerald-500" },
-  rejected: { label: "⛔ Certification refusée", className: "text-destructive" },
-};
-
-const eur = (cents: number) => (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 
 
 export const Route = createFileRoute("/chauffeur/espace")({
@@ -67,6 +55,9 @@ export const Route = createFileRoute("/chauffeur/espace")({
 });
 
 function ChauffeurEspace() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language;
+  const eur = (cents: number) => (cents / 100).toLocaleString(dateLocale, { style: "currency", currency: "EUR" });
   const navigate = useNavigate();
   const fetchEarnings = useServerFn(getPayeeEarnings);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -143,8 +134,8 @@ function ChauffeurEspace() {
       .channel(`chauffeur-profile-${profile.id}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "payee_profiles", filter: `user_id=eq.${userId}` }, (payload) => {
           const newCertif = (payload.new as Record<string, unknown>).certification_status as string | undefined;
-          if (newCertif === "certified") pushNotification("Certification validée !", "Vous êtes maintenant certifié MoveSpot.");
-          else if (newCertif === "rejected") pushNotification("Certification refusée", "Votre certification a été refusée. Consultez les notes.");
+          if (newCertif === "certified") pushNotification(t("chauffeur.espace.certif_notif_ok"), t("chauffeur.espace.certif_notif_ok_desc"));
+          else if (newCertif === "rejected") pushNotification(t("chauffeur.espace.certif_notif_rejected"), t("chauffeur.espace.certif_notif_rejected_desc"));
           void loadProfile(userId);
         })
       .subscribe();
@@ -153,10 +144,24 @@ function ChauffeurEspace() {
   }, [profile?.id]);
 
   if (state === "loading") {
-    return <div className="min-h-screen bg-background p-8 text-muted-foreground">Chargement…</div>;
+    return <div className="min-h-screen bg-background p-8 text-muted-foreground">{t("common.loading")}</div>;
   }
 
-  const certif = CERTIF[profile?.certification_status ?? "pending"] ?? CERTIF["pending"]!;
+  const certifStatus = profile?.certification_status ?? "pending";
+  const certifClassMap: Record<string, string> = {
+    pending: "text-amber-500",
+    certified: "text-emerald-500",
+    rejected: "text-destructive",
+  };
+  const certifLabelMap: Record<string, string> = {
+    pending: t("chauffeur.espace.certif_pending"),
+    certified: t("chauffeur.espace.certif_certified"),
+    rejected: t("chauffeur.espace.certif_rejected"),
+  };
+  const certif = {
+    label: certifLabelMap[certifStatus] ?? certifLabelMap["pending"]!,
+    className: certifClassMap[certifStatus] ?? certifClassMap["pending"]!,
+  };
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -166,15 +171,15 @@ function ChauffeurEspace() {
           <div className="flex items-center gap-3">
             <NotificationBell userId={authUserId} />
             <Link to="/chauffeur" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
-              Suivi GPS →
+              {t("chauffeur.espace.gps_nav_link")}
             </Link>
           </div>
         </div>
 
         <div>
-          <h1 className="font-display text-3xl font-bold">Bonjour {profile?.full_name}</h1>
+          <h1 className="font-display text-3xl font-bold">{t("chauffeur.espace.hello", { name: profile?.full_name })}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {profile ? KIND_LABEL[profile.kind] : ""}
+            {profile ? t(`chauffeur.espace.kind_${profile.kind}`) : ""}
             {profile?.city ? ` · ${profile.city}` : ""}
           </p>
         </div>
@@ -189,8 +194,8 @@ function ChauffeurEspace() {
           >
             <span className="mt-0.5 text-base shrink-0">🔔</span>
             <span>
-              Activez les notifications push pour être alerté instantanément dès qu'une nouvelle mission est disponible.{" "}
-              <strong className="underline">{subscribingPush ? "Activation…" : "Activer les alertes →"}</strong>
+              {t("chauffeur.espace.push_desc")}{" "}
+              <strong className="underline">{subscribingPush ? t("chauffeur.espace.push_activating") : t("chauffeur.espace.push_activate")}</strong>
             </span>
           </button>
         )}
@@ -207,17 +212,17 @@ function ChauffeurEspace() {
             <span className="mt-0.5 text-base">{profile.stripe_account_id ? "⚠️" : "🔴"}</span>
             <span>
               {profile.stripe_account_id
-                ? "Votre onboarding Stripe est incomplet — finalisez la vérification pour recevoir vos reversements."
-                : "Vous n'avez pas encore lié votre IBAN. Sans cette étape, aucun reversement ne peut vous être versé."}
+                ? t("chauffeur.espace.stripe_incomplete")
+                : t("chauffeur.espace.stripe_no_iban")}
               {" "}
-              <strong className="underline">Configurer maintenant →</strong>
+              <strong className="underline">{t("chauffeur.espace.stripe_setup")}</strong>
             </span>
           </a>
         )}
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Certification</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("chauffeur.espace.certif_label")}</p>
             <p className={`mt-2 text-sm font-semibold ${certif.className}`}>{certif.label}</p>
             {profile?.certification_notes && (
               <p className="mt-1 text-xs text-muted-foreground">{profile.certification_notes}</p>
@@ -227,25 +232,29 @@ function ChauffeurEspace() {
                 <StatusHistory
                   entityType="payee_certification"
                   entityId={profile.id}
-                  statusLabel={{ pending: "En attente", certified: "Certifié", rejected: "Refusé" }}
+                  statusLabel={{
+                    pending: t("chauffeur.espace.certif_history_pending"),
+                    certified: t("chauffeur.espace.certif_history_certified"),
+                    rejected: t("chauffeur.espace.certif_history_rejected"),
+                  }}
                 />
               </div>
             )}
           </div>
           <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Véhicule</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("chauffeur.espace.vehicle_label")}</p>
             <p className="mt-2 text-sm font-semibold">
-              {profile?.vehicle_kind ? VEHICLE_KIND_LABEL[profile.vehicle_kind] : "Non renseigné"}
+              {profile?.vehicle_kind ? VEHICLE_KIND_LABEL[profile.vehicle_kind] : t("chauffeur.espace.vehicle_not_set")}
             </p>
             {profile?.vehicle_plate && (
-              <p className="mt-1 text-xs text-muted-foreground">Immat. {profile.vehicle_plate}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("chauffeur.espace.vehicle_plate_abbr")} {profile.vehicle_plate}</p>
             )}
           </div>
           <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Gains cumulés</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("chauffeur.espace.earnings_label")}</p>
             <p className="mt-2 text-2xl font-bold">{eur(earnings?.totalCents ?? 0)}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {eur(earnings?.paidCents ?? 0)} versés · {eur(earnings?.pendingCents ?? 0)} en attente
+              {t("chauffeur.espace.earnings_detail", { paid: eur(earnings?.paidCents ?? 0), pending: eur(earnings?.pendingCents ?? 0) })}
             </p>
           </div>
         </div>
@@ -259,21 +268,21 @@ function ChauffeurEspace() {
 
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
-          <h3 className="font-display text-lg font-semibold">Comment vous êtes payé</h3>
+          <h3 className="font-display text-lg font-semibold">{t("chauffeur.espace.payment_title")}</h3>
           <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-            <li>Vous liez votre IBAN via Stripe (une seule fois).</li>
-            <li>Vous réalisez la prestation : pose du covering ou trajets avec suivi GPS.</li>
-            <li>MoveSpot valide la prestation et déclenche le reversement sur votre compte.</li>
-            <li>Stripe verse les fonds sur votre IBAN, sans intervention de votre part.</li>
+            <li>{t("chauffeur.espace.payment_step1")}</li>
+            <li>{t("chauffeur.espace.payment_step2")}</li>
+            <li>{t("chauffeur.espace.payment_step3")}</li>
+            <li>{t("chauffeur.espace.payment_step4")}</li>
           </ol>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <h3 className="font-display text-lg font-semibold">Suivi GPS des campagnes</h3>
+          <h3 className="font-display text-lg font-semibold">{t("chauffeur.espace.gps_title")}</h3>
           {driverQrs.length > 0 ? (
             <>
               <p className="text-sm text-muted-foreground">
-                Voici vos QR codes de suivi. Scannez-les avec votre téléphone pour démarrer le tracking GPS, ou imprimez-les pour les coller dans la cabine.
+                {t("chauffeur.espace.qr_desc")}
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {driverQrs.map((q) => (
@@ -296,7 +305,7 @@ function ChauffeurEspace() {
                               search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
                               className="text-xs font-semibold text-indigo-400 hover:underline"
                             >
-                              📺 Démarrer l'écran →
+                              {t("chauffeur.espace.start_screen")}
                             </Link>
                           ) : (
                             <Link
@@ -304,7 +313,7 @@ function ChauffeurEspace() {
                               search={{ t: encodeURIComponent(q.url.split("?t=")[1] ?? "") }}
                               className="text-xs font-semibold text-primary hover:underline"
                             >
-                              Démarrer le GPS →
+                              {t("chauffeur.espace.start_gps")}
                             </Link>
                           )}
                           <a
@@ -312,7 +321,7 @@ function ChauffeurEspace() {
                             download={`qr-gps-${q.vehicleId}.png`}
                             className="text-xs text-muted-foreground hover:underline"
                           >
-                            Télécharger
+                            {t("chauffeur.espace.download")}
                           </a>
                         </div>
                       </div>
@@ -321,7 +330,7 @@ function ChauffeurEspace() {
                       <div>
                         <WeatherInstallCheck zone={vehicleZones[q.vehicleId]![0]!} />
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="text-xs text-muted-foreground">🗺️ Trafic :</span>
+                          <span className="text-xs text-muted-foreground">{t("chauffeur.traffic_label")}</span>
                           {(() => {
                             const zone = vehicleZones[q.vehicleId]![0]!;
                             const enc = encodeURIComponent(zone);
@@ -341,12 +350,11 @@ function ChauffeurEspace() {
             </>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Scannez le QR code collé dans le véhicule pour démarrer le suivi d'une campagne.
-              Aucun véhicule ne vous est encore assigné — votre propriétaire peut le faire depuis son espace flotte.
+              {t("chauffeur.espace.qr_empty")}
             </p>
           )}
           <Link to="/chauffeur" search={{ t: "" }} className="inline-block text-sm font-semibold text-primary hover:underline">
-            Ouvrir le suivi GPS →
+            {t("chauffeur.espace.open_gps")}
           </Link>
         </div>
       </div>

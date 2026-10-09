@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { createCommercialProfile } from "@/lib/commercial/commercial.functions";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/commercial/inscription")({
 });
 
 function CommercialInscription() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<"auth" | "profile">("auth");
   const [mode, setMode] = useState<"signup" | "signin">("signup");
@@ -60,13 +62,13 @@ function CommercialInscription() {
       if (authErr) { setError(authErr.message); setLoading(false); return; }
       if (signUpData.user?.identities?.length === 0) {
         setMode("signin");
-        setError("Un compte existe déjà avec cet email. Connectez-vous.");
+        setError(t("auth.error.email_exists"));
         setLoading(false);
         return;
       }
       if (!signUpData.session) {
         setMode("signin");
-        setError("Vérifiez votre email puis connectez-vous.");
+        setError(t("auth.check_email"));
         setLoading(false);
         return;
       }
@@ -92,7 +94,7 @@ function CommercialInscription() {
     setError("");
     setLoading(true);
     const result = await createProfileFn({ data: { fullName, phone, company, city } });
-    if (!result.ok) { setError(result.error ?? "Erreur"); setLoading(false); return; }
+    if (!result.ok) { setError(result.error ?? t("common.error")); setLoading(false); return; }
     navigate({ to: "/commercial" });
   };
 
@@ -100,43 +102,43 @@ function CommercialInscription() {
     <div className="min-h-screen bg-background p-4 flex items-center justify-center">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
         <div className="mb-4"><LogoLink /></div>
-        <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">← Retour</Link>
+        <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">{t("commercial.inscription.back")}</Link>
 
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? "Devenir apporteur d'affaires" : "Connexion commercial"}
+              {mode === "signup" ? t("commercial.inscription.title_signup") : t("commercial.inscription.title_signin")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
               {mode === "signup"
-                ? "Apportez des annonceurs sur MoveSpot et touchez 10 % de commission sur chaque campagne."
-                : "Accédez à votre espace commercial."}
+                ? t("commercial.inscription.subtitle_signup")
+                : t("commercial.inscription.subtitle_signin")}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
-              <Field label="Email" type="email" value={email} onChange={setEmail} required />
-              <Field label="Mot de passe" type="password" value={password} onChange={setPassword} required minLength={6} />
+              <Field label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
+              <Field label={t("auth.password")} type="password" value={password} onChange={setPassword} required minLength={6} />
               {error && <Err msg={error} />}
               <button type="submit" disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-                {loading ? "..." : mode === "signup" ? "Créer mon compte" : "Se connecter"}
+                {loading ? "..." : mode === "signup" ? t("common.create_account") : t("common.sign_in")}
               </button>
             </form>
             <button onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); }}
               className="w-full text-sm text-muted-foreground hover:text-foreground mt-4">
-              {mode === "signup" ? "Déjà un compte ? Se connecter" : "Pas encore inscrit ? Créer un compte"}
+              {mode === "signup" ? t("commercial.inscription.already_account") : t("commercial.inscription.not_registered")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">Votre profil commercial</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("commercial.inscription.profile_title")}</h1>
             <p className="text-sm text-muted-foreground mb-6">
-              Votre lien de parrainage sera généré automatiquement.
+              {t("commercial.inscription.profile_subtitle")}
             </p>
             <form onSubmit={handleProfile} className="space-y-4">
-              <Field label="Nom complet *" value={fullName} onChange={setFullName} required />
-              <Field label="Entreprise / Auto-entrepreneur" value={company} onChange={setCompany} />
-              <Field label="Téléphone" type="tel" value={phone} onChange={setPhone} />
-              <Field label="Ville" value={city} onChange={setCity} />
+              <Field label={t("commercial.inscription.fullname_label")} value={fullName} onChange={setFullName} required />
+              <Field label={t("commercial.inscription.company_label")} value={company} onChange={setCompany} />
+              <Field label={t("common.phone")} type="tel" value={phone} onChange={setPhone} />
+              <Field label={t("commercial.inscription.city_label")} value={city} onChange={setCity} />
               {error && <Err msg={error} />}
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
@@ -147,17 +149,12 @@ function CommercialInscription() {
                   required
                 />
                 <span className="text-xs text-muted-foreground leading-relaxed">
-                  J'accepte les{" "}
-                  <strong className="text-foreground">règles de conduite commerciale MoveSpot</strong>{" "}
-                  : je m'engage à présenter MoveSpot honnêtement (plateforme de mise en relation),
-                  sans promettre de revenus garantis, sans pratiques agressives, et sans
-                  assimiler ce partenariat à un système pyramidal (MLM). Tout manquement
-                  peut entraîner la désactivation de mon compte.
+                  {t("commercial.inscription.cgu_text")}
                 </span>
               </label>
               <button type="submit" disabled={loading || !cguAccepted}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-                {loading ? "..." : "Créer mon espace commercial"}
+                {loading ? "..." : t("commercial.inscription.submit_btn")}
               </button>
             </form>
           </>

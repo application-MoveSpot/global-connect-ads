@@ -25,7 +25,9 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/tarifs", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/annonceurs-entreprise", changefreq: "monthly", priority: "0.8", lastmod: today },
           { path: "/commencer", changefreq: "monthly", priority: "0.8", lastmod: today },
+          { path: "/campagnes", changefreq: "weekly", priority: "0.7", lastmod: today },
           { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.7", lastmod: today },
+          { path: "/remboursement", changefreq: "yearly", priority: "0.3", lastmod: today },
           { path: "/chauffeur", changefreq: "monthly", priority: "0.7", lastmod: today },
           { path: "/prestataires", changefreq: "weekly", priority: "0.7", lastmod: today },
           { path: "/contact", changefreq: "yearly", priority: "0.5", lastmod: today },
@@ -83,7 +85,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         return new Response(xml, {
           headers: {
             "Content-Type": "application/xml; charset=utf-8",
-            "Cache-Control": "public, max-age=3600",
+            "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
           },
         });
       },

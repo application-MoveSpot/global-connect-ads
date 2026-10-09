@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { resizeImageFile } from "@/lib/images/resize";
 
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export function ProviderPortfolioUploader({ value, onChange }: Props) {
+  const { t } = useTranslation();
   const [userId, setUserId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,13 +40,13 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
     if (!files || !userId) return;
     setError(null);
     const remaining = MAX_FILES - value.length;
-    if (remaining <= 0) { setError(`Maximum ${MAX_FILES} fichiers.`); return; }
+    if (remaining <= 0) { setError(t("portfolio_uploader.err_max_files", { max: MAX_FILES })); return; }
     const toUpload = Array.from(files).slice(0, remaining);
     setUploading(true);
     const next = [...value];
     for (const f of toUpload) {
-      if (!ACCEPTED.includes(f.type)) { setError(`Format non supporté : ${f.name}`); continue; }
-      if (f.size > MAX_SIZE) { setError(`Fichier trop volumineux (>50 Mo) : ${f.name}`); continue; }
+      if (!ACCEPTED.includes(f.type)) { setError(t("portfolio_uploader.err_format", { name: f.name })); continue; }
+      if (f.size > MAX_SIZE) { setError(t("portfolio_uploader.err_size", { name: f.name })); continue; }
       const resized = await resizeImageFile(f, 1600, 0.85);
       const ext = f.name.split(".").pop()?.toLowerCase() ?? "bin";
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -87,7 +89,7 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
         />
         <span className="text-xs text-muted-foreground">{value.length}/{MAX_FILES}</span>
       </div>
-      <p className="text-xs text-muted-foreground">Images (JPG, PNG, WebP, GIF) ou vidéos (MP4, WebM, MOV). 50 Mo max par fichier.</p>
+      <p className="text-xs text-muted-foreground">{t("portfolio_uploader.accepted_hint")}</p>
       {error && <p className="text-xs text-destructive">{error}</p>}
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">

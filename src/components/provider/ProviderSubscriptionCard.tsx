@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createProviderSubscriptionCheckout } from "@/lib/payments/payments.functions";
@@ -14,16 +15,16 @@ import {
 
 type SubscriptionStatus = string | null | undefined;
 
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  active:   { label: "Actif",      className: "bg-signal/20 text-signal" },
-  trialing: { label: "Essai",      className: "bg-primary/15 text-primary" },
-  past_due: { label: "En retard",  className: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
-  canceled: { label: "Annulé",     className: "bg-secondary text-muted-foreground" },
-  incomplete: { label: "Incomplet", className: "bg-secondary text-muted-foreground" },
-};
-
 function SubscriptionBadge({ status }: { status: SubscriptionStatus }) {
+  const { t } = useTranslation();
   if (!status) return null;
+  const STATUS_LABELS: Record<string, { label: string; className: string }> = {
+    active:     { label: t("subscription.status_active"),     className: "bg-signal/20 text-signal" },
+    trialing:   { label: t("subscription.status_trialing"),   className: "bg-primary/15 text-primary" },
+    past_due:   { label: t("subscription.status_past_due"),   className: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    canceled:   { label: t("subscription.status_canceled"),   className: "bg-secondary text-muted-foreground" },
+    incomplete: { label: t("subscription.status_incomplete"), className: "bg-secondary text-muted-foreground" },
+  };
   const s = STATUS_LABELS[status] ?? { label: status, className: "bg-secondary text-muted-foreground" };
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${s.className}`}>{s.label}</span>;
 }
@@ -35,10 +36,19 @@ type Props = {
 };
 
 export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPeriodEnd, onSuccess }: Props) {
+  const { t, i18n } = useTranslation();
   const createCheckout = useServerFn(createProviderSubscriptionCheckout);
   const [open, setOpen] = useState(false);
   const [checkoutKey, setCheckoutKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  const STATUS_LABELS: Record<string, string> = {
+    active:     t("subscription.status_active"),
+    trialing:   t("subscription.status_trialing"),
+    past_due:   t("subscription.status_past_due"),
+    canceled:   t("subscription.status_canceled"),
+    incomplete: t("subscription.status_incomplete"),
+  };
 
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
 
@@ -51,14 +61,14 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
         },
       });
       if ("error" in result) throw new Error(result.error);
-      if (!result.clientSecret) throw new Error("Stripe n'a pas retourné de session.");
+      if (!result.clientSecret) throw new Error(t("subscription.err_no_session"));
       return result.clientSecret;
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Erreur Stripe";
+      const message = e instanceof Error ? e.message : t("subscription.err_stripe");
       setError(message);
       throw e;
     }
-  }, [createCheckout]);
+  }, [createCheckout, t]);
 
   const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
 
@@ -66,7 +76,7 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
     setError(null);
     const config = await getPaymentsConfig();
     if (!config.publishableKey) {
-      setError("Le paiement par carte n'est pas encore configuré.");
+      setError(t("subscription.err_not_configured"));
       setOpen(true);
       return;
     }
@@ -83,9 +93,9 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
     <section className="rounded-2xl border border-border bg-card p-5 mb-6">
       <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
         <div>
-          <h2 className="font-display text-lg font-bold">Abonnement prestataire</h2>
+          <h2 className="font-display text-lg font-bold">{t("provider_sub.title")}</h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Accédez aux demandes de devis des annonceurs et soyez visible dans l'annuaire.
+            {t("provider_sub.subtitle")}
           </p>
         </div>
         <SubscriptionBadge status={subscriptionStatus} />
@@ -93,10 +103,10 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
 
       {isActive ? (
         <div className="rounded-lg border border-signal/40 bg-signal/10 p-3 text-sm text-signal">
-          ✓ Abonnement actif
+          {t("provider_sub.active_label")}
           {subscriptionPeriodEnd && (
             <span className="text-muted-foreground ml-2">
-              — renouvellement le {new Date(subscriptionPeriodEnd).toLocaleDateString("fr-FR")}
+              {t("subscription.renewal", { date: new Date(subscriptionPeriodEnd).toLocaleDateString(i18n.language) })}
             </span>
           )}
         </div>
@@ -104,29 +114,29 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
         <div className="space-y-3">
           <div className="flex items-baseline gap-1.5">
             <span className="font-display text-3xl font-bold">79 €</span>
-            <span className="text-sm text-muted-foreground">HT / mois — sans engagement</span>
+            <span className="text-sm text-muted-foreground">{t("subscription.price_suffix")}</span>
           </div>
           <ul className="text-sm text-muted-foreground space-y-1">
-            <li>✓ Fiche visible dans l'annuaire prestataires</li>
-            <li>✓ Réception des demandes de devis annonceurs</li>
-            <li>✓ Accès aux campagnes en cours sur votre zone</li>
-            <li>✓ Résiliable à tout moment</li>
+            <li>{t("provider_sub.feature1")}</li>
+            <li>{t("provider_sub.feature2")}</li>
+            <li>{t("provider_sub.feature3")}</li>
+            <li>{t("subscription.feature_cancel")}</li>
           </ul>
           {subscriptionStatus && subscriptionStatus !== "canceled" && subscriptionStatus !== "incomplete" ? (
             <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-              Votre abonnement est <strong>{STATUS_LABELS[subscriptionStatus]?.label ?? subscriptionStatus}</strong>.
-              Régularisez votre situation pour continuer à recevoir des demandes.
+              {t("subscription.past_due_msg", { status: STATUS_LABELS[subscriptionStatus] ?? subscriptionStatus })}
+              {" "}{t("provider_sub.past_due_action")}
             </div>
           ) : (
             <div className="rounded-lg border border-border bg-secondary/40 p-3 text-sm text-muted-foreground">
-              Sans abonnement actif, votre fiche n'apparaît pas dans l'annuaire et vous ne recevez pas de nouvelles demandes.
+              {t("provider_sub.inactive_msg")}
             </div>
           )}
           <button
             onClick={handleOpen}
             className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
-            {subscriptionStatus === "past_due" ? "Régulariser mon abonnement" : "S'abonner — 79 € HT/mois"}
+            {subscriptionStatus === "past_due" ? t("subscription.btn_regularize") : t("provider_sub.btn_subscribe")}
           </button>
         </div>
       )}
@@ -136,9 +146,9 @@ export function ProviderSubscriptionCard({ subscriptionStatus, subscriptionPerio
           <PaymentTestModeBanner />
           <div className="space-y-4 p-6">
             <DialogHeader>
-              <DialogTitle>Abonnement prestataire MoveSpot</DialogTitle>
+              <DialogTitle>{t("provider_sub.dialog_title")}</DialogTitle>
               <DialogDescription>
-                Abonnement mensuel — sans engagement. Annulable à tout moment depuis votre espace.
+                {t("subscription.dialog_desc")}
               </DialogDescription>
             </DialogHeader>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}

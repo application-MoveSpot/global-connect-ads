@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { verifySiret } from "@/lib/providers/siret.functions";
 
@@ -18,6 +19,7 @@ export function SiretField({
   onChange: (v: SiretCheck) => void;
   required?: boolean;
 }) {
+  const { t } = useTranslation();
   const verify = useServerFn(verifySiret);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +37,8 @@ export function SiretField({
         onChange({ siret: cleaned, denomination: null, verified: false });
         setError(res.error);
       }
-    } catch (e) {
-      setError("Erreur lors de la vérification.");
+    } catch {
+      setError(t("siret.err_verify"));
     } finally {
       setLoading(false);
     }
@@ -58,7 +60,7 @@ export function SiretField({
             onChange({ siret: s, denomination: null, verified: false });
             setError(null);
           }}
-          placeholder="14 chiffres"
+          placeholder={t("siret.placeholder")}
           className="flex-1 rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <button
@@ -67,13 +69,13 @@ export function SiretField({
           disabled={loading || cleaned.length !== 14 || value.verified}
           className="rounded-lg bg-secondary text-secondary-foreground px-4 py-2.5 text-sm font-medium hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "..." : value.verified ? "✓ Vérifié" : "Vérifier"}
+          {loading ? "..." : value.verified ? t("siret.btn_verified") : t("siret.btn_verify")}
         </button>
       </div>
       {value.verified && value.denomination && (
         <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
           ✓ {value.denomination}
-          {value.isIndividual && " (entreprise individuelle — l'identité légale est le nom du chef d'entreprise)"}
+          {value.isIndividual && ` ${t("siret.individual_note")}`}
         </p>
       )}
       {error && (
@@ -81,7 +83,7 @@ export function SiretField({
       )}
       {!value.verified && !error && cleaned.length > 0 && cleaned.length !== 14 && (
         <p className="mt-1.5 text-xs text-muted-foreground">
-          {cleaned.length}/14 chiffres
+          {t("siret.digit_count", { count: cleaned.length })}
         </p>
       )}
     </div>

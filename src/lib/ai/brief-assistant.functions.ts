@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { hasAuthenticatedBriefRequest } from "./brief-auth.server";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
+import { captureServerException } from "@/lib/sentry.server";
 
 const BriefGenerateInput = z.object({
   businessContext: z.string().min(10).max(600),
@@ -24,6 +26,7 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
     BriefGenerateInput.parse(d),
   )
   .handler(async ({ data }): Promise<BriefSuggestionResult> => {
+    assertRateLimit(`brief-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     if (!(await hasAuthenticatedBriefRequest())) {
       return {
         ok: false,
@@ -81,7 +84,8 @@ Réponds UNIQUEMENT en JSON strict :
           audience: String(parsed.audience ?? "").slice(0, 200),
         },
       };
-    } catch {
+    } catch (err) {
+      captureServerException(err, { category: "ai" });
       return {
         ok: false,
         code: "AI_UNAVAILABLE",

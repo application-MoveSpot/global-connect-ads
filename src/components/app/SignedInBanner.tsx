@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -6,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
  * ouverte (ex. compte admin) : évite de créer un profil sur le mauvais compte.
  */
 export function SignedInBanner({ onSignedOut }: { onSignedOut?: () => void }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function SignedInBanner({ onSignedOut }: { onSignedOut?: () => void }) {
 
   return (
     <div className="mb-4 rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
-      Connecté en tant que <strong className="text-foreground">{email}</strong> —{" "}
+      {t("signed_in_banner.connected_as")} <strong className="text-foreground">{email}</strong> —{" "}
       <button
         type="button"
         onClick={async () => {
@@ -33,7 +35,7 @@ export function SignedInBanner({ onSignedOut }: { onSignedOut?: () => void }) {
         }}
         className="underline hover:text-foreground"
       >
-        se déconnecter pour créer un autre compte
+        {t("signed_in_banner.signout_label")}
       </button>
     </div>
   );

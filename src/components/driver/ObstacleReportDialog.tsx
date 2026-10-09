@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { reportObstacleWithToken, OBSTACLE_TYPES, IMPACT_DURATION_OPTIONS, type ObstacleType } from "@/lib/tracking/obstacle.functions";
@@ -41,6 +42,7 @@ function compressImage(file: File): Promise<CapturedPhoto> {
 }
 
 export function ObstacleReportDialog({ token }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [obstacleType, setObstacleType] = useState<ObstacleType>("travaux");
   const [description, setDescription] = useState("");
@@ -62,7 +64,7 @@ export function ObstacleReportDialog({ token }: Props) {
       const compressed = await Promise.all(toProcess.map(compressImage));
       setPhotos((prev) => [...prev, ...compressed].slice(0, 4));
     } catch {
-      toast.error("Impossible de traiter une photo");
+      toast.error(t("obstacle.err_photo"));
     } finally {
       setCompressing(false);
       // Reset input pour permettre de re-sélectionner le même fichier
@@ -86,14 +88,17 @@ export function ObstacleReportDialog({ token }: Props) {
           photoMimeTypes: photos.map((p) => p.mime),
         },
       });
-      const photoMsg = res.photoCount > 0 ? ` (${res.photoCount} photo${res.photoCount > 1 ? "s" : ""} jointe${res.photoCount > 1 ? "s" : ""})` : "";
-      toast.success(`Signalement enregistré${photoMsg}`);
+      if (res.photoCount > 0) {
+        toast.success(t("obstacle.success_photos", { count: res.photoCount, s: res.photoCount > 1 ? "s" : "" }));
+      } else {
+        toast.success(t("obstacle.success"));
+      }
       setOpen(false);
       setDescription("");
       setObstacleType("travaux");
       setPhotos([]);
     } catch {
-      toast.error("Échec du signalement — réessayez");
+      toast.error(t("obstacle.err_submit"));
     } finally {
       setSending(false);
     }
@@ -113,7 +118,7 @@ export function ObstacleReportDialog({ token }: Props) {
         onClick={() => setOpen(true)}
         className="w-full rounded-2xl border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 py-3 text-sm font-semibold hover:bg-amber-100 dark:hover:bg-amber-950/50 transition-colors"
       >
-        ⚠️ Signaler un obstacle / condition
+        ⚠️ {t("obstacle.btn_trigger")}
       </button>
     );
   }
@@ -121,27 +126,27 @@ export function ObstacleReportDialog({ token }: Props) {
   return (
     <div className="rounded-2xl border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-amber-800 dark:text-amber-300">Signaler un obstacle</h3>
+        <h3 className="font-semibold text-amber-800 dark:text-amber-300">{t("obstacle.dialog_title")}</h3>
         <button onClick={reset} className="text-xs text-muted-foreground hover:text-foreground">
-          Annuler
+          {t("obstacle.btn_cancel")}
         </button>
       </div>
 
       {/* Type d'obstacle */}
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-widest text-muted-foreground">Type</label>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("obstacle.label_type")}</label>
         <div className="grid grid-cols-2 gap-2">
-          {OBSTACLE_TYPES.map((t) => (
+          {OBSTACLE_TYPES.map((obsType) => (
             <button
-              key={t.value}
-              onClick={() => setObstacleType(t.value)}
+              key={obsType.value}
+              onClick={() => setObstacleType(obsType.value)}
               className={`rounded-xl border px-3 py-2 text-xs font-medium text-left transition-colors ${
-                obstacleType === t.value
+                obstacleType === obsType.value
                   ? "border-amber-500 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200"
                   : "border-border bg-card text-muted-foreground hover:border-amber-300"
               }`}
             >
-              {t.label}
+              {obsType.label}
             </button>
           ))}
         </div>
@@ -150,12 +155,12 @@ export function ObstacleReportDialog({ token }: Props) {
       {/* Description */}
       <div className="space-y-1">
         <label className="text-xs uppercase tracking-widest text-muted-foreground">
-          Description <span className="normal-case">(optionnel)</span>
+          {t("obstacle.label_description")} <span className="normal-case">{t("obstacle.label_optional")}</span>
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Ex : cortège bloquant l'avenue principale, verglas rue Victor Hugo…"
+          placeholder={t("obstacle.description_placeholder")}
           maxLength={500}
           rows={3}
           className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"
@@ -165,7 +170,7 @@ export function ObstacleReportDialog({ token }: Props) {
 
       {/* Durée estimée */}
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-widest text-muted-foreground">Durée estimée de l'obstacle</label>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("obstacle.label_duration")}</label>
         <div className="flex flex-wrap gap-2">
           {IMPACT_DURATION_OPTIONS.map((opt) => (
             <button
@@ -183,26 +188,26 @@ export function ObstacleReportDialog({ token }: Props) {
         </div>
         <p className="text-[10px] text-muted-foreground">
           {impactDuration != null
-            ? `Les métriques GPS seront neutralisées pendant ${impactDuration} min après validation admin.`
-            : "La fenêtre d'impact sera définie manuellement par l'admin."}
+            ? t("obstacle.impact_active", { min: impactDuration })
+            : t("obstacle.impact_manual")}
         </p>
       </div>
 
       {/* Preuves photographiques */}
       <div className="space-y-2">
         <label className="text-xs uppercase tracking-widest text-muted-foreground">
-          Preuves photographiques <span className="normal-case text-muted-foreground">(max 4)</span>
+          {t("obstacle.label_photos")} <span className="normal-case text-muted-foreground">{t("obstacle.photos_max")}</span>
         </label>
 
         {photos.length > 0 && (
           <div className="grid grid-cols-2 gap-2">
             {photos.map((p, i) => (
               <div key={i} className="relative rounded-xl overflow-hidden border border-border aspect-video bg-secondary/30">
-                <img src={p.dataUrl} alt={`Preuve ${i + 1}`} className="w-full h-full object-cover" />
+                <img src={p.dataUrl} alt={t("obstacle.photo_alt", { n: i + 1 })} className="w-full h-full object-cover" />
                 <button
                   onClick={() => removePhoto(i)}
                   className="absolute top-1 right-1 rounded-full bg-black/60 text-white p-0.5 hover:bg-black/80"
-                  aria-label="Supprimer"
+                  aria-label={t("obstacle.btn_remove_photo")}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -228,20 +233,20 @@ export function ObstacleReportDialog({ token }: Props) {
               className="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-amber-300 dark:border-amber-700 bg-transparent py-3 text-xs text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors disabled:opacity-50"
             >
               {compressing
-                ? <><Loader2 className="w-4 h-4 animate-spin" /> Traitement…</>
-                : <><Camera className="w-4 h-4" /> Prendre / choisir une photo</>
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("obstacle.btn_compressing")}</>
+                : <><Camera className="w-4 h-4" /> {t("obstacle.btn_add_photo")}</>
               }
             </button>
           </>
         )}
 
         <p className="text-[10px] text-muted-foreground">
-          Les photos sont chiffrées et accessibles uniquement à l'équipe MoveSpot. Elles servent de preuve en cas de contestation.
+          {t("obstacle.photos_info")}
         </p>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Ce signalement horodaté sera enregistré. Si l'événement est avéré, les métriques de la période pourront être neutralisées pour votre rémunération.
+        {t("obstacle.disclaimer")}
       </p>
 
       <button
@@ -250,8 +255,10 @@ export function ObstacleReportDialog({ token }: Props) {
         className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
         {sending
-          ? <><Loader2 className="w-4 h-4 animate-spin" /> Envoi en cours…</>
-          : `Envoyer le signalement${photos.length > 0 ? ` + ${photos.length} photo${photos.length > 1 ? "s" : ""}` : ""}`
+          ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("obstacle.sending")}</>
+          : photos.length > 0
+            ? t("obstacle.btn_submit_photos", { count: photos.length, s: photos.length > 1 ? "s" : "" })
+            : t("obstacle.btn_submit")
         }
       </button>
     </div>

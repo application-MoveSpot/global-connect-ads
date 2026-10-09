@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
@@ -18,9 +19,10 @@ export const Route = createFileRoute("/cookies")({
 });
 
 function Cookies() {
+  const { t } = useTranslation();
   return (
-    <LegalPage eyebrow="Traceurs" title="Politique relative aux cookies" updatedAt="12 août 2026">
-      <LegalSection title="1. Qu'est-ce qu'un cookie ?">
+    <LegalPage eyebrow={t("cookies.eyebrow")} title={t("cookies.title")} updatedAt="12 août 2026">
+      <LegalSection title={t("cookies.s1")}>
         <p>
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) lors de
           la consultation d'un site web. Il permet de stocker des informations relatives à votre navigation et
@@ -28,14 +30,14 @@ function Cookies() {
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Cookies utilisés sur MoveSpot">
+      <LegalSection title={t("cookies.s2")}>
         <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
           <thead className="bg-secondary/50">
             <tr>
-              <th className="text-left p-3 font-medium">Type</th>
-              <th className="text-left p-3 font-medium">Finalité</th>
-              <th className="text-left p-3 font-medium">Durée</th>
-              <th className="text-left p-3 font-medium">Consentement</th>
+              <th className="text-left p-3 font-medium">{t("cookies.col_type")}</th>
+              <th className="text-left p-3 font-medium">{t("cookies.col_purpose")}</th>
+              <th className="text-left p-3 font-medium">{t("cookies.col_duration")}</th>
+              <th className="text-left p-3 font-medium">{t("cookies.col_consent")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -92,7 +94,7 @@ function Cookies() {
         </table>
       </LegalSection>
 
-      <LegalSection title="3. Vos choix">
+      <LegalSection title={t("cookies.s3")}>
         <p>
           Lors de votre première visite, un bandeau vous permet d'accepter, refuser ou personnaliser les cookies non
           essentiels. Vous pouvez à tout moment modifier vos préférences via le lien « Gérer mes cookies » présent en
@@ -100,7 +102,7 @@ function Cookies() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Paramétrage via votre navigateur">
+      <LegalSection title={t("cookies.s4")}>
         <p>
           Vous pouvez également configurer votre navigateur pour bloquer ou supprimer les cookies. La désactivation
           de certains cookies peut toutefois altérer le bon fonctionnement de la Plateforme.
@@ -113,14 +115,14 @@ function Cookies() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="5. Durée de conservation du consentement">
+      <LegalSection title={t("cookies.s5")}>
         <p>
           Votre choix concernant les cookies est conservé pendant 6 mois. Au terme de cette période, le bandeau de
           consentement vous sera de nouveau présenté.
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Emails : aucun pixel de traçage">
+      <LegalSection title={t("cookies.s6")}>
         <p>
           Les emails envoyés par MoveSpot depuis le domaine <strong>notify.move-spot.com</strong> ne contiennent aucun
           pixel espion ni traceur publicitaire. Les emails d'information commerciale comportent un lien de
@@ -130,7 +132,7 @@ function Cookies() {
       </LegalSection>
 
 
-      <LegalSection title="7. Contact">
+      <LegalSection title={t("cookies.s7")}>
         <p>
           Pour toute question relative à cette politique cookies, contactez-nous à
           <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.

@@ -6,6 +6,7 @@ import { PROVIDER_SERVICES, providerServiceLabel } from "@/lib/providers/provide
 import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 const VIDEO_EXTENSIONS = new Set(["mp4", "webm", "mov", "avi", "mkv"]);
 function isVideoUrl(url: string) {
@@ -47,6 +48,7 @@ type Provider = {
 };
 
 function ProviderDetailPage() {
+  const { t } = useTranslation();
   const { providerId } = Route.useParams();
   const navigate = useNavigate();
   const [provider, setProvider] = useState<Provider | null>(null);
@@ -117,9 +119,9 @@ function ProviderDetailPage() {
     setError("");
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/annonceur/inscription" }); return; }
-    if (message.trim().length < 20) { setError("Décrivez votre besoin (au moins 20 caractères)."); return; }
+    if (message.trim().length < 20) { setError(t("prestataires.detail.error.short_message")); return; }
     const contactHit = detectContact(message);
-    if (contactHit) { setError(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.`); return; }
+    if (contactHit) { setError(t("prestataires.detail.error.contact_detected")); return; }
     setSubmitting(true);
     const { error: insErr } = await supabase.from("service_quotes").insert({
       advertiser_id: sess.session.user.id,
@@ -137,11 +139,11 @@ function ProviderDetailPage() {
     setSent(true); setShowForm(false);
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
   if (!provider) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-3">
-      <p className="text-muted-foreground">Prestataire introuvable.</p>
-      <Link to="/prestataires" className="text-primary hover:underline">← Annuaire</Link>
+      <p className="text-muted-foreground">{t("prestataires.detail.not_found")}</p>
+      <Link to="/prestataires" className="text-primary hover:underline">{t("prestataires.detail.back")}</Link>
     </div>
   );
 
@@ -150,7 +152,7 @@ function ProviderDetailPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/prestataires" className="text-sm text-muted-foreground hover:text-foreground">← Annuaire</Link>
+          <Link to="/prestataires" className="text-sm text-muted-foreground hover:text-foreground">{t("prestataires.detail.back")}</Link>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">
@@ -164,7 +166,7 @@ function ProviderDetailPage() {
           )}
           <div className="flex-1 min-w-0">
             <h1 className="font-display text-3xl font-bold">{provider.company}</h1>
-            <p className="text-sm text-muted-foreground">Contact : {provider.full_name}</p>
+            <p className="text-sm text-muted-foreground">{t("common.contact_label")} {provider.full_name}</p>
             {provider.website && <a href={provider.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">{provider.website}</a>}
             {provider.services && provider.services.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
@@ -175,11 +177,11 @@ function ProviderDetailPage() {
         </div>
 
         <section className="rounded-2xl border border-border bg-card p-6 mb-4 space-y-3">
-          <h2 className="font-semibold">À propos</h2>
+          <h2 className="font-semibold">{t("prestataires.detail.about")}</h2>
           <p className="text-sm whitespace-pre-wrap">{provider.description}</p>
           {provider.coverage_areas.length > 0 && (
             <div>
-              <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">Zones d'intervention</div>
+              <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">{t("prestataires.detail.coverage_areas")}</div>
               <div className="flex flex-wrap gap-1">
                 {provider.coverage_areas.map((z) => (
                   <span key={z} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{z}</span>
@@ -189,7 +191,7 @@ function ProviderDetailPage() {
           )}
           {provider.pricing_info && (
             <div>
-              <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">Indications tarifaires</div>
+              <div className="text-xs font-semibold uppercase text-muted-foreground mb-1">{t("prestataires.detail.pricing")}</div>
               <p className="text-sm whitespace-pre-wrap">{provider.pricing_info}</p>
             </div>
           )}
@@ -197,7 +199,7 @@ function ProviderDetailPage() {
 
         {portfolioSigned.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-6 mb-4">
-            <h2 className="font-semibold mb-3">Portfolio</h2>
+            <h2 className="font-semibold mb-3">{t("prestataires.detail.portfolio")}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {portfolioSigned.map((u) => (
                 <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-border bg-secondary hover:opacity-90">
@@ -215,13 +217,13 @@ function ProviderDetailPage() {
 
         {sent ? (
           <div className="rounded-2xl border border-signal/40 bg-signal/10 p-6 text-sm">
-            ✓ Demande envoyée à {provider.company}. Vous serez notifié dès la réponse. <Link to="/annonceur" className="text-primary font-semibold hover:underline">Voir mes demandes</Link>
+            {t("prestataires.detail.request_sent", { company: provider.company })} <Link to="/annonceur" className="text-primary font-semibold hover:underline">{t("prestataires.detail.see_requests")}</Link>
           </div>
         ) : showForm ? (
           <form onSubmit={submitQuote} className="rounded-2xl border border-border bg-card p-6 space-y-4">
-            <h2 className="font-semibold">Demander un devis</h2>
+            <h2 className="font-semibold">{t("prestataires.detail.quote_title")}</h2>
             {provider.services && provider.services.length > 1 && (
-              <Field label="Type de prestation">
+              <Field label={t("prestataires.detail.service_type")}>
                 <div className="flex flex-wrap gap-2">
                   {PROVIDER_SERVICES.filter((s) => provider.services.includes(s.key)).map((s) => (
                     <button
@@ -239,37 +241,37 @@ function ProviderDetailPage() {
               </Field>
             )}
             <div className="grid sm:grid-cols-2 gap-3">
-              <Input label="Type de véhicule" value={vehicleType} onChange={setVehicleType} placeholder="Ex. Food truck, van" />
-              <Input label="Format" value={format} onChange={setFormat} placeholder="Total / demi-covering, stickers…" />
-              <Input label="Quantité" type="number" value={quantity} onChange={setQuantity} placeholder="Nombre de véhicules" />
-              <Input label="Échéance souhaitée" type="date" value={deadline} onChange={setDeadline} />
-              <div className="sm:col-span-2"><Input label="Zone (lieu de pose)" value={zone} onChange={setZone} /></div>
+              <Input label={t("prestataires.detail.vehicle_type")} value={vehicleType} onChange={setVehicleType} placeholder="Ex. Food truck, van" />
+              <Input label={t("prestataires.detail.format_label")} value={format} onChange={setFormat} placeholder="Total / demi-covering, stickers…" />
+              <Input label={t("prestataires.detail.quantity")} type="number" value={quantity} onChange={setQuantity} placeholder="Nombre de véhicules" />
+              <Input label={t("prestataires.detail.deadline")} type="date" value={deadline} onChange={setDeadline} />
+              <div className="sm:col-span-2"><Input label={t("prestataires.detail.zone")} value={zone} onChange={setZone} /></div>
             </div>
-            <Field label="Détail du besoin">
+            <Field label={t("prestataires.detail.need_detail")}>
               <textarea value={message} onChange={(e) => setMessage(e.target.value)} required maxLength={2000} rows={5}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
                 placeholder="Visuel disponible, contraintes, références…" />
               {detectContact(message) && (
                 <div className="mt-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                  🚫 {detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.
+                  {t("prestataires.detail.contact_detected")}
                 </div>
               )}
             </Field>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
             <div className="rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
-              ⚠ Tout accord conclu <strong>hors de la plateforme</strong> (paiement direct, contrat privé) n'est pas couvert par les garanties MoveSpot — ni la modération, ni le suivi GPS, ni le reversement sécurisé.
+              {t("prestataires.detail.off_platform_warning")}
             </div>
             <div className="flex gap-2">
               <button disabled={submitting} className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 font-semibold hover:bg-primary/90 disabled:opacity-50">
-                {submitting ? "Envoi…" : "Envoyer la demande"}
+                {submitting ? t("common.sending") : t("prestataires.detail.send_request_btn")}
               </button>
-              <button type="button" onClick={() => setShowForm(false)} className="rounded-full border border-border px-6 py-2.5 hover:bg-secondary">Annuler</button>
+              <button type="button" onClick={() => setShowForm(false)} className="rounded-full border border-border px-6 py-2.5 hover:bg-secondary">{t("common.cancel")}</button>
             </div>
           </form>
         ) : (
           <button onClick={() => { if (!authed) navigate({ to: "/annonceur/inscription" }); else setShowForm(true); }}
             className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90">
-            Demander un devis
+            {t("prestataires.detail.request_quote_btn")}
           </button>
         )}
       </main>

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import {
   listRefundRequestsForAdmin,
   reviewRefundRequest,
@@ -21,13 +22,6 @@ export const Route = createFileRoute("/admin/remboursements")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-const STATUS_LABEL: Record<string, string> = {
-  pending: "En attente",
-  approved: "Approuvée",
-  rejected: "Refusée",
-  processed: "Remboursée",
-};
-
 const STATUS_COLOR: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
   approved: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
@@ -35,12 +29,8 @@ const STATUS_COLOR: Record<string, string> = {
   processed: "bg-primary/10 text-primary border-primary/30",
 };
 
-function fmt(cents: number | null) {
-  if (cents == null) return "—";
-  return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
-}
-
 function AdminRemboursementsPage() {
+  const { t, i18n } = useTranslation();
   const fetchRows = useServerFn(listRefundRequestsForAdmin);
   const review = useServerFn(reviewRefundRequest);
 
@@ -49,13 +39,18 @@ function AdminRemboursementsPage() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
+  function fmt(cents: number | null) {
+    if (cents == null) return "—";
+    return (cents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
+  }
+
   const reload = async (f = filter) => {
     setLoading(true);
     try {
       const res = await fetchRows({ data: { status: f === "all" ? undefined : f } });
       setRows(res.requests);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur de chargement");
+      toast.error(e instanceof Error ? e.message : t("admin.refunds.loading_error"));
     } finally {
       setLoading(false);
     }
@@ -71,12 +66,12 @@ function AdminRemboursementsPage() {
     let stripeRefundId: string | undefined;
 
     if (status === "rejected") {
-      const note = window.prompt("Motif du refus (visible par l'annonceur) :");
-      if (note === null) return; // cancelled
+      const note = window.prompt(t("admin.refunds.reject_reason"));
+      if (note === null) return;
       adminNotes = note || undefined;
     }
     if (status === "processed") {
-      const refId = window.prompt("ID de remboursement Stripe (optionnel) :");
+      const refId = window.prompt(t("admin.refunds.stripe_refund_prompt"));
       if (refId === null) return;
       stripeRefundId = refId || undefined;
     }
@@ -85,7 +80,7 @@ function AdminRemboursementsPage() {
     try {
       const res = await review({ data: { id, status, adminNotes, stripeRefundId } });
       if (!res.ok) throw new Error((res as { error?: string }).error ?? "Erreur");
-      toast.success("Demande mise à jour.");
+      toast.success(t("admin.refunds.updated"));
       await reload();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
@@ -95,12 +90,18 @@ function AdminRemboursementsPage() {
   };
 
   const FILTERS = ["pending", "approved", "rejected", "processed", "all"] as const;
-  const FILTER_LABELS: Record<string, string> = {
-    pending: "En attente",
-    approved: "Approuvées",
-    rejected: "Refusées",
-    processed: "Remboursées",
-    all: "Toutes",
+  const FILTER_LABEL_KEYS: Record<string, string> = {
+    pending: "admin.refunds.filter_pending",
+    approved: "admin.refunds.filter_approved",
+    rejected: "admin.refunds.filter_rejected",
+    processed: "admin.refunds.filter_processed",
+    all: "admin.refunds.filter_all",
+  };
+  const STATUS_LABEL_KEYS: Record<string, string> = {
+    pending: "admin.refunds.status_pending",
+    approved: "admin.refunds.status_approved",
+    rejected: "admin.refunds.status_rejected",
+    processed: "admin.refunds.status_processed",
   };
 
   return (
@@ -109,9 +110,9 @@ function AdminRemboursementsPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Remboursements</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("admin.refunds.title")}</h1>
           </div>
-          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">← Dashboard</a>
+          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.refunds.back")}</a>
         </div>
       </header>
 
@@ -126,7 +127,7 @@ function AdminRemboursementsPage() {
                 filter === f ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
               }`}
             >
-              {FILTER_LABELS[f]}
+              {t(FILTER_LABEL_KEYS[f])}
             </button>
           ))}
         </div>
@@ -143,7 +144,7 @@ function AdminRemboursementsPage() {
           </div>
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            Aucune demande dans cette catégorie.
+            {t("admin.refunds.empty")}
           </div>
         ) : (
           <div className="space-y-4">
@@ -156,15 +157,15 @@ function AdminRemboursementsPage() {
                     <p className="text-xs text-muted-foreground font-mono">{r.user_id}</p>
                     {r.campaign_request_id && (
                       <p className="text-xs text-muted-foreground">
-                        Campagne : <span className="font-mono">{r.campaign_request_id}</span>
+                        {t("admin.refunds.campaign")} <span className="font-mono">{r.campaign_request_id}</span>
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Déposée le {new Date(r.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                      {t("admin.refunds.submitted_at", { date: new Date(r.created_at).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric" }) })}
                     </p>
                   </div>
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${STATUS_COLOR[r.status] ?? ""}`}>
-                    {STATUS_LABEL[r.status] ?? r.status}
+                    {STATUS_LABEL_KEYS[r.status] ? t(STATUS_LABEL_KEYS[r.status]) : r.status}
                   </span>
                 </div>
 
@@ -176,11 +177,11 @@ function AdminRemboursementsPage() {
                 {/* Note admin existante */}
                 {r.admin_notes && (
                   <div className="rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-xs">
-                    <strong>Note admin :</strong> {r.admin_notes}
+                    <strong>{t("admin.refunds.admin_note")}</strong> {r.admin_notes}
                   </div>
                 )}
                 {r.stripe_refund_id && (
-                  <p className="text-xs text-muted-foreground">Stripe refund ID : <span className="font-mono">{r.stripe_refund_id}</span></p>
+                  <p className="text-xs text-muted-foreground">{t("admin.refunds.stripe_refund_id")} <span className="font-mono">{r.stripe_refund_id}</span></p>
                 )}
 
                 {/* Actions */}
@@ -191,14 +192,14 @@ function AdminRemboursementsPage() {
                       disabled={busy}
                       className="rounded-lg bg-emerald-500/15 text-emerald-700 border border-emerald-500/40 px-4 py-2 text-sm font-semibold hover:bg-emerald-500/25 disabled:opacity-50 transition"
                     >
-                      ✓ Approuver
+                      {t("admin.refunds.approve")}
                     </button>
                     <button
                       onClick={() => onAction(r.id, "rejected")}
                       disabled={busy}
                       className="rounded-lg bg-destructive/10 text-destructive border border-destructive/30 px-4 py-2 text-sm font-semibold hover:bg-destructive/20 disabled:opacity-50 transition"
                     >
-                      ✕ Refuser
+                      {t("admin.refunds.reject")}
                     </button>
                   </div>
                 )}
@@ -208,7 +209,7 @@ function AdminRemboursementsPage() {
                     disabled={busy}
                     className="rounded-lg bg-primary/10 text-primary border border-primary/30 px-4 py-2 text-sm font-semibold hover:bg-primary/20 disabled:opacity-50 transition"
                   >
-                    💸 Marquer comme remboursé
+                    {t("admin.refunds.mark_processed")}
                   </button>
                 )}
               </div>

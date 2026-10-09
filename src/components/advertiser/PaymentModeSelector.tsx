@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { RefreshCw, Wallet } from "lucide-react";
 import { CampaignPaymentCheckout } from "./CampaignPaymentCheckout";
 import { CampaignTrialCheckout } from "./CampaignTrialCheckout";
@@ -19,12 +19,13 @@ export function PaymentModeSelector({
   vehicleQuantity,
   onPaid,
 }: Props) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>("onetime");
 
   return (
     <div className="space-y-4">
       <p className="text-sm font-semibold text-foreground">
-        Comment souhaitez-vous régler cette campagne ?
+        {t("payment_mode.question")}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -32,17 +33,17 @@ export function PaymentModeSelector({
           selected={mode === "onetime"}
           onClick={() => setMode("onetime")}
           icon={<Wallet className="h-5 w-5" />}
-          title="Paiement unique"
-          description={`${totalPriceEur.toFixed(2)} € — portefeuille, carte ou virement`}
-          badge="Campagne ponctuelle"
+          title={t("payment_mode.onetime_title")}
+          description={t("payment_mode.onetime_desc", { price: totalPriceEur.toFixed(2) })}
+          badge={t("payment_mode.onetime_badge")}
         />
         <ModeCard
           selected={mode === "subscription"}
           onClick={() => setMode("subscription")}
           icon={<RefreshCw className="h-5 w-5" />}
-          title="Abonnement mensuel"
-          description="14 jours d'essai gratuit — résiliable à tout moment"
-          badge="Campagne récurrente"
+          title={t("payment_mode.subscription_title")}
+          description={t("payment_mode.subscription_desc")}
+          badge={t("payment_mode.subscription_badge")}
         />
       </div>
 
@@ -56,14 +57,14 @@ export function PaymentModeSelector({
         )}
         {mode === "subscription" && (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              L'abonnement est facturé <strong>{vehicleQuantity} véhicule{vehicleQuantity > 1 ? "s" : ""}</strong> × tarif mensuel.
-              Aucun prélèvement pendant 14 jours · annulable à tout moment pendant l'essai.
-            </p>
+            <p
+              className="text-sm text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: t("payment_mode.subscription_billing", { count: vehicleQuantity }) }}
+            />
             <CampaignTrialCheckout
               campaignRequestId={campaignRequestId}
               vehicleQuantity={vehicleQuantity}
-              buttonLabel="Activer l'essai gratuit de 14 jours"
+              buttonLabel={t("payment_mode.btn_trial")}
             />
           </div>
         )}

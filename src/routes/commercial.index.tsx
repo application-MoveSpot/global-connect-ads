@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import {
   getCommercialDashboard,
   type CommercialProfile,
@@ -36,12 +37,12 @@ export const Route = createFileRoute("/commercial/")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: "En attente", color: "text-amber-600 bg-amber-500/10" },
-  approved: { label: "Approuvée", color: "text-emerald-600 bg-emerald-500/10" },
-  paid: { label: "Payée", color: "text-emerald-600 bg-emerald-500/10" },
-  completed: { label: "Terminée", color: "text-blue-600 bg-blue-500/10" },
-  rejected: { label: "Refusée", color: "text-red-600 bg-red-500/10" },
+const STATUS_COLORS: Record<string, string> = {
+  pending: "text-amber-600 bg-amber-500/10",
+  approved: "text-emerald-600 bg-emerald-500/10",
+  paid: "text-emerald-600 bg-emerald-500/10",
+  completed: "text-blue-600 bg-blue-500/10",
+  rejected: "text-red-600 bg-red-500/10",
 };
 
 function KitMessage({
@@ -59,6 +60,7 @@ function KitMessage({
   onCopy: (key: string, text: string) => void;
   text: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
@@ -75,7 +77,7 @@ function KitMessage({
           ) : (
             <Copy className="w-3.5 h-3.5" />
           )}
-          {copiedKey === msgKey ? "Copié !" : "Copier"}
+          {copiedKey === msgKey ? t("common.copied") : t("common.copy")}
         </button>
       </div>
       <pre className="text-xs text-muted-foreground bg-background border border-border rounded-lg p-3 whitespace-pre-wrap leading-relaxed font-sans">
@@ -86,6 +88,7 @@ function KitMessage({
 }
 
 function CommercialDashboard() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dashFn = useServerFn(getCommercialDashboard);
   const [loading, setLoading] = useState(true);
@@ -115,7 +118,7 @@ function CommercialDashboard() {
             navigate({ to: "/commercial/inscription" });
             return;
           }
-          setError(res.error ?? "Erreur");
+          setError(res.error ?? t("common.error"));
         } else {
           setError(null);
           setProfile(res.profile);
@@ -125,7 +128,7 @@ function CommercialDashboard() {
           setPaidCents(res.paidCommissionCents);
         }
       } catch {
-        setError("Impossible de charger les données. Vérifiez votre connexion.");
+        setError(t("commercial.dashboard.load_error"));
       } finally {
         setLoading(false);
         setRetrying(false);
@@ -165,7 +168,7 @@ function CommercialDashboard() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Chargement…
+        {t("common.loading")}
       </div>
     );
 
@@ -175,13 +178,13 @@ function CommercialDashboard() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Espace commercial</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("commercial.dashboard.title")}</h1>
           </div>
           <Link
             to="/"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4" /> Accueil
+            <ArrowLeft className="w-4 h-4" /> {t("commercial.dashboard.home")}
           </Link>
         </div>
       </header>
@@ -197,11 +200,10 @@ function CommercialDashboard() {
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                  Votre lien de parrainage
+                  {t("commercial.dashboard.referral_link_label")}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Partagez ce lien — chaque annonceur inscrit via ce lien vous est automatiquement
-                  attribué.
+                  {t("commercial.dashboard.referral_link_desc")}
                 </p>
               </div>
               <span className="text-xs font-mono bg-primary/10 text-primary px-3 py-1 rounded-full">
@@ -221,15 +223,11 @@ function CommercialDashboard() {
                 ) : (
                   <Copy className="w-3.5 h-3.5" />
                 )}
-                {copied ? "Copié" : "Copier"}
+                {copied ? t("common.copied") : t("common.copy")}
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Commission :{" "}
-              <strong className="text-foreground">
-                {Math.round((profile.commission_rate ?? 0.1) * 100)} %
-              </strong>{" "}
-              du montant hors taxes de chaque campagne réalisée.
+              {t("commercial.dashboard.commission_rate", { rate: Math.round((profile.commission_rate ?? 0.1) * 100) })}
             </p>
           </div>
         )}
@@ -242,8 +240,8 @@ function CommercialDashboard() {
           >
             <div className="flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-amber-500" />
-              <span className="font-semibold text-sm">Kit de prospection</span>
-              <span className="text-xs text-muted-foreground">Messages prêts à envoyer</span>
+              <span className="font-semibold text-sm">{t("commercial.dashboard.kit_title")}</span>
+              <span className="text-xs text-muted-foreground">{t("commercial.dashboard.kit_subtitle")}</span>
             </div>
             {kitOpen ? (
               <ChevronUp className="w-4 h-4 text-muted-foreground" />
@@ -256,7 +254,7 @@ function CommercialDashboard() {
             <div className="px-6 pb-6 space-y-4 border-t border-border pt-4">
               <KitMessage
                 icon={<MessageSquare className="w-4 h-4 text-emerald-500" />}
-                label="WhatsApp / SMS"
+                label={t("commercial.dashboard.kit_whatsapp_label")}
                 msgKey="whatsapp"
                 copiedKey={copiedKit}
                 onCopy={copyKit}
@@ -264,7 +262,7 @@ function CommercialDashboard() {
               />
               <KitMessage
                 icon={<Mail className="w-4 h-4 text-blue-500" />}
-                label="Email / LinkedIn"
+                label={t("commercial.dashboard.kit_email_label")}
                 msgKey="email"
                 copiedKey={copiedKit}
                 onCopy={copyKit}
@@ -272,15 +270,15 @@ function CommercialDashboard() {
               />
               <div className="rounded-xl bg-secondary/50 border border-border p-4 space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  Arguments clés à retenir
+                  {t("commercial.dashboard.kit_args_title")}
                 </p>
                 <ul className="space-y-1.5 text-sm text-muted-foreground">
                   {[
-                    "Paiement au km² réel, pas au clic ni à l'impression estimée",
-                    "GPS embarqué = preuve de diffusion, pas une promesse",
-                    "Visible en extérieur, de jour, dans les zones passantes",
-                    "Idéal pour commerces locaux, restaurants, immobilier, services",
-                    "Inscription gratuite pour l'annonceur — aucun risque pour lui",
+                    t("commercial.dashboard.kit_arg1"),
+                    t("commercial.dashboard.kit_arg2"),
+                    t("commercial.dashboard.kit_arg3"),
+                    t("commercial.dashboard.kit_arg4"),
+                    t("commercial.dashboard.kit_arg5"),
                   ].map((arg) => (
                     <li key={arg} className="flex items-start gap-2">
                       <span className="text-primary mt-0.5">•</span>
@@ -299,40 +297,40 @@ function CommercialDashboard() {
             <div className="flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-muted-foreground" />
               <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                Clients apportés
+                {t("commercial.dashboard.clients_count")}
               </p>
             </div>
             <p className="font-display text-3xl font-bold">{clients.length}</p>
           </div>
           <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">
-              Commissions générées
+              {t("commercial.dashboard.commissions_generated")}
             </p>
             <p className="font-display text-3xl font-bold text-primary">
-              {(totalCents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {(totalCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
             </p>
           </div>
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-1">
             <div className="flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
               <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                Commissions versées
+                {t("commercial.dashboard.commissions_paid")}
               </p>
             </div>
             <p className="font-display text-3xl font-bold text-emerald-600">
-              {(paidCents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+              {(paidCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
             </p>
           </div>
         </div>
 
         {/* Clients */}
         <section>
-          <h2 className="font-semibold text-lg mb-3">Mes clients ({clients.length})</h2>
+          <h2 className="font-semibold text-lg mb-3">{t("commercial.dashboard.clients_title", { count: clients.length })}</h2>
           {clients.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
-              <p className="text-muted-foreground text-sm">Aucun client pour l'instant.</p>
+              <p className="text-muted-foreground text-sm">{t("commercial.dashboard.no_clients")}</p>
               <p className="text-muted-foreground text-xs mt-1">
-                Partagez votre lien de parrainage pour commencer.
+                {t("commercial.dashboard.no_clients_hint")}
               </p>
             </div>
           ) : (
@@ -347,7 +345,7 @@ function CommercialDashboard() {
                     {c.company && <p className="text-xs text-muted-foreground">{c.company}</p>}
                   </div>
                   <span className="text-xs text-muted-foreground shrink-0">
-                    {new Date(c.created_at).toLocaleDateString("fr-FR")}
+                    {new Date(c.created_at).toLocaleDateString(i18n.language)}
                   </span>
                 </div>
               ))}
@@ -358,19 +356,17 @@ function CommercialDashboard() {
         {/* Campagnes */}
         <section>
           <h2 className="font-semibold text-lg mb-3">
-            Campagnes & commissions ({campaigns.length})
+            {t("commercial.dashboard.campaigns_title", { count: campaigns.length })}
           </h2>
           {campaigns.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
-              <p className="text-muted-foreground text-sm">Aucune campagne pour l'instant.</p>
+              <p className="text-muted-foreground text-sm">{t("commercial.dashboard.no_campaigns")}</p>
             </div>
           ) : (
             <div className="space-y-2">
               {campaigns.map((camp) => {
-                const st = STATUS_LABELS[camp.status] ?? {
-                  label: camp.status,
-                  color: "text-muted-foreground bg-muted",
-                };
+                const stColor = STATUS_COLORS[camp.status] ?? "text-muted-foreground bg-muted";
+                const stLabel = t(`commercial.dashboard.status_${camp.status}`, { defaultValue: camp.status });
                 return (
                   <div key={camp.id} className="rounded-xl border border-border bg-card px-5 py-3">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -380,13 +376,13 @@ function CommercialDashboard() {
                             {camp.spot_name}
                           </span>
                           <span
-                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${st.color}`}
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${stColor}`}
                           >
-                            {st.label}
+                            {stLabel}
                           </span>
                           {camp.commission_paid_at && (
                             <span className="text-xs font-semibold px-2 py-0.5 rounded-full text-emerald-600 bg-emerald-500/10">
-                              Commission versée
+                              {t("commercial.dashboard.commission_paid_badge")}
                             </span>
                           )}
                         </div>
@@ -395,7 +391,7 @@ function CommercialDashboard() {
                       <div className="text-right shrink-0">
                         {camp.commission_amount_cents != null && (
                           <p className="font-display text-lg font-bold text-primary">
-                            {(camp.commission_amount_cents / 100).toLocaleString("fr-FR", {
+                            {(camp.commission_amount_cents / 100).toLocaleString(i18n.language, {
                               style: "currency",
                               currency: "EUR",
                             })}
@@ -403,8 +399,8 @@ function CommercialDashboard() {
                         )}
                         {camp.total_price != null && (
                           <p className="text-xs text-muted-foreground">
-                            Campagne :{" "}
-                            {camp.total_price.toLocaleString("fr-FR", {
+                            {t("commercial.dashboard.campaign_amount")}{" "}
+                            {camp.total_price.toLocaleString(i18n.language, {
                               style: "currency",
                               currency: "EUR",
                             })}
@@ -421,13 +417,12 @@ function CommercialDashboard() {
 
         {/* Note de versement */}
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-muted-foreground">
-          <strong className="text-foreground">Versement des commissions :</strong> Les commissions
-          sont calculées et versées par virement bancaire à la fin de chaque mois, après validation
-          et paiement des campagnes concernées. Contactez{" "}
+          <strong className="text-foreground">{t("commercial.dashboard.payment_note_title")}</strong>{" "}
+          {t("commercial.dashboard.payment_note_body")}{" "}
           <a href="mailto:contact@movespot.fr" className="underline text-foreground">
             contact@movespot.fr
           </a>{" "}
-          pour vos coordonnées bancaires.
+          {t("commercial.dashboard.payment_note_suffix")}
         </div>
       </main>
     </div>

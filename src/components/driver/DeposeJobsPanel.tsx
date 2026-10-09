@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -23,9 +24,9 @@ type DeposeJob = {
   depose_fee_cents: number | null;
 };
 
-const fr = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : "—");
-const eur = (n: number | null) =>
-  n != null ? (n / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" }) : null;
+const fr = (d: string | null, lang: string) => (d ? new Date(d).toLocaleDateString(lang) : "—");
+const eur = (n: number | null, lang: string) =>
+  n != null ? (n / 100).toLocaleString(lang, { style: "currency", currency: "EUR" }) : null;
 
 function daysAfter(dateStr: string | null): number | null {
   if (!dateStr) return null;
@@ -44,6 +45,7 @@ function isClaimed(photos: unknown): boolean {
 }
 
 export function DeposeJobsPanel() {
+  const { t, i18n } = useTranslation();
   const fetchJobs = useServerFn(listDeposeJobs);
   const doClaim = useServerFn(claimDeposeJob);
   const doUnclaim = useServerFn(unclaimDeposeJob);
@@ -67,10 +69,10 @@ export function DeposeJobsPanel() {
     setClaiming(jobId);
     try {
       await doClaim({ data: { campaignRequestId: jobId } });
-      toast.success("Mission de dépose réservée.");
+      toast.success(t("depose_jobs.toast_claimed"));
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erreur lors de la réservation.");
+      toast.error(e instanceof Error ? e.message : t("depose_jobs.err_claim"));
     } finally {
       setClaiming(null);
     }
@@ -80,10 +82,10 @@ export function DeposeJobsPanel() {
     setClaiming(jobId);
     try {
       await doUnclaim({ data: { campaignRequestId: jobId } });
-      toast.success("Mission libérée.");
+      toast.success(t("depose_jobs.toast_released"));
       load();
     } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : "Erreur.");
+      toast.error(e instanceof Error ? e.message : t("depose_jobs.err_release"));
     } finally {
       setClaiming(null);
     }
@@ -92,7 +94,7 @@ export function DeposeJobsPanel() {
   if (jobs === null) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
-        Chargement des missions de dépose…
+        {t("depose_jobs.loading")}
       </div>
     );
   }
@@ -100,10 +102,9 @@ export function DeposeJobsPanel() {
   if (!isInstaller) {
     return (
       <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-display text-lg font-semibold">Missions de dépose</h3>
+        <h3 className="font-display text-lg font-semibold">{t("depose_jobs.title")}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Réservé aux poseurs certifiés MoveSpot. Les déposes apparaissent ici une fois la pose validée et la
-          campagne terminée.
+          {t("depose_jobs.not_installer_desc")}
         </p>
       </div>
     );
@@ -112,18 +113,18 @@ export function DeposeJobsPanel() {
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-lg font-semibold">Missions de dépose</h3>
+        <h3 className="font-display text-lg font-semibold">{t("depose_jobs.title")}</h3>
         <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-          {jobs.length} en attente
+          {t("depose_jobs.badge_count", { count: jobs.length })}
         </span>
       </div>
 
       <p className="mb-4 text-sm text-muted-foreground">
-        Ces campagnes sont terminées — le covering doit être retiré. Réservez la mission, retirez le covering, photographiez les 4 vues et transmettez.
+        {t("depose_jobs.description")}
       </p>
 
       {jobs.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucune dépose en attente pour le moment.</p>
+        <p className="text-sm text-muted-foreground">{t("depose_jobs.empty")}</p>
       ) : (
         <div className="space-y-4">
           {jobs.map((job) => {
@@ -146,11 +147,11 @@ export function DeposeJobsPanel() {
                   <div className="text-right space-y-0.5">
                     {job.depose_fee_cents != null && (
                       <p className="text-xs font-semibold text-primary">
-                        Rémunération dépose : {eur(job.depose_fee_cents)}
+                        {t("depose_jobs.remuneration", { amount: eur(job.depose_fee_cents, i18n.language) })}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {fr(job.start_date)} → {fr(job.end_date)}
+                      {fr(job.start_date, i18n.language)} → {fr(job.end_date, i18n.language)}
                     </p>
                   </div>
                 </div>
@@ -160,9 +161,9 @@ export function DeposeJobsPanel() {
                   <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}>
                     <span>{urgent ? "⏰" : "📅"}</span>
                     {daysElapsed === 0
-                      ? "Campagne terminée aujourd'hui — dépose à planifier"
-                      : `Campagne terminée depuis ${daysElapsed} jour${daysElapsed > 1 ? "s" : ""}`}
-                    {urgent ? " — dépose urgente" : ""}
+                      ? t("depose_jobs.urgency_today")
+                      : t("depose_jobs.urgency_days", { count: daysElapsed, s: daysElapsed > 1 ? "s" : "" })}
+                    {urgent ? t("depose_jobs.urgency_suffix") : ""}
                   </div>
                 )}
 
@@ -170,7 +171,7 @@ export function DeposeJobsPanel() {
                 {(job.spot_location || maps) && (
                   <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
                     <span>📍</span>
-                    <span>{job.spot_location ?? "Localisation non précisée"}</span>
+                    <span>{job.spot_location ?? t("depose_jobs.location_unknown")}</span>
                     {maps && (
                       <a
                         href={maps}
@@ -178,7 +179,7 @@ export function DeposeJobsPanel() {
                         rel="noopener noreferrer"
                         className="ml-auto shrink-0 rounded-lg border border-border bg-card px-2 py-1 font-semibold text-primary hover:bg-secondary transition"
                       >
-                        Itinéraire →
+                        {t("depose_jobs.directions")}
                       </a>
                     )}
                   </div>
@@ -191,12 +192,12 @@ export function DeposeJobsPanel() {
                     disabled={claiming === job.id}
                     className="mb-3 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
                   >
-                    {claiming === job.id ? "Réservation…" : "✋ Je prends cette dépose"}
+                    {claiming === job.id ? t("depose_jobs.btn_claiming") : t("depose_jobs.btn_claim")}
                   </button>
                 ) : (
                   <div className="mb-3 flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      ✅ Mission réservée par vous
+                      {t("depose_jobs.claimed")}
                     </span>
                     {job.depose_status === "pending" && (
                       <button
@@ -204,7 +205,7 @@ export function DeposeJobsPanel() {
                         disabled={claiming === job.id}
                         className="text-xs text-muted-foreground hover:text-destructive underline transition disabled:opacity-50"
                       >
-                        Libérer
+                        {t("depose_jobs.btn_release")}
                       </button>
                     )}
                   </div>

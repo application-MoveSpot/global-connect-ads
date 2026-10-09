@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { captureServerException, withSentryCapture } from "@/lib/sentry.server";
 
 // ================== ADVERTISER — Wallet top-up via Stripe Checkout ==================
 const TopupInput = z.object({
@@ -155,6 +156,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
+      captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
     }
   });
@@ -454,6 +456,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
+      captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
     }
   });
@@ -540,6 +543,7 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
+      captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
     }
   });
@@ -626,6 +630,7 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
 
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
+      captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
     }
   });
@@ -682,6 +687,7 @@ export const verifyCampaignSubscriptionSession = createServerFn({ method: "POST"
         trialEnd: subscription?.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
       };
     } catch (error) {
+      captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
     }
   });

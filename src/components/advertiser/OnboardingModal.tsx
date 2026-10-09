@@ -1,38 +1,40 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 const STORAGE_KEY = "movespot_annonceur_onboarded_v1";
-
-const STEPS = [
-  {
-    icon: "🎯",
-    title: "Définissez votre campagne",
-    desc: "Choisissez votre zone géographique, le type de véhicule, la durée et votre budget. Notre formulaire vous guide étape par étape.",
-  },
-  {
-    icon: "🤝",
-    title: "On trouve le véhicule",
-    desc: "MoveSpot met en relation avec les propriétaires de véhicules qui correspondent à vos critères. Vous recevez une proposition tarifaire.",
-  },
-  {
-    icon: "🖼️",
-    title: "Validation de la pose",
-    desc: "Un poseur certifié installe votre covering. Vous recevez des photos de confirmation et validez la pose avant le début de la diffusion.",
-  },
-  {
-    icon: "📍",
-    title: "Suivi GPS en temps réel",
-    desc: "Pendant toute la campagne, suivez l'itinéraire du véhicule, la couverture de zone et les métriques de performance dans votre espace.",
-  },
-];
 
 type Props = {
   isIndividual?: boolean;
 };
 
 export function OnboardingModal({ isIndividual = false }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+
+  const STEPS = [
+    {
+      icon: "🎯",
+      title: t("onboarding.step1_title"),
+      desc: t("onboarding.step1_desc"),
+    },
+    {
+      icon: "🤝",
+      title: t("onboarding.step2_title"),
+      desc: t("onboarding.step2_desc"),
+    },
+    {
+      icon: "🖼️",
+      title: t("onboarding.step3_title"),
+      desc: t("onboarding.step3_desc"),
+    },
+    {
+      icon: "📍",
+      title: t("onboarding.step4_title"),
+      desc: t("onboarding.step4_desc"),
+    },
+  ];
 
   useEffect(() => {
     try {
@@ -69,12 +71,12 @@ export function OnboardingModal({ isIndividual = false }: Props) {
         <div className="p-8 pt-6">
           <div className="flex items-center justify-between mb-6">
             <span className="text-xs text-muted-foreground uppercase tracking-widest">
-              Bienvenue sur MoveSpot
+              {t("onboarding.welcome")}
             </span>
             <button
               onClick={dismiss}
               className="text-muted-foreground hover:text-foreground text-xl leading-none"
-              aria-label="Fermer"
+              aria-label={t("onboarding.aria_close")}
             >
               ×
             </button>
@@ -103,7 +105,7 @@ export function OnboardingModal({ isIndividual = false }: Props) {
                 onClick={() => setStep((s) => s - 1)}
                 className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold hover:bg-secondary transition"
               >
-                Précédent
+                {t("onboarding.btn_prev")}
               </button>
             )}
             {isLast ? (
@@ -113,13 +115,13 @@ export function OnboardingModal({ isIndividual = false }: Props) {
                   onClick={dismiss}
                   className="block text-center rounded-full bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
                 >
-                  {isIndividual ? "Découvrir les packs →" : "Créer ma première campagne →"}
+                  {isIndividual ? t("onboarding.btn_discover_packs") : t("onboarding.btn_create_campaign")}
                 </Link>
                 <button
                   onClick={dismiss}
                   className="text-xs text-muted-foreground hover:text-foreground text-center py-1"
                 >
-                  Passer l'introduction
+                  {t("onboarding.btn_skip")}
                 </button>
               </div>
             ) : (
@@ -127,7 +129,7 @@ export function OnboardingModal({ isIndividual = false }: Props) {
                 onClick={() => setStep((s) => s + 1)}
                 className="flex-1 rounded-full bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
               >
-                Suivant →
+                {t("onboarding.btn_next")}
               </button>
             )}
           </div>

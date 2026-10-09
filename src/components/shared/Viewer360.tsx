@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   /** URL de la photo/vidéo panoramique de la pose (équirectangulaire 2:1) */
@@ -17,6 +18,7 @@ type Props = {
  * - video → <video> lecture normale
  */
 export function Viewer360({ src, kind = "image", className }: Props) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [webglFailed, setWebglFailed] = useState(false);
@@ -192,13 +194,13 @@ export function Viewer360({ src, kind = "image", className }: Props) {
         ) : (
           <img
             src={src}
-            alt="Vue 360°"
+            alt={t("viewer360.alt")}
             className="w-full h-full object-contain"
             draggable={false}
           />
         )}
         <span className="absolute bottom-2 left-2 rounded-full bg-background/80 px-2 py-0.5 text-[10px] text-muted-foreground pointer-events-none">
-          Aperçu plat — WebGL non disponible sur cet appareil
+          {t("viewer360.webgl_unavailable")}
         </span>
       </div>
     );
@@ -211,7 +213,7 @@ export function Viewer360({ src, kind = "image", className }: Props) {
         <p className="absolute inset-0 flex items-center justify-center text-xs text-destructive">{error}</p>
       ) : (
         <span className="absolute bottom-2 left-2 rounded-full bg-background/80 px-2 py-0.5 text-[10px] text-muted-foreground pointer-events-none">
-          360° · glisser pour explorer
+          {t("viewer360.drag_hint")}
         </span>
       )}
     </div>

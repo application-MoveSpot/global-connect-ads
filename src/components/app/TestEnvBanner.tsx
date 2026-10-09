@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const PROD_HOST = "move-spot.com";
 
@@ -9,6 +10,7 @@ function isProduction() {
 }
 
 export function TestEnvBanner() {
+  const { t } = useTranslation();
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function TestEnvBanner() {
       aria-live="polite"
       className="sticky top-0 z-50 w-full bg-amber-400 text-amber-950 text-center text-sm font-bold px-4 py-2 shadow"
     >
-      ⚠ ENVIRONNEMENT DE TEST — Les données affichées sont fictives. Ne pas effectuer de paiements réels.
+      {t("test_env_banner.msg")}
     </div>
   );
 }

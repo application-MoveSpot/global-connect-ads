@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet, payCampaignWithWallet } from "@/lib/payments/wallet.functions";
 import { captureError } from "@/lib/sentry";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPaid }: Props) {
+  const { t } = useTranslation();
   const fetchWallet = useServerFn(getMyWallet);
   const payWithWallet = useServerFn(payCampaignWithWallet);
 
@@ -50,7 +52,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
       await payWithWallet({ data: { campaignRequestId } });
       onPaid?.();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Erreur");
+      setError(e instanceof Error ? e.message : t("campaign_payment.err_generic"));
       captureError(e, "payment", { flow: "wallet_debit", campaignRequestId });
     } finally { setLoading(false); }
   };
@@ -128,50 +130,49 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-border bg-secondary/30 p-3 text-sm">
-        Solde portefeuille : <strong>{((balance ?? 0) / 100).toFixed(2)} €</strong> · Montant dû : <strong>{totalPriceEur.toFixed(2)} €</strong>
+        {t("campaign_payment.balance", { balance: ((balance ?? 0) / 100).toFixed(2), total: totalPriceEur.toFixed(2) })}
       </div>
 
       {checking ? (
-        <p className="text-sm text-muted-foreground animate-pulse">En attente de confirmation du paiement…</p>
+        <p className="text-sm text-muted-foreground animate-pulse">{t("campaign_payment.checking")}</p>
       ) : enough ? (
         <Button onClick={onPayWallet} disabled={loading}>
-          {loading ? "Paiement…" : `Payer ${totalPriceEur.toFixed(2)} € avec mon portefeuille`}
+          {loading ? t("campaign_payment.btn_paying") : t("campaign_payment.btn_pay", { amount: totalPriceEur.toFixed(2) })}
         </Button>
       ) : pendingTopup ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Recharge reçue — le crédit peut prendre 1 à 2 minutes à apparaître.
-            Cliquez sur le bouton ci-dessous pour vérifier à nouveau.
+            {t("campaign_payment.topup_received")}
           </p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onManualCheck} disabled={loading}>
-              Vérifier le solde
+              {t("campaign_payment.btn_check_balance")}
             </Button>
             <Button variant="ghost" size="sm" className="text-xs" onClick={() => setPendingTopup(false)}>
-              Recharger à nouveau
+              {t("campaign_payment.btn_topup_again")}
             </Button>
           </div>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Solde insuffisant. Rechargez par carte pour compléter le paiement.</p>
+          <p className="text-sm text-muted-foreground">{t("campaign_payment.balance_insufficient")}</p>
           <WalletTopupCheckout
             amountEuros={missingEur}
             disabled={loading}
-            buttonLabel={`Recharger ${missingEur} € par carte`}
+            buttonLabel={t("campaign_payment.btn_topup_amount", { amount: missingEur })}
             onClose={onTopupClose}
           />
         </div>
       )}
 
       <details className="rounded-lg border border-border p-3">
-        <summary className="cursor-pointer text-sm font-medium">Payer cette campagne par virement bancaire</summary>
+        <summary className="cursor-pointer text-sm font-medium">{t("campaign_payment.bank_transfer_summary")}</summary>
         <div className="pt-4">
           <BankTransferPanel
             campaignRequestId={campaignRequestId}
             fixedAmountEuros={Math.max(10, Math.ceil(totalPriceEur))}
-            title="Virement bancaire pour cette campagne"
-            subtitle="Effectuez le virement avec la référence indiquée, puis téléversez votre reçu. Dès validation par notre équipe, la campagne est automatiquement marquée comme payée — aucun autre paiement n'est nécessaire."
+            title={t("campaign_payment.bank_transfer_title")}
+            subtitle={t("campaign_payment.bank_transfer_subtitle")}
             onCredited={onPaid}
           />
         </div>

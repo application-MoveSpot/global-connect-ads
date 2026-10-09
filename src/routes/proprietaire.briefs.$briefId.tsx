@@ -7,6 +7,7 @@ import { detectContact } from "@/lib/moderation/contact-detection";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/proprietaire/briefs/$briefId")({
   head: () => ({
@@ -39,6 +40,8 @@ type Vehicle = { id: string; name: string; type: string; price_per_day: number }
 type MyProposal = { id: string; vehicle_id: string; price_per_day: number; message: string | null; status: string };
 
 function BriefDetailPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language;
   const { briefId } = Route.useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -90,8 +93,8 @@ function BriefDetailPage() {
         const row = payload.new as Record<string, unknown>;
         if ((row.owner_id as string | undefined) === ownerIdRef.current) {
           const newStatus = row.status as string | undefined;
-          if (newStatus === "accepted") pushNotification("Proposition acceptée !", "L'annonceur a accepté votre proposition pour ce brief.");
-          else if (newStatus === "rejected") pushNotification("Proposition refusée", "L'annonceur a refusé votre proposition pour ce brief.");
+          if (newStatus === "accepted") pushNotification(t("proprietaire.briefs.detail.notif_accepted"), t("proprietaire.briefs.detail.notif_accepted_body"));
+          else if (newStatus === "rejected") pushNotification(t("proprietaire.briefs.detail.notif_rejected"), t("proprietaire.briefs.detail.notif_rejected_body"));
         }
         void load();
       })
@@ -105,7 +108,10 @@ function BriefDetailPage() {
     if (!ownerId || !vehicleId || !price) return;
     if (message) {
       const contactHit = detectContact(message);
-      if (contactHit) { setError(`${contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.`); return; }
+      if (contactHit) {
+        setError(t("proprietaire.briefs.detail.contact_detected", { label: contactHit.label.charAt(0).toUpperCase() + contactHit.label.slice(1) }));
+        return;
+      }
     }
 
     // Capture form values, then optimistically add the proposal and clear the form immediately
@@ -154,7 +160,7 @@ function BriefDetailPage() {
     }
   };
 
-  if (loading || !brief) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+  if (loading || !brief) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("proprietaire.briefs.detail.loading")}</div>;
 
   const availableVehicles = eligibleVehicles.filter(
     (v) => !myProposals.some((p) => p.vehicle_id === v.id && p.status !== "withdrawn"),
@@ -165,38 +171,48 @@ function BriefDetailPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/proprietaire/briefs" className="text-sm text-muted-foreground hover:text-foreground">← Briefs ouverts</Link>
+          <Link to="/proprietaire/briefs" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("proprietaire.briefs.detail.back")}
+          </Link>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold mb-2">{brief.title}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Du {new Date(brief.start_date).toLocaleDateString("fr-FR")} au {new Date(brief.end_date).toLocaleDateString("fr-FR")} ({brief.days_count} jour(s))
+          {t("proprietaire.briefs.detail.dates", {
+            from: new Date(brief.start_date).toLocaleDateString(dateLocale),
+            to: new Date(brief.end_date).toLocaleDateString(dateLocale),
+            days: brief.days_count,
+          })}
         </p>
 
         <section className="rounded-2xl border border-border bg-card p-6 mb-6 space-y-3">
           <p className="text-sm whitespace-pre-wrap">{brief.description}</p>
-          <div className="text-xs text-muted-foreground"><strong>Types recherchés :</strong> {brief.vehicle_types.join(", ")}</div>
-          {brief.zones.length > 0 && <div className="text-xs text-muted-foreground"><strong>Zones :</strong> {brief.zones.join(", ")}</div>}
-          {brief.budget_max && <div className="text-xs text-muted-foreground"><strong>Budget max :</strong> {brief.budget_max}€</div>}
-          {brief.audience_target && <div className="text-xs text-muted-foreground"><strong>Audience :</strong> {brief.audience_target}</div>}
+          <div className="text-xs text-muted-foreground"><strong>{t("proprietaire.briefs.detail.types_label")}</strong> {brief.vehicle_types.join(", ")}</div>
+          {brief.zones.length > 0 && <div className="text-xs text-muted-foreground"><strong>{t("proprietaire.briefs.detail.zones_label")}</strong> {brief.zones.join(", ")}</div>}
+          {brief.budget_max && <div className="text-xs text-muted-foreground"><strong>{t("proprietaire.briefs.detail.budget_max")}</strong> {brief.budget_max}€</div>}
+          {brief.audience_target && <div className="text-xs text-muted-foreground"><strong>{t("proprietaire.briefs.detail.audience")}</strong> {brief.audience_target}</div>}
           <CreativeFiles paths={brief.creative_files} />
         </section>
 
         {myProposals.length > 0 && (
           <section className="mb-6">
-            <h2 className="font-display text-xl font-bold mb-3">Mes propositions</h2>
+            <h2 className="font-display text-xl font-bold mb-3">{t("proprietaire.briefs.detail.my_proposals")}</h2>
             <div className="space-y-2">
               {myProposals.map((p) => {
                 const v = eligibleVehicles.find((x) => x.id === p.vehicle_id);
                 return (
                   <div key={p.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-sm font-semibold">{v?.name ?? "Véhicule"}</div>
-                      <div className="text-xs text-muted-foreground">{p.price_per_day}€/jour · statut : {p.status}</div>
+                      <div className="text-sm font-semibold">{v?.name ?? t("proprietaire.briefs.detail.vehicle_fallback")}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {t("proprietaire.briefs.detail.proposal_line", { price: p.price_per_day, status: p.status })}
+                      </div>
                     </div>
                     {p.status === "pending" && (
-                      <button onClick={() => withdraw(p.id)} className="text-xs text-destructive hover:underline">Retirer</button>
+                      <button onClick={() => withdraw(p.id)} className="text-xs text-destructive hover:underline">
+                        {t("proprietaire.briefs.detail.withdraw")}
+                      </button>
                     )}
                   </div>
                 );
@@ -207,50 +223,50 @@ function BriefDetailPage() {
 
         {availableVehicles.length > 0 ? (
           <section className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="font-display text-xl font-bold mb-4">Proposer un véhicule</h2>
+            <h2 className="font-display text-xl font-bold mb-4">{t("proprietaire.briefs.detail.propose_title")}</h2>
             <form onSubmit={submit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">Véhicule</label>
+                <label className="block text-sm font-medium mb-1.5">{t("proprietaire.briefs.detail.vehicle_label")}</label>
                 <select value={vehicleId} onChange={(e) => setVehicleId(e.target.value)} required
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5">
-                  <option value="">— Sélectionner —</option>
+                  <option value="">{t("proprietaire.briefs.detail.vehicle_select")}</option>
                   {availableVehicles.map((v) => (
                     <option key={v.id} value={v.id}>{v.name} ({v.type}) — {v.price_per_day}€/j</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">Prix proposé (€/jour)</label>
+                <label className="block text-sm font-medium mb-1.5">{t("proprietaire.briefs.detail.price_label")}</label>
                 <input type="number" min={1} step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5" />
-                <p className="text-xs text-muted-foreground mt-1">Conseil : restez sous 70 % du budget max indiqué par l'annonceur pour favoriser l'acceptation.</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("proprietaire.briefs.detail.price_hint")}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">Message (optionnel)</label>
+                <label className="block text-sm font-medium mb-1.5">{t("proprietaire.briefs.detail.message_label")}</label>
                 <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} maxLength={1000}
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-                  placeholder="Précisions sur zones couvertes, disponibilité, etc." />
+                  placeholder={t("proprietaire.briefs.detail.message_placeholder")} />
                 {detectContact(message) && (
                   <div className="mt-2 rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                    🚫 {detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1)} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.
+                    🚫 {t("proprietaire.briefs.detail.contact_detected", { label: detectContact(message)!.label.charAt(0).toUpperCase() + detectContact(message)!.label.slice(1) })}
                   </div>
                 )}
               </div>
               {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
               <div className="rounded-lg border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
-                ⚠ Tout accord conclu <strong>hors de la plateforme</strong> (paiement direct, contrat privé) n'est pas couvert par les garanties MoveSpot — ni la modération, ni le suivi GPS, ni le reversement sécurisé.
+                {t("proprietaire.briefs.detail.offplatform_warning")}
               </div>
               <button type="submit" disabled={submitting}
                 className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 font-semibold hover:bg-primary/90 disabled:opacity-50">
-                {submitting ? "Envoi…" : "Envoyer ma proposition"}
+                {submitting ? t("proprietaire.briefs.detail.submitting") : t("proprietaire.briefs.detail.submit")}
               </button>
             </form>
           </section>
         ) : (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-6 text-center text-sm text-muted-foreground">
             {eligibleVehicles.length === 0
-              ? "Aucun de vos véhicules approuvés ne correspond aux types recherchés."
-              : "Vous avez déjà proposé tous vos véhicules éligibles pour ce brief."}
+              ? t("proprietaire.briefs.detail.no_eligible_vehicles")
+              : t("proprietaire.briefs.detail.all_proposed")}
           </div>
         )}
       </main>

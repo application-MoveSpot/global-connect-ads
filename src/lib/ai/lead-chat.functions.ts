@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
+import { captureServerException } from "@/lib/sentry.server";
 
 const MessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -99,19 +101,26 @@ Règles JSON strictes :
 export const sendLeadChatMessage = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof LeadChatInput>) => LeadChatInput.parse(d))
   .handler(async ({ data }): Promise<LeadChatResult> => {
+    assertRateLimit(`lead-chat:${getRequestIp()}`, { maxRequests: 15, windowMs: 2 * 60_000 });
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const provider = createLovableAiGatewayProvider(apiKey);
     const model = provider("google/gemini-2.5-flash");
 
-    const { text } = await generateText({
-      model,
-      system: SYSTEM_PROMPT,
-      messages: data.messages.map((m: z.infer<typeof MessageSchema>) => ({ role: m.role, content: m.content })),
-      temperature: 0.6,
-      maxOutputTokens: 400,
-    });
+    let text: string;
+    try {
+      ({ text } = await generateText({
+        model,
+        system: SYSTEM_PROMPT,
+        messages: data.messages.map((m: z.infer<typeof MessageSchema>) => ({ role: m.role, content: m.content })),
+        temperature: 0.6,
+        maxOutputTokens: 400,
+      }));
+    } catch (err) {
+      captureServerException(err, { category: "ai" });
+      throw err;
+    }
 
     const leadReadyMatch = text.match(/\[LEAD_READY\]\s*([\s\S]*)/);
     if (leadReadyMatch) {

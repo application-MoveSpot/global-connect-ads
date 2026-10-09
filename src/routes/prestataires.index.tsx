@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { PROVIDER_SERVICES, providerServiceLabel, type ProviderServiceKey } from "@/lib/providers/provider-services";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/prestataires/")({
   component: ProvidersDirectory,
@@ -62,6 +63,7 @@ type Provider = {
 };
 
 function ProvidersDirectory() {
+  const { t } = useTranslation();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -91,15 +93,15 @@ function ProvidersDirectory() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/prestataire/inscription" className="text-sm rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2 font-semibold hover:bg-primary/20">
-            Je suis prestataire
+            {t("prestataires.annuaire.cta_provider")}
           </Link>
         </div>
       </header>
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="font-display text-3xl font-bold mb-2">Prestataires MoveSpot</h1>
-        <p className="text-sm text-muted-foreground mb-6">Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.</p>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("prestataires.annuaire.title")}</h1>
+        <p className="text-sm text-muted-foreground mb-6">{t("prestataires.annuaire.subtitle")}</p>
 
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Rechercher (société, zone, expertise…)"
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("prestataires.annuaire.search_placeholder")}
           className="w-full rounded-full border border-border bg-card px-5 py-3 mb-3" />
 
         <div className="flex flex-wrap gap-2 mb-6">
@@ -109,7 +111,7 @@ function ProvidersDirectory() {
               serviceFilter === "" ? "bg-primary text-primary-foreground border-primary" : "border-border bg-card hover:bg-secondary"
             }`}
           >
-            Tous
+            {t("common.all")}
           </button>
           {PROVIDER_SERVICES.map((s) => (
             <button
@@ -125,10 +127,10 @@ function ProvidersDirectory() {
         </div>
 
         {loading ? (
-          <div className="text-center text-muted-foreground py-12">Chargement…</div>
+          <div className="text-center text-muted-foreground py-12">{t("common.loading")}</div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center text-sm text-muted-foreground">
-            Aucun prestataire ne correspond à votre recherche.
+            {t("prestataires.annuaire.no_results")}
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 gap-4">
@@ -145,7 +147,7 @@ function ProvidersDirectory() {
                   )}
                   <div className="min-w-0">
                     <div className="font-semibold truncate">{p.company}</div>
-                    <div className="text-xs text-muted-foreground truncate">Contact : {p.full_name}</div>
+                    <div className="text-xs text-muted-foreground truncate">{t("common.contact_label")} {p.full_name}</div>
                   </div>
                 </div>
                 {p.services && p.services.length > 0 && (

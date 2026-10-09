@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useId } from "react";
+import { useTranslation } from "react-i18next";
 import { hreflangLinks } from "@/lib/seo";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 
-const FAQ_ITEMS = [
+const FAQ_ITEMS_FR = [
   {
     q: "Combien puis-je gagner par mois avec MoveSpot ?",
     a: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher annonceur de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
@@ -48,7 +49,7 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: FAQ_ITEMS.map(({ q, a }) => ({
+          mainEntity: FAQ_ITEMS_FR.map(({ q, a }) => ({
             "@type": "Question",
             name: q,
             acceptedAnswer: { "@type": "Answer", text: a },
@@ -79,25 +80,26 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
  *  minPerDay = plancher absolu : 25 € MIN_EUR_PER_DAY × 70 % = 17,50 €
  *  maxPerDay = campagne typique large zone pour ce type de véhicule × 70 %
  *  cityMult  = reflet de la demande + multiplicateur zone dense (×1,5 en agglo) */
-const VEHICULE_CONFIG: Record<string, { label: string; emoji: string; minPerDay: number; maxPerDay: number }> = {
-  taxi:      { label: "Taxi / VTC",          emoji: "🚕", minPerDay: 17.5, maxPerDay: 49 },
-  van:       { label: "Van utilitaire",       emoji: "🚐", minPerDay: 17.5, maxPerDay: 42 },
-  foodtruck: { label: "Food truck",           emoji: "🍔", minPerDay: 17.5, maxPerDay: 35 },
-  scooter:   { label: "Scooter livraison",    emoji: "🛵", minPerDay: 17.5, maxPerDay: 28 },
-  voiture:   { label: "Voiture personnelle",  emoji: "🚗", minPerDay: 17.5, maxPerDay: 28 },
-  flotte:    { label: "Flotte d'entreprise",  emoji: "🚛", minPerDay: 17.5, maxPerDay: 56 },
+const VEHICULE_CONFIG: Record<string, { emoji: string; minPerDay: number; maxPerDay: number }> = {
+  taxi:      { emoji: "🚕", minPerDay: 17.5, maxPerDay: 49 },
+  van:       { emoji: "🚐", minPerDay: 17.5, maxPerDay: 42 },
+  foodtruck: { emoji: "🍔", minPerDay: 17.5, maxPerDay: 35 },
+  scooter:   { emoji: "🛵", minPerDay: 17.5, maxPerDay: 28 },
+  voiture:   { emoji: "🚗", minPerDay: 17.5, maxPerDay: 28 },
+  flotte:    { emoji: "🚛", minPerDay: 17.5, maxPerDay: 56 },
 };
 
-const CITY_CONFIG: Record<string, { label: string; mult: number; dense: boolean }> = {
-  paris:     { label: "Paris / IDF",    mult: 1.5, dense: true  },
-  lyon:      { label: "Lyon",           mult: 1.2, dense: true  },
-  marseille: { label: "Marseille",      mult: 1.1, dense: true  },
-  bordeaux:  { label: "Bordeaux",       mult: 1.0, dense: false },
-  toulouse:  { label: "Toulouse",       mult: 1.0, dense: false },
-  autre:     { label: "Autre ville",    mult: 0.85, dense: false },
+const CITY_CONFIG: Record<string, { mult: number; dense: boolean }> = {
+  paris:     { mult: 1.5,  dense: true  },
+  lyon:      { mult: 1.2,  dense: true  },
+  marseille: { mult: 1.1,  dense: true  },
+  bordeaux:  { mult: 1.0,  dense: false },
+  toulouse:  { mult: 1.0,  dense: false },
+  autre:     { mult: 0.85, dense: false },
 };
 
 function RevenueSimulator() {
+  const { t, i18n } = useTranslation();
   const [vehicule, setVehicule] = useState("taxi");
   const [ville, setVille] = useState("paris");
   const [jours, setJours] = useState(15);
@@ -114,47 +116,49 @@ function RevenueSimulator() {
   const minAn   = minMois * 12;
   const maxAn   = maxMois * 12;
 
+  const loc = i18n.language;
+
   return (
     <section className="max-w-4xl mx-auto px-6 py-16">
       <div className="rounded-3xl border border-primary/30 bg-card/80 backdrop-blur p-8 md:p-10 shadow-glow">
         <div className="text-center mb-8">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-4 py-1.5 text-xs font-medium mb-4">
-            💶 Simulateur de revenus
+            {t("partner.sim.badge")}
           </span>
-          <h2 className="font-display text-3xl md:text-4xl font-bold">Combien pouvez-vous gagner ?</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold">{t("partner.sim.title")}</h2>
           <p className="text-muted-foreground mt-2 text-sm">
-            Basé sur le modèle réel MoveSpot — <strong>70 % du budget campagne</strong> vous revient directement, avec un minimum garanti de <strong>17,50 € / véhicule / jour actif</strong>.
+            {t("partner.sim.subtitle_pre")}<strong>70 % du budget campagne</strong>{t("partner.sim.subtitle_mid")}<strong>17,50 € / véhicule / jour actif</strong>.
           </p>
         </div>
 
         {/* Inputs */}
         <div className="grid sm:grid-cols-2 gap-5 mb-6">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Type de véhicule</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("partner.sim.vehicle_label")}</label>
             <select
               value={vehicule}
               onChange={e => setVehicule(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(VEHICULE_CONFIG).map(([k, v]) => (
-                <option key={k} value={k}>{v.emoji} {v.label}</option>
+                <option key={k} value={k}>{v.emoji} {t(`partner.vehicle.${k}`)}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Ville principale</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("partner.sim.city_label")}</label>
             <select
               value={ville}
               onChange={e => setVille(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(CITY_CONFIG).map(([k, v]) => (
-                <option key={k} value={k}>{v.label}{v.dense ? " ✦" : ""}</option>
+                <option key={k} value={k}>{t(`partner.city.${k}`)}{v.dense ? " ✦" : ""}</option>
               ))}
             </select>
             {city.dense && (
-              <p className="text-xs text-primary mt-1">✦ Zone dense : tarif majoré ×1,5 pour les annonceurs</p>
+              <p className="text-xs text-primary mt-1">{t("partner.city.dense_note")}</p>
             )}
           </div>
         </div>
@@ -162,7 +166,7 @@ function RevenueSimulator() {
         <div className="grid sm:grid-cols-2 gap-5 mb-8">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-              Jours actifs / mois : <span className="text-foreground font-bold">{jours} jours</span>
+              {t("partner.sim.days_label", { days: jours })}
             </label>
             <input
               type="range"
@@ -173,13 +177,13 @@ function RevenueSimulator() {
               className="w-full accent-primary mt-2"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>5 j</span><span>15 j</span><span>25 j</span>
+              <span>5</span><span>15</span><span>25</span>
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-              Nombre de véhicules : <span className="text-foreground font-bold">{nb}</span>
+              {t("partner.sim.vehicles_label", { nb })}
             </label>
             <input
               type="range"
@@ -198,34 +202,32 @@ function RevenueSimulator() {
         {/* Résultats */}
         <div className="grid sm:grid-cols-3 gap-4 mb-6">
           <div className="rounded-2xl bg-muted/50 border border-border p-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Par véhicule / jour</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("partner.sim.per_day_label")}</p>
             <p className="font-display text-2xl font-bold text-foreground">
-              {minDay.toLocaleString("fr-FR")} – {maxDay.toLocaleString("fr-FR")} €
+              {minDay.toLocaleString(loc)} – {maxDay.toLocaleString(loc)} €
             </p>
-            <p className="text-xs text-muted-foreground mt-1">70 % de la campagne</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("partner.sim.campaign_pct")}</p>
           </div>
           <div className="rounded-2xl bg-primary/10 border border-primary/30 p-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Revenu mensuel estimé</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("partner.sim.monthly_label")}</p>
             <p className="font-display text-3xl font-bold text-primary">
-              {minMois.toLocaleString("fr-FR")} – {maxMois.toLocaleString("fr-FR")} €
+              {minMois.toLocaleString(loc)} – {maxMois.toLocaleString(loc)} €
             </p>
-            <p className="text-xs text-muted-foreground mt-1">{jours} j × {nb} véh.</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("partner.sim.monthly_detail", { days: jours, nb })}</p>
           </div>
           <div className="rounded-2xl bg-muted/50 border border-border p-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Projection annuelle</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("partner.sim.yearly_label")}</p>
             <p className="font-display text-2xl font-bold text-foreground">
-              {minAn.toLocaleString("fr-FR")} – {maxAn.toLocaleString("fr-FR")} €
+              {minAn.toLocaleString(loc)} – {maxAn.toLocaleString(loc)} €
             </p>
-            <p className="text-xs text-muted-foreground mt-1">× 12 mois</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("partner.sim.yearly_detail")}</p>
           </div>
         </div>
 
         {/* Formule transparente */}
         <div className="rounded-xl bg-muted/40 border border-border px-5 py-4 text-xs text-muted-foreground mb-6">
-          <span className="font-semibold text-foreground">Comment c'est calculé ? </span>
-          Campagne annonceur min. <strong>25 €/véhicule/jour</strong> → vous recevez <strong>70 %</strong> soit{" "}
-          <strong>17,50 € garanti/jour</strong>. Les campagnes sur zones plus larges ou en grande agglomération génèrent davantage.
-          Estimation non contractuelle — les revenus dépendent des campagnes actives dans votre zone.
+          <span className="font-semibold text-foreground">{t("partner.sim.calc_label")}</span>
+          {t("partner.sim.calc_text")}
         </div>
 
         <div className="text-center">
@@ -233,7 +235,7 @@ function RevenueSimulator() {
             to="/proprietaire/inscription"
             className="inline-block rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
           >
-            Créer mon espace propriétaire →
+            {t("partner.sim.cta")}
           </Link>
         </div>
       </div>
@@ -242,11 +244,18 @@ function RevenueSimulator() {
 }
 
 function FAQAccordion() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState<number | null>(null);
   const prefix = useId();
+
+  const faqItems = Array.from({ length: 7 }, (_, i) => ({
+    q: t(`partner.faq.q${i}`),
+    a: t(`partner.faq.a${i}`),
+  }));
+
   return (
     <div className="divide-y divide-border rounded-2xl border border-border overflow-hidden">
-      {FAQ_ITEMS.map((item, i) => {
+      {faqItems.map((item, i) => {
         const isOpen = open === i;
         return (
           <div key={i}>
@@ -280,50 +289,47 @@ function FAQAccordion() {
 }
 
 function DevenirPartenaire() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background">
       <section className="max-w-4xl mx-auto px-6 pt-20 pb-12 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 backdrop-blur px-4 py-1.5 text-xs font-medium mb-6">
-          🚐 Espace propriétaires
+          {t("partner.badge")}
         </div>
         <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight">
-          Vos kilomètres,<br />
-          <span className="bg-gradient-signal bg-clip-text text-transparent">votre nouveau revenu.</span>
+          {t("partner.hero_line1")}<br />
+          <span className="bg-gradient-signal bg-clip-text text-transparent">{t("partner.hero_line2")}</span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Propriétaire d'un food truck, van, taxi, scooter ou flotte de véhicules ? Proposez vos espaces publicitaires sur MoveSpot et générez un revenu passif sur vos trajets quotidiens.
+          {t("partner.hero_subtitle")}
         </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
           <Link to="/proprietaire/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
-            Créer mon espace propriétaire
+            {t("partner.cta_signup")}
           </Link>
           <Link to="/proprietaire" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
-            J'ai déjà un compte
+            {t("partner.cta_existing")}
           </Link>
         </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-3 gap-6">
-          {[
-            { n: "01", t: "Créez votre profil", d: "Inscription en 2 minutes. Renseignez vos informations et ajoutez votre premier véhicule avec photos." },
-            { n: "02", t: "Validation par MoveSpot", d: "MoveSpot vérifie votre véhicule sous 48h pour garantir la qualité de la marketplace." },
-            { n: "03", t: "Recevez des campagnes", d: "Les annonceurs vous contactent. Vous acceptez ou refusez chaque demande, et empochez le revenu." },
-          ].map((s) => (
-            <div key={s.n} className="rounded-2xl border border-border bg-card p-6">
-              <div className="text-xs font-mono text-primary mb-2">{s.n}</div>
-              <h3 className="font-display text-xl font-bold mb-2">{s.t}</h3>
-              <p className="text-sm text-muted-foreground">{s.d}</p>
+          {(["01", "02", "03"] as const).map((n, i) => (
+            <div key={n} className="rounded-2xl border border-border bg-card p-6">
+              <div className="text-xs font-mono text-primary mb-2">{n}</div>
+              <h3 className="font-display text-xl font-bold mb-2">{t(`partner.steps.s${i + 1}_title`)}</h3>
+              <p className="text-sm text-muted-foreground">{t(`partner.steps.s${i + 1}_desc`)}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-6 py-16 text-center">
-        <h2 className="font-display text-3xl font-bold mb-4">Quels véhicules ?</h2>
+        <h2 className="font-display text-3xl font-bold mb-4">{t("partner.vehicles_title")}</h2>
         <div className="flex flex-wrap gap-3 justify-center">
-          {["Food truck", "Van utilitaire", "Taxi / VTC", "Scooter livraison", "Voiture", "Flotte d'entreprise"].map((v) => (
-            <span key={v} className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium">{v}</span>
+          {(["foodtruck", "van", "taxi", "scooter", "voiture", "flotte"] as const).map((k) => (
+            <span key={k} className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium">{t(`partner.vehicle.${k}`)}</span>
           ))}
         </div>
       </section>
@@ -336,42 +342,28 @@ function DevenirPartenaire() {
             <span className="text-2xl" aria-hidden>⚠️</span>
             <div className="space-y-3">
               <h2 className="font-display text-xl md:text-2xl font-bold">
-                Publicité extérieure : ce que dit la réglementation
+                {t("partner.legal.title")}
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                L'affichage publicitaire sur véhicules et dans l'espace public est encadré par le Code de
-                l'environnement (articles L.581-1 et suivants) et le règlement local de publicité (RLP) de chaque commune.
+                {t("partner.legal.p1")}
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  La <strong>publicité lumineuse</strong> est interdite dans les agglomérations de moins de
-                  10 000 habitants ne faisant pas partie d'une unité urbaine de plus de 100 000 habitants.
-                </li>
-                <li>
-                  La publicité est interdite sur les <strong>immeubles classés ou inscrits</strong>, monuments
-                  historiques, arbres, et dans les sites protégés (parcs nationaux, réserves naturelles).
-                </li>
-                <li>
-                  Les <strong>véhicules utilisés ou équipés principalement à des fins publicitaires</strong> ne
-                  peuvent pas stationner ou circuler dans certaines zones (article R.581-48 du Code de
-                  l'environnement).
-                </li>
-                <li>
-                  Les formats, surfaces et emplacements doivent respecter le <strong>RLP de la commune</strong>{" "}
-                  concernée.
-                </li>
+                <li dangerouslySetInnerHTML={{ __html: t("partner.legal.item1") }} />
+                <li dangerouslySetInnerHTML={{ __html: t("partner.legal.item2") }} />
+                <li dangerouslySetInnerHTML={{ __html: t("partner.legal.item3") }} />
+                <li dangerouslySetInnerHTML={{ __html: t("partner.legal.item4") }} />
               </ul>
               <p className="text-xs text-muted-foreground">
-                Source :{" "}
+                {t("partner.legal.source")}{" "}
                 <a
                   href="https://www.service-public.fr/professionnels-entreprises/vosdroits/F22397"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  service-public.fr — Réglementation de la publicité extérieure
+                  {t("partner.legal.source_link")}
                 </a>
-                . MoveSpot vérifie chaque campagne pour garantir sa conformité.
+                . {t("partner.legal.note")}
               </p>
             </div>
           </div>
@@ -381,22 +373,22 @@ function DevenirPartenaire() {
       <section className="max-w-3xl mx-auto px-6 py-16" aria-labelledby="faq-title">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-4 py-1.5 text-xs font-medium mb-4">
-            💬 Questions fréquentes
+            {t("partner.faq_badge")}
           </span>
-          <h2 id="faq-title" className="font-display text-3xl font-bold">Tout ce qu'il faut savoir</h2>
+          <h2 id="faq-title" className="font-display text-3xl font-bold">{t("partner.faq_title")}</h2>
         </div>
         <FAQAccordion />
       </section>
 
       <section className="max-w-3xl mx-auto px-6 py-16 text-center">
-        <h2 className="font-display text-3xl font-bold mb-4">Prêt à monétiser vos trajets ?</h2>
+        <h2 className="font-display text-3xl font-bold mb-4">{t("partner.cta_bottom_title")}</h2>
         <Link to="/proprietaire/inscription" className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
-          Commencer maintenant
+          {t("partner.cta_start")}
         </Link>
         <p className="text-sm text-muted-foreground mt-8">
-          Vous êtes apporteur d'affaires, agence ou revendeur ?{" "}
+          {t("partner.partner_promo")}{" "}
           <Link to="/partenaire/inscription" className="underline hover:text-foreground">
-            Rejoignez le programme partenaire
+            {t("partner.partner_link")}
           </Link>
           .
         </p>
@@ -410,10 +402,10 @@ function DevenirPartenaire() {
       <FAQChatbot
         audience="proprietaire"
         suggestions={[
-          "Quels véhicules puis-je inscrire ?",
-          "Combien je peux gagner par mois ?",
-          "Combien de temps prend la validation de mon véhicule ?",
-          "Que dit la réglementation sur la pub mobile ?",
+          t("partner.chatbot.s0"),
+          t("partner.chatbot.s1"),
+          t("partner.chatbot.s2"),
+          t("partner.chatbot.s3"),
         ]}
       />
     </div>

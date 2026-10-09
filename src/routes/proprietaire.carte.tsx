@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { getFleetOverview } from "@/lib/fleet/fleet.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/proprietaire/carte")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/proprietaire/carte")({
 const PLATFORM_URL = "https://move-spot.com";
 
 function CartePage() {
+  const { t } = useTranslation();
   const fetchFleet = useServerFn(getFleetOverview);
   const { data } = useQuery({
     queryKey: ["fleet"],
@@ -48,29 +50,18 @@ function CartePage() {
     }).then(setQrDataUrl);
   }, []);
 
-  const TYPE_LABELS: Record<string, string> = {
-    camion_led: "Camion LED",
-    food_truck: "Food truck",
-    van: "Van",
-    taxi: "Taxi / VTC",
-    voiture: "Voiture",
-    scooter: "Scooter",
-    velo_cargo: "Vélo cargo",
-    autre: "Véhicule",
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border print:hidden">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex gap-3">
-            <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+            <Link to="/proprietaire" className="text-sm text-muted-foreground hover:text-foreground">{t("proprietaire.carte.back")}</Link>
             <button
               onClick={() => window.print()}
               className="text-sm text-primary hover:underline"
             >
-              🖨 Imprimer
+              {t("proprietaire.carte.print")}
             </button>
           </div>
         </div>
@@ -78,10 +69,9 @@ function CartePage() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 print:p-0">
         <div className="print:hidden mb-6">
-          <h1 className="font-display text-3xl font-bold mb-1">Carte de visite numérique</h1>
+          <h1 className="font-display text-3xl font-bold mb-1">{t("proprietaire.carte.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Partagez cette carte avec des annonceurs. Ils scannent le QR code pour
-            découvrir la plateforme et créer leur campagne.
+            {t("proprietaire.carte.desc")}
           </p>
         </div>
 
@@ -115,7 +105,7 @@ function CartePage() {
                   <span style={{ color: "#f97316" }}>Spot</span>
                 </div>
                 <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                  Publicité mobile sur véhicules
+                  {t("proprietaire.carte.card_tagline")}
                 </div>
               </div>
 
@@ -139,17 +129,17 @@ function CartePage() {
               {approvedCount > 0 ? (
                 <>
                   <div style={{ fontWeight: 700, fontSize: 15, color: "#ffffff", marginBottom: 2 }}>
-                    {approvedCount} véhicule{approvedCount > 1 ? "s" : ""} disponible{approvedCount > 1 ? "s" : ""}
+                    {t("proprietaire.carte.vehicle_count", { count: approvedCount })}
                   </div>
                   {vehicleTypes.length > 0 && (
                     <div style={{ color: "#94a3b8", fontSize: 12 }}>
-                      {vehicleTypes.map((t) => TYPE_LABELS[t as string] ?? t).join(" · ")}
+                      {vehicleTypes.map((type) => t(`vehicle_types.${type}` as never, { defaultValue: type })).join(" · ")}
                     </div>
                   )}
                 </>
               ) : (
                 <div style={{ color: "#94a3b8", fontSize: 13 }}>
-                  Vos véhicules publicitaires
+                  {t("proprietaire.carte.no_vehicles")}
                 </div>
               )}
             </div>
@@ -157,8 +147,8 @@ function CartePage() {
             {/* Bottom row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
               <div>
-                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>Propriétaire de flotte</div>
-                <div style={{ fontSize: 11, color: "#64748b" }}>Scannez le QR pour créer une campagne</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>{t("proprietaire.carte.card_fleet_role")}</div>
+                <div style={{ fontSize: 11, color: "#64748b" }}>{t("proprietaire.carte.card_cta")}</div>
               </div>
               <div style={{
                 background: "#f97316",
@@ -180,18 +170,18 @@ function CartePage() {
 
         {/* Instructions */}
         <div className="print:hidden mt-6 rounded-xl border border-border bg-card p-5 space-y-3 text-sm text-muted-foreground" style={{ maxWidth: 680, margin: "24px auto 0" }}>
-          <p className="font-medium text-foreground">Comment utiliser cette carte ?</p>
+          <p className="font-medium text-foreground">{t("proprietaire.carte.how_title")}</p>
           <ul className="space-y-1.5 list-disc list-inside">
-            <li>Imprimez-la et remettez-la lors de vos rencontres professionnelles.</li>
-            <li>Le QR code redirige directement vers <strong>move-spot.com</strong> pour que les annonceurs créent leur campagne.</li>
-            <li>Partagez une capture d'écran par WhatsApp, email ou LinkedIn.</li>
+            <li>{t("proprietaire.carte.how_1")}</li>
+            <li dangerouslySetInnerHTML={{ __html: t("proprietaire.carte.how_2") }} />
+            <li>{t("proprietaire.carte.how_3")}</li>
           </ul>
           <div className="flex gap-2 pt-1 flex-wrap">
             <Link
               to="/proprietaire/flotte/qr"
               className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-secondary"
             >
-              📱 QR codes GPS de mes véhicules
+              {t("proprietaire.carte.qr_link")}
             </Link>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/annonceur/briefs/")({
   head: () => ({
@@ -35,6 +36,8 @@ function daysUntil(dateStr: string): number {
 }
 
 function BriefsListPage() {
+  const { t, i18n } = useTranslation();
+  const dateLocale = i18n.language;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [briefs, setBriefs] = useState<Brief[]>([]);
@@ -75,27 +78,27 @@ function BriefsListPage() {
 
   const isIndividual = accountType === "individual";
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("annonceur.briefs_list.loading")}</div>;
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">← Mon espace</Link>
+          <Link to="/annonceur" className="text-sm text-muted-foreground hover:text-foreground">{t("annonceur.briefs_list.back")}</Link>
         </div>
       </header>
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-display text-3xl font-bold">Mes briefs</h1>
+            <h1 className="font-display text-3xl font-bold">{t("annonceur.briefs_list.title")}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {isIndividual ? "Vos événements en attente de véhicule." : "Vos demandes ouvertes aux propriétaires."}
+              {isIndividual ? t("annonceur.briefs_list.subtitle_individual") : t("annonceur.briefs_list.subtitle_business")}
             </p>
           </div>
           <Link to="/annonceur/briefs/nouveau"
             className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition">
-            + {isIndividual ? "Créer mon brief" : "Nouveau brief"}
+            + {isIndividual ? t("annonceur.briefs_list.new_individual") : t("annonceur.briefs_list.new_business")}
           </Link>
         </div>
 
@@ -103,29 +106,29 @@ function BriefsListPage() {
           isIndividual ? (
             <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-10 text-center">
               <div className="text-4xl mb-3">🎉</div>
-              <p className="font-semibold mb-1">Aucun brief pour le moment</p>
+              <p className="font-semibold mb-1">{t("annonceur.briefs_list.empty_ind_title")}</p>
               <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
-                Décrivez votre événement en 5 minutes — un modèle vous guide selon le type (mariage, inauguration, festival…).
+                {t("annonceur.briefs_list.empty_ind_desc")}
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Link to="/annonceur/briefs/nouveau"
                   className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition">
-                  Créer mon brief →
+                  {t("annonceur.briefs_list.empty_ind_cta")}
                 </Link>
                 <Link to="/annonceur/pack"
                   className="rounded-full border border-primary/40 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/10 transition">
-                  🎪 Voir les packs événement
+                  {t("annonceur.briefs_list.empty_ind_packs")}
                 </Link>
                 <Link to="/annonceur/exemples"
                   className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
-                  Exemples →
+                  {t("annonceur.briefs_list.empty_ind_examples")}
                 </Link>
               </div>
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center">
-              <p className="text-muted-foreground mb-4">Aucun brief publié.</p>
-              <Link to="/annonceur/briefs/nouveau" className="text-primary font-semibold hover:underline">Publier mon premier brief →</Link>
+              <p className="text-muted-foreground mb-4">{t("annonceur.briefs_list.empty_biz")}</p>
+              <Link to="/annonceur/briefs/nouveau" className="text-primary font-semibold hover:underline">{t("annonceur.briefs_list.empty_biz_cta")}</Link>
             </div>
           )
         ) : (
@@ -140,14 +143,14 @@ function BriefsListPage() {
                     <div className="min-w-0">
                       <div className="font-display text-lg font-semibold">{b.title}</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        Du {new Date(b.start_date).toLocaleDateString("fr-FR")} au {new Date(b.end_date).toLocaleDateString("fr-FR")}
+                        {t("annonceur.briefs_list.date_from", { from: new Date(b.start_date).toLocaleDateString(dateLocale), to: new Date(b.end_date).toLocaleDateString(dateLocale) })}
                         {b.zones.length > 0 && <> · {b.zones.slice(0, 3).join(", ")}{b.zones.length > 3 ? "…" : ""}</>}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">Types : {b.vehicle_types.join(", ")}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{t("annonceur.briefs_list.types_label")} {b.vehicle_types.join(", ")}</div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <StatusBadge status={b.status} />
-                      <span className="text-xs text-muted-foreground">{counts[b.id] ?? 0} proposition(s)</span>
+                      <span className="text-xs text-muted-foreground">{t("annonceur.briefs_list.proposals", { count: counts[b.id] ?? 0 })}</span>
                       {upcoming && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d <= 7 ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-primary/10 text-primary"}`}>
                           J-{d}
@@ -166,12 +169,14 @@ function BriefsListPage() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    open: { label: "Ouvert", cls: "bg-signal/20 text-signal" },
-    closed: { label: "Fermé", cls: "bg-secondary text-foreground" },
-    fulfilled: { label: "Pourvu", cls: "bg-primary/20 text-primary" },
-    cancelled: { label: "Annulé", cls: "bg-destructive/15 text-destructive" },
+  const { t } = useTranslation();
+  const clsMap: Record<string, string> = {
+    open: "bg-signal/20 text-signal",
+    closed: "bg-secondary text-foreground",
+    fulfilled: "bg-primary/20 text-primary",
+    cancelled: "bg-destructive/15 text-destructive",
   };
-  const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${x.cls}`}>{x.label}</span>;
+  const cls = clsMap[status] ?? "bg-secondary";
+  const label = t(`annonceur.briefs_list.status_${status}` as never, { defaultValue: status });
+  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${cls}`}>{label}</span>;
 }

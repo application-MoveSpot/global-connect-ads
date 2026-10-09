@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { hreflangLinks } from "@/lib/seo";
 import { LegalPage, LegalSection } from "@/components/app/LegalPage";
 
@@ -18,9 +19,10 @@ export const Route = createFileRoute("/_public/cgu")({
 });
 
 function CGU() {
+  const { t } = useTranslation();
   return (
-    <LegalPage eyebrow="Mentions légales" title="Conditions Générales d'Utilisation" updatedAt="24 août 2026" showHeader={false}>
-      <LegalSection title="1. Objet">
+    <LegalPage eyebrow={t("cgu.eyebrow")} title={t("cgu.title")} updatedAt="24 août 2026" showHeader={false}>
+      <LegalSection title={t("cgu.s1")}>
         <p>
           Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités
           et conditions dans lesquelles MoveSpot (ci-après « la Plateforme ») met à disposition de ses utilisateurs ses
@@ -31,7 +33,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Éditeur du site">
+      <LegalSection title={t("cgu.s2")}>
         <p>
           La Plateforme MoveSpot est éditée par <strong>RAKOUN KLUB</strong>, entreprise individuelle.
           Adresse postale de l'entreprise : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault
@@ -41,7 +43,7 @@ function CGU() {
 
       </LegalSection>
 
-      <LegalSection title="3. Accès au service">
+      <LegalSection title={t("cgu.s3")}>
         <p>
           La Plateforme est accessible gratuitement à tout utilisateur disposant d'un accès à Internet. Les coûts liés
           à l'accès au service (matériel, logiciels, connexion Internet) sont à la charge exclusive de l'utilisateur.
@@ -57,7 +59,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Compte utilisateur">
+      <LegalSection title={t("cgu.s4")}>
         <p>
           Certaines fonctionnalités nécessitent la création d'un compte. L'utilisateur s'engage à fournir des
           informations exactes, complètes et à jour. Il est responsable de la confidentialité de ses identifiants
@@ -65,7 +67,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="5. Obligations de l'utilisateur">
+      <LegalSection title={t("cgu.s5")}>
         <p>L'utilisateur s'engage à :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>respecter la législation française et internationale en vigueur ;</li>
@@ -75,7 +77,7 @@ function CGU() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="6. Charte de contenu publicitaire">
+      <LegalSection title={t("cgu.s6")}>
         <p>
           Sont strictement refusées toutes campagnes à caractère religieux ou de fêtes religieuses, politique ou
           électoral (partis, candidats, mouvements, propagande, élections), sexistes, pornographiques, ou incitant à la
@@ -86,7 +88,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Propriété intellectuelle">
+      <LegalSection title={t("cgu.s7")}>
         <p>
           L'ensemble des éléments composant la Plateforme (textes, graphismes, logos, icônes, images, données) est la
           propriété exclusive de MoveSpot ou de ses partenaires. Toute reproduction, représentation ou exploitation,
@@ -94,7 +96,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Responsabilité">
+      <LegalSection title={t("cgu.s8")}>
         <p>
           MoveSpot s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées, sans garantie
           d'exhaustivité. La Plateforme ne saurait être tenue responsable des dommages directs ou indirects résultant
@@ -102,14 +104,14 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Modification des CGU">
+      <LegalSection title={t("cgu.s9")}>
         <p>
           MoveSpot se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés
           de toute modification substantielle. La version applicable est celle en vigueur à la date d'utilisation.
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Rôle de la plateforme — simple intermédiaire">
+      <LegalSection title={t("cgu.s10")}>
         <p>
           MoveSpot est un intermédiaire numérique de mise en relation entre annonceurs, propriétaires de véhicules,
           chauffeurs et poseurs certifiés. MoveSpot ne possède aucun véhicule, aucun matériel d'affichage et n'exerce
@@ -124,7 +126,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="11. Obligations des chauffeurs">
+      <LegalSection title={t("cgu.s11")}>
         <p>Le chauffeur participant à une campagne s'engage à :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
@@ -139,7 +141,7 @@ function CGU() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="12. Flux financiers et reversements">
+      <LegalSection title={t("cgu.s12")}>
         <p>
           Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les budgets B2B) et
           conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à l'exécution de la campagne. MoveSpot
@@ -155,7 +157,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="13. Calcul du budget et zones de diffusion">
+      <LegalSection title={t("cgu.s13")}>
         <p>
           L'annonceur définit sa zone de diffusion en dessinant un polygone sur la carte interactive. Le budget
           indicatif est calculé automatiquement à partir de la surface réelle de la zone (base de 1,80 € par km² et
@@ -168,7 +170,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="14. Mesure de performance et preuve de diffusion">
+      <LegalSection title={t("cgu.s14")}>
         <p>
           Les relevés de géolocalisation transmis par les chauffeurs sont agrégés (distance parcourue, minutes
           actives, part du trajet effectuée à l'intérieur de la zone de ciblage) et restitués à l'annonceur dans son
@@ -189,7 +191,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="15. Validation de la pose du support publicitaire">
+      <LegalSection title={t("cgu.s15")}>
         <p>
           La pose du covering est réalisée exclusivement par un poseur professionnel certifié MoveSpot. Ni le
           chauffeur ni le propriétaire du véhicule ne peuvent procéder eux-mêmes à la pose. Après pose, le poseur
@@ -201,7 +203,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="15 bis. Impossibilité technique de pose">
+      <LegalSection title={t("cgu.s15bis")}>
         <p>
           Si, après validation d'une campagne et paiement par l'annonceur, le poseur certifié constate que la pose est
           techniquement impossible (surface incompatible, état du véhicule ou contrainte matérielle indépendante de la
@@ -219,7 +221,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="16. Sécurité des comptes">
+      <LegalSection title={t("cgu.s16")}>
         <p>
           La Plateforme met à disposition une authentification à deux facteurs (application d'authentification / TOTP)
           activable depuis l'espace « Sécurité ». Son activation est fortement recommandée pour tout compte associé à
@@ -228,7 +230,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="17. Intégrations et accès automatisés">
+      <LegalSection title={t("cgu.s17")}>
         <p>
           MoveSpot expose des intégrations pour agents et outils tiers permettant, après autorisation explicite de
           l'utilisateur, la consultation en lecture de ses propres données (flotte, briefs, campagnes, solde de
@@ -236,7 +238,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="18. Notifications et communications">
+      <LegalSection title={t("cgu.s18")}>
         <p>
           MoveSpot adresse à l'utilisateur des <strong>emails de service</strong> liés à l'exécution du contrat :
           activation d'une campagne, confirmation de réception d'un virement, décision de modération d'une création ou
@@ -252,7 +254,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="19. Planification automatique de l'itinéraire">
+      <LegalSection title={t("cgu.s19")}>
         <p>
           Lors de la création d'un brief, l'annonceur saisit des étapes (adresses ou lieux). La Plateforme les
           géocode automatiquement, calcule le tracé routier, identifie les quartiers traversés et les points
@@ -267,7 +269,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="20. Continuité de service lors des mises à jour">
+      <LegalSection title={t("cgu.s20")}>
         <p>
           La Plateforme est mise à jour en continu. Ces mises à jour sont conçues pour ne pas interrompre la session
           de l'utilisateur : le rechargement d'une nouvelle version de l'application s'effectue de façon transparente
@@ -276,7 +278,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="21. Événements extérieurs et force majeure">
+      <LegalSection title={t("cgu.s21")}>
         <p>
           Certaines situations indépendantes de la volonté du chauffeur ou du propriétaire du véhicule peuvent
           empêcher ou limiter la circulation dans la zone de ciblage déclarée par l'annonceur. Sont notamment
@@ -305,7 +307,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="22. Obligation d'exclusivité des transactions sur la Plateforme">
+      <LegalSection title={t("cgu.s22")}>
         <p>
           Toute relation commerciale entre utilisateurs (annonceur, propriétaire de véhicule, chauffeur, poseur) dont
           la mise en contact a été réalisée via MoveSpot doit être intégralement conclue et exécutée au sein de la
@@ -333,7 +335,7 @@ function CGU() {
         </p>
       </LegalSection>
 
-      <LegalSection title="23. Droit applicable et juridiction">
+      <LegalSection title={t("cgu.s23")}>
         <p>
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur interprétation ou exécution
           relève de la compétence exclusive des tribunaux français.
