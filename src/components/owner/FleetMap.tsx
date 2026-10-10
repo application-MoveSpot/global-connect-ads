@@ -67,15 +67,19 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
   return <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />;
 }
 
+type MapView = { center: [number, number]; zoom: number; pitch: number; bearing: number };
+
 // ── Carte Mapbox GL 3D — noyau (remontable via key) ──────────────────────────
 function FleetMapMapboxCore({
   points,
   token,
   onContextLost,
+  initialView,
 }: {
   points: FleetPoint[];
   token: string;
-  onContextLost: () => void;
+  onContextLost: (view?: MapView) => void;
+  initialView?: MapView;
 }) {
   const { t, i18n } = useTranslation();
   const container = useRef<HTMLDivElement>(null);
@@ -93,10 +97,10 @@ function FleetMapMapboxCore({
       const map = new mapboxgl.Map({
         container: container.current!,
         style: "mapbox://styles/mapbox/dark-v11",
-        center: [2.35, 46.6],
-        zoom: 4.2,
-        pitch: 0,
-        bearing: 0,
+        center: initialView?.center ?? [2.35, 46.6],
+        zoom: initialView?.zoom ?? 4.2,
+        pitch: initialView?.pitch ?? 0,
+        bearing: initialView?.bearing ?? 0,
         antialias: true,
       });
       mapRef.current = map;
@@ -133,9 +137,14 @@ function FleetMapMapboxCore({
 
       // 1. Perte de contexte WebGL → notifie le wrapper pour remontage
       const canvas = map.getCanvas();
+      const captureView = (): MapView | undefined => {
+        const m = mapRef.current;
+        if (!m) return undefined;
+        return { center: [m.getCenter().lng, m.getCenter().lat], zoom: m.getZoom(), pitch: m.getPitch(), bearing: m.getBearing() };
+      };
       const handleContextLost = (e: Event) => {
         e.preventDefault();
-        onContextLost();
+        onContextLost(captureView());
       };
       canvas.addEventListener("webglcontextlost", handleContextLost);
 
@@ -159,9 +168,10 @@ function FleetMapMapboxCore({
         if (c.width === 0 || c.height === 0) {
           m.resize();
           // Si toujours 0 après resize, déclenche le remontage complet
+          const view = captureView();
           setTimeout(() => {
             const c2 = mapRef.current?.getCanvas();
-            if (c2 && (c2.width === 0 || c2.height === 0)) onContextLost();
+            if (c2 && (c2.width === 0 || c2.height === 0)) onContextLost(view);
           }, 500);
         }
       }, 5000);
@@ -278,6 +288,7 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
   const [mapKey, setMapKey] = useState(0);
   const [recovering, setRecovering] = useState(false);
   const recoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedView = useRef<MapView | null>(null);
 
   useEffect(() => {
     getMapboxToken()
@@ -285,8 +296,9 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
       .catch(() => setToken(""));
   }, []);
 
-  const handleContextLost = useCallback(() => {
+  const handleContextLost = useCallback((view?: MapView) => {
     if (recovering) return;
+    if (view) savedView.current = view;
     setRecovering(true);
     if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
     recoverTimeout.current = setTimeout(() => {
@@ -322,6 +334,7 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
       points={points}
       token={token}
       onContextLost={handleContextLost}
+      initialView={savedView.current ?? undefined}
     />
   );
 }
