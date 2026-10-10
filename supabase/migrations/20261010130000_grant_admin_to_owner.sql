@@ -1,11 +1,26 @@
 -- Attribue le rôle admin à l'email propriétaire de l'application.
 -- S'exécute à chaque déploiement (idempotent grâce à ON CONFLICT DO NOTHING).
 
+-- 0. Fonction RPC check_is_admin() appelée par admin.tsx pour vérifier le rôle
+CREATE OR REPLACE FUNCTION public.check_is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = auth.uid()
+      AND role = 'admin'
+  );
+$$;
+
 -- 1. Grant rétroactif : si l'utilisateur existe déjà dans auth.users
 INSERT INTO public.user_roles (user_id, role)
 SELECT id, 'admin'::app_role
 FROM auth.users
-WHERE email = 'rakounklub@gmail.com'
+WHERE email IN ('rakounklub@gmail.com', 'palermegarry.gp@gmail.com')
 ON CONFLICT DO NOTHING;
 
 -- 2. Trigger : grants admin automatiquement lors d'une future inscription
