@@ -79,11 +79,22 @@ function OpenBriefsPage() {
   const loadPage = useCallback(async (profId: string, types: string[], p: number) => {
     if (types.length === 0) { setBriefs([]); setTotal(0); return; }
     setPageLoading(true);
-    const { data: bs, count } = await supabase
+    // Owners with "autre" vehicles can respond to any brief — don't filter by type.
+    // For all other owners, use an array overlap so only relevant briefs appear.
+    const hasAutre = types.includes("autre");
+    const strictTypes = types.filter((t) => t !== "autre");
+    let q = supabase
       .from("advertiser_briefs")
       .select("id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, created_at", { count: "exact" })
-      .eq("status", "open")
-      .overlaps("vehicle_types", types as never)
+      .eq("status", "open");
+    if (!hasAutre && strictTypes.length > 0) {
+      q = q.overlaps("vehicle_types", strictTypes as never);
+    } else if (hasAutre && strictTypes.length > 0) {
+      // Show briefs matching the specific types OR briefs that include "autre"
+      q = q.or(`vehicle_types.ov.{${strictTypes.join(",")}},vehicle_types.cs.{autre}`);
+    }
+    // hasAutre && strictTypes.length === 0 → no filter, all open briefs shown
+    const { data: bs, count } = await q
       .order("created_at", { ascending: false })
       .range(p * PAGE_SIZE, (p + 1) * PAGE_SIZE - 1);
     setBriefs((bs as Brief[]) ?? []);

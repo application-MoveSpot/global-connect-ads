@@ -65,9 +65,16 @@ export const runBriefMatching = createServerFn({ method: "POST" })
     let matchesFound = 0;
 
     for (const [, owner] of ownerMap) {
-      // Briefs compatibles : intersection des types de véhicules
+      // Briefs compatibles : intersection des types de véhicules.
+      // "autre" est traité comme un joker dans les deux sens :
+      //   – si un brief demande "autre", il accepte tous les types de véhicules ;
+      //   – si un propriétaire a un véhicule "autre", il peut répondre à tous les briefs.
+      const ownerHasAutre = owner.vehicleTypes.has("autre");
       const compatible = briefs.filter((b) => {
         const bTypes = (b.vehicle_types as string[] | null) ?? [];
+        if (!bTypes.length) return true;
+        if (ownerHasAutre) return true; // "autre" owner → all briefs are potentially relevant
+        if (bTypes.includes("autre")) return true; // brief open to any vehicle type
         return bTypes.some((t) => owner.vehicleTypes.has(t));
       });
 
