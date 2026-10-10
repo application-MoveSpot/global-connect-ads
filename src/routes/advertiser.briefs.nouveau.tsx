@@ -34,6 +34,7 @@ import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
 import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
+import { AdvertiserBudgetEstimate } from "@/components/advertiser/AdvertiserBudgetEstimate";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/nouveau")({
@@ -1573,6 +1574,15 @@ function NewBriefPage() {
             vehicleCount={vehicleTypes.length}
             zonePolygon={zonePolygon}
           />
+
+          {estimatedDays >= 1 && vehicleTypes.length >= 1 && (
+            <AdvertiserBudgetEstimate
+              zones={zones || zonePolygon?.detectedZones?.[0] || ""}
+              days={estimatedDays}
+              vehicleCount={vehicleTypes.length}
+              vehicleTypes={vehicleTypes}
+            />
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <Field label={t("advertiser.briefs.nouveau.field_budget")}>
