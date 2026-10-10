@@ -15,6 +15,9 @@ export function Navbar() {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    // Bouton admin uniquement visible dans le preview Lovable, pas sur le site officiel
+    const isLovablePreview = window.location.hostname.includes("lovable.app");
+    if (!isLovablePreview) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return;
       supabase.rpc("check_is_admin" as never).then(({ data }) => {
