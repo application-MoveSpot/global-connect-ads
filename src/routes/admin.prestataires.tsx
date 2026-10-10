@@ -7,7 +7,7 @@ import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { RouteError } from "@/components/app/RouteError";
 
-export const Route = createFileRoute("/admin/providers")({
+export const Route = createFileRoute("/admin/prestataires")({
   head: () => ({
     meta: [
       { title: "Admin · Prestataires — MoveSpot" },

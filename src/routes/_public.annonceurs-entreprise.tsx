@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/_public/advertisers-entreprise")({
+export const Route = createFileRoute("/_public/annonceurs-entreprise")({
   head: () => ({
     meta: [
       { title: "GPS-certified mobile advertising for businesses — MoveSpot | Publicité mobile certifiée GPS pour entreprises" },
