@@ -8,7 +8,7 @@ export function validateSiretLuhn(siret: string): boolean {
   let sum = 0;
   for (let i = 0; i < 14; i++) {
     let d = parseInt(siret[i], 10);
-    if (i % 2 === 1) {
+    if (i % 2 === 0) {
       d *= 2;
       if (d > 9) d -= 9;
     }
