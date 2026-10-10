@@ -5,6 +5,10 @@
 //   - Tailwind CSS generates inline styles at build time
 //   - Mapbox GL uses dynamic Function() for WebGL shader compilation
 //
+// WHY worker-src blob::
+//   - Mapbox GL spawns Web Workers from blob: URLs for WebGL shader compilation
+//   - Without this, the map worker is blocked and FleetMap/ZoneSelector fail silently
+//
 // The real XSS protection here comes from restricting connect-src to known
 // origins (blocks data exfiltration to attacker-controlled servers), locking
 // frame-ancestors to prevent clickjacking, and object-src 'none' to block
@@ -13,6 +17,7 @@
 export const CSP_DIRECTIVES = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' js.stripe.com connect.facebook.net www.googletagmanager.com",
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
   "font-src 'self' fonts.gstatic.com data:",
   "img-src 'self' data: blob: *.supabase.co *.mapbox.com *.openstreetmap.org cdn.jsdelivr.net www.facebook.com www.google.com googleads.g.doubleclick.net",
