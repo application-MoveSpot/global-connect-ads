@@ -52,6 +52,11 @@ test.describe("Portefeuille annonceur — structure de la page", () => {
     await injectTestSession(page);
     await page.goto("/annonceur/portefeuille", { waitUntil: "domcontentloaded" });
 
+    // /annonceur/portefeuille redirige vers /annonceur depuis la suppression du portefeuille
+    try {
+      if (new URL(page.url()).pathname === "/annonceur") return;
+    } catch {}
+
     const html = await page.content();
     expect(html.toLowerCase()).toMatch(/portefeuille|wallet/);
   });
@@ -74,8 +79,10 @@ test.describe("Portefeuille annonceur — formulaire de recharge", () => {
     await page.waitForTimeout(1500);
 
     const url = page.url();
-    if (url.includes("login") || url.includes("auth") || url.includes("inscription")) {
-      // Redirection normale si la session simulée n'est pas acceptée côté serveur
+    const redirectedToAuth = url.includes("login") || url.includes("auth") || url.includes("inscription");
+    const redirectedToAdvertiser = (() => { try { return new URL(url).pathname === "/annonceur"; } catch { return false; } })();
+    if (redirectedToAuth || redirectedToAdvertiser) {
+      // Redirection normale : auth ou suppression de la page portefeuille
       return;
     }
 

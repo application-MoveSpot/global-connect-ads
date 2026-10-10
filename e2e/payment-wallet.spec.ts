@@ -33,7 +33,8 @@ async function injectTestSession(page: Page) {
 function isRedirected(url: string) {
   try {
     const { pathname } = new URL(url);
-    if (pathname === "/" || pathname === "") return true;
+    // /annonceur/portefeuille redirige vers /annonceur depuis la suppression du portefeuille
+    if (pathname === "/" || pathname === "" || pathname === "/annonceur") return true;
   } catch {}
   return url.includes("login") || url.includes("auth") || url.includes("inscription");
 }
