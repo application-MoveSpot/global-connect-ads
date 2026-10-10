@@ -105,7 +105,7 @@ function RemboursementPage() {
           <h2 className="font-semibold text-xl">{t("refund.contact_title")}</h2>
           <p className="text-sm text-muted-foreground">
             {t("refund.contact_text")}{" "}
-            <a href="mailto:support@movespot.fr" className="text-primary underline">support@movespot.fr</a>
+            <a href="mailto:support@move-spot.com" className="text-primary underline">support@move-spot.com</a>
           </p>
         </section>
       </main>

@@ -125,7 +125,7 @@ function ContratPage() {
                 1 Lot, Immeuble Sud Jarry<br />
                 ZAC de Houelbourg<br />
                 97122 Baie-Mahault, Guadeloupe<br />
-                contact@movespot.fr
+                contact@move-spot.com
               </div>
             </div>
           </div>
@@ -241,7 +241,7 @@ function ContratPage() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-            MoveSpot — RAKOUN KLUB · contact@movespot.fr<br />
+            MoveSpot — RAKOUN KLUB · contact@move-spot.com<br />
             1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe<br />
             {t("advertiser.contrat.footer", { date: generatedAt, ref: contractNumber })}
           </div>

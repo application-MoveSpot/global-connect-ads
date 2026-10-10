@@ -122,7 +122,7 @@ function FacturePage() {
                 1 Lot, Immeuble Sud Jarry<br />
                 ZAC de Houelbourg<br />
                 97122 Baie-Mahault, Guadeloupe<br />
-                contact@movespot.fr
+                contact@move-spot.com
               </div>
             </div>
             <div>
@@ -221,7 +221,7 @@ function FacturePage() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-            MoveSpot — RAKOUN KLUB · SIRET en cours d'enregistrement · contact@movespot.fr<br />
+            MoveSpot — RAKOUN KLUB · SIRET en cours d'enregistrement · contact@move-spot.com<br />
             1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe
           </div>
         </div>

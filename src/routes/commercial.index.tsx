@@ -419,8 +419,8 @@ function CommercialDashboard() {
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-muted-foreground">
           <strong className="text-foreground">{t("commercial.dashboard.payment_note_title")}</strong>{" "}
           {t("commercial.dashboard.payment_note_body")}{" "}
-          <a href="mailto:contact@movespot.fr" className="underline text-foreground">
-            contact@movespot.fr
+          <a href="mailto:contact@move-spot.com" className="underline text-foreground">
+            contact@move-spot.com
           </a>{" "}
           {t("commercial.dashboard.payment_note_suffix")}
         </div>

@@ -13,7 +13,7 @@ export function polygonToEwkt(coords: [number, number][]) {
   return `SRID=4326;POLYGON((${ring}))`;
 }
 
-const NOM_HEADERS = { "User-Agent": "MoveSpot/1.0 (contact@movespot.fr)", "Accept-Language": "fr" };
+const NOM_HEADERS = { "User-Agent": "MoveSpot/1.0 (contact@move-spot.com)", "Accept-Language": "fr" };
 
 async function reverseGeocode(lat: number, lng: number): Promise<string[]> {
   try {
