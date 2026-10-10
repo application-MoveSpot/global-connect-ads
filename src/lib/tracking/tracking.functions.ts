@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getDrivingRules } from "@/lib/fleet/driving-rules";
+import { detectGpsAnomalies } from "@/lib/tracking/gps-anomaly";
+import { recomputeTrustScore } from "@/lib/tracking/control-photo";
 
 // Retourne "HH:MM" dans le fuseau IANA indiqué pour comparer aux plages horaires
 // stockées sans timezone dans daily_start_time / daily_end_time.
@@ -206,6 +208,41 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
           p_points: inWindowPoints as never,
         });
         metrics = (Array.isArray(m) ? m[0] : m) ?? null;
+      }
+    }
+
+    // ── Détection d'anomalies GPS (anti-fraude) ────────────────────────────────
+    if (data.campaignRequestId && rows.length >= 3) {
+      const anomalyPoints = rows.map((r: any) => ({
+        lat: r.lat,
+        lng: r.lng,
+        speed: r.speed ?? null,
+        recorded_at: r.recorded_at ?? new Date().toISOString(),
+      }));
+      const { flags } = detectGpsAnomalies(anomalyPoints);
+      if (flags.length > 0) {
+        const { supabaseAdmin: adminForAnomalies } = await import("@/integrations/supabase/client.server");
+        // Persiste les flags sur la campaign_request pour audit
+        const { data: existing } = await adminForAnomalies
+          .from("campaign_requests")
+          .select("gps_anomaly_flags")
+          .eq("id", data.campaignRequestId)
+          .maybeSingle();
+        const prev: string[] = (existing as any)?.gps_anomaly_flags ?? [];
+        const merged = [...new Set([...prev, ...flags])];
+        await adminForAnomalies
+          .from("campaign_requests")
+          .update({ gps_anomaly_flags: merged } as never)
+          .eq("id", data.campaignRequestId);
+        // Met à jour le score de confiance du chauffeur
+        const { data: driverRec } = await adminForAnomalies
+          .from("drivers")
+          .select("id")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (driverRec?.id) {
+          await recomputeTrustScore(adminForAnomalies, driverRec.id).catch(() => void 0);
+        }
       }
     }
 

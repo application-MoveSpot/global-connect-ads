@@ -101,8 +101,8 @@ test.describe("Pages publiques — anti écran blanc", () => {
     if (fatalHome.length > 0) return; // erreurs attendues en CI sans env vars — skip
   });
 
-  test("page prestataires /prestataires charge", async ({ page }) => {
-    await page.goto("/prestataires");
+  test("page prestataires /providers charge", async ({ page }) => {
+    await page.goto("/providers");
     await page.waitForLoadState("domcontentloaded");
     await expectNoWhiteScreen(page);
     await assertNoFatalError(page);
@@ -131,15 +131,15 @@ test.describe("Pages publiques — anti écran blanc", () => {
 
 test.describe("Pages protégées — redirection propre (pas écran blanc)", () => {
   const PROTECTED_ROUTES = [
-    "/annonceur",
-    "/annonceur/briefs",
-    "/annonceur/briefs/nouveau",
-    "/annonceur/portefeuille",
-    "/proprietaire",
-    "/proprietaire/vehicules/nouveau",
-    "/chauffeur",
-    "/prestataire",
-    "/partenaire",
+    "/advertiser",
+    "/advertiser/briefs",
+    "/advertiser/briefs/nouveau",
+    "/advertiser/portefeuille",
+    "/owner",
+    "/owner/vehicules/nouveau",
+    "/driver",
+    "/provider",
+    "/partner",
     "/admin",
   ];
 
@@ -189,7 +189,7 @@ test.describe("Fonctionnalités critiques — régression Camion LED", () => {
     // Test source-level : vérifie que le type de véhicule n'a pas été supprimé
     // (les pages protégées redirigent vers /auth sans Supabase, donc on vérifie les sources)
     const src = fs.readFileSync(
-      path.join(process.cwd(), "src/routes/annonceur.briefs.nouveau.tsx"),
+      path.join(process.cwd(), "src/routes/advertiser.briefs.nouveau.tsx"),
       "utf-8"
     );
     expect(src).toContain("camion_led");
@@ -199,7 +199,7 @@ test.describe("Fonctionnalités critiques — régression Camion LED", () => {
     // Le texte "Camion LED" est dans fr.json (annonceur.promo_led.title) ;
     // on vérifie que la clé de traduction est bien référencée dans la page.
     const src = fs.readFileSync(
-      path.join(process.cwd(), "src/routes/annonceur.index.tsx"),
+      path.join(process.cwd(), "src/routes/advertiser.index.tsx"),
       "utf-8"
     );
     expect(src).toContain("promo_led");
@@ -209,16 +209,16 @@ test.describe("Fonctionnalités critiques — régression Camion LED", () => {
 // ── Test spécifique : FleetMap sans message d'erreur WebGL ───────────────────
 
 test.describe("Carte flotte — anti-erreur WebGL", () => {
-  test("proprietaire/flotte ne contient pas 'Failed to initialize WebGL'", async ({ page }) => {
-    await page.goto("/proprietaire/flotte", { waitUntil: "domcontentloaded" });
+  test("owner/flotte ne contient pas 'Failed to initialize WebGL'", async ({ page }) => {
+    await page.goto("/owner/flotte", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(2000); // laisse le temps à useEffect de s'exécuter
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
     expect(bodyText).not.toContain("Failed to initialize WebGL");
   });
 
-  test("proprietaire/flotte n'est pas une page blanche", async ({ page }) => {
-    await page.goto("/proprietaire/flotte", { waitUntil: "domcontentloaded" });
+  test("owner/flotte n'est pas une page blanche", async ({ page }) => {
+    await page.goto("/owner/flotte", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1500);
     await expectNoWhiteScreen(page);
   });

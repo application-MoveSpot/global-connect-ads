@@ -6,9 +6,9 @@ export const Route = createFileRoute("/_public/comment-ca-marche")({
   head: () => ({
     meta: [
       { title: "How MoveSpot works | Comment ça marche — MoveSpot" },
-      { name: "description", content: "MoveSpot en 3 minutes : comment annonceurs, propriétaires de véhicules et chauffeurs utilisent la marketplace de publicité mobile." },
+      { name: "description", content: "MoveSpot en 3 minutes : comment advertisers, propriétaires de véhicules et drivers utilisent la marketplace de publicité mobile." },
       { property: "og:title", content: "Comment fonctionne MoveSpot" },
-      { property: "og:description", content: "Annonceur, propriétaire, chauffeur : découvrez le parcours complet sur MoveSpot." },
+      { property: "og:description", content: "Annonceur, propriétaire, driver : découvrez le parcours complet sur MoveSpot." },
     ],
     links: [{ rel: "canonical", href: "https://move-spot.com/comment-ca-marche" }, ...hreflangLinks("/comment-ca-marche")],
     scripts: [
@@ -91,19 +91,19 @@ const CONTENT = {
     owner_step1_link: "import CSV",
     owner_step1_suffix: ". SIRET vérifié auprès de l'INSEE.",
     owner: [
-      { title: "Je reçois des demandes", body: "Demandes ciblées d'annonceurs OU briefs ouverts auxquels je peux candidater." },
+      { title: "Je reçois des demandes", body: "Demandes ciblées d'advertisers OU briefs ouverts auxquels je peux candidater." },
       { title: "J'imprime un QR par véhicule", body: "Le QR signé cryptographiquement est collé en cabine. Impossible à falsifier." },
       { title: "J'encaisse", body: "Paiement par campagne, dashboard flotte avec carte multi-véhicules et indicateurs (taux d'occupation, CA, km)." },
     ],
     driver_h2: "📱 Chauffeur",
     driver_step1_title: "Je scanne le QR",
     driver_step1_prefix: "Avec mon téléphone — aucune installation, aucun compte. La page ",
-    driver_step1_link: "/chauffeur",
+    driver_step1_link: "/driver",
     driver_step1_suffix: " s'ouvre.",
     driver: [
       { title: "J'appuie sur Démarrer", body: "Le GPS du téléphone envoie ma position toutes les 20 secondes, l'écran reste allumé (Wake Lock)." },
-      { title: "Je conduis", body: "L'annonceur voit la campagne vivre en temps réel sur sa carte." },
-      { title: "J'arrête en fin de tournée", body: "Un bouton, et c'est fini. Mes données ne sont accessibles qu'à mon employeur et à l'annonceur, uniquement pendant la campagne." },
+      { title: "Je conduis", body: "L'advertiser voit la campagne vivre en temps réel sur sa carte." },
+      { title: "J'arrête en fin de tournée", body: "Un bouton, et c'est fini. Mes données ne sont accessibles qu'à mon employeur et à l'advertiser, uniquement pendant la campagne." },
     ],
     payment_h2: "💳 Payer sa campagne",
     payment: [
@@ -117,13 +117,13 @@ const CONTENT = {
       "SIRET vérifié en temps réel (API INSEE Sirene 3.11)",
       "Modération des véhicules : photos contrôlées, mauvais état refusé automatiquement",
       "QR signés HMAC-SHA256 : la moindre modification invalide le QR",
-      "Positions GPS visibles par l'annonceur uniquement pendant la fenêtre de campagne approuvée (RLS Postgres)",
+      "Positions GPS visibles par l'advertiser uniquement pendant la fenêtre de campagne approuvée (RLS Postgres)",
       "Double authentification (TOTP) disponible sur tous les comptes",
-      "Conformité RGPD : les positions sont liées au véhicule, pas à l'identité du chauffeur",
+      "Conformité RGPD : les positions sont liées au véhicule, pas à l'identité du driver",
       "Mises à jour sans coupure : les nouvelles versions se chargent sans vous déconnecter",
     ],
     cta_h2: "Prêt à démarrer ?",
-    cta_advertiser: "Je suis annonceur",
+    cta_advertiser: "Je suis advertiser",
     cta_owner: "J'ai des véhicules",
   },
   en: {
@@ -205,7 +205,7 @@ function HowItWorks() {
           <div className="grid md:grid-cols-2 gap-4">
             <Step n={1} title={c.owner_step1_title}>
               {c.owner_step1_prefix}
-              <Link to="/proprietaire/flotte/import" className="text-primary underline">{c.owner_step1_link}</Link>
+              <Link to="/owner/flotte/import" className="text-primary underline">{c.owner_step1_link}</Link>
               {c.owner_step1_suffix}
             </Step>
             {c.owner.map((s, i) => (
@@ -220,7 +220,7 @@ function HowItWorks() {
           <div className="grid md:grid-cols-2 gap-4">
             <Step n={1} title={c.driver_step1_title}>
               {c.driver_step1_prefix}
-              <Link to="/chauffeur" search={{ t: "" }} className="text-primary underline">{c.driver_step1_link}</Link>
+              <Link to="/driver" search={{ t: "" }} className="text-primary underline">{c.driver_step1_link}</Link>
               {c.driver_step1_suffix}
             </Step>
             {c.driver.map((s, i) => (
@@ -252,8 +252,8 @@ function HowItWorks() {
         <div className="rounded-2xl bg-gradient-signal p-8 text-center">
           <h2 className="font-display text-2xl font-bold mb-3">{c.cta_h2}</h2>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/annonceur" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold">{c.cta_advertiser}</Link>
-            <Link to="/proprietaire" className="rounded-full bg-card text-foreground border border-border px-6 py-3 font-semibold">{c.cta_owner}</Link>
+            <Link to="/advertiser" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold">{c.cta_advertiser}</Link>
+            <Link to="/owner" className="rounded-full bg-card text-foreground border border-border px-6 py-3 font-semibold">{c.cta_owner}</Link>
           </div>
         </div>
       </main>

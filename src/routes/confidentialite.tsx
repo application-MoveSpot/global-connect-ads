@@ -77,15 +77,15 @@ function Privacy() {
 
       <LegalSection title={t("confidentialite.s5")}>
         <p>
-          Les positions GPS sont collectées uniquement lorsque le chauffeur active le suivi, et uniquement pendant les
+          Les positions GPS sont collectées uniquement lorsque le driver active le suivi, et uniquement pendant les
           périodes de conduite déclarées d'une campagne. Elles sont mises en mémoire tampon sur le terminal puis
           envoyées par lots à la Plateforme.
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li>Les positions sont rattachées au <strong>véhicule</strong> et à la campagne, non à l'identité personnelle du chauffeur.</li>
-          <li>L'annonceur n'accède aux positions que pendant la fenêtre de la campagne approuvée, via des règles d'accès appliquées au niveau de la base de données.</li>
+          <li>Les positions sont rattachées au <strong>véhicule</strong> et à la campagne, non à l'identité personnelle du driver.</li>
+          <li>L'advertiser n'accède aux positions que pendant la fenêtre de la campagne approuvée, via des règles d'accès appliquées au niveau de la base de données.</li>
           <li>Les positions brutes sont conservées 13 mois maximum, puis supprimées ; seules les métriques agrégées de campagne sont conservées pour la facturation.</li>
-          <li>Le chauffeur peut arrêter le suivi à tout moment ; aucune collecte n'a lieu hors campagne.</li>
+          <li>Le driver peut arrêter le suivi à tout moment ; aucune collecte n'a lieu hors campagne.</li>
         </ul>
       </LegalSection>
 
@@ -107,7 +107,7 @@ function Privacy() {
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li><strong>Hébergement, base de données, authentification et stockage de fichiers</strong> — infrastructure cloud de la Plateforme (Union européenne).</li>
-          <li><strong>Stripe</strong> — paiements par carte, abonnements, comptes de paiement partenaires et reversements.</li>
+          <li><strong>Stripe</strong> — paiements par carte, abonnements, comptes de paiement partners et reversements.</li>
           <li><strong>Établissement bancaire</strong> — traitement des virements entrants B2B et des virements SEPA sortants.</li>
           <li><strong>Mapbox</strong> — affichage cartographique, fonds de carte, géocodage des adresses d'itinéraire, calcul de trajet et détection des points d'intérêt.</li>
           <li><strong>API publiques françaises</strong> (Annuaire des Entreprises / INSEE Sirene) — vérification des identités d'entreprise.</li>
@@ -159,7 +159,7 @@ function Privacy() {
 
       <LegalSection title={t("confidentialite.s11")}>
         <p>
-          Certains de nos prestataires peuvent traiter des données en dehors de l'Union européenne. Dans ce cas, nous
+          Certains de nos providers peuvent traiter des données en dehors de l'Union européenne. Dans ce cas, nous
           nous assurons que des garanties appropriées sont mises en place (clauses contractuelles types de la
           Commission européenne ou décision d'adéquation).
         </p>

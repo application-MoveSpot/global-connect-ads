@@ -142,7 +142,7 @@ function CommercialDashboard() {
   }, [load]);
 
   const referralLink = profile
-    ? `${typeof window !== "undefined" ? window.location.origin : "https://movespot.fr"}/annonceur/inscription?ref=${profile.referral_code}`
+    ? `${typeof window !== "undefined" ? window.location.origin : "https://movespot.fr"}/advertiser/inscription?ref=${profile.referral_code}`
     : "";
 
   const copyLink = async () => {

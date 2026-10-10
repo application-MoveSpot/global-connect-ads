@@ -24,8 +24,8 @@ describe("detectContact — téléphone", () => {
     assert.equal(detectContact("Je suis à Paris 75013"), null);
   });
 
-  it("ne détecte pas un numéro fixe 01", () => {
-    assert.equal(detectContact("01 42 56 78 90"), null);
+  it("détecte un numéro fixe 01", () => {
+    assert.equal(detectContact("01 42 56 78 90")?.kind, "phone");
   });
 });
 
@@ -62,8 +62,30 @@ describe("detectContact — URL / lien externe", () => {
     assert.equal(detectContact("Contact wa.me/33612345678")?.kind, "url");
   });
 
+  it("détecte un lien TikTok", () => {
+    assert.equal(detectContact("Suivez-nous sur tiktok.com/@marque")?.kind, "url");
+  });
+
+  it("détecte un lien Discord", () => {
+    assert.equal(detectContact("Rejoignez discord.gg/movespot")?.kind, "url");
+  });
+
+  it("détecte un shortener bit.ly", () => {
+    assert.equal(detectContact("Cliquez ici bit.ly/3xYz")?.kind, "url");
+  });
+
   it("ne détecte pas un texte normal sans URL", () => {
     assert.equal(detectContact("Belle campagne publicitaire sur véhicule"), null);
+  });
+});
+
+describe("detectContact — email obfusqué", () => {
+  it("détecte [at]", () => {
+    assert.equal(detectContact("john[at]example.com")?.kind, "email");
+  });
+
+  it("détecte (at)", () => {
+    assert.equal(detectContact("contact (at) marque.fr")?.kind, "email");
   });
 });
 

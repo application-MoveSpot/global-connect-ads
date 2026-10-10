@@ -122,7 +122,7 @@ export const Route = (createRootRouteWithContext as any)()({
                 "@type": "SearchAction",
                 target: {
                   "@type": "EntryPoint",
-                  urlTemplate: "https://move-spot.com/prestataires?q={search_term_string}",
+                  urlTemplate: "https://move-spot.com/providers?q={search_term_string}",
                 },
                 "query-input": "required name=search_term_string",
               },

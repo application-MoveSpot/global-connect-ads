@@ -40,7 +40,7 @@ const AVANTAGES = {
     {
       icon: "⚡",
       titre: "Lancement en 5 minutes",
-      desc: "Créez votre brief, choisissez vos zones et votre budget. Un véhicule partenaire est assigné immédiatement, pas besoin d'attendre un devis ou un responsable commercial.",
+      desc: "Créez votre brief, choisissez vos zones et votre budget. Un véhicule partner est assigné immédiatement, pas besoin d'attendre un devis ou un responsable commercial.",
       vs: "Les agences traditionnelles demandent 3 à 6 semaines entre la demande et le lancement effectif.",
     },
     {
@@ -58,13 +58,13 @@ const AVANTAGES = {
     {
       icon: "📍",
       titre: "Mesure GPS certifiée",
-      desc: "Chaque véhicule partenaire transmet sa position en temps réel. Vous voyez exactement quelles rues ont été parcourues, à quelle heure, et combien d'impressions ont été générées.",
+      desc: "Chaque véhicule partner transmet sa position en temps réel. Vous voyez exactement quelles rues ont été parcourues, à quelle heure, et combien d'impressions ont été générées.",
       vs: "Les billboards et la plupart des agences fournissent des estimations basées sur des études de trafic périmées.",
     },
     {
       icon: "🎯",
       titre: "Ciblage géographique précis",
-      desc: "Dessinez directement sur la carte les zones que vous voulez couvrir. Les véhicules partenaires dans ces zones reçoivent votre brief automatiquement.",
+      desc: "Dessinez directement sur la carte les zones que vous voulez couvrir. Les véhicules partners dans ces zones reçoivent votre brief automatiquement.",
       vs: "Wrapify (leader US) n'est pas disponible en France. Les acteurs locaux n'ont pas de ciblage cartographique en libre-service.",
     },
     {
@@ -182,7 +182,7 @@ const CONTENT = {
     comparatif_h2: "MoveSpot vs la concurrence",
     comparatif_headers: ["MoveSpot", "Agence trad.", "Billboard", "Wrapify (US)"],
     cta_h2: "Prêt à lancer votre campagne ?",
-    cta_desc: "Rejoignez les annonceurs qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
+    cta_desc: "Rejoignez les advertisers qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
     cta_final_primary: "Créer mon compte gratuitement →",
     cta_final_secondary: "Voir les véhicules disponibles",
     footer_rights: "Tous droits réservés.",
@@ -243,13 +243,13 @@ function PourquoiMovespot() {
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">{c.desc}</p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
             <Link
-              to="/annonceur/inscription"
+              to="/advertiser/inscription"
               className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
             >
               {c.cta_primary}
             </Link>
             <Link
-              to="/annonceur/briefs/nouveau"
+              to="/advertiser/briefs/nouveau"
               className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition"
             >
               {c.cta_secondary}
@@ -341,7 +341,7 @@ function PourquoiMovespot() {
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">{c.cta_desc}</p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
-              to="/annonceur/inscription"
+              to="/advertiser/inscription"
               className="rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow text-lg"
             >
               {c.cta_final_primary}

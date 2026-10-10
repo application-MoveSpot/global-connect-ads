@@ -13,7 +13,7 @@ import { createClient } from "@supabase/supabase-js";
  *   - campaign_requests INSERT  → notify owner
  *   - campaign_requests UPDATE  → notify certified installers (status→approved), admins (installation_status→pending_approval)
  *   - brief_proposals   UPDATE  → notify owner (accepted/rejected)
- *   - payee_profiles    UPDATE  → notify chauffeur (certification)
+ *   - payee_profiles    UPDATE  → notify driver (certification)
  *   - vehicles          UPDATE  → notify owner (approved/rejected)
  */
 
@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                   await sendWebPushToUser(userId, {
                     title: "Nouvelle demande de campagne",
                     body: company ? `${company} souhaite louer un espace publicitaire.` : undefined,
-                    url: "/proprietaire",
+                    url: "/owner",
                   });
                 }
               }
@@ -107,7 +107,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     sendWebPushToUser(p.user_id, {
                       title: "Nouvelle mission disponible !",
                       body: "Une mission d'installation est disponible dans votre espace.",
-                      url: "/chauffeur/espace",
+                      url: "/driver/espace",
                     })
                   )
                 );
@@ -146,7 +146,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                   body: notes
                     ? `Motif : ${notes}`
                     : "Votre pose a été refusée. Consultez votre espace pour corriger.",
-                  url: "/chauffeur/espace",
+                  url: "/driver/espace",
                 });
               }
             }
@@ -214,7 +214,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
 
                 if (email) {
                   const isIndividual = profile?.account_type === "individual";
-                  const briefUrl = `https://move-spot.com/annonceur/briefs/${briefId}`;
+                  const briefUrl = `https://move-spot.com/advertiser/briefs/${briefId}`;
                   const { sendAppEmailSafe } = await import("@/lib/email/send.server");
 
                   const fmtDate = (d: string | null | undefined) =>
@@ -279,9 +279,9 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                   await sendWebPushToUser(userId, {
                     title: newStatus === "accepted" ? "Proposition acceptée !" : "Proposition refusée",
                     body: newStatus === "accepted"
-                      ? "Un annonceur a accepté votre proposition."
-                      : "Un annonceur a refusé votre proposition.",
-                    url: "/proprietaire/briefs",
+                      ? "Un advertiser a accepté votre proposition."
+                      : "Un advertiser a refusé votre proposition.",
+                    url: "/owner/briefs",
                   });
                 }
 
@@ -338,8 +338,8 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                         startDate: fmtDate(brief?.start_date),
                         endDate: fmtDate(brief?.end_date),
                         dashboardUrl: newStatus === "accepted"
-                          ? "https://move-spot.com/proprietaire"
-                          : "https://move-spot.com/proprietaire/briefs",
+                          ? "https://move-spot.com/owner"
+                          : "https://move-spot.com/owner/briefs",
                       },
                     });
                   }
@@ -360,7 +360,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                   body: newCertif === "certified"
                     ? "Vous êtes maintenant certifié MoveSpot."
                     : "Votre certification a été refusée. Consultez les notes.",
-                  url: "/chauffeur/espace",
+                  url: "/driver/espace",
                 });
                 // Email
                 const db = createClient(
@@ -380,7 +380,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       notes: newCertif === "rejected"
                         ? (record.certification_notes as string | undefined) ?? undefined
                         : undefined,
-                      spaceUrl: "https://move-spot.com/chauffeur/espace",
+                      spaceUrl: "https://move-spot.com/driver/espace",
                     },
                   });
                 }
@@ -402,10 +402,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     title: newStatus === "approved" ? "Véhicule approuvé !" : "Véhicule refusé",
                     body: name
                       ? (newStatus === "approved"
-                          ? `${name} est maintenant visible par les annonceurs.`
+                          ? `${name} est maintenant visible par les advertisers.`
                           : `${name} n'a pas été approuvé. Consultez les notes.`)
                       : undefined,
-                    url: "/proprietaire",
+                    url: "/owner",
                   });
                   // Email
                   const db = createClient(
@@ -425,7 +425,7 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                         reason: newStatus === "rejected"
                           ? (record.admin_notes as string | undefined) ?? undefined
                           : undefined,
-                        dashboardUrl: "https://move-spot.com/proprietaire",
+                        dashboardUrl: "https://move-spot.com/owner",
                       },
                     });
                   }

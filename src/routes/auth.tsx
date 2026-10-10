@@ -128,7 +128,7 @@ function AuthPage() {
           {mfa ? t("auth.mfa_title") : mode === "signin" ? t("auth.signin") : t("auth.signup")}
         </h1>
         <p className="text-sm text-muted-foreground mb-6">
-          {mfa ? t("auth.mfa_desc") : mode === "signin" ? "Accédez au dashboard MoveSpot." : "Le premier compte créé devient automatiquement admin."}
+          {mfa ? t("auth.mfa_desc") : mode === "signin" ? t("auth.signin_desc") : t("auth.signup_desc")}
         </p>
 
         {mfa ? (

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_public/")({
   head: () => ({
     meta: [
       { title: "MoveSpot — Marketplace de publicité mobile sur véhicules" },
-      { name: "description", content: "MoveSpot met en relation annonceurs et propriétaires de véhicules (food trucks, vans, taxis, scooters de livraison) pour louer des espaces publicitaires mobiles à la journée." },
+      { name: "description", content: "MoveSpot met en relation advertisers et propriétaires de véhicules (food trucks, vans, taxis, scooters de livraison) pour louer des espaces publicitaires mobiles à la journée." },
       { name: "keywords", content: "publicité mobile, marketplace publicitaire véhicules, food truck publicité, habillage van, taxi publicité, scooter livraison pub, DOOH mobile" },
       { property: "og:title", content: "MoveSpot — Marketplace de publicité mobile" },
       { property: "og:description", content: "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement." },
@@ -106,7 +106,7 @@ function Index() {
   const stats: { k: string; vKey: string; fallback: string }[] = [
     { k: "1,80 €", vKey: "hero.stat0_v", fallback: "par km² et par jour (2,70 € en grande agglomération)" },
     { k: "25 €", vKey: "hero.stat1_v", fallback: "par véhicule par jour — soit 375 €/mois pour 1 véhicule" },
-    { k: "70 / 30", vKey: "hero.stat2_v", fallback: "reversé aux partenaires / commission MoveSpot" },
+    { k: "70 / 30", vKey: "hero.stat2_v", fallback: "reversé aux partners / commission MoveSpot" },
     { k: "14 j", vKey: "hero.stat3_v", fallback: "d'essai gratuit sur les campagnes par abonnement" },
   ];
 
@@ -184,15 +184,15 @@ function Index() {
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
             <Trans
               i18nKey="hero.desc"
-                defaults="MoveSpot est la marketplace qui met en relation <strong>annonceurs</strong> et <strong>propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Vous dessinez votre zone, le budget se calcule au km², et chaque kilomètre diffusé est prouvé par GPS."
+                defaults="MoveSpot est la marketplace qui met en relation <strong>advertisers</strong> et <strong>propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Vous dessinez votre zone, le budget se calcule au km², et chaque kilomètre diffusé est prouvé par GPS."
               components={{ strong: <strong className="text-foreground" /> }}
             />
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/annonceur/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+            <Link to="/advertiser/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
               {tx("hero.cta_primary", "Lancer ma campagne →")}
             </Link>
-            <Link to="/devenir-partenaire" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+            <Link to="/devenir-partner" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
               {tx("hero.cta_secondary", "Je suis propriétaire →")}
             </Link>
           </div>
@@ -275,7 +275,7 @@ function Index() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
-              to="/annonceur/inscription"
+              to="/advertiser/inscription"
               className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
             >
               {tx("particular.cta", "Créer mon compte particulier →")}
@@ -329,7 +329,7 @@ function Index() {
             <div>
               <div className="text-xs uppercase tracking-widest text-primary mb-2">{tx("audience.badge", "Mesure d'audience")}</div>
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">{tx("audience.h2", "Des données réelles, pas des estimations")}</h2>
-              <p className="text-muted-foreground mb-6">{tx("audience.desc", "Chaque véhicule partenaire transmet sa position GPS en temps réel. MoveSpot calcule automatiquement les impressions générées selon les zones traversées, la densité de population et les horaires de circulation.")}</p>
+              <p className="text-muted-foreground mb-6">{tx("audience.desc", "Chaque véhicule partner transmet sa position GPS en temps réel. MoveSpot calcule automatiquement les impressions générées selon les zones traversées, la densité de population et les horaires de circulation.")}</p>
               <div className="space-y-3">
                 {audienceItems.map((item) => (
                   <div key={item.key} className="flex gap-3">
@@ -407,7 +407,7 @@ function Index() {
               <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <Link to="/annonceurs-entreprise" className="hover:text-foreground transition">{tx("footer.b2b", "Solution B2B")}</Link>
+              <Link to="/advertisers-entreprise" className="hover:text-foreground transition">{tx("footer.b2b", "Solution B2B")}</Link>
               <Link to="/cgu" className="hover:text-foreground transition">{tx("footer.cgu", "CGU")}</Link>
               <Link to="/cgv" className="hover:text-foreground transition">{tx("footer.cgv", "CGV")}</Link>
               <Link to="/confidentialite" className="hover:text-foreground transition">{tx("footer.confidentialite", "Confidentialité")}</Link>

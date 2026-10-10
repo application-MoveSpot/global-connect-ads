@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createPartnerSubscriptionCheckout } from "@/lib/payments/payments.functions";
@@ -37,6 +38,7 @@ type Props = {
 
 export function PartnerSubscriptionCard({ subscriptionStatus, subscriptionPeriodEnd, onSuccess }: Props) {
   const { t, i18n } = useTranslation();
+  const { fmtAmount } = useCurrency();
   const createCheckout = useServerFn(createPartnerSubscriptionCheckout);
   const [open, setOpen] = useState(false);
   const [checkoutKey, setCheckoutKey] = useState(0);
@@ -113,7 +115,7 @@ export function PartnerSubscriptionCard({ subscriptionStatus, subscriptionPeriod
       ) : (
         <div className="space-y-3">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-display text-3xl font-bold">149 €</span>
+            <span className="font-display text-3xl font-bold">{fmtAmount(149)}</span>
             <span className="text-sm text-muted-foreground">{t("subscription.price_suffix")}</span>
           </div>
           <ul className="text-sm text-muted-foreground space-y-1">

@@ -3,7 +3,7 @@ import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export type ChatAudience = "annonceur" | "proprietaire" | "partenaire" | "prestataire";
+export type ChatAudience = "advertiser" | "owner" | "partner" | "provider";
 
 type Props = {
   audience: ChatAudience;
@@ -119,10 +119,10 @@ function TypingDots() {
 export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
   const { t } = useTranslation();
   const GREETINGS: Record<ChatAudience, string> = {
-    annonceur: t("faq_chatbot.greeting_annonceur"),
-    proprietaire: t("faq_chatbot.greeting_proprietaire"),
-    partenaire: t("faq_chatbot.greeting_partenaire"),
-    prestataire: t("faq_chatbot.greeting_prestataire"),
+    advertiser: t("faq_chatbot.greeting_annonceur"),
+    owner: t("faq_chatbot.greeting_proprietaire"),
+    partner: t("faq_chatbot.greeting_partenaire"),
+    provider: t("faq_chatbot.greeting_prestataire"),
   };
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");

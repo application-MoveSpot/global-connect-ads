@@ -6,7 +6,7 @@ export const Route = createFileRoute("/kit")({
   head: () => ({
     meta: [
       { title: "Kit média — MoveSpot" },
-      { name: "description", content: "Kit média et ressources partenaires MoveSpot : présentation, tarifs, chiffres clés et contacts." },
+      { name: "description", content: "Kit média et ressources partners MoveSpot : présentation, tarifs, chiffres clés et contacts." },
       { property: "og:title", content: "Kit média MoveSpot" },
     ],
     links: [
@@ -57,7 +57,7 @@ function KitMedia() {
               { value: "1,80 €", label: "par km²/jour (ville)", sub: "2,70 € grandes agglomérations" },
               { value: "dès 25 €/jour", label: "budget campagne par véhicule", sub: "sans abonnement" },
               { value: "70 / 30", label: "reversé au propriétaire", sub: "30 % commission plateforme" },
-              { value: "14 jours", label: "essai gratuit annonceur", sub: "sans CB requise" },
+              { value: "14 jours", label: "essai gratuit advertiser", sub: "sans CB requise" },
             ].map(({ value, label, sub }) => (
               <div key={label} className="rounded-xl border border-border p-4 flex flex-col gap-1">
                 <span className="text-2xl font-black">{value}</span>
@@ -182,7 +182,7 @@ function KitMedia() {
             <p className="text-sm text-muted-foreground">{t("kit.contact_desc")}</p>
           </div>
           <div className="text-sm space-y-1 shrink-0">
-            <p><a href="mailto:partenaires@move-spot.com" className="font-semibold underline underline-offset-2">partenaires@move-spot.com</a></p>
+            <p><a href="mailto:partners@move-spot.com" className="font-semibold underline underline-offset-2">partners@move-spot.com</a></p>
             <p className="text-muted-foreground">{t("kit.contact_response")}</p>
           </div>
         </section>
@@ -190,7 +190,7 @@ function KitMedia() {
         {/* Footer impression */}
         <footer className="text-xs text-muted-foreground pt-4 border-t border-border flex flex-col sm:flex-row justify-between gap-2 print:pt-4">
           <span>{t("kit.copyright", { year: new Date().getFullYear() })}</span>
-          <span>move-spot.com · partenaires@move-spot.com</span>
+          <span>move-spot.com · partners@move-spot.com</span>
         </footer>
       </main>
 

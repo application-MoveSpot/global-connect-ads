@@ -88,6 +88,37 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
     advice:
       "Les disciplines spirituelles (yoga, méditation, reiki, ayurvéda…) ne sont pas acceptées sur MoveSpot. La plateforme est réservée aux activités commerciales, associatives et événementielles laïques.",
   },
+  {
+    category: "Cannabis / CBD",
+    keywords: [
+      "cannabis", "marijuana", "weed", "cbd", "thc", "dispensary", "dispensaire",
+      "hash", "hashish", "herbe", "joint", "ganja", "chanvre récréatif",
+      "recreational cannabis", "medical marijuana", "pot shop",
+    ],
+    advice:
+      "MoveSpot n'accepte pas les campagnes liées au cannabis ou aux produits CBD. Cette catégorie est hors charte de la plateforme.",
+  },
+  {
+    category: "Tabac / Vapotage",
+    keywords: [
+      "cigarette", "tabac", "tobacco", "cigare", "cigar", "pipe à tabac",
+      "vapotage", "vaping", "e-cigarette", "e-cig", "vape", "vapeur nicotine",
+      "nicotine", "pod system", "juul", "iqos", "snuff", "snus",
+    ],
+    advice:
+      "MoveSpot n'accepte pas les campagnes tabac, cigarettes électroniques ou produits de vapotage. Cette catégorie est hors charte de la plateforme.",
+  },
+  {
+    category: "Jeux / Paris sportifs",
+    keywords: [
+      "casino", "jeux d'argent", "paris sportifs", "pari sportif", "gambling",
+      "betting", "bookmaker", "bet365", "winamax", "pmu", "fdj", "loto",
+      "machine à sous", "slot machine", "poker en ligne", "online poker",
+      "roulette", "blackjack en ligne", "jackpot", "mise", "cote", "odds",
+    ],
+    advice:
+      "MoveSpot n'accepte pas les campagnes jeux d'argent et paris sportifs. Cette catégorie est hors charte de la plateforme.",
+  },
 ];
 
 export type ForbiddenMatch = {

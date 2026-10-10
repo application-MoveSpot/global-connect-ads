@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 
 /**
  * Simulateur de revenus d'abonnement MoveSpot.
@@ -19,11 +20,11 @@ const FORMULES = [
 
 const PRIX_MOYEN_PONDERE = FORMULES.reduce((acc, f) => acc + f.prix * f.part, 0); // 42,50 €
 
-const eur = (n: number, lang: string) =>
-  new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(Math.round(n)) + " €";
 
 export default function PrevisionnelFormules() {
   const { t, i18n } = useTranslation();
+  const { fmtAmount } = useCurrency();
+  const eur = (n: number) => fmtAmount(Math.round(n));
   const [vehicles, setVehicles] = useState(150);
 
   const revenueUnique = vehicles * PRIX_UNIQUE * 12 * COMMISSION;
@@ -67,7 +68,7 @@ export default function PrevisionnelFormules() {
             {t("prev.scenario1_label")}
           </p>
           <p className="text-xl font-bold text-gray-900 tabular-nums">
-            {eur(revenueUnique, i18n.language)} <span className="text-sm font-medium">{t("prev.per_year")}</span>
+            {eur(revenueUnique)} <span className="text-sm font-medium">{t("prev.per_year")}</span>
           </p>
           <p className="text-[11px] text-gray-500 mt-1">{t("prev.per_vehicle_month", { price: PRIX_UNIQUE })}</p>
         </div>
@@ -76,7 +77,7 @@ export default function PrevisionnelFormules() {
             {t("prev.scenario2_label")}
           </p>
           <p className="text-xl font-bold text-emerald-900 tabular-nums">
-            {eur(revenueFormules, i18n.language)} <span className="text-sm font-medium">{t("prev.per_year")}</span>
+            {eur(revenueFormules)} <span className="text-sm font-medium">{t("prev.per_year")}</span>
           </p>
           <p className="text-[11px] text-emerald-700 mt-1">
             {t("prev.weighted_avg", { avg: PRIX_MOYEN_PONDERE.toLocaleString(i18n.language, { minimumFractionDigits: 2 }) })}
@@ -100,7 +101,7 @@ export default function PrevisionnelFormules() {
             <tr key={f.nom}>
               <td className="p-2 border border-gray-300 font-semibold">{f.nom}</td>
               <td className="p-2 border border-gray-300 text-gray-600">{t(f.detailKey)}</td>
-              <td className="p-2 border border-gray-300 text-right tabular-nums">{f.prix} €</td>
+              <td className="p-2 border border-gray-300 text-right tabular-nums">{eur(f.prix)}</td>
               <td className="p-2 border border-gray-300 text-right tabular-nums">
                 {Math.round(f.part * 100)} %
               </td>
@@ -108,7 +109,7 @@ export default function PrevisionnelFormules() {
                 {Math.round(vehicles * f.part)}
               </td>
               <td className="p-2 border border-gray-300 text-right tabular-nums">
-                {eur(vehicles * f.part * f.prix * 12 * COMMISSION, i18n.language)}
+                {eur(vehicles * f.part * f.prix * 12 * COMMISSION)}
               </td>
             </tr>
           ))}
@@ -117,7 +118,7 @@ export default function PrevisionnelFormules() {
 
       <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
         <span className="text-gray-900 font-semibold tabular-nums">
-          {t("prev.gain_label", { amount: eur(ecart, i18n.language) })}
+          {t("prev.gain_label", { amount: eur(ecart) })}
         </span>
         <span className="block text-[11px] text-gray-600 mt-0.5">
           {t("prev.gain_pct", { pct: ((ecart / revenueUnique) * 100).toFixed(1) })}

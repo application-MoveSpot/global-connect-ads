@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 import { WalletTopupCheckout } from "./WalletTopupCheckout";
 
 type Pack = {
@@ -22,6 +23,7 @@ type Props = {
 
 export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }: Props) {
   const { t } = useTranslation();
+  const { fmtAmount } = useCurrency();
   const isIndividual = accountType === "individual";
 
   const BUSINESS_PACKS: Pack[] = [
@@ -70,7 +72,7 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
             {pack.sublabel && (
               <p className="text-[10px] text-muted-foreground mb-1.5">{pack.sublabel}</p>
             )}
-            <p className="font-display text-2xl font-bold">{pack.price} €</p>
+            <p className="font-display text-2xl font-bold">{fmtAmount(pack.price)}</p>
             <p className="text-xs text-muted-foreground mb-2">
               {t("campaign_pack.days_rate", { count: pack.days, s: pack.days > 1 ? "s" : "", rate: pack.perDay.toFixed(0) })}
             </p>

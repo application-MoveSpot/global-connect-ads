@@ -103,7 +103,7 @@ function AdminDashboard() {
   const [campaignFilter, setCampaignFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [vehicleFilter, setVehicleFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [userSearch, setUserSearch] = useState("");
-  const [userRoleFilter, setUserRoleFilter] = useState<"all" | "annonceur" | "proprietaire" | "prestataire" | "partenaire">("all");
+  const [userRoleFilter, setUserRoleFilter] = useState<"all" | "advertiser" | "owner" | "provider" | "partner">("all");
 
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
   const listVehicles = useServerFn(adminListVehicles);
@@ -1081,22 +1081,22 @@ function AdminDashboard() {
                     className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm"
                   >
                     <option value="all">{t("admin.dashboard.users_role_all")}</option>
-                    <option value="annonceur">{t("admin.dashboard.users_role_annonceurs")}</option>
-                    <option value="proprietaire">{t("admin.dashboard.users_role_proprietaires")}</option>
-                    <option value="prestataire">{t("admin.dashboard.users_role_prestataires")}</option>
-                    <option value="partenaire">{t("admin.dashboard.users_role_partenaires")}</option>
+                    <option value="advertiser">{t("admin.dashboard.users_role_advertisers")}</option>
+                    <option value="owner">{t("admin.dashboard.users_role_owners")}</option>
+                    <option value="provider">{t("admin.dashboard.users_role_providers")}</option>
+                    <option value="partner">{t("admin.dashboard.users_role_partners")}</option>
                   </select>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-3">
-                {(["annonceur", "proprietaire", "prestataire", "partenaire"] as const).map((role) => {
+                {(["advertiser", "owner", "provider", "partner"] as const).map((role) => {
                   const count = (usersQuery.data?.users ?? []).filter((u: AdminUserRow) => u.role === role).length;
                   const labels: Record<string, string> = {
-                    annonceur: t("admin.dashboard.users_role_annonceurs"),
-                    proprietaire: t("admin.dashboard.users_role_proprietaires"),
-                    prestataire: t("admin.dashboard.users_role_prestataires"),
-                    partenaire: t("admin.dashboard.users_role_partenaires"),
+                    advertiser: t("admin.dashboard.users_role_advertisers"),
+                    owner: t("admin.dashboard.users_role_owners"),
+                    provider: t("admin.dashboard.users_role_providers"),
+                    partner: t("admin.dashboard.users_role_partners"),
                   };
                   return (
                     <button
@@ -1133,16 +1133,16 @@ function AdminDashboard() {
                       })
                       .map((u: AdminUserRow) => {
                         const roleColors: Record<string, string> = {
-                          annonceur: "bg-blue-500/10 text-blue-600",
-                          proprietaire: "bg-amber-500/10 text-amber-600",
-                          prestataire: "bg-purple-500/10 text-purple-600",
-                          partenaire: "bg-green-500/10 text-green-600",
+                          advertiser: "bg-blue-500/10 text-blue-600",
+                          owner: "bg-amber-500/10 text-amber-600",
+                          provider: "bg-purple-500/10 text-purple-600",
+                          partner: "bg-green-500/10 text-green-600",
                         };
                         const roleLabels: Record<string, string> = {
-                          annonceur: t("admin.dashboard.users_role_annonceur"),
-                          proprietaire: t("admin.dashboard.users_role_proprietaire"),
-                          prestataire: t("admin.dashboard.users_role_prestataire"),
-                          partenaire: t("admin.dashboard.users_role_partenaire"),
+                          advertiser: t("admin.dashboard.users_role_advertiser"),
+                          owner: t("admin.dashboard.users_role_owner"),
+                          provider: t("admin.dashboard.users_role_provider"),
+                          partner: t("admin.dashboard.users_role_partner"),
                         };
                         return (
                           <tr key={`${u.role}-${u.user_id}`} className="border-b border-border last:border-0 hover:bg-muted/20">
@@ -2045,7 +2045,7 @@ function DeposeReviewCard({
   );
 }
 
-// ─── Panel signalements d'obstacles chauffeur ─────────────────────────────────
+// ─── Panel signalements d'obstacles driver ─────────────────────────────────
 
 
 function AdminObstacleReportsPanel() {

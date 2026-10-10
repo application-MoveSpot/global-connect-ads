@@ -70,7 +70,7 @@ function CampagnesPage() {
             <p className="text-lg font-semibold">{t("campaigns.page.empty_title")}</p>
             <p className="text-sm mt-2">{t("campaigns.page.empty_hint")}</p>
             <Link
-              to="/annonceur/inscription"
+              to="/advertiser/inscription"
               className="inline-block mt-6 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
             >
               {t("campaigns.page.start_cta")}
@@ -91,13 +91,13 @@ function CampagnesPage() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link
-              to="/annonceur/inscription"
+              to="/advertiser/inscription"
               className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition"
             >
               {t("campaigns.page.join_advertiser")}
             </Link>
             <Link
-              to="/proprietaire/inscription"
+              to="/owner/inscription"
               className="rounded-full border border-border bg-card px-6 py-3 text-sm font-semibold hover:bg-secondary transition"
             >
               {t("campaigns.page.join_owner")}

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_public/commencer")({
   head: () => ({
     meta: [
       { title: "Get started with MoveSpot | Rejoindre MoveSpot — Choisissez votre profil" },
-      { name: "description", content: "Advertiser, vehicle owner, driver, installer, partner or sales rep — create your MoveSpot account in 2 minutes. Annonceur, propriétaire de véhicule, chauffeur, poseur, partenaire ou commercial — créez votre compte MoveSpot en 2 minutes." },
+      { name: "description", content: "Advertiser, vehicle owner, driver, installer, partner or sales rep — create your MoveSpot account in 2 minutes. Annonceur, propriétaire de véhicule, driver, poseur, partner ou commercial — créez votre compte MoveSpot en 2 minutes." },
       { name: "robots", content: "index,follow" },
     ],
     links: [
@@ -21,61 +21,61 @@ export const Route = createFileRoute("/_public/commencer")({
 const ROLES = {
   fr: [
     {
-      key: "annonceur",
+      key: "advertiser",
       icon: Megaphone,
       title: "Annonceur",
       subtitle: "Je veux diffuser ma publicité",
       desc: "Créez des campagnes géolocalisées sur des véhicules en mouvement. Payez au km² réel, prouvé par GPS.",
       cta: "Créer une campagne",
-      href: "/annonceur/inscription",
+      href: "/advertiser/inscription",
       accent: "border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10",
       iconColor: "text-primary",
       badge: null,
     },
     {
-      key: "proprietaire",
+      key: "owner",
       icon: Car,
       title: "Propriétaire",
       subtitle: "J'ai un véhicule à valoriser",
       desc: "Louez l'espace publicitaire de votre flotte ou de votre véhicule personnel. 70 % des revenus vous revient.",
       cta: "Inscrire mon véhicule",
-      href: "/proprietaire/inscription",
+      href: "/owner/inscription",
       accent: "border-emerald-500/40 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
       iconColor: "text-emerald-500",
       badge: "70 % reversé",
     },
     {
-      key: "chauffeur",
+      key: "driver",
       icon: Navigation,
       title: "Chauffeur",
       subtitle: "Je conduis pour un propriétaire",
       desc: "Accédez à votre espace via QR code, suivez vos missions et transmettez les photos d'installation.",
       cta: "Accéder à mon espace",
-      href: "/chauffeur/inscription",
+      href: "/driver/inscription",
       accent: "border-blue-500/40 hover:border-blue-500 bg-blue-500/5 hover:bg-blue-500/10",
       iconColor: "text-blue-500",
       badge: null,
     },
     {
-      key: "prestataire",
+      key: "provider",
       icon: Wrench,
       title: "Prestataire",
       subtitle: "Je pose, produis ou crée des contenus pub",
-      desc: "Pose de covering, production vidéo publicitaire, création graphique — proposez vos services aux annonceurs MoveSpot.",
+      desc: "Pose de covering, production vidéo publicitaire, création graphique — proposez vos services aux advertisers MoveSpot.",
       cta: "Proposer mes services",
-      href: "/prestataire/inscription",
+      href: "/provider/inscription",
       accent: "border-amber-500/40 hover:border-amber-500 bg-amber-500/5 hover:bg-amber-500/10",
       iconColor: "text-amber-500",
       badge: null,
     },
     {
-      key: "partenaire",
+      key: "partner",
       icon: Users,
       title: "Partenaire",
       subtitle: "Je rejoins le réseau MoveSpot",
-      desc: "Intégrez l'écosystème MoveSpot en tant que partenaire réseau et développez votre activité.",
+      desc: "Intégrez l'écosystème MoveSpot en tant que partner réseau et développez votre activité.",
       cta: "Rejoindre le réseau",
-      href: "/partenaire/inscription",
+      href: "/partner/inscription",
       accent: "border-violet-500/40 hover:border-violet-500 bg-violet-500/5 hover:bg-violet-500/10",
       iconColor: "text-violet-500",
       badge: null,
@@ -85,7 +85,7 @@ const ROLES = {
       icon: TrendingUp,
       title: "Commercial",
       subtitle: "J'apporte des clients à MoveSpot",
-      desc: "Parrainez des annonceurs et percevez 10 % de commission sur chaque campagne réalisée via votre lien.",
+      desc: "Parrainez des advertisers et percevez 10 % de commission sur chaque campagne réalisée via votre lien.",
       cta: "Devenir apporteur",
       href: "/commercial/inscription",
       accent: "border-rose-500/40 hover:border-rose-500 bg-rose-500/5 hover:bg-rose-500/10",
@@ -95,61 +95,61 @@ const ROLES = {
   ],
   en: [
     {
-      key: "annonceur",
+      key: "advertiser",
       icon: Megaphone,
       title: "Advertiser",
       subtitle: "I want to run ads",
       desc: "Launch geolocated campaigns on moving vehicles. Pay per real km², verified by GPS.",
       cta: "Create a campaign",
-      href: "/annonceur/inscription",
+      href: "/advertiser/inscription",
       accent: "border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10",
       iconColor: "text-primary",
       badge: null,
     },
     {
-      key: "proprietaire",
+      key: "owner",
       icon: Car,
       title: "Vehicle Owner",
       subtitle: "I have a vehicle to monetise",
       desc: "Rent out the advertising space on your fleet or personal vehicle. You keep 70% of the revenue.",
       cta: "Register my vehicle",
-      href: "/proprietaire/inscription",
+      href: "/owner/inscription",
       accent: "border-emerald-500/40 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
       iconColor: "text-emerald-500",
       badge: "70% paid out",
     },
     {
-      key: "chauffeur",
+      key: "driver",
       icon: Navigation,
       title: "Driver",
       subtitle: "I drive for an owner",
       desc: "Access your space via QR code, track your missions and upload installation photos.",
       cta: "Access my space",
-      href: "/chauffeur/inscription",
+      href: "/driver/inscription",
       accent: "border-blue-500/40 hover:border-blue-500 bg-blue-500/5 hover:bg-blue-500/10",
       iconColor: "text-blue-500",
       badge: null,
     },
     {
-      key: "prestataire",
+      key: "provider",
       icon: Wrench,
       title: "Installer",
       subtitle: "I install, produce or create ad content",
       desc: "Vehicle wrap installation, video production, graphic design — offer your services to MoveSpot advertisers.",
       cta: "Offer my services",
-      href: "/prestataire/inscription",
+      href: "/provider/inscription",
       accent: "border-amber-500/40 hover:border-amber-500 bg-amber-500/5 hover:bg-amber-500/10",
       iconColor: "text-amber-500",
       badge: null,
     },
     {
-      key: "partenaire",
+      key: "partner",
       icon: Users,
       title: "Partner",
       subtitle: "I join the MoveSpot network",
       desc: "Join the MoveSpot ecosystem as a network partner and grow your business.",
       cta: "Join the network",
-      href: "/partenaire/inscription",
+      href: "/partner/inscription",
       accent: "border-violet-500/40 hover:border-violet-500 bg-violet-500/5 hover:bg-violet-500/10",
       iconColor: "text-violet-500",
       badge: null,
@@ -240,19 +240,19 @@ function CommencerPage() {
 
         <p className="text-center text-xs text-muted-foreground mt-10">
           {c.already}{" "}
-          <Link to="/annonceur" className="underline hover:text-foreground transition">
+          <Link to="/advertiser" className="underline hover:text-foreground transition">
             {lang === "en" ? "Advertiser" : "Annonceur"}
           </Link>
           {" · "}
-          <Link to="/proprietaire" className="underline hover:text-foreground transition">
+          <Link to="/owner" className="underline hover:text-foreground transition">
             {lang === "en" ? "Owner" : "Propriétaire"}
           </Link>
           {" · "}
-          <Link to="/chauffeur" className="underline hover:text-foreground transition">
+          <Link to="/driver" className="underline hover:text-foreground transition">
             {lang === "en" ? "Driver" : "Chauffeur"}
           </Link>
           {" · "}
-          <Link to="/prestataire" className="underline hover:text-foreground transition">
+          <Link to="/provider" className="underline hover:text-foreground transition">
             {lang === "en" ? "Installer" : "Prestataire"}
           </Link>
         </p>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
@@ -78,6 +79,7 @@ const SCREEN_VEHICLE_TYPES = ["camion_led", "sac_a_dos_lcd"];
 
 export function BookingForm({ spot, onClose }: Props) {
   const { t, i18n } = useTranslation();
+  const { fmtAmount } = useCurrency();
   const navigate = useNavigate();
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [message, setMessage] = useState("");
@@ -229,7 +231,7 @@ export function BookingForm({ spot, onClose }: Props) {
 
   const goSignIn = () => {
     onClose();
-    navigate({ to: "/annonceur/inscription", search: { redirect: window.location.pathname + "#spots" } });
+    navigate({ to: "/advertiser/inscription", search: { redirect: window.location.pathname + "#spots" } });
   };
 
   const handleRangeSelect = (range: DateRange | undefined) => {
@@ -517,9 +519,9 @@ export function BookingForm({ spot, onClose }: Props) {
             </div>
             <div className="flex flex-col gap-2">
               {campaignId ? (
-                <button onClick={() => navigate({ to: "/annonceur/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.track_campaign")}</button>
+                <button onClick={() => navigate({ to: "/advertiser/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.track_campaign")}</button>
               ) : (
-                <button onClick={() => navigate({ to: "/annonceur" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.see_campaigns")}</button>
+                <button onClick={() => navigate({ to: "/advertiser" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.see_campaigns")}</button>
               )}
               <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">{t("booking.close")}</button>
             </div>
@@ -530,7 +532,7 @@ export function BookingForm({ spot, onClose }: Props) {
               <div>
                 <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("booking.reservation_eyebrow")}</div>
                 <h3 className="font-display text-2xl font-bold">{spot.name}</h3>
-                <p className="text-sm text-muted-foreground">{spot.location} · {spot.price}€/jour</p>
+                <p className="text-sm text-muted-foreground">{spot.location} · {fmtAmount(spot.price)}/jour</p>
               </div>
               <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl leading-none">×</button>
             </div>
@@ -694,7 +696,7 @@ export function BookingForm({ spot, onClose }: Props) {
                   <div className="rounded-md bg-primary/10 text-primary px-3 py-2 text-xs flex flex-wrap items-baseline gap-x-3">
                     <span><strong>{daysCount}</strong> {t("booking.days_label", { count: daysCount })} · <strong>{hoursPerDay.toFixed(1)}h</strong>{t("booking.per_day_label")}</span>
                     <span className="opacity-80">·</span>
-                    <span>{t("booking.total_label")} <strong>{totalPrice.toLocaleString(i18n.language)} €</strong></span>
+                    <span>{t("booking.total_label")} <strong>{fmtAmount(totalPrice)}</strong></span>
                   </div>
                 )}
                 {daysCount > 6 && (

@@ -60,7 +60,8 @@
     "siret_label": "SIRET :",
     "pricing": "Tarifs",
     "sign_in": "Se connecter",
-    "create_account": "Créer mon compte"
+    "create_account": "Créer mon compte",
+    "phone_invalid": "Numéro de téléphone français invalide (ex : 06 12 34 56 78)"
   },
   "wallet": {
     "page_title": "Mon portefeuille — MoveSpot",
@@ -282,7 +283,11 @@
       "session_expired": "Session expirée",
       "invalid_name": "Indiquez le prénom et le nom du responsable.",
       "short_description": "Décrivez votre activité en au moins 30 caractères."
-    }
+    },
+    "signin_desc": "Accédez à votre espace MoveSpot.",
+    "signup_desc": "Créez votre compte MoveSpot.",
+    "invalid_credentials": "Email ou mot de passe incorrect.",
+    "mfa_code_label": "Code d'authentification"
   },
   "parametres": {
     "page_title": "Paramètres du compte — MoveSpot",
@@ -2543,7 +2548,16 @@
     "photo_label": "Photo",
     "ai_detected": "⚠ IA détectée",
     "price_estimate": "Prix estimé : {{min}}–{{max}} €/j",
-    "imp_per_day": "imp./j"
+    "imp_per_day": "imp./j",
+    "connexion": {
+      "title": "Accès administration",
+      "subtitle": "Connexion sécurisée au tableau de bord.",
+      "submit": "Se connecter",
+      "not_admin": "Accès refusé : compte non autorisé.",
+      "lockout_title": "Compte temporairement bloqué",
+      "lockout_desc": "Trop de tentatives échouées. Réessayez dans {{minutes}} min.",
+      "attempts_warning": "{{count}} tentative(s) restante(s) avant blocage temporaire."
+    }
   },
   "partner": {
     "badge": "🚐 Espace propriétaires",
@@ -3440,6 +3454,7 @@
     "btn_verified": "✓ Vérifié",
     "individual_note": "(entreprise individuelle — l'identité légale est le nom du chef d'entreprise)",
     "digit_count": "{{count}}/14 chiffres",
+    "err_luhn": "Numéro invalide — vérifiez les chiffres saisis.",
     "err_verify": "Erreur lors de la vérification."
   },
   "creative_files": {
@@ -3649,5 +3664,14 @@
     "authorize_desc": "{{name}} pourra utiliser les outils MoveSpot en votre nom : consulter vos véhicules, vos campagnes, vos briefs, le solde de votre portefeuille et l'annuaire des prestataires.",
     "authorize_btn": "Autoriser",
     "deny_btn": "Refuser"
+  },
+  "compliance": {
+    "market_label": "Marché cible",
+    "us_city_label": "Ville / marché américain",
+    "us_city_placeholder": "Sélectionnez une ville…",
+    "content_category_label": "Catégorie de contenu",
+    "content_category_placeholder": "Sélectionnez une catégorie…",
+    "content_ok": "Catégorie autorisée dans cette ville.",
+    "us_legal_note": "MoveSpot vérifie la conformité réglementaire pour chaque marché US. L'annonceur reste responsable du respect des lois locales applicables à son secteur d'activité."
   }
 }

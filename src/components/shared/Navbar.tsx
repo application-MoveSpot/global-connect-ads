@@ -1,16 +1,27 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
 import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
+import { supabase } from "@/integrations/supabase/client";
 
 
 export function Navbar() {
   const { t } = useTranslation();
   const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      supabase.rpc("check_is_admin" as never).then(({ data }) => {
+        if (data === true) setIsAdmin(true);
+      });
+    });
+  }, []);
   const isHome = pathname === "/";
   const mapHref = isHome ? "#map" : "/#map";
   const spotsHref = isHome ? "#spots" : "/#spots";
@@ -69,17 +80,25 @@ export function Navbar() {
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <LanguageSwitcher className="hidden lg:flex" />
           <Link
-            to="/annonceur"
+            to="/advertiser"
             className="hidden sm:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition"
           >
             {tx("nav.advertiser", "Espace annonceur")}
           </Link>
           <Link
-            to="/proprietaire"
+            to="/owner"
             className="hidden xl:inline-block rounded-full border border-header-border bg-header-card px-4 py-2 text-sm font-medium text-header-foreground hover:bg-header-muted/15 transition"
           >
             {tx("nav.owner", "Espace propriétaire")}
           </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="hidden sm:inline-block rounded-full border border-amber-500/60 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition"
+            >
+              ⚙ Admin
+            </Link>
+          )}
           <Link
             to="/commencer"
             className="hidden sm:inline-block rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition"
@@ -157,19 +176,28 @@ export function Navbar() {
             </Link>
             <div className="h-px bg-header-border my-2" />
             <Link
-              to="/annonceur"
+              to="/advertiser"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 font-medium text-header-foreground"
             >
               {tx("nav.advertiser", "Espace annonceur")}
             </Link>
             <Link
-              to="/proprietaire"
+              to="/owner"
               onClick={() => setMobileMenuOpen(false)}
               className="py-2 font-medium text-header-foreground"
             >
               {tx("nav.owner", "Espace propriétaire")}
             </Link>
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2 font-medium text-amber-600 dark:text-amber-400"
+              >
+                ⚙ Administration
+              </Link>
+            )}
             <LanguageSwitcher className="py-2 [&>button]:text-header-muted [&>button:hover]:text-header-foreground" />
             <Link
               to="/commencer"

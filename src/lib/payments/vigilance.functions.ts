@@ -340,7 +340,7 @@ Réponds UNIQUEMENT en JSON strict :
         await sendWebPushToUser(profile.user_id as string, {
           title: "⛔ Attestation refusée automatiquement",
           body: raisonRejet,
-          url: "/proprietaire",
+          url: "/owner",
         });
       } catch { /* best-effort */ }
     }
@@ -428,7 +428,7 @@ export const reviewVigilance = createServerFn({ method: "POST" })
           data.decision === "VALIDE"
             ? "Votre attestation Urssaf a été validée. Vos prochains reversements sont débloqués."
             : data.notes ?? "Veuillez soumettre une nouvelle attestation.",
-        url: "/proprietaire",
+        url: "/owner",
       });
     } catch {
       // Ne jamais bloquer sur notification

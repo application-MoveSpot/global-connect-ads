@@ -60,7 +60,11 @@
     "siret_label": "SIRET:",
     "pricing": "Pricing",
     "sign_in": "Sign in",
-    "create_account": "Create my account"
+    "create_account": "Create my account",
+    "phone_invalid": "Invalid phone number (e.g. (555) 123-4567)",
+    "phone_invalid_us": "Invalid US phone number (e.g. (555) 123-4567)",
+    "ein_label": "EIN (Employer Identification Number):",
+    "siret_label_us": "Business ID (EIN):"
   },
   "wallet": {
     "page_title": "My wallet — MoveSpot",
@@ -87,10 +91,10 @@
     "back_to_dashboard": "← My space",
     "subtitle_individual": "Top up the amount of your event pack — used automatically when an owner accepts your brief.",
     "subtitle_business": "Prepaid credits usable instantly for your campaigns.",
-    "see_packs": "See event packs (€49 · €79 · €149) →",
+    "see_packs": "See event packs ($49 · $79 · $149) →",
     "topup_card_title": "Top up by card",
     "topup_card_subtitle": "Secure payment via Stripe. Balance credited instantly.",
-    "topup_btn": "Top up {{amount}} €",
+    "topup_btn": "Top up ${{amount}}",
     "history_title": "Wallet history",
     "export_csv_btn": "↓ Export CSV",
     "prev": "← Previous",
@@ -282,7 +286,11 @@
       "session_expired": "Session expired",
       "invalid_name": "Please enter the manager's first and last name.",
       "short_description": "Describe your activity in at least 30 characters."
-    }
+    },
+    "signin_desc": "Access your MoveSpot workspace.",
+    "signup_desc": "Create your MoveSpot account.",
+    "invalid_credentials": "Incorrect email or password.",
+    "mfa_code_label": "Authentication code"
   },
   "parametres": {
     "page_title": "Account settings — MoveSpot",
@@ -402,7 +410,8 @@
       "payment_step1": "Link your IBAN via Stripe (one-time setup).",
       "payment_step2": "Complete the service: install the covering or drive with GPS tracking.",
       "payment_step3": "MoveSpot validates the service and triggers the payout to your account.",
-      "payment_step4": "Stripe deposits the funds to your IBAN automatically.",
+      "payment_step4": "Stripe deposits the funds to your bank account automatically.",
+      "payment_step4_us": "Stripe deposits the funds directly to your US bank account (ACH).",
       "gps_title": "Campaign GPS tracking",
       "qr_desc": "Here are your tracking QR codes. Scan them with your phone to start the campaign.",
       "start_screen": "📺 Start screen →",
@@ -435,9 +444,11 @@
       "name_label": "Full name *",
       "phone_label": "Phone",
       "city_label": "City / area of operation",
+      "city_label_us": "City, State (e.g. Miami, FL)",
+      "zip_label": "ZIP code",
       "vehicle_type_label": "Vehicle type *",
       "plate_label": "Licence plate",
-      "company_checkbox": "I am self-employed / a company (with SIRET)",
+      "company_checkbox": "I am self-employed / a business (EIN required)",
       "cgu_accept": "I have read and accept the",
       "cgu_link_label": "Terms and Conditions",
       "cgu_before_strong": "of MoveSpot, including the ",
@@ -454,7 +465,7 @@
       "error_email_exists": "An account already exists with this email. Sign in.",
       "error_confirm_email": "Check your email to confirm your account, then sign in.",
       "error_cgu": "You must accept the MoveSpot T&Cs to continue.",
-      "error_siret": "Please verify your SIRET number before continuing.",
+      "error_siret": "Please verify your business registration number before continuing.",
       "error_session": "Session expired"
     }
   },
@@ -655,7 +666,7 @@
       "cgu_label": "I have read and accept the <a href=\"/cgu\" class=\"underline hover:text-foreground\">General Terms of Use</a> of MoveSpot, including the advertising content charter and the <strong>obligation of exclusivity of transactions on the platform</strong> (art. 22). I understand that any agreement concluded off-platform remains subject to the MoveSpot commission.",
       "btn_continue": "Continue",
       "error_charte": "You must accept the MoveSpot content charter to continue.",
-      "error_siret": "Please verify your SIRET number before continuing.",
+      "error_siret": "Please verify your business registration number before continuing.",
       "error_address": "Please provide a complete postal address.",
       "error_session": "Session expired",
       "error_duplicate": "An account already exists with this email. Please log in.",
@@ -1241,7 +1252,7 @@
       "submit_continue": "Continue → add a vehicle",
       "error_email_exists": "An account already exists with this email. Sign in.",
       "error_confirm_email": "Check your email to confirm your account, then sign in.",
-      "error_siret": "Please verify your SIRET number before continuing.",
+      "error_siret": "Please verify your business registration number before continuing.",
       "error_session": "Session expired"
     },
     "vehicules": {
@@ -2543,7 +2554,16 @@
     "photo_label": "Photo",
     "ai_detected": "⚠ AI detected",
     "price_estimate": "Est. price: {{min}}–{{max}} €/day",
-    "imp_per_day": "imp./day"
+    "imp_per_day": "imp./day",
+    "connexion": {
+      "title": "Administration access",
+      "subtitle": "Secure login to the dashboard.",
+      "submit": "Sign in",
+      "not_admin": "Access denied: unauthorized account.",
+      "lockout_title": "Account temporarily locked",
+      "lockout_desc": "Too many failed attempts. Try again in {{minutes}} min.",
+      "attempts_warning": "{{count}} attempt(s) remaining before temporary lock."
+    }
   },
   "partner": {
     "badge": "🚐 Owner space",
@@ -3440,6 +3460,7 @@
     "btn_verified": "✓ Verified",
     "individual_note": "(sole trader — the legal identity is the business owner's name)",
     "digit_count": "{{count}}/14 digits",
+    "err_luhn": "Invalid number — please check the digits.",
     "err_verify": "Verification error."
   },
   "creative_files": {
@@ -3649,5 +3670,14 @@
     "authorize_desc": "{{name}} will be able to use MoveSpot tools on your behalf: view your vehicles, campaigns, briefs, wallet balance, and the installer directory.",
     "authorize_btn": "Authorize",
     "deny_btn": "Deny"
+  },
+  "compliance": {
+    "market_label": "Target market",
+    "us_city_label": "US city / market",
+    "us_city_placeholder": "Select a city…",
+    "content_category_label": "Content category",
+    "content_category_placeholder": "Select a category…",
+    "content_ok": "Category is permitted in this city.",
+    "us_legal_note": "MoveSpot verifies regulatory compliance for each US market. The advertiser remains solely responsible for compliance with local laws applicable to their industry."
   }
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getCurrencyFromLang, CURRENCY_CONFIGS } from "@/lib/currency";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -25,8 +26,12 @@ type DeposeJob = {
 };
 
 const fr = (d: string | null, lang: string) => (d ? new Date(d).toLocaleDateString(lang) : "—");
-const eur = (n: number | null, lang: string) =>
-  n != null ? (n / 100).toLocaleString(lang, { style: "currency", currency: "EUR" }) : null;
+const eur = (n: number | null, lang: string) => {
+  if (n == null) return null;
+  const currency = getCurrencyFromLang(lang);
+  const { locale, code } = CURRENCY_CONFIGS[currency];
+  return (n / 100).toLocaleString(locale, { style: "currency", currency: code });
+};
 
 function daysAfter(dateStr: string | null): number | null {
   if (!dateStr) return null;

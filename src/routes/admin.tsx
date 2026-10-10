@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/rea
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { isAdmin } from "@/lib/admin/isAdmin";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
@@ -126,15 +127,12 @@ function AdminPage() {
         if (cancelled) return;
         if (sessionError || !sess.session) {
           setAuthState("unauthenticated");
-          navigate({ to: "/auth" });
+          navigate({ to: "/admin/connexion" });
           return;
         }
-        const { data: isAdmin, error: roleError } = await withTimeout(
-          supabase.rpc("check_is_admin" as never),
-          "La vérification du rôle admin"
-        );
+        const adminOk = await withTimeout(isAdmin(), "La vérification du rôle admin");
         if (cancelled) return;
-        if (roleError || !isAdmin) { setAuthState("unauthorized"); return; }
+        if (!adminOk) { setAuthState("unauthorized"); await supabase.auth.signOut(); return; }
         setAuthState("ok");
       } catch {
         if (!cancelled) setAuthState("unauthenticated");
@@ -172,7 +170,7 @@ function AdminPage() {
         <div>
           <h1 className="font-display text-3xl font-bold mb-2">{t("admin.dashboard.session_not_found")}</h1>
           <p className="text-muted-foreground mb-4">{t("admin.dashboard.reconnect_desc")}</p>
-          <button onClick={() => navigate({ to: "/auth" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_in")}</button>
+          <button onClick={() => navigate({ to: "/admin/connexion" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_in")}</button>
         </div>
       </div>
     );
@@ -184,7 +182,7 @@ function AdminPage() {
         <div>
           <h1 className="font-display text-3xl font-bold mb-2">{t("admin.dashboard.access_denied")}</h1>
           <p className="text-muted-foreground mb-4">{t("admin.dashboard.not_admin")}</p>
-          <button onClick={logout} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_out")}</button>
+          <button onClick={() => navigate({ to: "/admin/connexion" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_in")}</button>
         </div>
       </div>
     );
@@ -209,7 +207,7 @@ function AdminPage() {
           <div className="flex gap-2 flex-wrap">
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>{t("admin.dashboard.tab_requests")}{dataLoading ? "" : ` (${requests.length})`}</TabBtn>
             <TabBtn active={tab === "vehicles"} onClick={() => setTab("vehicles")}>{t("admin.dashboard.tab_vehicles")}{dataLoading ? "" : ` (${vehicles.length})`}</TabBtn>
-            <Link to="/admin/prestataires" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_providers")}</Link>
+            <Link to="/admin/providers" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_providers")}</Link>
             <Link to="/admin/virements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_transfers")}</Link>
             <Link to="/admin/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_moderation")}</Link>
             <Link to="/admin/commissions" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_commissions")}</Link>

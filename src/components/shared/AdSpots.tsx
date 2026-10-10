@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@tanstack/react-router";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
@@ -37,6 +38,7 @@ function SpotPhoto({ photos }: { photos: string[] | null | undefined }) {
 
 export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
   const { t } = useTranslation();
+  const { fmtAmount } = useCurrency();
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,7 +126,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">{t("ad_spots.from_label")}</div>
-                  <div className="font-display text-2xl font-bold text-primary">{spot.price}€<span className="text-sm text-muted-foreground font-normal">/j</span></div>
+                  <div className="font-display text-2xl font-bold text-primary">{fmtAmount(spot.price)}<span className="text-sm text-muted-foreground font-normal">/j</span></div>
                 </div>
               </div>
               <button
