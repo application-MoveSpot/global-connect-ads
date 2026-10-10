@@ -28,8 +28,8 @@ type TransferRow = {
 
 function fmt(cents: number, lang: string) {
   const currency = getCurrencyFromLang(lang);
-  const { locale, code } = CURRENCY_CONFIGS[currency];
-  return (cents / 100).toLocaleString(locale, { style: "currency", currency: code });
+  const { locale } = CURRENCY_CONFIGS[currency];
+  return (cents / 100).toLocaleString(locale, { style: "currency", currency });
 }
 
 function LockIcon() {

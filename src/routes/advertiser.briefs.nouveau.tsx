@@ -814,7 +814,7 @@ function NewBriefPage() {
                   className="mt-4 text-xs font-semibold"
                   style={{ color: "rgba(96,165,250,0.9)" }}
                 >
-                  {t("advertiser.briefs.nouveau.digital_pricing")}
+                  {t("advertiser.briefs.nouveau.digital_pricing", { min: MIN_EUR_PER_DAY })}
                 </div>
               </div>
             </button>

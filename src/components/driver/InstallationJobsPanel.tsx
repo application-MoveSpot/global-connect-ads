@@ -44,8 +44,8 @@ const fr = (d: string | null, lang: string) => (d ? new Date(d).toLocaleDateStri
 const eur = (n: number | null, lang: string) => {
   if (n == null) return null;
   const currency = getCurrencyFromLang(lang);
-  const { locale, code } = CURRENCY_CONFIGS[currency];
-  return n.toLocaleString(locale, { style: "currency", currency: code });
+  const { locale } = CURRENCY_CONFIGS[currency];
+  return n.toLocaleString(locale, { style: "currency", currency });
 };
 
 function daysUntil(dateStr: string | null): number | null {
