@@ -45,6 +45,7 @@ import { Route as AdminConnexionRouteImport } from './routes/admin.connexion'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
 import { Route as AdminRemboursementsRouteImport } from './routes/admin.remboursements'
+import { Route as AdminTranslationIssuesRouteImport } from './routes/admin.translation-issues'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AdvertiserIndexRouteImport } from './routes/advertiser.index'
 import { Route as AdvertiserEssaiActiveRouteImport } from './routes/advertiser.essai-active'
@@ -87,6 +88,7 @@ import { Route as AdvertiserContratBriefIdRouteImport } from './routes/advertise
 import { Route as AdvertiserFactureCampaignIdRouteImport } from './routes/advertiser.facture.$campaignId'
 import { Route as AdvertiserRapportCampaignIdRouteImport } from './routes/advertiser.rapport.$campaignId'
 import { Route as AdvertiserSuiviCampaignIdRouteImport } from './routes/advertiser.suivi.$campaignId'
+import { Route as ApiAdminIntrusionAlertRouteImport } from './routes/api/admin/intrusion-alert'
 import { Route as ApiAdminSetupStripeProductsRouteImport } from './routes/api/admin/setup-stripe-products'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 import { Route as ApiWebhooksSupabasePushRouteImport } from './routes/api/webhooks/supabase-push'
@@ -285,6 +287,11 @@ const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
 const AdminRemboursementsRoute = AdminRemboursementsRouteImport.update({
   id: '/remboursements',
   path: '/remboursements',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTranslationIssuesRoute = AdminTranslationIssuesRouteImport.update({
+  id: '/translation-issues',
+  path: '/translation-issues',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminVirementsRoute = AdminVirementsRouteImport.update({
@@ -502,6 +509,11 @@ const AdvertiserSuiviCampaignIdRoute =
     path: '/advertiser/suivi/$campaignId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminIntrusionAlertRoute = ApiAdminIntrusionAlertRouteImport.update({
+  id: '/api/admin/intrusion-alert',
+  path: '/api/admin/intrusion-alert',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminSetupStripeProductsRoute =
   ApiAdminSetupStripeProductsRouteImport.update({
     id: '/api/admin/setup-stripe-products',
@@ -630,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
+  '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
@@ -671,6 +684,7 @@ export interface FileRoutesByFullPath {
   '/advertiser/facture/$campaignId': typeof AdvertiserFactureCampaignIdRoute
   '/advertiser/rapport/$campaignId': typeof AdvertiserRapportCampaignIdRoute
   '/advertiser/suivi/$campaignId': typeof AdvertiserSuiviCampaignIdRoute
+  '/api/admin/intrusion-alert': typeof ApiAdminIntrusionAlertRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
@@ -725,6 +739,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
+  '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
@@ -767,6 +782,7 @@ export interface FileRoutesByTo {
   '/advertiser/facture/$campaignId': typeof AdvertiserFactureCampaignIdRoute
   '/advertiser/rapport/$campaignId': typeof AdvertiserRapportCampaignIdRoute
   '/advertiser/suivi/$campaignId': typeof AdvertiserSuiviCampaignIdRoute
+  '/api/admin/intrusion-alert': typeof ApiAdminIntrusionAlertRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
@@ -823,6 +839,7 @@ export interface FileRoutesById {
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/prestataires': typeof AdminPrestatairesRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
+  '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
@@ -865,6 +882,7 @@ export interface FileRoutesById {
   '/advertiser/facture/$campaignId': typeof AdvertiserFactureCampaignIdRoute
   '/advertiser/rapport/$campaignId': typeof AdvertiserRapportCampaignIdRoute
   '/advertiser/suivi/$campaignId': typeof AdvertiserSuiviCampaignIdRoute
+  '/api/admin/intrusion-alert': typeof ApiAdminIntrusionAlertRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
@@ -922,6 +940,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/remboursements'
+    | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
@@ -963,6 +982,7 @@ export interface FileRouteTypes {
     | '/advertiser/facture/$campaignId'
     | '/advertiser/rapport/$campaignId'
     | '/advertiser/suivi/$campaignId'
+    | '/api/admin/intrusion-alert'
     | '/api/admin/setup-stripe-products'
     | '/api/webhooks/stripe'
     | '/api/webhooks/supabase-push'
@@ -1017,6 +1037,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/remboursements'
+    | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
@@ -1059,6 +1080,7 @@ export interface FileRouteTypes {
     | '/advertiser/facture/$campaignId'
     | '/advertiser/rapport/$campaignId'
     | '/advertiser/suivi/$campaignId'
+    | '/api/admin/intrusion-alert'
     | '/api/admin/setup-stripe-products'
     | '/api/webhooks/stripe'
     | '/api/webhooks/supabase-push'
@@ -1114,6 +1136,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard'
     | '/admin/prestataires'
     | '/admin/remboursements'
+    | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
@@ -1156,6 +1179,7 @@ export interface FileRouteTypes {
     | '/advertiser/facture/$campaignId'
     | '/advertiser/rapport/$campaignId'
     | '/advertiser/suivi/$campaignId'
+    | '/api/admin/intrusion-alert'
     | '/api/admin/setup-stripe-products'
     | '/api/webhooks/stripe'
     | '/api/webhooks/supabase-push'
@@ -1235,6 +1259,7 @@ export interface RootRouteChildren {
   AdvertiserFactureCampaignIdRoute: typeof AdvertiserFactureCampaignIdRoute
   AdvertiserRapportCampaignIdRoute: typeof AdvertiserRapportCampaignIdRoute
   AdvertiserSuiviCampaignIdRoute: typeof AdvertiserSuiviCampaignIdRoute
+  ApiAdminIntrusionAlertRoute: typeof ApiAdminIntrusionAlertRoute
   ApiAdminSetupStripeProductsRoute: typeof ApiAdminSetupStripeProductsRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
   ApiWebhooksSupabasePushRoute: typeof ApiWebhooksSupabasePushRoute
@@ -1505,6 +1530,13 @@ declare module '@tanstack/react-router' {
       path: '/remboursements'
       fullPath: '/admin/remboursements'
       preLoaderRoute: typeof AdminRemboursementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/translation-issues': {
+      id: '/admin/translation-issues'
+      path: '/translation-issues'
+      fullPath: '/admin/translation-issues'
+      preLoaderRoute: typeof AdminTranslationIssuesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/virements': {
@@ -1801,6 +1833,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvertiserSuiviCampaignIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/intrusion-alert': {
+      id: '/api/admin/intrusion-alert'
+      path: '/api/admin/intrusion-alert'
+      fullPath: '/api/admin/intrusion-alert'
+      preLoaderRoute: typeof ApiAdminIntrusionAlertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/setup-stripe-products': {
       id: '/api/admin/setup-stripe-products'
       path: '/api/admin/setup-stripe-products'
@@ -1962,6 +2001,7 @@ interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminPrestatairesRoute: typeof AdminPrestatairesRoute
   AdminRemboursementsRoute: typeof AdminRemboursementsRoute
+  AdminTranslationIssuesRoute: typeof AdminTranslationIssuesRoute
   AdminVirementsRoute: typeof AdminVirementsRoute
 }
 
@@ -1973,6 +2013,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminPrestatairesRoute: AdminPrestatairesRoute,
   AdminRemboursementsRoute: AdminRemboursementsRoute,
+  AdminTranslationIssuesRoute: AdminTranslationIssuesRoute,
   AdminVirementsRoute: AdminVirementsRoute,
 }
 
@@ -2052,6 +2093,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdvertiserFactureCampaignIdRoute: AdvertiserFactureCampaignIdRoute,
   AdvertiserRapportCampaignIdRoute: AdvertiserRapportCampaignIdRoute,
   AdvertiserSuiviCampaignIdRoute: AdvertiserSuiviCampaignIdRoute,
+  ApiAdminIntrusionAlertRoute: ApiAdminIntrusionAlertRoute,
   ApiAdminSetupStripeProductsRoute: ApiAdminSetupStripeProductsRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
   ApiWebhooksSupabasePushRoute: ApiWebhooksSupabasePushRoute,
