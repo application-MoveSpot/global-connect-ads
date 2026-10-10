@@ -119,6 +119,10 @@ function AdminPage() {
     }
   }, [t]);
 
+  // ⛔ BLOC PROTÉGÉ — NE PAS MODIFIER NI SUPPRIMER
+  // Ce bloc contrôle l'accès au panneau administrateur.
+  // Toute modification non autorisée constitue une faille de sécurité.
+  // Propriétaire : rakounklub@gmail.com
   useEffect(() => {
     let cancelled = false;
     (async () => {
