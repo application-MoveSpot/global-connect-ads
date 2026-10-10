@@ -1,145 +1,184 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { captureError } from "@/lib/sentry";
-import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
-import { createCampaignDirectPaymentCheckout } from "@/lib/payments/payments.functions";
-import { getPaymentsConfig, getStripe } from "@/lib/payments/stripe";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
+import { getMyWallet, payCampaignWithWallet } from "@/lib/payments/wallet.functions";
+import { captureError } from "@/lib/sentry";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
+import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
+
 
 type Props = {
   campaignRequestId: string;
-  campaignName?: string;
   totalPriceEur: number;
   onPaid?: () => void;
 };
 
-export function CampaignPaymentCheckout({ campaignRequestId, campaignName, totalPriceEur, onPaid }: Props) {
+export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPaid }: Props) {
   const { t } = useTranslation();
-  const createCheckout = useServerFn(createCampaignDirectPaymentCheckout);
-  const [open, setOpen] = useState(false);
-  const [checkoutKey, setCheckoutKey] = useState(0);
-  const [error, setError] = useState<string | null>(null);
+  const fetchWallet = useServerFn(getMyWallet);
+  const payWithWallet = useServerFn(payCampaignWithWallet);
+
+  const [balance, setBalance] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
-  const realtimeRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingTopup, setPendingTopup] = useState(false);
+  const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  const fetchClientSecret = useCallback(async (): Promise<string> => {
+  const neededCents = Math.round(totalPriceEur * 100);
+
+  const refreshBalance = async (): Promise<number> => {
+    const w = await fetchWallet().catch(() => ({ balance_cents: 0 }));
+    const cents = (w as { balance_cents: number }).balance_cents;
+    setBalance(cents);
+    return cents;
+  };
+
+  useEffect(() => {
+    refreshBalance();
+    return () => {
+      if (realtimeChannelRef.current) {
+        void supabase.removeChannel(realtimeChannelRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onPayWallet = async () => {
+    setLoading(true); setError(null);
     try {
-      const result = await createCheckout({
-        data: {
-          campaignRequestId,
-          campaignName,
-          amountEuros: totalPriceEur,
-          returnUrl: window.location.href,
-        },
-      });
-      if ("error" in result) throw new Error(result.error);
-      if (!result.clientSecret) throw new Error(t("wallet_topup.err_no_session"));
-      return result.clientSecret;
+      await payWithWallet({ data: { campaignRequestId } });
+      onPaid?.();
     } catch (e) {
-      const message = e instanceof Error ? e.message : t("wallet_topup.err_stripe");
-      setError(message);
-      captureError(e, "payment", { flow: "campaign_direct_payment", campaignRequestId });
-      throw e;
-    }
-  }, [campaignRequestId, campaignName, totalPriceEur, createCheckout, t]);
+      setError(e instanceof Error ? e.message : t("campaign_payment.err_generic"));
+      captureError(e, "payment", { flow: "wallet_debit", campaignRequestId });
+    } finally { setLoading(false); }
+  };
 
-  const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
-
-  const showCheckout = async () => {
+  // Called when the topup dialog closes — subscribe to realtime until webhook credits wallet, then auto-pay.
+  const onTopupClose = async () => {
+    setChecking(true);
     setError(null);
-    const config = await getPaymentsConfig();
-    if (!config.publishableKey) {
-      setError(t("wallet_topup.err_not_configured"));
-      setOpen(true);
+    setPendingTopup(false);
+
+    // Snapshot the current balance to detect the incoming credit.
+    const before = await refreshBalance();
+    if (before >= neededCents) {
+      setChecking(false);
+      await onPayWallet();
       return;
     }
-    setCheckoutKey((k) => k + 1);
-    setOpen(true);
-  };
 
-  const cleanupRealtime = () => {
-    if (realtimeRef.current) {
-      void supabase.removeChannel(realtimeRef.current);
-      realtimeRef.current = null;
-    }
-  };
+    const { data: sess } = await supabase.auth.getSession();
+    const userId = sess.session?.user.id;
+    if (!userId) { setChecking(false); setPendingTopup(true); return; }
 
-  const onClose = async () => {
-    setOpen(false);
-    setChecking(true);
-
-    const fallback = setTimeout(() => {
+    // Fallback: if realtime doesn't fire within 60 s, show manual button.
+    const fallbackTimer = setTimeout(() => {
       cleanupRealtime();
       setChecking(false);
+      setPendingTopup(true);
     }, 60_000);
 
+    const cleanupRealtime = () => {
+      clearTimeout(fallbackTimer);
+      if (realtimeChannelRef.current) {
+        void supabase.removeChannel(realtimeChannelRef.current);
+        realtimeChannelRef.current = null;
+      }
+    };
+
     const channel = supabase
-      .channel(`campaign-payment-${campaignRequestId}`)
+      .channel(`topup-await-${campaignRequestId}`)
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "campaign_requests", filter: `id=eq.${campaignRequestId}` },
-        (payload) => {
-          const row = payload.new as { payment_status?: string };
-          if (row.payment_status === "paid") {
-            clearTimeout(fallback);
-            cleanupRealtime();
-            setChecking(false);
-            onPaid?.();
+        { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        async (payload) => {
+          const tx = payload.new as { kind: string; amount_cents: number };
+          if (tx.kind !== "topup") return;
+          cleanupRealtime();
+          const cents = await refreshBalance();
+          setChecking(false);
+          if (cents >= neededCents) {
+            await onPayWallet();
+          } else {
+            setPendingTopup(true);
           }
         },
       )
       .subscribe();
 
-    realtimeRef.current = channel;
+    realtimeChannelRef.current = channel;
   };
 
-  return (
-    <>
-      <Button
-        onClick={showCheckout}
-        disabled={totalPriceEur <= 0}
-        className="rounded-full px-4 py-2 text-sm font-semibold"
-      >
-        {t("campaign_payment.btn_pay_stripe", { amount: totalPriceEur.toFixed(2) })}
-      </Button>
+  const onManualCheck = async () => {
+    setChecking(true);
+    setError(null);
+    const cents = await refreshBalance();
+    setChecking(false);
+    if (cents >= neededCents) {
+      setPendingTopup(false);
+      await onPayWallet();
+    }
+  };
 
-      {checking && (
-        <p className="text-xs text-muted-foreground animate-pulse mt-1">
-          {t("campaign_payment.checking")}
-        </p>
+  const enough = balance !== null && balance >= neededCents;
+  const missingEur = enough ? 0 : Math.max(10, Math.ceil((neededCents - (balance ?? 0)) / 100));
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-border bg-secondary/30 p-3 text-sm">
+        {t("campaign_payment.balance", { balance: ((balance ?? 0) / 100).toFixed(2), total: totalPriceEur.toFixed(2) })}
+      </div>
+
+      {checking ? (
+        <p className="text-sm text-muted-foreground animate-pulse">{t("campaign_payment.checking")}</p>
+      ) : enough ? (
+        <Button onClick={onPayWallet} disabled={loading}>
+          {loading ? t("campaign_payment.btn_paying") : t("campaign_payment.btn_pay", { amount: totalPriceEur.toFixed(2) })}
+        </Button>
+      ) : pendingTopup ? (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {t("campaign_payment.topup_received")}
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onManualCheck} disabled={loading}>
+              {t("campaign_payment.btn_check_balance")}
+            </Button>
+            <Button variant="ghost" size="sm" className="text-xs" onClick={() => setPendingTopup(false)}>
+              {t("campaign_payment.btn_topup_again")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">{t("campaign_payment.balance_insufficient")}</p>
+          <WalletTopupCheckout
+            amountEuros={missingEur}
+            disabled={loading}
+            buttonLabel={t("campaign_payment.btn_topup_amount", { amount: missingEur })}
+            onClose={onTopupClose}
+          />
+        </div>
       )}
 
-      <Dialog open={open} onOpenChange={(v) => { if (!v) void onClose(); else setOpen(true); }}>
-        <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto p-0">
-          <PaymentTestModeBanner />
-          <div className="space-y-4 p-6">
-            <DialogHeader>
-              <DialogTitle>{t("campaign_payment.dialog_title")}</DialogTitle>
-              <DialogDescription>
-                {t("campaign_payment.dialog_desc", { amount: totalPriceEur.toFixed(2) })}
-              </DialogDescription>
-            </DialogHeader>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            {!error ? (
-              <div key={checkoutKey} className="min-h-[560px]">
-                <EmbeddedCheckoutProvider stripe={getStripe()} options={checkoutOptions}>
-                  <EmbeddedCheckout />
-                </EmbeddedCheckoutProvider>
-              </div>
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+      <details className="rounded-lg border border-border p-3">
+        <summary className="cursor-pointer text-sm font-medium">{t("campaign_payment.bank_transfer_summary")}</summary>
+        <div className="pt-4">
+          <BankTransferPanel
+            campaignRequestId={campaignRequestId}
+            fixedAmountEuros={Math.max(10, Math.ceil(totalPriceEur))}
+            title={t("campaign_payment.bank_transfer_title")}
+            subtitle={t("campaign_payment.bank_transfer_subtitle")}
+            onCredited={onPaid}
+          />
+        </div>
+      </details>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
   );
 }

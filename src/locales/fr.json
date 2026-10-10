@@ -1204,7 +1204,6 @@
       "subtitle_individual": "Touchez votre quartier en quelques clics — pour un mariage, une ouverture, un festival ou n'importe quel événement local.",
       "subtitle_business": "Suivez ces étapes pour diffuser votre publicité sur des véhicules en circulation.",
       "see_examples": "Voir des exemples de campagnes particuliers →",
-      "stripe_tip": "Le paiement s'effectue directement par carte bancaire via Stripe lors de la validation de chaque campagne.",
       "wallet_tip_individual": "Rechargez votre portefeuille à l'avance pour payer instantanément à la validation.",
       "wallet_tip_business": "Vous pouvez aussi recharger votre portefeuille en avance pour payer rapidement à la validation.",
       "load_wallet": "💳 Charger mon portefeuille",
@@ -3429,10 +3428,18 @@
     "empty": "Aucune notification pour l'instant."
   },
   "campaign_payment": {
+    "balance": "Solde portefeuille : {{balance}} € · Montant dû : {{total}} €",
     "checking": "En attente de confirmation du paiement…",
-    "btn_pay_stripe": "Payer {{amount}} € par carte",
-    "dialog_title": "Paiement de campagne",
-    "dialog_desc": "Paiement sécurisé de {{amount}} € par carte bancaire via Stripe.",
+    "btn_pay": "Payer {{amount}} € avec mon portefeuille",
+    "btn_paying": "Paiement…",
+    "topup_received": "Recharge reçue — le crédit peut prendre 1 à 2 minutes à apparaître. Cliquez sur le bouton ci-dessous pour vérifier à nouveau.",
+    "btn_check_balance": "Vérifier le solde",
+    "btn_topup_again": "Recharger à nouveau",
+    "balance_insufficient": "Solde insuffisant. Rechargez par carte pour compléter le paiement.",
+    "btn_topup_amount": "Recharger {{amount}} € par carte",
+    "bank_transfer_summary": "Payer cette campagne par virement bancaire",
+    "bank_transfer_title": "Virement bancaire pour cette campagne",
+    "bank_transfer_subtitle": "Effectuez le virement avec la référence indiquée, puis téléversez votre reçu. Dès validation par notre équipe, la campagne est automatiquement marquée comme payée — aucun autre paiement n'est nécessaire.",
     "err_generic": "Erreur"
   },
   "campaign_pack": {

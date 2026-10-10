@@ -11,7 +11,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { CampaignStepper } from "@/components/shared/CampaignStepper";
 import { MobilityMap } from "@/components/shared/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
-import { CampaignPaymentCheckout } from "@/components/advertiser/CampaignPaymentCheckout";
+import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
 import { track } from "@/lib/analytics/track";
 import { downloadCsv } from "@/lib/exportCsv";
 import { toast } from "sonner";
@@ -75,21 +75,29 @@ function AnnonceurDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [requests, setRequests] = useState<Req[]>([]);
+  const [balanceCents, setBalanceCents] = useState<number>(0);
+  const [paying, setPaying] = useState<string | null>(null);
   const isIndividual = profile?.account_type === "individual";
+  const payFn = useServerFn(payCampaignWithWallet);
+  const walletFn = useServerFn(getMyWallet);
 
   const reload = useCallback(
     async (userId: string) => {
-      const { data: reqs, error: reqErr } = await supabase
-        .from("campaign_requests")
-        .select(
-          "id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status, installation_status, subscription_status",
-        )
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
+      const [{ data: reqs, error: reqErr }, w] = await Promise.all([
+        supabase
+          .from("campaign_requests")
+          .select(
+            "id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status, installation_status, subscription_status",
+          )
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false }),
+        walletFn(),
+      ]);
       if (reqErr) throw new Error(reqErr.message);
       setRequests((reqs as unknown as Req[]) ?? []);
+      setBalanceCents(w?.balance_cents ?? 0);
     },
-    [],
+    [walletFn],
   );
 
   const init = useCallback(async () => {
@@ -177,11 +185,26 @@ function AnnonceurDashboard() {
     downloadCsv(rows, `movespot-campagnes-${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
-  const handlePaid = (r: Req) => {
-    void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
-    firePixelEvent("Purchase", { value: (r.total_price ?? 0) / 100, currency: "EUR", content_name: "campaign" });
-    toast.success(t("advertiser.payment_success"));
-    if (userId) void reload(userId);
+  const handlePay = async (r: Req) => {
+    const cents = Math.round(Number(r.total_price ?? 0) * 100);
+    if (cents > balanceCents) {
+      toast.error(t("advertiser.insufficient_balance", { missing: ((cents - balanceCents) / 100).toFixed(2) }));
+      navigate({ to: "/advertiser/portefeuille" });
+      return;
+    }
+    setPaying(r.id);
+    try {
+      await payFn({ data: { campaignRequestId: r.id } });
+      void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
+      firePixelEvent("Purchase", { value: (r.total_price ?? 0) / 100, currency: "EUR", content_name: "campaign" });
+      toast.success(t("advertiser.payment_success"));
+      const { data: sess } = await supabase.auth.getSession();
+      if (sess.session) await reload(sess.session.user.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t("advertiser.payment_failed"));
+    } finally {
+      setPaying(null);
+    }
   };
 
   const dateLocale = i18n.language;
@@ -251,6 +274,12 @@ function AnnonceurDashboard() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <Link
+              to="/advertiser/portefeuille"
+              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+            >
+              {t("advertiser.nav.wallet", { balance: (balanceCents / 100).toFixed(2) })}
+            </Link>
             {isIndividual ? (
               <>
                 <Link
@@ -546,12 +575,15 @@ function AnnonceurDashboard() {
                     <PaymentBadge status={r.payment_status} />
                     {r.subscription_status && <SubscriptionBadge status={r.subscription_status} />}
                     {r.payment_status !== "paid" && r.total_price != null && (
-                      <CampaignPaymentCheckout
-                        campaignRequestId={r.id}
-                        campaignName={r.spot_name}
-                        totalPriceEur={Number(r.total_price)}
-                        onPaid={() => handlePaid(r)}
-                      />
+                      <button
+                        onClick={() => handlePay(r)}
+                        disabled={paying === r.id}
+                        className="rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+                      >
+                        {paying === r.id
+                          ? t("advertiser.paying")
+                          : `${t("advertiser.pay_with_wallet")} (${Number(r.total_price).toFixed(2)} €)`}
+                      </button>
                     )}
                     <Link
                       to="/advertiser/suivi/$campaignId"
@@ -605,7 +637,10 @@ function AnnonceurDashboard() {
       </main>
       <FAQChatbot
         audience="advertiser"
-        userContext={`Type de compte : ${isIndividual ? "particulier / événementiel" : "entreprise / professionnel"}`}
+        userContext={[
+          `Solde portefeuille : ${(balanceCents / 100).toFixed(2)} €`,
+          `Type de compte : ${isIndividual ? "particulier / événementiel" : "entreprise / professionnel"}`,
+        ].join("\n")}
         suggestions={
           isIndividual
             ? [
@@ -613,13 +648,13 @@ function AnnonceurDashboard() {
                 "Combien de temps avant l'événement dois-je publier ?",
                 "Comment choisir la zone de diffusion ?",
                 "Puis-je annuler si personne n'accepte mon brief ?",
-                "Comment fonctionne le paiement par carte ?",
+                "Comment fonctionne le paiement par portefeuille ?",
               ]
             : [
                 "Comment payer ma campagne validée ?",
                 "Combien de temps dure la validation de ma campagne ?",
                 "Quels contenus publicitaires sont interdits ?",
-                "Comment payer une campagne par carte ?",
+                "Comment recharger mon portefeuille ?",
                 "À quoi sert un brief ?",
               ]
         }
@@ -750,10 +785,16 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
         ))}
       </ol>
 
-      <div className="mt-6 pt-5 border-t border-border">
+      <div className="mt-6 pt-5 border-t border-border flex items-center justify-between flex-wrap gap-3">
         <p className="text-xs text-muted-foreground">
-          {t("advertiser.onboarding.stripe_tip")}
+          {isIndividual ? t("advertiser.onboarding.wallet_tip_individual") : t("advertiser.onboarding.wallet_tip_business")}
         </p>
+        <Link
+          to="/advertiser/portefeuille"
+          className="text-xs text-primary font-semibold hover:underline"
+        >
+          {t("advertiser.onboarding.load_wallet")}
+        </Link>
       </div>
     </div>
   );

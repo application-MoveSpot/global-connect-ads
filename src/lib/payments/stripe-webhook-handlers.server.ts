@@ -122,21 +122,6 @@ export async function handleStripeEvent(
         }
       }
 
-      if (s.metadata?.kind === "campaign_payment" && s.payment_status === "paid") {
-        const campaignRequestId = s.metadata.campaign_request_id;
-        if (campaignRequestId) {
-          await supabaseAdmin
-            .from("campaign_requests")
-            .update({
-              payment_status: "paid",
-              paid_at: new Date().toISOString(),
-              stripe_payment_intent_id:
-                typeof s.payment_intent === "string" ? s.payment_intent : (s.payment_intent as { id?: string } | null)?.id ?? null,
-            } as never)
-            .eq("id", campaignRequestId);
-        }
-      }
-
       if (s.metadata?.kind === "campaign_subscription" && typeof s.subscription === "string") {
         await syncCampaignSubscription(supabaseAdmin, {
           campaignRequestId: s.metadata.campaign_id ?? null,
