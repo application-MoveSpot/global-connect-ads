@@ -34,7 +34,7 @@ function Privacy() {
           Le responsable du traitement est RAKOUN KLUB, entreprise individuelle exploitant MoveSpot (voir les{" "}
           <a href="/mentions-legales" className="text-primary hover:underline">mentions légales</a>).
           Pour toute question relative à vos données, contactez-nous à
-          <a href="mailto:privacy@movespot.fr" className="text-primary hover:underline"> privacy@movespot.fr</a>.
+          <a href="mailto:contact@movespot.fr" className="text-primary hover:underline"> contact@movespot.fr</a>.
         </p>
       </LegalSection>
 
@@ -177,7 +177,7 @@ function Privacy() {
         </ul>
         <p>
           Pour exercer vos droits, écrivez-nous à
-          <a href="mailto:privacy@movespot.fr" className="text-primary hover:underline"> privacy@movespot.fr</a>.
+          <a href="mailto:contact@movespot.fr" className="text-primary hover:underline"> contact@movespot.fr</a>.
           Une réponse vous sera apportée dans un délai maximum d'un mois.
         </p>
       </LegalSection>
@@ -238,7 +238,7 @@ function Privacy() {
         <h4 className="font-semibold mt-4 mb-2">Comment exercer vos droits</h4>
         <p>
           Envoyez un email à{" "}
-          <a href="mailto:privacy@movespot.fr" className="text-primary hover:underline">privacy@movespot.fr</a>{" "}
+          <a href="mailto:contact@movespot.fr" className="text-primary hover:underline">contact@movespot.fr</a>{" "}
           en indiquant en objet <strong>« California Privacy Rights »</strong> ou <strong>« Florida Privacy Rights »</strong>{" "}
           selon votre État de résidence. Nous répondrons dans un délai de <strong>45 jours</strong> (extensible à 90 jours
           en cas de complexité, avec notification préalable). Vous pouvez également mandater un agent autorisé pour
