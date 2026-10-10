@@ -119,6 +119,10 @@ function AdminPage() {
     }
   }, [t]);
 
+  // ⛔ BLOC PROTÉGÉ — NE PAS MODIFIER NI SUPPRIMER
+  // Ce bloc contrôle l'accès au panneau administrateur.
+  // Toute modification non autorisée constitue une faille de sécurité.
+  // Propriétaire : rakounklub@gmail.com
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -132,7 +136,19 @@ function AdminPage() {
         }
         const adminOk = await withTimeout(isAdmin(), "La vérification du rôle admin");
         if (cancelled) return;
-        if (!adminOk) { setAuthState("unauthorized"); await supabase.auth.signOut(); return; }
+        if (!adminOk) {
+          setAuthState("unauthorized");
+          // Alerte silencieuse : notifier l'admin par email sans bloquer le flux
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            fetch("/api/admin/intrusion-alert", {
+              method: "POST",
+              headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+            }).catch(() => {});
+          }
+          await supabase.auth.signOut();
+          return;
+        }
         setAuthState("ok");
       } catch {
         if (!cancelled) setAuthState("unauthenticated");
