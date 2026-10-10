@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 
 import i18n from "@/lib/i18n";
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
+import { LanguageAuditGuard } from "@/components/app/LanguageAuditGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
 import { TestEnvBanner } from "@/components/app/TestEnvBanner";
 import { CookieBanner } from "@/components/app/CookieBanner";
@@ -209,6 +210,7 @@ function RootComponent() {
         <OfflineBanner />
         <TestEnvBanner />
         <AppUpdateGuard />
+        <LanguageAuditGuard />
         <StatusBanner />
         <Outlet />
         <CookieBanner />
