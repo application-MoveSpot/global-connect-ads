@@ -67,7 +67,7 @@ export function TrustScoreBadge({ driverId, compact = false }: Props) {
 
   useEffect(() => {
     fetchScore({ data: { driverId } })
-      .then((res) => setTrustData(res.score as TrustScore))
+      .then((res: { score: unknown }) => setTrustData(res.score as TrustScore))
       .catch(() => void 0);
   }, [driverId, fetchScore]);
 

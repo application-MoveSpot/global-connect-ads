@@ -388,7 +388,9 @@ function Input({
   type = "text",
   required,
   minLength,
+  placeholder,
 }: {
+  placeholder?: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
