@@ -20,7 +20,8 @@ export const scheduleControlPhoto = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = context.supabase as any;
 
     const { data: adminRow } = await supabase
       .from("admin_profiles")
@@ -221,7 +222,8 @@ export const adminReviewControlPhoto = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = context.supabase as any;
     const { data: adminRow } = await supabase
       .from("admin_profiles")
       .select("id")
@@ -266,7 +268,8 @@ export const adminReviewControlPhoto = createServerFn({ method: "POST" })
 export const adminListControlPhotoRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = context.supabase as any;
     const { data: adminRow } = await supabase
       .from("admin_profiles")
       .select("id")
@@ -412,7 +415,8 @@ export const getDriverTrustScore = createServerFn({ method: "GET" })
     z.object({ driverId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = context.supabase as any;
     const { data: row } = await supabase
       .from("driver_trust_scores")
       .select(
