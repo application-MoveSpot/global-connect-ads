@@ -42,7 +42,7 @@ function ProviderSignupPage() {
   });
   const [fullName, setFullName] = useState("");
   const [description, setDescription] = useState("");
-  const [coverage, setCoverage] = useState("");
+  const [coverageList, setCoverageList] = useState<string[]>([]);
   const [pricingInfo, setPricingInfo] = useState("");
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [phone, setPhone] = useState("");
@@ -220,11 +220,6 @@ function ProviderSignupPage() {
       setLoading(false);
       return;
     }
-    const coverageList = coverage
-      .split(/\r?\n|,/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 30);
     const portfolioPaths = portfolio.map((p) => p.path);
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: sess.session.user.id,
@@ -236,7 +231,7 @@ function ProviderSignupPage() {
       website: websiteValue,
       description,
       services,
-      coverage_areas: coverageList,
+      coverage_areas: coverageList.slice(0, 30),
       portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
     });
@@ -440,12 +435,10 @@ function ProviderSignupPage() {
               />
             </Field>
             <Field label={t("provider.inscription.coverage_label")}>
-              <textarea
-                value={coverage}
-                onChange={(e) => setCoverage(e.target.value)}
-                rows={3}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                placeholder="Paris&#10;Île-de-France&#10;Lyon"
+              <ZoneTagInput
+                value={coverageList}
+                onChange={setCoverageList}
+                placeholder={t("provider.inscription.coverage_hint")}
               />
             </Field>
             <Field label={t("provider.inscription.pricing_label")}>
@@ -464,10 +457,6 @@ function ProviderSignupPage() {
                       setEstimatingPricing(true);
                       setError("");
                       try {
-                        const coverageList = coverage
-                          .split(/\r?\n|,/)
-                          .map((s) => s.trim())
-                          .filter(Boolean);
                         const res = await callEstimatePricing({
                           data: {
                             services,
@@ -585,6 +574,63 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
       {children}
+    </div>
+  );
+}
+function ZoneTagInput({
+  value,
+  onChange,
+  placeholder,
+  max = 30,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+  placeholder?: string;
+  max?: number;
+}) {
+  const [input, setInput] = useState("");
+
+  const addZones = (raw: string) => {
+    const zones = raw.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    onChange([...value, ...zones.filter((z) => !value.includes(z))].slice(0, max));
+    setInput("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (input.trim()) addZones(input);
+    } else if (e.key === "Backspace" && !input && value.length > 0) {
+      onChange(value.slice(0, -1));
+    }
+  };
+
+  return (
+    <div className="w-full rounded-lg border border-border bg-background px-3 py-2 flex flex-wrap gap-1.5 min-h-[42px] cursor-text">
+      {value.map((z) => (
+        <span key={z} className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-xs font-medium px-2.5 py-0.5">
+          {z}
+          <button
+            type="button"
+            onClick={() => onChange(value.filter((v) => v !== z))}
+            className="hover:text-destructive transition leading-none"
+            aria-label={`Supprimer ${z}`}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      {value.length < max && (
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={() => { if (input.trim()) addZones(input); }}
+          placeholder={value.length === 0 ? placeholder : ""}
+          className="flex-1 min-w-[8rem] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        />
+      )}
     </div>
   );
 }
