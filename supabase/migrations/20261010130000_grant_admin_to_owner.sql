@@ -20,7 +20,7 @@ $$;
 INSERT INTO public.user_roles (user_id, role)
 SELECT id, 'admin'::app_role
 FROM auth.users
-WHERE email IN ('rakounklub@gmail.com', 'palermegarry.gp@gmail.com')
+WHERE email = 'rakounklub@gmail.com'
 ON CONFLICT DO NOTHING;
 
 -- 2. Trigger : grants admin automatiquement lors d'une future inscription
