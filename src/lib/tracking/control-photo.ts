@@ -72,7 +72,7 @@ export const scheduleControlPhoto = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     // Notification push au chauffeur
-    const { pushNotification } = await import("@/hooks/useNotifications");
+    const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
     if (vehicle?.driver_id) {
       const { data: driverUser } = await supabaseAdmin
         .from("drivers")
@@ -80,13 +80,11 @@ export const scheduleControlPhoto = createServerFn({ method: "POST" })
         .eq("id", vehicle.driver_id)
         .maybeSingle();
       if (driverUser?.user_id) {
-        await pushNotification({
-          userId: driverUser.user_id,
+        await sendWebPushToUser(driverUser.user_id, {
           title: "Photo de contrôle demandée",
           body: `MoveSpot demande une photo de votre véhicule dans les ${DEADLINE_MINUTES} minutes.`,
-          type: "control_photo",
-          referenceId: created?.id ?? null,
-        }).catch(() => void 0);
+          tag: "control_photo",
+        });
       }
     }
 
