@@ -11,6 +11,7 @@ import {
 } from "@/lib/providers/installation.functions";
 import { InstallationPhotosPanel } from "@/components/driver/InstallationPhotosPanel";
 import { InstallationKit } from "@/components/driver/InstallationKit";
+import { PoseFeeEstimateCard } from "@/components/provider/PoseFeeEstimateCard";
 
 type Job = {
   id: string;
@@ -24,6 +25,8 @@ type Job = {
   installation_notes: string | null;
   creative_files: string[] | null;
   total_price: number | null;
+  pose_fee_cents: number | null;
+  vehicle_id: string | null;
 };
 
 type CompletedJob = {
@@ -230,6 +233,15 @@ export function InstallationJobsPanel() {
                         )}
                       </div>
                     )}
+
+                    {/* Fee estimate */}
+                    <PoseFeeEstimateCard
+                      vehicleType="autre"
+                      location={job.spot_location ?? ""}
+                      storedPoseFeeCents={job.pose_fee_cents}
+                      operation="pose"
+                      className="mb-3"
+                    />
 
                     {/* Claim / Unclaim */}
                     {!claimed ? (

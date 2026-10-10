@@ -83,8 +83,19 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
     const companyValue = profile?.full_name ?? "Annonceur MoveSpot";
     const emailValue = email ?? `advertiser-${userId}@move-spot.com`;
 
+    // Fetch vehicle location for contextualised fee estimate
+    const { data: vehicle } = await supabaseAdmin
+      .from("vehicles")
+      .select("zones")
+      .eq("id", proposal.vehicle_id)
+      .maybeSingle();
+    const vehicleLocation = (vehicle as { zones?: string[] | null } | null)?.zones?.[0] ?? "";
+
+    // Compute context-aware pose/depose fees (format + vehicle type + city zone)
+    const { computeAndStorePoseFees } = await import("@/lib/providers/pose-fee-estimate.functions");
+    // Insert with placeholder fees first, then update with computed values
     const { getInstallerFees } = await import("@/lib/campaigns/installer-fees.server");
-    const { poseFee, deposeFee } = await getInstallerFees();
+    const { poseFee: fallbackPoseFee, deposeFee: fallbackDeposeFee } = await getInstallerFees();
 
     const { data: cr, error: crError } = await supabaseAdmin
       .from("campaign_requests")
@@ -97,12 +108,13 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         total_price: totalPrice,
         spot_id: data.briefId, // brief acts as the "spot" in the brief flow
         spot_name: brief.title,
+        spot_location: vehicleLocation || null,
         company: companyValue,
         email: emailValue,
         message: `Via brief "${brief.title}"`,
         user_id: userId,
-        pose_fee_cents: poseFee,
-        depose_fee_cents: deposeFee,
+        pose_fee_cents: fallbackPoseFee,
+        depose_fee_cents: fallbackDeposeFee,
       })
       .select("id")
       .maybeSingle();
@@ -110,6 +122,13 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
     if (crError) throw new Error(crError.message);
     if (!cr) throw new Error("Impossible de créer la campagne.");
     const campaignRequestId = (cr as { id: string }).id;
+
+    // Replace flat-fee placeholder with contextualised estimate (fire & forget — non-blocking)
+    computeAndStorePoseFees({
+      campaignRequestId,
+      vehicleId: proposal.vehicle_id,
+      location: vehicleLocation,
+    }).catch(() => { /* non-critical: fallback fees already stored */ });
 
     // For individuals: attempt immediate wallet settlement
     const isIndividual = profile?.account_type === "individual";
