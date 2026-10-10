@@ -9,6 +9,7 @@ import {
   unclaimDeposeJob,
 } from "@/lib/providers/installation.functions";
 import { DeposePhotosPanel } from "@/components/driver/DeposePhotosPanel";
+import { PoseFeeEstimateCard } from "@/components/provider/PoseFeeEstimateCard";
 
 type DeposeJob = {
   id: string;
@@ -189,6 +190,15 @@ export function DeposeJobsPanel() {
                     )}
                   </div>
                 )}
+
+                {/* Fee estimate */}
+                <PoseFeeEstimateCard
+                  vehicleType="autre"
+                  location={job.spot_location ?? ""}
+                  storedDeposeFeeCents={job.depose_fee_cents}
+                  operation="depose"
+                  className="mb-3"
+                />
 
                 {/* Claim / Unclaim */}
                 {!claimed ? (

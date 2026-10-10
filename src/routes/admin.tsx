@@ -229,6 +229,7 @@ function AdminPage() {
             <Link to="/admin/commissions" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_commissions")}</Link>
             <Link to="/admin/audit" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_audit")}</Link>
             <Link to="/admin/remboursements" className="px-4 py-2 rounded-lg text-sm font-semibold border border-border hover:bg-secondary">{t("admin.dashboard.nav_refunds")}</Link>
+            <Link to="/admin/translation-issues" className="px-4 py-2 rounded-lg text-sm font-semibold border border-orange-400/50 text-orange-600 hover:bg-orange-500/10">🌐 Traductions</Link>
           </div>
           <div className="flex gap-2">
             <a
