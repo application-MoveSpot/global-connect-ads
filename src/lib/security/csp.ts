@@ -13,9 +13,9 @@
 export const CSP_DIRECTIVES = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' js.stripe.com connect.facebook.net www.googletagmanager.com",
-  "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+  "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
   "font-src 'self' fonts.gstatic.com data:",
-  "img-src 'self' data: blob: *.supabase.co *.mapbox.com www.facebook.com www.google.com googleads.g.doubleclick.net",
+  "img-src 'self' data: blob: *.supabase.co *.mapbox.com *.openstreetmap.org cdn.jsdelivr.net www.facebook.com www.google.com googleads.g.doubleclick.net",
   [
     "connect-src 'self'",
     "*.supabase.co",
@@ -28,6 +28,8 @@ export const CSP_DIRECTIVES = [
     "www.facebook.com",
     "www.googletagmanager.com",
     "www.google-analytics.com",
+    "nominatim.openstreetmap.org",
+    "router.project-osrm.org",
   ].join(" "),
   "frame-src 'self' js.stripe.com hooks.stripe.com checkout.stripe.com",
   "frame-ancestors 'none'",
