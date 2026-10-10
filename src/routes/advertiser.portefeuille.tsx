@@ -8,7 +8,6 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
-import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
 import { RouteError } from "@/components/app/RouteError";
 import { useCurrency } from "@/hooks/useCurrency";
 
@@ -212,10 +211,6 @@ function WalletPage() {
             />
           </div>
           <WalletTopupCheckout amountEuros={amount} buttonLabel={t("wallet.topup_btn", { amount })} />
-        </section>
-
-        <section className="rounded-2xl border border-border bg-card p-6">
-          <BankTransferPanel />
         </section>
 
         <section>
