@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_intrusion_attempts: {
+        Row: {
+          attempted_at: string
+          email: string | null
+          id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempted_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempted_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       advertiser_briefs: {
         Row: {
           ad_format: string | null
@@ -84,12 +108,16 @@ export type Database = {
         Row: {
           account_type: string
           address: string | null
+          cgu_accepted_at: string | null
+          cgu_version: string | null
           city: string | null
+          commercial_id: string | null
           company: string | null
           created_at: string
           full_name: string
           id: string
           phone: string | null
+          referred_by_advertiser_id: string | null
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
@@ -99,12 +127,16 @@ export type Database = {
         Insert: {
           account_type?: string
           address?: string | null
+          cgu_accepted_at?: string | null
+          cgu_version?: string | null
           city?: string | null
+          commercial_id?: string | null
           company?: string | null
           created_at?: string
           full_name: string
           id?: string
           phone?: string | null
+          referred_by_advertiser_id?: string | null
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
@@ -114,19 +146,31 @@ export type Database = {
         Update: {
           account_type?: string
           address?: string | null
+          cgu_accepted_at?: string | null
+          cgu_version?: string | null
           city?: string | null
+          commercial_id?: string | null
           company?: string | null
           created_at?: string
           full_name?: string
           id?: string
           phone?: string | null
+          referred_by_advertiser_id?: string | null
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advertiser_profiles_referred_by_advertiser_id_fkey"
+            columns: ["referred_by_advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bank_transfer_requests: {
         Row: {
@@ -1592,6 +1636,7 @@ export type Database = {
         }
         Returns: string
       }
+      check_is_admin: { Args: never; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
