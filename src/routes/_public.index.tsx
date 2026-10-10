@@ -413,7 +413,7 @@ function Index() {
               <Link to="/confidentialite" className="hover:text-foreground transition">{tx("footer.confidentialite", "Confidentialité")}</Link>
               <Link to="/cookies" className="hover:text-foreground transition">{tx("footer.cookies", "Cookies")}</Link>
               <Link to="/mentions-legales" className="hover:text-foreground transition">{tx("footer.mentions", "Mentions légales")}</Link>
-              {window.location.hostname.includes("lovable.app") && (
+              {typeof window !== "undefined" && window.location.hostname.includes("lovable.app") && (
                 <Link to="/admin" className="hover:text-foreground transition text-amber-500">⚙ Admin</Link>
               )}
             </div>
