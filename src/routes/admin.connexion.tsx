@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { isAdmin } from "@/lib/admin/isAdmin";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -99,8 +100,8 @@ function AdminLoginPage() {
         return;
       }
       // Verify admin role
-      const { data: isAdmin } = await supabase.rpc("check_is_admin" as never);
-      if (isAdmin) {
+      const adminOk = await isAdmin();
+      if (adminOk) {
         navigate({ to: "/admin" });
       } else {
         await supabase.auth.signOut();
@@ -155,8 +156,8 @@ function AdminLoginPage() {
     }
 
     // Verify admin role before granting access
-    const { data: isAdmin } = await supabase.rpc("check_is_admin" as never);
-    if (!isAdmin) {
+    const adminOk = await isAdmin();
+    if (!adminOk) {
       await supabase.auth.signOut();
       const updated = recordFailure();
       if (updated.lockedUntil) {

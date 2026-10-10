@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/rea
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { isAdmin } from "@/lib/admin/isAdmin";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
@@ -129,12 +130,9 @@ function AdminPage() {
           navigate({ to: "/admin/connexion" });
           return;
         }
-        const { data: isAdmin, error: roleError } = await withTimeout(
-          supabase.rpc("check_is_admin" as never),
-          "La vérification du rôle admin"
-        );
+        const adminOk = await withTimeout(isAdmin(), "La vérification du rôle admin");
         if (cancelled) return;
-        if (roleError || !isAdmin) { setAuthState("unauthorized"); await supabase.auth.signOut(); return; }
+        if (!adminOk) { setAuthState("unauthorized"); await supabase.auth.signOut(); return; }
         setAuthState("ok");
       } catch {
         if (!cancelled) setAuthState("unauthenticated");
