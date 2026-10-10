@@ -13,6 +13,7 @@
 export const CSP_DIRECTIVES = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' js.stripe.com connect.facebook.net www.googletagmanager.com",
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net",
   "font-src 'self' fonts.gstatic.com data:",
   "img-src 'self' data: blob: *.supabase.co *.mapbox.com *.openstreetmap.org cdn.jsdelivr.net www.facebook.com www.google.com googleads.g.doubleclick.net",
