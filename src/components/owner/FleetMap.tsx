@@ -67,35 +67,40 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
   return <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />;
 }
 
-// ── Carte Mapbox GL 3D ────────────────────────────────────────────────────────
-function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
+type MapView = { center: [number, number]; zoom: number; pitch: number; bearing: number };
+
+// ── Carte Mapbox GL 3D — noyau (remontable via key) ──────────────────────────
+function FleetMapMapboxCore({
+  points,
+  token,
+  onContextLost,
+  initialView,
+}: {
+  points: FleetPoint[];
+  token: string;
+  onContextLost: (view?: MapView) => void;
+  initialView?: MapView;
+}) {
   const { t, i18n } = useTranslation();
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("mapbox-gl").Map | null>(null);
   const markersRef = useRef<import("mapbox-gl").Marker[]>([]);
   const rafRef = useRef<number | null>(null);
-  const [token, setToken] = useState("");
   const [immersive, setImmersive] = useState(false);
   const [orbit, setOrbit] = useState(false);
 
   useEffect(() => {
-    getMapboxToken()
-      .then((r: { token: string }) => setToken(r.token))
-      .catch(() => setToken(""));
-  }, []);
-
-  useEffect(() => {
-    if (!token || !container.current || mapRef.current) return;
+    if (!container.current || mapRef.current) return;
     import("mapbox-gl").then((mod) => {
       const mapboxgl = mod.default ?? mod;
       mapboxgl.accessToken = token;
       const map = new mapboxgl.Map({
         container: container.current!,
         style: "mapbox://styles/mapbox/dark-v11",
-        center: [2.35, 46.6],
-        zoom: 4.2,
-        pitch: 0,
-        bearing: 0,
+        center: initialView?.center ?? [2.35, 46.6],
+        zoom: initialView?.zoom ?? 4.2,
+        pitch: initialView?.pitch ?? 0,
+        bearing: initialView?.bearing ?? 0,
         antialias: true,
       });
       mapRef.current = map;
@@ -127,13 +132,74 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
           });
         }
       });
+
+      // ── Récupération automatique ─────────────────────────────────────────────
+
+      // 1. Perte de contexte WebGL → notifie le wrapper pour remontage
+      const canvas = map.getCanvas();
+      const captureView = (): MapView | undefined => {
+        const m = mapRef.current;
+        if (!m) return undefined;
+        return { center: [m.getCenter().lng, m.getCenter().lat], zoom: m.getZoom(), pitch: m.getPitch(), bearing: m.getBearing() };
+      };
+      const handleContextLost = (e: Event) => {
+        e.preventDefault();
+        onContextLost(captureView());
+      };
+      canvas.addEventListener("webglcontextlost", handleContextLost);
+
+      // 2. Retour de visibilité (changement d'onglet) → resize forcé
+      const handleVisibility = () => {
+        if (!document.hidden && mapRef.current) mapRef.current.resize();
+      };
+      document.addEventListener("visibilitychange", handleVisibility);
+
+      // 3. ResizeObserver → resize quand le conteneur reprend de la taille
+      const ro = new ResizeObserver(() => {
+        if (mapRef.current) mapRef.current.resize();
+      });
+      if (container.current) ro.observe(container.current);
+
+      // 4. Watchdog 5 s → canvas 0×0 = carte invisible → onContextLost
+      const watchdog = setInterval(() => {
+        const m = mapRef.current;
+        if (!m) return;
+        const c = m.getCanvas();
+        if (c.width === 0 || c.height === 0) {
+          m.resize();
+          // Si toujours 0 après resize, déclenche le remontage complet
+          const view = captureView();
+          setTimeout(() => {
+            const c2 = mapRef.current?.getCanvas();
+            if (c2 && (c2.width === 0 || c2.height === 0)) onContextLost(view);
+          }, 500);
+        }
+      }, 5000);
+
+      // Nettoyage global
+      const origCleanup = () => {
+        canvas.removeEventListener("webglcontextlost", handleContextLost);
+        document.removeEventListener("visibilitychange", handleVisibility);
+        ro.disconnect();
+        clearInterval(watchdog);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+        if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+      };
+      // Stocké pour le return du useEffect
+      (map as unknown as { _cleanupFn?: () => void })._cleanupFn = origCleanup;
     });
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+      const m = mapRef.current as unknown as { _cleanupFn?: () => void } | null;
+      if (m?._cleanupFn) { m._cleanupFn(); }
+      else {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+        if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+      }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -200,14 +266,6 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
     rafRef.current = requestAnimationFrame(step);
   }, [orbit, stopOrbit]);
 
-  if (!token) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
-        {t("fleet_map.token_missing")}
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
@@ -220,6 +278,64 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
       </div>
       <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />
     </div>
+  );
+}
+
+// ── Wrapper : gère le token + le remontage automatique ────────────────────────
+function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
+  const { t } = useTranslation();
+  const [token, setToken] = useState("");
+  const [mapKey, setMapKey] = useState(0);
+  const [recovering, setRecovering] = useState(false);
+  const recoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedView = useRef<MapView | null>(null);
+
+  useEffect(() => {
+    getMapboxToken()
+      .then((r: { token: string }) => setToken(r.token))
+      .catch(() => setToken(""));
+  }, []);
+
+  const handleContextLost = useCallback((view?: MapView) => {
+    if (recovering) return;
+    if (view) savedView.current = view;
+    setRecovering(true);
+    if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
+    recoverTimeout.current = setTimeout(() => {
+      setMapKey((k) => k + 1);
+      setRecovering(false);
+    }, 1800);
+  }, [recovering]);
+
+  useEffect(() => () => {
+    if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
+  }, []);
+
+  if (!token) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+        {t("fleet_map.token_missing")}
+      </div>
+    );
+  }
+
+  if (recovering) {
+    return (
+      <div className="h-[520px] w-full rounded-2xl border border-border bg-card flex items-center justify-center gap-2 text-sm text-muted-foreground animate-pulse">
+        <span className="inline-block h-3 w-3 rounded-full bg-primary animate-ping" />
+        {t("fleet_map.recovering")}
+      </div>
+    );
+  }
+
+  return (
+    <FleetMapMapboxCore
+      key={mapKey}
+      points={points}
+      token={token}
+      onContextLost={handleContextLost}
+      initialView={savedView.current ?? undefined}
+    />
   );
 }
 
