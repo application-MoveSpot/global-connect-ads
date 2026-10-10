@@ -5,6 +5,10 @@
 //   - Tailwind CSS generates inline styles at build time
 //   - Mapbox GL uses dynamic Function() for WebGL shader compilation
 //
+// WHY worker-src blob::
+//   - Mapbox GL spawns Web Workers from blob: URLs for WebGL shader compilation
+//   - Without this, the map worker is blocked and FleetMap/ZoneSelector fail silently
+//
 // The real XSS protection here comes from restricting connect-src to known
 // origins (blocks data exfiltration to attacker-controlled servers), locking
 // frame-ancestors to prevent clickjacking, and object-src 'none' to block

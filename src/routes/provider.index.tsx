@@ -188,7 +188,7 @@ function ProviderDashboard() {
           onSuccess={load}
         />
 
-        <ProfilePreview profile={profile} />
+        <ProfilePreview profile={profile} onSaved={load} />
 
 
         <h2 className="font-display text-xl font-bold mb-3">{t("provider.dashboard.requests_count", { count: quotes.length })}</h2>
@@ -223,9 +223,12 @@ function ProviderDashboard() {
   );
 }
 
-function ProfilePreview({ profile }: { profile: Profile }) {
+function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () => void }) {
   const { t } = useTranslation();
   const arr = (a: string[] | null) => (a && a.length > 0 ? a : null);
+  const [editingAreas, setEditingAreas] = useState(false);
+  const [areaList, setAreaList] = useState<string[]>(profile.coverage_areas ?? []);
+  const [savingAreas, setSavingAreas] = useState(false);
   return (
     <section className="mb-8 rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start gap-4 mb-4">
@@ -265,14 +268,56 @@ function ProfilePreview({ profile }: { profile: Profile }) {
           </div>
         </div>
       )}
-      {arr(profile.coverage_areas) && (
-        <div className="mt-3">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{t("provider.dashboard.profile_areas")}</div>
-          <div className="flex flex-wrap gap-1">
-            {profile.coverage_areas!.map((z) => <span key={z} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{z}</span>)}
-          </div>
+      <div className="mt-3">
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("provider.dashboard.profile_areas")}</div>
+          {!editingAreas && (
+            <button
+              type="button"
+              onClick={() => { setAreaList(profile.coverage_areas ?? []); setEditingAreas(true); }}
+              className="text-xs text-primary hover:underline"
+            >
+              {t("common.edit")}
+            </button>
+          )}
         </div>
-      )}
+        {editingAreas ? (
+          <div className="space-y-2">
+            <ZoneTagInput value={areaList} onChange={setAreaList} placeholder={t("provider.inscription.coverage_hint")} />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={savingAreas}
+                onClick={async () => {
+                  setSavingAreas(true);
+                  await supabase.from("provider_profiles").update({ coverage_areas: areaList }).eq("user_id", profile.user_id);
+                  setSavingAreas(false);
+                  setEditingAreas(false);
+                  onSaved?.();
+                }}
+                className="text-xs rounded-full bg-primary text-primary-foreground px-3 py-1.5 hover:bg-primary/90 disabled:opacity-60 transition"
+              >
+                {savingAreas ? t("common.sending") : t("common.save")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingAreas(false)}
+                className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary transition"
+              >
+                {t("common.cancel")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-1">
+            {areaList.length > 0 ? (
+              areaList.map((z) => <span key={z} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{z}</span>)
+            ) : (
+              <span className="text-xs text-muted-foreground">{t("provider.inscription.coverage_hint")}</span>
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
@@ -447,6 +492,64 @@ function QuoteBadge({ status }: { status: string }) {
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
+}
+
+function ZoneTagInput({
+  value,
+  onChange,
+  placeholder,
+  max = 30,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+  placeholder?: string;
+  max?: number;
+}) {
+  const [input, setInput] = useState("");
+
+  const addZones = (raw: string) => {
+    const zones = raw.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    onChange([...value, ...zones.filter((z) => !value.includes(z))].slice(0, max));
+    setInput("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (input.trim()) addZones(input);
+    } else if (e.key === "Backspace" && !input && value.length > 0) {
+      onChange(value.slice(0, -1));
+    }
+  };
+
+  return (
+    <div className="w-full rounded-lg border border-border bg-background px-3 py-2 flex flex-wrap gap-1.5 min-h-[42px] cursor-text">
+      {value.map((z) => (
+        <span key={z} className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-xs font-medium px-2.5 py-0.5">
+          {z}
+          <button
+            type="button"
+            onClick={() => onChange(value.filter((v) => v !== z))}
+            className="hover:text-destructive transition leading-none"
+            aria-label={`Supprimer ${z}`}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+      {value.length < max && (
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={() => { if (input.trim()) addZones(input); }}
+          placeholder={value.length === 0 ? placeholder : ""}
+          className="flex-1 min-w-[8rem] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        />
+      )}
+    </div>
+  );
 }
 
 function ImpossibleModal({ onSubmit, onCancel }: {
