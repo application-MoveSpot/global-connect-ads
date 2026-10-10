@@ -1,0 +1,349 @@
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { supabase } from "@/integrations/supabase/client";
+import { LogoLink } from "@/components/app/LogoLink";
+import { RouteError } from "@/components/app/RouteError";
+
+export const Route = createFileRoute("/admin/connexion")({
+  head: () => ({
+    meta: [
+      { title: "Administration — MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
+  component: AdminLoginPage,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
+});
+
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 30 * 60 * 1000; // 30 minutes
+const STORAGE_KEY = "ms_admin_auth_attempts";
+
+type AttemptRecord = { count: number; lockedUntil: number | null; lastAttempt: number };
+
+function readAttempts(): AttemptRecord {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { count: 0, lockedUntil: null, lastAttempt: 0 };
+    return JSON.parse(raw) as AttemptRecord;
+  } catch {
+    return { count: 0, lockedUntil: null, lastAttempt: 0 };
+  }
+}
+
+function writeAttempts(rec: AttemptRecord): void {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rec)); } catch { /* */ }
+}
+
+function recordFailure(): AttemptRecord {
+  const rec = readAttempts();
+  const now = Date.now();
+  // Reset count if last attempt was over 1 hour ago
+  const count = now - rec.lastAttempt > 3600_000 ? 1 : rec.count + 1;
+  const lockedUntil = count >= MAX_ATTEMPTS ? now + LOCKOUT_MS : null;
+  const next = { count, lockedUntil, lastAttempt: now };
+  writeAttempts(next);
+  return next;
+}
+
+function clearAttempts(): void {
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
+}
+
+function AdminLoginPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const [attemptsLeft, setAttemptsLeft] = useState(MAX_ATTEMPTS);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Tick lockout countdown
+  useEffect(() => {
+    if (!lockoutUntil) return;
+    const tick = () => {
+      if (Date.now() >= lockoutUntil) {
+        setLockoutUntil(null);
+        clearAttempts();
+        if (timerRef.current) clearInterval(timerRef.current);
+      }
+    };
+    timerRef.current = setInterval(tick, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [lockoutUntil]);
+
+  // Check existing session
+  useEffect(() => {
+    const rec = readAttempts();
+    if (rec.lockedUntil && Date.now() < rec.lockedUntil) {
+      setLockoutUntil(rec.lockedUntil);
+    } else {
+      setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - rec.count));
+    }
+
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) { setChecking(false); return; }
+      // Check MFA level
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+        // MFA required — proceed to MFA step without redirecting
+        setChecking(false);
+        return;
+      }
+      // Verify admin role
+      const { data: isAdmin } = await supabase.rpc("check_is_admin" as never);
+      if (isAdmin) {
+        navigate({ to: "/admin" });
+      } else {
+        await supabase.auth.signOut();
+        setChecking(false);
+      }
+    })();
+  }, [navigate]);
+
+  const goAdmin = () => navigate({ to: "/admin" });
+
+  const checkMfaThenGo = async () => {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totp = factors?.totp?.find((f) => f.status === "verified");
+      if (totp) {
+        const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: totp.id });
+        if (chErr || !ch) { setError(chErr?.message ?? t("auth.error_mfa")); return; }
+        setMfa({ factorId: totp.id, challengeId: ch.id });
+        return;
+      }
+    }
+    goAdmin();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check lockout
+    const rec = readAttempts();
+    if (rec.lockedUntil && Date.now() < rec.lockedUntil) {
+      setLockoutUntil(rec.lockedUntil);
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (signInError) {
+      const updated = recordFailure();
+      if (updated.lockedUntil) {
+        setLockoutUntil(updated.lockedUntil);
+        setAttemptsLeft(0);
+      } else {
+        setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - updated.count));
+        setError(t("auth.invalid_credentials"));
+      }
+      setLoading(false);
+      return;
+    }
+
+    // Verify admin role before granting access
+    const { data: isAdmin } = await supabase.rpc("check_is_admin" as never);
+    if (!isAdmin) {
+      await supabase.auth.signOut();
+      const updated = recordFailure();
+      if (updated.lockedUntil) {
+        setLockoutUntil(updated.lockedUntil);
+        setAttemptsLeft(0);
+      } else {
+        setAttemptsLeft(Math.max(0, MAX_ATTEMPTS - updated.count));
+        setError(t("admin.connexion.not_admin"));
+      }
+      setLoading(false);
+      return;
+    }
+
+    clearAttempts();
+    setAttemptsLeft(MAX_ATTEMPTS);
+    await checkMfaThenGo();
+    setLoading(false);
+  };
+
+  const submitMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfa) return;
+    setError("");
+    setLoading(true);
+    const { error: mfaError } = await supabase.auth.mfa.verify({
+      factorId: mfa.factorId,
+      challengeId: mfa.challengeId,
+      code: mfaCode,
+    });
+    setLoading(false);
+    if (mfaError) {
+      setError(mfaError.message);
+      return;
+    }
+    setMfa(null);
+    setMfaCode("");
+    goAdmin();
+  };
+
+  const lockoutMinutes = lockoutUntil
+    ? Math.ceil((lockoutUntil - Date.now()) / 60_000)
+    : 0;
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
+        <Link
+          to="/"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
+          {t("auth.back_to_home")}
+        </Link>
+
+        <h1 className="font-display text-3xl font-bold mt-4 mb-1">
+          {mfa ? t("auth.mfa_title") : t("admin.connexion.title")}
+        </h1>
+        <p className="text-sm text-muted-foreground mb-6">
+          {mfa ? t("auth.mfa_desc") : t("admin.connexion.subtitle")}
+        </p>
+
+        {lockoutUntil ? (
+          <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-5 text-center space-y-2">
+            <div className="text-2xl">🔒</div>
+            <p className="font-semibold text-destructive">
+              {t("admin.connexion.lockout_title")}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {t("admin.connexion.lockout_desc", { minutes: lockoutMinutes })}
+            </p>
+          </div>
+        ) : mfa ? (
+          <form onSubmit={submitMfa} className="space-y-4">
+            <div>
+              <label htmlFor="mfa-code" className="block text-sm font-medium mb-1.5">
+                {t("auth.mfa_code_label")}
+              </label>
+              <input
+                id="mfa-code"
+                autoFocus
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="123456"
+                autoComplete="one-time-code"
+                aria-required="true"
+                className="w-full rounded-lg bg-input border border-border px-4 py-3 text-lg font-mono tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={loading || mfaCode.length !== 6}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
+              {loading ? "…" : t("auth.mfa_verify")}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setMfa(null);
+                setMfaCode("");
+                setError("");
+              }}
+              className="w-full text-sm text-muted-foreground hover:text-foreground"
+            >
+              {t("auth.mfa_cancel")}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
+            <div>
+              <label htmlFor="admin-email" className="block text-sm font-medium mb-1.5">
+                {t("auth.email")}
+              </label>
+              <input
+                id="admin-email"
+                type="email"
+                required
+                autoComplete="username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="admin-password" className="block text-sm font-medium">
+                  {t("auth.password")}
+                </label>
+                <Link
+                  to="/reset-password"
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                >
+                  {t("auth.forgot_password")}
+                </Link>
+              </div>
+              <input
+                id="admin-password"
+                type="password"
+                required
+                minLength={8}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+
+            {attemptsLeft < MAX_ATTEMPTS && attemptsLeft > 0 && (
+              <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/30 p-3 text-xs text-yellow-700 dark:text-yellow-400">
+                {t("admin.connexion.attempts_warning", { count: attemptsLeft })}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
+              {loading ? "…" : t("admin.connexion.submit")}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}

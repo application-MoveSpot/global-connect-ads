@@ -126,7 +126,7 @@ function AdminPage() {
         if (cancelled) return;
         if (sessionError || !sess.session) {
           setAuthState("unauthenticated");
-          navigate({ to: "/auth" });
+          navigate({ to: "/admin/connexion" });
           return;
         }
         const { data: isAdmin, error: roleError } = await withTimeout(
@@ -134,7 +134,7 @@ function AdminPage() {
           "La vérification du rôle admin"
         );
         if (cancelled) return;
-        if (roleError || !isAdmin) { setAuthState("unauthorized"); return; }
+        if (roleError || !isAdmin) { setAuthState("unauthorized"); await supabase.auth.signOut(); return; }
         setAuthState("ok");
       } catch {
         if (!cancelled) setAuthState("unauthenticated");
@@ -172,7 +172,7 @@ function AdminPage() {
         <div>
           <h1 className="font-display text-3xl font-bold mb-2">{t("admin.dashboard.session_not_found")}</h1>
           <p className="text-muted-foreground mb-4">{t("admin.dashboard.reconnect_desc")}</p>
-          <button onClick={() => navigate({ to: "/auth" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_in")}</button>
+          <button onClick={() => navigate({ to: "/admin/connexion" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_in")}</button>
         </div>
       </div>
     );
@@ -184,7 +184,7 @@ function AdminPage() {
         <div>
           <h1 className="font-display text-3xl font-bold mb-2">{t("admin.dashboard.access_denied")}</h1>
           <p className="text-muted-foreground mb-4">{t("admin.dashboard.not_admin")}</p>
-          <button onClick={logout} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_out")}</button>
+          <button onClick={() => navigate({ to: "/admin/connexion" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("admin.dashboard.sign_in")}</button>
         </div>
       </div>
     );

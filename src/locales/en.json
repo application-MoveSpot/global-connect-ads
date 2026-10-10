@@ -286,7 +286,11 @@
       "session_expired": "Session expired",
       "invalid_name": "Please enter the manager's first and last name.",
       "short_description": "Describe your activity in at least 30 characters."
-    }
+    },
+    "signin_desc": "Access your MoveSpot workspace.",
+    "signup_desc": "Create your MoveSpot account.",
+    "invalid_credentials": "Incorrect email or password.",
+    "mfa_code_label": "Authentication code"
   },
   "parametres": {
     "page_title": "Account settings — MoveSpot",
@@ -2550,7 +2554,16 @@
     "photo_label": "Photo",
     "ai_detected": "⚠ AI detected",
     "price_estimate": "Est. price: {{min}}–{{max}} €/day",
-    "imp_per_day": "imp./day"
+    "imp_per_day": "imp./day",
+    "connexion": {
+      "title": "Administration access",
+      "subtitle": "Secure login to the dashboard.",
+      "submit": "Sign in",
+      "not_admin": "Access denied: unauthorized account.",
+      "lockout_title": "Account temporarily locked",
+      "lockout_desc": "Too many failed attempts. Try again in {{minutes}} min.",
+      "attempts_warning": "{{count}} attempt(s) remaining before temporary lock."
+    }
   },
   "partner": {
     "badge": "🚐 Owner space",
