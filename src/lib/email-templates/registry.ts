@@ -25,6 +25,7 @@ import { template as briefCreatedTemplate } from './brief-created'
 import { template as briefCampaignConfirmedTemplate } from './brief-campaign-confirmed'
 import { template as advertiserWelcomeTemplate } from './advertiser-welcome'
 import { template as adminIntrusionAlertTemplate } from './admin-intrusion-alert'
+import { template as briefDecisionTemplate } from './brief-decision'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -66,4 +67,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'brief-campaign-confirmed': briefCampaignConfirmedTemplate,
   'advertiser-welcome': advertiserWelcomeTemplate,
   'admin-intrusion-alert': adminIntrusionAlertTemplate,
+  'brief-decision': briefDecisionTemplate,
 }

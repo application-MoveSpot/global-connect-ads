@@ -230,11 +230,34 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const { data: brief, error } = await supabaseAdmin
       .from("advertiser_briefs")
       .update({ status: data.approve ? "open" : "cancelled" } as never)
-      .eq("id", data.briefId);
+      .eq("id", data.briefId)
+      .select("user_id, title")
+      .single();
     if (error) throw new Error(error.message);
+
+    // Email annonceur — décision brief (fire-and-forget)
+    if (brief?.user_id) {
+      const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+      supabaseAdmin.auth.admin.getUserById(brief.user_id as string).then(({ data: u }) => {
+        if (u?.user?.email) {
+          sendAppEmailSafe({
+            templateName: "brief-decision",
+            recipientEmail: u.user.email,
+            idempotencyKey: `brief-decision-${data.briefId}`,
+            templateData: {
+              briefTitle: (brief as { title?: string }).title ?? "votre brief",
+              approved: data.approve,
+              reason: data.approve ? undefined : (data.notes?.trim() || undefined),
+              dashboardUrl: "https://move-spot.com/annonceur",
+            },
+          }).catch((e) => console.error("brief-decision email failed", e));
+        }
+      }).catch((e) => console.error("brief-decision email lookup failed", e));
+    }
+
     return { ok: true };
   });
 
@@ -276,19 +299,42 @@ export const adminCertifyPoseur = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const certNotes = data.notes ??
+      (data.certified
+        ? "🏅 Garage certifié manuellement par MoveSpot."
+        : "⛔ Certification refusée par MoveSpot.");
+    const { data: poseur, error } = await supabaseAdmin
       .from("payee_profiles")
       .update({
         certification_status: data.certified ? "certified" : "rejected",
-        certification_notes:
-          data.notes ??
-          (data.certified
-            ? "🏅 Garage certifié manuellement par MoveSpot."
-            : "⛔ Certification refusée par MoveSpot."),
+        certification_notes: certNotes,
         status: data.certified ? "approved" : "rejected",
       } as never)
-      .eq("id", data.payeeProfileId);
+      .eq("id", data.payeeProfileId)
+      .select("user_id, full_name")
+      .single();
     if (error) throw new Error(error.message);
+
+    // Email poseur — décision certification (fire-and-forget)
+    if (poseur?.user_id) {
+      const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+      supabaseAdmin.auth.admin.getUserById(poseur.user_id as string).then(({ data: u }) => {
+        if (u?.user?.email) {
+          sendAppEmailSafe({
+            templateName: "payee-certification",
+            recipientEmail: u.user.email,
+            idempotencyKey: `poseur-certification-${data.payeeProfileId}`,
+            templateData: {
+              fullName: (poseur as { full_name?: string }).full_name ?? undefined,
+              certified: data.certified,
+              notes: data.certified ? undefined : certNotes,
+              spaceUrl: "https://move-spot.com/prestataire",
+            },
+          }).catch((e) => console.error("payee-certification email failed", e));
+        }
+      }).catch((e) => console.error("payee-certification email lookup failed", e));
+    }
+
     return { ok: true };
   });
 
@@ -576,16 +622,40 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const adminNotes = data.notes ?? (data.approve
+      ? "✅ Véhicule approuvé par MoveSpot."
+      : "⛔ Véhicule refusé par MoveSpot.");
+    const { data: vehicle, error } = await supabaseAdmin
       .from("vehicles")
       .update({
         status: data.approve ? "approved" : "rejected",
-        admin_notes: data.notes ?? (data.approve
-          ? "✅ Véhicule approuvé par MoveSpot."
-          : "⛔ Véhicule refusé par MoveSpot."),
+        admin_notes: adminNotes,
       } as never)
-      .eq("id", data.vehicleId);
+      .eq("id", data.vehicleId)
+      .select("user_id, name")
+      .single();
     if (error) throw new Error(error.message);
+
+    // Email propriétaire — décision véhicule (fire-and-forget)
+    if (vehicle?.user_id) {
+      const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+      supabaseAdmin.auth.admin.getUserById(vehicle.user_id as string).then(({ data: u }) => {
+        if (u?.user?.email) {
+          sendAppEmailSafe({
+            templateName: "vehicle-status",
+            recipientEmail: u.user.email,
+            idempotencyKey: `vehicle-decision-${data.vehicleId}`,
+            templateData: {
+              vehicleName: (vehicle as { name?: string }).name ?? "votre véhicule",
+              approved: data.approve,
+              reason: data.approve ? undefined : adminNotes,
+              dashboardUrl: "https://move-spot.com/proprietaire",
+            },
+          }).catch((e) => console.error("vehicle-status email failed", e));
+        }
+      }).catch((e) => console.error("vehicle-status email lookup failed", e));
+    }
+
     return { ok: true };
   });
 
