@@ -4785,7 +4785,13 @@
       "title_signin": "Se connecter",
       "title_signup": "Créer mon compte annonceur",
       "type_entreprise": "Entreprise",
-      "type_particulier": "Particulier"
+      "type_particulier": "Particulier",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_panel_desc": "Décrivez votre activité en quelques mots et l'IA pré-remplit votre profil.",
+      "ai_panel_title": "Remplir avec l'IA — décrivez votre activité",
+      "ai_placeholder": "Ex. : Je dirige une agence de communication à Paris, je souhaite promouvoir mes services…"
     },
     "insufficient_balance": "Solde insuffisant",
     "ip_notice": "Les visuels fournis doivent être libres de droits.",

@@ -14,6 +14,8 @@ import { RouteError } from "@/components/app/RouteError";
 import { resolveReferralCode } from "@/lib/commercial/commercial.functions";
 import { resolveAdvertiserInviteCode } from "@/lib/referral/advertiser-referral.functions";
 import { sendAdvertiserWelcomeEmail } from "@/lib/email/email.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
+import { generateAdvertiserInscriptionSuggestion } from "@/lib/ai/advertiser-inscription-assistant.functions";
 import { useTranslation } from "react-i18next";
 
 type Search = { redirect?: string; ref?: string; invite?: string; mode?: "signin" | "signup" };
@@ -68,6 +70,13 @@ function AnnonceurInscription() {
   const resolveRefFn = useServerFn(resolveReferralCode);
   const resolveInviteFn = useServerFn(resolveAdvertiserInviteCode);
   const welcomeEmailFn = useServerFn(sendAdvertiserWelcomeEmail);
+  const callAdvertiserAi = useServerFn(generateAdvertiserInscriptionSuggestion);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
 
   const goNext = () => {
     if (redirect) window.location.href = redirect;
@@ -171,6 +180,34 @@ function AnnonceurInscription() {
     }
     setStep("profile");
     setLoading(false);
+  };
+
+  const handleAdvertiserAiGenerate = async () => {
+    setAiError("");
+    setAiSessionExpired(false);
+    if (aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await callAdvertiserAi({ data: { advertiserContext: aiContext.trim() } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      const filled: string[] = [];
+      if (res.suggestion.fullName) { setFullName(res.suggestion.fullName); filled.push(t("advertiser.inscription.label_full_name")); }
+      if (res.suggestion.company) { setCompany(res.suggestion.company); filled.push(t("advertiser.inscription.label_company")); }
+      if (res.suggestion.city) { setCity(res.suggestion.city); filled.push(t("advertiser.inscription.label_city")); }
+      setAiFilled(filled);
+      setAiPanelOpen(false);
+    } catch {
+      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleProfile = async (e: React.FormEvent) => {
@@ -338,6 +375,25 @@ function AnnonceurInscription() {
                 </button>
               ))}
             </div>
+
+            <AiAssistantPanel
+              open={aiPanelOpen}
+              onOpenChange={(v) => { setAiPanelOpen(v); if (!v) { setAiError(""); setAiSessionExpired(false); } }}
+              context={aiContext}
+              onContextChange={setAiContext}
+              onGenerate={handleAdvertiserAiGenerate}
+              loading={aiLoading}
+              error={aiError}
+              sessionExpired={aiSessionExpired}
+              sessionExpiredHref="/advertiser/inscription?mode=signin"
+              title={t("advertiser.inscription.ai_panel_title")}
+              description={t("advertiser.inscription.ai_panel_desc")}
+              placeholder={t("advertiser.inscription.ai_placeholder")}
+              generateLabel={t("advertiser.inscription.ai_generate")}
+              generateLoadingLabel={t("advertiser.inscription.ai_generating")}
+              filledMessage={aiFilled.length > 0 ? t("advertiser.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              onDismissFilled={() => setAiFilled([])}
+            />
 
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label={t("advertiser.inscription.label_full_name")} value={fullName} onChange={setFullName} required />

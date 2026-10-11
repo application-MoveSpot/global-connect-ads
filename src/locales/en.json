@@ -4740,7 +4740,13 @@
       "title_signin": "Sign in",
       "title_signup": "Create my advertiser account",
       "type_entreprise": "Business",
-      "type_particulier": "Individual"
+      "type_particulier": "Individual",
+      "ai_filled": "✨ AI filled: {{fields}} — review and adjust if needed.",
+      "ai_generate": "Generate",
+      "ai_generating": "Generating…",
+      "ai_panel_desc": "Describe your activity in a few words and AI will pre-fill your profile.",
+      "ai_panel_title": "Fill with AI — describe your activity",
+      "ai_placeholder": "E.g.: I run a communication agency in Paris, I want to promote my services…"
     },
     "insufficient_balance": "Insufficient Balance",
     "ip_notice": "Ip Notice",
