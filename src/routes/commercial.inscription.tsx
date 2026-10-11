@@ -4,8 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { createCommercialProfile } from "@/lib/commercial/commercial.functions";
+import { generateCommercialInscriptionSuggestion } from "@/lib/ai/commercial-inscription-assistant.functions";
 import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
 import { LogoLink } from "@/components/app/LogoLink";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/commercial/inscription")({
@@ -33,7 +35,14 @@ function CommercialInscription() {
   const [cguAccepted, setCguAccepted] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
   const createProfileFn = useServerFn(createCommercialProfile);
+  const callCommercialAi = useServerFn(generateCommercialInscriptionSuggestion);
 
   useEffect(() => {
     (async () => {
@@ -49,6 +58,30 @@ function CommercialInscription() {
       }
     })();
   }, [navigate]);
+
+  const handleCommercialAiGenerate = async () => {
+    setAiError("");
+    setAiLoading(true);
+    setAiSessionExpired(false);
+    try {
+      const res = await callCommercialAi({ data: { commercialContext: aiContext } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      const filled: string[] = [];
+      if (res.suggestion.fullName) { setFullName(res.suggestion.fullName); filled.push(t("commercial.inscription.fullname_label").replace(" *", "")); }
+      if (res.suggestion.company) { setCompany(res.suggestion.company); filled.push(t("commercial.inscription.company_label")); }
+      if (res.suggestion.city) { setCity(res.suggestion.city); filled.push(t("commercial.inscription.city_label")); }
+      setAiFilled(filled);
+      if (filled.length > 0) setAiPanelOpen(false);
+    } catch {
+      setAiError(t("commercial.inscription.ai_generate_error"));
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,6 +172,24 @@ function CommercialInscription() {
             <p className="text-sm text-muted-foreground mb-6">
               {t("commercial.inscription.profile_subtitle")}
             </p>
+            <AiAssistantPanel
+              variant="inline"
+              open={aiPanelOpen}
+              onOpenChange={setAiPanelOpen}
+              title={t("commercial.inscription.ai_panel_title")}
+              description={t("commercial.inscription.ai_panel_desc")}
+              placeholder={t("commercial.inscription.ai_placeholder")}
+              context={aiContext}
+              onContextChange={setAiContext}
+              onGenerate={handleCommercialAiGenerate}
+              loading={aiLoading}
+              error={aiError}
+              sessionExpired={aiSessionExpired}
+              sessionExpiredHref="/commercial/inscription?mode=signin"
+              generateLabel={t("commercial.inscription.ai_generate")}
+              generatingLabel={t("commercial.inscription.ai_generating")}
+              filledMessage={aiFilled.length > 0 ? t("commercial.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+            />
             <form onSubmit={handleProfile} className="space-y-4">
               <Field label={t("commercial.inscription.fullname_label")} value={fullName} onChange={setFullName} required />
               <Field label={t("commercial.inscription.company_label")} value={company} onChange={setCompany} />

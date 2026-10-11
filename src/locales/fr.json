@@ -1946,7 +1946,14 @@
       "desc_signin": "Connectez-vous à votre espace commercial.",
       "desc_signup": "Créez votre compte commercial.",
       "submit_signin": "Se connecter",
-      "submit_signup": "Créer mon compte"
+      "submit_signup": "Créer mon compte",
+      "ai_panel_title": "Remplir avec l'IA",
+      "ai_panel_desc": "Décrivez-vous en quelques mots et l'IA complètera votre profil automatiquement.",
+      "ai_placeholder": "Ex : Je suis Julien Martin, consultant indépendant basé à Bordeaux…",
+      "ai_generate": "Remplir le profil",
+      "ai_generating": "Analyse en cours…",
+      "ai_filled": "Champs pré-remplis : {{fields}}",
+      "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
     },
     "dashboard": {
       "title": "Espace commercial",

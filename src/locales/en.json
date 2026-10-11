@@ -1901,7 +1901,14 @@
       "city_label": "City",
       "cgu_text": "I accept MoveSpot's commercial conduct rules: I commit to presenting MoveSpot honestly (a matchmaking platform), without promising guaranteed income, without aggressive practices, and without assimilating this partnership to a pyramid scheme (MLM). Any breach may result in account deactivation.",
       "submit_btn": "Create my commercial account",
-      "back": "← Back"
+      "back": "← Back",
+      "ai_panel_title": "Fill with AI",
+      "ai_panel_desc": "Describe yourself in a few words and the AI will fill in your profile automatically.",
+      "ai_placeholder": "E.g. I'm Julien Martin, an independent consultant based in Bordeaux…",
+      "ai_generate": "Fill profile",
+      "ai_generating": "Analysing…",
+      "ai_filled": "Pre-filled fields: {{fields}}",
+      "ai_generate_error": "The AI could not generate a suggestion. Please try again."
     },
     "dashboard": {
       "title": "Commercial account",
