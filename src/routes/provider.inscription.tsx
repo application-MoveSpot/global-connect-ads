@@ -381,10 +381,12 @@ function ProviderSignupPage() {
               error={aiError}
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/provider/connexion"
-              title="Remplir avec l'IA — décrivez votre activité"
-              description="Décrivez votre activité en quelques phrases (spécialités, équipements, zones d'intervention, types de clients, etc.) et l'IA pré-remplira votre profil."
-              placeholder="Ex. : Je suis poseur de covering depuis 8 ans, spécialisé en flocage total et partiel sur utilitaires et berlines. J'interviens principalement en Île-de-France et dans les Hauts-de-France. J'ai une imprimante grand format et je peux livrer en 5 jours ouvrés."
-              filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+              title={t("provider.inscription.ai_panel_title")}
+              description={t("provider.inscription.ai_panel_desc")}
+              placeholder={t("provider.inscription.ai_placeholder")}
+              generateLabel={t("provider.inscription.ai_generate")}
+              generateLoadingLabel={t("provider.inscription.ai_generating")}
+              filledMessage={aiFilled.length > 0 ? t("provider.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
               onDismissFilled={() => setAiFilled([])}
             />
 

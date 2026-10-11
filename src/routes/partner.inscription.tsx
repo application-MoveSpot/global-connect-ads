@@ -321,10 +321,12 @@ function PartnerSignupPage() {
                 error={aiError}
                 sessionExpired={aiSessionExpired}
                 sessionExpiredHref="/partner/inscription"
-                title="Rédiger avec l'IA"
-                description="Décrivez votre activité en quelques mots et l'IA rédigera votre présentation."
-                placeholder="Ex. : Agence de communication de 12 ans avec 200 clients PME en région PACA. Spécialisée en campagnes outdoor et événementiel. Souhait de proposer la pub mobile à nos clients."
-                filledMessage={aiFilled ? "✨ Description générée par l'IA — vérifiez et ajustez si besoin." : undefined}
+                title={t("partner.inscription.ai_panel_title")}
+                description={t("partner.inscription.ai_panel_desc")}
+                placeholder={t("partner.inscription.ai_placeholder")}
+                generateLabel={t("partner.inscription.ai_generate")}
+                generateLoadingLabel={t("partner.inscription.ai_generating")}
+                filledMessage={aiFilled ? t("partner.inscription.ai_filled") : undefined}
                 onDismissFilled={() => setAiFilled(false)}
               />
 

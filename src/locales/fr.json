@@ -2851,7 +2851,13 @@
       "fullname_label": "Nom complet",
       "submit_btn": "Soumettre Bouton",
       "subtitle": "Rejoignez le réseau de partenaires MoveSpot.",
-      "title": "Devenir partenaire"
+      "title": "Devenir partenaire",
+      "ai_panel_title": "Rédiger avec l'IA",
+      "ai_panel_desc": "Décrivez votre activité en quelques mots et l'IA rédigera votre présentation.",
+      "ai_placeholder": "Ex. : Agence de communication de 12 ans avec 200 clients PME en région PACA. Spécialisée en campagnes outdoor et événementiel. Souhait de proposer la pub mobile à nos clients.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_filled": "✨ Description générée par l'IA — vérifiez et ajustez si besoin."
     }
   },
   "refund": {
@@ -4274,7 +4280,13 @@
         "title": "Nouveau véhicule",
         "vehicle_type_label": "Type de véhicule",
         "zones_label": "Zones de circulation",
-        "zones_placeholder": "Zones Exemple"
+        "zones_placeholder": "Zones Exemple",
+        "ai_panel_title": "Remplir avec l'IA — décrivez votre véhicule",
+        "ai_panel_desc": "Décrivez votre véhicule en quelques phrases (type, zones de circulation, kilométrage quotidien, disponibilité, etc.) et l'IA pré-remplira le formulaire pour vous.",
+        "ai_placeholder": "Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²).",
+        "ai_generate": "Générer",
+        "ai_generating": "Génération…",
+        "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
       }
     },
     "welcome": "Welcome",
@@ -5106,7 +5118,13 @@
       "switch_to_signup": "Créer un compte",
       "title_signin": "Se connecter",
       "title_signup": "Créer mon compte chauffeur",
-      "vehicle_type_label": "Type de véhicule"
+      "vehicle_type_label": "Type de véhicule",
+      "ai_panel_title": "Pré-remplir avec l'IA — décrivez votre activité",
+      "ai_panel_desc": "Décrivez votre situation en quelques mots (ville, type de véhicule, ce que vous faites : conduire avec une pub ou poser des adhésifs) et l'IA remplira les champs correspondants.",
+      "ai_placeholder": "Ex. : Je conduis un utilitaire à Lyon pour des livraisons du lundi au vendredi, environ 120 km par jour. Je cherche à monétiser l'espace publicitaire de mon véhicule.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
     },
     "invalid_qr": "QR invalide",
     "invalid_vehicle": "Ce véhicule ne vous est pas assigné.",
@@ -5227,7 +5245,13 @@
       "site_ok": "Site OK",
       "submit_btn": "Soumettre Bouton",
       "subtitle": "Rejoignez le réseau de poseurs MoveSpot.",
-      "title": "Inscription prestataire"
+      "title": "Inscription prestataire",
+      "ai_panel_title": "Remplir avec l'IA — décrivez votre activité",
+      "ai_panel_desc": "Décrivez votre activité en quelques phrases (spécialités, équipements, zones d'intervention, types de clients, etc.) et l'IA pré-remplira votre profil.",
+      "ai_placeholder": "Ex. : Je suis poseur de covering depuis 8 ans, spécialisé en flocage total et partiel sur utilitaires et berlines. J'interviens principalement en Île-de-France et dans les Hauts-de-France. J'ai une imprimante grand format et je peux livrer en 5 jours ouvrés.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
     },
     "portfolio": {
       "add_btn": "Ajouter une réalisation",

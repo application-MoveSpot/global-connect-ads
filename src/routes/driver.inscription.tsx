@@ -321,10 +321,12 @@ function ChauffeurInscription() {
                 error={aiError}
                 sessionExpired={aiSessionExpired}
                 sessionExpiredHref="/driver/inscription"
-                title="Pré-remplir avec l'IA — décrivez votre activité"
-                description="Décrivez votre situation en quelques mots (ville, type de véhicule, ce que vous faites : conduire avec une pub ou poser des adhésifs) et l'IA remplira les champs correspondants."
-                placeholder="Ex. : Je conduis un utilitaire à Lyon pour des livraisons du lundi au vendredi, environ 120 km par jour. Je cherche à monétiser l'espace publicitaire de mon véhicule."
-                filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+                title={t("driver.inscription.ai_panel_title")}
+                description={t("driver.inscription.ai_panel_desc")}
+                placeholder={t("driver.inscription.ai_placeholder")}
+                generateLabel={t("driver.inscription.ai_generate")}
+                generateLoadingLabel={t("driver.inscription.ai_generating")}
+                filledMessage={aiFilled.length > 0 ? t("driver.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
                 onDismissFilled={() => setAiFilled([])}
               />
             </div>

@@ -333,10 +333,12 @@ function NewVehiclePage() {
               error={aiError}
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/owner/inscription"
-              title="Remplir avec l'IA — décrivez votre véhicule"
-              description="Décrivez votre véhicule en quelques phrases (type, zones de circulation, kilométrage quotidien, disponibilité, etc.) et l'IA pré-remplira le formulaire pour vous."
-              placeholder="Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²)."
-              filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+              title={t("owner.vehicules.nouveau.ai_panel_title")}
+              description={t("owner.vehicules.nouveau.ai_panel_desc")}
+              placeholder={t("owner.vehicules.nouveau.ai_placeholder")}
+              generateLabel={t("owner.vehicules.nouveau.ai_generate")}
+              generateLoadingLabel={t("owner.vehicules.nouveau.ai_generating")}
+              filledMessage={aiFilled.length > 0 ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
               onDismissFilled={() => setAiFilled([])}
             />
           </div>
