@@ -211,6 +211,7 @@ function NewBriefPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
   const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
   const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
   const [qualityLoading, setQualityLoading] = useState(false);
   const [creativeValidation, setCreativeValidation] = useState<
@@ -398,9 +399,34 @@ function NewBriefPage() {
         return;
       }
       const { suggestion } = result;
-      setTitle(suggestion.title);
-      setDescription(suggestion.description);
-      setAudience(suggestion.audience);
+      const filled: string[] = [];
+      setTitle(suggestion.title); filled.push("titre");
+      setDescription(suggestion.description); filled.push("description");
+      setAudience(suggestion.audience); filled.push("audience");
+      if (suggestion.vehicleTypes?.length) {
+        setVehicleTypes(suggestion.vehicleTypes);
+        const hasLed = suggestion.vehicleTypes.includes("camion_led");
+        if (hasLed) { setAdFormat("boxled"); setDisplayType("digital"); }
+        else if (displayType !== "digital") setDisplayType("traditionnel");
+        filled.push("véhicules");
+      }
+      if (suggestion.zones) {
+        setZones(suggestion.zones);
+        setZoneSearchQuery(suggestion.zones);
+        filled.push("zones");
+      }
+      if (suggestion.budget) {
+        setBudget(String(suggestion.budget));
+        filled.push("budget");
+      }
+      if (suggestion.durationDays) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        setStartDate(isoDate(tomorrow));
+        setEndDate(addDays(tomorrow, suggestion.durationDays - 1));
+        filled.push("durée");
+      }
+      setAiFilled(filled);
       setAiPanelOpen(false);
       setAiContext("");
     } catch (err) {
@@ -1111,6 +1137,15 @@ function NewBriefPage() {
               </div>
             )}
           </div>
+
+          {aiFilled.length > 0 && (
+            <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
+              <span className="text-violet-700 dark:text-violet-300 font-medium">
+                ✨ L'IA a rempli : {aiFilled.join(", ")} — vérifiez et ajustez si besoin.
+              </span>
+              <button type="button" onClick={() => setAiFilled([])} className="text-muted-foreground hover:text-foreground leading-none shrink-0">✕</button>
+            </div>
+          )}
 
           {/* ── Marché cible ───────────────────────────────────────────── */}
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
