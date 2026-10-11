@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
+import { generatePartnerSuggestion } from "@/lib/ai/partner-assistant.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
 
@@ -34,6 +37,13 @@ function PartnerSignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState(false);
+  const callPartnerAi = useServerFn(generatePartnerSuggestion);
 
   useEffect(() => {
     (async () => {
@@ -108,6 +118,31 @@ function PartnerSignupPage() {
     }
     setStep("profile");
     setLoading(false);
+  };
+
+  const handlePartnerAiGenerate = async () => {
+    setAiError("");
+    setAiSessionExpired(false);
+    if (aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await callPartnerAi({ data: { partnerContext: aiContext.trim() } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      setDescription(res.suggestion.description);
+      setAiFilled(true);
+      setAiPanelOpen(false);
+    } catch {
+      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleProfile = async (e: React.FormEvent) => {
@@ -274,6 +309,27 @@ function PartnerSignupPage() {
               <label className="block text-sm font-medium mb-1.5">
                 {t("partner.inscription.description_label")}
               </label>
+
+              {/* AI assistant */}
+              <AiAssistantPanel
+                open={aiPanelOpen}
+                onOpenChange={setAiPanelOpen}
+                context={aiContext}
+                onContextChange={setAiContext}
+                onGenerate={handlePartnerAiGenerate}
+                loading={aiLoading}
+                error={aiError}
+                sessionExpired={aiSessionExpired}
+                sessionExpiredHref="/partner/inscription"
+                title={t("partner.inscription.ai_panel_title")}
+                description={t("partner.inscription.ai_panel_desc")}
+                placeholder={t("partner.inscription.ai_placeholder")}
+                generateLabel={t("partner.inscription.ai_generate")}
+                generateLoadingLabel={t("partner.inscription.ai_generating")}
+                filledMessage={aiFilled ? t("partner.inscription.ai_filled") : undefined}
+                onDismissFilled={() => setAiFilled(false)}
+              />
+
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

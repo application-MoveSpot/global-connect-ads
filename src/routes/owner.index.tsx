@@ -795,6 +795,16 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
           <strong>{t("owner.note_label")}</strong> {v.admin_notes}
         </div>
       )}
+
+      <div className="mt-3 pt-3 border-t border-border">
+        <Link
+          to="/owner/vehicules/$vehicleId"
+          params={{ vehicleId: v.id }}
+          className="text-xs text-muted-foreground hover:text-foreground underline"
+        >
+          {t("owner.vehicle_edit_link")}
+        </Link>
+      </div>
     </div>
   );
 }

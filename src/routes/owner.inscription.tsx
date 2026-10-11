@@ -1,13 +1,16 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { generateOwnerInscriptionSuggestion } from "@/lib/ai/owner-inscription-assistant.functions";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/owner/inscription")({
@@ -44,6 +47,13 @@ function InscriptionPage() {
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState("");
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
+  const callOwnerAi = useServerFn(generateOwnerInscriptionSuggestion);
 
   useEffect(() => {
     (async () => {
@@ -63,6 +73,30 @@ function InscriptionPage() {
       }
     })();
   }, [navigate]);
+
+  const handleOwnerAiGenerate = async () => {
+    setAiError("");
+    setAiLoading(true);
+    setAiSessionExpired(false);
+    try {
+      const res = await callOwnerAi({ data: { ownerContext: aiContext } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      const filled: string[] = [];
+      if (res.suggestion.fullName) { setFullName(res.suggestion.fullName); filled.push(t("owner.inscription.name_label").replace(" *", "")); }
+      if (res.suggestion.city) { setCity(res.suggestion.city); filled.push(t("owner.inscription.city_label")); }
+      if (res.suggestion.bio) { setBio(res.suggestion.bio); filled.push(t("owner.inscription.bio_label")); }
+      setAiFilled(filled);
+      if (filled.length > 0) setAiPanelOpen(false);
+    } catch {
+      setAiError(t("owner.inscription.ai_generate_error"));
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -301,6 +335,24 @@ function InscriptionPage() {
                 {t("owner.inscription.tab_professionnel")}
               </button>
             </div>
+            <AiAssistantPanel
+              variant="inline"
+              open={aiPanelOpen}
+              onOpenChange={setAiPanelOpen}
+              title={t("owner.inscription.ai_panel_title")}
+              description={t("owner.inscription.ai_panel_desc")}
+              placeholder={t("owner.inscription.ai_placeholder")}
+              context={aiContext}
+              onContextChange={setAiContext}
+              onGenerate={handleOwnerAiGenerate}
+              loading={aiLoading}
+              error={aiError}
+              sessionExpired={aiSessionExpired}
+              sessionExpiredHref="/owner/inscription?mode=signin"
+              generateLabel={t("owner.inscription.ai_generate")}
+              generatingLabel={t("owner.inscription.ai_generating")}
+              filledMessage={aiFilled.length > 0 ? t("owner.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+            />
             <form onSubmit={handleProfile} className="space-y-4">
               <Input label={t("owner.inscription.name_label")} value={fullName} onChange={setFullName} required />
               {!isParticulier && (

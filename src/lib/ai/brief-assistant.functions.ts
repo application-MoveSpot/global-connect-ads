@@ -15,6 +15,10 @@ export type BriefSuggestion = {
   title: string;
   description: string;
   audience: string;
+  vehicleTypes?: string[];
+  zones?: string;
+  budget?: number;
+  durationDays?: number;
 };
 
 export type BriefSuggestionResult =
@@ -53,35 +57,53 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
         : "";
     const zoneLabel = data.zone ? `Zone cible : ${data.zone}.` : "";
 
+    const VEHICLE_VALUES = "camion_led, food_truck, van, taxi, scooter, velo_cargo, velo_remorque, triporteur, tutuk, voiture, autre";
+
     const prompt = `Tu es un expert en publicité extérieure mobile (véhicules publicitaires en France).
 Un annonceur veut créer un brief sur la plateforme MoveSpot. À partir de sa description, génère :
 1. Un titre accrocheur (max 80 caractères) — commence par l'action ou le nom de la marque
 2. Une description convaincante (3-5 phrases, 150-300 mots) — message clé, ton, ce que verront les passants
 3. L'audience cible (20-60 mots) — âge, CSP, zone, comportements
+4. Les types de véhicules les plus adaptés parmi : ${VEHICLE_VALUES} (1 à 3 valeurs, tableau JSON)
+5. Les zones géographiques cibles séparées par des virgules (noms de villes, quartiers, arrondissements)
+6. Un budget maximum suggéré en euros entiers (optionnel, uniquement si clairement mentionné dans le contexte)
+7. Une durée en jours de campagne suggérée (optionnel, uniquement si clairement mentionné)
 
 Contexte annonceur : ${data.businessContext}
 ${vehicleLabel}
 ${zoneLabel}
 
-Réponds UNIQUEMENT en JSON strict :
+Réponds UNIQUEMENT en JSON strict (les clés budget et durationDays sont optionnelles) :
 {
   "title": "...",
   "description": "...",
-  "audience": "..."
+  "audience": "...",
+  "vehicleTypes": ["..."],
+  "zones": "...",
+  "budget": 500,
+  "durationDays": 14
 }`;
 
     try {
+      const VALID_VEHICLE_TYPES = new Set(["camion_led","food_truck","van","taxi","scooter","velo_cargo","velo_remorque","triporteur","tutuk","voiture","autre"]);
       const { generateText } = await import("ai");
-      const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 600 });
+      const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 800 });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as BriefSuggestion;
+      const vehicleTypes = Array.isArray(parsed.vehicleTypes)
+        ? parsed.vehicleTypes.filter((v) => typeof v === "string" && VALID_VEHICLE_TYPES.has(v)).slice(0, 3)
+        : undefined;
       return {
         ok: true,
         suggestion: {
           title: String(parsed.title ?? "").slice(0, 120),
           description: String(parsed.description ?? "").slice(0, 2000),
           audience: String(parsed.audience ?? "").slice(0, 200),
+          vehicleTypes: vehicleTypes?.length ? vehicleTypes : undefined,
+          zones: parsed.zones ? String(parsed.zones).slice(0, 300) : undefined,
+          budget: typeof parsed.budget === "number" && parsed.budget > 0 ? Math.round(parsed.budget) : undefined,
+          durationDays: typeof parsed.durationDays === "number" && parsed.durationDays > 0 ? Math.round(parsed.durationDays) : undefined,
         },
       };
     } catch (err) {

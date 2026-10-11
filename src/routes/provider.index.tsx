@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { generateProviderQuoteResponse } from "@/lib/ai/provider-quote-assistant.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
@@ -335,6 +337,36 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
   const { t, i18n } = useTranslation();
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const callQuoteAi = useServerFn(generateProviderQuoteResponse);
+
+  const handleAiGenerate = async () => {
+    setAiError("");
+    setAiLoading(true);
+    try {
+      const res = await callQuoteAi({
+        data: {
+          serviceType: q.service_type,
+          vehicleType: q.vehicle_type ?? undefined,
+          format: q.format ?? undefined,
+          quantity: q.quantity ?? undefined,
+          zone: q.zone ?? undefined,
+          deadline: q.deadline ?? undefined,
+          advertiserMessage: q.message,
+        },
+      });
+      if (!res.ok) {
+        setAiError(res.message);
+        return;
+      }
+      setMsg(res.message);
+    } catch {
+      setAiError(t("provider.dashboard.ai_quote_error"));
+    } finally {
+      setAiLoading(false);
+    }
+  };
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -439,8 +471,27 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
               {t("provider.dashboard.reject_btn")}
             </button>
           </div>
-          <textarea value={msg} onChange={(e) => setMsg(e.target.value)} rows={2} maxLength={1000}
-            placeholder={t("provider.dashboard.message_label")} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs text-muted-foreground">{t("provider.dashboard.message_label")}</label>
+              <button
+                type="button"
+                disabled={aiLoading}
+                onClick={handleAiGenerate}
+                className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 transition"
+              >
+                {aiLoading ? (
+                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  "✨"
+                )}
+                {aiLoading ? t("provider.dashboard.ai_quote_generating") : t("provider.dashboard.ai_quote_btn")}
+              </button>
+            </div>
+            {aiError && <p className="text-xs text-destructive mb-1">{aiError}</p>}
+            <textarea value={msg} onChange={(e) => setMsg(e.target.value)} rows={3} maxLength={1000}
+              placeholder={t("provider.dashboard.message_label")} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </div>
         </div>
       )}
     </div>

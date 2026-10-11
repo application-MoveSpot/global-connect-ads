@@ -1222,6 +1222,7 @@
     "welcome_default": "Hello",
     "no_vehicles": "No vehicles yet.",
     "add_vehicle": "Add a vehicle",
+    "vehicle_edit_link": "Edit this vehicle",
     "my_vehicles": "My vehicles",
     "requests_tab": "Received requests",
     "my_campaigns": "Campaigns",
@@ -1276,7 +1277,14 @@
       "error_email_exists": "An account already exists with this email. Sign in.",
       "error_confirm_email": "Check your email to confirm your account, then sign in.",
       "error_siret": "Please verify your business registration number before continuing.",
-      "error_session": "Session expired"
+      "error_session": "Session expired",
+      "ai_panel_title": "Fill with AI",
+      "ai_panel_desc": "Describe yourself in a few words and the AI will fill in your profile and bio automatically.",
+      "ai_placeholder": "E.g. I'm Marie Dupont, a professional VTC driver for 5 years in Marseille. I drive 6 days/week in the city centre…",
+      "ai_generate": "Fill profile",
+      "ai_generating": "Analysing…",
+      "ai_filled": "Pre-filled fields: {{fields}}",
+      "ai_generate_error": "The AI could not generate a suggestion. Please try again."
     },
     "vehicules": {
       "nouveau": {
@@ -1356,6 +1364,18 @@
         "error_autre_desc": "Please specify the vehicle type in the dedicated field.",
         "error_ai_photo": "⛔ Photo rejected: our AI detected an AI-generated or AI-edited image. Please provide an authentic photo of the vehicle.",
         "error_price_too_high": "⛔ Price too high: the AI range {{aiMin}}–{{aiMax}} €/day is the price paid by the advertiser. Your owner remuneration is 70% of that, i.e. {{ownerMin}}–{{ownerMax}} €/day. Enter at most {{ownerMax}} €/day (use the 'Use {{ownerMax}} €/day' button in the AI Estimate box)."
+      },
+      "modifier": {
+        "back": "← Back to dashboard",
+        "title": "Edit vehicle",
+        "desc": "Update your vehicle's information. Photos cannot be changed here.",
+        "loading": "Loading…",
+        "not_found": "Vehicle not found or access denied.",
+        "submit": "Save changes",
+        "photos_readonly_hint": "📷 Photos cannot be updated here to preserve the AI verification already completed. Contact support if you need to replace them.",
+        "ai_panel_title": "Rewrite with AI",
+        "ai_panel_desc": "Describe your vehicle and the AI will regenerate the name, description and zones automatically.",
+        "ai_generate_error": "The AI could not generate a suggestion. Please try again."
       }
     },
     "flotte": {
@@ -1512,6 +1532,9 @@
         "price_hint": "Tip: stay under 70% of the advertiser's stated max budget to improve acceptance.",
         "message_label": "Message (optional)",
         "message_placeholder": "Details about covered areas, availability, etc.",
+        "ai_proposal_btn": "Generate with AI",
+        "ai_proposal_generating": "Generating…",
+        "ai_proposal_error": "AI could not generate a message. Please try again.",
         "contact_detected": "{{label}} detected — personal contact details are not allowed in messages.",
         "offplatform_warning": "⚠ Any agreement made outside the platform (direct payment, private contract) is not covered by MoveSpot guarantees — no moderation, GPS tracking, or secure payout.",
         "submitting": "Sending…",
@@ -1704,6 +1727,9 @@
       "send_quote_btn": "Send quote",
       "reject_btn": "Reject",
       "message_label": "Message to client (lead times, terms…)",
+      "ai_quote_btn": "Generate with AI",
+      "ai_quote_generating": "Generating…",
+      "ai_quote_error": "AI could not generate a response. Please try again.",
       "traffic_link": "🗺️ Check traffic:",
       "qs_new": "New",
       "qs_quoted": "Quote sent",
@@ -1895,7 +1921,14 @@
       "city_label": "City",
       "cgu_text": "I accept MoveSpot's commercial conduct rules: I commit to presenting MoveSpot honestly (a matchmaking platform), without promising guaranteed income, without aggressive practices, and without assimilating this partnership to a pyramid scheme (MLM). Any breach may result in account deactivation.",
       "submit_btn": "Create my commercial account",
-      "back": "← Back"
+      "back": "← Back",
+      "ai_panel_title": "Fill with AI",
+      "ai_panel_desc": "Describe yourself in a few words and the AI will fill in your profile automatically.",
+      "ai_placeholder": "E.g. I'm Julien Martin, an independent consultant based in Bordeaux…",
+      "ai_generate": "Fill profile",
+      "ai_generating": "Analysing…",
+      "ai_filled": "Pre-filled fields: {{fields}}",
+      "ai_generate_error": "The AI could not generate a suggestion. Please try again."
     },
     "dashboard": {
       "title": "Commercial account",
@@ -2806,7 +2839,13 @@
       "fullname_label": "Full name",
       "submit_btn": "Submit Btn",
       "subtitle": "Subtitle",
-      "title": "Become a Partner"
+      "title": "Become a Partner",
+      "ai_panel_title": "Write with AI",
+      "ai_panel_desc": "Describe your business in a few words and the AI will draft your presentation.",
+      "ai_placeholder": "e.g. Communication agency with 12 years' experience and 200 SME clients in the PACA region. Specialised in outdoor campaigns and events. Looking to offer mobile advertising to our clients.",
+      "ai_generate": "Generate",
+      "ai_generating": "Generating…",
+      "ai_filled": "✨ Description generated by AI — review and adjust as needed."
     }
   },
   "refund": {
@@ -4229,7 +4268,13 @@
         "title": "New Vehicle",
         "vehicle_type_label": "Vehicle type",
         "zones_label": "Circulation zones",
-        "zones_placeholder": "Zones e.g."
+        "zones_placeholder": "Zones e.g.",
+        "ai_panel_title": "Fill with AI — describe your vehicle",
+        "ai_panel_desc": "Describe your vehicle in a few sentences (type, circulation zones, daily mileage, availability, etc.) and the AI will pre-fill the form for you.",
+        "ai_placeholder": "e.g. I have a van I use daily for deliveries in the 10th–11th–20th arrondissements of Paris. I drive about 80 km a day, mostly on weekdays. I want to monetise the side panels (approx. 4 m²).",
+        "ai_generate": "Generate",
+        "ai_generating": "Generating…",
+        "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
       }
     },
     "welcome": "Welcome",
@@ -4728,7 +4773,13 @@
       "title_signin": "Sign in",
       "title_signup": "Create my advertiser account",
       "type_entreprise": "Business",
-      "type_particulier": "Individual"
+      "type_particulier": "Individual",
+      "ai_filled": "✨ AI filled: {{fields}} — review and adjust if needed.",
+      "ai_generate": "Generate",
+      "ai_generating": "Generating…",
+      "ai_panel_desc": "Describe your activity in a few words and AI will pre-fill your profile.",
+      "ai_panel_title": "Fill with AI — describe your activity",
+      "ai_placeholder": "E.g.: I run a communication agency in Paris, I want to promote my services…"
     },
     "insufficient_balance": "Insufficient Balance",
     "ip_notice": "Ip Notice",
@@ -5061,7 +5112,13 @@
       "switch_to_signup": "Create an account",
       "title_signin": "Sign in",
       "title_signup": "Create my driver account",
-      "vehicle_type_label": "Vehicle type"
+      "vehicle_type_label": "Vehicle type",
+      "ai_panel_title": "Pre-fill with AI — describe your activity",
+      "ai_panel_desc": "Describe your situation in a few words (city, vehicle type, what you do: drive with an ad or install stickers) and the AI will fill in the relevant fields.",
+      "ai_placeholder": "e.g. I drive a van in Lyon for deliveries Monday to Friday, about 120 km a day. I want to monetise the advertising space on my vehicle.",
+      "ai_generate": "Generate",
+      "ai_generating": "Generating…",
+      "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
     },
     "invalid_qr": "Invalid QR code",
     "invalid_vehicle": "This vehicle is not assigned to you.",
@@ -5182,7 +5239,13 @@
       "site_ok": "Site OK",
       "submit_btn": "Submit Btn",
       "subtitle": "Subtitle",
-      "title": "Provider Registration"
+      "title": "Provider Registration",
+      "ai_panel_title": "Fill with AI — describe your activity",
+      "ai_panel_desc": "Describe your business in a few sentences (specialties, equipment, coverage areas, client types, etc.) and the AI will pre-fill your profile.",
+      "ai_placeholder": "e.g. I've been a vehicle wrapping installer for 8 years, specialising in full and partial wraps on vans and sedans. I mainly work in Île-de-France and Hauts-de-France. I have a large-format printer and can deliver within 5 working days.",
+      "ai_generate": "Generate",
+      "ai_generating": "Generating…",
+      "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
     },
     "portfolio": {
       "add_btn": "Add a project",

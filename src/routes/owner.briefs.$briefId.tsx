@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { generateOwnerBriefProposal } from "@/lib/ai/owner-brief-assistant.functions";
 import { track } from "@/lib/analytics/track";
 import { pushNotification } from "@/hooks/useNotifications";
 import { detectContact } from "@/lib/moderation/contact-detection";
@@ -55,6 +57,9 @@ function BriefDetailPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const callBriefAi = useServerFn(generateOwnerBriefProposal);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -101,6 +106,31 @@ function BriefDetailPage() {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [briefId, load]);
+
+  const handleAiGenerate = async () => {
+    if (!brief || !vehicleId) return;
+    setAiError("");
+    setAiLoading(true);
+    const selectedVehicle = eligibleVehicles.find((v) => v.id === vehicleId);
+    try {
+      const res = await callBriefAi({
+        data: {
+          briefTitle: brief.title,
+          briefDescription: brief.description,
+          briefZones: brief.zones.length > 0 ? brief.zones : undefined,
+          briefDays: brief.days_count ?? undefined,
+          vehicleName: selectedVehicle?.name ?? vehicleId,
+          vehicleType: selectedVehicle?.type ?? "",
+        },
+      });
+      if (!res.ok) { setAiError(res.message); return; }
+      setMessage(res.message);
+    } catch {
+      setAiError(t("owner.briefs.detail.ai_proposal_error"));
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,7 +272,25 @@ function BriefDetailPage() {
                 <p className="text-xs text-muted-foreground mt-1">{t("owner.briefs.detail.price_hint")}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">{t("owner.briefs.detail.message_label")}</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium">{t("owner.briefs.detail.message_label")}</label>
+                  {vehicleId && (
+                    <button
+                      type="button"
+                      disabled={aiLoading}
+                      onClick={handleAiGenerate}
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 transition"
+                    >
+                      {aiLoading ? (
+                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      ) : (
+                        "✨"
+                      )}
+                      {aiLoading ? t("owner.briefs.detail.ai_proposal_generating") : t("owner.briefs.detail.ai_proposal_btn")}
+                    </button>
+                  )}
+                </div>
+                {aiError && <p className="text-xs text-destructive mb-1">{aiError}</p>}
                 <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} maxLength={1000}
                   className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
                   placeholder={t("owner.briefs.detail.message_placeholder")} />

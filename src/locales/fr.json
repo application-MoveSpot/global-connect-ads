@@ -1238,6 +1238,7 @@
     "welcome_default": "Bonjour",
     "no_vehicles": "Aucun véhicule pour l'instant.",
     "add_vehicle": "Ajouter un véhicule",
+    "vehicle_edit_link": "Modifier ce véhicule",
     "my_vehicles": "Mes véhicules",
     "requests_tab": "Demandes reçues",
     "my_campaigns": "Campagnes",
@@ -1300,7 +1301,14 @@
       "forgot_password": "Mot de passe oublié ?",
       "submit_signin": "Se connecter",
       "submit_signup": "Créer mon compte",
-      "switch_to_signin": "Déjà un compte ? Se connecter"
+      "switch_to_signin": "Déjà un compte ? Se connecter",
+      "ai_panel_title": "Remplir avec l'IA",
+      "ai_panel_desc": "Décrivez-vous en quelques mots et l'IA complètera votre profil et votre biographie automatiquement.",
+      "ai_placeholder": "Ex : Je suis Marie Dupont, chauffeure VTC depuis 5 ans à Marseille. Je circule 6j/7 dans le centre-ville…",
+      "ai_generate": "Remplir le profil",
+      "ai_generating": "Analyse en cours…",
+      "ai_filled": "Champs pré-remplis : {{fields}}",
+      "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
     },
     "vehicules": {
       "nouveau": {
@@ -1380,6 +1388,18 @@
         "error_autre_desc": "Veuillez préciser le type de véhicule dans le champ dédié.",
         "error_ai_photo": "⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.",
         "error_price_too_high": "⛔ Prix trop élevé : la fourchette IA {{aiMin}}–{{aiMax}} €/j est le prix payé par l'annonceur. Votre rémunération de propriétaire correspond à 70 % de ce montant, soit {{ownerMin}}–{{ownerMax}} €/jour. Saisissez au maximum {{ownerMax}} €/jour (bouton « Utiliser {{ownerMax}} €/j » dans l'encart Estimation IA)."
+      },
+      "modifier": {
+        "back": "← Retour au tableau de bord",
+        "title": "Modifier le véhicule",
+        "desc": "Mettez à jour les informations de votre véhicule. Les photos ne peuvent pas être modifiées ici.",
+        "loading": "Chargement…",
+        "not_found": "Véhicule introuvable ou accès refusé.",
+        "submit": "Enregistrer les modifications",
+        "photos_readonly_hint": "📷 Les photos ne sont pas modifiables ici pour préserver la vérification IA déjà effectuée. Contactez le support si vous avez besoin de les mettre à jour.",
+        "ai_panel_title": "Réécrire avec l'IA",
+        "ai_panel_desc": "Décrivez votre véhicule et l'IA régénérera le nom, la description et les zones automatiquement.",
+        "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
       }
     },
     "flotte": {
@@ -1536,6 +1556,9 @@
         "price_hint": "Conseil : restez sous 70 % du budget max indiqué par l'annonceur pour favoriser l'acceptation.",
         "message_label": "Message (optionnel)",
         "message_placeholder": "Précisions sur zones couvertes, disponibilité, etc.",
+        "ai_proposal_btn": "Générer avec l'IA",
+        "ai_proposal_generating": "Génération…",
+        "ai_proposal_error": "L'IA n'a pas pu générer de message. Réessayez.",
         "contact_detected": "{{label}} détecté — les coordonnées personnelles ne sont pas autorisées dans les messages.",
         "offplatform_warning": "⚠ Tout accord conclu hors de la plateforme (paiement direct, contrat privé) n'est pas couvert par les garanties MoveSpot — ni la modération, ni le suivi GPS, ni le reversement sécurisé.",
         "submitting": "Envoi…",
@@ -1728,6 +1751,9 @@
       "send_quote_btn": "Envoyer le devis",
       "reject_btn": "Refuser",
       "message_label": "Message au client (délais, conditions…)",
+      "ai_quote_btn": "Générer avec l'IA",
+      "ai_quote_generating": "Génération…",
+      "ai_quote_error": "L'IA n'a pas pu générer de réponse. Réessayez.",
       "traffic_link": "🗺️ Vérifier le trafic :",
       "qs_new": "Nouveau",
       "qs_quoted": "Devis envoyé",
@@ -1940,7 +1966,14 @@
       "desc_signin": "Connectez-vous à votre espace commercial.",
       "desc_signup": "Créez votre compte commercial.",
       "submit_signin": "Se connecter",
-      "submit_signup": "Créer mon compte"
+      "submit_signup": "Créer mon compte",
+      "ai_panel_title": "Remplir avec l'IA",
+      "ai_panel_desc": "Décrivez-vous en quelques mots et l'IA complètera votre profil automatiquement.",
+      "ai_placeholder": "Ex : Je suis Julien Martin, consultant indépendant basé à Bordeaux…",
+      "ai_generate": "Remplir le profil",
+      "ai_generating": "Analyse en cours…",
+      "ai_filled": "Champs pré-remplis : {{fields}}",
+      "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
     },
     "dashboard": {
       "title": "Espace commercial",
@@ -2851,7 +2884,13 @@
       "fullname_label": "Nom complet",
       "submit_btn": "Soumettre Bouton",
       "subtitle": "Rejoignez le réseau de partenaires MoveSpot.",
-      "title": "Devenir partenaire"
+      "title": "Devenir partenaire",
+      "ai_panel_title": "Rédiger avec l'IA",
+      "ai_panel_desc": "Décrivez votre activité en quelques mots et l'IA rédigera votre présentation.",
+      "ai_placeholder": "Ex. : Agence de communication de 12 ans avec 200 clients PME en région PACA. Spécialisée en campagnes outdoor et événementiel. Souhait de proposer la pub mobile à nos clients.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_filled": "✨ Description générée par l'IA — vérifiez et ajustez si besoin."
     }
   },
   "refund": {
@@ -4274,7 +4313,13 @@
         "title": "Nouveau véhicule",
         "vehicle_type_label": "Type de véhicule",
         "zones_label": "Zones de circulation",
-        "zones_placeholder": "Zones Exemple"
+        "zones_placeholder": "Zones Exemple",
+        "ai_panel_title": "Remplir avec l'IA — décrivez votre véhicule",
+        "ai_panel_desc": "Décrivez votre véhicule en quelques phrases (type, zones de circulation, kilométrage quotidien, disponibilité, etc.) et l'IA pré-remplira le formulaire pour vous.",
+        "ai_placeholder": "Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²).",
+        "ai_generate": "Générer",
+        "ai_generating": "Génération…",
+        "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
       }
     },
     "welcome": "Welcome",
@@ -4773,7 +4818,13 @@
       "title_signin": "Se connecter",
       "title_signup": "Créer mon compte annonceur",
       "type_entreprise": "Entreprise",
-      "type_particulier": "Particulier"
+      "type_particulier": "Particulier",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_panel_desc": "Décrivez votre activité en quelques mots et l'IA pré-remplit votre profil.",
+      "ai_panel_title": "Remplir avec l'IA — décrivez votre activité",
+      "ai_placeholder": "Ex. : Je dirige une agence de communication à Paris, je souhaite promouvoir mes services…"
     },
     "insufficient_balance": "Solde insuffisant",
     "ip_notice": "Les visuels fournis doivent être libres de droits.",
@@ -5106,7 +5157,13 @@
       "switch_to_signup": "Créer un compte",
       "title_signin": "Se connecter",
       "title_signup": "Créer mon compte chauffeur",
-      "vehicle_type_label": "Type de véhicule"
+      "vehicle_type_label": "Type de véhicule",
+      "ai_panel_title": "Pré-remplir avec l'IA — décrivez votre activité",
+      "ai_panel_desc": "Décrivez votre situation en quelques mots (ville, type de véhicule, ce que vous faites : conduire avec une pub ou poser des adhésifs) et l'IA remplira les champs correspondants.",
+      "ai_placeholder": "Ex. : Je conduis un utilitaire à Lyon pour des livraisons du lundi au vendredi, environ 120 km par jour. Je cherche à monétiser l'espace publicitaire de mon véhicule.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
     },
     "invalid_qr": "QR invalide",
     "invalid_vehicle": "Ce véhicule ne vous est pas assigné.",
@@ -5227,7 +5284,13 @@
       "site_ok": "Site OK",
       "submit_btn": "Soumettre Bouton",
       "subtitle": "Rejoignez le réseau de poseurs MoveSpot.",
-      "title": "Inscription prestataire"
+      "title": "Inscription prestataire",
+      "ai_panel_title": "Remplir avec l'IA — décrivez votre activité",
+      "ai_panel_desc": "Décrivez votre activité en quelques phrases (spécialités, équipements, zones d'intervention, types de clients, etc.) et l'IA pré-remplira votre profil.",
+      "ai_placeholder": "Ex. : Je suis poseur de covering depuis 8 ans, spécialisé en flocage total et partiel sur utilitaires et berlines. J'interviens principalement en Île-de-France et dans les Hauts-de-France. J'ai une imprimante grand format et je peux livrer en 5 jours ouvrés.",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
     },
     "portfolio": {
       "add_btn": "Ajouter une réalisation",

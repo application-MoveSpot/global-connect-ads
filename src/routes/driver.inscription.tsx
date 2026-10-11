@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
@@ -9,6 +10,8 @@ import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
+import { generateDriverSuggestion } from "@/lib/ai/driver-assistant.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 
 type Kind = "driver" | "installer" | "both";
@@ -65,6 +68,13 @@ function ChauffeurInscription() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
+  const callDriverAi = useServerFn(generateDriverSuggestion);
 
   useEffect(() => {
     (async () => {
@@ -138,6 +148,35 @@ function ChauffeurInscription() {
     }
     setStep("profile");
     setLoading(false);
+  };
+
+  const handleDriverAiGenerate = async () => {
+    setAiError("");
+    setAiSessionExpired(false);
+    if (aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await callDriverAi({ data: { driverContext: aiContext.trim() } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      const { suggestion } = res;
+      const filled: string[] = [];
+      if (suggestion.city) { setCity(suggestion.city); filled.push("ville"); }
+      if (suggestion.vehicleKind) { setVehicleKind(suggestion.vehicleKind); filled.push("type de véhicule"); }
+      if (suggestion.kind) { setKind(suggestion.kind); filled.push("rôle"); }
+      setAiFilled(filled);
+      setAiPanelOpen(false);
+    } catch {
+      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleProfile = async (e: React.FormEvent) => {
@@ -266,9 +305,32 @@ function ChauffeurInscription() {
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("driver.inscription.profile_title")}</h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-4">
               {t("driver.inscription.profile_step")}
             </p>
+
+            {/* AI assistant panel */}
+            <div className="mb-5">
+              <AiAssistantPanel
+                open={aiPanelOpen}
+                onOpenChange={setAiPanelOpen}
+                context={aiContext}
+                onContextChange={setAiContext}
+                onGenerate={handleDriverAiGenerate}
+                loading={aiLoading}
+                error={aiError}
+                sessionExpired={aiSessionExpired}
+                sessionExpiredHref="/driver/inscription"
+                title={t("driver.inscription.ai_panel_title")}
+                description={t("driver.inscription.ai_panel_desc")}
+                placeholder={t("driver.inscription.ai_placeholder")}
+                generateLabel={t("driver.inscription.ai_generate")}
+                generateLoadingLabel={t("driver.inscription.ai_generating")}
+                filledMessage={aiFilled.length > 0 ? t("driver.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+                onDismissFilled={() => setAiFilled([])}
+              />
+            </div>
+
             <form onSubmit={handleProfile} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">{t("driver.inscription.role_label")}</label>

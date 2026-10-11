@@ -12,6 +12,8 @@ import {
 } from "@/components/provider/ProviderPortfolioUploader";
 import { verifyWebsite } from "@/lib/providers/website-verify.functions";
 import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functions";
+import { generateProviderSuggestion } from "@/lib/ai/provider-assistant.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
@@ -71,6 +73,13 @@ function ProviderSignupPage() {
     recommendation: string;
   } | null>(null);
   const [estimatingPricing, setEstimatingPricing] = useState(false);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
+  const callProviderAi = useServerFn(generateProviderSuggestion);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -133,6 +142,44 @@ function ProviderSignupPage() {
     setSessionEmail(signUpData.session.user.email ?? null);
     setStep("profile");
     setLoading(false);
+  };
+
+  const handleProviderAiGenerate = async () => {
+    setAiError("");
+    setAiSessionExpired(false);
+    if (aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await callProviderAi({ data: { providerContext: aiContext.trim() } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      const { suggestion } = res;
+      const filled: string[] = [];
+      if (suggestion.description) { setDescription(suggestion.description); filled.push("description"); }
+      if (suggestion.coverageAreas.length > 0) {
+        setCoverageList((prev) => {
+          const merged = [...prev, ...suggestion.coverageAreas.filter((z: string) => !prev.includes(z))].slice(0, 30);
+          return merged;
+        });
+        filled.push("zones");
+      }
+      if (suggestion.services.length > 0) {
+        setServices(suggestion.services as ProviderServiceKey[]);
+        filled.push("services");
+      }
+      setAiFilled(filled);
+      setAiPanelOpen(false);
+    } catch {
+      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleProfile = async (e: React.FormEvent) => {
@@ -322,6 +369,27 @@ function ProviderSignupPage() {
                 </button>
               </div>
             )}
+
+            {/* AI assistant panel */}
+            <AiAssistantPanel
+              open={aiPanelOpen}
+              onOpenChange={setAiPanelOpen}
+              context={aiContext}
+              onContextChange={setAiContext}
+              onGenerate={handleProviderAiGenerate}
+              loading={aiLoading}
+              error={aiError}
+              sessionExpired={aiSessionExpired}
+              sessionExpiredHref="/provider/connexion"
+              title={t("provider.inscription.ai_panel_title")}
+              description={t("provider.inscription.ai_panel_desc")}
+              placeholder={t("provider.inscription.ai_placeholder")}
+              generateLabel={t("provider.inscription.ai_generate")}
+              generateLoadingLabel={t("provider.inscription.ai_generating")}
+              filledMessage={aiFilled.length > 0 ? t("provider.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              onDismissFilled={() => setAiFilled([])}
+            />
+
             <Input
               label={t("provider.inscription.company_label")}
               value={company}
