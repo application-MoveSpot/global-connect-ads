@@ -238,9 +238,19 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Email annonceur — décision brief (fire-and-forget)
+    // Push + Email annonceur — décision brief (fire-and-forget)
     if (brief?.user_id) {
       const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+      const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
+      const bTitle = (brief as { title?: string }).title ?? "Votre brief";
+      sendWebPushToUser(brief.user_id as string, {
+        title: data.approve ? "Brief approuvé ✅" : "Brief non approuvé ❌",
+        body: data.approve
+          ? `${bTitle} est maintenant visible par les propriétaires de flotte MoveSpot.`
+          : `${bTitle} n'a pas été approuvé — consultez le motif dans votre espace annonceur.`,
+        url: "/annonceur",
+        tag: `brief-decision-${data.briefId}`,
+      }).catch(() => {});
       supabaseAdmin.auth.admin.getUserById(brief.user_id as string).then(({ data: u }) => {
         if (u?.user?.email) {
           sendAppEmailSafe({
@@ -315,9 +325,19 @@ export const adminCertifyPoseur = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Email poseur — décision certification (fire-and-forget)
+    // Push + Email poseur — décision certification (fire-and-forget)
     if (poseur?.user_id) {
       const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+      const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
+      const pName = (poseur as { full_name?: string }).full_name;
+      sendWebPushToUser(poseur.user_id as string, {
+        title: data.certified ? "Certification validée 🏅" : "Certification refusée ❌",
+        body: data.certified
+          ? `${pName ? `Félicitations ${pName} !` : "Félicitations !"} Vous êtes maintenant certifié MoveSpot.`
+          : `Votre dossier de certification n'a pas été accepté — consultez le motif dans votre espace.`,
+        url: "/prestataire",
+        tag: `poseur-certification-${data.payeeProfileId}`,
+      }).catch(() => {});
       supabaseAdmin.auth.admin.getUserById(poseur.user_id as string).then(({ data: u }) => {
         if (u?.user?.email) {
           sendAppEmailSafe({
@@ -636,9 +656,19 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Email propriétaire — décision véhicule (fire-and-forget)
+    // Push + Email propriétaire — décision véhicule (fire-and-forget)
     if (vehicle?.user_id) {
       const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+      const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
+      const vName = (vehicle as { name?: string }).name ?? "Votre véhicule";
+      sendWebPushToUser(vehicle.user_id as string, {
+        title: data.approve ? "Véhicule approuvé ✅" : "Véhicule non approuvé ❌",
+        body: data.approve
+          ? `${vName} est maintenant visible par les annonceurs MoveSpot.`
+          : `${vName} n'a pas été approuvé — consultez le motif dans votre espace.`,
+        url: "/proprietaire",
+        tag: `vehicle-decision-${data.vehicleId}`,
+      }).catch(() => {});
       supabaseAdmin.auth.admin.getUserById(vehicle.user_id as string).then(({ data: u }) => {
         if (u?.user?.email) {
           sendAppEmailSafe({
