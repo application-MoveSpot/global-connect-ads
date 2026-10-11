@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { toast } from "sonner";
 import { LogoLink } from "@/components/app/LogoLink";
+import { pushNotification } from "@/hooks/useNotifications";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
@@ -117,6 +118,25 @@ function BriefDetailPage() {
   }, [briefId, navigate]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Stable ref so the realtime callback always calls the latest `load`
+  const loadRef = useRef(load);
+  loadRef.current = load;
+
+  // Realtime: new proposals arrive while the advertiser has this page open
+  useEffect(() => {
+    const channel = supabase
+      .channel(`advertiser-brief-detail-${briefId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "brief_proposals", filter: `brief_id=eq.${briefId}` }, () => {
+        pushNotification(t("advertiser.briefs.detail.notif_new_proposal"), t("advertiser.briefs.detail.notif_new_proposal_body"));
+        void loadRef.current();
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `brief_id=eq.${briefId}` }, () => {
+        void loadRef.current();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [briefId]);
 
   const acceptedProposals = proposals.filter((p) => p.status === "accepted");
   const avgPricePerDay = acceptedProposals.length
