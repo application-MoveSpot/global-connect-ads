@@ -326,6 +326,7 @@ function DashboardPage() {
               active={tab === "requests"}
               onClick={() => setTab("requests")}
               count={requests.length}
+              pendingCount={requests.filter((r) => !r.owner_response).length}
             >
               {t("owner.requests_tab")}
             </Tab>
@@ -681,19 +682,26 @@ function Tab({
   active,
   onClick,
   count,
+  pendingCount,
   children,
 }: {
   active: boolean;
   onClick: () => void;
   count: number;
+  pendingCount?: number;
   children: React.ReactNode;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground hover:bg-secondary/80"}`}
+      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground hover:bg-secondary/80"}`}
     >
       {children} <span className="opacity-60">({count})</span>
+      {(pendingCount ?? 0) > 0 && (
+        <span className="bg-signal text-white text-xs font-bold leading-none px-1.5 py-0.5 rounded-full">
+          {pendingCount}
+        </span>
+      )}
     </button>
   );
 }

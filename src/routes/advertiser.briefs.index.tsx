@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
@@ -43,6 +43,8 @@ function BriefsListPage() {
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
+  const [briefIds, setBriefIds] = useState<string[]>([]);
+  const briefIdsRef = useRef<string[]>([]);
   const [accountType, setAccountType] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,23 +66,46 @@ function BriefsListPage() {
       const list = (bs as Brief[]) ?? [];
       setBriefs(list);
       setAccountType((prof as { account_type?: string } | null)?.account_type ?? null);
-      if (list.length > 0) {
-        const { data: ps } = await supabase
-          .from("brief_proposals")
-          .select("brief_id, status")
-          .in("brief_id", list.map((b) => b.id));
-        const c: Record<string, number> = {};
-        const pc: Record<string, number> = {};
-        for (const p of ps ?? []) {
-          c[p.brief_id] = (c[p.brief_id] ?? 0) + 1;
-          if (p.status === "pending") pc[p.brief_id] = (pc[p.brief_id] ?? 0) + 1;
-        }
-        setCounts(c);
-        setPendingCounts(pc);
+      const ids = list.map((b) => b.id);
+      setBriefIds(ids);
+      briefIdsRef.current = ids;
+      if (ids.length > 0) {
+        await refreshProposalCounts(ids);
       }
       setLoading(false);
     })();
   }, [navigate]);
+
+  const refreshProposalCounts = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const { data: ps } = await supabase
+      .from("brief_proposals")
+      .select("brief_id, status")
+      .in("brief_id", ids);
+    const c: Record<string, number> = {};
+    const pc: Record<string, number> = {};
+    for (const p of ps ?? []) {
+      c[p.brief_id] = (c[p.brief_id] ?? 0) + 1;
+      if (p.status === "pending") pc[p.brief_id] = (pc[p.brief_id] ?? 0) + 1;
+    }
+    setCounts(c);
+    setPendingCounts(pc);
+  };
+
+  // Realtime: refresh proposal counts when proposals are added or updated
+  useEffect(() => {
+    if (briefIds.length === 0) return;
+    const channel = supabase
+      .channel("advertiser-briefs-proposals")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "brief_proposals" }, () => {
+        void refreshProposalCounts(briefIdsRef.current);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals" }, () => {
+        void refreshProposalCounts(briefIdsRef.current);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [briefIds]);
 
   const isIndividual = accountType === "individual";
 
