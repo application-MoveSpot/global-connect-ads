@@ -42,6 +42,7 @@ function BriefsListPage() {
   const [loading, setLoading] = useState(true);
   const [briefs, setBriefs] = useState<Brief[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [pendingCounts, setPendingCounts] = useState<Record<string, number>>({});
   const [accountType, setAccountType] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,11 +67,16 @@ function BriefsListPage() {
       if (list.length > 0) {
         const { data: ps } = await supabase
           .from("brief_proposals")
-          .select("brief_id")
+          .select("brief_id, status")
           .in("brief_id", list.map((b) => b.id));
         const c: Record<string, number> = {};
-        for (const p of ps ?? []) c[p.brief_id] = (c[p.brief_id] ?? 0) + 1;
+        const pc: Record<string, number> = {};
+        for (const p of ps ?? []) {
+          c[p.brief_id] = (c[p.brief_id] ?? 0) + 1;
+          if (p.status === "pending") pc[p.brief_id] = (pc[p.brief_id] ?? 0) + 1;
+        }
         setCounts(c);
+        setPendingCounts(pc);
       }
       setLoading(false);
     })();
@@ -151,6 +157,11 @@ function BriefsListPage() {
                     <div className="flex flex-col items-end gap-1">
                       <StatusBadge status={b.status} />
                       <span className="text-xs text-muted-foreground">{t("advertiser.briefs_list.proposals", { count: counts[b.id] ?? 0 })}</span>
+                      {(pendingCounts[b.id] ?? 0) > 0 && (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-signal/20 text-signal">
+                          {t("advertiser.briefs_list.pending_proposals", { count: pendingCounts[b.id] })}
+                        </span>
+                      )}
                       {upcoming && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d <= 7 ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-primary/10 text-primary"}`}>
                           J-{d}

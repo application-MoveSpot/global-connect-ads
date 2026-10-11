@@ -616,6 +616,8 @@
       "types_label": "Types :",
       "proposals_one": "{{count}} proposition",
       "proposals_other": "{{count}} propositions",
+      "pending_proposals_one": "{{count}} à répondre",
+      "pending_proposals_other": "{{count}} à répondre",
       "status_open": "Ouvert",
       "status_closed": "Fermé",
       "status_fulfilled": "Pourvu",
