@@ -26,6 +26,7 @@ import { template as briefCampaignConfirmedTemplate } from './brief-campaign-con
 import { template as advertiserWelcomeTemplate } from './advertiser-welcome'
 import { template as adminIntrusionAlertTemplate } from './admin-intrusion-alert'
 import { template as briefDecisionTemplate } from './brief-decision'
+import { template as campaignOwnerResponseTemplate } from './campaign-owner-response'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -68,4 +69,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'advertiser-welcome': advertiserWelcomeTemplate,
   'admin-intrusion-alert': adminIntrusionAlertTemplate,
   'brief-decision': briefDecisionTemplate,
+  'campaign-owner-response': campaignOwnerResponseTemplate,
 }
