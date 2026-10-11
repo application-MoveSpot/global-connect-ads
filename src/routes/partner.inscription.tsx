@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
+import { generatePartnerSuggestion } from "@/lib/ai/partner-assistant.functions";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
 
@@ -34,6 +36,13 @@ function PartnerSignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState(false);
+  const callPartnerAi = useServerFn(generatePartnerSuggestion);
 
   useEffect(() => {
     (async () => {
@@ -108,6 +117,31 @@ function PartnerSignupPage() {
     }
     setStep("profile");
     setLoading(false);
+  };
+
+  const handlePartnerAiGenerate = async () => {
+    setAiError("");
+    setAiSessionExpired(false);
+    if (aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await callPartnerAi({ data: { partnerContext: aiContext.trim() } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      setDescription(res.suggestion.description);
+      setAiFilled(true);
+      setAiPanelOpen(false);
+    } catch {
+      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleProfile = async (e: React.FormEvent) => {
@@ -274,6 +308,59 @@ function PartnerSignupPage() {
               <label className="block text-sm font-medium mb-1.5">
                 {t("partner.inscription.description_label")}
               </label>
+
+              {/* AI assistant */}
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={() => setAiPanelOpen((o) => !o)}
+                  className="flex items-center gap-2 text-xs font-medium text-violet-700 dark:text-violet-300 hover:opacity-80 transition"
+                >
+                  <span>✨</span>
+                  {aiPanelOpen ? "Masquer l'assistant IA" : "Rédiger avec l'IA"}
+                  <span className="text-muted-foreground">{aiPanelOpen ? "▲" : "▼"}</span>
+                </button>
+                {aiPanelOpen && (
+                  <div className="mt-2 rounded-xl border border-violet-500/30 bg-violet-500/5 p-3 space-y-2">
+                    <p className="text-xs text-muted-foreground">
+                      Décrivez votre activité en quelques mots et l'IA rédigera votre présentation.
+                    </p>
+                    <textarea
+                      rows={2}
+                      maxLength={600}
+                      value={aiContext}
+                      onChange={(e) => setAiContext(e.target.value)}
+                      placeholder="Ex. : Agence de communication de 12 ans avec 200 clients PME en région PACA. Spécialisée en campagnes outdoor et événementiel. Souhait de proposer la pub mobile à nos clients."
+                      className="w-full rounded-lg bg-background border border-violet-500/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 placeholder:text-muted-foreground/60"
+                    />
+                    {aiSessionExpired && (
+                      <p className="text-xs text-destructive">Session expirée — <a href="/partner/inscription" className="underline">reconnectez-vous</a> puis réessayez.</p>
+                    )}
+                    {aiError && <p className="text-xs text-destructive">{aiError}</p>}
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[11px] text-muted-foreground">{aiContext.length}/600</span>
+                      <button
+                        type="button"
+                        onClick={handlePartnerAiGenerate}
+                        disabled={aiLoading || aiContext.trim().length < 10}
+                        className="rounded-lg bg-violet-600 text-white px-3 py-1.5 text-xs font-medium hover:bg-violet-700 transition disabled:opacity-60"
+                      >
+                        {aiLoading ? "Génération…" : "Générer"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {aiFilled && (
+                <div className="mb-2 rounded-xl border border-violet-500/30 bg-violet-500/5 px-3 py-2 flex items-center justify-between gap-3 text-xs">
+                  <span className="text-violet-700 dark:text-violet-300 font-medium">
+                    ✨ Description générée par l'IA — vérifiez et ajustez si besoin.
+                  </span>
+                  <button type="button" onClick={() => setAiFilled(false)} className="text-muted-foreground hover:text-foreground transition flex-shrink-0">✕</button>
+                </div>
+              )}
+
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
