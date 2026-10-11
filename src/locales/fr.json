@@ -1300,7 +1300,14 @@
       "forgot_password": "Mot de passe oublié ?",
       "submit_signin": "Se connecter",
       "submit_signup": "Créer mon compte",
-      "switch_to_signin": "Déjà un compte ? Se connecter"
+      "switch_to_signin": "Déjà un compte ? Se connecter",
+      "ai_panel_title": "Remplir avec l'IA",
+      "ai_panel_desc": "Décrivez-vous en quelques mots et l'IA complètera votre profil et votre biographie automatiquement.",
+      "ai_placeholder": "Ex : Je suis Marie Dupont, chauffeure VTC depuis 5 ans à Marseille. Je circule 6j/7 dans le centre-ville…",
+      "ai_generate": "Remplir le profil",
+      "ai_generating": "Analyse en cours…",
+      "ai_filled": "Champs pré-remplis : {{fields}}",
+      "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
     },
     "vehicules": {
       "nouveau": {

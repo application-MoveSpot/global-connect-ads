@@ -1276,7 +1276,14 @@
       "error_email_exists": "An account already exists with this email. Sign in.",
       "error_confirm_email": "Check your email to confirm your account, then sign in.",
       "error_siret": "Please verify your business registration number before continuing.",
-      "error_session": "Session expired"
+      "error_session": "Session expired",
+      "ai_panel_title": "Fill with AI",
+      "ai_panel_desc": "Describe yourself in a few words and the AI will fill in your profile and bio automatically.",
+      "ai_placeholder": "E.g. I'm Marie Dupont, a professional VTC driver for 5 years in Marseille. I drive 6 days/week in the city centre…",
+      "ai_generate": "Fill profile",
+      "ai_generating": "Analysing…",
+      "ai_filled": "Pre-filled fields: {{fields}}",
+      "ai_generate_error": "The AI could not generate a suggestion. Please try again."
     },
     "vehicules": {
       "nouveau": {
