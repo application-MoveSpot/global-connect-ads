@@ -155,7 +155,7 @@ function AdminPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   useEffect(() => {
     if (authState === "ok") load(filter);
