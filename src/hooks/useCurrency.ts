@@ -24,7 +24,7 @@ export function useCurrency() {
     /** Format a cent amount with decimals: 12050 → "120,50 €" */
     fmtExact: (cents: number) => formatCurrencyExact(cents, currency),
     /** Format a cent amount without decimals: 12050 → "121 €" */
-    fmt: (cents: number) => formatCurrency(cents, currency),
+    fmt: (cents: number) => formatCurrency(cents, config.locale),
     /** Format a whole-unit amount: 375 → "375 €" */
     fmtAmount: (amount: number) => formatAmount(amount, currency),
     /** Convert EUR cents to the active currency (display only, no real FX). */
