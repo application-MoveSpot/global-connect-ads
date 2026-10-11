@@ -893,6 +893,8 @@
         "toast_activated": "Campaign activated! Your wallet has been charged.",
         "toast_recharge_needed": "Proposal accepted — top up your wallet to activate the campaign.",
         "toast_error": "Error during acceptance.",
+        "notif_new_proposal": "New proposal received",
+        "notif_new_proposal_body": "An owner has responded to your brief.",
         "status_open": "Open",
         "status_closed": "Closed",
         "status_fulfilled": "Fulfilled",
