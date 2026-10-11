@@ -2,7 +2,9 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Instagram } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
+import { respondToCampaignRequest } from "@/lib/campaigns/campaign-notifications.server";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
@@ -100,6 +102,7 @@ function DashboardPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [tab, setTab] = useState<"vehicles" | "requests">("vehicles");
+  const callRespondToCampaign = useServerFn(respondToCampaignRequest);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -209,7 +212,7 @@ function DashboardPage() {
   }, [profile, load, loadWithRetry]);
 
   const respond = async (id: string, response: "accepted" | "rejected") => {
-    await supabase.from("campaign_requests").update({ owner_response: response }).eq("id", id);
+    await callRespondToCampaign({ data: { campaignId: id, response } });
     void loadWithRetry();
   };
 
