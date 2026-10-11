@@ -850,3 +850,41 @@ export const adminCreditReferral = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ============ Compteurs pending (KPI bar + badges) ============
+export const adminPendingCounts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes] = await Promise.all([
+      supabaseAdmin.from("vehicles").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseAdmin.from("advertiser_briefs").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("installation_status" as never, "pending_approval"),
+      supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("depose_status" as never, "pending_approval"),
+      supabaseAdmin.from("payee_profiles").select("id", { count: "exact", head: true }).eq("certification_status" as never, "pending"),
+      supabaseAdmin.from("payee_profiles").select("stripe_account_id, stripe_charges_enabled").eq("kind" as never, "installer"),
+    ]);
+
+    const stripeIncomplete = (stripeRes.data ?? []).filter(
+      (p: { stripe_account_id: string | null; stripe_charges_enabled: boolean | null }) =>
+        p.stripe_account_id && !p.stripe_charges_enabled,
+    ).length;
+    const stripeNeverStarted = (stripeRes.data ?? []).filter(
+      (p: { stripe_account_id: string | null }) => !p.stripe_account_id,
+    ).length;
+
+    return {
+      vehicles: vehiclesRes.count ?? 0,
+      briefs: briefsRes.count ?? 0,
+      poses: posesRes.count ?? 0,
+      deposes: deposesRes.count ?? 0,
+      poseurs: poseursRes.count ?? 0,
+      stripe: stripeIncomplete + stripeNeverStarted,
+    };
+  });

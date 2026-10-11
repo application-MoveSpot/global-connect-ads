@@ -29,6 +29,7 @@ import {
   adminListInactiveStripeAccounts,
   adminListPoseurs,
   adminListVehicles,
+  adminPendingCounts,
   adminRevenueData,
   adminListUsers,
   adminReviewInstallation,
@@ -82,7 +83,7 @@ export const Route = createFileRoute("/admin/dashboard")({
   },
 });
 
-type Tab = "briefs" | "vehicules" | "poses" | "deposes" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes" | "referral";
+type Tab = "afaire" | "briefs" | "vehicules" | "poses" | "deposes" | "poseurs" | "fleet" | "stripe" | "analytics" | "revenus" | "utilisateurs" | "vigilance" | "moderation" | "alertes" | "referral";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -90,8 +91,15 @@ function AdminDashboard() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [tab, setTab] = useState<Tab>("briefs");
+  const validTabs: Tab[] = ["afaire", "briefs", "vehicules", "poses", "deposes", "poseurs", "fleet", "stripe", "analytics", "revenus", "utilisateurs", "vigilance", "moderation", "alertes", "referral"];
+  const hashTab = (typeof window !== "undefined" ? window.location.hash.slice(1) : "") as Tab;
+  const [tab, setTab] = useState<Tab>(validTabs.includes(hashTab) ? hashTab : "afaire");
   const [ready, setReady] = useState(false);
+
+  const switchTab = (t: Tab) => {
+    setTab(t);
+    if (typeof window !== "undefined") window.location.hash = t;
+  };
 
   // Refusal inline forms — keyed by entity ID
   const [refuseMap, setRefuseMap] = useState<Record<string, { open: boolean; notes: string }>>({});
@@ -105,6 +113,7 @@ function AdminDashboard() {
   const [userSearch, setUserSearch] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | "advertiser" | "owner" | "provider" | "partner">("all");
 
+  const getPendingCounts = useServerFn(adminPendingCounts);
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
   const listVehicles = useServerFn(adminListVehicles);
   const reviewVehicle = useServerFn(adminReviewVehicle);
@@ -143,15 +152,22 @@ function AdminDashboard() {
       .on("postgres_changes", { event: "*", schema: "public", table: "campaign_requests" }, () => {
         qc.invalidateQueries({ queryKey: ["admin-briefs"] });
         qc.invalidateQueries({ queryKey: ["admin-installations"] });
+        qc.invalidateQueries({ queryKey: ["admin-pending-counts"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "brief_proposals" }, () => {
         qc.invalidateQueries({ queryKey: ["admin-briefs"] });
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "advertiser_briefs" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-briefs"] });
+        qc.invalidateQueries({ queryKey: ["admin-pending-counts"] });
+      })
       .on("postgres_changes", { event: "*", schema: "public", table: "payee_profiles" }, () => {
         qc.invalidateQueries({ queryKey: ["admin-poseurs"] });
+        qc.invalidateQueries({ queryKey: ["admin-pending-counts"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "vehicles" }, () => {
         qc.invalidateQueries({ queryKey: ["admin-vehicles"] });
+        qc.invalidateQueries({ queryKey: ["admin-pending-counts"] });
       })
       .subscribe();
     return () => {
@@ -159,6 +175,13 @@ function AdminDashboard() {
     };
   }, [ready, qc]);
 
+  const pendingCountsQuery = useQuery({
+    queryKey: ["admin-pending-counts"],
+    queryFn: () => getPendingCounts(),
+    enabled: ready,
+    staleTime: 60 * 1000,
+    retry: false,
+  });
   const briefsQuery = useQuery({
     queryKey: ["admin-briefs"],
     queryFn: () => listBriefs(),
@@ -367,66 +390,102 @@ function AdminDashboard() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8">
+        {/* KPI summary bar */}
+        {pendingCountsQuery.data && (
+          <div className="mb-6 grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {[
+              { label: t("admin.dashboard.kpi_vehicles"), count: pendingCountsQuery.data.vehicles, color: "amber", tab: "vehicules" as Tab },
+              { label: t("admin.dashboard.kpi_briefs"), count: pendingCountsQuery.data.briefs, color: "amber", tab: "briefs" as Tab },
+              { label: t("admin.dashboard.kpi_poses"), count: pendingCountsQuery.data.poses, color: "amber", tab: "poses" as Tab },
+              { label: t("admin.dashboard.kpi_deposes"), count: pendingCountsQuery.data.deposes, color: "amber", tab: "deposes" as Tab },
+              { label: t("admin.dashboard.kpi_poseurs"), count: pendingCountsQuery.data.poseurs, color: "amber", tab: "poseurs" as Tab },
+              { label: t("admin.dashboard.kpi_stripe"), count: pendingCountsQuery.data.stripe, color: "red", tab: "stripe" as Tab },
+            ].map(({ label, count, color, tab: kpiTab }) => (
+              <button
+                key={kpiTab}
+                onClick={() => switchTab(kpiTab)}
+                className="rounded-xl border border-border bg-card px-4 py-3 text-left hover:bg-secondary/60 transition"
+              >
+                <div className={`text-2xl font-bold ${count > 0 ? (color === "red" ? "text-destructive" : "text-amber-600 dark:text-amber-400") : "text-muted-foreground"}`}>
+                  {count}
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5 leading-tight">{label}</div>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="mb-6 flex flex-wrap gap-2">
-          <TabBtn active={tab === "briefs"} onClick={() => setTab("briefs")}>
+          <TabBtn active={tab === "afaire"} onClick={() => switchTab("afaire")}>
+            {t("admin.dashboard.tab_afaire")}
+            {(() => {
+              const d = pendingCountsQuery.data;
+              const total = d ? d.vehicles + d.briefs + d.poses + d.deposes + d.poseurs + d.stripe : 0;
+              return total > 0 ? (
+                <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] text-destructive-foreground">{total}</span>
+              ) : null;
+            })()}
+          </TabBtn>
+          <TabBtn active={tab === "briefs"} onClick={() => switchTab("briefs")}>
             {t("admin.dashboard.tab_briefs")}
+            {(pendingCountsQuery.data?.briefs ?? 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pendingCountsQuery.data!.briefs}</span>
+            )}
           </TabBtn>
-          <TabBtn active={tab === "vehicules"} onClick={() => setTab("vehicules")}>
+          <TabBtn active={tab === "vehicules"} onClick={() => switchTab("vehicules")}>
             {t("admin.dashboard.tab_vehicules")}
-            {(() => {
-              const pending = (vehiclesQuery.data?.vehicles ?? []).filter((v: any) => v.status === "pending").length;
-              return pending > 0 ? (
-                <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pending}</span>
-              ) : null;
-            })()}
+            {(pendingCountsQuery.data?.vehicles ?? 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pendingCountsQuery.data!.vehicles}</span>
+            )}
           </TabBtn>
-          <TabBtn active={tab === "poses"} onClick={() => setTab("poses")}>
+          <TabBtn active={tab === "poses"} onClick={() => switchTab("poses")}>
             {t("admin.dashboard.tab_poses")}
+            {(pendingCountsQuery.data?.poses ?? 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pendingCountsQuery.data!.poses}</span>
+            )}
           </TabBtn>
-          <TabBtn active={tab === "deposes"} onClick={() => setTab("deposes")}>
+          <TabBtn active={tab === "deposes"} onClick={() => switchTab("deposes")}>
             {t("admin.dashboard.tab_deposes")}
-            {(() => {
-              const pending = (depositionsQuery.data?.depositions ?? []).filter((d: any) => d.depose_status === "pending_approval").length;
-              return pending > 0 ? (
-                <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pending}</span>
-              ) : null;
-            })()}
+            {(pendingCountsQuery.data?.deposes ?? 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pendingCountsQuery.data!.deposes}</span>
+            )}
           </TabBtn>
-          <TabBtn active={tab === "poseurs"} onClick={() => setTab("poseurs")}>
+          <TabBtn active={tab === "poseurs"} onClick={() => switchTab("poseurs")}>
             {t("admin.dashboard.tab_poseurs")}
+            {(pendingCountsQuery.data?.poseurs ?? 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">{pendingCountsQuery.data!.poseurs}</span>
+            )}
           </TabBtn>
-          <TabBtn active={tab === "fleet"} onClick={() => setTab("fleet")}>
+          <TabBtn active={tab === "fleet"} onClick={() => switchTab("fleet")}>
             {t("admin.dashboard.tab_fleet")}
           </TabBtn>
-          <TabBtn active={tab === "stripe"} onClick={() => setTab("stripe")}>
+          <TabBtn active={tab === "stripe"} onClick={() => switchTab("stripe")}>
             {t("admin.dashboard.tab_stripe")}
-            {(stripeQuery.data
-              ? stripeQuery.data.incomplete.length + stripeQuery.data.neverStarted.length
-              : 0) > 0 && (
+            {(pendingCountsQuery.data?.stripe ?? 0) > 0 && (
               <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] text-destructive-foreground">
-                {stripeQuery.data!.incomplete.length + stripeQuery.data!.neverStarted.length}
+                {pendingCountsQuery.data!.stripe}
               </span>
             )}
           </TabBtn>
-          <TabBtn active={tab === "analytics"} onClick={() => setTab("analytics")}>
+          <TabBtn active={tab === "analytics"} onClick={() => switchTab("analytics")}>
             {t("admin.dashboard.tab_analytics")}
           </TabBtn>
-          <TabBtn active={tab === "revenus"} onClick={() => setTab("revenus")}>
+          <TabBtn active={tab === "revenus"} onClick={() => switchTab("revenus")}>
             {t("admin.dashboard.tab_revenus")}
           </TabBtn>
-          <TabBtn active={tab === "utilisateurs"} onClick={() => setTab("utilisateurs")}>
+          <TabBtn active={tab === "utilisateurs"} onClick={() => switchTab("utilisateurs")}>
             {t("admin.dashboard.tab_utilisateurs")}
           </TabBtn>
-          <TabBtn active={tab === "vigilance"} onClick={() => setTab("vigilance")}>
+          <TabBtn active={tab === "vigilance"} onClick={() => switchTab("vigilance")}>
             {t("admin.dashboard.tab_vigilance")}
           </TabBtn>
-          <TabBtn active={tab === "moderation"} onClick={() => setTab("moderation")}>
+          <TabBtn active={tab === "moderation"} onClick={() => switchTab("moderation")}>
             {t("admin.dashboard.tab_moderation")}
           </TabBtn>
-          <TabBtn active={tab === "alertes"} onClick={() => setTab("alertes")}>
+          <TabBtn active={tab === "alertes"} onClick={() => switchTab("alertes")}>
             {t("admin.dashboard.tab_alertes")}
           </TabBtn>
-          <TabBtn active={tab === "referral"} onClick={() => setTab("referral")}>
+          <TabBtn active={tab === "referral"} onClick={() => switchTab("referral")}>
             {t("admin.dashboard.tab_referral")}
           </TabBtn>
         </div>
@@ -437,7 +496,77 @@ function AdminDashboard() {
           </div>
         ) : null}
 
-        {tab === "vehicules" ? (
+        {tab === "afaire" ? (
+          <div className="space-y-6">
+            <h2 className="font-display text-xl font-bold">{t("admin.dashboard.afaire_heading")}</h2>
+            {pendingCountsQuery.isLoading ? (
+              <Skeleton />
+            ) : (
+              <>
+                {pendingCountsQuery.data && (pendingCountsQuery.data.vehicles + pendingCountsQuery.data.briefs + pendingCountsQuery.data.poses + pendingCountsQuery.data.deposes + pendingCountsQuery.data.poseurs + pendingCountsQuery.data.stripe) === 0 ? (
+                  <Empty>{t("admin.dashboard.afaire_empty")}</Empty>
+                ) : (
+                  <div className="space-y-3">
+                    {(pendingCountsQuery.data?.vehicles ?? 0) > 0 && (
+                      <button onClick={() => switchTab("vehicules")} className="w-full rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-left hover:bg-amber-100 dark:hover:bg-amber-950/40 transition flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-semibold text-amber-800 dark:text-amber-300">{t("admin.dashboard.afaire_vehicles_title")}</div>
+                          <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{t("admin.dashboard.afaire_vehicles_desc", { count: pendingCountsQuery.data!.vehicles })}</div>
+                        </div>
+                        <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">{pendingCountsQuery.data!.vehicles}</span>
+                      </button>
+                    )}
+                    {(pendingCountsQuery.data?.briefs ?? 0) > 0 && (
+                      <button onClick={() => switchTab("briefs")} className="w-full rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-left hover:bg-amber-100 dark:hover:bg-amber-950/40 transition flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-semibold text-amber-800 dark:text-amber-300">{t("admin.dashboard.afaire_briefs_title")}</div>
+                          <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{t("admin.dashboard.afaire_briefs_desc", { count: pendingCountsQuery.data!.briefs })}</div>
+                        </div>
+                        <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">{pendingCountsQuery.data!.briefs}</span>
+                      </button>
+                    )}
+                    {(pendingCountsQuery.data?.poses ?? 0) > 0 && (
+                      <button onClick={() => switchTab("poses")} className="w-full rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-left hover:bg-amber-100 dark:hover:bg-amber-950/40 transition flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-semibold text-amber-800 dark:text-amber-300">{t("admin.dashboard.afaire_poses_title")}</div>
+                          <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{t("admin.dashboard.afaire_poses_desc", { count: pendingCountsQuery.data!.poses })}</div>
+                        </div>
+                        <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">{pendingCountsQuery.data!.poses}</span>
+                      </button>
+                    )}
+                    {(pendingCountsQuery.data?.deposes ?? 0) > 0 && (
+                      <button onClick={() => switchTab("deposes")} className="w-full rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-left hover:bg-amber-100 dark:hover:bg-amber-950/40 transition flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-semibold text-amber-800 dark:text-amber-300">{t("admin.dashboard.afaire_deposes_title")}</div>
+                          <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{t("admin.dashboard.afaire_deposes_desc", { count: pendingCountsQuery.data!.deposes })}</div>
+                        </div>
+                        <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">{pendingCountsQuery.data!.deposes}</span>
+                      </button>
+                    )}
+                    {(pendingCountsQuery.data?.poseurs ?? 0) > 0 && (
+                      <button onClick={() => switchTab("poseurs")} className="w-full rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-left hover:bg-amber-100 dark:hover:bg-amber-950/40 transition flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-semibold text-amber-800 dark:text-amber-300">{t("admin.dashboard.afaire_poseurs_title")}</div>
+                          <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{t("admin.dashboard.afaire_poseurs_desc", { count: pendingCountsQuery.data!.poseurs })}</div>
+                        </div>
+                        <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">{pendingCountsQuery.data!.poseurs}</span>
+                      </button>
+                    )}
+                    {(pendingCountsQuery.data?.stripe ?? 0) > 0 && (
+                      <button onClick={() => switchTab("stripe")} className="w-full rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-left hover:bg-destructive/10 transition flex items-center justify-between gap-3">
+                        <div>
+                          <div className="font-semibold text-destructive">{t("admin.dashboard.afaire_stripe_title")}</div>
+                          <div className="text-xs text-destructive/80 mt-0.5">{t("admin.dashboard.afaire_stripe_desc", { count: pendingCountsQuery.data!.stripe })}</div>
+                        </div>
+                        <span className="rounded-full bg-destructive px-3 py-1 text-sm font-bold text-destructive-foreground">{pendingCountsQuery.data!.stripe}</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ) : tab === "vehicules" ? (
           vehiclesQuery.isLoading ? (
             <Skeleton />
           ) : (
