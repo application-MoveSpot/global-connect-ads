@@ -2620,7 +2620,9 @@
       "afaire_poseurs_title": "Installer certifications pending",
       "afaire_poseurs_desc": "{{count}} installer(s) to certify",
       "afaire_stripe_title": "Incomplete Stripe accounts",
-      "afaire_stripe_desc": "{{count}} Stripe account(s) to follow up"
+      "afaire_stripe_desc": "{{count}} Stripe account(s) to follow up",
+      "btn_ai_generate": "Generate AI note",
+      "ai_note_error": "The AI could not generate a note. Please try again."
     },
     "audit": {
       "title": "Audit & Compliance",
