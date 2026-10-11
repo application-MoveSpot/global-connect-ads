@@ -183,12 +183,27 @@ function OpenBriefsPage() {
           <div className="space-y-3">
             {briefs.map((b) => {
               const mine = myProposals.find((p) => p.brief_id === b.id);
+              const strictOwnerTypes = myTypes.filter((t) => t !== "autre");
+              const hasDirectMatch = strictOwnerTypes.some((t) => b.vehicle_types.includes(t));
+              const hasAutreExplicit = myTypes.includes("autre") && b.vehicle_types.includes("autre");
               return (
                 <Link key={b.id} to="/owner/briefs/$briefId" params={{ briefId: b.id }}
                   className="block rounded-xl border border-border bg-card p-5 hover:bg-secondary/30 transition">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
-                      <div className="font-display text-lg font-semibold">{b.title}</div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-display text-lg font-semibold">{b.title}</span>
+                        {hasDirectMatch && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-medium flex-shrink-0">
+                            ✓ {t("owner.briefs.index.badge_direct")}
+                          </span>
+                        )}
+                        {!hasDirectMatch && hasAutreExplicit && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-400 font-medium flex-shrink-0">
+                            ✓ {t("owner.briefs.index.badge_autre")}
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {t("owner.briefs.index.dates", {
                           from: new Date(b.start_date).toLocaleDateString(dateLocale),
