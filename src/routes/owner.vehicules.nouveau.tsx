@@ -6,6 +6,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
 import { estimateVehicle } from "@/lib/fleet/vehicle-estimate.functions";
 import { generateVehicleSuggestion } from "@/lib/ai/vehicle-assistant.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { captureError } from "@/lib/sentry";
@@ -322,60 +323,23 @@ function NewVehiclePage() {
 
           {/* AI assistant panel */}
           <div className="mb-6">
-            <button
-              type="button"
-              onClick={() => setAiPanelOpen((o) => !o)}
-              className="flex items-center gap-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:opacity-80 transition"
-            >
-              <span className="text-base">✨</span>
-              {aiPanelOpen ? "Masquer l'assistant IA" : "Remplir avec l'IA — décrivez votre véhicule"}
-              <span className="text-muted-foreground text-xs">{aiPanelOpen ? "▲" : "▼"}</span>
-            </button>
-            {aiPanelOpen && (
-              <div className="mt-3 rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
-                <p className="text-xs text-muted-foreground">
-                  Décrivez votre véhicule en quelques phrases (type, zones de circulation, kilométrage quotidien, disponibilité, etc.) et l'IA pré-remplira le formulaire pour vous.
-                </p>
-                <textarea
-                  rows={3}
-                  maxLength={600}
-                  value={aiContext}
-                  onChange={(e) => setAiContext(e.target.value)}
-                  placeholder="Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²)."
-                  className="w-full rounded-lg bg-background border border-violet-500/30 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 placeholder:text-muted-foreground/60"
-                />
-                {aiSessionExpired && (
-                  <p className="text-xs text-destructive">Session expirée — <a href="/owner/inscription" className="underline">reconnectez-vous</a> puis réessayez.</p>
-                )}
-                {aiError && <p className="text-xs text-destructive">{aiError}</p>}
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-muted-foreground">{aiContext.length}/600</span>
-                  <button
-                    type="button"
-                    onClick={handleVehicleAiGenerate}
-                    disabled={aiLoading || aiContext.trim().length < 10}
-                    className="rounded-lg bg-violet-600 text-white px-4 py-2 text-sm font-medium hover:bg-violet-700 transition disabled:opacity-60"
-                  >
-                    {aiLoading ? "Génération…" : "Générer"}
-                  </button>
-                </div>
-              </div>
-            )}
+            <AiAssistantPanel
+              open={aiPanelOpen}
+              onOpenChange={setAiPanelOpen}
+              context={aiContext}
+              onContextChange={setAiContext}
+              onGenerate={handleVehicleAiGenerate}
+              loading={aiLoading}
+              error={aiError}
+              sessionExpired={aiSessionExpired}
+              sessionExpiredHref="/owner/inscription"
+              title="Remplir avec l'IA — décrivez votre véhicule"
+              description="Décrivez votre véhicule en quelques phrases (type, zones de circulation, kilométrage quotidien, disponibilité, etc.) et l'IA pré-remplira le formulaire pour vous."
+              placeholder="Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²)."
+              filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+              onDismissFilled={() => setAiFilled([])}
+            />
           </div>
-
-          {aiFilled.length > 0 && (
-            <div className="mb-4 rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
-              <span className="text-violet-700 dark:text-violet-300 font-medium">
-                ✨ L'IA a rempli : {aiFilled.join(", ")} — vérifiez et ajustez si besoin.
-              </span>
-              <button
-                type="button"
-                onClick={() => setAiFilled([])}
-                className="text-muted-foreground hover:text-foreground transition flex-shrink-0"
-                aria-label="Fermer"
-              >✕</button>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

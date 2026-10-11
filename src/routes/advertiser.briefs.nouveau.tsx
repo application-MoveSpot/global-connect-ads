@@ -31,6 +31,7 @@ import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
 import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
@@ -1058,94 +1059,31 @@ function NewBriefPage() {
 
         <form onSubmit={submit} className="space-y-6">
           {/* ── Assistant IA ─────────────────────────────────────────────── */}
-          <div className="rounded-2xl border border-violet-500/30 bg-violet-500/5 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => {
-                setAiPanelOpen((v) => !v);
-                setAiError("");
-                setAiSessionExpired(false);
-              }}
-              className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-violet-500/5 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-xl">✨</span>
-                <div>
-                  <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
-                    {t("advertiser.briefs.nouveau.ai_panel_title")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("advertiser.briefs.nouveau.ai_panel_desc")}
-                  </p>
-                </div>
-              </div>
-              <span className="text-muted-foreground text-sm">{aiPanelOpen ? "▲" : "▼"}</span>
-            </button>
-
-            {aiPanelOpen && (
-              <div className="px-5 pb-5 border-t border-violet-500/20 pt-4 space-y-3">
-                <label className="block text-sm font-medium">
-                  {t("advertiser.briefs.nouveau.ai_label")}
-                </label>
-                <textarea
-                  value={aiContext}
-                  onChange={(e) => setAiContext(e.target.value)}
-                  rows={3}
-                  maxLength={600}
-                  placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm resize-none"
-                />
-                {aiSessionExpired && (
-                  <p className="text-xs text-destructive">
-                    {t("advertiser.briefs.nouveau.ai_session_expired")}{" "}
-                    <Link
-                      to="/advertiser/inscription"
-                      search={{ mode: "signin" }}
-                      className="underline hover:no-underline"
-                    >
-                      {t("advertiser.briefs.nouveau.ai_reconnect")}
-                    </Link>{" "}
-                    puis réessayez.
-                  </p>
-                )}
-                {aiError && !aiSessionExpired && (
-                  <p className="text-xs text-destructive">{aiError}</p>
-                )}
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    disabled={aiLoading}
-                    onClick={handleAiGenerate}
-                    className="inline-flex items-center gap-2 rounded-full bg-violet-600 text-white px-5 py-2 text-sm font-semibold hover:bg-violet-700 disabled:opacity-60 transition-colors"
-                  >
-                    {aiLoading ? (
-                      <>
-                        <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        {t("advertiser.briefs.nouveau.ai_btn_loading")}
-                      </>
-                    ) : (
-                      t("advertiser.briefs.nouveau.ai_btn")
-                    )}
-                  </button>
-                  <span className="text-xs text-muted-foreground">
-                    {aiContext.length}/600 caractères
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {t("advertiser.briefs.nouveau.ai_disclaimer")}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {aiFilled.length > 0 && (
-            <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
-              <span className="text-violet-700 dark:text-violet-300 font-medium">
-                ✨ L'IA a rempli : {aiFilled.join(", ")} — vérifiez et ajustez si besoin.
-              </span>
-              <button type="button" onClick={() => setAiFilled([])} className="text-muted-foreground hover:text-foreground leading-none shrink-0">✕</button>
-            </div>
-          )}
+          <AiAssistantPanel
+            variant="card"
+            open={aiPanelOpen}
+            onOpenChange={(v) => {
+              setAiPanelOpen(v);
+              setAiError("");
+              setAiSessionExpired(false);
+            }}
+            context={aiContext}
+            onContextChange={setAiContext}
+            onGenerate={handleAiGenerate}
+            loading={aiLoading}
+            error={aiError}
+            sessionExpired={aiSessionExpired}
+            sessionExpiredHref="/advertiser/inscription?mode=signin"
+            title={t("advertiser.briefs.nouveau.ai_panel_title")}
+            description={t("advertiser.briefs.nouveau.ai_panel_desc")}
+            inputLabel={t("advertiser.briefs.nouveau.ai_label")}
+            generateLabel={t("advertiser.briefs.nouveau.ai_btn")}
+            generateLoadingLabel={t("advertiser.briefs.nouveau.ai_btn_loading")}
+            disclaimer={t("advertiser.briefs.nouveau.ai_disclaimer")}
+            placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
+            filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+            onDismissFilled={() => setAiFilled([])}
+          />
 
           {/* ── Marché cible ───────────────────────────────────────────── */}
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">

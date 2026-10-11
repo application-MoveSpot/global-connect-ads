@@ -11,6 +11,7 @@ import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { generateDriverSuggestion } from "@/lib/ai/driver-assistant.functions";
+import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 
 type Kind = "driver" | "installer" | "both";
@@ -310,60 +311,23 @@ function ChauffeurInscription() {
 
             {/* AI assistant panel */}
             <div className="mb-5">
-              <button
-                type="button"
-                onClick={() => setAiPanelOpen((o) => !o)}
-                className="flex items-center gap-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:opacity-80 transition"
-              >
-                <span className="text-base">✨</span>
-                {aiPanelOpen ? "Masquer l'assistant IA" : "Pré-remplir avec l'IA — décrivez votre activité"}
-                <span className="text-muted-foreground text-xs">{aiPanelOpen ? "▲" : "▼"}</span>
-              </button>
-              {aiPanelOpen && (
-                <div className="mt-3 rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
-                  <p className="text-xs text-muted-foreground">
-                    Décrivez votre situation en quelques mots (ville, type de véhicule, ce que vous faites : conduire avec une pub ou poser des adhésifs) et l'IA remplira les champs correspondants.
-                  </p>
-                  <textarea
-                    rows={3}
-                    maxLength={600}
-                    value={aiContext}
-                    onChange={(e) => setAiContext(e.target.value)}
-                    placeholder="Ex. : Je conduis un utilitaire à Lyon pour des livraisons du lundi au vendredi, environ 120 km par jour. Je cherche à monétiser l'espace publicitaire de mon véhicule."
-                    className="w-full rounded-lg bg-background border border-violet-500/30 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 placeholder:text-muted-foreground/60"
-                  />
-                  {aiSessionExpired && (
-                    <p className="text-xs text-destructive">Session expirée — <a href="/driver/inscription" className="underline">reconnectez-vous</a> puis réessayez.</p>
-                  )}
-                  {aiError && <p className="text-xs text-destructive">{aiError}</p>}
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[11px] text-muted-foreground">{aiContext.length}/600</span>
-                    <button
-                      type="button"
-                      onClick={handleDriverAiGenerate}
-                      disabled={aiLoading || aiContext.trim().length < 10}
-                      className="rounded-lg bg-violet-600 text-white px-4 py-2 text-sm font-medium hover:bg-violet-700 transition disabled:opacity-60"
-                    >
-                      {aiLoading ? "Génération…" : "Générer"}
-                    </button>
-                  </div>
-                </div>
-              )}
+              <AiAssistantPanel
+                open={aiPanelOpen}
+                onOpenChange={setAiPanelOpen}
+                context={aiContext}
+                onContextChange={setAiContext}
+                onGenerate={handleDriverAiGenerate}
+                loading={aiLoading}
+                error={aiError}
+                sessionExpired={aiSessionExpired}
+                sessionExpiredHref="/driver/inscription"
+                title="Pré-remplir avec l'IA — décrivez votre activité"
+                description="Décrivez votre situation en quelques mots (ville, type de véhicule, ce que vous faites : conduire avec une pub ou poser des adhésifs) et l'IA remplira les champs correspondants."
+                placeholder="Ex. : Je conduis un utilitaire à Lyon pour des livraisons du lundi au vendredi, environ 120 km par jour. Je cherche à monétiser l'espace publicitaire de mon véhicule."
+                filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+                onDismissFilled={() => setAiFilled([])}
+              />
             </div>
-
-            {aiFilled.length > 0 && (
-              <div className="mb-4 rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
-                <span className="text-violet-700 dark:text-violet-300 font-medium">
-                  ✨ L'IA a rempli : {aiFilled.join(", ")} — vérifiez et ajustez si besoin.
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setAiFilled([])}
-                  className="text-muted-foreground hover:text-foreground transition flex-shrink-0"
-                  aria-label="Fermer"
-                >✕</button>
-              </div>
-            )}
 
             <form onSubmit={handleProfile} className="space-y-4">
               <div>
