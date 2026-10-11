@@ -151,6 +151,7 @@ function ProviderDashboard() {
             >
               <Instagram className="h-4 w-4" />
             </a>
+            <Link to="/provider/profil" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("profile.title")}</Link>
             <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("common.settings")}</Link>
             <button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("common.logout")}</button>

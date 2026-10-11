@@ -274,6 +274,12 @@ function DashboardPage() {
               <Instagram className="h-4 w-4" />
             </a>
             <Link
+              to="/owner/profil"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              {t("profile.title")}
+            </Link>
+            <Link
               to="/parametres"
               className="text-sm text-muted-foreground hover:text-foreground"
             >

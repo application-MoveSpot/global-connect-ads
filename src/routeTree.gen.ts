@@ -55,6 +55,7 @@ import { Route as AdvertiserInscriptionRouteImport } from './routes/advertiser.i
 import { Route as AdvertiserPackRouteImport } from './routes/advertiser.pack'
 import { Route as AdvertiserPortefeuilleRouteImport } from './routes/advertiser.portefeuille'
 import { Route as AdvertiserPreview3dRouteImport } from './routes/advertiser.preview-3d'
+import { Route as AdvertiserProfilRouteImport } from './routes/advertiser.profil'
 import { Route as AdvertiserRemboursementRouteImport } from './routes/advertiser.remboursement'
 import { Route as ApiFaqChatRouteImport } from './routes/api/faq-chat'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
@@ -71,12 +72,15 @@ import { Route as OwnerCarteRouteImport } from './routes/owner.carte'
 import { Route as OwnerFlotteRouteImport } from './routes/owner.flotte'
 import { Route as OwnerHistoriqueRouteImport } from './routes/owner.historique'
 import { Route as OwnerInscriptionRouteImport } from './routes/owner.inscription'
+import { Route as OwnerProfilRouteImport } from './routes/owner.profil'
 import { Route as OwnerTrackingRouteImport } from './routes/owner.tracking'
 import { Route as PartnerIndexRouteImport } from './routes/partner.index'
 import { Route as PartnerInscriptionRouteImport } from './routes/partner.inscription'
+import { Route as PartnerProfilRouteImport } from './routes/partner.profil'
 import { Route as ProviderIndexRouteImport } from './routes/provider.index'
 import { Route as ProviderConnexionRouteImport } from './routes/provider.connexion'
 import { Route as ProviderInscriptionRouteImport } from './routes/provider.inscription'
+import { Route as ProviderProfilRouteImport } from './routes/provider.profil'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as ProvidersProviderIdRouteImport } from './routes/providers.$providerId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -98,6 +102,7 @@ import { Route as OwnerBriefsIndexRouteImport } from './routes/owner.briefs.inde
 import { Route as OwnerBriefsBriefIdRouteImport } from './routes/owner.briefs.$briefId'
 import { Route as OwnerFlotteImportRouteImport } from './routes/owner.flotte.import'
 import { Route as OwnerFlotteQrRouteImport } from './routes/owner.flotte.qr'
+import { Route as OwnerVehiculesVehicleIdRouteImport } from './routes/owner.vehicules.$vehicleId'
 import { Route as OwnerVehiculesNouveauRouteImport } from './routes/owner.vehicules.nouveau'
 import { Route as AdvertiserBriefsConfirmationBriefIdRouteImport } from './routes/advertiser.briefs.confirmation.$briefId'
 import { Route as ApiAdminCronEnforceRouteImport } from './routes/api/admin/cron/enforce'
@@ -339,6 +344,11 @@ const AdvertiserPreview3dRoute = AdvertiserPreview3dRouteImport.update({
   path: '/advertiser/preview-3d',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdvertiserProfilRoute = AdvertiserProfilRouteImport.update({
+  id: '/advertiser/profil',
+  path: '/advertiser/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdvertiserRemboursementRoute = AdvertiserRemboursementRouteImport.update({
   id: '/advertiser/remboursement',
   path: '/advertiser/remboursement',
@@ -419,6 +429,11 @@ const OwnerInscriptionRoute = OwnerInscriptionRouteImport.update({
   path: '/owner/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerProfilRoute = OwnerProfilRouteImport.update({
+  id: '/owner/profil',
+  path: '/owner/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerTrackingRoute = OwnerTrackingRouteImport.update({
   id: '/owner/tracking',
   path: '/owner/tracking',
@@ -434,6 +449,11 @@ const PartnerInscriptionRoute = PartnerInscriptionRouteImport.update({
   path: '/partner/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartnerProfilRoute = PartnerProfilRouteImport.update({
+  id: '/partner/profil',
+  path: '/partner/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProviderIndexRoute = ProviderIndexRouteImport.update({
   id: '/provider/',
   path: '/provider/',
@@ -447,6 +467,11 @@ const ProviderConnexionRoute = ProviderConnexionRouteImport.update({
 const ProviderInscriptionRoute = ProviderInscriptionRouteImport.update({
   id: '/provider/inscription',
   path: '/provider/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderProfilRoute = ProviderProfilRouteImport.update({
+  id: '/provider/profil',
+  path: '/provider/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
@@ -560,6 +585,11 @@ const OwnerFlotteQrRoute = OwnerFlotteQrRouteImport.update({
   path: '/qr',
   getParentRoute: () => OwnerFlotteRoute,
 } as any)
+const OwnerVehiculesVehicleIdRoute = OwnerVehiculesVehicleIdRouteImport.update({
+  id: '/owner/vehicules/$vehicleId',
+  path: '/owner/vehicules/$vehicleId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerVehiculesNouveauRoute = OwnerVehiculesNouveauRouteImport.update({
   id: '/owner/vehicules/nouveau',
   path: '/owner/vehicules/nouveau',
@@ -651,6 +681,7 @@ export interface FileRoutesByFullPath {
   '/advertiser/pack': typeof AdvertiserPackRoute
   '/advertiser/portefeuille': typeof AdvertiserPortefeuilleRoute
   '/advertiser/preview-3d': typeof AdvertiserPreview3dRoute
+  '/advertiser/profil': typeof AdvertiserProfilRoute
   '/advertiser/remboursement': typeof AdvertiserRemboursementRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/api/health': typeof ApiHealthRoute
@@ -664,10 +695,13 @@ export interface FileRoutesByFullPath {
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
+  '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
+  '/partner/profil': typeof PartnerProfilRoute
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
+  '/provider/profil': typeof ProviderProfilRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/advertiser/': typeof AdvertiserIndexRoute
   '/commercial/': typeof CommercialIndexRoute
@@ -693,6 +727,7 @@ export interface FileRoutesByFullPath {
   '/owner/briefs/$briefId': typeof OwnerBriefsBriefIdRoute
   '/owner/flotte/import': typeof OwnerFlotteImportRoute
   '/owner/flotte/qr': typeof OwnerFlotteQrRoute
+  '/owner/vehicules/$vehicleId': typeof OwnerVehiculesVehicleIdRoute
   '/owner/vehicules/nouveau': typeof OwnerVehiculesNouveauRoute
   '/advertiser/briefs/': typeof AdvertiserBriefsIndexRoute
   '/owner/briefs/': typeof OwnerBriefsIndexRoute
@@ -748,6 +783,7 @@ export interface FileRoutesByTo {
   '/advertiser/pack': typeof AdvertiserPackRoute
   '/advertiser/portefeuille': typeof AdvertiserPortefeuilleRoute
   '/advertiser/preview-3d': typeof AdvertiserPreview3dRoute
+  '/advertiser/profil': typeof AdvertiserProfilRoute
   '/advertiser/remboursement': typeof AdvertiserRemboursementRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/api/health': typeof ApiHealthRoute
@@ -761,10 +797,13 @@ export interface FileRoutesByTo {
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
+  '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
+  '/partner/profil': typeof PartnerProfilRoute
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
+  '/provider/profil': typeof ProviderProfilRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/': typeof PublicIndexRoute
   '/advertiser': typeof AdvertiserIndexRoute
@@ -791,6 +830,7 @@ export interface FileRoutesByTo {
   '/owner/briefs/$briefId': typeof OwnerBriefsBriefIdRoute
   '/owner/flotte/import': typeof OwnerFlotteImportRoute
   '/owner/flotte/qr': typeof OwnerFlotteQrRoute
+  '/owner/vehicules/$vehicleId': typeof OwnerVehiculesVehicleIdRoute
   '/owner/vehicules/nouveau': typeof OwnerVehiculesNouveauRoute
   '/advertiser/briefs': typeof AdvertiserBriefsIndexRoute
   '/owner/briefs': typeof OwnerBriefsIndexRoute
@@ -848,6 +888,7 @@ export interface FileRoutesById {
   '/advertiser/pack': typeof AdvertiserPackRoute
   '/advertiser/portefeuille': typeof AdvertiserPortefeuilleRoute
   '/advertiser/preview-3d': typeof AdvertiserPreview3dRoute
+  '/advertiser/profil': typeof AdvertiserProfilRoute
   '/advertiser/remboursement': typeof AdvertiserRemboursementRoute
   '/api/faq-chat': typeof ApiFaqChatRoute
   '/api/health': typeof ApiHealthRoute
@@ -861,10 +902,13 @@ export interface FileRoutesById {
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
+  '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
+  '/partner/profil': typeof PartnerProfilRoute
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
+  '/provider/profil': typeof ProviderProfilRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/_public/': typeof PublicIndexRoute
   '/advertiser/': typeof AdvertiserIndexRoute
@@ -891,6 +935,7 @@ export interface FileRoutesById {
   '/owner/briefs/$briefId': typeof OwnerBriefsBriefIdRoute
   '/owner/flotte/import': typeof OwnerFlotteImportRoute
   '/owner/flotte/qr': typeof OwnerFlotteQrRoute
+  '/owner/vehicules/$vehicleId': typeof OwnerVehiculesVehicleIdRoute
   '/owner/vehicules/nouveau': typeof OwnerVehiculesNouveauRoute
   '/advertiser/briefs/': typeof AdvertiserBriefsIndexRoute
   '/owner/briefs/': typeof OwnerBriefsIndexRoute
@@ -949,6 +994,7 @@ export interface FileRouteTypes {
     | '/advertiser/pack'
     | '/advertiser/portefeuille'
     | '/advertiser/preview-3d'
+    | '/advertiser/profil'
     | '/advertiser/remboursement'
     | '/api/faq-chat'
     | '/api/health'
@@ -962,10 +1008,13 @@ export interface FileRouteTypes {
     | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
+    | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
+    | '/partner/profil'
     | '/provider/connexion'
     | '/provider/inscription'
+    | '/provider/profil'
     | '/providers/$providerId'
     | '/advertiser/'
     | '/commercial/'
@@ -991,6 +1040,7 @@ export interface FileRouteTypes {
     | '/owner/briefs/$briefId'
     | '/owner/flotte/import'
     | '/owner/flotte/qr'
+    | '/owner/vehicules/$vehicleId'
     | '/owner/vehicules/nouveau'
     | '/advertiser/briefs/'
     | '/owner/briefs/'
@@ -1046,6 +1096,7 @@ export interface FileRouteTypes {
     | '/advertiser/pack'
     | '/advertiser/portefeuille'
     | '/advertiser/preview-3d'
+    | '/advertiser/profil'
     | '/advertiser/remboursement'
     | '/api/faq-chat'
     | '/api/health'
@@ -1059,10 +1110,13 @@ export interface FileRouteTypes {
     | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
+    | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
+    | '/partner/profil'
     | '/provider/connexion'
     | '/provider/inscription'
+    | '/provider/profil'
     | '/providers/$providerId'
     | '/'
     | '/advertiser'
@@ -1089,6 +1143,7 @@ export interface FileRouteTypes {
     | '/owner/briefs/$briefId'
     | '/owner/flotte/import'
     | '/owner/flotte/qr'
+    | '/owner/vehicules/$vehicleId'
     | '/owner/vehicules/nouveau'
     | '/advertiser/briefs'
     | '/owner/briefs'
@@ -1145,6 +1200,7 @@ export interface FileRouteTypes {
     | '/advertiser/pack'
     | '/advertiser/portefeuille'
     | '/advertiser/preview-3d'
+    | '/advertiser/profil'
     | '/advertiser/remboursement'
     | '/api/faq-chat'
     | '/api/health'
@@ -1158,10 +1214,13 @@ export interface FileRouteTypes {
     | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
+    | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
+    | '/partner/profil'
     | '/provider/connexion'
     | '/provider/inscription'
+    | '/provider/profil'
     | '/providers/$providerId'
     | '/_public/'
     | '/advertiser/'
@@ -1188,6 +1247,7 @@ export interface FileRouteTypes {
     | '/owner/briefs/$briefId'
     | '/owner/flotte/import'
     | '/owner/flotte/qr'
+    | '/owner/vehicules/$vehicleId'
     | '/owner/vehicules/nouveau'
     | '/advertiser/briefs/'
     | '/owner/briefs/'
@@ -1226,6 +1286,7 @@ export interface RootRouteChildren {
   AdvertiserPackRoute: typeof AdvertiserPackRoute
   AdvertiserPortefeuilleRoute: typeof AdvertiserPortefeuilleRoute
   AdvertiserPreview3dRoute: typeof AdvertiserPreview3dRoute
+  AdvertiserProfilRoute: typeof AdvertiserProfilRoute
   AdvertiserRemboursementRoute: typeof AdvertiserRemboursementRoute
   ApiFaqChatRoute: typeof ApiFaqChatRoute
   ApiHealthRoute: typeof ApiHealthRoute
@@ -1239,10 +1300,13 @@ export interface RootRouteChildren {
   OwnerFlotteRoute: typeof OwnerFlotteRouteWithChildren
   OwnerHistoriqueRoute: typeof OwnerHistoriqueRoute
   OwnerInscriptionRoute: typeof OwnerInscriptionRoute
+  OwnerProfilRoute: typeof OwnerProfilRoute
   OwnerTrackingRoute: typeof OwnerTrackingRoute
   PartnerInscriptionRoute: typeof PartnerInscriptionRoute
+  PartnerProfilRoute: typeof PartnerProfilRoute
   ProviderConnexionRoute: typeof ProviderConnexionRoute
   ProviderInscriptionRoute: typeof ProviderInscriptionRoute
+  ProviderProfilRoute: typeof ProviderProfilRoute
   ProvidersProviderIdRoute: typeof ProvidersProviderIdRoute
   AdvertiserIndexRoute: typeof AdvertiserIndexRoute
   CommercialIndexRoute: typeof CommercialIndexRoute
@@ -1266,6 +1330,7 @@ export interface RootRouteChildren {
   LovableCronEnforceRoute: typeof LovableCronEnforceRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   OwnerBriefsBriefIdRoute: typeof OwnerBriefsBriefIdRoute
+  OwnerVehiculesVehicleIdRoute: typeof OwnerVehiculesVehicleIdRoute
   OwnerVehiculesNouveauRoute: typeof OwnerVehiculesNouveauRoute
   AdvertiserBriefsIndexRoute: typeof AdvertiserBriefsIndexRoute
   OwnerBriefsIndexRoute: typeof OwnerBriefsIndexRoute
@@ -1602,6 +1667,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvertiserPreview3dRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/advertiser/profil': {
+      id: '/advertiser/profil'
+      path: '/advertiser/profil'
+      fullPath: '/advertiser/profil'
+      preLoaderRoute: typeof AdvertiserProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/advertiser/remboursement': {
       id: '/advertiser/remboursement'
       path: '/advertiser/remboursement'
@@ -1714,6 +1786,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/profil': {
+      id: '/owner/profil'
+      path: '/owner/profil'
+      fullPath: '/owner/profil'
+      preLoaderRoute: typeof OwnerProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/owner/tracking': {
       id: '/owner/tracking'
       path: '/owner/tracking'
@@ -1735,6 +1814,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnerInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/partner/profil': {
+      id: '/partner/profil'
+      path: '/partner/profil'
+      fullPath: '/partner/profil'
+      preLoaderRoute: typeof PartnerProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/provider/': {
       id: '/provider/'
       path: '/provider'
@@ -1754,6 +1840,13 @@ declare module '@tanstack/react-router' {
       path: '/provider/inscription'
       fullPath: '/provider/inscription'
       preLoaderRoute: typeof ProviderInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/profil': {
+      id: '/provider/profil'
+      path: '/provider/profil'
+      fullPath: '/provider/profil'
+      preLoaderRoute: typeof ProviderProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/providers/': {
@@ -1902,6 +1995,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/owner/flotte/qr'
       preLoaderRoute: typeof OwnerFlotteQrRouteImport
       parentRoute: typeof OwnerFlotteRoute
+    }
+    '/owner/vehicules/$vehicleId': {
+      id: '/owner/vehicules/$vehicleId'
+      path: '/owner/vehicules/$vehicleId'
+      fullPath: '/owner/vehicules/$vehicleId'
+      preLoaderRoute: typeof OwnerVehiculesVehicleIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/owner/vehicules/nouveau': {
       id: '/owner/vehicules/nouveau'
@@ -2060,6 +2160,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdvertiserPackRoute: AdvertiserPackRoute,
   AdvertiserPortefeuilleRoute: AdvertiserPortefeuilleRoute,
   AdvertiserPreview3dRoute: AdvertiserPreview3dRoute,
+  AdvertiserProfilRoute: AdvertiserProfilRoute,
   AdvertiserRemboursementRoute: AdvertiserRemboursementRoute,
   ApiFaqChatRoute: ApiFaqChatRoute,
   ApiHealthRoute: ApiHealthRoute,
@@ -2073,10 +2174,13 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerFlotteRoute: OwnerFlotteRouteWithChildren,
   OwnerHistoriqueRoute: OwnerHistoriqueRoute,
   OwnerInscriptionRoute: OwnerInscriptionRoute,
+  OwnerProfilRoute: OwnerProfilRoute,
   OwnerTrackingRoute: OwnerTrackingRoute,
   PartnerInscriptionRoute: PartnerInscriptionRoute,
+  PartnerProfilRoute: PartnerProfilRoute,
   ProviderConnexionRoute: ProviderConnexionRoute,
   ProviderInscriptionRoute: ProviderInscriptionRoute,
+  ProviderProfilRoute: ProviderProfilRoute,
   ProvidersProviderIdRoute: ProvidersProviderIdRoute,
   AdvertiserIndexRoute: AdvertiserIndexRoute,
   CommercialIndexRoute: CommercialIndexRoute,
@@ -2100,6 +2204,7 @@ const rootRouteChildren: RootRouteChildren = {
   LovableCronEnforceRoute: LovableCronEnforceRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   OwnerBriefsBriefIdRoute: OwnerBriefsBriefIdRoute,
+  OwnerVehiculesVehicleIdRoute: OwnerVehiculesVehicleIdRoute,
   OwnerVehiculesNouveauRoute: OwnerVehiculesNouveauRoute,
   AdvertiserBriefsIndexRoute: AdvertiserBriefsIndexRoute,
   OwnerBriefsIndexRoute: OwnerBriefsIndexRoute,
