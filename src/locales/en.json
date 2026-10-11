@@ -1222,6 +1222,7 @@
     "welcome_default": "Hello",
     "no_vehicles": "No vehicles yet.",
     "add_vehicle": "Add a vehicle",
+    "vehicle_edit_link": "Edit this vehicle",
     "my_vehicles": "My vehicles",
     "requests_tab": "Received requests",
     "my_campaigns": "Campaigns",
@@ -1363,6 +1364,18 @@
         "error_autre_desc": "Please specify the vehicle type in the dedicated field.",
         "error_ai_photo": "⛔ Photo rejected: our AI detected an AI-generated or AI-edited image. Please provide an authentic photo of the vehicle.",
         "error_price_too_high": "⛔ Price too high: the AI range {{aiMin}}–{{aiMax}} €/day is the price paid by the advertiser. Your owner remuneration is 70% of that, i.e. {{ownerMin}}–{{ownerMax}} €/day. Enter at most {{ownerMax}} €/day (use the 'Use {{ownerMax}} €/day' button in the AI Estimate box)."
+      },
+      "modifier": {
+        "back": "← Back to dashboard",
+        "title": "Edit vehicle",
+        "desc": "Update your vehicle's information. Photos cannot be changed here.",
+        "loading": "Loading…",
+        "not_found": "Vehicle not found or access denied.",
+        "submit": "Save changes",
+        "photos_readonly_hint": "📷 Photos cannot be updated here to preserve the AI verification already completed. Contact support if you need to replace them.",
+        "ai_panel_title": "Rewrite with AI",
+        "ai_panel_desc": "Describe your vehicle and the AI will regenerate the name, description and zones automatically.",
+        "ai_generate_error": "The AI could not generate a suggestion. Please try again."
       }
     },
     "flotte": {

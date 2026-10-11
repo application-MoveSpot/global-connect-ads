@@ -1238,6 +1238,7 @@
     "welcome_default": "Bonjour",
     "no_vehicles": "Aucun véhicule pour l'instant.",
     "add_vehicle": "Ajouter un véhicule",
+    "vehicle_edit_link": "Modifier ce véhicule",
     "my_vehicles": "Mes véhicules",
     "requests_tab": "Demandes reçues",
     "my_campaigns": "Campagnes",
@@ -1387,6 +1388,18 @@
         "error_autre_desc": "Veuillez préciser le type de véhicule dans le champ dédié.",
         "error_ai_photo": "⛔ Photo refusée : notre IA a détecté une image générée ou retouchée par IA. Merci de fournir une photo authentique du véhicule.",
         "error_price_too_high": "⛔ Prix trop élevé : la fourchette IA {{aiMin}}–{{aiMax}} €/j est le prix payé par l'annonceur. Votre rémunération de propriétaire correspond à 70 % de ce montant, soit {{ownerMin}}–{{ownerMax}} €/jour. Saisissez au maximum {{ownerMax}} €/jour (bouton « Utiliser {{ownerMax}} €/j » dans l'encart Estimation IA)."
+      },
+      "modifier": {
+        "back": "← Retour au tableau de bord",
+        "title": "Modifier le véhicule",
+        "desc": "Mettez à jour les informations de votre véhicule. Les photos ne peuvent pas être modifiées ici.",
+        "loading": "Chargement…",
+        "not_found": "Véhicule introuvable ou accès refusé.",
+        "submit": "Enregistrer les modifications",
+        "photos_readonly_hint": "📷 Les photos ne sont pas modifiables ici pour préserver la vérification IA déjà effectuée. Contactez le support si vous avez besoin de les mettre à jour.",
+        "ai_panel_title": "Réécrire avec l'IA",
+        "ai_panel_desc": "Décrivez votre véhicule et l'IA régénérera le nom, la description et les zones automatiquement.",
+        "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
       }
     },
     "flotte": {
