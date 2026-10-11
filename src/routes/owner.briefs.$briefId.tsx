@@ -76,10 +76,13 @@ function BriefDetailPage() {
     if (!b) { navigate({ to: "/owner/briefs" }); return; }
     setBrief(b as Brief);
 
+    const briefTypes = (b as Brief).vehicle_types;
+    // "autre" vehicles can propose to any brief — include them even when not in brief's vehicle_types
+    const eligibleTypes = briefTypes.includes("autre") ? briefTypes : [...briefTypes, "autre"];
     const { data: vs } = await supabase
       .from("vehicles").select("id, name, type, price_per_day")
       .eq("owner_id", prof.id).eq("status", "approved")
-      .in("type", (b as Brief).vehicle_types as never);
+      .in("type", eligibleTypes as never);
     setEligibleVehicles((vs as Vehicle[]) ?? []);
 
     const { data: ps } = await supabase
