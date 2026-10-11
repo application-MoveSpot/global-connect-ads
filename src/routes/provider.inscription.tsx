@@ -12,6 +12,7 @@ import {
 } from "@/components/provider/ProviderPortfolioUploader";
 import { verifyWebsite } from "@/lib/providers/website-verify.functions";
 import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functions";
+import { generateProviderSuggestion } from "@/lib/ai/provider-assistant.functions";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
@@ -71,6 +72,13 @@ function ProviderSignupPage() {
     recommendation: string;
   } | null>(null);
   const [estimatingPricing, setEstimatingPricing] = useState(false);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiContext, setAiContext] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSessionExpired, setAiSessionExpired] = useState(false);
+  const [aiFilled, setAiFilled] = useState<string[]>([]);
+  const callProviderAi = useServerFn(generateProviderSuggestion);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -133,6 +141,44 @@ function ProviderSignupPage() {
     setSessionEmail(signUpData.session.user.email ?? null);
     setStep("profile");
     setLoading(false);
+  };
+
+  const handleProviderAiGenerate = async () => {
+    setAiError("");
+    setAiSessionExpired(false);
+    if (aiContext.trim().length < 10) {
+      setAiError("Décrivez votre activité en au moins 10 caractères.");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await callProviderAi({ data: { providerContext: aiContext.trim() } });
+      if (!res.ok) {
+        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        setAiError(res.message);
+        return;
+      }
+      const { suggestion } = res;
+      const filled: string[] = [];
+      if (suggestion.description) { setDescription(suggestion.description); filled.push("description"); }
+      if (suggestion.coverageAreas.length > 0) {
+        setCoverageList((prev) => {
+          const merged = [...prev, ...suggestion.coverageAreas.filter((z: string) => !prev.includes(z))].slice(0, 30);
+          return merged;
+        });
+        filled.push("zones");
+      }
+      if (suggestion.services.length > 0) {
+        setServices(suggestion.services as ProviderServiceKey[]);
+        filled.push("services");
+      }
+      setAiFilled(filled);
+      setAiPanelOpen(false);
+    } catch {
+      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleProfile = async (e: React.FormEvent) => {
@@ -322,6 +368,64 @@ function ProviderSignupPage() {
                 </button>
               </div>
             )}
+
+            {/* AI assistant panel */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setAiPanelOpen((o) => !o)}
+                className="flex items-center gap-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:opacity-80 transition"
+              >
+                <span className="text-base">✨</span>
+                {aiPanelOpen ? "Masquer l'assistant IA" : "Remplir avec l'IA — décrivez votre activité"}
+                <span className="text-muted-foreground text-xs">{aiPanelOpen ? "▲" : "▼"}</span>
+              </button>
+              {aiPanelOpen && (
+                <div className="mt-3 rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Décrivez votre activité en quelques phrases (spécialités, équipements, zones d'intervention, types de clients, etc.) et l'IA pré-remplira votre profil.
+                  </p>
+                  <textarea
+                    rows={3}
+                    maxLength={600}
+                    value={aiContext}
+                    onChange={(e) => setAiContext(e.target.value)}
+                    placeholder="Ex. : Je suis poseur de covering depuis 8 ans, spécialisé en flocage total et partiel sur utilitaires et berlines. J'interviens principalement en Île-de-France et dans les Hauts-de-France. J'ai une imprimante grand format et je peux livrer en 5 jours ouvrés."
+                    className="w-full rounded-lg bg-background border border-violet-500/30 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 placeholder:text-muted-foreground/60"
+                  />
+                  {aiSessionExpired && (
+                    <p className="text-xs text-destructive">Session expirée — <a href="/provider/connexion" className="underline">reconnectez-vous</a> puis réessayez.</p>
+                  )}
+                  {aiError && <p className="text-xs text-destructive">{aiError}</p>}
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[11px] text-muted-foreground">{aiContext.length}/600</span>
+                    <button
+                      type="button"
+                      onClick={handleProviderAiGenerate}
+                      disabled={aiLoading || aiContext.trim().length < 10}
+                      className="rounded-lg bg-violet-600 text-white px-4 py-2 text-sm font-medium hover:bg-violet-700 transition disabled:opacity-60"
+                    >
+                      {aiLoading ? "Génération…" : "Générer"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {aiFilled.length > 0 && (
+              <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
+                <span className="text-violet-700 dark:text-violet-300 font-medium">
+                  ✨ L'IA a rempli : {aiFilled.join(", ")} — vérifiez et ajustez si besoin.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAiFilled([])}
+                  className="text-muted-foreground hover:text-foreground transition flex-shrink-0"
+                  aria-label="Fermer"
+                >✕</button>
+              </div>
+            )}
+
             <Input
               label={t("provider.inscription.company_label")}
               value={company}
