@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { generateOwnerBriefProposal } from "@/lib/ai/owner-brief-assistant.functions";
+import { sendBriefProposalReceivedEmail } from "@/lib/campaigns/brief-proposal-emails.server";
 import { track } from "@/lib/analytics/track";
 import { pushNotification } from "@/hooks/useNotifications";
 import { detectContact } from "@/lib/moderation/contact-detection";
@@ -60,6 +61,7 @@ function BriefDetailPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
   const callBriefAi = useServerFn(generateOwnerBriefProposal);
+  const doSendProposalEmail = useServerFn(sendBriefProposalReceivedEmail);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -159,13 +161,17 @@ function BriefDetailPage() {
     setVehicleId(""); setPrice(""); setMessage("");
     setSubmitting(true);
 
-    const { error: insErr } = await supabase.from("brief_proposals").insert([{
-      brief_id: briefId,
-      vehicle_id: savedVehicleId,
-      owner_id: ownerId,
-      price_per_day: Number(savedPrice),
-      message: savedMessage || null,
-    }]);
+    const { data: newProposal, error: insErr } = await supabase
+      .from("brief_proposals")
+      .insert([{
+        brief_id: briefId,
+        vehicle_id: savedVehicleId,
+        owner_id: ownerId,
+        price_per_day: Number(savedPrice),
+        message: savedMessage || null,
+      }])
+      .select("id")
+      .maybeSingle();
     setSubmitting(false);
 
     if (insErr) {
@@ -178,6 +184,12 @@ function BriefDetailPage() {
 
     void track("proposal_sent", { brief_id: briefId, vehicle_id: savedVehicleId, price_per_day: Number(savedPrice) });
     await load(); // replace optimistic entry with real server row (gets the real UUID)
+
+    // Notify advertiser by email (fire & forget)
+    const proposalId = (newProposal as { id?: string } | null)?.id;
+    if (proposalId) {
+      void doSendProposalEmail({ data: { briefId, proposalId } }).catch(() => {});
+    }
   };
 
   const withdraw = async (id: string) => {

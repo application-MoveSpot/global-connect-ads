@@ -152,7 +152,11 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
       }
     }
 
-    // Send confirmation email to advertiser (fire & forget — must not block the acceptance)
+    // Send emails (fire & forget — must not block the acceptance)
+    const { sendAppEmailSafe } = await import("@/lib/email/send.server");
+    const fmtDate = (d: string) => new Date(d).toLocaleDateString("fr-FR");
+
+    // 1. Confirmation email to advertiser
     if (email) {
       try {
         const { data: ownerProfile } = await supabaseAdmin
@@ -160,8 +164,6 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
           .select("full_name")
           .eq("id", proposal.owner_id)
           .maybeSingle();
-        const fmtDate = (d: string) => new Date(d).toLocaleDateString("fr-FR");
-        const { sendAppEmailSafe } = await import("@/lib/email/send.server");
         await sendAppEmailSafe({
           templateName: "brief-campaign-confirmed",
           recipientEmail: email,
@@ -176,8 +178,46 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
             dashboardUrl: `https://move-spot.com/annonceur/briefs/${brief.id}`,
           },
         });
-      } catch { /* email failure must not block the campaign acceptance */ }
+      } catch { /* non-critical */ }
     }
+
+    // 2. Accepted notification to owner
+    try {
+      const { data: ownerProfileFull } = await supabaseAdmin
+        .from("owner_profiles")
+        .select("full_name, user_id")
+        .eq("id", proposal.owner_id)
+        .maybeSingle();
+      const ownerProfileData = ownerProfileFull as { full_name?: string; user_id: string } | null;
+      if (ownerProfileData?.user_id) {
+        const ownerAuthRes = await supabaseAdmin.auth.admin.getUserById(ownerProfileData.user_id);
+        const ownerEmail = ownerAuthRes.data?.user?.email;
+        if (ownerEmail) {
+          // Fetch vehicle zone for context
+          const { data: vehicleData } = await supabaseAdmin
+            .from("vehicles")
+            .select("zones")
+            .eq("id", proposal.vehicle_id)
+            .maybeSingle();
+          const zone = ((vehicleData as { zones?: string[] | null } | null)?.zones ?? []).join(", ") || undefined;
+          await sendAppEmailSafe({
+            templateName: "brief-proposal-accepted",
+            recipientEmail: ownerEmail,
+            idempotencyKey: `brief-proposal-accepted-${data.proposalId}`,
+            templateData: {
+              ownerName: ownerProfileData.full_name,
+              briefTitle: brief.title,
+              company: profile?.full_name ?? "Annonceur MoveSpot",
+              zone,
+              proposedPrice: `${Number(proposal.price_per_day).toFixed(2)} €/jour`,
+              startDate: fmtDate(brief.start_date),
+              endDate: fmtDate(brief.end_date),
+              dashboardUrl: `https://move-spot.com/proprietaire/briefs`,
+            },
+          });
+        }
+      }
+    } catch { /* non-critical */ }
 
     return { ok: true as const, campaignRequestId, settled, insufficientFunds, alreadyExists: false };
   });

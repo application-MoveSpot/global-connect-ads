@@ -11,6 +11,7 @@ import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { RefreshCw, Wallet, FileText, Activity, Navigation } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
 import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
+import { rejectBriefProposal } from "@/lib/campaigns/brief-proposal-emails.server";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
 import { useTranslation } from "react-i18next";
 
@@ -79,6 +80,7 @@ function BriefDetailPage() {
   const [campaignRequestIds, setCampaignRequestIds] = useState<Record<string, string>>({});
   const [respondingId, setRespondingId] = useState<string | null>(null);
   const doAcceptProposal = useServerFn(acceptBriefProposal);
+  const doRejectProposal = useServerFn(rejectBriefProposal);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -128,7 +130,7 @@ function BriefDetailPage() {
 
   const respond = async (id: string, status: "accepted" | "rejected") => {
     if (status === "rejected") {
-      await supabase.from("brief_proposals").update({ status }).eq("id", id);
+      await doRejectProposal({ data: { proposalId: id, briefId } });
       void track("proposal_rejected", { proposal_id: id, brief_id: briefId });
       await load();
       return;
