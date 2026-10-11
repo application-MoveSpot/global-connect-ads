@@ -2665,7 +2665,9 @@
       "afaire_poseurs_title": "Certifications poseurs en attente",
       "afaire_poseurs_desc": "{{count}} poseur(s) à certifier",
       "afaire_stripe_title": "Comptes Stripe incomplets",
-      "afaire_stripe_desc": "{{count}} compte(s) Stripe à relancer"
+      "afaire_stripe_desc": "{{count}} compte(s) Stripe à relancer",
+      "btn_ai_generate": "Générer une note IA",
+      "ai_note_error": "L'IA n'a pas pu générer de note. Réessayez."
     },
     "audit": {
       "title": "Audit & Conformité",

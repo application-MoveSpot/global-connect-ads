@@ -54,6 +54,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { moderateBriefVisual, type VisualModerationResult } from "@/lib/ai/visual-validation.functions";
 import { runBriefMatching } from "@/lib/ai/brief-matching.functions";
+import { generateAdminDecisionNote } from "@/lib/ai/admin-decision-assistant.functions";
 import { adminListTickets, adminResolveTicket, type SupportTicket } from "@/lib/support/signalement.functions";
 import {
   adminListObstacleReports,
@@ -114,6 +115,30 @@ function AdminDashboard() {
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | "advertiser" | "owner" | "provider" | "partner">("all");
 
   const getPendingCounts = useServerFn(adminPendingCounts);
+  const generateDecisionNote = useServerFn(generateAdminDecisionNote);
+  const [aiDecisionLoading, setAiDecisionLoading] = useState<Record<string, boolean>>({});
+
+  const handleGenerateNote = async (
+    id: string,
+    entityType: "vehicle" | "brief" | "poseur",
+    entityName: string,
+    entityDetails?: string,
+    aiVerificationNotes?: string,
+  ) => {
+    setAiDecisionLoading((prev) => ({ ...prev, [id]: true }));
+    try {
+      const res = await generateDecisionNote({ data: { entityType, entityName, entityDetails, aiVerificationNotes } });
+      if (res.ok) {
+        setRefuseNotes(id, res.note);
+      } else {
+        toast.error(res.message);
+      }
+    } catch {
+      toast.error(t("admin.dashboard.ai_note_error"));
+    } finally {
+      setAiDecisionLoading((prev) => ({ ...prev, [id]: false }));
+    }
+  };
   const listBriefs = useServerFn(adminListBriefsAndCampaigns);
   const listVehicles = useServerFn(adminListVehicles);
   const reviewVehicle = useServerFn(adminReviewVehicle);
@@ -644,6 +669,21 @@ function AdminDashboard() {
                           </Button>
                           {refuseMap[v.id]?.open ? (
                             <div className="flex flex-col gap-1 items-end w-full">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="self-start text-xs gap-1"
+                                disabled={aiDecisionLoading[v.id]}
+                                onClick={() => handleGenerateNote(
+                                  v.id,
+                                  "vehicle",
+                                  v.name,
+                                  [v.type, v.condition, v.description].filter(Boolean).join(" · "),
+                                  v.ai_verification?.condition_alert || v.ai_verification?.photo_notes || undefined,
+                                )}
+                              >
+                                {aiDecisionLoading[v.id] ? "…" : "✨"} {t("admin.dashboard.btn_ai_generate")}
+                              </Button>
                               <textarea
                                 value={refuseMap[v.id]?.notes ?? ""}
                                 onChange={(e) => setRefuseNotes(v.id, e.target.value)}
@@ -768,6 +808,20 @@ function AdminDashboard() {
                               </Button>
                               {refuseMap[c.id]?.open ? (
                                 <div className="flex flex-col gap-1 items-end w-56">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="self-start text-xs gap-1"
+                                    disabled={aiDecisionLoading[c.id]}
+                                    onClick={() => handleGenerateNote(
+                                      c.id,
+                                      "brief",
+                                      c.spot_name,
+                                      c.company ?? undefined,
+                                    )}
+                                  >
+                                    {aiDecisionLoading[c.id] ? "…" : "✨"} {t("admin.dashboard.btn_ai_generate")}
+                                  </Button>
                                   <textarea
                                     value={refuseMap[c.id]?.notes ?? ""}
                                     onChange={(e) => setRefuseNotes(c.id, e.target.value)}
@@ -840,6 +894,19 @@ function AdminDashboard() {
                               </Button>
                               {refuseMap[b.id]?.open ? (
                                 <div className="flex flex-col gap-1 items-end w-56">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="self-start text-xs gap-1"
+                                    disabled={aiDecisionLoading[b.id]}
+                                    onClick={() => handleGenerateNote(
+                                      b.id,
+                                      "brief",
+                                      b.title,
+                                    )}
+                                  >
+                                    {aiDecisionLoading[b.id] ? "…" : "✨"} {t("admin.dashboard.btn_ai_generate")}
+                                  </Button>
                                   <textarea
                                     value={refuseMap[b.id]?.notes ?? ""}
                                     onChange={(e) => setRefuseNotes(b.id, e.target.value)}
@@ -977,6 +1044,20 @@ function AdminDashboard() {
                         </Button>
                         {refuseMap[p.id]?.open ? (
                           <div className="flex flex-col gap-1 items-end w-56">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="self-start text-xs gap-1"
+                              disabled={aiDecisionLoading[p.id]}
+                              onClick={() => handleGenerateNote(
+                                p.id,
+                                "poseur",
+                                p.full_name,
+                                [p.city, p.siret_denomination ?? p.siret].filter(Boolean).join(" · "),
+                              )}
+                            >
+                              {aiDecisionLoading[p.id] ? "…" : "✨"} {t("admin.dashboard.btn_ai_generate")}
+                            </Button>
                             <textarea
                               value={refuseMap[p.id]?.notes ?? ""}
                               onChange={(e) => setRefuseNotes(p.id, e.target.value)}
