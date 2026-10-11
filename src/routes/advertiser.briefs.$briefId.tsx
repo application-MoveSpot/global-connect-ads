@@ -9,12 +9,14 @@ import { pushNotification } from "@/hooks/useNotifications";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
-import { RefreshCw, Wallet, FileText, Activity, Navigation } from "lucide-react";
+import { RefreshCw, Wallet, FileText, Activity, Navigation, Sparkles, Loader2 } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
 import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
 import { rejectBriefProposal } from "@/lib/campaigns/brief-proposal-emails.server";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
 import { useTranslation } from "react-i18next";
+import { compareProposals, type ProposalComparisonResult } from "@/lib/ai/proposal-comparison.functions";
+import { suggestBriefAdjustments, type BriefReengagementResult } from "@/lib/ai/brief-reengagement.functions";
 
 export const Route = createFileRoute("/advertiser/briefs/$briefId")({
   head: () => ({
@@ -80,8 +82,15 @@ function BriefDetailPage() {
   // Maps proposalId → campaign_request.id (populated on accept)
   const [campaignRequestIds, setCampaignRequestIds] = useState<Record<string, string>>({});
   const [respondingId, setRespondingId] = useState<string | null>(null);
+  const [comparison, setComparison] = useState<ProposalComparisonResult | null>(null);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
+  const [reengagement, setReengagement] = useState<BriefReengagementResult | null>(null);
+  const [reengagementLoading, setReengagementLoading] = useState(false);
+  const [reengagementChecked, setReengagementChecked] = useState(false);
   const doAcceptProposal = useServerFn(acceptBriefProposal);
   const doRejectProposal = useServerFn(rejectBriefProposal);
+  const doCompareProposals = useServerFn(compareProposals);
+  const doSuggestAdjustments = useServerFn(suggestBriefAdjustments);
 
   const load = useCallback(async () => {
     const { data: sess } = await supabase.auth.getSession();
@@ -137,6 +146,34 @@ function BriefDetailPage() {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [briefId]);
+
+  // Auto-trigger re-engagement suggestions for individuals: brief open ≥48h, ≤1 proposal
+  useEffect(() => {
+    if (!brief || accountType !== "individual" || reengagementChecked) return;
+    if (brief.status !== "open") return;
+    const created = new Date((brief as Brief & { created_at?: string }).created_at ?? brief.start_date);
+    const hoursElapsed = (Date.now() - created.getTime()) / 3_600_000;
+    if (hoursElapsed < 48 || proposals.length > 1) return;
+    setReengagementChecked(true);
+    setReengagementLoading(true);
+    void doSuggestAdjustments({
+      data: {
+        title: brief.title,
+        description: brief.description,
+        vehicleTypes: brief.vehicle_types,
+        zones: brief.zones,
+        budgetMax: brief.budget_max ?? undefined,
+        daysCount: brief.days_count ?? undefined,
+        startDate: brief.start_date,
+        endDate: brief.end_date,
+        proposalCount: proposals.length,
+        hoursElapsed,
+      },
+    })
+      .then((r) => setReengagement(r))
+      .catch(() => { /* silent */ })
+      .finally(() => setReengagementLoading(false));
+  }, [brief, accountType, proposals.length, reengagementChecked, doSuggestAdjustments]);
 
   const acceptedProposals = proposals.filter((p) => p.status === "accepted");
   const avgPricePerDay = acceptedProposals.length
@@ -220,6 +257,46 @@ function BriefDetailPage() {
                 </p>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Re-engagement tips for individuals with no traction */}
+        {isIndividual && (reengagementLoading || reengagement) && (
+          <div className={`mb-5 rounded-xl border px-4 py-4 space-y-3 ${reengagementLoading ? "border-border bg-secondary/20 animate-pulse" : "border-amber-500/30 bg-amber-500/5"}`}>
+            {reengagementLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                <span>{t("advertiser.briefs.detail.reengagement_loading")}</span>
+              </div>
+            ) : reengagement ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                    {t("advertiser.briefs.detail.reengagement_title")}
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{reengagement.summary}</p>
+                <div className="space-y-2">
+                  {reengagement.tips.map((tip, i) => (
+                    <div key={i} className="flex items-start gap-2.5 rounded-lg bg-amber-500/8 border border-amber-500/20 px-3 py-2.5">
+                      <span className="text-base shrink-0">{tip.icon}</span>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{tip.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{tip.body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  to="/advertiser/briefs/$briefId/modifier"
+                  params={{ briefId }}
+                  className="inline-flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-semibold hover:underline"
+                >
+                  {t("advertiser.briefs.detail.reengagement_edit_btn")} →
+                </Link>
+              </>
+            ) : null}
           </div>
         )}
 
@@ -413,6 +490,101 @@ function BriefDetailPage() {
         <h2 className="font-display text-2xl font-bold mb-4">
           {isIndividual ? t("advertiser.briefs.detail.proposals_title_individual", { count: proposals.length }) : t("advertiser.briefs.detail.proposals_title_business", { count: proposals.length })}
         </h2>
+
+        {/* AI proposal comparison for individuals with ≥2 pending proposals */}
+        {isIndividual && proposals.filter((p) => p.status === "pending").length >= 2 && (
+          <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 px-4 py-4 space-y-3">
+            {comparisonLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                <span>{t("advertiser.briefs.detail.comparison_loading")}</span>
+              </div>
+            ) : comparison ? (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-sm font-semibold">{t("advertiser.briefs.detail.comparison_title")}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setComparison(null)}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{comparison.summary}</p>
+                <div className="space-y-2">
+                  {comparison.items.map((item) => {
+                    const proposal = proposals.find((p) => p.id === item.id);
+                    const veh = proposal ? vehicles[proposal.vehicle_id] : null;
+                    return (
+                      <div key={item.id} className="rounded-lg border border-border bg-background/60 px-3 py-2.5 text-xs space-y-1">
+                        <p className="font-semibold text-sm">{veh?.name ?? t("advertiser.briefs.detail.vehicle_fallback")}</p>
+                        {item.pros.length > 0 && (
+                          <div className="text-emerald-600 dark:text-emerald-400">
+                            {item.pros.map((pro, i) => <span key={i} className="block">✓ {pro}</span>)}
+                          </div>
+                        )}
+                        {item.cons.length > 0 && (
+                          <div className="text-amber-600 dark:text-amber-400">
+                            {item.cons.map((con, i) => <span key={i} className="block">⚠ {con}</span>)}
+                          </div>
+                        )}
+                        {item.verdict && <p className="text-muted-foreground italic">{item.verdict}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-xs">
+                  <span className="font-semibold text-primary">💡 </span>
+                  <span className="text-foreground">{comparison.recommendation}</span>
+                </div>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={async () => {
+                  setComparisonLoading(true);
+                  try {
+                    const pendingProposals = proposals.filter((p) => p.status === "pending");
+                    const result = await doCompareProposals({
+                      data: {
+                        proposals: pendingProposals.map((p) => ({
+                          id: p.id,
+                          vehicleName: vehicles[p.vehicle_id]?.name ?? t("advertiser.briefs.detail.vehicle_fallback"),
+                          vehicleType: vehicles[p.vehicle_id]?.type ?? "",
+                          pricePerDay: Number(p.price_per_day),
+                          totalPrice: Number(p.price_per_day) * (brief.days_count ?? 1),
+                          message: p.message ?? undefined,
+                        })),
+                        briefTitle: brief.title,
+                        briefDays: brief.days_count ?? undefined,
+                        briefBudgetMax: brief.budget_max ?? undefined,
+                      },
+                    });
+                    setComparison(result);
+                  } catch {
+                    toast.error(t("advertiser.briefs.detail.comparison_error"));
+                  } finally {
+                    setComparisonLoading(false);
+                  }
+                }}
+                className="w-full flex items-center gap-2.5 rounded-lg hover:bg-primary/10 transition px-2 py-1.5 text-left"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 shrink-0">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{t("advertiser.briefs.detail.comparison_cta")}</p>
+                  <p className="text-xs text-muted-foreground">{t("advertiser.briefs.detail.comparison_cta_sub", { count: proposals.filter((p) => p.status === "pending").length })}</p>
+                </div>
+              </button>
+            )}
+          </div>
+        )}
+
         {proposals.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
             {isIndividual

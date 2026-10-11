@@ -920,7 +920,15 @@
         "install_rejected": "❌ Declined",
         "report_btn": "Report →",
         "vehicle_fallback": "Vehicle",
-        "gps_btn": "GPS Tracking"
+        "gps_btn": "GPS Tracking",
+        "reengagement_loading": "AI is analysing your brief…",
+        "reengagement_title": "Why so few proposals?",
+        "reengagement_edit_btn": "Edit my brief",
+        "comparison_loading": "AI is comparing proposals…",
+        "comparison_title": "Help choosing — AI analysis",
+        "comparison_cta": "Compare proposals with AI",
+        "comparison_cta_sub": "{{count}} pending proposals — get advice in 2 seconds",
+        "comparison_error": "Could not compare proposals. Please try again."
       },
       "nouveau": {
         "back": "← Back",

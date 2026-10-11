@@ -936,7 +936,15 @@
         "install_rejected": "❌ Refusée",
         "report_btn": "Rapport →",
         "vehicle_fallback": "Véhicule",
-        "gps_btn": "Suivi GPS"
+        "gps_btn": "Suivi GPS",
+        "reengagement_loading": "L'IA analyse votre brief…",
+        "reengagement_title": "Pourquoi peu de propositions ?",
+        "reengagement_edit_btn": "Modifier mon brief",
+        "comparison_loading": "L'IA compare les propositions…",
+        "comparison_title": "Aide au choix — analyse IA",
+        "comparison_cta": "Comparer les propositions avec l'IA",
+        "comparison_cta_sub": "{{count}} propositions en attente — aide au choix en 2 secondes",
+        "comparison_error": "Impossible de comparer les propositions. Réessayez."
       },
       "nouveau": {
         "back": "← Retour",
