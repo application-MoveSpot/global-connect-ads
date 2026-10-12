@@ -234,16 +234,18 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
       .from("advertiser_briefs")
       .update({ status: data.approve ? "open" : "cancelled" } as never)
       .eq("id", data.briefId)
-      .select("user_id, title")
+      .select("advertiser_id, title, advertiser_profiles!inner(user_id)")
       .single();
     if (error) throw new Error(error.message);
 
+    const briefUserId = (brief as unknown as { advertiser_profiles?: { user_id?: string } })?.advertiser_profiles?.user_id ?? null;
+
     // Push + Email annonceur — décision brief (fire-and-forget)
-    if (brief?.user_id) {
+    if (briefUserId) {
       const { sendAppEmailSafe } = await import("@/lib/email/send.server");
       const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
       const bTitle = (brief as { title?: string }).title ?? "Votre brief";
-      sendWebPushToUser(brief.user_id as string, {
+      sendWebPushToUser(briefUserId, {
         title: data.approve ? "Brief approuvé ✅" : "Brief non approuvé ❌",
         body: data.approve
           ? `${bTitle} est maintenant visible par les propriétaires de flotte MoveSpot.`
@@ -251,7 +253,7 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
         url: "/annonceur",
         tag: `brief-decision-${data.briefId}`,
       }).catch(() => {});
-      supabaseAdmin.auth.admin.getUserById(brief.user_id as string).then(({ data: u }) => {
+      supabaseAdmin.auth.admin.getUserById(briefUserId).then(({ data: u }) => {
         if (u?.user?.email) {
           sendAppEmailSafe({
             templateName: "brief-decision",
@@ -652,16 +654,18 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
         admin_notes: adminNotes,
       } as never)
       .eq("id", data.vehicleId)
-      .select("user_id, name")
+      .select("owner_id, name, owner_profiles!inner(user_id)")
       .single();
     if (error) throw new Error(error.message);
 
+    const vehicleUserId = (vehicle as unknown as { owner_profiles?: { user_id?: string } })?.owner_profiles?.user_id ?? null;
+
     // Push + Email propriétaire — décision véhicule (fire-and-forget)
-    if (vehicle?.user_id) {
+    if (vehicleUserId) {
       const { sendAppEmailSafe } = await import("@/lib/email/send.server");
       const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
       const vName = (vehicle as { name?: string }).name ?? "Votre véhicule";
-      sendWebPushToUser(vehicle.user_id as string, {
+      sendWebPushToUser(vehicleUserId, {
         title: data.approve ? "Véhicule approuvé ✅" : "Véhicule non approuvé ❌",
         body: data.approve
           ? `${vName} est maintenant visible par les annonceurs MoveSpot.`
@@ -669,7 +673,7 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
         url: "/proprietaire",
         tag: `vehicle-decision-${data.vehicleId}`,
       }).catch(() => {});
-      supabaseAdmin.auth.admin.getUserById(vehicle.user_id as string).then(({ data: u }) => {
+      supabaseAdmin.auth.admin.getUserById(vehicleUserId).then(({ data: u }) => {
         if (u?.user?.email) {
           sendAppEmailSafe({
             templateName: "vehicle-status",
