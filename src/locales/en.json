@@ -4236,6 +4236,10 @@
     "status_paused": "Status Paused",
     "status_pending": "Status Pending",
     "status_rejected": "Status Rejected",
+    "kpi_approved_vehicles": "Approved vehicles",
+    "kpi_pending_requests": "Pending requests",
+    "kpi_active_campaigns": "Active campaigns",
+    "kpi_month_revenue": "Revenue this month",
     "tracking": {
       "back": "Back",
       "break_recommended_detail": "Break Recommended Detail",
