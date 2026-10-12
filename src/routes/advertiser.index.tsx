@@ -628,6 +628,15 @@ function AnnonceurDashboard() {
                         📸 {r.installation_status === "approved" ? t("advertiser.campaign.installation_approved") : t("advertiser.campaign.installation_pending")}
                       </Link>
                     )}
+                    {r.installation_status === "approved" && (
+                      <Link
+                        to="/advertiser/avis/$campaignId"
+                        params={{ campaignId: r.id }}
+                        className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-4 py-2 text-sm font-semibold hover:bg-amber-500/20 transition"
+                      >
+                        ⭐ {t("advertiser.campaign.leave_review")}
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>

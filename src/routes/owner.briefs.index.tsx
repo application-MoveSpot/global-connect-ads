@@ -165,11 +165,16 @@ function OpenBriefsPage() {
       </header>
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold mb-2">{t("owner.briefs.index.title")}</h1>
-        <p className="text-sm text-muted-foreground mb-8">
+        <p className="text-sm text-muted-foreground mb-4">
           {myTypes.length === 0
             ? t("owner.briefs.index.desc_no_vehicles")
             : t("owner.briefs.index.desc_types", { types: myTypes.join(", ") })}
         </p>
+        {!loading && !pageLoading && myTypes.length > 0 && briefs.length > 0 && (
+          <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+            {t(`owner.briefs.index.match_banner_${briefs.length === 1 ? "one" : "other"}`, { count: briefs.length })}
+          </div>
+        )}
 
         {pageLoading ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center text-muted-foreground animate-pulse">

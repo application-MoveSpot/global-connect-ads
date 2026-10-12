@@ -205,6 +205,29 @@ function HistoriquePage() {
           </div>
         </div>
 
+        {/* Top Propriétaire badge */}
+        {(() => {
+          const count = reversements.filter((r) => COMPLETED_STATUSES.has(r.status)).length;
+          if (count < 3) return null;
+          const level = count >= 25 ? "gold" : count >= 10 ? "silver" : "bronze";
+          const icon = level === "gold" ? "🥇" : level === "silver" ? "🥈" : "🥉";
+          const colorClass =
+            level === "gold"
+              ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-700 dark:text-yellow-300"
+              : level === "silver"
+              ? "border-slate-400/40 bg-slate-400/10 text-slate-600 dark:text-slate-300"
+              : "border-amber-700/40 bg-amber-700/10 text-amber-800 dark:text-amber-300";
+          return (
+            <div className={`rounded-xl border p-4 flex items-center gap-3 ${colorClass}`}>
+              <span className="text-3xl shrink-0">{icon}</span>
+              <div>
+                <p className="font-semibold">{t(`owner.historique.badge_${level}_title`)}</p>
+                <p className="text-xs opacity-80">{t(`owner.historique.badge_${level}`, { count })}</p>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Monthly revenue chart */}
         {reversements.length > 0 && (
           <div className="rounded-2xl border border-border bg-card p-5">
