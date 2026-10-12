@@ -139,11 +139,17 @@ export function ZoneSelector({
   const { t } = useTranslation();
   const tRef = useRef(t);
   tRef.current = t;
-  const [mode, setMode] = useState<Mode>("route");
+  const [mode, setMode] = useState<Mode>(() => {
+    try { return (sessionStorage.getItem("ms_zone_mode") as Mode) || "route"; } catch { return "route"; }
+  });
 
   // ── Route mode state ────────────────────────────────────────────────────────
-  const [fromAddr, setFromAddr] = useState("");
-  const [toAddr, setToAddr] = useState("");
+  const [fromAddr, setFromAddr] = useState(() => {
+    try { return sessionStorage.getItem("ms_zone_from") ?? ""; } catch { return ""; }
+  });
+  const [toAddr, setToAddr] = useState(() => {
+    try { return sessionStorage.getItem("ms_zone_to") ?? ""; } catch { return ""; }
+  });
   const [routeLoading, setRouteLoading] = useState(false);
   const [routeError, setRouteError] = useState("");
   const [routeDistKm, setRouteDistKm] = useState<number | null>(null);
@@ -553,6 +559,7 @@ export function ZoneSelector({
     setRouteError("");
     onChangeRef.current(null);
     setMode(newMode);
+    try { sessionStorage.setItem("ms_zone_mode", newMode); } catch {}
   };
 
   const clearAdvanced = () => {
@@ -608,7 +615,7 @@ export function ZoneSelector({
               <input
                 type="text"
                 value={fromAddr}
-                onChange={(e) => setFromAddr(e.target.value)}
+                onChange={(e) => { setFromAddr(e.target.value); try { sessionStorage.setItem("ms_zone_from", e.target.value); } catch {} }}
                 placeholder={t("zone.from_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && traceRoute()}
@@ -619,7 +626,7 @@ export function ZoneSelector({
               <input
                 type="text"
                 value={toAddr}
-                onChange={(e) => setToAddr(e.target.value)}
+                onChange={(e) => { setToAddr(e.target.value); try { sessionStorage.setItem("ms_zone_to", e.target.value); } catch {} }}
                 placeholder={t("zone.to_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && traceRoute()}
