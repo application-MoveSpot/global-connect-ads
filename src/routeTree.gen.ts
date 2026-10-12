@@ -48,10 +48,12 @@ import { Route as AdminRemboursementsRouteImport } from './routes/admin.rembours
 import { Route as AdminTranslationIssuesRouteImport } from './routes/admin.translation-issues'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AdvertiserIndexRouteImport } from './routes/advertiser.index'
+import { Route as AdvertiserCalendrierRouteImport } from './routes/advertiser.calendrier'
 import { Route as AdvertiserEssaiActiveRouteImport } from './routes/advertiser.essai-active'
 import { Route as AdvertiserEtudeMarcheRouteImport } from './routes/advertiser.etude-marche'
 import { Route as AdvertiserExemplesRouteImport } from './routes/advertiser.exemples'
 import { Route as AdvertiserInscriptionRouteImport } from './routes/advertiser.inscription'
+import { Route as AdvertiserMessagesRouteImport } from './routes/advertiser.messages'
 import { Route as AdvertiserPackRouteImport } from './routes/advertiser.pack'
 import { Route as AdvertiserPortefeuilleRouteImport } from './routes/advertiser.portefeuille'
 import { Route as AdvertiserPreview3dRouteImport } from './routes/advertiser.preview-3d'
@@ -72,6 +74,7 @@ import { Route as OwnerCarteRouteImport } from './routes/owner.carte'
 import { Route as OwnerFlotteRouteImport } from './routes/owner.flotte'
 import { Route as OwnerHistoriqueRouteImport } from './routes/owner.historique'
 import { Route as OwnerInscriptionRouteImport } from './routes/owner.inscription'
+import { Route as OwnerMessagesRouteImport } from './routes/owner.messages'
 import { Route as OwnerProfilRouteImport } from './routes/owner.profil'
 import { Route as OwnerTrackingRouteImport } from './routes/owner.tracking'
 import { Route as PartnerIndexRouteImport } from './routes/partner.index'
@@ -85,6 +88,8 @@ import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as ProvidersProviderIdRouteImport } from './routes/providers.$providerId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as PublicBriefBriefIdRouteImport } from './routes/_public.brief.$briefId'
+import { Route as AdvertiserAvisCampaignIdRouteImport } from './routes/advertiser.avis.$campaignId'
 import { Route as AdvertiserBriefsIndexRouteImport } from './routes/advertiser.briefs.index'
 import { Route as AdvertiserBriefsBriefIdRouteImport } from './routes/advertiser.briefs.$briefId'
 import { Route as AdvertiserBriefsNouveauRouteImport } from './routes/advertiser.briefs.nouveau'
@@ -309,6 +314,11 @@ const AdvertiserIndexRoute = AdvertiserIndexRouteImport.update({
   path: '/advertiser/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdvertiserCalendrierRoute = AdvertiserCalendrierRouteImport.update({
+  id: '/advertiser/calendrier',
+  path: '/advertiser/calendrier',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdvertiserEssaiActiveRoute = AdvertiserEssaiActiveRouteImport.update({
   id: '/advertiser/essai-active',
   path: '/advertiser/essai-active',
@@ -327,6 +337,11 @@ const AdvertiserExemplesRoute = AdvertiserExemplesRouteImport.update({
 const AdvertiserInscriptionRoute = AdvertiserInscriptionRouteImport.update({
   id: '/advertiser/inscription',
   path: '/advertiser/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvertiserMessagesRoute = AdvertiserMessagesRouteImport.update({
+  id: '/advertiser/messages',
+  path: '/advertiser/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdvertiserPackRoute = AdvertiserPackRouteImport.update({
@@ -429,6 +444,11 @@ const OwnerInscriptionRoute = OwnerInscriptionRouteImport.update({
   path: '/owner/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerMessagesRoute = OwnerMessagesRouteImport.update({
+  id: '/owner/messages',
+  path: '/owner/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerProfilRoute = OwnerProfilRouteImport.update({
   id: '/owner/profil',
   path: '/owner/profil',
@@ -493,6 +513,17 @@ const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
     path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PublicBriefBriefIdRoute = PublicBriefBriefIdRouteImport.update({
+  id: '/brief/$briefId',
+  path: '/brief/$briefId',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AdvertiserAvisCampaignIdRoute =
+  AdvertiserAvisCampaignIdRouteImport.update({
+    id: '/advertiser/avis/$campaignId',
+    path: '/advertiser/avis/$campaignId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AdvertiserBriefsIndexRoute = AdvertiserBriefsIndexRouteImport.update({
@@ -674,10 +705,12 @@ export interface FileRoutesByFullPath {
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
+  '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
   '/advertiser/inscription': typeof AdvertiserInscriptionRoute
+  '/advertiser/messages': typeof AdvertiserMessagesRoute
   '/advertiser/pack': typeof AdvertiserPackRoute
   '/advertiser/portefeuille': typeof AdvertiserPortefeuilleRoute
   '/advertiser/preview-3d': typeof AdvertiserPreview3dRoute
@@ -695,6 +728,7 @@ export interface FileRoutesByFullPath {
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
+  '/owner/messages': typeof OwnerMessagesRoute
   '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
@@ -712,6 +746,8 @@ export interface FileRoutesByFullPath {
   '/providers/': typeof ProvidersIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/brief/$briefId': typeof PublicBriefBriefIdRoute
+  '/advertiser/avis/$campaignId': typeof AdvertiserAvisCampaignIdRoute
   '/advertiser/briefs/$briefId': typeof AdvertiserBriefsBriefIdRoute
   '/advertiser/briefs/nouveau': typeof AdvertiserBriefsNouveauRoute
   '/advertiser/contrat/$briefId': typeof AdvertiserContratBriefIdRoute
@@ -776,10 +812,12 @@ export interface FileRoutesByTo {
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
+  '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
   '/advertiser/inscription': typeof AdvertiserInscriptionRoute
+  '/advertiser/messages': typeof AdvertiserMessagesRoute
   '/advertiser/pack': typeof AdvertiserPackRoute
   '/advertiser/portefeuille': typeof AdvertiserPortefeuilleRoute
   '/advertiser/preview-3d': typeof AdvertiserPreview3dRoute
@@ -797,6 +835,7 @@ export interface FileRoutesByTo {
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
+  '/owner/messages': typeof OwnerMessagesRoute
   '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
@@ -815,6 +854,8 @@ export interface FileRoutesByTo {
   '/providers': typeof ProvidersIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/brief/$briefId': typeof PublicBriefBriefIdRoute
+  '/advertiser/avis/$campaignId': typeof AdvertiserAvisCampaignIdRoute
   '/advertiser/briefs/$briefId': typeof AdvertiserBriefsBriefIdRoute
   '/advertiser/briefs/nouveau': typeof AdvertiserBriefsNouveauRoute
   '/advertiser/contrat/$briefId': typeof AdvertiserContratBriefIdRoute
@@ -881,10 +922,12 @@ export interface FileRoutesById {
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
+  '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
   '/advertiser/inscription': typeof AdvertiserInscriptionRoute
+  '/advertiser/messages': typeof AdvertiserMessagesRoute
   '/advertiser/pack': typeof AdvertiserPackRoute
   '/advertiser/portefeuille': typeof AdvertiserPortefeuilleRoute
   '/advertiser/preview-3d': typeof AdvertiserPreview3dRoute
@@ -902,6 +945,7 @@ export interface FileRoutesById {
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
+  '/owner/messages': typeof OwnerMessagesRoute
   '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
@@ -920,6 +964,8 @@ export interface FileRoutesById {
   '/providers/': typeof ProvidersIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/_public/brief/$briefId': typeof PublicBriefBriefIdRoute
+  '/advertiser/avis/$campaignId': typeof AdvertiserAvisCampaignIdRoute
   '/advertiser/briefs/$briefId': typeof AdvertiserBriefsBriefIdRoute
   '/advertiser/briefs/nouveau': typeof AdvertiserBriefsNouveauRoute
   '/advertiser/contrat/$briefId': typeof AdvertiserContratBriefIdRoute
@@ -987,10 +1033,12 @@ export interface FileRouteTypes {
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
+    | '/advertiser/calendrier'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
     | '/advertiser/inscription'
+    | '/advertiser/messages'
     | '/advertiser/pack'
     | '/advertiser/portefeuille'
     | '/advertiser/preview-3d'
@@ -1008,6 +1056,7 @@ export interface FileRouteTypes {
     | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
+    | '/owner/messages'
     | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
@@ -1025,6 +1074,8 @@ export interface FileRouteTypes {
     | '/providers/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/brief/$briefId'
+    | '/advertiser/avis/$campaignId'
     | '/advertiser/briefs/$briefId'
     | '/advertiser/briefs/nouveau'
     | '/advertiser/contrat/$briefId'
@@ -1089,10 +1140,12 @@ export interface FileRouteTypes {
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
+    | '/advertiser/calendrier'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
     | '/advertiser/inscription'
+    | '/advertiser/messages'
     | '/advertiser/pack'
     | '/advertiser/portefeuille'
     | '/advertiser/preview-3d'
@@ -1110,6 +1163,7 @@ export interface FileRouteTypes {
     | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
+    | '/owner/messages'
     | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
@@ -1128,6 +1182,8 @@ export interface FileRouteTypes {
     | '/providers'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/brief/$briefId'
+    | '/advertiser/avis/$campaignId'
     | '/advertiser/briefs/$briefId'
     | '/advertiser/briefs/nouveau'
     | '/advertiser/contrat/$briefId'
@@ -1193,10 +1249,12 @@ export interface FileRouteTypes {
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
+    | '/advertiser/calendrier'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
     | '/advertiser/inscription'
+    | '/advertiser/messages'
     | '/advertiser/pack'
     | '/advertiser/portefeuille'
     | '/advertiser/preview-3d'
@@ -1214,6 +1272,7 @@ export interface FileRouteTypes {
     | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
+    | '/owner/messages'
     | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
@@ -1232,6 +1291,8 @@ export interface FileRouteTypes {
     | '/providers/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/_public/brief/$briefId'
+    | '/advertiser/avis/$campaignId'
     | '/advertiser/briefs/$briefId'
     | '/advertiser/briefs/nouveau'
     | '/advertiser/contrat/$briefId'
@@ -1279,10 +1340,12 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  AdvertiserCalendrierRoute: typeof AdvertiserCalendrierRoute
   AdvertiserEssaiActiveRoute: typeof AdvertiserEssaiActiveRoute
   AdvertiserEtudeMarcheRoute: typeof AdvertiserEtudeMarcheRoute
   AdvertiserExemplesRoute: typeof AdvertiserExemplesRoute
   AdvertiserInscriptionRoute: typeof AdvertiserInscriptionRoute
+  AdvertiserMessagesRoute: typeof AdvertiserMessagesRoute
   AdvertiserPackRoute: typeof AdvertiserPackRoute
   AdvertiserPortefeuilleRoute: typeof AdvertiserPortefeuilleRoute
   AdvertiserPreview3dRoute: typeof AdvertiserPreview3dRoute
@@ -1300,6 +1363,7 @@ export interface RootRouteChildren {
   OwnerFlotteRoute: typeof OwnerFlotteRouteWithChildren
   OwnerHistoriqueRoute: typeof OwnerHistoriqueRoute
   OwnerInscriptionRoute: typeof OwnerInscriptionRoute
+  OwnerMessagesRoute: typeof OwnerMessagesRoute
   OwnerProfilRoute: typeof OwnerProfilRoute
   OwnerTrackingRoute: typeof OwnerTrackingRoute
   PartnerInscriptionRoute: typeof PartnerInscriptionRoute
@@ -1317,6 +1381,7 @@ export interface RootRouteChildren {
   ProvidersIndexRoute: typeof ProvidersIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
+  AdvertiserAvisCampaignIdRoute: typeof AdvertiserAvisCampaignIdRoute
   AdvertiserBriefsBriefIdRoute: typeof AdvertiserBriefsBriefIdRoute
   AdvertiserBriefsNouveauRoute: typeof AdvertiserBriefsNouveauRoute
   AdvertiserContratBriefIdRoute: typeof AdvertiserContratBriefIdRoute
@@ -1618,6 +1683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvertiserIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/advertiser/calendrier': {
+      id: '/advertiser/calendrier'
+      path: '/advertiser/calendrier'
+      fullPath: '/advertiser/calendrier'
+      preLoaderRoute: typeof AdvertiserCalendrierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/advertiser/essai-active': {
       id: '/advertiser/essai-active'
       path: '/advertiser/essai-active'
@@ -1644,6 +1716,13 @@ declare module '@tanstack/react-router' {
       path: '/advertiser/inscription'
       fullPath: '/advertiser/inscription'
       preLoaderRoute: typeof AdvertiserInscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advertiser/messages': {
+      id: '/advertiser/messages'
+      path: '/advertiser/messages'
+      fullPath: '/advertiser/messages'
+      preLoaderRoute: typeof AdvertiserMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advertiser/pack': {
@@ -1786,6 +1865,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerInscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/messages': {
+      id: '/owner/messages'
+      path: '/owner/messages'
+      fullPath: '/owner/messages'
+      preLoaderRoute: typeof OwnerMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/owner/profil': {
       id: '/owner/profil'
       path: '/owner/profil'
@@ -1875,6 +1961,20 @@ declare module '@tanstack/react-router' {
       path: '/.mcp/invoke-tool/$tool'
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_public/brief/$briefId': {
+      id: '/_public/brief/$briefId'
+      path: '/brief/$briefId'
+      fullPath: '/brief/$briefId'
+      preLoaderRoute: typeof PublicBriefBriefIdRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/advertiser/avis/$campaignId': {
+      id: '/advertiser/avis/$campaignId'
+      path: '/advertiser/avis/$campaignId'
+      fullPath: '/advertiser/avis/$campaignId'
+      preLoaderRoute: typeof AdvertiserAvisCampaignIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advertiser/briefs/': {
@@ -2074,6 +2174,7 @@ interface PublicRouteChildren {
   PublicRemboursementRoute: typeof PublicRemboursementRoute
   PublicTarifsRoute: typeof PublicTarifsRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicBriefBriefIdRoute: typeof PublicBriefBriefIdRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
@@ -2088,6 +2189,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicRemboursementRoute: PublicRemboursementRoute,
   PublicTarifsRoute: PublicTarifsRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicBriefBriefIdRoute: PublicBriefBriefIdRoute,
 }
 
 const PublicRouteWithChildren =
@@ -2153,10 +2255,12 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  AdvertiserCalendrierRoute: AdvertiserCalendrierRoute,
   AdvertiserEssaiActiveRoute: AdvertiserEssaiActiveRoute,
   AdvertiserEtudeMarcheRoute: AdvertiserEtudeMarcheRoute,
   AdvertiserExemplesRoute: AdvertiserExemplesRoute,
   AdvertiserInscriptionRoute: AdvertiserInscriptionRoute,
+  AdvertiserMessagesRoute: AdvertiserMessagesRoute,
   AdvertiserPackRoute: AdvertiserPackRoute,
   AdvertiserPortefeuilleRoute: AdvertiserPortefeuilleRoute,
   AdvertiserPreview3dRoute: AdvertiserPreview3dRoute,
@@ -2174,6 +2278,7 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerFlotteRoute: OwnerFlotteRouteWithChildren,
   OwnerHistoriqueRoute: OwnerHistoriqueRoute,
   OwnerInscriptionRoute: OwnerInscriptionRoute,
+  OwnerMessagesRoute: OwnerMessagesRoute,
   OwnerProfilRoute: OwnerProfilRoute,
   OwnerTrackingRoute: OwnerTrackingRoute,
   PartnerInscriptionRoute: PartnerInscriptionRoute,
@@ -2191,6 +2296,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProvidersIndexRoute: ProvidersIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
+  AdvertiserAvisCampaignIdRoute: AdvertiserAvisCampaignIdRoute,
   AdvertiserBriefsBriefIdRoute: AdvertiserBriefsBriefIdRoute,
   AdvertiserBriefsNouveauRoute: AdvertiserBriefsNouveauRoute,
   AdvertiserContratBriefIdRoute: AdvertiserContratBriefIdRoute,

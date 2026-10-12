@@ -15,6 +15,13 @@
       "when": 1790179959578,
       "tag": "0001_sync_provider_quote_and_vehicle_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791798404293,
+      "tag": "0002_create_messages_owner_reviews_control_photos",
+      "breakpoints": true
     }
   ]
 }

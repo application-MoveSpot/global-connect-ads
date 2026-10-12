@@ -234,11 +234,12 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
       .from("advertiser_briefs")
       .update({ status: data.approve ? "open" : "cancelled" } as never)
       .eq("id", data.briefId)
-      .select("advertiser_id, title, advertiser_profiles!inner(user_id)")
+      .select("advertiser_id, title")
       .single();
     if (error) throw new Error(error.message);
 
-    const briefUserId = (brief as unknown as { advertiser_profiles?: { user_id?: string } })?.advertiser_profiles?.user_id ?? null;
+    // advertiser_briefs.advertiser_id référence directement auth.users — pas de jointure possible
+    const briefUserId = (brief as { advertiser_id?: string })?.advertiser_id ?? null;
 
     // Push + Email annonceur — décision brief (fire-and-forget)
     if (briefUserId) {
@@ -968,7 +969,7 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
 
     const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes] = await Promise.all([
       supabaseAdmin.from("vehicles").select("id", { count: "exact", head: true }).eq("status", "pending"),
-      supabaseAdmin.from("advertiser_briefs").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseAdmin.from("advertiser_briefs").select("id", { count: "exact", head: true }).eq("status" as never, "pending"),
       supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("installation_status" as never, "pending_approval"),
       supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("depose_status" as never, "pending_approval"),
       supabaseAdmin.from("payee_profiles").select("id", { count: "exact", head: true }).eq("certification_status" as never, "pending"),
