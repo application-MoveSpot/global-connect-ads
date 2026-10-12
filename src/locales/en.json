@@ -2754,7 +2754,7 @@
       "status_approved": "Approved",
       "status_pending": "Pending",
       "status_rejected": "Rejected",
-      "status_suspended": "Status Suspended",
+      "status_suspended": "Suspended",
       "suspend": "Suspend",
       "title": "Service Providers",
       "vehicle": "Vehicle",
@@ -4006,7 +4006,8 @@
         "badge_direct": "Matches your fleet",
         "badge_autre": "Accepts 'other' vehicles",
         "match_banner_one": "🎯 1 brief matches your fleet — reply quickly!",
-        "match_banner_other": "🎯 {{count}} briefs match your fleet — reply quickly!"
+        "match_banner_other": "🎯 {{count}} briefs match your fleet — reply quickly!",
+        "badge_open": "Open to all types"
       },
       "detail": {
         "loading": "Loading…",
@@ -5279,7 +5280,7 @@
       "status_approved": "Approved",
       "status_pending": "Pending",
       "status_rejected": "Rejected",
-      "status_suspended": "Status Suspended",
+      "status_suspended": "Suspended",
       "subtitle": "Subtitle",
       "title": "My provider space",
       "traffic_link": "Traffic link",

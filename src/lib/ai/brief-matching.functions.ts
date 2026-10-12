@@ -66,16 +66,20 @@ export const runBriefMatching = createServerFn({ method: "POST" })
 
     for (const [, owner] of ownerMap) {
       // Briefs compatibles : intersection des types de véhicules.
-      // "autre" est traité comme un joker dans les deux sens :
-      //   – si un brief demande "autre", il accepte tous les types de véhicules ;
-      //   – si un propriétaire a un véhicule "autre", il peut répondre à tous les briefs.
+      // Règles de pertinence :
+      //   – brief sans contrainte de type → tous les propriétaires peuvent répondre ;
+      //   – brief demande "autre" → les propriétaires avec "autre" dans la flotte correspondent ;
+      //   – propriétaire avec "autre" uniquement → il ne voit que les briefs sans contrainte
+      //     ou ceux qui incluent explicitement "autre" (pas les briefs pour types spécifiques).
       const ownerHasAutre = owner.vehicleTypes.has("autre");
+      const ownerStrictTypes = new Set([...owner.vehicleTypes].filter((t) => t !== "autre"));
       const compatible = briefs.filter((b) => {
         const bTypes = (b.vehicle_types as string[] | null) ?? [];
-        if (!bTypes.length) return true;
-        if (ownerHasAutre) return true; // "autre" owner → all briefs are potentially relevant
-        if (bTypes.includes("autre")) return true; // brief open to any vehicle type
-        return bTypes.some((t) => owner.vehicleTypes.has(t));
+        if (!bTypes.length) return true; // no type constraint → open to all
+        if (bTypes.includes("autre") && ownerHasAutre) return true; // explicit "autre" match
+        if (ownerStrictTypes.size > 0 && bTypes.some((t) => ownerStrictTypes.has(t))) return true; // direct type match
+        // "autre"-only owner should NOT match briefs requiring specific types they don't have
+        return false;
       });
 
       if (!compatible.length) continue;
