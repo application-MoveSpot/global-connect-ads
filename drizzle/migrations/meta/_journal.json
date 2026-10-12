@@ -29,6 +29,13 @@
       "when": 1791803174578,
       "tag": "0003_tighten_update_checks_messages_control_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791803500761,
+      "tag": "0004_add_pose_location_and_impossible_install_columns",
+      "breakpoints": true
     }
   ]
 }
