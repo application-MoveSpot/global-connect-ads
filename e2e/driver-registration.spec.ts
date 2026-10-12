@@ -51,7 +51,7 @@ test.describe("Inscription chauffeur — validation du formulaire auth", () => {
     page,
   }) => {
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
 
     const submitBtn = page.locator('button[type="submit"]').first();
     const hasBtn = await submitBtn.isVisible().catch(() => false);
@@ -95,7 +95,7 @@ test.describe("Inscription chauffeur — switch Connexion / Créer un compte", (
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
 
     // Attendre la fin des requêtes réseau (hydratation React + supabase auth check)
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(200);
 
     // Utiliser getByRole pour cibler précisément le bouton toggle (pas un parent div)
