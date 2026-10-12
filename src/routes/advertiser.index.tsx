@@ -324,6 +324,18 @@ function AnnonceurDashboard() {
               {t("advertiser.nav.briefs")}
             </Link>
             <Link
+              to="/advertiser/messages"
+              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+            >
+              {t("advertiser.nav.messages")}
+            </Link>
+            <Link
+              to="/advertiser/calendrier"
+              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+            >
+              {t("advertiser.nav.calendar")}
+            </Link>
+            <Link
               to="/advertiser/remboursement"
               className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
             >
