@@ -354,6 +354,10 @@ export type Database = {
           end_date: string | null
           estimated_impressions_per_day: number | null
           id: string
+          installation_address: string | null
+          installation_impossible_at: string | null
+          installation_impossible_photos: string[]
+          installation_impossible_reason: string | null
           installation_notes: string | null
           installation_photos: Json | null
           installation_reviewed_at: string | null
@@ -370,6 +374,7 @@ export type Database = {
           platform_fee_cents: number | null
           pose_fee_cents: number | null
           pose_installer_user_id: string | null
+          pose_location_type: string | null
           pose_payout_status: string | null
           pose_stripe_transfer_id: string | null
           route_pois: string[] | null
@@ -418,6 +423,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_address?: string | null
+          installation_impossible_at?: string | null
+          installation_impossible_photos?: string[]
+          installation_impossible_reason?: string | null
           installation_notes?: string | null
           installation_photos?: Json | null
           installation_reviewed_at?: string | null
@@ -434,6 +443,7 @@ export type Database = {
           platform_fee_cents?: number | null
           pose_fee_cents?: number | null
           pose_installer_user_id?: string | null
+          pose_location_type?: string | null
           pose_payout_status?: string | null
           pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
@@ -482,6 +492,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_address?: string | null
+          installation_impossible_at?: string | null
+          installation_impossible_photos?: string[]
+          installation_impossible_reason?: string | null
           installation_notes?: string | null
           installation_photos?: Json | null
           installation_reviewed_at?: string | null
@@ -498,6 +512,7 @@ export type Database = {
           platform_fee_cents?: number | null
           pose_fee_cents?: number | null
           pose_installer_user_id?: string | null
+          pose_location_type?: string | null
           pose_payout_status?: string | null
           pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
@@ -1041,6 +1056,7 @@ export type Database = {
           logo_url: string | null
           phone: string | null
           portfolio_urls: string[]
+          pose_location_types: string[]
           pricing_info: string | null
           services: string[]
           siret: string | null
@@ -1064,6 +1080,7 @@ export type Database = {
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
+          pose_location_types?: string[]
           pricing_info?: string | null
           services?: string[]
           siret?: string | null
@@ -1087,6 +1104,7 @@ export type Database = {
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
+          pose_location_types?: string[]
           pricing_info?: string | null
           services?: string[]
           siret?: string | null

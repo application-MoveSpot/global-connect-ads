@@ -31,12 +31,19 @@ type ImpossibleReport = {
   created_at: string;
 };
 
+type ImpossibleInstall = {
+  id: string; installation_impossible_reason: string | null; installation_impossible_photos: string[];
+  installation_impossible_at: string | null; pose_location_type: string | null;
+  installation_address: string | null; created_at: string;
+};
+
 function AdminProvidersPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [impossibleReports, setImpossibleReports] = useState<ImpossibleReport[]>([]);
+  const [impossibleInstalls, setImpossibleInstalls] = useState<ImpossibleInstall[]>([]);
   const [authed, setAuthed] = useState(false);
 
   const load = useCallback(async () => {
@@ -45,13 +52,16 @@ function AdminProvidersPage() {
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id);
     if (!(roles ?? []).some((r) => r.role === "admin")) { setAuthed(false); setLoading(false); return; }
     setAuthed(true);
-    const [{ data }, { data: reports }] = await Promise.all([
+    const [{ data }, { data: reports }, { data: installs }] = await Promise.all([
       supabase.from("provider_profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("service_quotes").select("id, provider_id, status, vehicle_type, impossible_reason, impossible_photos, impossible_at, created_at")
         .eq("status", "impossible_pending").order("impossible_at", { ascending: true }),
+      supabase.from("campaign_requests").select("id, installation_impossible_reason, installation_impossible_photos, installation_impossible_at, pose_location_type, installation_address, created_at")
+        .eq("installation_status", "impossible").order("installation_impossible_at", { ascending: true }),
     ]);
     setProviders((data as Provider[]) ?? []);
     setImpossibleReports((reports as ImpossibleReport[]) ?? []);
+    setImpossibleInstalls((installs as ImpossibleInstall[]) ?? []);
     setLoading(false);
   }, [navigate]);
 
@@ -94,6 +104,54 @@ function AdminProvidersPage() {
       </header>
       <main className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold mb-6">{t("admin.providers.title")}</h1>
+
+        {impossibleInstalls.length > 0 && (
+          <section className="mb-10">
+            <h2 className="font-display text-xl font-bold mb-3 text-red-600 dark:text-red-400">
+              {t("admin.providers.impossible_installs_title", { count: impossibleInstalls.length })}
+            </h2>
+            <div className="space-y-3">
+              {impossibleInstalls.map((r) => (
+                <div key={r.id} className="rounded-xl border border-red-500/40 bg-red-500/5 p-5">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div>
+                      <div className="font-semibold text-sm">{t("admin.providers.install_request", { id: r.id.slice(0, 8) })}</div>
+                      {r.pose_location_type && (
+                        <div className="text-xs text-muted-foreground">
+                          {r.pose_location_type === "garage" ? "🏪" : "🏠"} {t(`provider.dashboard.pose_type_${r.pose_location_type}`)}
+                          {r.installation_address && ` — ${r.installation_address}`}
+                        </div>
+                      )}
+                      {r.installation_impossible_at && (
+                        <div className="text-xs text-muted-foreground">
+                          {t("admin.providers.reported_at", { date: new Date(r.installation_impossible_at).toLocaleString(i18n.language) })}
+                        </div>
+                      )}
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-700 dark:text-red-300">
+                      {t("admin.providers.impossible_install_badge")}
+                    </span>
+                  </div>
+                  {r.installation_impossible_reason && (
+                    <div className="rounded-lg bg-secondary p-3 text-sm mb-3">
+                      <strong className="text-xs uppercase tracking-wide text-muted-foreground">{t("admin.providers.reason")}</strong>
+                      <p className="mt-1 whitespace-pre-wrap">{r.installation_impossible_reason}</p>
+                    </div>
+                  )}
+                  {r.installation_impossible_photos && r.installation_impossible_photos.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {r.installation_impossible_photos.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                          <img src={url} alt={`Photo ${i + 1}`} className="w-24 h-24 object-cover rounded-lg border border-border hover:opacity-80" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {impossibleReports.length > 0 && (
           <section className="mb-10">

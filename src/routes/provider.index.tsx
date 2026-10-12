@@ -31,6 +31,7 @@ type Profile = {
   pricing_info: string | null; logo_url: string | null;
   stripe_subscription_status: string | null;
   stripe_subscription_period_end: string | null;
+  pose_location_types: string[];
 };
 
 type Quote = {
@@ -60,7 +61,7 @@ function ProviderDashboard() {
     const { data: sess } = await supabase.auth.getSession();
     if (!sess.session) { navigate({ to: "/provider/connexion" }); return; }
     const { data: p } = await supabase.from("provider_profiles")
-      .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end")
+      .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end, pose_location_types")
       .eq("user_id", sess.session.user.id).maybeSingle();
     if (!p) { navigate({ to: "/provider/inscription" }); return; }
     setProfile(p as Profile);
@@ -258,6 +259,8 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
   const [editingAreas, setEditingAreas] = useState(false);
   const [areaList, setAreaList] = useState<string[]>(profile.coverage_areas ?? []);
   const [savingAreas, setSavingAreas] = useState(false);
+  const [poseTypes, setPoseTypes] = useState<string[]>(profile.pose_location_types ?? []);
+  const [savingPoseTypes, setSavingPoseTypes] = useState(false);
   return (
     <section className="mb-8 rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start gap-4 mb-4">
@@ -346,6 +349,40 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
             )}
           </div>
         )}
+      </div>
+      <div className="mt-3">
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("provider.dashboard.profile_pose_types")}</div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(["garage", "domicile"] as const).map((type) => {
+            const checked = poseTypes.includes(type);
+            return (
+              <button
+                key={type}
+                type="button"
+                disabled={savingPoseTypes}
+                onClick={async () => {
+                  const next = checked ? poseTypes.filter((x) => x !== type) : [...poseTypes, type];
+                  setPoseTypes(next);
+                  setSavingPoseTypes(true);
+                  await supabase.from("provider_profiles").update({ pose_location_types: next }).eq("user_id", profile.user_id);
+                  setSavingPoseTypes(false);
+                  onSaved?.();
+                }}
+                className={`flex items-center gap-1.5 text-xs rounded-full border px-3 py-1.5 transition ${
+                  checked
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:bg-secondary"
+                } disabled:opacity-60`}
+              >
+                {type === "garage" ? "🏪" : "🏠"} {t(`provider.dashboard.pose_type_${type}`)}
+                {checked && <span className="text-primary">✓</span>}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{t("provider.dashboard.profile_pose_types_hint")}</p>
       </div>
     </section>
   );
