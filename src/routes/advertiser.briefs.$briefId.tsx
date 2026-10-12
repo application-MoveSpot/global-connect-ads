@@ -9,7 +9,7 @@ import { pushNotification } from "@/hooks/useNotifications";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
-import { RefreshCw, Wallet, FileText, Activity, Navigation, Sparkles, Loader2 } from "lucide-react";
+import { RefreshCw, Wallet, FileText, Activity, Navigation, Sparkles, Loader2, Share2 } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
 import { acceptBriefProposal } from "@/lib/campaigns/brief-to-campaign.server";
 import { rejectBriefProposal } from "@/lib/campaigns/brief-proposal-emails.server";
@@ -87,6 +87,7 @@ function BriefDetailPage() {
   const [reengagement, setReengagement] = useState<BriefReengagementResult | null>(null);
   const [reengagementLoading, setReengagementLoading] = useState(false);
   const [reengagementChecked, setReengagementChecked] = useState(false);
+  const [copied, setCopied] = useState(false);
   const doAcceptProposal = useServerFn(acceptBriefProposal);
   const doRejectProposal = useServerFn(rejectBriefProposal);
   const doCompareProposals = useServerFn(compareProposals);
@@ -237,7 +238,23 @@ function BriefDetailPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/advertiser/briefs" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs.detail.back")}</Link>
+          <div className="flex items-center gap-3">
+            {brief.status === "open" && (
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/_public/brief/${briefId}`)
+                    .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
+                    .catch(() => {});
+                }}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
+              >
+                <Share2 className="w-4 h-4" />
+                {copied ? t("advertiser.briefs.detail.share_copied") : t("advertiser.briefs.detail.share")}
+              </button>
+            )}
+            <Link to="/advertiser/briefs" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs.detail.back")}</Link>
+          </div>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-4 py-8">

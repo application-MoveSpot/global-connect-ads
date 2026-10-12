@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
@@ -117,6 +117,24 @@ function HistoriquePage() {
     .filter((r) => COMPLETED_STATUSES.has(r.status))
     .reduce((sum, r) => sum + (r.total_price ?? 0), 0);
 
+  // Monthly chart data — last 12 months
+  const monthlyData = useMemo(() => {
+    const now = new Date();
+    const months: { label: string; key: string; value: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const label = d.toLocaleDateString(dateLocale, { month: "short" });
+      months.push({ label, key, value: 0 });
+    }
+    for (const r of reversements) {
+      const key = r.created_at.slice(0, 7);
+      const m = months.find((x) => x.key === key);
+      if (m) m.value += r.total_price ?? 0;
+    }
+    return months;
+  }, [reversements, dateLocale]);
+
   const exportCsv = () => {
     const rows = reversements.map((r) => ({
       id: r.id,
@@ -139,6 +157,7 @@ function HistoriquePage() {
         {t("owner.historique.loading")}
       </div>
     );
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -185,6 +204,14 @@ function HistoriquePage() {
             </p>
           </div>
         </div>
+
+        {/* Monthly revenue chart */}
+        {reversements.length > 0 && (
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <h2 className="font-semibold mb-4">{t("owner.historique.chart_title")}</h2>
+            <MonthlyChart data={monthlyData} locale={currencyLocale} />
+          </div>
+        )}
 
         {reversements.length === 0 ? (
           <div className="rounded-2xl border border-border bg-card p-10 text-center">
@@ -262,6 +289,53 @@ function HistoriquePage() {
           </>
         )}
       </main>
+    </div>
+  );
+}
+
+function MonthlyChart({ data, locale }: { data: { label: string; key: string; value: number }[]; locale: string }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
+  const barW = 100 / data.length;
+
+  return (
+    <div className="w-full space-y-2">
+      <div className="relative h-40 w-full">
+        <svg viewBox={`0 0 ${data.length * 40} 120`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
+          {data.map((d, i) => {
+            const barH = Math.max((d.value / max) * 100, d.value > 0 ? 4 : 0);
+            const x = i * 40 + 4;
+            const y = 100 - barH;
+            return (
+              <g key={d.key}>
+                <rect
+                  x={x}
+                  y={y}
+                  width={32}
+                  height={barH}
+                  rx={4}
+                  className={d.value > 0 ? "fill-primary/60 hover:fill-primary transition-colors" : "fill-secondary"}
+                />
+                {d.value > 0 && (
+                  <text
+                    x={x + 16}
+                    y={y - 4}
+                    textAnchor="middle"
+                    className="fill-muted-foreground"
+                    style={{ fontSize: 8 }}
+                  >
+                    {d.value.toLocaleString(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <div className="grid text-[10px] text-muted-foreground text-center" style={{ gridTemplateColumns: `repeat(${data.length}, 1fr)` }}>
+        {data.map((d) => (
+          <span key={d.key} className="truncate">{d.label}</span>
+        ))}
+      </div>
     </div>
   );
 }
