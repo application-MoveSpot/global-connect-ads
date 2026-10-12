@@ -628,11 +628,27 @@ function AnnonceurDashboard() {
                         📸 {r.installation_status === "approved" ? t("advertiser.campaign.installation_approved") : t("advertiser.campaign.installation_pending")}
                       </Link>
                     )}
+                    {r.installation_status === "approved" && (
+                      <Link
+                        to="/advertiser/avis/$campaignId"
+                        params={{ campaignId: r.id }}
+                        className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 px-4 py-2 text-sm font-semibold hover:bg-amber-500/20 transition"
+                      >
+                        ⭐ {t("advertiser.campaign.leave_review")}
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
             ))}
           </div>
+        )}
+
+        {!isIndividual && requests.some((r) => ["approved", "paid", "completed"].includes(r.status)) && (
+          <section className="mt-10">
+            <h2 className="font-display text-2xl font-bold mb-4">{t("advertiser.analytics.title")}</h2>
+            <AnalyticsDashboard requests={requests} />
+          </section>
         )}
 
         <section className="mt-12">
@@ -931,4 +947,70 @@ function SubscriptionBadge({ status }: { status: string }) {
   const s = map[status];
   if (!s) return null;
   return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
+}
+
+function AnalyticsDashboard({ requests }: { requests: Req[] }) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language;
+  const done = requests.filter((r) => ["approved", "paid", "completed"].includes(r.status));
+  const totalImpressions = done.reduce((sum, r) => {
+    return sum + (r.estimated_impressions_per_day ?? 0) * (r.days_count ?? 1);
+  }, 0);
+  const totalSpend = done.reduce((sum, r) => sum + (r.total_price ?? 0), 0);
+  const cpm = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : 0;
+
+  const zoneCount: Record<string, number> = {};
+  for (const r of done) {
+    for (const z of (r.route_zones ?? [])) {
+      zoneCount[z] = (zoneCount[z] ?? 0) + 1;
+    }
+  }
+  const topZones = Object.entries(zoneCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const maxZone = topZones[0]?.[1] ?? 1;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("advertiser.analytics.campaigns_count")}</p>
+          <p className="font-display text-3xl font-bold">{done.length}</p>
+        </div>
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("advertiser.analytics.total_impressions")}</p>
+          <p className="font-display text-3xl font-bold text-primary">{totalImpressions.toLocaleString(locale)}</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("advertiser.analytics.cpm")}</p>
+          <p className="font-display text-3xl font-bold">
+            {cpm > 0
+              ? cpm.toLocaleString(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 2 })
+              : "—"}
+          </p>
+        </div>
+      </div>
+      {topZones.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <h3 className="font-semibold mb-4">{t("advertiser.analytics.top_zones")}</h3>
+          <div className="space-y-2.5">
+            {topZones.map(([zone, count]) => (
+              <div key={zone} className="flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium truncate block">{zone}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="w-28 h-2 rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-primary/60 transition-all"
+                      style={{ width: `${(count / maxZone) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground w-6 text-right tabular-nums">{count}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

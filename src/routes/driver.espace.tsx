@@ -71,6 +71,22 @@ function ChauffeurEspace() {
   const [driverQrs, setDriverQrs] = useState<{ vehicleId: string; vehicleName: string; vehicleType: string; qrImg: string; url: string }[]>([]);
   const [vehicleZones, setVehicleZones] = useState<Record<string, string[]>>({});
   const fetchDriverQrs = useServerFn(getDriverVehicleQrTokens);
+  const GPS_STORAGE_KEY = "driver_gps_active_v1";
+  const [activeGps, setActiveGps] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(GPS_STORAGE_KEY);
+      if (stored) return new Set(JSON.parse(stored) as string[]);
+    } catch { /* ignore */ }
+    return new Set<string>();
+  });
+  const toggleGps = (vehicleId: string) => {
+    setActiveGps((prev) => {
+      const next = new Set(prev);
+      if (next.has(vehicleId)) next.delete(vehicleId); else next.add(vehicleId);
+      try { localStorage.setItem(GPS_STORAGE_KEY, JSON.stringify([...next])); } catch { /* ignore */ }
+      return next;
+    });
+  };
 
   const loadProfile = async (userId: string) => {
     const { data } = await supabase
@@ -278,6 +294,10 @@ function ChauffeurEspace() {
           </ol>
         </div>
 
+        {profile && (profile.kind === "driver" || profile.kind === "both") && (
+          <InstallationChecklist />
+        )}
+
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <h3 className="font-display text-lg font-semibold">{t("driver.espace.gps_title")}</h3>
           {driverQrs.length > 0 ? (
@@ -298,7 +318,19 @@ function ChauffeurEspace() {
                       />
                       <div className="min-w-0">
                         <p className="font-semibold text-sm">{q.vehicleName}</p>
-                        <p className="text-xs text-muted-foreground mb-2">{q.vehicleType}</p>
+                        <p className="text-xs text-muted-foreground">{q.vehicleType}</p>
+                        <button
+                          type="button"
+                          onClick={() => toggleGps(q.vehicleId)}
+                          className={`mt-1 mb-2 inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border transition ${
+                            activeGps.has(q.vehicleId)
+                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                              : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${activeGps.has(q.vehicleId) ? "bg-emerald-500" : "bg-muted-foreground"}`} />
+                          {activeGps.has(q.vehicleId) ? t("driver.espace.gps_status_active") : t("driver.espace.gps_status_inactive")}
+                        </button>
                         <div className="flex flex-wrap gap-2">
                           {q.vehicleType === "camion_led" ? (
                             <Link
@@ -366,6 +398,72 @@ function ChauffeurEspace() {
       {driverQrs.map((q) => (
         <ControlPhotoPrompt key={q.vehicleId} vehicleId={q.vehicleId} />
       ))}
+    </div>
+  );
+}
+
+function InstallationChecklist() {
+  const { t } = useTranslation();
+  const STEPS = [1, 2, 3, 4, 5] as const;
+  const STORAGE_KEY = "driver_checklist_v1";
+
+  const [checked, setChecked] = useState<boolean[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as boolean[];
+        if (Array.isArray(parsed) && parsed.length === STEPS.length) return parsed;
+      }
+    } catch {
+      /* ignore */
+    }
+    return STEPS.map(() => false);
+  });
+
+  const toggle = (i: number) => {
+    setChecked((prev) => {
+      const next = [...prev];
+      next[i] = !next[i];
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
+
+  const allDone = checked.every(Boolean);
+
+  return (
+    <div className={`rounded-2xl border p-6 space-y-4 transition ${allDone ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-card"}`}>
+      <h3 className="font-display text-lg font-semibold">{t("driver.espace.checklist_title")}</h3>
+      <ul className="space-y-3">
+        {STEPS.map((_, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <button
+              type="button"
+              onClick={() => toggle(i)}
+              aria-pressed={checked[i]}
+              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition ${
+                checked[i]
+                  ? "border-emerald-500 bg-emerald-500 text-white"
+                  : "border-border bg-background hover:border-primary"
+              }`}
+            >
+              {checked[i] && (
+                <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
+                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
+            <span className={`text-sm leading-snug ${checked[i] ? "line-through text-muted-foreground" : ""}`}>
+              {t(`driver.espace.checklist_step_${i + 1}`)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {allDone ? (
+        <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{t("driver.espace.checklist_all_done")}</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">{t("driver.espace.checklist_incomplete")}</p>
+      )}
     </div>
   );
 }

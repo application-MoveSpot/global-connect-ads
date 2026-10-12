@@ -444,7 +444,17 @@
       "open_gps": "Open GPS tracking →",
       "kind_driver": "Driver",
       "kind_installer": "Covering installer",
-      "kind_both": "Driver & installer"
+      "kind_both": "Driver & installer",
+      "checklist_title": "Pre-departure checklist",
+      "checklist_step_1": "The covering / sticker is properly applied and secured over the entire surface",
+      "checklist_step_2": "No visible peeling, bubbles or wrinkles",
+      "checklist_step_3": "The installer's contact details are noted in case of issues",
+      "checklist_step_4": "The MoveSpot app is open and GPS tracking is active",
+      "checklist_step_5": "The phone is plugged into power for the trip",
+      "checklist_all_done": "✅ All set — safe travels!",
+      "checklist_incomplete": "Check all steps before leaving",
+      "gps_status_active": "🟢 GPS active",
+      "gps_status_inactive": "⚪ GPS inactive"
     },
     "ecran": {
       "verifying": "Verifying…",
@@ -1191,7 +1201,15 @@
       "track": "📍 Track live",
       "invoice": "🧾 PDF Invoice",
       "installation_approved": "Installation approved — see photos",
-      "installation_pending": "Installation photos pending"
+      "installation_pending": "Installation photos pending",
+      "leave_review": "Leave a review"
+    },
+    "analytics": {
+      "title": "Analytics dashboard",
+      "campaigns_count": "Active campaigns",
+      "total_impressions": "Total impressions",
+      "cpm": "CPM (cost/1 000 impr.)",
+      "top_zones": "Top covered zones"
     },
     "onboarding": {
       "done": "Done",
@@ -1388,6 +1406,14 @@
         "ai_panel_title": "Rewrite with AI",
         "ai_panel_desc": "Describe your vehicle and the AI will regenerate the name, description and zones automatically.",
         "ai_generate_error": "The AI could not generate a suggestion. Please try again."
+      },
+      "calendar": {
+        "title": "Booking calendar",
+        "empty": "No campaigns booked for this vehicle yet.",
+        "days": "{{count}} day(s)",
+        "status_approved": "Approved",
+        "status_paid": "Paid",
+        "status_completed": "Completed"
       }
     },
     "flotte": {
@@ -1525,7 +1551,9 @@
         "notif_rejected": "Proposal rejected",
         "notif_rejected_body": "An advertiser rejected your proposal.",
         "badge_direct": "Matches your fleet",
-        "badge_autre": "Accepts 'other' vehicles"
+        "badge_autre": "Accepts 'other' vehicles",
+        "match_banner_one": "🎯 1 brief matches your fleet — reply quickly!",
+        "match_banner_other": "🎯 {{count}} briefs match your fleet — reply quickly!"
       },
       "detail": {
         "loading": "Loading…",
@@ -1580,7 +1608,14 @@
       "date_start": "Start:",
       "date_end": "End:",
       "received_at": "Received on {{date}}",
-      "days": "{{count}} day(s)"
+      "days": "{{count}} day(s)",
+      "chart_title": "Monthly revenue (last 12 months)",
+      "badge_bronze_title": "Top Owner Bronze",
+      "badge_silver_title": "Top Owner Silver",
+      "badge_gold_title": "Top Owner Gold",
+      "badge_bronze": "{{count}} completed campaigns — keep going!",
+      "badge_silver": "{{count}} completed campaigns — excellent work!",
+      "badge_gold": "{{count}} completed campaigns — top performer!"
     },
     "tracking": {
       "error": "Error: {{message}}",
@@ -3969,7 +4004,9 @@
         "notif_rejected": "Proposal rejected",
         "notif_rejected_body": "An advertiser rejected your proposal.",
         "badge_direct": "Matches your fleet",
-        "badge_autre": "Accepts 'other' vehicles"
+        "badge_autre": "Accepts 'other' vehicles",
+        "match_banner_one": "🎯 1 brief matches your fleet — reply quickly!",
+        "match_banner_other": "🎯 {{count}} briefs match your fleet — reply quickly!"
       },
       "detail": {
         "loading": "Loading…",

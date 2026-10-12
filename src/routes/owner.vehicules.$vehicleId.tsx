@@ -292,7 +292,77 @@ function EditVehiclePage() {
             </button>
           </form>
         </div>
+
+        <div className="mt-8">
+          <h2 className="font-display text-xl font-bold mb-4">{t("owner.vehicules.calendar.title")}</h2>
+          <VehicleCalendar vehicleId={vehicleId} />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function VehicleCalendar({ vehicleId }: { vehicleId: string }) {
+  const { t, i18n } = useTranslation();
+  type Booking = { id: string; start_date: string | null; end_date: string | null; days_count: number | null; spot_name: string; status: string };
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [calLoading, setCalLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("campaign_requests")
+        .select("id, start_date, end_date, days_count, spot_name, status")
+        .eq("vehicle_id", vehicleId)
+        .in("status", ["approved", "paid", "completed"])
+        .order("start_date", { ascending: false });
+      setBookings((data ?? []) as Booking[]);
+      setCalLoading(false);
+    })();
+  }, [vehicleId]);
+
+  if (calLoading) return <div className="text-sm text-muted-foreground animate-pulse">{t("common.loading")}</div>;
+
+  if (bookings.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border bg-card/30 p-8 text-center text-sm text-muted-foreground">
+        {t("owner.vehicules.calendar.empty")}
+      </div>
+    );
+  }
+
+  const statusColors: Record<string, string> = {
+    approved: "bg-primary/10 text-primary",
+    paid: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    completed: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  };
+
+  return (
+    <div className="space-y-3">
+      {bookings.map((b) => (
+        <div key={b.id} className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div className="min-w-0">
+              <p className="font-semibold text-sm">{b.spot_name}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {b.start_date
+                  ? new Date(b.start_date).toLocaleDateString(i18n.language)
+                  : "—"}
+                {b.start_date && b.end_date && " → "}
+                {b.end_date
+                  ? new Date(b.end_date).toLocaleDateString(i18n.language)
+                  : ""}
+                {b.days_count != null && (
+                  <> · {t("owner.vehicules.calendar.days", { count: b.days_count })}</>
+                )}
+              </p>
+            </div>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-semibold shrink-0 ${statusColors[b.status] ?? "bg-secondary text-foreground"}`}>
+              {t(`owner.vehicules.calendar.status_${b.status}`, b.status)}
+            </span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

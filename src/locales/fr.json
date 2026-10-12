@@ -441,7 +441,17 @@
       "open_gps": "Ouvrir le suivi GPS →",
       "kind_driver": "Chauffeur",
       "kind_installer": "Poseur covering",
-      "kind_both": "Chauffeur & poseur"
+      "kind_both": "Chauffeur & poseur",
+      "checklist_title": "Checklist avant départ",
+      "checklist_step_1": "Le covering / adhésif est bien posé et fixé sur toute la surface",
+      "checklist_step_2": "Aucun décollement, bulle ou pli visible",
+      "checklist_step_3": "Les coordonnées du prestataire poseur sont notées en cas de problème",
+      "checklist_step_4": "L'appli MoveSpot est ouverte et le suivi GPS actif",
+      "checklist_step_5": "Le téléphone est branché sur le secteur pour le trajet",
+      "checklist_all_done": "✅ Tout est prêt — bonne route !",
+      "checklist_incomplete": "Cochez toutes les étapes avant de partir",
+      "gps_status_active": "🟢 GPS actif",
+      "gps_status_inactive": "⚪ GPS inactif"
     },
     "ecran": {
       "verifying": "Vérification…",
@@ -1207,7 +1217,15 @@
       "track": "📍 Suivre en direct",
       "invoice": "🧾 Facture PDF",
       "installation_approved": "Pose validée — voir photos",
-      "installation_pending": "Photos de pose en attente"
+      "installation_pending": "Photos de pose en attente",
+      "leave_review": "Laisser un avis"
+    },
+    "analytics": {
+      "title": "Tableau de bord analytics",
+      "campaigns_count": "Campagnes actives",
+      "total_impressions": "Impressions totales",
+      "cpm": "CPM (coût/1 000 impr.)",
+      "top_zones": "Zones les plus couvertes"
     },
     "onboarding": {
       "done": "Fait",
@@ -1412,6 +1430,14 @@
         "ai_panel_title": "Réécrire avec l'IA",
         "ai_panel_desc": "Décrivez votre véhicule et l'IA régénérera le nom, la description et les zones automatiquement.",
         "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
+      },
+      "calendar": {
+        "title": "Calendrier des réservations",
+        "empty": "Aucune campagne réservée sur ce véhicule pour l'instant.",
+        "days": "{{count}} jour(s)",
+        "status_approved": "Approuvée",
+        "status_paid": "Payée",
+        "status_completed": "Terminée"
       }
     },
     "flotte": {
@@ -1549,7 +1575,9 @@
         "notif_rejected": "Proposition refusée",
         "notif_rejected_body": "Un annonceur a refusé votre proposition.",
         "badge_direct": "Correspond à vos véhicules",
-        "badge_autre": "Accepte les véhicules autre"
+        "badge_autre": "Accepte les véhicules autre",
+        "match_banner_one": "🎯 1 brief correspond à votre flotte — répondez vite !",
+        "match_banner_other": "🎯 {{count}} briefs correspondent à votre flotte — répondez vite !"
       },
       "detail": {
         "loading": "Chargement…",
@@ -1604,7 +1632,14 @@
       "date_start": "Début :",
       "date_end": "Fin :",
       "received_at": "Reçu le {{date}}",
-      "days": "{{count}} jour(s)"
+      "days": "{{count}} jour(s)",
+      "chart_title": "Revenus mensuels (12 derniers mois)",
+      "badge_bronze_title": "Top Propriétaire Bronze",
+      "badge_silver_title": "Top Propriétaire Argent",
+      "badge_gold_title": "Top Propriétaire Or",
+      "badge_bronze": "{{count}} campagnes terminées — continuez !",
+      "badge_silver": "{{count}} campagnes terminées — excellent travail !",
+      "badge_gold": "{{count}} campagnes terminées — top performer !"
     },
     "tracking": {
       "error": "Erreur : {{message}}",
@@ -4014,7 +4049,9 @@
         "notif_rejected": "Proposition refusée",
         "notif_rejected_body": "Un annonceur a refusé votre proposition.",
         "badge_direct": "Correspond à vos véhicules",
-        "badge_autre": "Accepte les véhicules autre"
+        "badge_autre": "Accepte les véhicules autre",
+        "match_banner_one": "🎯 1 brief correspond à votre flotte — répondez vite !",
+        "match_banner_other": "🎯 {{count}} briefs correspondent à votre flotte — répondez vite !"
       },
       "detail": {
         "loading": "Chargement…",
