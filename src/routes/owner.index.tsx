@@ -313,6 +313,35 @@ function DashboardPage() {
         <VigAlerte />
         <OwnerConnectCard />
 
+        {(vehicles.length > 0 || requests.length > 0) && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_approved_vehicles")}</p>
+              <p className="font-display text-2xl font-bold">{vehicles.filter((v) => v.status === "approved").length}</p>
+            </div>
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_pending_requests")}</p>
+              <p className="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">{requests.filter((r) => !r.owner_response).length}</p>
+            </div>
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_active_campaigns")}</p>
+              <p className="font-display text-2xl font-bold text-primary">{requests.filter((r) => r.status === "approved").length}</p>
+            </div>
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_month_revenue")}</p>
+              <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                {(() => {
+                  const key = new Date().toISOString().slice(0, 7);
+                  const total = requests
+                    .filter((r) => ["approved", "paid", "completed"].includes(r.status) && r.created_at.startsWith(key))
+                    .reduce((s, r) => s + (r.total_price ?? 0), 0);
+                  return total.toLocaleString(dateLocale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+                })()}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex gap-2 flex-wrap">
             <Tab
