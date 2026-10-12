@@ -234,11 +234,12 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
       .from("advertiser_briefs")
       .update({ status: data.approve ? "open" : "cancelled" } as never)
       .eq("id", data.briefId)
-      .select("advertiser_id, title, advertiser_profiles!inner(user_id)")
+      .select("advertiser_id, title")
       .single();
     if (error) throw new Error(error.message);
 
-    const briefUserId = (brief as unknown as { advertiser_profiles?: { user_id?: string } })?.advertiser_profiles?.user_id ?? null;
+    // advertiser_briefs.advertiser_id référence directement auth.users — pas de jointure possible
+    const briefUserId = (brief as { advertiser_id?: string })?.advertiser_id ?? null;
 
     // Push + Email annonceur — décision brief (fire-and-forget)
     if (briefUserId) {
