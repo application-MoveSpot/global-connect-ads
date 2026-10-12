@@ -2799,7 +2799,7 @@
       "status_approved": "Approuvé",
       "status_pending": "En attente",
       "status_rejected": "Rejeté",
-      "status_suspended": "Statut Suspendu",
+      "status_suspended": "Suspendu",
       "suspend": "Suspendre",
       "title": "Prestataires",
       "vehicle": "Véhicule",
@@ -4051,7 +4051,8 @@
         "badge_direct": "Correspond à vos véhicules",
         "badge_autre": "Accepte les véhicules autre",
         "match_banner_one": "🎯 1 brief correspond à votre flotte — répondez vite !",
-        "match_banner_other": "🎯 {{count}} briefs correspondent à votre flotte — répondez vite !"
+        "match_banner_other": "🎯 {{count}} briefs correspondent à votre flotte — répondez vite !",
+        "badge_open": "Ouvert à tous types"
       },
       "detail": {
         "loading": "Chargement…",
@@ -5324,7 +5325,7 @@
       "status_approved": "Approuvé",
       "status_pending": "En attente",
       "status_rejected": "Rejeté",
-      "status_suspended": "Statut Suspendu",
+      "status_suspended": "Suspendu",
       "subtitle": "Gérez vos missions, clients et revenus.",
       "title": "Mon espace prestataire",
       "traffic_link": "Traffic Lien",

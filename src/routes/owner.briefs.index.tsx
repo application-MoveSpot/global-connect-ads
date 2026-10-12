@@ -79,8 +79,8 @@ function OpenBriefsPage() {
   const loadPage = useCallback(async (profId: string, types: string[], p: number) => {
     if (types.length === 0) { setBriefs([]); setTotal(0); return; }
     setPageLoading(true);
-    // Owners with "autre" vehicles can respond to any brief — don't filter by type.
-    // For all other owners, use an array overlap so only relevant briefs appear.
+    // Filter briefs by vehicle type relevance.
+    // "autre" owners match only briefs that explicitly include "autre" or have no type constraint.
     const hasAutre = types.includes("autre");
     const strictTypes = types.filter((t) => t !== "autre");
     let q = supabase
@@ -88,12 +88,15 @@ function OpenBriefsPage() {
       .select("id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, created_at", { count: "exact" })
       .eq("status", "open");
     if (!hasAutre && strictTypes.length > 0) {
+      // Standard owner: only briefs whose types overlap with their fleet
       q = q.overlaps("vehicle_types", strictTypes as never);
     } else if (hasAutre && strictTypes.length > 0) {
-      // Show briefs matching the specific types OR briefs that include "autre"
-      q = q.or(`vehicle_types.ov.{${strictTypes.join(",")}},vehicle_types.cs.{autre}`);
+      // Mixed fleet: match specific types OR briefs open to "autre" OR no-constraint briefs
+      q = q.or(`vehicle_types.ov.{${strictTypes.join(",")}},vehicle_types.cs.{autre},vehicle_types.is.null`);
+    } else {
+      // "autre"-only fleet: only briefs that explicitly include "autre" or have no type constraint
+      q = q.or("vehicle_types.cs.{autre},vehicle_types.is.null");
     }
-    // hasAutre && strictTypes.length === 0 → no filter, all open briefs shown
     const { data: bs, count } = await q
       .order("created_at", { ascending: false })
       .range(p * PAGE_SIZE, (p + 1) * PAGE_SIZE - 1);
@@ -189,8 +192,9 @@ function OpenBriefsPage() {
             {briefs.map((b) => {
               const mine = myProposals.find((p) => p.brief_id === b.id);
               const strictOwnerTypes = myTypes.filter((t) => t !== "autre");
-              const hasDirectMatch = strictOwnerTypes.some((t) => b.vehicle_types.includes(t));
-              const hasAutreExplicit = myTypes.includes("autre") && b.vehicle_types.includes("autre");
+              const hasNoTypeConstraint = !b.vehicle_types || b.vehicle_types.length === 0;
+              const hasDirectMatch = strictOwnerTypes.some((t) => b.vehicle_types?.includes(t));
+              const hasAutreExplicit = myTypes.includes("autre") && b.vehicle_types?.includes("autre");
               return (
                 <Link key={b.id} to="/owner/briefs/$briefId" params={{ briefId: b.id }}
                   className="block rounded-xl border border-border bg-card p-5 hover:bg-secondary/30 transition">
@@ -208,6 +212,11 @@ function OpenBriefsPage() {
                             ✓ {t("owner.briefs.index.badge_autre")}
                           </span>
                         )}
+                        {!hasDirectMatch && !hasAutreExplicit && hasNoTypeConstraint && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-400 font-medium flex-shrink-0">
+                            ✓ {t("owner.briefs.index.badge_open")}
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {t("owner.briefs.index.dates", {
@@ -218,7 +227,10 @@ function OpenBriefsPage() {
                       </div>
                       <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{b.description}</p>
                       <div className="text-xs text-muted-foreground mt-2">
-                        {t("owner.briefs.index.types_label")} {b.vehicle_types.join(", ")}
+                        {b.vehicle_types?.length > 0
+                          ? <>{t("owner.briefs.index.types_label")} {b.vehicle_types.join(", ")}</>
+                          : <span className="italic">{t("owner.briefs.index.badge_open")}</span>
+                        }
                         {b.budget_max ? ` · ${t("owner.briefs.index.budget_max", { amount: b.budget_max })}` : ""}
                       </div>
                     </div>
