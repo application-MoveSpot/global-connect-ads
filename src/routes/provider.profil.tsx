@@ -55,13 +55,13 @@ function ProviderProfilPage() {
 
       const { data: prof } = await supabase
         .from("provider_profiles")
-        .select("id, full_name, company, email, phone, description, coverage_areas, services, pricing_info, siret, status")
+        .select("user_id, full_name, company, email, phone, description, coverage_areas, services, pricing_info, siret, status")
         .eq("user_id", sess.session.user.id)
         .maybeSingle();
 
       if (!prof) { navigate({ to: "/provider/inscription" }); return; }
 
-      setProfileId(prof.id);
+      setProfileId(prof.user_id);
       setFullName(prof.full_name ?? "");
       setCompany(prof.company ?? "");
       setEmail(prof.email ?? "");
@@ -98,7 +98,7 @@ function ProviderProfilPage() {
         services,
         pricing_info: pricingInfo.trim() || null,
       })
-      .eq("id", profileId);
+      .eq("user_id", profileId);
 
     if (upErr) { setError(upErr.message); setLoading(false); return; }
     setSaved(true);
