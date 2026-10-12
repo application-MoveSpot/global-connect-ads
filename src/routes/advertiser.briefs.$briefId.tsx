@@ -171,7 +171,7 @@ function BriefDetailPage() {
         hoursElapsed,
       },
     })
-      .then((r) => setReengagement(r))
+      .then((r: BriefReengagementResult | null) => setReengagement(r))
       .catch(() => { /* silent */ })
       .finally(() => setReengagementLoading(false));
   }, [brief, accountType, proposals.length, reengagementChecked, doSuggestAdjustments]);

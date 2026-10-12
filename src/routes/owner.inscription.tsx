@@ -350,7 +350,7 @@ function InscriptionPage() {
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/owner/inscription?mode=signin"
               generateLabel={t("owner.inscription.ai_generate")}
-              generatingLabel={t("owner.inscription.ai_generating")}
+              generateLoadingLabel={t("owner.inscription.ai_generating")}
               filledMessage={aiFilled.length > 0 ? t("owner.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
             />
             <form onSubmit={handleProfile} className="space-y-4">

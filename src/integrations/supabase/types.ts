@@ -548,6 +548,85 @@ export type Database = {
           },
         ]
       }
+      control_photo_requests: {
+        Row: {
+          admin_notes: string | null
+          admin_validated: boolean
+          campaign_request_id: string | null
+          created_at: string
+          deadline_at: string
+          driver_id: string | null
+          fraud_flags: Json
+          id: string
+          photo_accuracy: number | null
+          photo_lat: number | null
+          photo_lng: number | null
+          photo_path: string | null
+          scheduled_at: string
+          status: string
+          submitted_at: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_validated?: boolean
+          campaign_request_id?: string | null
+          created_at?: string
+          deadline_at: string
+          driver_id?: string | null
+          fraud_flags?: Json
+          id?: string
+          photo_accuracy?: number | null
+          photo_lat?: number | null
+          photo_lng?: number | null
+          photo_path?: string | null
+          scheduled_at: string
+          status?: string
+          submitted_at?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_validated?: boolean
+          campaign_request_id?: string | null
+          created_at?: string
+          deadline_at?: string
+          driver_id?: string | null
+          fraud_flags?: Json
+          id?: string
+          photo_accuracy?: number | null
+          photo_lat?: number | null
+          photo_lng?: number | null
+          photo_path?: string | null
+          scheduled_at?: string
+          status?: string
+          submitted_at?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "control_photo_requests_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "control_photo_requests_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "control_photo_requests_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cron_config: {
         Row: {
           key: string
@@ -700,6 +779,54 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          body: string
+          brief_id: string
+          created_at: string
+          id: string
+          proposal_id: string | null
+          read_at: string | null
+          sender_id: string
+          sender_role: string
+        }
+        Insert: {
+          body: string
+          brief_id: string
+          created_at?: string
+          id?: string
+          proposal_id?: string | null
+          read_at?: string | null
+          sender_id: string
+          sender_role: string
+        }
+        Update: {
+          body?: string
+          brief_id?: string
+          created_at?: string
+          id?: string
+          proposal_id?: string | null
+          read_at?: string | null
+          sender_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "brief_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       obstacle_reports: {
         Row: {
           admin_notes: string | null
@@ -843,6 +970,44 @@ export type Database = {
           vigilance_statut?: string | null
         }
         Relationships: []
+      }
+      owner_reviews: {
+        Row: {
+          advertiser_id: string
+          campaign_request_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          owner_id: string
+          rating: number
+        }
+        Insert: {
+          advertiser_id: string
+          campaign_request_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          owner_id: string
+          rating: number
+        }
+        Update: {
+          advertiser_id?: string
+          campaign_request_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          owner_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_reviews_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: true
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       partner_profiles: {
         Row: {
