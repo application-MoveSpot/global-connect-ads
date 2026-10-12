@@ -93,6 +93,8 @@ export function BookingForm({ spot, onClose }: Props) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [accepted, setAccepted] = useState(false);
+  const [poseLocationType, setPoseLocationType] = useState<"garage" | "domicile" | null>(null);
+  const [installationAddress, setInstallationAddress] = useState("");
   const [status, setStatus] = useState<"idle" | "rejected" | "success" | "loading">("idle");
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [reason, setReason] = useState("");
@@ -404,6 +406,8 @@ export function BookingForm({ spot, onClose }: Props) {
         creative_files: uploadedPaths,
         pose_fee_cents: installerFees.poseFee,
         depose_fee_cents: installerFees.deposeFee,
+        pose_location_type: poseLocationType ?? null,
+        installation_address: installationAddress.trim() || null,
       })
       .select("id, status, admin_notes")
       .single();
@@ -825,6 +829,44 @@ export function BookingForm({ spot, onClose }: Props) {
                 <p>{t("booking.forbidden_desc")}</p>
               </div>
 
+
+              {/* Lieu de pose : garage ou domicile */}
+              <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
+                <div className="text-sm font-semibold">{t("booking.pose_location_title")}</div>
+                <p className="text-xs text-muted-foreground">{t("booking.pose_location_desc")}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["garage", "domicile"] as const).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setPoseLocationType(poseLocationType === type ? null : type)}
+                      className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
+                        poseLocationType === type
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card text-muted-foreground hover:border-primary/50"
+                      }`}
+                    >
+                      {type === "garage" ? "🏪" : "🏠"} {t(`booking.pose_type_${type}`)}
+                    </button>
+                  ))}
+                </div>
+                {poseLocationType && (
+                  <div>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">
+                      {t("booking.installation_address_label")}
+                    </label>
+                    <input
+                      type="text"
+                      value={installationAddress}
+                      onChange={(e) => setInstallationAddress(e.target.value)}
+                      placeholder={t("booking.installation_address_placeholder")}
+                      maxLength={255}
+                      className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1">{t("booking.installation_address_hint")}</p>
+                  </div>
+                )}
+              </div>
 
               <ValidationChecklist />
 

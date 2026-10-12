@@ -1755,6 +1755,10 @@
       "profile_pricing": "Pricing",
       "profile_roles": "Roles / services",
       "profile_areas": "Coverage areas",
+      "profile_pose_types": "Offered installation types",
+      "profile_pose_types_hint": "Click to enable or disable an installation type.",
+      "pose_type_garage": "At a garage",
+      "pose_type_domicile": "At home",
       "quote_request": "Request #",
       "quote_type": "Type:",
       "quote_format": "Format:",
@@ -2193,7 +2197,10 @@
       "suspend_reason": "Reason for suspension:",
       "approve_btn": "Approve",
       "company_label": "Company",
-      "reject_btn": "Reject"
+      "reject_btn": "Reject",
+      "impossible_installs_title": "⛔ Impossible installations — campaign requests ({{count}})",
+      "install_request": "Request #{{id}}",
+      "impossible_install_badge": "Installation impossible"
     },
     "loading": "Loading…",
     "access_denied": "Access denied.",
@@ -3175,7 +3182,14 @@
     "checklist_4": "Realistic dates: minimum 3 days, maximum 30 days",
     "checklist_5": "Itinerary filled in with zones and waypoints",
     "checklist_6": "The advertiser holds all rights to the visuals",
-    "days_label": "days"
+    "days_label": "days",
+    "pose_location_title": "📍 Installation location",
+    "pose_location_desc": "Indicate how you would like the installer to intervene for the covering installation.",
+    "pose_type_garage": "At a garage",
+    "pose_type_domicile": "At home",
+    "installation_address_label": "Exact installation address",
+    "installation_address_placeholder": "E.g.: 12 rue des Flamboyants, Pointe-à-Pitre",
+    "installation_address_hint": "This address will be shared with the certified MoveSpot installer."
   },
   "prev": {
     "title": "🧮 Subscription Simulator",
@@ -3284,7 +3298,20 @@
     "toast_claimed": "Job claimed — it is no longer visible to other installers.",
     "toast_claim_err": "Error claiming job.",
     "toast_released": "Job released.",
-    "toast_release_err": "Error."
+    "toast_release_err": "Error.",
+    "pose_type_garage": "Garage",
+    "pose_type_domicile": "Home",
+    "installation_address_label": "Installation address",
+    "report_impossible": "⚠ Installation impossible",
+    "impossible_reported_label": "⚠ Installation reported impossible",
+    "impossible_modal_title": "Report impossible installation",
+    "impossible_modal_desc": "Describe why the installation could not be completed. Photos can be attached as supporting evidence.",
+    "impossible_reason_label": "Reason (required)",
+    "impossible_reason_placeholder": "E.g.: vehicle not found, incorrect address, client refusal…",
+    "impossible_photos_label": "Supporting photos (optional, max 5)",
+    "impossible_confirm": "Confirm impossible installation",
+    "impossible_reported": "Impossible installation reported successfully.",
+    "impossible_error": "Error while reporting."
   },
   "vig": {
     "gains_label": "Cumulative earnings: {{amount}}",

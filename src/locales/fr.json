@@ -1779,6 +1779,10 @@
       "profile_pricing": "Tarifs",
       "profile_roles": "Rôles / prestations",
       "profile_areas": "Zones couvertes",
+      "profile_pose_types": "Types de pose proposés",
+      "profile_pose_types_hint": "Cliquez pour activer ou désactiver un type de pose.",
+      "pose_type_garage": "En garage",
+      "pose_type_domicile": "À domicile",
       "quote_request": "Demande #",
       "quote_type": "Type :",
       "quote_format": "Format :",
@@ -2238,7 +2242,10 @@
       "suspend_reason": "Motif de suspension :",
       "approve_btn": "Approuver",
       "company_label": "Société",
-      "reject_btn": "Refuser"
+      "reject_btn": "Refuser",
+      "impossible_installs_title": "⛔ Poses impossible — demandes campagne ({{count}})",
+      "install_request": "Demande #{{id}}",
+      "impossible_install_badge": "Pose impossible"
     },
     "loading": "Chargement…",
     "access_denied": "Accès refusé.",
@@ -3220,7 +3227,14 @@
     "checklist_4": "Dates réalistes : minimum 3 jours, maximum 30 jours",
     "checklist_5": "Itinéraire renseigné avec zones et points de passage",
     "checklist_6": "Tous les droits sur les visuels sont détenus par l'annonceur",
-    "days_label": "jours"
+    "days_label": "jours",
+    "pose_location_title": "📍 Lieu de pose",
+    "pose_location_desc": "Indiquez comment vous souhaitez que le poseur intervienne pour l'installation du covering.",
+    "pose_type_garage": "En garage",
+    "pose_type_domicile": "À domicile",
+    "installation_address_label": "Adresse exacte de pose",
+    "installation_address_placeholder": "Ex : 12 rue des Flamboyants, Pointe-à-Pitre",
+    "installation_address_hint": "Cette adresse sera communiquée au poseur certifié MoveSpot."
   },
   "prev": {
     "title": "🧮 Simulateur d'abonnement",
@@ -3329,7 +3343,20 @@
     "toast_claimed": "Mission réservée — elle n'est plus visible par les autres poseurs.",
     "toast_claim_err": "Erreur lors de la réservation.",
     "toast_released": "Mission libérée.",
-    "toast_release_err": "Erreur."
+    "toast_release_err": "Erreur.",
+    "pose_type_garage": "Garage",
+    "pose_type_domicile": "Domicile",
+    "installation_address_label": "Adresse de pose",
+    "report_impossible": "⚠ Pose impossible",
+    "impossible_reported_label": "⚠ Pose signalée impossible",
+    "impossible_modal_title": "Signaler une pose impossible",
+    "impossible_modal_desc": "Décrivez pourquoi la pose n'a pas pu être réalisée. Des photos peuvent être jointes comme justificatifs.",
+    "impossible_reason_label": "Motif (obligatoire)",
+    "impossible_reason_placeholder": "Ex : véhicule introuvable, adresse incorrecte, refus du client…",
+    "impossible_photos_label": "Photos justificatives (optionnel, max 5)",
+    "impossible_confirm": "Confirmer la pose impossible",
+    "impossible_reported": "Pose impossible signalée avec succès.",
+    "impossible_error": "Erreur lors du signalement."
   },
   "vig": {
     "gains_label": "Gains cumulés : {{amount}}",

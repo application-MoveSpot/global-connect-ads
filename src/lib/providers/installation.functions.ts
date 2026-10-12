@@ -51,10 +51,10 @@ export const listInstallationJobs = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("campaign_requests")
       .select(
-        "id, spot_name, spot_location, company, start_date, end_date, installation_photos, installation_status, installation_notes, creative_files, total_price, pose_fee_cents, vehicle_id",
+        "id, spot_name, spot_location, company, start_date, end_date, installation_photos, installation_status, installation_notes, creative_files, total_price, pose_fee_cents, vehicle_id, pose_location_type, installation_address, installation_impossible_reason",
       )
       .eq("status", "approved")
-      .neq("installation_status", "approved")
+      .not("installation_status", "in", '("approved","impossible")')
       .order("start_date", { ascending: true })
       .limit(100);
     if (error) throw new Error(error.message);
@@ -194,6 +194,61 @@ export const getInstallationPhotosForAdvertiser = createServerFn({ method: "GET"
       notes: campaign.installation_notes as string | null,
       reviewedAt: campaign.installation_reviewed_at as string | null,
     };
+  });
+
+// ─── Pose impossible ─────────────────────────────────────────────────────────
+
+/** Signale qu'une pose n'a pas pu être réalisée (motif + photos optionnelles). */
+export const reportInstallationImpossible = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        campaignRequestId: z.string().uuid(),
+        reason: z.string().min(5).max(1000),
+        photoUrls: z.array(z.string()).max(5).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: payee } = await context.supabase
+      .from("payee_profiles")
+      .select("kind, certification_status")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const isInstaller =
+      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+    if (!isInstaller) throw new Error("Accès réservé aux poseurs certifiés.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: job } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("id, installation_photos, installation_status")
+      .eq("id", data.campaignRequestId)
+      .eq("status", "approved")
+      .maybeSingle();
+    if (!job) throw new Error("Mission introuvable.");
+    if (job.installation_status === "approved") throw new Error("La pose est déjà validée.");
+
+    const existing = job.installation_photos as { claimed_by?: string } | null;
+    if (existing?.claimed_by && existing.claimed_by !== context.userId) {
+      throw new Error("Cette mission appartient à un autre poseur.");
+    }
+
+    const { error } = await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        installation_impossible_reason: data.reason,
+        installation_impossible_at: new Date().toISOString(),
+        installation_impossible_photos: data.photoUrls ?? [],
+        installation_status: "impossible",
+        pose_installer_user_id: context.userId,
+      } as never)
+      .eq("id", data.campaignRequestId);
+    if (error) throw new Error(error.message);
+
+    return { ok: true };
   });
 
 // ─── Dépose ──────────────────────────────────────────────────────────────────
