@@ -37,7 +37,7 @@ type Message = {
 };
 
 function OwnerMessagesPage() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dateLocale = i18n.language;
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
@@ -153,7 +153,7 @@ function OwnerMessagesPage() {
   }, [userId, activeThread]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("owner.messages.loading")}</div>;
   }
 
   return (
@@ -162,10 +162,10 @@ function OwnerMessagesPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">Messagerie</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">{t("owner.messages.title")}</h1>
           </div>
           <Link to="/owner" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4" /> Retour
+            <ArrowLeft className="w-4 h-4" /> {t("owner.messages.back")}
           </Link>
         </div>
       </header>
@@ -176,7 +176,7 @@ function OwnerMessagesPage() {
             {threads.length === 0 ? (
               <div className="p-6 text-center text-sm text-muted-foreground">
                 <div className="text-3xl mb-2">💬</div>
-                Aucun message pour l'instant.
+                {t("owner.messages.empty")}
               </div>
             ) : (
               threads.map((t) => (
@@ -234,7 +234,7 @@ function OwnerMessagesPage() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(); } }}
-                  placeholder="Votre message…"
+                  placeholder={t("owner.messages.placeholder")}
                   maxLength={2000}
                   className="flex-1 rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
@@ -249,7 +249,7 @@ function OwnerMessagesPage() {
             </div>
           ) : (
             <div className="rounded-2xl border border-border bg-card flex items-center justify-center text-muted-foreground text-sm">
-              Sélectionnez une conversation
+              {t("owner.messages.select_thread")}
             </div>
           )}
         </div>
