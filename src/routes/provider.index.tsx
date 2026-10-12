@@ -193,6 +193,32 @@ function ProviderDashboard() {
 
         <ProfilePreview profile={profile} onSaved={load} />
 
+        {quotes.length > 0 && (
+          <div className="grid sm:grid-cols-4 gap-4 mb-6">
+            <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_total")}</p>
+              <p className="font-display text-2xl font-bold">{quotes.length}</p>
+            </div>
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_pending")}</p>
+              <p className="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">
+                {quotes.filter((q) => q.status === "pending").length}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_quoted")}</p>
+              <p className="font-display text-2xl font-bold text-primary">
+                {quotes.filter((q) => q.status === "quoted").length}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-1">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_accepted")}</p>
+              <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                {quotes.filter((q) => q.status === "accepted").length}
+              </p>
+            </div>
+          </div>
+        )}
 
         <h2 className="font-display text-xl font-bold mb-3">{t("provider.dashboard.requests_count", { count: quotes.length })}</h2>
         {quotes.length === 0 ? (
