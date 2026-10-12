@@ -187,7 +187,7 @@ function CommercialInscription() {
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/commercial/inscription?mode=signin"
               generateLabel={t("commercial.inscription.ai_generate")}
-              generatingLabel={t("commercial.inscription.ai_generating")}
+              generateLabel={t("commercial.inscription.ai_generating")}
               filledMessage={aiFilled.length > 0 ? t("commercial.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
             />
             <form onSubmit={handleProfile} className="space-y-4">

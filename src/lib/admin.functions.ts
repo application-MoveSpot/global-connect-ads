@@ -968,8 +968,8 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes] = await Promise.all([
-      supabaseAdmin.from("vehicles").select("id", { count: "exact", head: true }).eq("status", "pending"),
-      supabaseAdmin.from("advertiser_briefs").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseAdmin.from("vehicles").select("id", { count: "exact", head: true }).eq("status" as never, "pending"),
+      supabaseAdmin.from("advertiser_briefs").select("id", { count: "exact", head: true }).eq("status" as never, "pending"),
       supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("installation_status" as never, "pending_approval"),
       supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("depose_status" as never, "pending_approval"),
       supabaseAdmin.from("payee_profiles").select("id", { count: "exact", head: true }).eq("certification_status" as never, "pending"),
