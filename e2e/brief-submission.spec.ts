@@ -59,7 +59,7 @@ test.describe("Brief nouveau — chargement de la page", () => {
     await injectTestSession(page);
     await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
     // Attendre que la navigation soit stabilisée (Supabase peut être lent)
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(500);
 
     const url = page.url();
@@ -188,7 +188,7 @@ test.describe("Brief nouveau — formulaire", () => {
     if (isRedirected(url)) return;
 
     // Attendre la fin du chargement potentiel
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const currentUrl = page.url();
     if (isRedirected(currentUrl)) return;
 
@@ -235,7 +235,7 @@ test.describe("Brief nouveau — soumission", () => {
     await injectTestSession(page);
     await page.goto("/annonceur/briefs", { waitUntil: "domcontentloaded" });
     // Attendre la stabilisation (Supabase peut prendre >800ms via proxy)
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(300);
 
     const url = page.url();

@@ -76,7 +76,7 @@ test.describe("Dashboard annonceur — état sans campagne (onboarding)", () => 
   test.beforeEach(async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/annonceur", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
       { timeout: 2000 },

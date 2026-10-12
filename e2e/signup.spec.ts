@@ -46,7 +46,7 @@ test.describe("Inscription annonceur — /annonceur/inscription", () => {
 
   test("soumission vide déclenche la validation HTML5 sur l'email", async ({ page }) => {
     // Attendre la fin de l'hydratation React (SSR → client) avant de cliquer
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const submitBtn = page.locator('button[type="submit"]').first();
     const hasBtn = await submitBtn.isVisible().catch(() => false);
     if (!hasBtn) return;
@@ -115,7 +115,7 @@ test.describe("Inscription propriétaire — /proprietaire/inscription", () => {
   });
 
   test("soumission vide déclenche la validation HTML5 sur l'email", async ({ page }) => {
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     const submitBtn = page.locator('button[type="submit"]').first();
     const hasBtn = await submitBtn.isVisible().catch(() => false);
     if (!hasBtn) return;

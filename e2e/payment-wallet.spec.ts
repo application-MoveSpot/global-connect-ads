@@ -77,7 +77,7 @@ test.describe("Portefeuille — composant de recharge", () => {
   test.beforeEach(async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/annonceur/portefeuille", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
       { timeout: 2000 },
@@ -176,7 +176,7 @@ test.describe("Portefeuille — navigation depuis le dashboard", () => {
   test("le dashboard annonceur contient un lien vers le portefeuille", async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/annonceur", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
       { timeout: 2000 },

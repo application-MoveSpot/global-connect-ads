@@ -40,7 +40,7 @@ export async function hasVisibleContent(page: Page) {
 }
 
 export async function waitForHydration(page: Page) {
-  await page.waitForLoadState("networkidle").catch(() => {});
+  await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
   await page
     .waitForFunction(
       () =>

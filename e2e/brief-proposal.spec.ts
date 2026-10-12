@@ -69,7 +69,7 @@ test.describe("Brief nouveau — structure du stepper", () => {
   test.beforeEach(async ({ page }) => {
     await injectTestSession(page);
     await page.goto("/advertiser/briefs/nouveau", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
       { timeout: 2000 },
@@ -148,7 +148,7 @@ test.describe("Brief nouveau — liste des briefs", () => {
   }) => {
     await injectTestSession(page);
     await page.goto("/advertiser/briefs", { waitUntil: "domcontentloaded" });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
     await page.waitForFunction(
       () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
       { timeout: 2000 },
