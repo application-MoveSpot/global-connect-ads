@@ -71,6 +71,22 @@ function ChauffeurEspace() {
   const [driverQrs, setDriverQrs] = useState<{ vehicleId: string; vehicleName: string; vehicleType: string; qrImg: string; url: string }[]>([]);
   const [vehicleZones, setVehicleZones] = useState<Record<string, string[]>>({});
   const fetchDriverQrs = useServerFn(getDriverVehicleQrTokens);
+  const GPS_STORAGE_KEY = "driver_gps_active_v1";
+  const [activeGps, setActiveGps] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(GPS_STORAGE_KEY);
+      if (stored) return new Set(JSON.parse(stored) as string[]);
+    } catch { /* ignore */ }
+    return new Set<string>();
+  });
+  const toggleGps = (vehicleId: string) => {
+    setActiveGps((prev) => {
+      const next = new Set(prev);
+      if (next.has(vehicleId)) next.delete(vehicleId); else next.add(vehicleId);
+      try { localStorage.setItem(GPS_STORAGE_KEY, JSON.stringify([...next])); } catch { /* ignore */ }
+      return next;
+    });
+  };
 
   const loadProfile = async (userId: string) => {
     const { data } = await supabase
@@ -302,7 +318,19 @@ function ChauffeurEspace() {
                       />
                       <div className="min-w-0">
                         <p className="font-semibold text-sm">{q.vehicleName}</p>
-                        <p className="text-xs text-muted-foreground mb-2">{q.vehicleType}</p>
+                        <p className="text-xs text-muted-foreground">{q.vehicleType}</p>
+                        <button
+                          type="button"
+                          onClick={() => toggleGps(q.vehicleId)}
+                          className={`mt-1 mb-2 inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border transition ${
+                            activeGps.has(q.vehicleId)
+                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                              : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${activeGps.has(q.vehicleId) ? "bg-emerald-500" : "bg-muted-foreground"}`} />
+                          {activeGps.has(q.vehicleId) ? t("driver.espace.gps_status_active") : t("driver.espace.gps_status_inactive")}
+                        </button>
                         <div className="flex flex-wrap gap-2">
                           {q.vehicleType === "camion_led" ? (
                             <Link

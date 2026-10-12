@@ -1220,6 +1220,13 @@
       "installation_pending": "Photos de pose en attente",
       "leave_review": "Laisser un avis"
     },
+    "analytics": {
+      "title": "Tableau de bord analytics",
+      "campaigns_count": "Campagnes actives",
+      "total_impressions": "Impressions totales",
+      "cpm": "CPM (coût/1 000 impr.)",
+      "top_zones": "Zones les plus couvertes"
+    },
     "onboarding": {
       "done": "Fait",
       "title_individual": "Annoncez votre événement",
@@ -1423,6 +1430,14 @@
         "ai_panel_title": "Réécrire avec l'IA",
         "ai_panel_desc": "Décrivez votre véhicule et l'IA régénérera le nom, la description et les zones automatiquement.",
         "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
+      },
+      "calendar": {
+        "title": "Calendrier des réservations",
+        "empty": "Aucune campagne réservée sur ce véhicule pour l'instant.",
+        "days": "{{count}} jour(s)",
+        "status_approved": "Approuvée",
+        "status_paid": "Payée",
+        "status_completed": "Terminée"
       }
     },
     "flotte": {

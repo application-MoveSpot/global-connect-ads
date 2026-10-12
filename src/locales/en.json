@@ -1204,6 +1204,13 @@
       "installation_pending": "Installation photos pending",
       "leave_review": "Leave a review"
     },
+    "analytics": {
+      "title": "Analytics dashboard",
+      "campaigns_count": "Active campaigns",
+      "total_impressions": "Total impressions",
+      "cpm": "CPM (cost/1 000 impr.)",
+      "top_zones": "Top covered zones"
+    },
     "onboarding": {
       "done": "Done",
       "title_individual": "Promote your event",
@@ -1399,6 +1406,14 @@
         "ai_panel_title": "Rewrite with AI",
         "ai_panel_desc": "Describe your vehicle and the AI will regenerate the name, description and zones automatically.",
         "ai_generate_error": "The AI could not generate a suggestion. Please try again."
+      },
+      "calendar": {
+        "title": "Booking calendar",
+        "empty": "No campaigns booked for this vehicle yet.",
+        "days": "{{count}} day(s)",
+        "status_approved": "Approved",
+        "status_paid": "Paid",
+        "status_completed": "Completed"
       }
     },
     "flotte": {
