@@ -3,27 +3,44 @@ import { getRequest } from "@tanstack/react-start/server";
 
 import type { Database } from "@/integrations/supabase/types";
 
-export async function hasAuthenticatedBriefRequest(): Promise<boolean> {
+export type AuthCheckResult =
+  | { ok: true; userId: string }
+  | { ok: false; reason: "no_token" | "token_expired" | "token_invalid" | "config_missing" };
+
+export async function checkBriefRequestAuth(): Promise<AuthCheckResult> {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
-  const authorization = getRequest().headers.get("authorization");
 
-  if (!supabaseUrl || !supabasePublishableKey || !authorization?.startsWith("Bearer ")) {
-    return false;
+  if (!supabaseUrl || !supabasePublishableKey) {
+    return { ok: false, reason: "config_missing" };
+  }
+
+  const authorization = getRequest().headers.get("authorization");
+  if (!authorization?.startsWith("Bearer ")) {
+    return { ok: false, reason: "no_token" };
   }
 
   const token = authorization.slice("Bearer ".length).trim();
-  if (!token) return false;
+  if (!token) return { ok: false, reason: "no_token" };
 
   const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
     global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: {
-      storage: undefined,
-      persistSession: false,
-      autoRefreshToken: false,
-    },
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
   const { data, error } = await supabase.auth.getClaims(token);
 
-  return !error && Boolean(data?.claims?.sub);
+  if (error) {
+    const msg = error.message?.toLowerCase() ?? "";
+    const reason = msg.includes("expir") ? "token_expired" : "token_invalid";
+    return { ok: false, reason };
+  }
+  if (!data?.claims?.sub) return { ok: false, reason: "token_invalid" };
+
+  return { ok: true, userId: data.claims.sub };
+}
+
+// Kept for backwards-compat with functions that haven't been migrated yet.
+export async function hasAuthenticatedBriefRequest(): Promise<boolean> {
+  const result = await checkBriefRequestAuth();
+  return result.ok;
 }
