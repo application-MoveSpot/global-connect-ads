@@ -42,6 +42,8 @@ function ProviderProfilPage() {
   const [services, setServices] = useState<string[]>([]);
   const [pricingInfo, setPricingInfo] = useState("");
 
+  const [poseLocationTypes, setPoseLocationTypes] = useState<string[]>([]);
+
   const [siret, setSiret] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -56,7 +58,7 @@ function ProviderProfilPage() {
 
       const { data: prof } = await supabase
         .from("provider_profiles")
-        .select("user_id, full_name, company, email, phone, description, coverage_areas, services, pricing_info, siret, status")
+        .select("user_id, full_name, company, email, phone, description, coverage_areas, services, pricing_info, siret, status, pose_location_types")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -71,6 +73,7 @@ function ProviderProfilPage() {
       setCoverageAreas(Array.isArray(prof.coverage_areas) ? (prof.coverage_areas as string[]).join(", ") : "");
       setServices(Array.isArray(prof.services) ? (prof.services as string[]) : []);
       setPricingInfo(prof.pricing_info ?? "");
+      setPoseLocationTypes(Array.isArray(prof.pose_location_types) ? prof.pose_location_types : []);
       setSiret(prof.siret);
       setStatus(prof.status);
       setPageLoading(false);
@@ -79,6 +82,10 @@ function ProviderProfilPage() {
 
   const toggleService = (s: string) => {
     setServices((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+  };
+
+  const togglePoseType = (pt: string) => {
+    setPoseLocationTypes((prev) => prev.includes(pt) ? prev.filter((x) => x !== pt) : [...prev, pt]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,6 +105,7 @@ function ProviderProfilPage() {
         coverage_areas: coverageAreas ? coverageAreas.split(",").map((z) => z.trim()).filter(Boolean) : [],
         services,
         pricing_info: pricingInfo.trim() || null,
+        pose_location_types: poseLocationTypes,
       })
       .eq("user_id", profileId);
 
@@ -168,6 +176,23 @@ function ProviderProfilPage() {
                         : "border-border bg-input hover:border-primary/40"
                     }`}>
                     {t(`provider.inscription.service_${s}`, { defaultValue: s })}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">{t("profile.pose_location_types")}</label>
+              <p className="text-xs text-muted-foreground mb-2">{t("profile.pose_location_types_hint")}</p>
+              <div className="flex gap-2">
+                {(["garage", "domicile"] as const).map((pt) => (
+                  <button key={pt} type="button" onClick={() => togglePoseType(pt)}
+                    className={`rounded-lg border px-4 py-2 text-sm transition flex items-center gap-1.5 ${
+                      poseLocationTypes.includes(pt)
+                        ? "border-primary bg-primary/10 font-semibold"
+                        : "border-border bg-input hover:border-primary/40"
+                    }`}>
+                    {pt === "garage" ? "🏪" : "🏠"} {t(`provider.dashboard.pose_type_${pt}`)}
                   </button>
                 ))}
               </div>

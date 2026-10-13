@@ -72,7 +72,6 @@ function AdminProvidersPage() {
   };
 
   const rejectImpossible = async (id: string) => {
-    const notes = prompt(t("admin.providers.reject_report_reason")) ?? "";
     await supabase.from("service_quotes").update({
       status: "accepted",
       impossible_reason: null,
