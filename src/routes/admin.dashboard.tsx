@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
 import {
@@ -157,9 +158,9 @@ function AdminDashboard() {
 
   useEffect(() => {
     let alive = true;
-    supabase.auth.getSession().then(({ data }) => {
+    getOrRefreshSession().then((session) => {
       if (!alive) return;
-      if (!data.session) {
+      if (!session) {
         navigate({ to: "/auth" });
         return;
       }

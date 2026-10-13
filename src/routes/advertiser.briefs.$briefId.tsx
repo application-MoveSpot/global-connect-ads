@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { track } from "@/lib/analytics/track";
 import { toast } from "sonner";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -94,11 +95,11 @@ function BriefDetailPage() {
   const doSuggestAdjustments = useServerFn(suggestBriefAdjustments);
 
   const load = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/advertiser/inscription" }); return; }
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
     const [{ data: b }, { data: prof }] = await Promise.all([
       supabase.from("advertiser_briefs").select("*").eq("id", briefId).maybeSingle(),
-      supabase.from("advertiser_profiles").select("account_type").eq("user_id", sess.session.user.id).maybeSingle(),
+      supabase.from("advertiser_profiles").select("account_type").eq("user_id", session.user.id).maybeSingle(),
     ]);
     if (!b) { navigate({ to: "/advertiser" }); return; }
     setBrief(b as Brief);
@@ -108,7 +109,7 @@ function BriefDetailPage() {
       supabase.from("campaign_requests")
         .select("id, status, payment_status, installation_status, start_date, end_date, total_price, vehicle_id")
         .eq("spot_id", briefId)
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false }),
     ]);
     const list = (ps as Proposal[]) ?? [];

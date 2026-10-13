@@ -12,6 +12,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import {
   Copy,
   Check,
@@ -106,8 +107,8 @@ function CommercialDashboard() {
   const load = useCallback(
     async (isRetry = false) => {
       if (isRetry) setRetrying(true);
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) {
+      const session = await getOrRefreshSession();
+      if (!session) {
         navigate({ to: "/commercial/inscription" });
         return;
       }

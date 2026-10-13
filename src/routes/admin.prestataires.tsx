@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { StatusHistory } from "@/components/shared/StatusHistory";
@@ -47,9 +48,9 @@ function AdminProvidersPage() {
   const [authed, setAuthed] = useState(false);
 
   const load = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/auth" }); return; }
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", sess.session.user.id);
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/auth" }); return; }
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", session.user.id);
     if (!(roles ?? []).some((r) => r.role === "admin")) { setAuthed(false); setLoading(false); return; }
     setAuthed(true);
     const [{ data }, { data: reports }, { data: installs }] = await Promise.all([

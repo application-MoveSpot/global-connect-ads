@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { createCommercialProfile } from "@/lib/commercial/commercial.functions";
 import { generateCommercialInscriptionSuggestion } from "@/lib/ai/commercial-inscription-assistant.functions";
 import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
@@ -46,12 +47,12 @@ function CommercialInscription() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await (supabase as any)
           .from("commercial_profiles")
           .select("id")
-          .eq("user_id", data.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) navigate({ to: "/commercial" });
         else setStep("profile");
@@ -109,12 +110,12 @@ function CommercialInscription() {
     } else {
       const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
       if (authErr) { setError(authErr.message); setLoading(false); return; }
-      const { data: sess } = await supabase.auth.getSession();
-      if (sess.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await (supabase as any)
           .from("commercial_profiles")
           .select("id")
-          .eq("user_id", sess.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) { navigate({ to: "/commercial" }); return; }
       }

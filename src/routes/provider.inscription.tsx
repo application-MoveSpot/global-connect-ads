@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -87,17 +88,17 @@ function ProviderSignupPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await supabase
           .from("provider_profiles")
           .select("user_id")
-          .eq("user_id", data.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) navigate({ to: "/provider" });
         else {
-          setEmail(data.session.user.email ?? "");
-          setSessionEmail(data.session.user.email ?? null);
+          setEmail(session.user.email ?? "");
+          setSessionEmail(session.user.email ?? null);
           setStep("profile");
         }
       }
@@ -261,15 +262,15 @@ function ProviderSignupPage() {
       }
     }
     setLoading(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       setError(t("auth.error.session_expired"));
       setLoading(false);
       return;
     }
     const portfolioPaths = portfolio.map((p) => p.path);
     const { error } = await supabase.from("provider_profiles").insert({
-      user_id: sess.session.user.id,
+      user_id: session.user.id,
       company: companyTrim,
       siret: siretCheck.siret,
       full_name: fullNameTrim,

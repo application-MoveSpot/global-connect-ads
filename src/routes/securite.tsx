@@ -3,6 +3,7 @@ import { hreflangLinks } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 
 export const Route = createFileRoute("/securite")({
   head: () => ({
@@ -39,8 +40,8 @@ function SecuritePage() {
 
   const refresh = async () => {
     setLoading(true);
-    const { data: session } = await supabase.auth.getSession();
-    if (!session.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       navigate({ to: "/auth" });
       return;
     }

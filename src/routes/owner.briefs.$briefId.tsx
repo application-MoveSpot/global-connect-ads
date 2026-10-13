@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { generateOwnerBriefProposal } from "@/lib/ai/owner-brief-assistant.functions";
 import { sendBriefProposalReceivedEmail } from "@/lib/campaigns/brief-proposal-emails.server";
 import { track } from "@/lib/analytics/track";
@@ -64,10 +65,10 @@ function BriefDetailPage() {
   const doSendProposalEmail = useServerFn(sendBriefProposalReceivedEmail);
 
   const load = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/owner/inscription" }); return; }
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/owner/inscription" }); return; }
     const { data: prof } = await supabase
-      .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
+      .from("owner_profiles").select("id").eq("user_id", session.user.id).maybeSingle();
     if (!prof) { navigate({ to: "/owner/inscription" }); return; }
     setOwnerId(prof.id);
     ownerIdRef.current = prof.id;

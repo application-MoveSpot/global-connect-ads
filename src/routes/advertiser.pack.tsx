@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { CampaignPackCheckout } from "@/components/advertiser/CampaignPackCheckout";
 import { RouteError } from "@/components/app/RouteError";
@@ -25,15 +26,15 @@ function PackPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
+      const session = await getOrRefreshSession();
+      if (!session) {
         navigate({ to: "/advertiser/inscription", search: { redirect: "/advertiser/pack" } });
         return;
       }
       const { data: prof } = await supabase
         .from("advertiser_profiles")
         .select("account_type")
-        .eq("user_id", data.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       setAccountType((prof as { account_type?: string } | null)?.account_type ?? "business");
       setReady(true);

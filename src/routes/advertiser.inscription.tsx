@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-r
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
@@ -109,12 +110,12 @@ function AnnonceurInscription() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await supabase
           .from("advertiser_profiles")
           .select("id")
-          .eq("user_id", data.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) goNext();
         else setStep("profile");
@@ -165,12 +166,12 @@ function AnnonceurInscription() {
         setLoading(false);
         return;
       }
-      const { data: sess } = await supabase.auth.getSession();
-      if (sess.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await supabase
           .from("advertiser_profiles")
           .select("id")
-          .eq("user_id", sess.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) {
           goNext();
@@ -230,15 +231,15 @@ function AnnonceurInscription() {
       return;
     }
     setLoading(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       setError(t("advertiser.inscription.error_session"));
       setLoading(false);
       return;
     }
     const CGU_VERSION = "2026-08-24";
     const payload: Record<string, unknown> = {
-      user_id: sess.session.user.id,
+      user_id: session.user.id,
       full_name: fullName,
       phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
       city: city || null,

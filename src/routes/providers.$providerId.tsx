@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { PROVIDER_SERVICES, providerServiceLabel } from "@/lib/providers/provider-services";
 import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
@@ -70,15 +71,15 @@ function ProviderDetailPage() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: p }, { data: sess }] = await Promise.all([
+      const [{ data: p }, authSession] = await Promise.all([
         supabase.from("public_provider_profiles")
           .select("user_id, company, full_name, website, description, coverage_areas, portfolio_urls, pricing_info, logo_url, services")
           .eq("user_id", providerId).maybeSingle(),
-        supabase.auth.getSession(),
+        getOrRefreshSession(),
       ]);
       const prov = p as Provider | null;
       setProvider(prov);
-      setAuthed(!!sess.session);
+      setAuthed(!!authSession);
       if (prov) {
         const defaultService = prov.services?.[0] ?? "covering_vehicule";
         setServiceType(defaultService);
@@ -117,14 +118,14 @@ function ProviderDetailPage() {
   const submitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/advertiser/inscription" }); return; }
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
     if (message.trim().length < 20) { setError(t("providers.detail.error.short_message")); return; }
     const contactHit = detectContact(message);
     if (contactHit) { setError(t("providers.detail.error.contact_detected")); return; }
     setSubmitting(true);
     const { error: insErr } = await supabase.from("service_quotes").insert({
-      advertiser_id: sess.session.user.id,
+      advertiser_id: session.user.id,
       provider_id: providerId,
       service_type: serviceType || "covering_vehicule",
       vehicle_type: vehicleType || null,

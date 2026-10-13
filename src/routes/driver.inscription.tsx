@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
@@ -78,12 +79,12 @@ function ChauffeurInscription() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) return;
+      const session = await getOrRefreshSession();
+      if (!session) return;
       const { data: existing } = await supabase
         .from("payee_profiles")
         .select("id")
-        .eq("user_id", data.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       if (existing) navigate({ to: "/driver/espace" });
       else setStep("profile");
@@ -133,12 +134,12 @@ function ChauffeurInscription() {
         setLoading(false);
         return;
       }
-      const { data: sess } = await supabase.auth.getSession();
-      if (sess.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await supabase
           .from("payee_profiles")
           .select("id")
-          .eq("user_id", sess.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) {
           navigate({ to: "/driver/espace" });
@@ -199,15 +200,15 @@ function ChauffeurInscription() {
       return;
     }
     setLoading(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       setError(t("driver.inscription.error_session"));
       setLoading(false);
       return;
     }
     const CGU_VERSION = "2026-08-24";
     const payload: Record<string, unknown> = {
-      user_id: sess.session.user.id,
+      user_id: session.user.id,
       kind,
       full_name: fullName,
       phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,

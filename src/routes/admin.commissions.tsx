@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
 import {
@@ -57,8 +58,8 @@ function CommissionsAdmin() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/auth" }); return; }
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/auth" }); return; }
       const { data: isAdmin } = await (supabase.rpc as unknown as (fn: string) => Promise<{ data: boolean | null }>)("check_is_admin");
       if (!isAdmin) { setAuth("denied"); return; }
       setAuth("ok");

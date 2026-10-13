@@ -3,6 +3,7 @@ import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { PartnerSubscriptionCard } from "@/components/partner/PartnerSubscriptionCard";
 import { RouteError } from "@/components/app/RouteError";
@@ -41,12 +42,12 @@ function PartnerDashboard() {
   const [profile, setProfile] = useState<PartnerProfile | null>(null);
 
   const load = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/partner/inscription" }); return; }
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/partner/inscription" }); return; }
     const { data: p } = await supabase
       .from("partner_profiles")
       .select("id, user_id, company, full_name, email, phone, website, description, status, admin_notes, stripe_subscription_status, stripe_subscription_period_end")
-      .eq("user_id", sess.session.user.id)
+      .eq("user_id", session.user.id)
       .maybeSingle();
     if (!p) { navigate({ to: "/partner/inscription" }); return; }
     setProfile(p as unknown as PartnerProfile);

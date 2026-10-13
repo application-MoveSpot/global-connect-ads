@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -41,13 +42,13 @@ function PartnerProfilPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/partner/inscription" }); return; }
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/partner/inscription" }); return; }
 
       const { data: prof } = await supabase
         .from("partner_profiles")
         .select("id, full_name, company, city, phone, email, description, siret, siret_denomination, siret_verified_at, referral_code")
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
 
       if (!prof) { navigate({ to: "/partner/inscription" }); return; }

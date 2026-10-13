@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateProviderQuoteResponse } from "@/lib/ai/provider-quote-assistant.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
@@ -58,15 +59,15 @@ function ProviderDashboard() {
   const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>({ open: false, quoteId: null });
 
   const load = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/provider/connexion" }); return; }
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/provider/connexion" }); return; }
     const { data: p } = await supabase.from("provider_profiles")
       .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end, pose_location_types")
-      .eq("user_id", sess.session.user.id).maybeSingle();
+      .eq("user_id", session.user.id).maybeSingle();
     if (!p) { navigate({ to: "/provider/inscription" }); return; }
     setProfile(p as Profile);
     const { data: qs } = await supabase.from("service_quotes")
-      .select("*").eq("provider_id", sess.session.user.id)
+      .select("*").eq("provider_id", session.user.id)
       .order("created_at", { ascending: false });
     const quoteList = (qs as Quote[]) ?? [];
     setQuotes(quoteList);
@@ -108,8 +109,8 @@ function ProviderDashboard() {
   const submitImpossible = async (reason: string, files: File[]) => {
     const { quoteId } = impossibleModal;
     if (!quoteId) return;
-    const { data: sess } = await supabase.auth.getSession();
-    const uid = sess.session?.user.id;
+    const session = await getOrRefreshSession();
+    const uid = session?.user.id;
     if (!uid) return;
 
     const photoUrls: string[] = [];
