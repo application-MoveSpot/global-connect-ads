@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
@@ -76,12 +77,12 @@ function WalletPage() {
   // Load balance once
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/advertiser/inscription" }); return; }
-      setUserId(sess.session.user.id);
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      setUserId(session.user.id);
       const [walletResult, profResult] = await Promise.allSettled([
         fetchWallet(),
-        supabase.from("advertiser_profiles").select("account_type").eq("user_id", sess.session.user.id).maybeSingle(),
+        supabase.from("advertiser_profiles").select("account_type").eq("user_id", session.user.id).maybeSingle(),
       ]);
       if (walletResult.status === "fulfilled") setBalanceCents(walletResult.value.balance_cents);
       if (profResult.status === "fulfilled") {

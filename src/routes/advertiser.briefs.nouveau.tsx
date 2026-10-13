@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { track } from "@/lib/analytics/track";
 import { firePixelEvent } from "@/lib/analytics/pixels";
 import { captureError } from "@/lib/sentry";
@@ -316,21 +317,21 @@ function NewBriefPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) {
+      const session = await getOrRefreshSession();
+      if (!session) {
         // Guest mode: let them choose display type first (display-type step)
         return;
       }
       const { data: prof } = await supabase
         .from("advertiser_profiles")
         .select("user_id, account_type")
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       if (!prof) {
         navigate({ to: "/advertiser/inscription" });
         return;
       }
-      setUserId(sess.session.user.id);
+      setUserId(session.user.id);
       const type = (prof as { account_type?: string }).account_type ?? "business";
       setAccountType(type);
       // All users go through the display-type step — no skip needed
