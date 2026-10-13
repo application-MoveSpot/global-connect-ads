@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 import { LogoLink } from "@/components/app/LogoLink";
 import { NotificationBell } from "@/components/app/NotificationBell";
@@ -99,9 +100,9 @@ function ChauffeurEspace() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/driver/inscription" }); return; }
-      const userId = sess.session.user.id;
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/driver/inscription" }); return; }
+      const userId = session.user.id;
       userIdRef.current = userId;
       setAuthUserId(userId);
       const { data } = await supabase

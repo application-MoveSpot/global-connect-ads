@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { useServerFn } from "@tanstack/react-start";
 import { generateVehicleSuggestion } from "@/lib/ai/vehicle-assistant.functions";
@@ -58,13 +59,13 @@ function EditVehiclePage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/owner/inscription" }); return; }
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/owner/inscription" }); return; }
 
       const { data: prof } = await supabase
         .from("owner_profiles")
         .select("id")
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       if (!prof) { navigate({ to: "/owner/inscription" }); return; }
       setOwnerId(prof.id);

@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   // Navigateur uniquement : la session Supabase vit dans localStorage.
@@ -11,9 +12,9 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   }),
   beforeLoad: async ({ search, location }: { search: Record<string, string>; location: { pathname: string; searchStr: string; search: string } }) => {
     if (!search.authorization_id) throw new Error("authorization_id manquant");
-    const { data } = await supabase.auth.getSession();
+    const session = await getOrRefreshSession();
     const next = location.pathname + location.searchStr;
-    if (!data.session) throw redirect({ to: "/auth", search: { next } });
+    if (!session) throw redirect({ to: "/auth", search: { next } });
   },
   loader: async ({ location }: { location: { pathname: string; searchStr: string; search: string } }) => {
     const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import {
   submitRefundRequest,
   listMyRefundRequests,
@@ -60,10 +61,10 @@ function RemboursementAnnonceurPage() {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) return;
+      const session = await getOrRefreshSession();
+      if (!session) return;
 
-      const userId = sess.session.user.id;
+      const userId = session.user.id;
       const { data: camps } = await supabase
         .from("campaign_requests")
         .select("id, spot_name, start_date, total_price")

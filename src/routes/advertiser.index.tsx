@@ -11,6 +11,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { CampaignStepper } from "@/components/shared/CampaignStepper";
 import { MobilityMap } from "@/components/shared/MobilityMap";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
 import { track } from "@/lib/analytics/track";
 import { downloadCsv } from "@/lib/exportCsv";
@@ -101,15 +102,15 @@ function AnnonceurDashboard() {
   );
 
   const init = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       navigate({ to: "/advertiser/inscription" });
       return;
     }
     const { data: prof, error: profErr } = await supabase
       .from("advertiser_profiles")
       .select("full_name, company, account_type")
-      .eq("user_id", sess.session.user.id)
+      .eq("user_id", session.user.id)
       .maybeSingle();
     if (profErr) throw new Error(profErr.message);
     if (!prof) {
@@ -117,8 +118,8 @@ function AnnonceurDashboard() {
       return;
     }
     setProfile(prof);
-    setUserId(sess.session.user.id);
-    await reload(sess.session.user.id);
+    setUserId(session.user.id);
+    await reload(session.user.id);
     setLoading(false);
   }, [navigate, reload]);
 
@@ -198,8 +199,8 @@ function AnnonceurDashboard() {
       void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
       firePixelEvent("Purchase", { value: (r.total_price ?? 0) / 100, currency: "EUR", content_name: "campaign" });
       toast.success(t("advertiser.payment_success"));
-      const { data: sess } = await supabase.auth.getSession();
-      if (sess.session) await reload(sess.session.user.id);
+      const session = await getOrRefreshSession();
+      if (session) await reload(session.user.id);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("advertiser.payment_failed"));
     } finally {

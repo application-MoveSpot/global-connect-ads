@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -47,17 +48,17 @@ function PartnerSignupPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await supabase
           .from("partner_profiles")
           .select("user_id")
-          .eq("user_id", data.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) navigate({ to: "/partner" });
         else {
-          setEmail(data.session.user.email ?? "");
-          setSessionEmail(data.session.user.email ?? null);
+          setEmail(session.user.email ?? "");
+          setSessionEmail(session.user.email ?? null);
           setStep("profile");
         }
       }
@@ -182,14 +183,14 @@ function PartnerSignupPage() {
       }
     }
     setLoading(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       setError(t("auth.session_expired"));
       setLoading(false);
       return;
     }
     const { error } = await supabase.from("partner_profiles").insert({
-      user_id: sess.session.user.id,
+      user_id: session.user.id,
       company: company.trim(),
       full_name: fullName.trim(),
       email,

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { CheckCircle, Clock, Star, Zap } from "lucide-react";
@@ -44,8 +45,8 @@ function ConfirmationPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/advertiser/inscription" }); return; }
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
       const [briefRes, profileRes] = await Promise.allSettled([
         supabase
           .from("advertiser_briefs")
@@ -55,7 +56,7 @@ function ConfirmationPage() {
         supabase
           .from("advertiser_profiles")
           .select("account_type")
-          .eq("user_id", sess.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle(),
       ]);
       if (briefRes.status === "fulfilled") {

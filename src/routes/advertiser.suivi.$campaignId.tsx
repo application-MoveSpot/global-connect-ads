@@ -7,6 +7,7 @@ import { getInstallationPhotosForAdvertiser } from "@/lib/providers/installation
 import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera, Clock, Star, TrendingUp } from "lucide-react";
@@ -98,12 +99,12 @@ function SuiviPage() {
   const { data: advertiserMeta } = useQuery({
     queryKey: ["campaign-advertiser-meta", campaignId],
     queryFn: async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) return null;
+      const session = await getOrRefreshSession();
+      if (!session) return null;
       const { data: prof } = await supabase
         .from("advertiser_profiles")
         .select("account_type, full_name")
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       return prof as { account_type?: string; full_name?: string } | null;
     },

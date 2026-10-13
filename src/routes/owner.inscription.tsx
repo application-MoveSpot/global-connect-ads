@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { generateOwnerInscriptionSuggestion } from "@/lib/ai/owner-inscription-assistant.functions";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
@@ -57,17 +58,17 @@ function InscriptionPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: existing } = await supabase
           .from("owner_profiles")
           .select("id")
-          .eq("user_id", data.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (existing) {
           navigate({ to: "/owner" });
         } else {
-          setSessionEmail(data.session.user.email ?? null);
+          setSessionEmail(session.user.email ?? null);
           setStep("profile");
         }
       }
@@ -170,14 +171,14 @@ function InscriptionPage() {
       return;
     }
     setLoading(true);
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       setError(t("owner.inscription.error_session"));
       setLoading(false);
       return;
     }
     const { error } = await supabase.from("owner_profiles").upsert({
-      user_id: sess.session.user.id,
+      user_id: session.user.id,
       full_name: fullName,
       phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
       company: isParticulier

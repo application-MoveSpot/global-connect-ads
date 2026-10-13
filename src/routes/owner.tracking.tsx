@@ -15,6 +15,7 @@ import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react
 import { getDrivingRules } from "@/lib/fleet/driving-rules";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/owner/tracking")({
@@ -73,9 +74,9 @@ function TrackingPage() {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
+    getOrRefreshSession().then((session) => {
       if (!mounted) return;
-      if (!data.session) {
+      if (!session) {
         navigate({ to: "/owner/inscription" });
         return;
       }

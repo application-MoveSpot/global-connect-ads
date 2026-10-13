@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { downloadCsv } from "@/lib/exportCsv";
@@ -54,15 +55,15 @@ function HistoriquePage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) {
+      const session = await getOrRefreshSession();
+      if (!session) {
         navigate({ to: "/owner/inscription" });
         return;
       }
       const { data: prof } = await supabase
         .from("owner_profiles")
         .select("id")
-        .eq("user_id", sess.session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
       if (!prof) {
         navigate({ to: "/owner/inscription" });

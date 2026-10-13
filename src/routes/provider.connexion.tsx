@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -27,12 +28,12 @@ function ProviderLoginPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      const session = await getOrRefreshSession();
+      if (session) {
         const { data: profile } = await supabase
           .from("provider_profiles")
           .select("user_id")
-          .eq("user_id", data.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle();
         if (profile) {
           navigate({ to: "/provider" });
@@ -62,7 +63,7 @@ function ProviderLoginPage() {
     const { data: profile } = await supabase
       .from("provider_profiles")
       .select("user_id")
-      .eq("user_id", data.session.user.id)
+      .eq("user_id", data.session!.user.id)
       .maybeSingle();
     if (profile) {
       navigate({ to: "/provider" });

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { NotificationBell } from "@/components/app/NotificationBell";
 import { pushNotification } from "@/hooks/useNotifications";
@@ -60,11 +61,11 @@ function OpenBriefsPage() {
 
   // Fetches profile + vehicle types once; returns them for page fetches
   const loadProfile = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) { navigate({ to: "/owner/inscription" }); return null; }
-    setUserId(sess.session.user.id);
+    const session = await getOrRefreshSession();
+    if (!session) { navigate({ to: "/owner/inscription" }); return null; }
+    setUserId(session.user.id);
     const { data: prof } = await supabase
-      .from("owner_profiles").select("id").eq("user_id", sess.session.user.id).maybeSingle();
+      .from("owner_profiles").select("id").eq("user_id", session.user.id).maybeSingle();
     if (!prof) { navigate({ to: "/owner/inscription" }); return null; }
     setOwnerId(prof.id);
     ownerIdRef.current = prof.id;

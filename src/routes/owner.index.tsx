@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
 import { respondToCampaignRequest } from "@/lib/campaigns/campaign-notifications.server";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
 import { RouteSummary } from "@/components/shared/RouteSummary";
@@ -105,16 +106,16 @@ function DashboardPage() {
   const callRespondToCampaign = useServerFn(respondToCampaignRequest);
 
   const load = useCallback(async () => {
-    const { data: sess } = await supabase.auth.getSession();
-    if (!sess.session) {
+    const session = await getOrRefreshSession();
+    if (!session) {
       navigate({ to: "/owner/inscription" });
       return;
     }
-    setUserId(sess.session.user.id);
+    setUserId(session.user.id);
     const { data: prof, error: profErr } = await supabase
       .from("owner_profiles")
       .select("id, full_name")
-      .eq("user_id", sess.session.user.id)
+      .eq("user_id", session.user.id)
       .maybeSingle();
     if (profErr) throw new Error(profErr.message);
     if (!prof) {

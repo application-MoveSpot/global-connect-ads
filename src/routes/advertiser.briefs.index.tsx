@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
@@ -49,18 +50,18 @@ function BriefsListPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/advertiser/inscription" }); return; }
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
       const [{ data: bs }, { data: prof }] = await Promise.all([
         supabase
           .from("advertiser_briefs")
           .select("id, title, status, start_date, end_date, vehicle_types, zones, created_at")
-          .eq("advertiser_id", sess.session.user.id)
+          .eq("advertiser_id", session.user.id)
           .order("created_at", { ascending: false }),
         supabase
           .from("advertiser_profiles")
           .select("account_type")
-          .eq("user_id", sess.session.user.id)
+          .eq("user_id", session.user.id)
           .maybeSingle(),
       ]);
       const list = (bs as Brief[]) ?? [];

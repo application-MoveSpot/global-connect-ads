@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { lovable } from "@/integrations/lovable";
 import { getStoredUtm } from "@/lib/analytics/utm";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -41,8 +42,8 @@ function AuthPage() {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!data.session) return;
+    getOrRefreshSession().then(async (session) => {
+      if (!session) return;
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") return;
       if (next) {

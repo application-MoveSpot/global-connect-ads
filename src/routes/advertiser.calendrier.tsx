@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
@@ -63,9 +64,9 @@ function CalendrierPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) { navigate({ to: "/advertiser/inscription" }); return; }
-      const userId = sess.session.user.id;
+      const session = await getOrRefreshSession();
+      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      const userId = session.user.id;
 
       const [{ data: briefs }, { data: campaigns }] = await Promise.all([
         supabase
