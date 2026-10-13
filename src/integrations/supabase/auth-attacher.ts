@@ -8,8 +8,10 @@ export const attachSupabaseAuth = createMiddleware({ type: 'function' }).client(
   async ({ next }) => {
     const { data } = await supabase.auth.getSession()
     let token = data.session?.access_token
-    // If no token (tab suspended, token silently expired), force a refresh once.
-    if (!token) {
+    const expiresAt = data.session?.expires_at
+    // Refresh if absent OR already expired (30 s buffer covers clock drift and
+    // mobile tab suspension where autoRefreshToken timer couldn't run).
+    if (!token || (expiresAt && expiresAt * 1000 < Date.now() + 30_000)) {
       const { data: refreshed } = await supabase.auth.refreshSession()
       token = refreshed.session?.access_token
     }
