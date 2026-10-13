@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
-import { hasAuthenticatedBriefRequest } from "./brief-auth.server";
+import { checkBriefRequestAuth } from "./brief-auth.server";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
 
@@ -31,12 +31,15 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<BriefSuggestionResult> => {
     assertRateLimit(`brief-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
-    if (!(await hasAuthenticatedBriefRequest())) {
-      return {
-        ok: false,
-        code: "UNAUTHORIZED",
-        message: "Session expirée — reconnectez-vous puis réessayez.",
-      };
+    const auth = await checkBriefRequestAuth();
+    if (!auth.ok) {
+      const message =
+        auth.reason === "token_expired"
+          ? "Votre session a expiré — rechargez la page ou reconnectez-vous."
+          : auth.reason === "no_token"
+            ? "Vous devez être connecté pour utiliser l'assistant IA."
+            : "Session invalide — reconnectez-vous puis réessayez.";
+      return { ok: false, code: "UNAUTHORIZED", message };
     }
 
     const apiKey = process.env.LOVABLE_API_KEY;
