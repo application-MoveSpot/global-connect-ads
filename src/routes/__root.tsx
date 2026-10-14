@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 
 import i18n from "@/lib/i18n";
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
+import { BetaGuard } from "@/components/app/BetaGuard";
 import { LanguageAuditGuard } from "@/components/app/LanguageAuditGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
 import { TestEnvBanner } from "@/components/app/TestEnvBanner";
@@ -210,7 +211,9 @@ function RootComponent() {
         <AppUpdateGuard />
         <LanguageAuditGuard />
         <StatusBanner />
-        <Outlet />
+        <BetaGuard>
+          <Outlet />
+        </BetaGuard>
         <CookieBanner />
       </QueryClientProvider>
     </Sentry.ErrorBoundary>
