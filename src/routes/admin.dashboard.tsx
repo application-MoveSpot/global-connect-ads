@@ -37,6 +37,7 @@ import {
   adminReviewDepose,
   adminListDeposePending,
   adminReviewVehicle,
+  adminReAnalyzeVehicle,
   adminSendStripeReminder,
   adminListReferrals,
   adminCreditReferral,
@@ -118,6 +119,8 @@ function AdminDashboard() {
   const getPendingCounts = useServerFn(adminPendingCounts);
   const generateDecisionNote = useServerFn(generateAdminDecisionNote);
   const [aiDecisionLoading, setAiDecisionLoading] = useState<Record<string, boolean>>({});
+  const [reAnalyzeLoading, setReAnalyzeLoading] = useState<Record<string, boolean>>({});
+  const reAnalyzeVehicle = useServerFn(adminReAnalyzeVehicle);
 
   const handleGenerateNote = async (
     id: string,
@@ -636,23 +639,59 @@ function AdminDashboard() {
                       {v.description && (
                         <p className="text-xs text-muted-foreground whitespace-pre-wrap">{v.description}</p>
                       )}
-                      {v.ai_verification && (
-                        <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs space-y-1">
-                          <p>{t("admin.photo_label")} : <span className={v.ai_verification.photo_match === "ok" ? "text-green-600" : "text-amber-600"}>{v.ai_verification.photo_match}</span>
-                            {v.ai_verification.photo_notes ? ` — ${v.ai_verification.photo_notes}` : ""}
-                          </p>
-                          {v.ai_verification.condition_alert && (
-                            <p className="text-destructive">{v.ai_verification.condition_alert}</p>
-                          )}
-                          {v.ai_verification.ai_generated_detected && (
-                            <p className="text-destructive">{t("admin.ai_detected")} — {v.ai_verification.ai_generated_notes}</p>
-                          )}
-                          <p className="text-muted-foreground">
-                            {t("admin.price_estimate", { min: v.ai_verification.suggested_price_min, max: v.ai_verification.suggested_price_max })}
-                            · {v.ai_verification.estimated_impressions_per_day?.toLocaleString(i18n.language)} {t("admin.imp_per_day")}
-                          </p>
+                      <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-semibold text-[11px] uppercase tracking-wide text-muted-foreground">{t("admin.ai_verification_label")}</span>
+                          <button
+                            type="button"
+                            disabled={reAnalyzeLoading[v.id]}
+                            onClick={async () => {
+                              setReAnalyzeLoading((prev) => ({ ...prev, [v.id]: true }));
+                              try {
+                                await reAnalyzeVehicle({ data: { vehicleId: v.id } });
+                                qc.invalidateQueries({ queryKey: ["admin-vehicles"] });
+                                toast.success(t("admin.ai_reanalyzed"));
+                              } catch (err: any) {
+                                toast.error(err?.message ?? t("admin.ai_reanalyze_error"));
+                              } finally {
+                                setReAnalyzeLoading((prev) => ({ ...prev, [v.id]: false }));
+                              }
+                            }}
+                            className="rounded px-2 py-0.5 text-[11px] border border-border bg-background hover:bg-secondary transition disabled:opacity-60"
+                          >
+                            {reAnalyzeLoading[v.id] ? "…" : `🔍 ${t("admin.ai_reanalyze_btn")}`}
+                          </button>
                         </div>
-                      )}
+                        {v.ai_verification ? (
+                          <>
+                            {v.ai_verification.ai_generated_detected ? (
+                              <div className="rounded bg-destructive/15 border border-destructive/40 text-destructive px-2 py-1.5 space-y-1">
+                                <p className="font-semibold">⚠️ {t("admin.ai_detected")}</p>
+                                {v.ai_verification.ai_generated_notes && <p className="opacity-90">{v.ai_verification.ai_generated_notes}</p>}
+                              </div>
+                            ) : (
+                              <p className="text-green-600">✓ {t("admin.ai_not_detected")}</p>
+                            )}
+                            <p>
+                              <span className={v.ai_verification.photo_match === "ok" ? "text-green-600" : v.ai_verification.photo_match === "mismatch" ? "text-destructive" : "text-amber-600"}>
+                                {v.ai_verification.photo_match === "ok" ? `✓ ${t("admin.photo_coherent")}` : v.ai_verification.photo_match === "mismatch" ? `✗ ${t("admin.photo_mismatch")}` : `⚠ ${t("admin.photo_doubtful")}`}
+                              </span>
+                              {v.ai_verification.photo_notes ? ` — ${v.ai_verification.photo_notes}` : ""}
+                            </p>
+                            {v.ai_verification.condition_alert && (
+                              <p className="text-destructive">⚠ {v.ai_verification.condition_alert}</p>
+                            )}
+                            {v.ai_verification.suggested_price_max > 0 && (
+                              <p className="text-muted-foreground">
+                                {t("admin.price_estimate", { min: v.ai_verification.suggested_price_min, max: v.ai_verification.suggested_price_max })}
+                                · {v.ai_verification.estimated_impressions_per_day?.toLocaleString(i18n.language)} {t("admin.imp_per_day")}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <p className="text-muted-foreground italic">{t("admin.ai_not_analyzed")}</p>
+                        )}
+                      </div>
                       {v.admin_notes && (
                         <p className="text-xs italic text-muted-foreground">{v.admin_notes}</p>
                       )}

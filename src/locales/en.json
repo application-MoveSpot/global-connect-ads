@@ -2730,7 +2730,16 @@
       "severity_low": "Low"
     },
     "photo_label": "Photo",
-    "ai_detected": "⚠ AI detected",
+    "ai_detected": "AI-generated photo detected",
+    "ai_not_detected": "No AI detected",
+    "ai_not_analyzed": "Not analyzed — click 🔍 Re-analyze to run the AI check.",
+    "ai_verification_label": "AI Verification",
+    "ai_reanalyze_btn": "Re-analyze",
+    "ai_reanalyzed": "AI analysis updated.",
+    "ai_reanalyze_error": "Error during AI analysis.",
+    "photo_coherent": "Photo coherent",
+    "photo_mismatch": "Type mismatch",
+    "photo_doubtful": "Doubtful photo",
     "price_estimate": "Est. price: {{min}}–{{max}} €/day",
     "imp_per_day": "imp./day",
     "connexion": {
