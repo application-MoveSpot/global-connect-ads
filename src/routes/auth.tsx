@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { lovable } from "@/integrations/lovable";
@@ -30,6 +31,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
 
@@ -172,9 +174,19 @@ function AuthPage() {
               </div>
               <div>
                 <label htmlFor="auth-password" className="block text-sm font-medium mb-1.5">{t("auth.password")}</label>
-                <input id="auth-password" type="password" required minLength={8} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t("auth.password_placeholder")}
-                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <div className="relative">
+                  <input id="auth-password" type={showPassword ? "text" : "password"} required minLength={8} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t("auth.password_placeholder")}
+                    className="w-full rounded-lg bg-input border border-border px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {mode === "signin" && (
                   <div className="mt-2 text-right">
                     <Link to="/reset-password" className="text-xs text-muted-foreground hover:text-foreground underline">{t("auth.forgot_password")}</Link>
