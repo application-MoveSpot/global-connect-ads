@@ -50,6 +50,13 @@
       "when": 1791998941910,
       "tag": "0006_vehicle_photos_public_read",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792001189311,
+      "tag": "0007_drop_vehicle_photos_public_read",
+      "breakpoints": true
     }
   ]
 }
