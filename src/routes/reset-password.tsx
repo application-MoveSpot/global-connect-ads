@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
@@ -20,6 +21,8 @@ function ResetPasswordPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const [info, setInfo] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -92,13 +95,27 @@ function ResetPasswordPage() {
           <form onSubmit={updatePassword} className="space-y-4">
             <div>
               <label htmlFor="new-password" className="block text-sm font-medium mb-1.5">{t("reset_password.new_password_label")}</label>
-              <input id="new-password" type="password" required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <div className="relative">
+                <input id="new-password" type={showPassword ? "text" : "password"} required minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <button type="button" onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Masquer" : "Afficher"}>
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <div>
               <label htmlFor="confirm-password" className="block text-sm font-medium mb-1.5">{t("reset_password.confirm_label")}</label>
-              <input id="confirm-password" type="password" required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+              <div className="relative">
+                <input id="confirm-password" type={showPassword2 ? "text" : "password"} required minLength={8} autoComplete="new-password" value={password2} onChange={(e) => setPassword2(e.target.value)}
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <button type="button" onClick={() => setShowPassword2((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword2 ? "Masquer" : "Afficher"}>
+                  {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
             {info && <div className="rounded-lg bg-primary/10 border border-primary/30 p-3 text-sm">{info}</div>}
