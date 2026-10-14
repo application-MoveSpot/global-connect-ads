@@ -2657,6 +2657,9 @@ type InstallationItem = {
   pose_fee_cents: number | null;
   pose_payout_status: string | null;
   pose_stripe_transfer_id: string | null;
+  installation_impossible_reason: string | null;
+  installation_impossible_photos: unknown;
+  installation_impossible_at: string | null;
 };
 
 function InstallationReviewCard({
@@ -2695,7 +2698,15 @@ function InstallationReviewCard({
           )}
         </div>
         <span
-          className={`text-xs font-semibold ${item.installation_status === "pending_approval" ? "text-amber-500" : item.installation_status === "approved" ? "text-emerald-500" : "text-muted-foreground"}`}
+          className={`text-xs font-semibold ${
+            item.installation_status === "pending_approval"
+              ? "text-amber-500"
+              : item.installation_status === "approved"
+                ? "text-emerald-500"
+                : item.installation_status === "impossible"
+                  ? "text-orange-500"
+                  : "text-muted-foreground"
+          }`}
         >
           {item.installation_status === "pending_approval"
             ? `⏳ ${t("admin.dashboard.status_pending")}`
@@ -2703,11 +2714,45 @@ function InstallationReviewCard({
               ? `✅ ${t("admin.dashboard.pose_status_approved")}`
               : item.installation_status === "rejected"
                 ? `⛔ ${t("admin.dashboard.pose_status_rejected")}`
-                : (item.installation_status ?? "pending")}
+                : item.installation_status === "impossible"
+                  ? `🚫 ${t("admin.dashboard.pose_status_impossible")}`
+                  : (item.installation_status ?? "pending")}
         </span>
       </div>
 
-      {photos ? (
+      {item.installation_status === "impossible" ? (
+        <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 p-3 space-y-2">
+          {item.installation_impossible_reason ? (
+            <p className="text-sm text-orange-800 dark:text-orange-300">
+              <span className="font-semibold">
+                {t("admin.dashboard.pose_impossible_reason_label")}{" "}
+              </span>
+              {item.installation_impossible_reason}
+            </p>
+          ) : null}
+          {item.installation_impossible_at ? (
+            <p className="text-xs text-muted-foreground">
+              {new Date(item.installation_impossible_at).toLocaleString()}
+            </p>
+          ) : null}
+          {Array.isArray(item.installation_impossible_photos) &&
+          item.installation_impossible_photos.length > 0 ? (
+            <div className="flex gap-2 flex-wrap mt-1">
+              {(item.installation_impossible_photos as string[]).map((url) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-border"
+                >
+                  <img src={url} alt="" className="h-full w-full object-cover" />
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : photos ? (
         <InstallationPhotoGrid photos={photos} />
       ) : (
         <p className="text-sm text-muted-foreground">{t("admin.dashboard.pose_no_photos")}</p>
@@ -2728,11 +2773,12 @@ function InstallationReviewCard({
             pending_approval: t("admin.dashboard.pose_history_pending_approval"),
             approved: t("admin.dashboard.pose_history_approved"),
             rejected: t("admin.dashboard.pose_history_rejected"),
+            impossible: t("admin.dashboard.pose_status_impossible"),
           }}
         />
       </div>
 
-      {item.installation_status !== "approved" ? (
+      {item.installation_status !== "approved" && item.installation_status !== "impossible" ? (
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Button onClick={() => onReview(true)} disabled={pending}>
             {t("admin.dashboard.pose_approve_btn")}

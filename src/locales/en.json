@@ -2525,6 +2525,8 @@
       "pose_status_pending": "Awaiting approval",
       "pose_status_approved": "Installation approved",
       "pose_status_rejected": "Installation rejected",
+      "pose_status_impossible": "Installation impossible",
+      "pose_impossible_reason_label": "Reason:",
       "pose_approve_btn": "Approve installation",
       "pose_reject_placeholder": "Rejection reason (required)",
       "pose_transferred": "✅ Installation fee paid ({{amount}})",
