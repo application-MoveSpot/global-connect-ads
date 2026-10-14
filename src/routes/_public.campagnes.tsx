@@ -9,7 +9,10 @@ export const Route = createFileRoute("/_public/campagnes")({
   head: () => ({
     meta: [
       { title: "Campagnes en cours — MoveSpot" },
-      { name: "description", content: "Découvrez les campagnes publicitaires mobiles actives sur MoveSpot." },
+      {
+        name: "description",
+        content: "Découvrez les campagnes publicitaires mobiles actives sur MoveSpot.",
+      },
       { property: "og:title", content: "Campagnes MoveSpot en cours" },
     ],
   }),
@@ -49,7 +52,13 @@ function CampagnesPage() {
           <p className="text-muted-foreground max-w-xl mx-auto">
             {t("campaigns.page.subtitle")}
             {campaigns.length > 0 && (
-              <span> <strong>{campaigns.length}</strong> {t(`campaigns.page.active_count_${campaigns.length > 1 ? "other" : "one"}`, { count: campaigns.length })}</span>
+              <span>
+                {" "}
+                <strong>{campaigns.length}</strong>{" "}
+                {t(`campaigns.page.active_count_${campaigns.length > 1 ? "other" : "one"}`, {
+                  count: campaigns.length,
+                })}
+              </span>
             )}
           </p>
         </div>
@@ -146,22 +155,33 @@ function CampaignCard({ campaign: c }: { campaign: Campaign }) {
       <div className="grid grid-cols-2 gap-2 mt-1">
         {totalImpressions > 0 && (
           <div className="rounded-lg bg-muted/40 p-2 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("campaigns.card.impressions_label")}</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+              {t("campaigns.card.impressions_label")}
+            </p>
             <p className="font-bold text-sm">{totalImpressions.toLocaleString(i18n.language)}</p>
           </div>
         )}
         {daysLeft > 0 && (
           <div className="rounded-lg bg-muted/40 p-2 text-center">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t("campaigns.card.days_left_label")}</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+              {t("campaigns.card.days_left_label")}
+            </p>
             <p className="font-bold text-sm">{daysLeft}</p>
           </div>
         )}
       </div>
 
       <p className="text-xs text-muted-foreground mt-auto">
-        {new Date(c.startDate).toLocaleDateString(i18n.language, { day: "numeric", month: "short" })}
+        {new Date(c.startDate).toLocaleDateString(i18n.language, {
+          day: "numeric",
+          month: "short",
+        })}
         {" – "}
-        {new Date(c.endDate).toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}
+        {new Date(c.endDate).toLocaleDateString(i18n.language, {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })}
       </p>
     </div>
   );

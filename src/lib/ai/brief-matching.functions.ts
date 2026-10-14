@@ -44,15 +44,28 @@ export const runBriefMatching = createServerFn({ method: "POST" })
     if (!vehicles?.length) return { ownersNotified: 0, matchesFound: 0 };
 
     // Grouper par propriétaire
-    type OwnerEntry = { userId: string; name: string; vehicleTypes: Set<string>; zones: Set<string> };
+    type OwnerEntry = {
+      userId: string;
+      name: string;
+      vehicleTypes: Set<string>;
+      zones: Set<string>;
+    };
     const ownerMap = new Map<string, OwnerEntry>();
 
     for (const v of vehicles) {
-      const prof = (v as unknown as Record<string, unknown>).owner_profiles as { user_id: string; full_name: string } | null;
+      const prof = (v as unknown as Record<string, unknown>).owner_profiles as {
+        user_id: string;
+        full_name: string;
+      } | null;
       if (!prof) continue;
       const uid = prof.user_id;
       if (!ownerMap.has(uid)) {
-        ownerMap.set(uid, { userId: uid, name: prof.full_name ?? "Propriétaire", vehicleTypes: new Set(), zones: new Set() });
+        ownerMap.set(uid, {
+          userId: uid,
+          name: prof.full_name ?? "Propriétaire",
+          vehicleTypes: new Set(),
+          zones: new Set(),
+        });
       }
       const entry = ownerMap.get(uid)!;
       entry.vehicleTypes.add(String(v.type));

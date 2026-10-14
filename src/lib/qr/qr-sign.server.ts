@@ -39,11 +39,11 @@ async function hmac(payload: string): Promise<string> {
 
 export type QrPayload = {
   k: "vehicle" | "driver"; // kind
-  v: string;               // vehicle id
-  o: string;               // owner id
-  d?: string | null;       // driver id (driver tokens)
-  iat: number;             // issued at (unix s)
-  exp?: number;            // optional expiry (unix s)
+  v: string; // vehicle id
+  o: string; // owner id
+  d?: string | null; // driver id (driver tokens)
+  iat: number; // issued at (unix s)
+  exp?: number; // optional expiry (unix s)
 };
 
 export async function signQrToken(payload: QrPayload): Promise<string> {

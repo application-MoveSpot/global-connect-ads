@@ -30,11 +30,15 @@ export type LeadChatResult = {
 };
 
 const COMMISSION_TABLE: Record<string, { rate: string; vehicles: string; manager: string }> = {
-  "Moins de 5 000 € / an":      { rate: "28 %",  vehicles: "1 à 3",   manager: "support prioritaire" },
-  "5 000 – 10 000 € / an":      { rate: "25 %",  vehicles: "3 à 8",   manager: "account manager dédié" },
-  "10 000 – 30 000 € / an":     { rate: "22 %",  vehicles: "8 à 20",  manager: "account manager dédié" },
-  "30 000 – 100 000 € / an":    { rate: "18 %",  vehicles: "20 à 60", manager: "account manager senior dédié" },
-  "Plus de 100 000 € / an":     { rate: "sur mesure", vehicles: "60+", manager: "équipe dédiée" },
+  "Moins de 5 000 € / an": { rate: "28 %", vehicles: "1 à 3", manager: "support prioritaire" },
+  "5 000 – 10 000 € / an": { rate: "25 %", vehicles: "3 à 8", manager: "account manager dédié" },
+  "10 000 – 30 000 € / an": { rate: "22 %", vehicles: "8 à 20", manager: "account manager dédié" },
+  "30 000 – 100 000 € / an": {
+    rate: "18 %",
+    vehicles: "20 à 60",
+    manager: "account manager senior dédié",
+  },
+  "Plus de 100 000 € / an": { rate: "sur mesure", vehicles: "60+", manager: "équipe dédiée" },
 };
 
 function buildQuoteBlock(leadData: LeadData): string {
@@ -113,7 +117,10 @@ export const sendLeadChatMessage = createServerFn({ method: "POST" })
       ({ text } = await generateText({
         model,
         system: SYSTEM_PROMPT,
-        messages: data.messages.map((m: z.infer<typeof MessageSchema>) => ({ role: m.role, content: m.content })),
+        messages: data.messages.map((m: z.infer<typeof MessageSchema>) => ({
+          role: m.role,
+          content: m.content,
+        })),
         temperature: 0.6,
         maxOutputTokens: 400,
       }));

@@ -13,7 +13,10 @@ export function CreativeFiles({ paths }: Props) {
   const [view360, setView360] = useState<SignedFile | null>(null);
 
   useEffect(() => {
-    if (!paths || paths.length === 0) { setFiles([]); return; }
+    if (!paths || paths.length === 0) {
+      setFiles([]);
+      return;
+    }
     let alive = true;
     const refresh = async () => {
       const { data } = await supabase.storage
@@ -34,19 +37,24 @@ export function CreativeFiles({ paths }: Props) {
               isImage: ["jpg", "jpeg", "png", "webp", "gif"].includes(ext),
               isVideo: ["mp4", "mov", "webm"].includes(ext),
             };
-          })
+          }),
       );
     };
     void refresh();
     const timer = setInterval(() => void refresh(), 55 * 60 * 1000);
-    return () => { alive = false; clearInterval(timer); };
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
   }, [paths?.join("|")]);
 
   if (!paths || paths.length === 0) return null;
 
   return (
     <div className="rounded-lg border border-border bg-secondary/30 p-3 text-xs mb-4 space-y-2">
-      <div className="font-semibold text-foreground">{t("creative_files.header", { count: paths.length })}</div>
+      <div className="font-semibold text-foreground">
+        {t("creative_files.header", { count: paths.length })}
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {files.map((f) => (
           <div
@@ -68,7 +76,14 @@ export function CreativeFiles({ paths }: Props) {
                 muted
               />
             ) : (
-              <a href={f.url} target="_blank" rel="noopener noreferrer" className="block w-full h-32 flex items-center justify-center text-2xl">📄</a>
+              <a
+                href={f.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full h-32 flex items-center justify-center text-2xl"
+              >
+                📄
+              </a>
             )}
             <div className="flex items-center justify-between gap-2 px-2 py-1">
               <span className="truncate text-[10px] text-muted-foreground">{f.name}</span>
@@ -79,10 +94,19 @@ export function CreativeFiles({ paths }: Props) {
                     onClick={() => setView360((c) => (c?.path === f.path ? null : f))}
                     className="text-[10px] text-primary hover:underline"
                   >
-                    {view360?.path === f.path ? t("creative_files.btn_close_360") : t("creative_files.btn_view_360")}
+                    {view360?.path === f.path
+                      ? t("creative_files.btn_close_360")
+                      : t("creative_files.btn_view_360")}
                   </button>
                 )}
-                <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline">{t("creative_files.btn_open")}</a>
+                <a
+                  href={f.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-primary hover:underline"
+                >
+                  {t("creative_files.btn_open")}
+                </a>
               </div>
             </div>
           </div>
@@ -90,7 +114,9 @@ export function CreativeFiles({ paths }: Props) {
       </div>
       {view360 && (
         <div className="space-y-1">
-          <div className="text-[10px] text-muted-foreground">{t("creative_files.viewer_label", { name: view360.name })}</div>
+          <div className="text-[10px] text-muted-foreground">
+            {t("creative_files.viewer_label", { name: view360.name })}
+          </div>
           <Viewer360 src={view360.url} kind={view360.isVideo ? "video" : "image"} />
         </div>
       )}

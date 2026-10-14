@@ -8,10 +8,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/")({
   head: () => ({
-    meta: [
-      { title: "Mes briefs — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Mes briefs — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: BriefsListPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -51,7 +48,10 @@ function BriefsListPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/advertiser/inscription" });
+        return;
+      }
       const [{ data: bs }, { data: prof }] = await Promise.all([
         supabase
           .from("advertiser_briefs")
@@ -98,26 +98,43 @@ function BriefsListPage() {
     if (briefIds.length === 0) return;
     const channel = supabase
       .channel("advertiser-briefs-proposals")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "brief_proposals" }, () => {
-        void refreshProposalCounts(briefIdsRef.current);
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals" }, () => {
-        void refreshProposalCounts(briefIdsRef.current);
-      })
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "brief_proposals" },
+        () => {
+          void refreshProposalCounts(briefIdsRef.current);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "brief_proposals" },
+        () => {
+          void refreshProposalCounts(briefIdsRef.current);
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [briefIds]);
 
   const isIndividual = accountType === "individual";
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("advertiser.briefs_list.loading")}</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("advertiser.briefs_list.loading")}
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_list.back")}</Link>
+          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("advertiser.briefs_list.back")}
+          </Link>
         </div>
       </header>
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
@@ -125,12 +142,19 @@ function BriefsListPage() {
           <div>
             <h1 className="font-display text-3xl font-bold">{t("advertiser.briefs_list.title")}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {isIndividual ? t("advertiser.briefs_list.subtitle_individual") : t("advertiser.briefs_list.subtitle_business")}
+              {isIndividual
+                ? t("advertiser.briefs_list.subtitle_individual")
+                : t("advertiser.briefs_list.subtitle_business")}
             </p>
           </div>
-          <Link to="/advertiser/briefs/nouveau"
-            className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition">
-            + {isIndividual ? t("advertiser.briefs_list.new_individual") : t("advertiser.briefs_list.new_business")}
+          <Link
+            to="/advertiser/briefs/nouveau"
+            className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
+          >
+            +{" "}
+            {isIndividual
+              ? t("advertiser.briefs_list.new_individual")
+              : t("advertiser.briefs_list.new_business")}
           </Link>
         </div>
 
@@ -143,16 +167,22 @@ function BriefsListPage() {
                 {t("advertiser.briefs_list.empty_ind_desc")}
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <Link to="/advertiser/briefs/nouveau"
-                  className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition">
+                <Link
+                  to="/advertiser/briefs/nouveau"
+                  className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+                >
                   {t("advertiser.briefs_list.empty_ind_cta")}
                 </Link>
-                <Link to="/advertiser/pack"
-                  className="rounded-full border border-primary/40 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/10 transition">
+                <Link
+                  to="/advertiser/pack"
+                  className="rounded-full border border-primary/40 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/10 transition"
+                >
                   {t("advertiser.briefs_list.empty_ind_packs")}
                 </Link>
-                <Link to="/advertiser/exemples"
-                  className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition">
+                <Link
+                  to="/advertiser/exemples"
+                  className="rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-secondary transition"
+                >
                   {t("advertiser.briefs_list.empty_ind_examples")}
                 </Link>
               </div>
@@ -160,7 +190,12 @@ function BriefsListPage() {
           ) : (
             <div className="rounded-2xl border border-dashed border-border bg-card/30 p-12 text-center">
               <p className="text-muted-foreground mb-4">{t("advertiser.briefs_list.empty_biz")}</p>
-              <Link to="/advertiser/briefs/nouveau" className="text-primary font-semibold hover:underline">{t("advertiser.briefs_list.empty_biz_cta")}</Link>
+              <Link
+                to="/advertiser/briefs/nouveau"
+                className="text-primary font-semibold hover:underline"
+              >
+                {t("advertiser.briefs_list.empty_biz_cta")}
+              </Link>
             </div>
           )
         ) : (
@@ -169,27 +204,48 @@ function BriefsListPage() {
               const d = daysUntil(b.start_date);
               const upcoming = b.status === "open" && d > 0;
               return (
-                <Link key={b.id} to="/advertiser/briefs/$briefId" params={{ briefId: b.id }}
-                  className="block rounded-xl border border-border bg-card p-5 hover:bg-secondary/30 transition">
+                <Link
+                  key={b.id}
+                  to="/advertiser/briefs/$briefId"
+                  params={{ briefId: b.id }}
+                  className="block rounded-xl border border-border bg-card p-5 hover:bg-secondary/30 transition"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="font-display text-lg font-semibold">{b.title}</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        {t("advertiser.briefs_list.date_from", { from: new Date(b.start_date).toLocaleDateString(dateLocale), to: new Date(b.end_date).toLocaleDateString(dateLocale) })}
-                        {b.zones.length > 0 && <> · {b.zones.slice(0, 3).join(", ")}{b.zones.length > 3 ? "…" : ""}</>}
+                        {t("advertiser.briefs_list.date_from", {
+                          from: new Date(b.start_date).toLocaleDateString(dateLocale),
+                          to: new Date(b.end_date).toLocaleDateString(dateLocale),
+                        })}
+                        {b.zones.length > 0 && (
+                          <>
+                            {" "}
+                            · {b.zones.slice(0, 3).join(", ")}
+                            {b.zones.length > 3 ? "…" : ""}
+                          </>
+                        )}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">{t("advertiser.briefs_list.types_label")} {b.vehicle_types.join(", ")}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {t("advertiser.briefs_list.types_label")} {b.vehicle_types.join(", ")}
+                      </div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <StatusBadge status={b.status} />
-                      <span className="text-xs text-muted-foreground">{t("advertiser.briefs_list.proposals", { count: counts[b.id] ?? 0 })}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {t("advertiser.briefs_list.proposals", { count: counts[b.id] ?? 0 })}
+                      </span>
                       {(pendingCounts[b.id] ?? 0) > 0 && (
                         <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-signal/20 text-signal">
-                          {t("advertiser.briefs_list.pending_proposals", { count: pendingCounts[b.id] })}
+                          {t("advertiser.briefs_list.pending_proposals", {
+                            count: pendingCounts[b.id],
+                          })}
                         </span>
                       )}
                       {upcoming && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d <= 7 ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-primary/10 text-primary"}`}>
+                        <span
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${d <= 7 ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-primary/10 text-primary"}`}
+                        >
                           J-{d}
                         </span>
                       )}
@@ -215,5 +271,9 @@ function StatusBadge({ status }: { status: string }) {
   };
   const cls = clsMap[status] ?? "bg-secondary";
   const label = t(`advertiser.briefs_list.status_${status}` as never, { defaultValue: status });
-  return <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${cls}`}>{label}</span>;
+  return (
+    <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${cls}`}>
+      {label}
+    </span>
+  );
 }

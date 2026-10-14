@@ -26,9 +26,7 @@ export type BriefSuggestionResult =
   | { ok: false; code: "UNAUTHORIZED" | "AI_UNAVAILABLE"; message: string };
 
 export const generateBriefSuggestion = createServerFn({ method: "POST" })
-  .validator((d: z.infer<typeof BriefGenerateInput>) =>
-    BriefGenerateInput.parse(d),
-  )
+  .validator((d: z.infer<typeof BriefGenerateInput>) => BriefGenerateInput.parse(d))
   .handler(async ({ data }): Promise<BriefSuggestionResult> => {
     assertRateLimit(`brief-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     const auth = await checkBriefRequestAuth();
@@ -54,13 +52,13 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
     const provider = createLovableAiGatewayProvider(apiKey);
     const model = provider("google/gemini-2.5-flash");
 
-    const vehicleLabel =
-      data.vehicleTypes?.length
-        ? `Véhicules envisagés : ${data.vehicleTypes.join(", ")}.`
-        : "";
+    const vehicleLabel = data.vehicleTypes?.length
+      ? `Véhicules envisagés : ${data.vehicleTypes.join(", ")}.`
+      : "";
     const zoneLabel = data.zone ? `Zone cible : ${data.zone}.` : "";
 
-    const VEHICLE_VALUES = "camion_led, food_truck, van, taxi, scooter, velo_cargo, velo_remorque, triporteur, tutuk, voiture, autre";
+    const VEHICLE_VALUES =
+      "camion_led, food_truck, van, taxi, scooter, velo_cargo, velo_remorque, triporteur, tutuk, voiture, autre";
 
     const prompt = `Tu es un expert en publicité extérieure mobile (véhicules publicitaires en France).
 Un annonceur veut créer un brief sur la plateforme MoveSpot. À partir de sa description, génère :
@@ -88,14 +86,33 @@ Réponds UNIQUEMENT en JSON strict (les clés budget et durationDays sont option
 }`;
 
     try {
-      const VALID_VEHICLE_TYPES = new Set(["camion_led","food_truck","van","taxi","scooter","velo_cargo","velo_remorque","triporteur","tutuk","voiture","autre"]);
+      const VALID_VEHICLE_TYPES = new Set([
+        "camion_led",
+        "food_truck",
+        "van",
+        "taxi",
+        "scooter",
+        "velo_cargo",
+        "velo_remorque",
+        "triporteur",
+        "tutuk",
+        "voiture",
+        "autre",
+      ]);
       const { generateText } = await import("ai");
-      const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 800 });
+      const { text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.7,
+        maxOutputTokens: 800,
+      });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as BriefSuggestion;
       const vehicleTypes = Array.isArray(parsed.vehicleTypes)
-        ? parsed.vehicleTypes.filter((v) => typeof v === "string" && VALID_VEHICLE_TYPES.has(v)).slice(0, 3)
+        ? parsed.vehicleTypes
+            .filter((v) => typeof v === "string" && VALID_VEHICLE_TYPES.has(v))
+            .slice(0, 3)
         : undefined;
       return {
         ok: true,
@@ -105,8 +122,14 @@ Réponds UNIQUEMENT en JSON strict (les clés budget et durationDays sont option
           audience: String(parsed.audience ?? "").slice(0, 200),
           vehicleTypes: vehicleTypes?.length ? vehicleTypes : undefined,
           zones: parsed.zones ? String(parsed.zones).slice(0, 300) : undefined,
-          budget: typeof parsed.budget === "number" && parsed.budget > 0 ? Math.round(parsed.budget) : undefined,
-          durationDays: typeof parsed.durationDays === "number" && parsed.durationDays > 0 ? Math.round(parsed.durationDays) : undefined,
+          budget:
+            typeof parsed.budget === "number" && parsed.budget > 0
+              ? Math.round(parsed.budget)
+              : undefined,
+          durationDays:
+            typeof parsed.durationDays === "number" && parsed.durationDays > 0
+              ? Math.round(parsed.durationDays)
+              : undefined,
         },
       };
     } catch (err) {

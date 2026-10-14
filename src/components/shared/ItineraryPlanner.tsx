@@ -48,7 +48,9 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
 
   useEffect(() => {
     if (consent === "refused") return;
-    getMapboxToken().then((r: { token: string }) => setToken(r.token)).catch(() => setToken(""));
+    getMapboxToken()
+      .then((r: { token: string }) => setToken(r.token))
+      .catch(() => setToken(""));
   }, [consent]);
 
   const impressionsPerDay = Math.round(distanceKm * BASE_TRAFFIC_DENSITY * multiplier);
@@ -99,15 +101,25 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
     setBusy(true);
     setError("");
     try {
-      const path = list.slice(0, 25).map(([lng, lat]) => `${lng},${lat}`).join(";");
-      const res = await fetch(`${DIR}/${path}?geometries=geojson&overview=full&access_token=${token}`);
+      const path = list
+        .slice(0, 25)
+        .map(([lng, lat]) => `${lng},${lat}`)
+        .join(";");
+      const res = await fetch(
+        `${DIR}/${path}?geometries=geojson&overview=full&access_token=${token}`,
+      );
       const data = await res.json();
       const route = data?.routes?.[0];
-      if (!route) { setError(t("itinerary_planner.err_no_route")); return; }
+      if (!route) {
+        setError(t("itinerary_planner.err_no_route"));
+        return;
+      }
       setDistanceKm(route.distance / 1000);
 
       const line: [number, number][] = route.geometry.coordinates;
-      const samples = [0.25, 0.5, 0.75].map((f) => line[Math.floor(line.length * f)]).filter(Boolean);
+      const samples = [0.25, 0.5, 0.75]
+        .map((f) => line[Math.floor(line.length * f)])
+        .filter(Boolean);
       const found: string[] = [];
       for (const [lng, lat] of samples) {
         const r = await fetch(
@@ -119,7 +131,8 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
           if (name) found.push(name);
         }
       }
-      if (found.length > 0) setPois((prev) => Array.from(new Set([...prev, ...found])).slice(0, 20));
+      if (found.length > 0)
+        setPois((prev) => Array.from(new Set([...prev, ...found])).slice(0, 20));
     } catch {
       setError(t("itinerary_planner.err_unavailable"));
     } finally {
@@ -144,14 +157,18 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
   };
 
   return (
-    <div className={`rounded-lg border border-border bg-secondary/20 p-4 space-y-4 ${className ?? ""}`}>
+    <div
+      className={`rounded-lg border border-border bg-secondary/20 p-4 space-y-4 ${className ?? ""}`}
+    >
       <div className="text-sm font-semibold">
         {t("itinerary_planner.title")}{" "}
         <span className="text-muted-foreground font-normal">{t("itinerary_planner.subtitle")}</span>
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium text-muted-foreground">{t("itinerary_planner.steps_label")}</label>
+        <label className="block text-xs font-medium text-muted-foreground">
+          {t("itinerary_planner.steps_label")}
+        </label>
         {steps.map((step, i) => (
           <div key={i} className="flex items-center gap-2">
             <input
@@ -179,33 +196,43 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
       </div>
 
       <div>
-        <div className="text-xs font-medium text-muted-foreground mb-1.5">{t("itinerary_planner.zones_label")}</div>
+        <div className="text-xs font-medium text-muted-foreground mb-1.5">
+          {t("itinerary_planner.zones_label")}
+        </div>
         {zones.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t("itinerary_planner.zones_empty")}</p>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {zones.map((z, i) => (
-              <span key={i} className="rounded-full bg-primary/10 text-primary text-xs px-2 py-0.5">{z}</span>
+              <span key={i} className="rounded-full bg-primary/10 text-primary text-xs px-2 py-0.5">
+                {z}
+              </span>
             ))}
           </div>
         )}
       </div>
 
       <div>
-        <div className="text-xs font-medium text-muted-foreground mb-1.5">{t("itinerary_planner.pois_label")}</div>
+        <div className="text-xs font-medium text-muted-foreground mb-1.5">
+          {t("itinerary_planner.pois_label")}
+        </div>
         {pois.length === 0 ? (
           <p className="text-xs text-muted-foreground">
             {busy ? t("itinerary_planner.detecting") : t("itinerary_planner.no_pois")}
           </p>
         ) : (
           <ul className="list-disc pl-4 text-xs space-y-0.5">
-            {pois.map((p, i) => <li key={i}>{p}</li>)}
+            {pois.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
           </ul>
         )}
       </div>
 
       <div className="rounded-lg bg-primary/10 border border-primary/30 p-3">
-        <div className="text-xs font-semibold text-primary">{t("itinerary_planner.impressions_label")}</div>
+        <div className="text-xs font-semibold text-primary">
+          {t("itinerary_planner.impressions_label")}
+        </div>
         <div className="mt-1 text-2xl font-bold text-primary">
           {impressionsPerDay.toLocaleString(i18n.language)}{" "}
           <span className="text-xs font-normal">{t("itinerary_planner.impressions_unit")}</span>
@@ -215,7 +242,10 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
             ? t("itinerary_planner.calc_formula", {
                 km: distanceKm.toFixed(1),
                 density: BASE_TRAFFIC_DENSITY,
-                coefSuffix: multiplier !== 1 ? t("itinerary_planner.calc_coef_suffix", { coef: multiplier.toFixed(2) }) : "",
+                coefSuffix:
+                  multiplier !== 1
+                    ? t("itinerary_planner.calc_coef_suffix", { coef: multiplier.toFixed(2) })
+                    : "",
               })
             : t("itinerary_planner.hint_add_steps")}
         </p>
@@ -225,11 +255,15 @@ export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props)
       {consent === "refused" && (
         <p className="text-xs text-muted-foreground">
           {t("itinerary_planner.geocoding_consent")}{" "}
-          <a href="/cookies" className="underline text-primary">{t("itinerary_planner.consent_link")}</a>{" "}
+          <a href="/cookies" className="underline text-primary">
+            {t("itinerary_planner.consent_link")}
+          </a>{" "}
           {t("itinerary_planner.consent_suffix")}
         </p>
       )}
-      {consent !== "refused" && !token && <p className="text-xs text-muted-foreground">{t("itinerary_planner.map_not_configured")}</p>}
+      {consent !== "refused" && !token && (
+        <p className="text-xs text-muted-foreground">{t("itinerary_planner.map_not_configured")}</p>
+      )}
     </div>
   );
 }

@@ -27,7 +27,10 @@ type Props = {
 
 function getGeolocation(): Promise<{ lat: number; lng: number } | null> {
   return new Promise((resolve) => {
-    if (!navigator.geolocation) { resolve(null); return; }
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => resolve(null),
@@ -51,7 +54,10 @@ export function DeposePhotosPanel({
 
   const STATUS: Record<string, { label: string; className: string }> = {
     pending: { label: t("depose_photos.status_pending"), className: "text-muted-foreground" },
-    pending_approval: { label: t("depose_photos.status_pending_approval"), className: "text-amber-500" },
+    pending_approval: {
+      label: t("depose_photos.status_pending_approval"),
+      className: "text-amber-500",
+    },
     approved: { label: t("depose_photos.status_approved"), className: "text-emerald-500" },
     rejected: { label: t("depose_photos.status_rejected"), className: "text-destructive" },
   };
@@ -141,9 +147,7 @@ export function DeposePhotosPanel({
 
       {deposeStatus !== "approved" ? (
         <>
-          <p className="mb-2 text-xs text-muted-foreground">
-            {t("depose_photos.instructions")}
-          </p>
+          <p className="mb-2 text-xs text-muted-foreground">{t("depose_photos.instructions")}</p>
           <div className="grid gap-2 sm:grid-cols-4">
             {INSTALLATION_VIEWS.map((view) => (
               <label key={view} className="text-[11px] text-muted-foreground">

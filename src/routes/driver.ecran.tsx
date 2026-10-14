@@ -7,10 +7,7 @@ import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/driver/ecran")({
   head: () => ({
-    meta: [
-      { title: "Écran publicitaire — MoveSpot" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Écran publicitaire — MoveSpot" }, { name: "robots", content: "noindex" }],
   }),
   validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : "" }),
   component: ScreenPage,
@@ -52,38 +49,59 @@ function ScreenPage() {
   const tokenRef = useRef<string>(tokenParam);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const loadCampaign = useCallback(async (tok: string) => {
-    try {
-      const res = await fetchVideo({ data: { token: tok } });
-      if (res.ok) {
-        setCampaign(res.campaign ?? null);
-        setMediaIndex(0);
-        if (res.campaign) {
-          setInWindow(isWithinDailyWindow(res.campaign.dailyStart, res.campaign.dailyEnd));
+  const loadCampaign = useCallback(
+    async (tok: string) => {
+      try {
+        const res = await fetchVideo({ data: { token: tok } });
+        if (res.ok) {
+          setCampaign(res.campaign ?? null);
+          setMediaIndex(0);
+          if (res.campaign) {
+            setInWindow(isWithinDailyWindow(res.campaign.dailyStart, res.campaign.dailyEnd));
+          }
         }
+      } catch {
+        // keep previous campaign on transient error
       }
-    } catch {
-      // keep previous campaign on transient error
-    }
-    // Re-check campaign every 30 min
-    refreshTimerRef.current = setTimeout(() => loadCampaign(tok), 30 * 60 * 1000);
-  }, [fetchVideo]);
+      // Re-check campaign every 30 min
+      refreshTimerRef.current = setTimeout(() => loadCampaign(tok), 30 * 60 * 1000);
+    },
+    [fetchVideo],
+  );
 
   useEffect(() => {
-    const stored = typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
+    const stored =
+      typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
     const tok = tokenParam || stored || "";
-    if (!tok) { setPhase("invalid"); setError(t("driver.ecran.no_token")); return; }
+    if (!tok) {
+      setPhase("invalid");
+      setError(t("driver.ecran.no_token"));
+      return;
+    }
     tokenRef.current = tok;
 
-    verify({ data: { token: tok } }).then((r: Awaited<ReturnType<typeof verify>>) => {
-      if (!r.ok) { setPhase("invalid"); setError(r.error); return; }
-      setVehicle(r.vehicle as Vehicle);
-      setPhase("ready");
-      try { localStorage.setItem("movespot_driver_token", tok); } catch {}
-      loadCampaign(tok);
-    }).catch(() => { setPhase("invalid"); setError(t("driver.ecran.error_verify")); });
+    verify({ data: { token: tok } })
+      .then((r: Awaited<ReturnType<typeof verify>>) => {
+        if (!r.ok) {
+          setPhase("invalid");
+          setError(r.error);
+          return;
+        }
+        setVehicle(r.vehicle as Vehicle);
+        setPhase("ready");
+        try {
+          localStorage.setItem("movespot_driver_token", tok);
+        } catch {}
+        loadCampaign(tok);
+      })
+      .catch(() => {
+        setPhase("invalid");
+        setError(t("driver.ecran.error_verify"));
+      });
 
-    return () => { if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current); };
+    return () => {
+      if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    };
   }, [tokenParam, verify, loadCampaign, t]);
 
   // Check daily window every minute
@@ -95,8 +113,12 @@ function ScreenPage() {
     return () => clearInterval(id);
   }, [campaign]);
 
-  const videoUrls = (campaign?.signedUrls ?? []).filter((u) => /\.(mp4|mov|webm)/i.test(u.split("?")[0]));
-  const imageUrls = (campaign?.signedUrls ?? []).filter((u) => /\.(jpg|jpeg|png|webp|gif)/i.test(u.split("?")[0]));
+  const videoUrls = (campaign?.signedUrls ?? []).filter((u) =>
+    /\.(mp4|mov|webm)/i.test(u.split("?")[0]),
+  );
+  const imageUrls = (campaign?.signedUrls ?? []).filter((u) =>
+    /\.(jpg|jpeg|png|webp|gif)/i.test(u.split("?")[0]),
+  );
   const hasMedia = videoUrls.length > 0 || imageUrls.length > 0;
 
   const handleVideoEnded = () => {
@@ -132,7 +154,11 @@ function ScreenPage() {
           {new Date().toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
         </p>
         <p className="text-white/40 text-xs">
-          {t("driver.ecran.broadcast_window", { start: campaign.dailyStart, end: campaign.dailyEnd, company: campaign.company })}
+          {t("driver.ecran.broadcast_window", {
+            start: campaign.dailyStart,
+            end: campaign.dailyEnd,
+            company: campaign.company,
+          })}
         </p>
         <p className="text-white/20 text-[10px] mt-6">{vehicle?.name}</p>
       </div>
@@ -144,7 +170,9 @@ function ScreenPage() {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-4">
         <div className="text-white/10 text-6xl font-black tracking-widest">MOVESPOT</div>
-        <p className="text-white/20 text-xs tracking-widest uppercase">{t("driver.ecran.no_campaign")}</p>
+        <p className="text-white/20 text-xs tracking-widest uppercase">
+          {t("driver.ecran.no_campaign")}
+        </p>
         {vehicle && <p className="text-white/10 text-[10px] mt-6">{vehicle.name}</p>}
       </div>
     );
@@ -173,15 +201,19 @@ function ScreenPage() {
 
   // Image slideshow (fallback when only images)
   return (
-    <ImageSlideshow
-      urls={imageUrls}
-      company={campaign.company}
-      vehicleName={vehicle?.name ?? ""}
-    />
+    <ImageSlideshow urls={imageUrls} company={campaign.company} vehicleName={vehicle?.name ?? ""} />
   );
 }
 
-function ImageSlideshow({ urls, company, vehicleName }: { urls: string[]; company: string; vehicleName: string }) {
+function ImageSlideshow({
+  urls,
+  company,
+  vehicleName,
+}: {
+  urls: string[];
+  company: string;
+  vehicleName: string;
+}) {
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {

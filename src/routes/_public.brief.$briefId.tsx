@@ -7,9 +7,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_public/brief/$briefId")({
   head: () => ({
-    meta: [
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ name: "robots", content: "noindex,nofollow" }],
   }),
   component: PublicBriefPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -58,7 +56,9 @@ function PublicBriefPage() {
     (async () => {
       const { data } = await supabase
         .from("advertiser_briefs")
-        .select("id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, audience_target, ad_format, created_at")
+        .select(
+          "id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, audience_target, ad_format, created_at",
+        )
         .eq("id", briefId)
         .eq("status", "open")
         .maybeSingle();
@@ -109,7 +109,8 @@ function PublicBriefPage() {
     );
   }
 
-  const fmt = (d: string) => new Date(d).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,7 +126,9 @@ function PublicBriefPage() {
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 space-y-3">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Brief publicitaire</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                Brief publicitaire
+              </p>
               <h1 className="font-display text-2xl font-bold">{brief.title}</h1>
             </div>
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600">
@@ -133,7 +136,9 @@ function PublicBriefPage() {
             </span>
           </div>
 
-          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{brief.description}</p>
+          <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+            {brief.description}
+          </p>
         </div>
 
         {/* Détails */}
@@ -144,7 +149,9 @@ function PublicBriefPage() {
               {fmt(brief.start_date)} → {fmt(brief.end_date)}
             </p>
             {brief.days_count != null && (
-              <p className="text-xs text-muted-foreground">{brief.days_count} jour{brief.days_count > 1 ? "s" : ""}</p>
+              <p className="text-xs text-muted-foreground">
+                {brief.days_count} jour{brief.days_count > 1 ? "s" : ""}
+              </p>
             )}
           </div>
 
@@ -152,17 +159,25 @@ function PublicBriefPage() {
             <div className="rounded-xl border border-border bg-card p-5 space-y-1">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Budget max</p>
               <p className="font-semibold text-sm text-primary">
-                {brief.budget_max.toLocaleString(dateLocale, { style: "currency", currency: "EUR" })}
+                {brief.budget_max.toLocaleString(dateLocale, {
+                  style: "currency",
+                  currency: "EUR",
+                })}
               </p>
             </div>
           )}
 
           {brief.vehicle_types?.length > 0 && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Véhicules recherchés</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                Véhicules recherchés
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {brief.vehicle_types.map((vt) => (
-                  <span key={vt} className="text-xs font-medium bg-secondary px-2.5 py-0.5 rounded-full">
+                  <span
+                    key={vt}
+                    className="text-xs font-medium bg-secondary px-2.5 py-0.5 rounded-full"
+                  >
                     {VEHICLE_LABELS[vt] ?? vt}
                   </span>
                 ))}
@@ -172,10 +187,14 @@ function PublicBriefPage() {
 
           {brief.zones?.length > 0 && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Zones de diffusion</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                Zones de diffusion
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 {brief.zones.map((z) => (
-                  <span key={z} className="text-xs font-medium bg-muted px-2.5 py-0.5 rounded-full">📍 {z}</span>
+                  <span key={z} className="text-xs font-medium bg-muted px-2.5 py-0.5 rounded-full">
+                    📍 {z}
+                  </span>
                 ))}
               </div>
             </div>
@@ -204,7 +223,8 @@ function PublicBriefPage() {
           <div>
             <h2 className="font-display text-xl font-bold">Vous avez un véhicule disponible ?</h2>
             <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
-              Créez votre espace propriétaire gratuitement et proposez votre véhicule pour cette campagne.
+              Créez votre espace propriétaire gratuitement et proposez votre véhicule pour cette
+              campagne.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

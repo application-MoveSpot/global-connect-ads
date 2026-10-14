@@ -65,7 +65,10 @@ function CalendrierPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/advertiser/inscription" });
+        return;
+      }
       const userId = session.user.id;
 
       const [{ data: briefs }, { data: campaigns }] = await Promise.all([
@@ -83,11 +86,25 @@ function CalendrierPage() {
 
       const briefEvents: BriefEvent[] = (briefs ?? [])
         .filter((b) => b.start_date && b.end_date)
-        .map((b) => ({ id: b.id, title: b.title, start_date: b.start_date, end_date: b.end_date, status: b.status, kind: "brief" as const }));
+        .map((b) => ({
+          id: b.id,
+          title: b.title,
+          start_date: b.start_date,
+          end_date: b.end_date,
+          status: b.status,
+          kind: "brief" as const,
+        }));
 
       const campaignEvents: CampaignEvent[] = (campaigns ?? [])
         .filter((c) => c.start_date && c.end_date)
-        .map((c) => ({ id: c.id, title: c.spot_name, start_date: c.start_date!, end_date: c.end_date!, status: c.status, kind: "campaign" as const }));
+        .map((c) => ({
+          id: c.id,
+          title: c.spot_name,
+          start_date: c.start_date!,
+          end_date: c.end_date!,
+          status: c.status,
+          kind: "campaign" as const,
+        }));
 
       setEvents([...briefEvents, ...campaignEvents]);
       setLoading(false);
@@ -95,13 +112,17 @@ function CalendrierPage() {
   }, [navigate]);
 
   const prevMonth = () => {
-    if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11); }
-    else setViewMonth(m => m - 1);
+    if (viewMonth === 0) {
+      setViewYear((y) => y - 1);
+      setViewMonth(11);
+    } else setViewMonth((m) => m - 1);
   };
 
   const nextMonth = () => {
-    if (viewMonth === 11) { setViewYear(y => y + 1); setViewMonth(0); }
-    else setViewMonth(m => m + 1);
+    if (viewMonth === 11) {
+      setViewYear((y) => y + 1);
+      setViewMonth(0);
+    } else setViewMonth((m) => m + 1);
   };
 
   // Build calendar days for current month
@@ -114,9 +135,7 @@ function CalendrierPage() {
   const monthStart = isoDate(new Date(viewYear, viewMonth, 1));
   const monthEnd = isoDate(new Date(viewYear, viewMonth + 1, 0));
 
-  const visibleEvents = events.filter(
-    (e) => e.end_date >= monthStart && e.start_date <= monthEnd,
-  );
+  const visibleEvents = events.filter((e) => e.end_date >= monthStart && e.start_date <= monthEnd);
 
   const getEventsForDay = (day: number) => {
     const dayStr = isoDate(new Date(viewYear, viewMonth, day));
@@ -125,7 +144,10 @@ function CalendrierPage() {
 
   const todayStr = isoDate(today);
 
-  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(dateLocale, { month: "long", year: "numeric" });
+  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(dateLocale, {
+    month: "long",
+    year: "numeric",
+  });
 
   if (loading) {
     return (
@@ -189,7 +211,9 @@ function CalendrierPage() {
           {/* En-têtes jours */}
           <div className="grid grid-cols-7 border-b border-border bg-secondary/30">
             {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => (
-              <div key={d} className="text-center text-xs font-medium text-muted-foreground py-2">{d}</div>
+              <div key={d} className="text-center text-xs font-medium text-muted-foreground py-2">
+                {d}
+              </div>
             ))}
           </div>
 
@@ -197,7 +221,10 @@ function CalendrierPage() {
           <div className="grid grid-cols-7">
             {/* Offset jours vides */}
             {Array.from({ length: startOffset }).map((_, i) => (
-              <div key={`empty-${i}`} className="min-h-[80px] border-b border-r border-border bg-secondary/10" />
+              <div
+                key={`empty-${i}`}
+                className="min-h-[80px] border-b border-r border-border bg-secondary/10"
+              />
             ))}
 
             {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -226,21 +253,31 @@ function CalendrierPage() {
                     {day}
                   </span>
                   {dayEvents.slice(0, 3).map((ev) => {
-                    const colorClass = ev.kind === "brief"
-                      ? (ev.status === "open" ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300" : "bg-secondary text-muted-foreground")
-                      : (ev.status === "approved" ? "bg-blue-500/20 text-blue-700 dark:text-blue-300" : "bg-amber-500/20 text-amber-700 dark:text-amber-300");
+                    const colorClass =
+                      ev.kind === "brief"
+                        ? ev.status === "open"
+                          ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                          : "bg-secondary text-muted-foreground"
+                        : ev.status === "approved"
+                          ? "bg-blue-500/20 text-blue-700 dark:text-blue-300"
+                          : "bg-amber-500/20 text-amber-700 dark:text-amber-300";
                     return (
                       <div
                         key={ev.id}
                         title={ev.title}
-                        className={cn("text-[10px] font-medium rounded px-1 truncate leading-4", colorClass)}
+                        className={cn(
+                          "text-[10px] font-medium rounded px-1 truncate leading-4",
+                          colorClass,
+                        )}
                       >
                         {ev.title}
                       </div>
                     );
                   })}
                   {dayEvents.length > 3 && (
-                    <span className="text-[10px] text-muted-foreground px-1">+{dayEvents.length - 3}</span>
+                    <span className="text-[10px] text-muted-foreground px-1">
+                      +{dayEvents.length - 3}
+                    </span>
                   )}
                 </div>
               );
@@ -251,11 +288,19 @@ function CalendrierPage() {
         {/* Liste des événements du mois */}
         {visibleEvents.length > 0 && (
           <div className="space-y-2">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-widest">Ce mois</h3>
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-widest">
+              Ce mois
+            </h3>
             {visibleEvents.map((ev) => {
               const colorClass = STATUS_COLORS[ev.status] ?? STATUS_COLORS.pending;
               return (
-                <div key={ev.id} className={cn("rounded-xl border p-4 flex items-center justify-between gap-4", colorClass)}>
+                <div
+                  key={ev.id}
+                  className={cn(
+                    "rounded-xl border p-4 flex items-center justify-between gap-4",
+                    colorClass,
+                  )}
+                >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70">
@@ -264,7 +309,8 @@ function CalendrierPage() {
                       <span className="font-semibold text-sm truncate">{ev.title}</span>
                     </div>
                     <p className="text-xs opacity-70 mt-0.5">
-                      {new Date(ev.start_date).toLocaleDateString(dateLocale)} → {new Date(ev.end_date).toLocaleDateString(dateLocale)}
+                      {new Date(ev.start_date).toLocaleDateString(dateLocale)} →{" "}
+                      {new Date(ev.end_date).toLocaleDateString(dateLocale)}
                     </p>
                   </div>
                   {ev.kind === "brief" ? (
@@ -294,7 +340,9 @@ function CalendrierPage() {
           <div className="rounded-2xl border border-dashed border-border p-10 text-center">
             <div className="text-3xl mb-3">📅</div>
             <h3 className="font-semibold mb-1">Aucune campagne planifiée</h3>
-            <p className="text-sm text-muted-foreground mb-4">Créez votre premier brief pour voir vos dates ici.</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Créez votre premier brief pour voir vos dates ici.
+            </p>
             <Link
               to="/advertiser/briefs/nouveau"
               className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"

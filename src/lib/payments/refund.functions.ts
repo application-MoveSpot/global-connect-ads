@@ -7,11 +7,13 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const submitRefundRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      campaignRequestId: z.string().uuid().optional(),
-      amountCents: z.number().int().positive().optional(),
-      reason: z.string().min(20).max(1000),
-    }).parse(input),
+    z
+      .object({
+        campaignRequestId: z.string().uuid().optional(),
+        amountCents: z.number().int().positive().optional(),
+        reason: z.string().min(20).max(1000),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -26,17 +28,23 @@ export const submitRefundRequest = createServerFn({ method: "POST" })
         .eq("user_id", userId)
         .maybeSingle();
       if (!camp) return { ok: false as const, error: "Campagne introuvable." };
-      if (camp.payment_status !== "paid") return { ok: false as const, error: "Seules les campagnes payées sont éligibles au remboursement." };
+      if (camp.payment_status !== "paid")
+        return {
+          ok: false as const,
+          error: "Seules les campagnes payées sont éligibles au remboursement.",
+        };
     }
 
     const { data: row, error } = await supabaseAdmin
       .from("refund_requests" as never)
-      .insert([{
-        user_id: userId,
-        campaign_request_id: data.campaignRequestId ?? null,
-        amount_cents: data.amountCents ?? null,
-        reason: data.reason.trim(),
-      }] as never)
+      .insert([
+        {
+          user_id: userId,
+          campaign_request_id: data.campaignRequestId ?? null,
+          amount_cents: data.amountCents ?? null,
+          reason: data.reason.trim(),
+        },
+      ] as never)
       .select("id")
       .single();
 
@@ -55,7 +63,9 @@ export const listMyRefundRequests = createServerFn({ method: "POST" })
 
     const { data, error } = await supabaseAdmin
       .from("refund_requests" as never)
-      .select("id, campaign_request_id, amount_cents, reason, status, admin_notes, created_at" as never)
+      .select(
+        "id, campaign_request_id, amount_cents, reason, status, admin_notes, created_at" as never,
+      )
       .eq("user_id" as never, userId)
       .order("created_at" as never, { ascending: false });
 
@@ -70,14 +80,19 @@ export const listRefundRequestsForAdmin = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ status: z.string().optional() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role" as never, { _user_id: userId, _role: "admin" });
+    const { data: isAdmin } = await supabase.rpc("has_role" as never, {
+      _user_id: userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Admin requis");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let q = (supabaseAdmin as any)
       .from("refund_requests")
-      .select("id, user_id, campaign_request_id, amount_cents, reason, status, admin_notes, stripe_refund_id, created_at, updated_at")
+      .select(
+        "id, user_id, campaign_request_id, amount_cents, reason, status, admin_notes, stripe_refund_id, created_at, updated_at",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
 
@@ -93,16 +108,21 @@ export const listRefundRequestsForAdmin = createServerFn({ method: "POST" })
 export const reviewRefundRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["approved", "rejected", "processed"]),
-      adminNotes: z.string().max(500).optional(),
-      stripeRefundId: z.string().optional(),
-    }).parse(input),
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["approved", "rejected", "processed"]),
+        adminNotes: z.string().max(500).optional(),
+        stripeRefundId: z.string().optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role" as never, { _user_id: userId, _role: "admin" });
+    const { data: isAdmin } = await supabase.rpc("has_role" as never, {
+      _user_id: userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Admin requis");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

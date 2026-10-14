@@ -3,7 +3,10 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
-  services: z.array(z.enum(["covering_vehicule", "video_publicitaire", "creation_graphique"])).min(1).max(3),
+  services: z
+    .array(z.enum(["covering_vehicule", "video_publicitaire", "creation_graphique"]))
+    .min(1)
+    .max(3),
   coverage_areas: z.array(z.string().max(100)).max(30).default([]),
   company: z.string().max(200).optional(),
 });
@@ -77,7 +80,8 @@ export const estimateProviderPricing = createServerFn({ method: "POST" })
       creation_graphique: "Création graphique",
     };
 
-    const zonesStr = data.coverage_areas.length > 0 ? data.coverage_areas.join(", ") : "non renseignées";
+    const zonesStr =
+      data.coverage_areas.length > 0 ? data.coverage_areas.join(", ") : "non renseignées";
 
     const prompt = `Tu es un expert en tarification des prestataires de publicité mobile (covering véhicule, création graphique, vidéo) en France.
 
@@ -130,7 +134,11 @@ Réponds UNIQUEMENT en JSON strict :
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const raw = json.choices?.[0]?.message?.content ?? "{}";
     let parsed: Partial<EstimateResult> = {};
-    try { parsed = JSON.parse(raw); } catch { /* ignore */ }
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      /* ignore */
+    }
 
     const breakdown = Array.isArray(parsed.breakdown)
       ? parsed.breakdown.map((b: Partial<PricingBreakdown>) => ({

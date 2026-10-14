@@ -6,10 +6,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const respondToCampaignRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
-    z.object({
-      campaignId: z.string().uuid(),
-      response: z.enum(["accepted", "rejected"]),
-    }).parse(d),
+    z
+      .object({
+        campaignId: z.string().uuid(),
+        response: z.enum(["accepted", "rejected"]),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -18,7 +20,9 @@ export const respondToCampaignRequest = createServerFn({ method: "POST" })
     // Verify the owner owns a vehicle linked to this request before allowing the update
     const { data: campaign } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, user_id, email, company, spot_name, start_date, end_date, total_price, vehicle_id")
+      .select(
+        "id, user_id, email, company, spot_name, start_date, end_date, total_price, vehicle_id",
+      )
       .eq("id", data.campaignId)
       .maybeSingle();
     if (!campaign) return { ok: false, error: "not_found" };
@@ -62,7 +66,9 @@ export const respondToCampaignRequest = createServerFn({ method: "POST" })
     if (campaign.user_id) {
       const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
       void sendWebPushToUser(campaign.user_id as string, {
-        title: accepted ? "Un propriétaire a accepté votre demande ✅" : "ℹ️ Réponse d'un propriétaire",
+        title: accepted
+          ? "Un propriétaire a accepté votre demande ✅"
+          : "ℹ️ Réponse d'un propriétaire",
         body: campaign.spot_name
           ? accepted
             ? `Votre campagne « ${campaign.spot_name} » a été acceptée.`
@@ -88,11 +94,7 @@ export const notifyBriefCreated = createServerFn({ method: "POST" })
         .select("title, vehicle_types, start_date, end_date, budget_max")
         .eq("id", data.briefId)
         .maybeSingle(),
-      supabase
-        .from("advertiser_profiles")
-        .select("full_name")
-        .eq("user_id", userId)
-        .maybeSingle(),
+      supabase.from("advertiser_profiles").select("full_name").eq("user_id", userId).maybeSingle(),
       supabaseAdmin.auth.admin.getUserById(userId),
     ]);
 
@@ -101,7 +103,7 @@ export const notifyBriefCreated = createServerFn({ method: "POST" })
     if (!brief || !email) return { ok: true };
 
     const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
-    const types = (brief.vehicle_types as string[] | null);
+    const types = brief.vehicle_types as string[] | null;
     const { sendAppEmailSafe } = await import("@/lib/email/send.server");
     await sendAppEmailSafe({
       templateName: "brief-created",

@@ -8,10 +8,7 @@ import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/partner/profil")({
   head: () => ({
-    meta: [
-      { title: "Mon profil — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Mon profil — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: PartnerProfilPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -43,15 +40,23 @@ function PartnerProfilPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/partner/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/partner/inscription" });
+        return;
+      }
 
       const { data: prof } = await supabase
         .from("partner_profiles")
-        .select("id, full_name, company, city, phone, email, description, siret, siret_denomination, siret_verified_at, referral_code")
+        .select(
+          "id, full_name, company, city, phone, email, description, siret, siret_denomination, siret_verified_at, referral_code",
+        )
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (!prof) { navigate({ to: "/partner/inscription" }); return; }
+      if (!prof) {
+        navigate({ to: "/partner/inscription" });
+        return;
+      }
 
       setProfileId(prof.id);
       setFullName(prof.full_name ?? "");
@@ -86,7 +91,11 @@ function PartnerProfilPage() {
       })
       .eq("id", profileId);
 
-    if (upErr) { setError(upErr.message); setLoading(false); return; }
+    if (upErr) {
+      setError(upErr.message);
+      setLoading(false);
+      return;
+    }
     setSaved(true);
     setLoading(false);
   };
@@ -102,8 +111,13 @@ function PartnerProfilPage() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-4"><LogoLink /></div>
-        <Link to="/partner" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
+        <Link
+          to="/partner"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
           {t("profile.back")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
@@ -111,24 +125,58 @@ function PartnerProfilPage() {
           <p className="text-sm text-muted-foreground mb-6">{t("profile.desc")}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label={t("profile.full_name")} value={fullName} onChange={setFullName} required />
-            <Field label={t("profile.company")} value={company} onChange={setCompany} placeholder={t("profile.company_placeholder")} />
+            <Field
+              label={t("profile.full_name")}
+              value={fullName}
+              onChange={setFullName}
+              required
+            />
+            <Field
+              label={t("profile.company")}
+              value={company}
+              onChange={setCompany}
+              placeholder={t("profile.company_placeholder")}
+            />
             <div className="grid grid-cols-2 gap-4">
-              <Field label={t("profile.city")} value={city} onChange={setCity} placeholder={t("profile.city_placeholder")} />
-              <Field label={t("profile.phone")} value={phone} onChange={setPhone} type="tel" placeholder={t("profile.phone_placeholder")} />
+              <Field
+                label={t("profile.city")}
+                value={city}
+                onChange={setCity}
+                placeholder={t("profile.city_placeholder")}
+              />
+              <Field
+                label={t("profile.phone")}
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                placeholder={t("profile.phone_placeholder")}
+              />
             </div>
-            <Field label={t("profile.email")} value={email} onChange={setEmail} type="email" placeholder={t("profile.email_placeholder")} />
+            <Field
+              label={t("profile.email")}
+              value={email}
+              onChange={setEmail}
+              type="email"
+              placeholder={t("profile.email_placeholder")}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-1.5">{t("profile.description")}</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                maxLength={500}
                 placeholder={t("profile.description_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
             </div>
 
             {referralCode && (
               <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("profile.referral_code_label")}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("profile.referral_code_label")}
+                </p>
                 <p className="text-sm font-mono tracking-wider">{referralCode}</p>
                 <p className="text-xs text-muted-foreground">{t("profile.referral_code_hint")}</p>
               </div>
@@ -136,8 +184,13 @@ function PartnerProfilPage() {
 
             {siret && (
               <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("profile.siret_section")}</p>
-                <p className="text-sm">{siret}{siretDenomination ? ` — ${siretDenomination}` : ""}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("profile.siret_section")}
+                </p>
+                <p className="text-sm">
+                  {siret}
+                  {siretDenomination ? ` — ${siretDenomination}` : ""}
+                </p>
                 {siretVerifiedAt && (
                   <p className="text-xs text-muted-foreground">{t("profile.siret_verified")}</p>
                 )}
@@ -145,11 +198,22 @@ function PartnerProfilPage() {
               </div>
             )}
 
-            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
-            {saved && <div className="rounded-lg bg-green-500/15 border border-green-500/40 p-3 text-sm text-green-700 dark:text-green-400">{t("profile.saved")}</div>}
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            {saved && (
+              <div className="rounded-lg bg-green-500/15 border border-green-500/40 p-3 text-sm text-green-700 dark:text-green-400">
+                {t("profile.saved")}
+              </div>
+            )}
 
-            <button type="submit" disabled={loading}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
               {loading ? t("profile.saving") : t("profile.submit")}
             </button>
           </form>
@@ -159,14 +223,32 @@ function PartnerProfilPage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string;
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }

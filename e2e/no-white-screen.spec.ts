@@ -57,7 +57,9 @@ async function assertNoFatalError(page: Page) {
 test.describe("Pages publiques — anti écran blanc", () => {
   test("page d'accueil / charge", async ({ page }) => {
     const errors: string[] = [];
-    page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("console", (m) => {
+      if (m.type() === "error") errors.push(m.text());
+    });
 
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
@@ -71,7 +73,8 @@ test.describe("Pages publiques — anti écran blanc", () => {
 
     // Titre ou contenu clé présent (soft : en CI le contenu peut différer)
     const homeHtml = await page.content();
-    const hasHomeKey = /MoveSpot|publicité|véhicule|bienvenue|annonceur|partenaire|inscription/i.test(homeHtml);
+    const hasHomeKey =
+      /MoveSpot|publicité|véhicule|bienvenue|annonceur|partenaire|inscription/i.test(homeHtml);
     if (!hasHomeKey) return; // contenu non reconnaissable en CI — skip
     const fatalHome = errors.filter(
       (e) =>
@@ -96,7 +99,7 @@ test.describe("Pages publiques — anti écran blanc", () => {
         !e.includes("Failed to load") &&
         !e.includes("Failed to parse") &&
         !e.includes("Invalid URL") &&
-        !e.includes("VITE_")
+        !e.includes("VITE_"),
     );
     if (fatalHome.length > 0) return; // erreurs attendues en CI sans env vars — skip
   });
@@ -115,7 +118,8 @@ test.describe("Pages publiques — anti écran blanc", () => {
     if (bodyText.length <= 10) return; // CGU page not rendered in this CI env — skip
     await expectNoWhiteScreen(page);
     const cguHtml = await page.content();
-    const hasCguContent = /conditions|utilisation|cgu|mentions|légal|terms|legal|policy|privacy/i.test(cguHtml);
+    const hasCguContent =
+      /conditions|utilisation|cgu|mentions|légal|terms|legal|policy|privacy/i.test(cguHtml);
     if (!hasCguContent) return; // contenu CGU non trouvé en CI — skip
   });
 
@@ -154,12 +158,16 @@ test.describe("Pages protégées — redirection propre (pas écran blanc)", () 
 
       // Soit la page charge avec du contenu, soit on est redirigé vers login/auth
       const url = page.url();
-      const isRedirected = url.includes("login") || url.includes("auth") || url.includes("inscription") || url === "/";
+      const isRedirected =
+        url.includes("login") || url.includes("auth") || url.includes("inscription") || url === "/";
       const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
 
       // Une page blanche n'a ni redirection ni contenu → FAIL
       const hasContent = bodyText.length > 10;
-      expect(isRedirected || hasContent, `Écran blanc sur ${route} — ni redirection ni contenu`).toBe(true);
+      expect(
+        isRedirected || hasContent,
+        `Écran blanc sur ${route} — ni redirection ni contenu`,
+      ).toBe(true);
 
       // Aucune erreur WebGL ou crash React
       await assertNoFatalError(page);
@@ -172,9 +180,11 @@ test.describe("Pages protégées — redirection propre (pas écran blanc)", () 
           !e.includes("404") &&
           !e.includes("net::") &&
           !e.includes("Content Security Policy") &&
-          !e.includes("frame-ancestors")
+          !e.includes("frame-ancestors"),
       );
-      expect.soft(fatalErrors, `Erreurs JS fatales sur ${route}: ${fatalErrors.join(" | ")}`).toHaveLength(0);
+      expect
+        .soft(fatalErrors, `Erreurs JS fatales sur ${route}: ${fatalErrors.join(" | ")}`)
+        .toHaveLength(0);
     });
   }
 });
@@ -190,7 +200,7 @@ test.describe("Fonctionnalités critiques — régression Camion LED", () => {
     // (les pages protégées redirigent vers /auth sans Supabase, donc on vérifie les sources)
     const src = fs.readFileSync(
       path.join(process.cwd(), "src/routes/advertiser.briefs.nouveau.tsx"),
-      "utf-8"
+      "utf-8",
     );
     expect(src).toContain("camion_led");
   });
@@ -200,7 +210,7 @@ test.describe("Fonctionnalités critiques — régression Camion LED", () => {
     // on vérifie que la clé de traduction est bien référencée dans la page.
     const src = fs.readFileSync(
       path.join(process.cwd(), "src/routes/advertiser.index.tsx"),
-      "utf-8"
+      "utf-8",
     );
     expect(src).toContain("promo_led");
   });

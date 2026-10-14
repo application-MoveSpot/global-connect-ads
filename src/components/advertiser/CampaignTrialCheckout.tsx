@@ -79,7 +79,11 @@ export function CampaignTrialCheckout({
 
   return (
     <>
-      <Button onClick={showCheckout} disabled={disabled || vehicleQuantity < 1} className={className}>
+      <Button
+        onClick={showCheckout}
+        disabled={disabled || vehicleQuantity < 1}
+        className={className}
+      >
         {buttonLabel ?? t("campaign_trial.btn_default")}
       </Button>
 
@@ -89,9 +93,7 @@ export function CampaignTrialCheckout({
           <div className="space-y-4 p-6">
             <DialogHeader>
               <DialogTitle>{t("campaign_trial.dialog_title")}</DialogTitle>
-              <DialogDescription>
-                {t("campaign_trial.dialog_desc")}
-              </DialogDescription>
+              <DialogDescription>{t("campaign_trial.dialog_desc")}</DialogDescription>
             </DialogHeader>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             {!error ? (

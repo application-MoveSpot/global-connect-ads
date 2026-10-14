@@ -7,6 +7,7 @@
 **INTERDIT** d'ajouter des témoignages, avis, citations ou retours d'expérience fictifs sur n'importe quelle page publique ou privée de l'application (pages marketing, landing pages, pages "pourquoi nous choisir", pages "exemples", etc.).
 
 Les seuls contenus autorisés dans les sections témoignages sont :
+
 - Un placeholder "à venir" (ex. : "Les premiers témoignages arrivent bientôt")
 - Des témoignages réels fournis explicitement par l'équipe MoveSpot avec le nom complet, le rôle et l'accord de la personne
 
@@ -19,7 +20,8 @@ Si une section témoignages est vide, utiliser systématiquement le composant pl
   <p className="text-4xl mb-4">💬</p>
   <p className="font-semibold text-lg mb-2">Les premiers témoignages arrivent bientôt</p>
   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-    Vous avez utilisé MoveSpot pour votre campagne ? Nous serions ravis de partager votre expérience.
+    Vous avez utilisé MoveSpot pour votre campagne ? Nous serions ravis de partager votre
+    expérience.
   </p>
   <a
     href="mailto:contact@move-spot.com?subject=Témoignage MoveSpot"

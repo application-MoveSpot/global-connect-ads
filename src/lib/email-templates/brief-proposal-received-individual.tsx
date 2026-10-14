@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -21,16 +39,26 @@ interface Props {
 }
 
 const Email = ({
-  firstName, eventLabel, ownerName, vehicleType,
-  zone, proposedPrice, startDate, daysUntilEvent,
-  dashboardUrl, unsubscribeUrl,
+  firstName,
+  eventLabel,
+  ownerName,
+  vehicleType,
+  zone,
+  proposedPrice,
+  startDate,
+  daysUntilEvent,
+  dashboardUrl,
+  unsubscribeUrl,
 }: Props) => {
-  const urgentSoon = typeof daysUntilEvent === "number" && daysUntilEvent >= 0 && daysUntilEvent <= 7;
+  const urgentSoon =
+    typeof daysUntilEvent === "number" && daysUntilEvent >= 0 && daysUntilEvent <= 7;
 
   return (
     <Html lang="fr" dir="ltr">
       <Head />
-      <Preview>Un véhicule est disponible pour votre {eventLabel ?? "événement"} — répondez vite !</Preview>
+      <Preview>
+        Un véhicule est disponible pour votre {eventLabel ?? "événement"} — répondez vite !
+      </Preview>
       <Body style={bodyStyle}>
         <Container style={{ maxWidth: "560px", margin: "32px auto" }}>
           <Container style={containerStyle}>
@@ -44,7 +72,9 @@ const Email = ({
               </Text>
 
               <Text style={textStyle}>
-                {firstName ? `Bonjour ${firstName} !` : "Bonjour !"} Un propriétaire de véhicule a vu votre annonce{eventLabel ? ` pour votre ${eventLabel}` : ""} et vous soumet une proposition.
+                {firstName ? `Bonjour ${firstName} !` : "Bonjour !"} Un propriétaire de véhicule a
+                vu votre annonce{eventLabel ? ` pour votre ${eventLabel}` : ""} et vous soumet une
+                proposition.
               </Text>
 
               {urgentSoon && typeof daysUntilEvent === "number" && (
@@ -66,7 +96,10 @@ const Email = ({
                     }}
                   >
                     ⏰ Votre événement est dans{" "}
-                    {daysUntilEvent === 0 ? "moins d'1 jour" : `${daysUntilEvent} jour${daysUntilEvent > 1 ? "s" : ""}`} — répondez rapidement pour sécuriser votre véhicule !
+                    {daysUntilEvent === 0
+                      ? "moins d'1 jour"
+                      : `${daysUntilEvent} jour${daysUntilEvent > 1 ? "s" : ""}`}{" "}
+                    — répondez rapidement pour sécuriser votre véhicule !
                   </Text>
                 </Section>
               )}
@@ -81,7 +114,9 @@ const Email = ({
               </InfoCard>
 
               <Text style={textStyle}>
-                Vous pouvez accepter ou refuser cette proposition directement depuis votre espace MoveSpot. Si la proposition vous convient, un seul clic suffit pour confirmer votre véhicule et sécuriser votre publicité pour l'événement.
+                Vous pouvez accepter ou refuser cette proposition directement depuis votre espace
+                MoveSpot. Si la proposition vous convient, un seul clic suffit pour confirmer votre
+                véhicule et sécuriser votre publicité pour l'événement.
               </Text>
 
               <Text style={mutedText}>

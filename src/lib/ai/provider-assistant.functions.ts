@@ -26,12 +26,20 @@ export const generateProviderSuggestion = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<ProviderSuggestionResult> => {
     assertRateLimit(`provider-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     if (!(await hasAuthenticatedBriefRequest())) {
-      return { ok: false, code: "UNAUTHORIZED", message: "Session expirée — reconnectez-vous puis réessayez." };
+      return {
+        ok: false,
+        code: "UNAUTHORIZED",
+        message: "Session expirée — reconnectez-vous puis réessayez.",
+      };
     }
 
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) {
-      return { ok: false, code: "AI_UNAVAILABLE", message: "Le service IA est indisponible. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "Le service IA est indisponible. Réessayez.",
+      };
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
@@ -57,13 +65,21 @@ Réponds UNIQUEMENT en JSON strict :
 
     try {
       const { generateText } = await import("ai");
-      const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 700 });
+      const { text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.7,
+        maxOutputTokens: 700,
+      });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as ProviderSuggestion;
 
       const coverageAreas = Array.isArray(parsed.coverageAreas)
-        ? parsed.coverageAreas.filter((z) => typeof z === "string" && z.trim()).slice(0, 10).map((z) => String(z).trim())
+        ? parsed.coverageAreas
+            .filter((z) => typeof z === "string" && z.trim())
+            .slice(0, 10)
+            .map((z) => String(z).trim())
         : [];
       const services = Array.isArray(parsed.services)
         ? parsed.services.filter((s) => typeof s === "string" && VALID_SERVICES.has(s)).slice(0, 3)
@@ -79,6 +95,10 @@ Réponds UNIQUEMENT en JSON strict :
       };
     } catch (err) {
       captureServerException(err, { category: "ai" });
-      return { ok: false, code: "AI_UNAVAILABLE", message: "L'IA n'a pas pu générer de suggestion. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+      };
     }
   });

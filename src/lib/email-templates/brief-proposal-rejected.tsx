@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -16,9 +34,7 @@ interface Props {
   unsubscribeUrl?: string;
 }
 
-const Email = ({
-  ownerName, briefTitle, company, zone, dashboardUrl, unsubscribeUrl,
-}: Props) => (
+const Email = ({ ownerName, briefTitle, company, zone, dashboardUrl, unsubscribeUrl }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
     <Preview>Votre proposition n'a pas été retenue — d'autres opportunités vous attendent</Preview>
@@ -35,7 +51,10 @@ const Email = ({
             </Text>
 
             <Text style={textStyle}>
-              {ownerName ? `Bonjour ${ownerName},` : "Bonjour,"} l'annonceur{company ? ` ${company}` : ""} n'a pas retenu votre proposition pour le brief{briefTitle ? ` « ${briefTitle} »` : ""}. Cela fait partie du processus normal — d'autres opportunités arrivent régulièrement sur MoveSpot.
+              {ownerName ? `Bonjour ${ownerName},` : "Bonjour,"} l'annonceur
+              {company ? ` ${company}` : ""} n'a pas retenu votre proposition pour le brief
+              {briefTitle ? ` « ${briefTitle} »` : ""}. Cela fait partie du processus normal —
+              d'autres opportunités arrivent régulièrement sur MoveSpot.
             </Text>
 
             <InfoCard>
@@ -45,7 +64,8 @@ const Email = ({
             </InfoCard>
 
             <Text style={mutedText}>
-              Consultez les nouveaux briefs disponibles dans votre espace pour soumettre d'autres propositions.
+              Consultez les nouveaux briefs disponibles dans votre espace pour soumettre d'autres
+              propositions.
             </Text>
 
             {dashboardUrl ? (

@@ -2,9 +2,16 @@ import * as React from "react";
 import { Body, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
 } from "./_base";
 
 interface Props {
@@ -19,7 +26,16 @@ interface Props {
   unsubscribeUrl?: string;
 }
 
-const Email = ({ contactName, company, siret, email, phone, budgetRange, message, leadId }: Props) => (
+const Email = ({
+  contactName,
+  company,
+  siret,
+  email,
+  phone,
+  budgetRange,
+  message,
+  leadId,
+}: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
     <Preview>{`Nouveau lead Grand Compte — ${company ?? contactName ?? "Prospect"}`}</Preview>
@@ -28,12 +44,22 @@ const Email = ({ contactName, company, siret, email, phone, budgetRange, message
         <Container style={containerStyle}>
           <EmailHeader />
           <Section style={contentPadding}>
-            <Text style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" as const, color: "#F05A28", margin: "0 0 10px" }}>
+            <Text
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "1px",
+                textTransform: "uppercase" as const,
+                color: "#F05A28",
+                margin: "0 0 10px",
+              }}
+            >
               Nouveau lead · Grand Compte
             </Text>
             <Text style={h1Style}>Demande de devis reçue</Text>
             <Text style={textStyle}>
-              Un prospect vient de soumettre une demande via la page Tarifs. Voici les informations collectées.
+              Un prospect vient de soumettre une demande via la page Tarifs. Voici les informations
+              collectées.
             </Text>
             <InfoCard>
               <InfoRow label="Contact" value={contactName ?? "—"} />
@@ -47,13 +73,22 @@ const Email = ({ contactName, company, siret, email, phone, budgetRange, message
             {message ? (
               <>
                 <Text style={{ ...mutedText, fontWeight: 600, marginTop: "16px" }}>Message :</Text>
-                <Text style={{ ...textStyle, background: "#f8fafc", borderLeft: "3px solid #6366f1", padding: "12px 16px", borderRadius: "6px" }}>
+                <Text
+                  style={{
+                    ...textStyle,
+                    background: "#f8fafc",
+                    borderLeft: "3px solid #6366f1",
+                    padding: "12px 16px",
+                    borderRadius: "6px",
+                  }}
+                >
                   {message}
                 </Text>
               </>
             ) : null}
             <Text style={{ ...mutedText, marginTop: "20px" }}>
-              Objectif : rappeler sous <strong>24h ouvrées</strong>. Statut à mettre à jour dans le dashboard admin.
+              Objectif : rappeler sous <strong>24h ouvrées</strong>. Statut à mettre à jour dans le
+              dashboard admin.
             </Text>
           </Section>
           <EmailFooter />
@@ -76,7 +111,8 @@ export const template = {
     email: "m.dupont@caraibesdistrib.fr",
     phone: "+596 696 12 34 56",
     budgetRange: "10 000 – 30 000 € / an",
-    message: "Nous avons une flotte de 15 véhicules utilitaires et souhaitons couvrir la Martinique.",
+    message:
+      "Nous avons une flotte de 15 véhicules utilitaires et souhaitons couvrir la Martinique.",
     leadId: "lead-abc123",
   },
 } satisfies TemplateEntry;

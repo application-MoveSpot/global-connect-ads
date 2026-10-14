@@ -8,7 +8,11 @@ import { getConsent, type ConsentChoice } from "@/lib/consent";
  */
 export function useCookieConsent(): ConsentChoice | null {
   const [consent, setConsent] = useState<ConsentChoice | null>(() => {
-    try { return getConsent(); } catch { return null; }
+    try {
+      return getConsent();
+    } catch {
+      return null;
+    }
   });
 
   useEffect(() => {

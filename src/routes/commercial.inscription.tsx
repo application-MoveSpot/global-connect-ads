@@ -67,14 +67,26 @@ function CommercialInscription() {
     try {
       const res = await callCommercialAi({ data: { commercialContext: aiContext } });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const filled: string[] = [];
-      if (res.suggestion.fullName) { setFullName(res.suggestion.fullName); filled.push(t("commercial.inscription.fullname_label").replace(" *", "")); }
-      if (res.suggestion.company) { setCompany(res.suggestion.company); filled.push(t("commercial.inscription.company_label")); }
-      if (res.suggestion.city) { setCity(res.suggestion.city); filled.push(t("commercial.inscription.city_label")); }
+      if (res.suggestion.fullName) {
+        setFullName(res.suggestion.fullName);
+        filled.push(t("commercial.inscription.fullname_label").replace(" *", ""));
+      }
+      if (res.suggestion.company) {
+        setCompany(res.suggestion.company);
+        filled.push(t("commercial.inscription.company_label"));
+      }
+      if (res.suggestion.city) {
+        setCity(res.suggestion.city);
+        filled.push(t("commercial.inscription.city_label"));
+      }
       setAiFilled(filled);
       if (filled.length > 0) setAiPanelOpen(false);
     } catch {
@@ -94,7 +106,11 @@ function CommercialInscription() {
         password,
         options: { emailRedirectTo: `${window.location.origin}/commercial/inscription` },
       });
-      if (authErr) { setError(authErr.message); setLoading(false); return; }
+      if (authErr) {
+        setError(authErr.message);
+        setLoading(false);
+        return;
+      }
       if (signUpData.user?.identities?.length === 0) {
         setMode("signin");
         setError(t("auth.error.email_exists"));
@@ -109,7 +125,11 @@ function CommercialInscription() {
       }
     } else {
       const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
-      if (authErr) { setError(authErr.message); setLoading(false); return; }
+      if (authErr) {
+        setError(authErr.message);
+        setLoading(false);
+        return;
+      }
       const session = await getOrRefreshSession();
       if (session) {
         const { data: existing } = await (supabase as any)
@@ -117,7 +137,10 @@ function CommercialInscription() {
           .select("id")
           .eq("user_id", session.user.id)
           .maybeSingle();
-        if (existing) { navigate({ to: "/commercial" }); return; }
+        if (existing) {
+          navigate({ to: "/commercial" });
+          return;
+        }
       }
     }
     setStep("profile");
@@ -132,21 +155,36 @@ function CommercialInscription() {
       return;
     }
     setLoading(true);
-    const result = await createProfileFn({ data: { fullName, phone: phone ? (normalizePhone(phone) ?? phone) : "", company, city } });
-    if (!result.ok) { setError(result.error ?? t("common.error")); setLoading(false); return; }
+    const result = await createProfileFn({
+      data: { fullName, phone: phone ? (normalizePhone(phone) ?? phone) : "", company, city },
+    });
+    if (!result.ok) {
+      setError(result.error ?? t("common.error"));
+      setLoading(false);
+      return;
+    }
     navigate({ to: "/commercial" });
   };
 
   return (
     <div className="min-h-screen bg-background p-4 flex items-center justify-center">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
-        <div className="mb-4"><LogoLink /></div>
-        <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">{t("commercial.inscription.back")}</Link>
+        <div className="mb-4">
+          <LogoLink />
+        </div>
+        <Link
+          to="/"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
+          {t("commercial.inscription.back")}
+        </Link>
 
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? t("commercial.inscription.title_signup") : t("commercial.inscription.title_signin")}
+              {mode === "signup"
+                ? t("commercial.inscription.title_signup")
+                : t("commercial.inscription.title_signin")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
               {mode === "signup"
@@ -154,22 +192,51 @@ function CommercialInscription() {
                 : t("commercial.inscription.subtitle_signin")}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
-              <Field label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
-              <Field label={t("auth.password")} type="password" value={password} onChange={setPassword} required minLength={6} />
+              <Field
+                label={t("auth.email")}
+                type="email"
+                value={email}
+                onChange={setEmail}
+                required
+              />
+              <Field
+                label={t("auth.password")}
+                type="password"
+                value={password}
+                onChange={setPassword}
+                required
+                minLength={6}
+              />
               {error && <Err msg={error} />}
-              <button type="submit" disabled={loading}
-                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-                {loading ? "..." : mode === "signup" ? t("common.create_account") : t("common.sign_in")}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+              >
+                {loading
+                  ? "..."
+                  : mode === "signup"
+                    ? t("common.create_account")
+                    : t("common.sign_in")}
               </button>
             </form>
-            <button onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); }}
-              className="w-full text-sm text-muted-foreground hover:text-foreground mt-4">
-              {mode === "signup" ? t("commercial.inscription.already_account") : t("commercial.inscription.not_registered")}
+            <button
+              onClick={() => {
+                setMode(mode === "signup" ? "signin" : "signup");
+                setError("");
+              }}
+              className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
+            >
+              {mode === "signup"
+                ? t("commercial.inscription.already_account")
+                : t("commercial.inscription.not_registered")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("commercial.inscription.profile_title")}</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">
+              {t("commercial.inscription.profile_title")}
+            </h1>
             <p className="text-sm text-muted-foreground mb-6">
               {t("commercial.inscription.profile_subtitle")}
             </p>
@@ -189,13 +256,30 @@ function CommercialInscription() {
               sessionExpiredHref="/commercial/inscription?mode=signin"
               generateLabel={t("commercial.inscription.ai_generate")}
               generateLoadingLabel={t("commercial.inscription.ai_generating")}
-              filledMessage={aiFilled.length > 0 ? t("commercial.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              filledMessage={
+                aiFilled.length > 0
+                  ? t("commercial.inscription.ai_filled", { fields: aiFilled.join(", ") })
+                  : undefined
+              }
             />
             <form onSubmit={handleProfile} className="space-y-4">
-              <Field label={t("commercial.inscription.fullname_label")} value={fullName} onChange={setFullName} required />
-              <Field label={t("commercial.inscription.company_label")} value={company} onChange={setCompany} />
+              <Field
+                label={t("commercial.inscription.fullname_label")}
+                value={fullName}
+                onChange={setFullName}
+                required
+              />
+              <Field
+                label={t("commercial.inscription.company_label")}
+                value={company}
+                onChange={setCompany}
+              />
               <Field label={t("common.phone")} type="tel" value={phone} onChange={setPhone} />
-              <Field label={t("commercial.inscription.city_label")} value={city} onChange={setCity} />
+              <Field
+                label={t("commercial.inscription.city_label")}
+                value={city}
+                onChange={setCity}
+              />
               {error && <Err msg={error} />}
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
@@ -209,8 +293,11 @@ function CommercialInscription() {
                   {t("commercial.inscription.cgu_text")}
                 </span>
               </label>
-              <button type="submit" disabled={loading || !cguAccepted}
-                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={loading || !cguAccepted}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+              >
                 {loading ? "..." : t("commercial.inscription.submit_btn")}
               </button>
             </form>
@@ -222,20 +309,39 @@ function CommercialInscription() {
 }
 
 function Field({
-  label, value, onChange, type = "text", required, minLength,
-}: { label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; minLength?: number }) {
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  minLength,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  minLength?: number;
+}) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} minLength={minLength} value={value}
+      <input
+        type={type}
+        required={required}
+        minLength={minLength}
+        value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }
 
 function Err({ msg }: { msg: string }) {
   return (
-    <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{msg}</div>
+    <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+      {msg}
+    </div>
   );
 }

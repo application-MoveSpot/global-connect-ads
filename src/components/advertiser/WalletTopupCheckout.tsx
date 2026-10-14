@@ -25,7 +25,15 @@ type Props = {
   onClose?: () => void;
 };
 
-export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disabled, className, campaignBriefId, onClose }: Props) {
+export function WalletTopupCheckout({
+  amountEuros,
+  returnUrl,
+  buttonLabel,
+  disabled,
+  className,
+  campaignBriefId,
+  onClose,
+}: Props) {
   const { t } = useTranslation();
   const createTopup = useServerFn(createWalletTopupCheckout);
   const [open, setOpen] = useState(false);
@@ -73,15 +81,19 @@ export function WalletTopupCheckout({ amountEuros, returnUrl, buttonLabel, disab
         {buttonLabel ?? t("wallet_topup.btn_default", { amount: amountEuros })}
       </Button>
 
-      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) onClose?.(); }}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) onClose?.();
+        }}
+      >
         <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto p-0">
           <PaymentTestModeBanner />
           <div className="space-y-4 p-6">
             <DialogHeader>
               <DialogTitle>{t("wallet_topup.dialog_title")}</DialogTitle>
-              <DialogDescription>
-                {t("wallet_topup.dialog_desc")}
-              </DialogDescription>
+              <DialogDescription>{t("wallet_topup.dialog_desc")}</DialogDescription>
             </DialogHeader>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
             {!error ? (

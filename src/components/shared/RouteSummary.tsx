@@ -25,7 +25,12 @@ export function RouteSummary({ zones, waypoints, pois, impressionsPerDay, days }
           <span className="font-semibold">{impressionsPerDay.toLocaleString(i18n.language)}</span>
           <span className="opacity-80">{t("route_summary.impressions_per_day")}</span>
           {days && days > 0 && (
-            <span className="opacity-80">{t("route_summary.impressions_total", { total: (impressionsPerDay * days).toLocaleString(i18n.language), days })}</span>
+            <span className="opacity-80">
+              {t("route_summary.impressions_total", {
+                total: (impressionsPerDay * days).toLocaleString(i18n.language),
+                days,
+              })}
+            </span>
           )}
         </div>
       )}
@@ -34,7 +39,9 @@ export function RouteSummary({ zones, waypoints, pois, impressionsPerDay, days }
           <div className="text-muted-foreground mb-1">{t("route_summary.zones_label")}</div>
           <div className="flex flex-wrap gap-1.5">
             {zones.map((z, i) => (
-              <span key={i} className="rounded-full bg-primary/10 text-primary px-2 py-0.5">{z}</span>
+              <span key={i} className="rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                {z}
+              </span>
             ))}
           </div>
         </div>
@@ -43,7 +50,9 @@ export function RouteSummary({ zones, waypoints, pois, impressionsPerDay, days }
         <div>
           <div className="text-muted-foreground mb-1">{t("route_summary.waypoints_label")}</div>
           <ol className="list-decimal pl-4 space-y-0.5 text-foreground">
-            {waypoints.map((w, i) => <li key={i}>{w}</li>)}
+            {waypoints.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
           </ol>
         </div>
       )}
@@ -51,7 +60,9 @@ export function RouteSummary({ zones, waypoints, pois, impressionsPerDay, days }
         <div>
           <div className="text-muted-foreground mb-1">{t("route_summary.pois_label")}</div>
           <ul className="list-disc pl-4 space-y-0.5 text-foreground">
-            {pois.map((p, i) => <li key={i}>{p}</li>)}
+            {pois.map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
           </ul>
         </div>
       )}

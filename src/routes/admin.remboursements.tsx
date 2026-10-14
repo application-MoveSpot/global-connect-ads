@@ -35,7 +35,9 @@ function AdminRemboursementsPage() {
   const review = useServerFn(reviewRefundRequest);
 
   const [rows, setRows] = useState<AdminRefundRequest[]>([]);
-  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "processed">("pending");
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected" | "processed">(
+    "pending",
+  );
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -56,12 +58,11 @@ function AdminRemboursementsPage() {
     }
   };
 
-  useEffect(() => { void reload(); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    void reload();
+  }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onAction = async (
-    id: string,
-    status: "approved" | "rejected" | "processed",
-  ) => {
+  const onAction = async (id: string, status: "approved" | "rejected" | "processed") => {
     let adminNotes: string | undefined;
     let stripeRefundId: string | undefined;
 
@@ -112,7 +113,9 @@ function AdminRemboursementsPage() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">{t("admin.refunds.title")}</h1>
           </div>
-          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.refunds.back")}</a>
+          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("admin.refunds.back")}
+          </a>
         </div>
       </header>
 
@@ -124,7 +127,9 @@ function AdminRemboursementsPage() {
               key={f}
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                filter === f ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
+                filter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary hover:bg-secondary/80"
               }`}
             >
               {t(FILTER_LABEL_KEYS[f])}
@@ -157,14 +162,23 @@ function AdminRemboursementsPage() {
                     <p className="text-xs text-muted-foreground font-mono">{r.user_id}</p>
                     {r.campaign_request_id && (
                       <p className="text-xs text-muted-foreground">
-                        {t("admin.refunds.campaign")} <span className="font-mono">{r.campaign_request_id}</span>
+                        {t("admin.refunds.campaign")}{" "}
+                        <span className="font-mono">{r.campaign_request_id}</span>
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {t("admin.refunds.submitted_at", { date: new Date(r.created_at).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric" }) })}
+                      {t("admin.refunds.submitted_at", {
+                        date: new Date(r.created_at).toLocaleDateString(i18n.language, {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }),
+                      })}
                     </p>
                   </div>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${STATUS_COLOR[r.status] ?? ""}`}>
+                  <span
+                    className={`text-xs font-semibold px-3 py-1 rounded-full border ${STATUS_COLOR[r.status] ?? ""}`}
+                  >
                     {STATUS_LABEL_KEYS[r.status] ? t(STATUS_LABEL_KEYS[r.status]) : r.status}
                   </span>
                 </div>
@@ -181,7 +195,10 @@ function AdminRemboursementsPage() {
                   </div>
                 )}
                 {r.stripe_refund_id && (
-                  <p className="text-xs text-muted-foreground">{t("admin.refunds.stripe_refund_id")} <span className="font-mono">{r.stripe_refund_id}</span></p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("admin.refunds.stripe_refund_id")}{" "}
+                    <span className="font-mono">{r.stripe_refund_id}</span>
+                  </p>
                 )}
 
                 {/* Actions */}

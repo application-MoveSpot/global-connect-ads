@@ -5,9 +5,7 @@ import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import type { Database } from "@/integrations/supabase/types";
 
 export const getProviderPublicMeta = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) =>
-    z.object({ providerId: z.string().uuid() }).parse(data),
-  )
+  .inputValidator((data: unknown) => z.object({ providerId: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
     assertRateLimit(`provider-public:${getRequestIp()}`, { maxRequests: 30, windowMs: 60_000 });
     const supabase = createClient<Database>(

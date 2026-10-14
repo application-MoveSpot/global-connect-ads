@@ -8,10 +8,10 @@ import {
 } from "@/lib/campaigns/advertiser-budget-estimate.functions";
 
 const ZONE_LABELS: Record<string, string> = {
-  paris:        "Paris / Île-de-France",
+  paris: "Paris / Île-de-France",
   grande_ville: "Grande ville",
-  province:     "Province",
-  dom:          "DOM",
+  province: "Province",
+  dom: "DOM",
 };
 
 const eur = (n: number) =>
@@ -51,7 +51,16 @@ export function AdvertiserBudgetEstimate({
     setError("");
     try {
       const res = await doEstimate({
-        data: { zones, days, vehicleCount, vehicleTypes, needsCovering, needsGraphic, needsVideo, brandName },
+        data: {
+          zones,
+          days,
+          vehicleCount,
+          vehicleTypes,
+          needsCovering,
+          needsGraphic,
+          needsVideo,
+          brandName,
+        },
       });
       setResult(res);
       setOpen(true);
@@ -67,7 +76,7 @@ export function AdvertiserBudgetEstimate({
       {/* Header — always visible */}
       <button
         type="button"
-        onClick={() => result ? setOpen((o) => !o) : handleEstimate()}
+        onClick={() => (result ? setOpen((o) => !o) : handleEstimate())}
         disabled={loading || !canEstimate}
         className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left disabled:opacity-40"
       >
@@ -95,7 +104,12 @@ export function AdvertiserBudgetEstimate({
             )}
           </div>
         </div>
-        {result && (open ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />)}
+        {result &&
+          (open ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          ))}
       </button>
 
       {/* Options before first estimate */}
@@ -131,9 +145,7 @@ export function AdvertiserBudgetEstimate({
         </div>
       )}
 
-      {error && (
-        <p className="px-5 pb-4 text-xs text-destructive">{error}</p>
-      )}
+      {error && <p className="px-5 pb-4 text-xs text-destructive">{error}</p>}
 
       {/* Result panel */}
       {result && open && (
@@ -143,7 +155,10 @@ export function AdvertiserBudgetEstimate({
             <span className="rounded-full border border-border px-2 py-0.5 font-medium">
               📍 {ZONE_LABELS[result.zone] ?? result.zone}
             </span>
-            <span>{days} jour{days > 1 ? "s" : ""} · {vehicleCount} véhicule{vehicleCount > 1 ? "s" : ""}</span>
+            <span>
+              {days} jour{days > 1 ? "s" : ""} · {vehicleCount} véhicule
+              {vehicleCount > 1 ? "s" : ""}
+            </span>
           </div>
 
           {/* Breakdown */}
@@ -166,7 +181,9 @@ export function AdvertiserBudgetEstimate({
           {/* Total */}
           <div className="flex items-center justify-between rounded-lg bg-primary/8 border border-primary/20 px-4 py-3">
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Budget total estimé</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+                Budget total estimé
+              </p>
               <p className="text-xl font-bold tabular-nums text-foreground">
                 {eur(result.totalMin)} – {eur(result.totalMax)}
               </p>

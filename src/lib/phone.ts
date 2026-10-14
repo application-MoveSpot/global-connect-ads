@@ -29,8 +29,7 @@ export function formatPhone(e164: string): string {
 
 // ─── US ───────────────────────────────────────────────────────────────────────
 // Covers: (555) 123-4567 | 555-123-4567 | 555.123.4567 | +1 555 123 4567 | 5551234567
-const US_VALID_RE =
-  /^(?:\+1[\s.\-]?)?(?:\(\d{3}\)|\d{3})[\s.\-]?\d{3}[\s.\-]?\d{4}$/;
+const US_VALID_RE = /^(?:\+1[\s.\-]?)?(?:\(\d{3}\)|\d{3})[\s.\-]?\d{3}[\s.\-]?\d{4}$/;
 
 export function isValidUsPhone(raw: string): boolean {
   return US_VALID_RE.test(raw.trim());
@@ -62,10 +61,7 @@ export function isValidPhone(raw: string, market: "FR" | "US" = "FR"): boolean {
 }
 
 /** Normalizes to E.164 for either market. */
-export function normalizePhoneForMarket(
-  raw: string,
-  market: "FR" | "US" = "FR",
-): string | null {
+export function normalizePhoneForMarket(raw: string, market: "FR" | "US" = "FR"): string | null {
   return market === "US" ? normalizeUsPhone(raw) : normalizePhone(raw);
 }
 

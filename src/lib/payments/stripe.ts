@@ -8,7 +8,10 @@ let configPromise: Promise<StripePublicConfig> | null = null;
 
 export function getPaymentsConfig(): Promise<StripePublicConfig> {
   if (!configPromise) {
-    configPromise = getStripePublicConfig().catch(() => ({ publishableKey: null, environment: null }));
+    configPromise = getStripePublicConfig().catch(() => ({
+      publishableKey: null,
+      environment: null,
+    }));
   }
   return configPromise;
 }

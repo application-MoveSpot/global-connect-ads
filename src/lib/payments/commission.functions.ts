@@ -36,13 +36,18 @@ export const getCommissionRates = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Admin requis");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await (supabaseAdmin as unknown as {
-      from: (t: string) => {
-        select: (c: string) => {
-          order: (c: string, opts: object) => Promise<{ data: CommissionRate[] | null; error: unknown }>;
+    const { data, error } = await (
+      supabaseAdmin as unknown as {
+        from: (t: string) => {
+          select: (c: string) => {
+            order: (
+              c: string,
+              opts: object,
+            ) => Promise<{ data: CommissionRate[] | null; error: unknown }>;
+          };
         };
-      };
-    })
+      }
+    )
       .from("commission_rates")
       .select("id, tier, rate_bps, min_fee_cents, effective_from, notes, created_at")
       .order("effective_from", { ascending: false });
@@ -68,15 +73,17 @@ export const addCommissionRate = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Admin requis");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await (supabaseAdmin as unknown as {
-      from: (t: string) => {
-        insert: (d: object) => {
-          select: (c: string) => {
-            single: () => Promise<{ data: CommissionRate | null; error: unknown }>;
+    const { data: row, error } = await (
+      supabaseAdmin as unknown as {
+        from: (t: string) => {
+          insert: (d: object) => {
+            select: (c: string) => {
+              single: () => Promise<{ data: CommissionRate | null; error: unknown }>;
+            };
           };
         };
-      };
-    })
+      }
+    )
       .from("commission_rates")
       .insert({
         tier: data.tier,
@@ -100,15 +107,20 @@ export const getCampaignMarginStats = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Admin requis");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await (supabaseAdmin as unknown as {
-      from: (t: string) => {
-        select: (c: string) => {
-          order: (c: string, opts: object) => {
-            limit: (n: number) => Promise<{ data: MarginRow[] | null; error: unknown }>;
+    const { data, error } = await (
+      supabaseAdmin as unknown as {
+        from: (t: string) => {
+          select: (c: string) => {
+            order: (
+              c: string,
+              opts: object,
+            ) => {
+              limit: (n: number) => Promise<{ data: MarginRow[] | null; error: unknown }>;
+            };
           };
         };
-      };
-    })
+      }
+    )
       .from("campaign_margin_view")
       .select("*")
       .order("paid_at", { ascending: false })

@@ -9,12 +9,23 @@ export const Route = createFileRoute("/securite")({
   head: () => ({
     meta: [
       { title: "Sécurité — Comment MoveSpot protège vos données" },
-      { name: "description", content: "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des advertisers et propriétaires de véhicules." },
+      {
+        name: "description",
+        content:
+          "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des advertisers et propriétaires de véhicules.",
+      },
       { property: "og:title", content: "Sécurité — Comment MoveSpot protège vos données" },
-      { property: "og:description", content: "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des advertisers et propriétaires de véhicules." },
+      {
+        property: "og:description",
+        content:
+          "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des advertisers et propriétaires de véhicules.",
+      },
       { property: "og:url", content: "https://move-spot.com/securite" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/securite" }, ...hreflangLinks("/securite")],
+    links: [
+      { rel: "canonical", href: "https://move-spot.com/securite" },
+      ...hreflangLinks("/securite"),
+    ],
   }),
   component: SecuritePage,
 });
@@ -31,7 +42,9 @@ function SecuritePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [factors, setFactors] = useState<Factor[]>([]);
-  const [enroll, setEnroll] = useState<{ factorId: string; qr: string; secret: string } | null>(null);
+  const [enroll, setEnroll] = useState<{ factorId: string; qr: string; secret: string } | null>(
+    null,
+  );
   const [friendlyName, setFriendlyName] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -79,7 +92,9 @@ function SecuritePage() {
     if (!enroll) return;
     setError("");
     setBusy(true);
-    const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: enroll.factorId });
+    const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({
+      factorId: enroll.factorId,
+    });
     if (chErr || !ch) {
       setBusy(false);
       setError(chErr?.message ?? t("securite.challenge_error"));
@@ -129,8 +144,16 @@ function SecuritePage() {
         <h1 className="font-display text-3xl font-bold mb-2">{t("securite.title")}</h1>
         <p className="text-sm text-muted-foreground mb-8">{t("securite.subtitle")}</p>
 
-        {error && <div className="mb-4 rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
-        {info && <div className="mb-4 rounded-lg bg-primary/10 border border-primary/30 p-3 text-sm">{info}</div>}
+        {error && (
+          <div className="mb-4 rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+        {info && (
+          <div className="mb-4 rounded-lg bg-primary/10 border border-primary/30 p-3 text-sm">
+            {info}
+          </div>
+        )}
 
         <section className="rounded-2xl border border-border bg-card p-6 mb-6">
           <h2 className="text-lg font-semibold mb-1">Authenticator (TOTP)</h2>
@@ -145,11 +168,16 @@ function SecuritePage() {
               {totp.length > 0 && (
                 <ul className="space-y-2 mb-4">
                   {totp.map((f) => (
-                    <li key={f.id} className="flex items-center justify-between rounded-lg border border-border bg-background p-3 text-sm">
+                    <li
+                      key={f.id}
+                      className="flex items-center justify-between rounded-lg border border-border bg-background p-3 text-sm"
+                    >
                       <div>
                         <div className="font-medium">{f.friendly_name || "Authenticator"}</div>
                         <div className="text-xs text-muted-foreground">
-                          {f.status === "verified" ? t("securite.verified") : t("common.status.pending")}
+                          {f.status === "verified"
+                            ? t("securite.verified")
+                            : t("common.status.pending")}
                         </div>
                       </div>
                       <button
@@ -167,7 +195,9 @@ function SecuritePage() {
               {!enroll && (
                 <div className="space-y-3">
                   <div>
-                    <label htmlFor="totp-device-name" className="block text-sm font-medium mb-1.5">{t("securite.factor_name")}</label>
+                    <label htmlFor="totp-device-name" className="block text-sm font-medium mb-1.5">
+                      {t("securite.factor_name")}
+                    </label>
                     <input
                       id="totp-device-name"
                       value={friendlyName}
@@ -191,13 +221,20 @@ function SecuritePage() {
                 <div className="space-y-4 mt-4 rounded-xl border border-border bg-background p-4">
                   <div>
                     <p className="text-sm font-medium mb-2">{t("securite.scan_qr")}</p>
-                    <img src={enroll.qr} alt="QR code TOTP" className="w-48 h-48 bg-white p-2 rounded-lg" />
+                    <img
+                      src={enroll.qr}
+                      alt="QR code TOTP"
+                      className="w-48 h-48 bg-white p-2 rounded-lg"
+                    />
                     <p className="text-xs text-muted-foreground mt-2">
-                      {t("securite.manual_code")} <code className="font-mono text-foreground break-all">{enroll.secret}</code>
+                      {t("securite.manual_code")}{" "}
+                      <code className="font-mono text-foreground break-all">{enroll.secret}</code>
                     </p>
                   </div>
                   <div>
-                    <label htmlFor="totp-verify-code" className="block text-sm font-medium mb-1.5">{t("securite.verify_code")}</label>
+                    <label htmlFor="totp-verify-code" className="block text-sm font-medium mb-1.5">
+                      {t("securite.verify_code")}
+                    </label>
                     <input
                       id="totp-verify-code"
                       value={code}

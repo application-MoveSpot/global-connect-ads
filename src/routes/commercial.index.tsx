@@ -179,7 +179,9 @@ function CommercialDashboard() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">{t("commercial.dashboard.title")}</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">
+              {t("commercial.dashboard.title")}
+            </h1>
           </div>
           <Link
             to="/"
@@ -228,7 +230,9 @@ function CommercialDashboard() {
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              {t("commercial.dashboard.commission_rate", { rate: Math.round((profile.commission_rate ?? 0.1) * 100) })}
+              {t("commercial.dashboard.commission_rate", {
+                rate: Math.round((profile.commission_rate ?? 0.1) * 100),
+              })}
             </p>
           </div>
         )}
@@ -242,7 +246,9 @@ function CommercialDashboard() {
             <div className="flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-amber-500" />
               <span className="font-semibold text-sm">{t("commercial.dashboard.kit_title")}</span>
-              <span className="text-xs text-muted-foreground">{t("commercial.dashboard.kit_subtitle")}</span>
+              <span className="text-xs text-muted-foreground">
+                {t("commercial.dashboard.kit_subtitle")}
+              </span>
             </div>
             {kitOpen ? (
               <ChevronUp className="w-4 h-4 text-muted-foreground" />
@@ -308,7 +314,10 @@ function CommercialDashboard() {
               {t("commercial.dashboard.commissions_generated")}
             </p>
             <p className="font-display text-3xl font-bold text-primary">
-              {(totalCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
+              {(totalCents / 100).toLocaleString(i18n.language, {
+                style: "currency",
+                currency: "EUR",
+              })}
             </p>
           </div>
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-1">
@@ -319,17 +328,24 @@ function CommercialDashboard() {
               </p>
             </div>
             <p className="font-display text-3xl font-bold text-emerald-600">
-              {(paidCents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" })}
+              {(paidCents / 100).toLocaleString(i18n.language, {
+                style: "currency",
+                currency: "EUR",
+              })}
             </p>
           </div>
         </div>
 
         {/* Clients */}
         <section>
-          <h2 className="font-semibold text-lg mb-3">{t("commercial.dashboard.clients_title", { count: clients.length })}</h2>
+          <h2 className="font-semibold text-lg mb-3">
+            {t("commercial.dashboard.clients_title", { count: clients.length })}
+          </h2>
           {clients.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
-              <p className="text-muted-foreground text-sm">{t("commercial.dashboard.no_clients")}</p>
+              <p className="text-muted-foreground text-sm">
+                {t("commercial.dashboard.no_clients")}
+              </p>
               <p className="text-muted-foreground text-xs mt-1">
                 {t("commercial.dashboard.no_clients_hint")}
               </p>
@@ -361,13 +377,17 @@ function CommercialDashboard() {
           </h2>
           {campaigns.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
-              <p className="text-muted-foreground text-sm">{t("commercial.dashboard.no_campaigns")}</p>
+              <p className="text-muted-foreground text-sm">
+                {t("commercial.dashboard.no_campaigns")}
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
               {campaigns.map((camp) => {
                 const stColor = STATUS_COLORS[camp.status] ?? "text-muted-foreground bg-muted";
-                const stLabel = t(`commercial.dashboard.status_${camp.status}`, { defaultValue: camp.status });
+                const stLabel = t(`commercial.dashboard.status_${camp.status}`, {
+                  defaultValue: camp.status,
+                });
                 return (
                   <div key={camp.id} className="rounded-xl border border-border bg-card px-5 py-3">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -418,7 +438,9 @@ function CommercialDashboard() {
 
         {/* Note de versement */}
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-muted-foreground">
-          <strong className="text-foreground">{t("commercial.dashboard.payment_note_title")}</strong>{" "}
+          <strong className="text-foreground">
+            {t("commercial.dashboard.payment_note_title")}
+          </strong>{" "}
           {t("commercial.dashboard.payment_note_body")}{" "}
           <a href="mailto:contact@move-spot.com" className="underline text-foreground">
             contact@move-spot.com

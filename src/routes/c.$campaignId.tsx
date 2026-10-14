@@ -11,7 +11,8 @@ export const Route = createFileRoute("/c/$campaignId")({
       { title: "Cette pub roule avec MoveSpot" },
       {
         name: "description",
-        content: "Vous venez de croiser un véhicule MoveSpot. Découvrez la publicité mobile sur véhicules.",
+        content:
+          "Vous venez de croiser un véhicule MoveSpot. Découvrez la publicité mobile sur véhicules.",
       },
       { name: "robots", content: "noindex,follow" },
     ],
@@ -30,7 +31,9 @@ function PublicCampaignPage() {
 
   useEffect(() => {
     fetchInfo({ data: { campaignRequestId: campaignId } })
-      .then((r: { found: boolean; company?: string; spotName?: string }) => setState({ loading: false, found: r.found, company: r.company, spotName: r.spotName }))
+      .then((r: { found: boolean; company?: string; spotName?: string }) =>
+        setState({ loading: false, found: r.found, company: r.company, spotName: r.spotName }),
+      )
       .catch(() => setState({ loading: false, found: false }));
   }, [campaignId, fetchInfo]);
 
@@ -43,21 +46,28 @@ function PublicCampaignPage() {
         {state.loading ? null : state.found ? (
           <>
             <h1 className="font-display text-3xl md:text-4xl font-bold">
-              {state.company
-                ? <>{t("campaign_qr.crossed_company", { company: "" })}<span className="text-primary">{state.company}</span></>
-                : t("campaign_qr.crossed_company", { company: t("campaign_qr.crossed_ad") })}
+              {state.company ? (
+                <>
+                  {t("campaign_qr.crossed_company", { company: "" })}
+                  <span className="text-primary">{state.company}</span>
+                </>
+              ) : (
+                t("campaign_qr.crossed_company", { company: t("campaign_qr.crossed_ad") })
+              )}
             </h1>
             <p className="mt-4 text-muted-foreground">
-              {state.spotName ? t("campaign_qr.campaign_name", { name: state.spotName }) : t("campaign_qr.ad_runs")}{" "}
+              {state.spotName
+                ? t("campaign_qr.campaign_name", { name: state.spotName })
+                : t("campaign_qr.ad_runs")}{" "}
               {t("campaign_qr.by_movespot")}
             </p>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl md:text-4xl font-bold">{t("campaign_qr.title_fallback")}</h1>
-            <p className="mt-4 text-muted-foreground">
-              {t("campaign_qr.subtitle_fallback")}
-            </p>
+            <h1 className="font-display text-3xl md:text-4xl font-bold">
+              {t("campaign_qr.title_fallback")}
+            </h1>
+            <p className="mt-4 text-muted-foreground">{t("campaign_qr.subtitle_fallback")}</p>
           </>
         )}
 

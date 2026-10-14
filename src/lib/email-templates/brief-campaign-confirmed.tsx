@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -19,8 +37,14 @@ interface Props {
 }
 
 const Email = ({
-  advertiserName, briefTitle, ownerName,
-  totalPrice, startDate, endDate, dashboardUrl, unsubscribeUrl,
+  advertiserName,
+  briefTitle,
+  ownerName,
+  totalPrice,
+  startDate,
+  endDate,
+  dashboardUrl,
+  unsubscribeUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -33,23 +57,27 @@ const Email = ({
           <Section style={contentPadding}>
             <StatusBadge color="green">Campagne lancée 🚗</StatusBadge>
 
-            <Text style={{ ...h1Style, marginTop: "16px" }}>
-              Votre campagne est lancée !
-            </Text>
+            <Text style={{ ...h1Style, marginTop: "16px" }}>Votre campagne est lancée !</Text>
 
             <Text style={textStyle}>
-              {advertiserName ? `Bonjour ${advertiserName},` : "Bonjour,"} vous avez accepté la proposition{ownerName ? ` de ${ownerName}` : ""} pour le brief{briefTitle ? ` « ${briefTitle} »` : ""}. La campagne est maintenant en cours de préparation.
+              {advertiserName ? `Bonjour ${advertiserName},` : "Bonjour,"} vous avez accepté la
+              proposition{ownerName ? ` de ${ownerName}` : ""} pour le brief
+              {briefTitle ? ` « ${briefTitle} »` : ""}. La campagne est maintenant en cours de
+              préparation.
             </Text>
 
             <InfoCard>
               {briefTitle ? <InfoRow label="Brief" value={briefTitle} /> : null}
               {ownerName ? <InfoRow label="Propriétaire" value={ownerName} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
               {totalPrice ? <InfoRow label="Montant total" value={totalPrice} /> : null}
             </InfoCard>
 
             <Text style={textStyle}>
-              MoveSpot va mandater un prestataire pour apposer votre covering sur le véhicule. Vous serez notifié lorsque l'installation est confirmée et que la campagne est active.
+              MoveSpot va mandater un prestataire pour apposer votre covering sur le véhicule. Vous
+              serez notifié lorsque l'installation est confirmée et que la campagne est active.
             </Text>
 
             <Text style={mutedText}>

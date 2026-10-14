@@ -31,7 +31,12 @@ function SpotPhoto({ photos }: { photos: string[] | null | undefined }) {
   }
   return (
     <div className="w-full h-40 rounded-xl overflow-hidden mb-4 bg-black">
-      <img src={resolved[0]} alt={t("ad_spots.vehicle_alt")} style={{ width: "100%", height: "100%", objectFit: "cover" }} draggable={false} />
+      <img
+        src={resolved[0]}
+        alt={t("ad_spots.vehicle_alt")}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        draggable={false}
+      />
     </div>
   );
 }
@@ -67,8 +72,10 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
         id: v.id,
         vehicleId: v.id,
         name: `${TYPE_LABELS[v.type] ?? t("ad_spots.vehicle_fallback")} · ${v.name}`,
-        location: (v.zones && v.zones.length > 0) ? v.zones.join(" · ") : t("ad_spots.zone_tbc"),
-        impressions: v.km_per_day ? t("ad_spots.impressions", { count: (v.km_per_day * 1000).toLocaleString() }) : "—",
+        location: v.zones && v.zones.length > 0 ? v.zones.join(" · ") : t("ad_spots.zone_tbc"),
+        impressions: v.km_per_day
+          ? t("ad_spots.impressions", { count: (v.km_per_day * 1000).toLocaleString() })
+          : "—",
         kmPerDay: v.km_per_day ?? null,
         price: Number(v.price_per_day),
         format: v.format_publicitaire,
@@ -79,7 +86,7 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
       setSpots(mapped);
       setLoading(false);
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -89,7 +96,10 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
           <h2 className="font-display text-4xl font-bold">{t("ad_spots.title")}</h2>
           <p className="text-muted-foreground mt-2">{t("ad_spots.subtitle")}</p>
         </div>
-        <Link to="/devenir-partenaire" className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium hover:bg-secondary transition">
+        <Link
+          to="/devenir-partenaire"
+          className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium hover:bg-secondary transition"
+        >
           {t("ad_spots.link_owner")}
         </Link>
       </div>
@@ -101,7 +111,10 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
           <div className="text-4xl mb-3">🚐</div>
           <h3 className="font-display text-2xl font-bold mb-2">{t("ad_spots.empty_title")}</h3>
           <p className="text-muted-foreground mb-6 max-w-xl mx-auto">{t("ad_spots.empty_desc")}</p>
-          <Link to="/devenir-partenaire" className="inline-block rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+          <Link
+            to="/devenir-partenaire"
+            className="inline-block rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
+          >
             {t("ad_spots.empty_cta")}
           </Link>
         </div>
@@ -114,19 +127,26 @@ export function AdSpots({ onSelect }: { onSelect: (spot: Spot) => void }) {
             >
               <SpotPhoto photos={spot.photos} />
               <div className="flex items-start justify-between mb-4">
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-signal/15 text-signal">{t("ad_spots.available_badge")}</span>
+                <span className="text-xs font-medium px-2 py-1 rounded-full bg-signal/15 text-signal">
+                  {t("ad_spots.available_badge")}
+                </span>
                 <span className="text-xs text-muted-foreground">{spot.format}</span>
               </div>
               <h3 className="font-display text-xl font-semibold mb-1">{spot.name}</h3>
               <p className="text-sm text-muted-foreground mb-5">{spot.location}</p>
               <div className="flex items-end justify-between">
                 <div>
-                  <div className="text-xs text-muted-foreground">{t("ad_spots.audience_label")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("ad_spots.audience_label")}
+                  </div>
                   <div className="font-display font-semibold text-sm">{spot.impressions}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">{t("ad_spots.from_label")}</div>
-                  <div className="font-display text-2xl font-bold text-primary">{fmtAmount(spot.price)}<span className="text-sm text-muted-foreground font-normal">/j</span></div>
+                  <div className="font-display text-2xl font-bold text-primary">
+                    {fmtAmount(spot.price)}
+                    <span className="text-sm text-muted-foreground font-normal">/j</span>
+                  </div>
                 </div>
               </div>
               <button

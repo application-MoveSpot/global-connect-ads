@@ -7,9 +7,17 @@ export const Route = createFileRoute("/_public/tarifs")({
   head: () => ({
     meta: [
       { title: "Pricing — MoveSpot | Tarifs MoveSpot" },
-      { name: "description", content: "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les advertisers." },
+      {
+        name: "description",
+        content:
+          "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les advertisers.",
+      },
       { property: "og:title", content: "MoveSpot Pricing — Transparent on price" },
-      { property: "og:description", content: "No hidden subscription. Vehicle owners: free. Advertisers: pay per campaign. Installers: flexible plans." },
+      {
+        property: "og:description",
+        content:
+          "No hidden subscription. Vehicle owners: free. Advertisers: pay per campaign. Installers: flexible plans.",
+      },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/tarifs" },
@@ -19,8 +27,17 @@ export const Route = createFileRoute("/_public/tarifs")({
   component: Tarifs,
 });
 
-type FeatureRow = { label: string; particulier: boolean | string | null; pme: boolean | string | null; enterprise: boolean | string | null };
-type OwnerRow = { label: string; particulier: boolean | string | null; pro: boolean | string | null };
+type FeatureRow = {
+  label: string;
+  particulier: boolean | string | null;
+  pme: boolean | string | null;
+  enterprise: boolean | string | null;
+};
+type OwnerRow = {
+  label: string;
+  particulier: boolean | string | null;
+  pro: boolean | string | null;
+};
 
 const CONTENT = {
   fr: {
@@ -29,24 +46,41 @@ const CONTENT = {
     // Advertiser section
     adv_eyebrow: "Annonceurs",
     adv_h2: "Vous faites la pub — vous choisissez votre budget",
-    adv_sub: "Particulier, association, TPE ou grand compte : même plateforme, conditions adaptées.",
+    adv_sub:
+      "Particulier, association, TPE ou grand compte : même plateforme, conditions adaptées.",
     adv_comparison: "Voir la comparaison complète",
     // Advertiser cards
     card1_badge: "Particulier · Asso",
     card1_price_sub: "d'inscription",
     card1_commission: "+ 30 % de commission par campagne",
-    card1_features: ["Campagnes dès 25 €/jour par véhicule", "Briefs illimités", "Suivi GPS temps réel", "Paiement CB sécurisé"],
+    card1_features: [
+      "Campagnes dès 25 €/jour par véhicule",
+      "Briefs illimités",
+      "Suivi GPS temps réel",
+      "Paiement CB sécurisé",
+    ],
     card1_cta: "Créer un compte",
     card2_badge: "PME · Startup · Indépendant",
     card2_popular: "Le plus populaire",
     card2_price_sub: "d'inscription",
     card2_commission: "+ 25 % de commission par campagne",
-    card2_features: ["Campagnes dès 25 €/jour par véhicule", "Briefs illimités", "Suivi GPS + rapport PDF", "Virement + portefeuille prépayé", "Factures TVA automatiques"],
+    card2_features: [
+      "Campagnes dès 25 €/jour par véhicule",
+      "Briefs illimités",
+      "Suivi GPS + rapport PDF",
+      "Virement + portefeuille prépayé",
+      "Factures TVA automatiques",
+    ],
     card2_cta: "Commencer gratuitement",
     card3_badge: "Grande entreprise · Réseau",
     card3_price: "Sur devis",
     card3_commission: "Commission négociée, budget annuel",
-    card3_features: ["Tout ce qui est dans PME", "Account manager dédié", "Contrat-cadre annuel", "Onboarding personnalisé"],
+    card3_features: [
+      "Tout ce qui est dans PME",
+      "Account manager dédié",
+      "Contrat-cadre annuel",
+      "Onboarding personnalisé",
+    ],
     card3_cta: "Demander un devis",
     // Feature table headers
     feat_col_feature: "Fonctionnalité",
@@ -56,19 +90,30 @@ const CONTENT = {
     // Owner section
     own_eyebrow: "Propriétaires de véhicules",
     own_h2: "Vous avez un véhicule — c'est gratuit",
-    own_sub: "Particulier avec une voiture ou gestionnaire d'une flotte de cent véhicules : inscription 0 €, vous touchez 70 % de chaque campagne.",
+    own_sub:
+      "Particulier avec une voiture ou gestionnaire d'une flotte de cent véhicules : inscription 0 €, vous touchez 70 % de chaque campagne.",
     own_comparison: "Voir la comparaison complète",
     own_card1_badge: "Particulier · 1 à 3 véhicules",
     own_card1_price: "Gratuit",
     own_card1_price_sub: "à vie",
     own_card1_commission: "Vous reversez 30 % à MoveSpot par campagne encaissée",
-    own_card1_features: ["Inscription et modération incluses", "Paiement automatique par campagne", "QR d'installation inclus", "Tableau de bord simple"],
+    own_card1_features: [
+      "Inscription et modération incluses",
+      "Paiement automatique par campagne",
+      "QR d'installation inclus",
+      "Tableau de bord simple",
+    ],
     own_card1_cta: "Inscrire mon véhicule",
     own_card2_badge: "Pro · Flotte illimitée",
     own_card2_price: "Gratuit",
     own_card2_price_sub: "à vie",
     own_card2_commission: "30 % par campagne (négociable à partir de 20 véhicules)",
-    own_card2_features: ["Tout ce qui est dans Particulier", "Carte flotte multi-véhicules", "Import CSV + gestion multi-drivers", "Indicateurs CA, km, taux d'occupation"],
+    own_card2_features: [
+      "Tout ce qui est dans Particulier",
+      "Carte flotte multi-véhicules",
+      "Import CSV + gestion multi-drivers",
+      "Indicateurs CA, km, taux d'occupation",
+    ],
     own_card2_cta: "Inscrire ma flotte",
     own_col_feature: "Fonctionnalité",
     own_col_individual: "Particulier",
@@ -76,22 +121,72 @@ const CONTENT = {
     // Provider section
     prov_eyebrow: "Prestataires poseurs",
     prov_h2: "Vous posez les habillages — abonnement mensuel",
-    prov_sub: "Accédez aux demandes de pose géolocalisées autour de votre secteur. Résiliable à tout moment.",
+    prov_sub:
+      "Accédez aux demandes de pose géolocalisées autour de votre secteur. Résiliable à tout moment.",
     prov_trial: "14 jours d'essai gratuit",
     prov_plans: [
-      { name: "Starter", price: "29 €", unit: "/mois", features: ["5 demandes/mois", "Profil vérifié", "Messagerie intégrée"], cta: "Essayer gratuitement", href: "/provider/inscription", highlight: false },
-      { name: "Standard", price: "42 €", unit: "/mois", features: ["20 demandes/mois", "Profil vérifié + portfolio", "Messagerie + devis intégrés", "Badge partner certifié"], cta: "Essayer gratuitement", href: "/provider/inscription", highlight: true },
-      { name: "Pro", price: "59 €", unit: "/mois", features: ["Demandes illimitées", "Tout dans Standard", "Mise en avant dans les résultats", "Accès prioritaire aux grands comptes"], cta: "Essayer gratuitement", href: "/provider/inscription", highlight: false },
+      {
+        name: "Starter",
+        price: "29 €",
+        unit: "/mois",
+        features: ["5 demandes/mois", "Profil vérifié", "Messagerie intégrée"],
+        cta: "Essayer gratuitement",
+        href: "/provider/inscription",
+        highlight: false,
+      },
+      {
+        name: "Standard",
+        price: "42 €",
+        unit: "/mois",
+        features: [
+          "20 demandes/mois",
+          "Profil vérifié + portfolio",
+          "Messagerie + devis intégrés",
+          "Badge partner certifié",
+        ],
+        cta: "Essayer gratuitement",
+        href: "/provider/inscription",
+        highlight: true,
+      },
+      {
+        name: "Pro",
+        price: "59 €",
+        unit: "/mois",
+        features: [
+          "Demandes illimitées",
+          "Tout dans Standard",
+          "Mise en avant dans les résultats",
+          "Accès prioritaire aux grands comptes",
+        ],
+        cta: "Essayer gratuitement",
+        href: "/provider/inscription",
+        highlight: false,
+      },
     ],
     prov_recommended: "★ Recommandé",
     // FAQ
     faq_h2: "Questions fréquentes",
     faq: [
-      { q: "La commission est-elle prélevée sur le montant TTC ou HT ?", a: "Sur le montant HT de la campagne. La TVA est collectée et reversée indépendamment." },
-      { q: "Quand suis-je payé en tant que propriétaire ?", a: "Après validation de la campagne (fin de mission + confirmation du propriétaire). Le virement est émis sous 5 jours ouvrés via Stripe Connect." },
-      { q: "Puis-je lancer une campagne sans créer de compte ?", a: "Non. Un compte est requis pour créer un brief, suivre la campagne en temps réel et accéder à vos factures." },
-      { q: "La commission de 25 % pour PME est-elle automatique ?", a: "Oui, dès qu'un SIRET valide est associé à votre compte, le taux passe à 25 % automatiquement." },
-      { q: "Les providers peuvent-ils résilier à tout moment ?", a: "Oui, sans frais ni préavis. L'abonnement se poursuit jusqu'à la fin de la période en cours." },
+      {
+        q: "La commission est-elle prélevée sur le montant TTC ou HT ?",
+        a: "Sur le montant HT de la campagne. La TVA est collectée et reversée indépendamment.",
+      },
+      {
+        q: "Quand suis-je payé en tant que propriétaire ?",
+        a: "Après validation de la campagne (fin de mission + confirmation du propriétaire). Le virement est émis sous 5 jours ouvrés via Stripe Connect.",
+      },
+      {
+        q: "Puis-je lancer une campagne sans créer de compte ?",
+        a: "Non. Un compte est requis pour créer un brief, suivre la campagne en temps réel et accéder à vos factures.",
+      },
+      {
+        q: "La commission de 25 % pour PME est-elle automatique ?",
+        a: "Oui, dès qu'un SIRET valide est associé à votre compte, le taux passe à 25 % automatiquement.",
+      },
+      {
+        q: "Les providers peuvent-ils résilier à tout moment ?",
+        a: "Oui, sans frais ni préavis. L'abonnement se poursuit jusqu'à la fin de la période en cours.",
+      },
     ],
     // CTA
     cta_h2: "Prêt à démarrer ?",
@@ -102,7 +197,12 @@ const CONTENT = {
     adv_features: [
       { label: "Inscription", particulier: "Gratuit", pme: "Gratuit", enterprise: "Gratuit" },
       { label: "Commission MoveSpot", particulier: "30 %", pme: "25 %", enterprise: "Sur devis" },
-      { label: "Campagne à partir de", particulier: "25 €/jour", pme: "25 €/jour", enterprise: "500 €" },
+      {
+        label: "Campagne à partir de",
+        particulier: "25 €/jour",
+        pme: "25 €/jour",
+        enterprise: "500 €",
+      },
       { label: "Briefs illimités", particulier: true, pme: true, enterprise: true },
       { label: "Suivi GPS temps réel", particulier: true, pme: true, enterprise: true },
       { label: "Rapport PDF exportable", particulier: false, pme: true, enterprise: true },
@@ -135,18 +235,34 @@ const CONTENT = {
     card1_badge: "Individual · Non-profit",
     card1_price_sub: "sign-up",
     card1_commission: "+ 30% commission per campaign",
-    card1_features: ["Campaigns from €25/day per vehicle", "Unlimited briefs", "Real-time GPS tracking", "Secure card payment"],
+    card1_features: [
+      "Campaigns from €25/day per vehicle",
+      "Unlimited briefs",
+      "Real-time GPS tracking",
+      "Secure card payment",
+    ],
     card1_cta: "Create an account",
     card2_badge: "SME · Startup · Freelancer",
     card2_popular: "Most popular",
     card2_price_sub: "sign-up",
     card2_commission: "+ 25% commission per campaign",
-    card2_features: ["Campaigns from €25/day per vehicle", "Unlimited briefs", "GPS tracking + PDF report", "Bank transfer + prepaid wallet", "Automatic VAT invoices"],
+    card2_features: [
+      "Campaigns from €25/day per vehicle",
+      "Unlimited briefs",
+      "GPS tracking + PDF report",
+      "Bank transfer + prepaid wallet",
+      "Automatic VAT invoices",
+    ],
     card2_cta: "Start for free",
     card3_badge: "Enterprise · Network",
     card3_price: "Custom quote",
     card3_commission: "Negotiated commission, annual budget",
-    card3_features: ["Everything in SME", "Dedicated account manager", "Annual framework contract", "Personalised onboarding"],
+    card3_features: [
+      "Everything in SME",
+      "Dedicated account manager",
+      "Annual framework contract",
+      "Personalised onboarding",
+    ],
     card3_cta: "Request a quote",
     feat_col_feature: "Feature",
     feat_col_individual: "Individual",
@@ -160,13 +276,23 @@ const CONTENT = {
     own_card1_price: "Free",
     own_card1_price_sub: "forever",
     own_card1_commission: "You pay MoveSpot 30% per campaign collected",
-    own_card1_features: ["Registration & moderation included", "Automatic payment per campaign", "Installation QR included", "Simple dashboard"],
+    own_card1_features: [
+      "Registration & moderation included",
+      "Automatic payment per campaign",
+      "Installation QR included",
+      "Simple dashboard",
+    ],
     own_card1_cta: "Register my vehicle",
     own_card2_badge: "Pro · Unlimited fleet",
     own_card2_price: "Free",
     own_card2_price_sub: "forever",
     own_card2_commission: "30% per campaign (negotiable from 20 vehicles)",
-    own_card2_features: ["Everything in Individual", "Multi-vehicle fleet map", "CSV import + multi-driver management", "Revenue, km, occupancy indicators"],
+    own_card2_features: [
+      "Everything in Individual",
+      "Multi-vehicle fleet map",
+      "CSV import + multi-driver management",
+      "Revenue, km, occupancy indicators",
+    ],
     own_card2_cta: "Register my fleet",
     own_col_feature: "Feature",
     own_col_individual: "Individual",
@@ -176,18 +302,67 @@ const CONTENT = {
     prov_sub: "Access geolocated installation requests around your area. Cancel any time.",
     prov_trial: "14-day free trial",
     prov_plans: [
-      { name: "Starter", price: "€29", unit: "/month", features: ["5 requests/month", "Verified profile", "Integrated messaging"], cta: "Try for free", href: "/provider/inscription", highlight: false },
-      { name: "Standard", price: "€42", unit: "/month", features: ["20 requests/month", "Verified profile + portfolio", "Messaging + integrated quotes", "Certified partner badge"], cta: "Try for free", href: "/provider/inscription", highlight: true },
-      { name: "Pro", price: "€59", unit: "/month", features: ["Unlimited requests", "Everything in Standard", "Featured in results", "Priority access to enterprise accounts"], cta: "Try for free", href: "/provider/inscription", highlight: false },
+      {
+        name: "Starter",
+        price: "€29",
+        unit: "/month",
+        features: ["5 requests/month", "Verified profile", "Integrated messaging"],
+        cta: "Try for free",
+        href: "/provider/inscription",
+        highlight: false,
+      },
+      {
+        name: "Standard",
+        price: "€42",
+        unit: "/month",
+        features: [
+          "20 requests/month",
+          "Verified profile + portfolio",
+          "Messaging + integrated quotes",
+          "Certified partner badge",
+        ],
+        cta: "Try for free",
+        href: "/provider/inscription",
+        highlight: true,
+      },
+      {
+        name: "Pro",
+        price: "€59",
+        unit: "/month",
+        features: [
+          "Unlimited requests",
+          "Everything in Standard",
+          "Featured in results",
+          "Priority access to enterprise accounts",
+        ],
+        cta: "Try for free",
+        href: "/provider/inscription",
+        highlight: false,
+      },
     ],
     prov_recommended: "★ Recommended",
     faq_h2: "Frequently asked questions",
     faq: [
-      { q: "Is the commission taken on the VAT-inclusive or VAT-exclusive amount?", a: "On the VAT-exclusive (net) campaign amount. VAT is collected and remitted separately." },
-      { q: "When do I get paid as an owner?", a: "After campaign validation (end of mission + owner confirmation). Payment is sent within 5 business days via Stripe Connect." },
-      { q: "Can I launch a campaign without creating an account?", a: "No. An account is required to create a brief, track the campaign in real time and access your invoices." },
-      { q: "Is the 25% SME commission applied automatically?", a: "Yes, as soon as a valid company registration number is linked to your account, the rate drops to 25% automatically." },
-      { q: "Can installers cancel at any time?", a: "Yes, with no fee or notice period. The subscription continues until the end of the current billing period." },
+      {
+        q: "Is the commission taken on the VAT-inclusive or VAT-exclusive amount?",
+        a: "On the VAT-exclusive (net) campaign amount. VAT is collected and remitted separately.",
+      },
+      {
+        q: "When do I get paid as an owner?",
+        a: "After campaign validation (end of mission + owner confirmation). Payment is sent within 5 business days via Stripe Connect.",
+      },
+      {
+        q: "Can I launch a campaign without creating an account?",
+        a: "No. An account is required to create a brief, track the campaign in real time and access your invoices.",
+      },
+      {
+        q: "Is the 25% SME commission applied automatically?",
+        a: "Yes, as soon as a valid company registration number is linked to your account, the rate drops to 25% automatically.",
+      },
+      {
+        q: "Can installers cancel at any time?",
+        a: "Yes, with no fee or notice period. The subscription continues until the end of the current billing period.",
+      },
     ],
     cta_h2: "Ready to get started?",
     cta_desc: "Free sign-up, first campaign live in under 10 minutes.",
@@ -224,9 +399,11 @@ const CONTENT = {
 function Cell({ value }: { value: boolean | string | null }) {
   if (value === null) return <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" />;
   if (typeof value === "boolean") {
-    return value
-      ? <Check className="h-4 w-4 text-signal mx-auto" />
-      : <X className="h-4 w-4 text-muted-foreground/30 mx-auto" />;
+    return value ? (
+      <Check className="h-4 w-4 text-signal mx-auto" />
+    ) : (
+      <X className="h-4 w-4 text-muted-foreground/30 mx-auto" />
+    );
   }
   return <span className="text-sm font-medium">{value}</span>;
 }
@@ -247,7 +424,9 @@ function Tarifs() {
         {/* ── Annonceurs / Advertisers ── */}
         <section className="mb-20">
           <div className="mb-8">
-            <span className="text-xs font-semibold tracking-widest uppercase text-primary">{c.adv_eyebrow}</span>
+            <span className="text-xs font-semibold tracking-widest uppercase text-primary">
+              {c.adv_eyebrow}
+            </span>
             <h2 className="font-display text-3xl font-bold mt-1">{c.adv_h2}</h2>
             <p className="text-muted-foreground mt-2">{c.adv_sub}</p>
           </div>
@@ -256,17 +435,25 @@ function Tarifs() {
             {/* Individual */}
             <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
               <div className="mb-4">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">{c.card1_badge}</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
+                  {c.card1_badge}
+                </span>
               </div>
               <div className="font-display text-4xl font-bold mb-1">0 €</div>
               <div className="text-sm text-muted-foreground mb-1">{c.card1_price_sub}</div>
               <div className="text-sm font-medium mb-6">{c.card1_commission}</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
                 {c.card1_features.map((f) => (
-                  <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
+                  <li key={f} className="flex gap-2">
+                    <Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />
+                    {f}
+                  </li>
                 ))}
               </ul>
-              <Link to="/advertiser/inscription" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
+              <Link
+                to="/advertiser/inscription"
+                className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition"
+              >
                 {c.card1_cta}
               </Link>
             </div>
@@ -277,17 +464,25 @@ function Tarifs() {
                 {c.card2_popular}
               </div>
               <div className="mb-4">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">{c.card2_badge}</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                  {c.card2_badge}
+                </span>
               </div>
               <div className="font-display text-4xl font-bold mb-1">0 €</div>
               <div className="text-sm text-muted-foreground mb-1">{c.card2_price_sub}</div>
               <div className="text-sm font-medium mb-6">{c.card2_commission}</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
                 {c.card2_features.map((f) => (
-                  <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
+                  <li key={f} className="flex gap-2">
+                    <Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />
+                    {f}
+                  </li>
                 ))}
               </ul>
-              <Link to="/advertiser/inscription" className="rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-semibold text-center hover:bg-primary/90 transition shadow-glow">
+              <Link
+                to="/advertiser/inscription"
+                className="rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-semibold text-center hover:bg-primary/90 transition shadow-glow"
+              >
                 {c.card2_cta}
               </Link>
             </div>
@@ -295,17 +490,26 @@ function Tarifs() {
             {/* Enterprise */}
             <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
               <div className="mb-4">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">{c.card3_badge}</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
+                  {c.card3_badge}
+                </span>
               </div>
               <div className="font-display text-4xl font-bold mb-1">{c.card3_price}</div>
               <div className="text-sm text-muted-foreground mb-1">&nbsp;</div>
               <div className="text-sm font-medium mb-6">{c.card3_commission}</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
                 {c.card3_features.map((f) => (
-                  <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
+                  <li key={f} className="flex gap-2">
+                    <Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />
+                    {f}
+                  </li>
                 ))}
               </ul>
-              <Link to="/contact" search={{ plan: "enterprise" }} className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
+              <Link
+                to="/contact"
+                search={{ plan: "enterprise" }}
+                className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition"
+              >
                 {c.card3_cta}
               </Link>
             </div>
@@ -320,19 +524,32 @@ function Tarifs() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-t border-border bg-secondary/20">
-                    <th className="text-left px-6 py-3 font-medium text-muted-foreground w-1/2">{c.feat_col_feature}</th>
+                    <th className="text-left px-6 py-3 font-medium text-muted-foreground w-1/2">
+                      {c.feat_col_feature}
+                    </th>
                     <th className="text-center px-4 py-3 font-medium">{c.feat_col_individual}</th>
-                    <th className="text-center px-4 py-3 font-medium text-primary">{c.feat_col_sme}</th>
+                    <th className="text-center px-4 py-3 font-medium text-primary">
+                      {c.feat_col_sme}
+                    </th>
                     <th className="text-center px-4 py-3 font-medium">{c.feat_col_enterprise}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {c.adv_features.map((row, i) => (
-                    <tr key={i} className={`border-t border-border ${i % 2 === 0 ? "" : "bg-secondary/10"}`}>
+                    <tr
+                      key={i}
+                      className={`border-t border-border ${i % 2 === 0 ? "" : "bg-secondary/10"}`}
+                    >
                       <td className="px-6 py-3 text-muted-foreground">{row.label}</td>
-                      <td className="px-4 py-3 text-center"><Cell value={row.particulier} /></td>
-                      <td className="px-4 py-3 text-center"><Cell value={row.pme} /></td>
-                      <td className="px-4 py-3 text-center"><Cell value={row.enterprise} /></td>
+                      <td className="px-4 py-3 text-center">
+                        <Cell value={row.particulier} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Cell value={row.pme} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Cell value={row.enterprise} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -344,7 +561,9 @@ function Tarifs() {
         {/* ── Propriétaires / Owners ── */}
         <section className="mb-20">
           <div className="mb-8">
-            <span className="text-xs font-semibold tracking-widest uppercase text-signal">{c.own_eyebrow}</span>
+            <span className="text-xs font-semibold tracking-widest uppercase text-signal">
+              {c.own_eyebrow}
+            </span>
             <h2 className="font-display text-3xl font-bold mt-1">{c.own_h2}</h2>
             <p className="text-muted-foreground mt-2">{c.own_sub}</p>
           </div>
@@ -352,34 +571,54 @@ function Tarifs() {
           <div className="grid md:grid-cols-2 gap-5 mb-10 max-w-3xl">
             <div className="rounded-2xl border border-border bg-card p-6 flex flex-col">
               <div className="mb-4">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">{c.own_card1_badge}</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
+                  {c.own_card1_badge}
+                </span>
               </div>
-              <div className="font-display text-4xl font-bold text-signal mb-1">{c.own_card1_price}</div>
+              <div className="font-display text-4xl font-bold text-signal mb-1">
+                {c.own_card1_price}
+              </div>
               <div className="text-sm text-muted-foreground mb-1">{c.own_card1_price_sub}</div>
               <div className="text-sm font-medium mb-6">{c.own_card1_commission}</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
                 {c.own_card1_features.map((f) => (
-                  <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
+                  <li key={f} className="flex gap-2">
+                    <Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />
+                    {f}
+                  </li>
                 ))}
               </ul>
-              <Link to="/owner/inscription" className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition">
+              <Link
+                to="/owner/inscription"
+                className="rounded-lg border border-border py-2.5 text-sm font-medium text-center hover:bg-secondary transition"
+              >
                 {c.own_card1_cta}
               </Link>
             </div>
 
             <div className="rounded-2xl border-2 border-signal/40 bg-card p-6 flex flex-col">
               <div className="mb-4">
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-signal/10 text-signal">{c.own_card2_badge}</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-signal/10 text-signal">
+                  {c.own_card2_badge}
+                </span>
               </div>
-              <div className="font-display text-4xl font-bold text-signal mb-1">{c.own_card2_price}</div>
+              <div className="font-display text-4xl font-bold text-signal mb-1">
+                {c.own_card2_price}
+              </div>
               <div className="text-sm text-muted-foreground mb-1">{c.own_card2_price_sub}</div>
               <div className="text-sm font-medium mb-6">{c.own_card2_commission}</div>
               <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
                 {c.own_card2_features.map((f) => (
-                  <li key={f} className="flex gap-2"><Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />{f}</li>
+                  <li key={f} className="flex gap-2">
+                    <Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />
+                    {f}
+                  </li>
                 ))}
               </ul>
-              <Link to="/owner/inscription" className="rounded-lg bg-signal text-white py-2.5 text-sm font-semibold text-center hover:bg-signal/90 transition">
+              <Link
+                to="/owner/inscription"
+                className="rounded-lg bg-signal text-white py-2.5 text-sm font-semibold text-center hover:bg-signal/90 transition"
+              >
                 {c.own_card2_cta}
               </Link>
             </div>
@@ -394,17 +633,28 @@ function Tarifs() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-t border-border bg-secondary/20">
-                    <th className="text-left px-6 py-3 font-medium text-muted-foreground w-1/2">{c.own_col_feature}</th>
+                    <th className="text-left px-6 py-3 font-medium text-muted-foreground w-1/2">
+                      {c.own_col_feature}
+                    </th>
                     <th className="text-center px-4 py-3 font-medium">{c.own_col_individual}</th>
-                    <th className="text-center px-4 py-3 font-medium text-signal">{c.own_col_pro}</th>
+                    <th className="text-center px-4 py-3 font-medium text-signal">
+                      {c.own_col_pro}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {c.own_features.map((row, i) => (
-                    <tr key={i} className={`border-t border-border ${i % 2 === 0 ? "" : "bg-secondary/10"}`}>
+                    <tr
+                      key={i}
+                      className={`border-t border-border ${i % 2 === 0 ? "" : "bg-secondary/10"}`}
+                    >
                       <td className="px-6 py-3 text-muted-foreground">{row.label}</td>
-                      <td className="px-4 py-3 text-center"><Cell value={row.particulier} /></td>
-                      <td className="px-4 py-3 text-center"><Cell value={row.pro} /></td>
+                      <td className="px-4 py-3 text-center">
+                        <Cell value={row.particulier} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <Cell value={row.pro} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -416,7 +666,9 @@ function Tarifs() {
         {/* ── Prestataires / Installers ── */}
         <section className="mb-20">
           <div className="mb-8">
-            <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{c.prov_eyebrow}</span>
+            <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+              {c.prov_eyebrow}
+            </span>
             <h2 className="font-display text-3xl font-bold mt-1">{c.prov_h2}</h2>
             <p className="text-muted-foreground mt-2">{c.prov_sub}</p>
           </div>
@@ -428,7 +680,9 @@ function Tarifs() {
                 className={`rounded-2xl border p-6 flex flex-col ${plan.highlight ? "border-2 border-primary bg-card" : "border-border bg-card"}`}
               >
                 {plan.highlight && (
-                  <div className="text-xs font-semibold text-primary mb-3">{c.prov_recommended}</div>
+                  <div className="text-xs font-semibold text-primary mb-3">
+                    {c.prov_recommended}
+                  </div>
                 )}
                 <div className="font-display text-xl font-bold mb-2">{plan.name}</div>
                 <div className="flex items-end gap-1 mb-1">
@@ -464,7 +718,9 @@ function Tarifs() {
                 <summary className="px-5 py-4 cursor-pointer font-medium text-sm hover:bg-secondary/30 transition select-none">
                   {item.q}
                 </summary>
-                <p className="px-5 pb-4 text-sm text-muted-foreground border-t border-border pt-3">{item.a}</p>
+                <p className="px-5 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
+                  {item.a}
+                </p>
               </details>
             ))}
           </div>
@@ -475,10 +731,16 @@ function Tarifs() {
           <h2 className="font-display text-2xl font-bold mb-3">{c.cta_h2}</h2>
           <p className="text-muted-foreground mb-6">{c.cta_desc}</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/advertiser/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+            <Link
+              to="/advertiser/inscription"
+              className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
+            >
               {c.cta_advertiser}
             </Link>
-            <Link to="/owner/inscription" className="rounded-full bg-card text-foreground border border-border px-6 py-3 font-semibold hover:bg-secondary transition">
+            <Link
+              to="/owner/inscription"
+              className="rounded-full bg-card text-foreground border border-border px-6 py-3 font-semibold hover:bg-secondary transition"
+            >
               {c.cta_owner}
             </Link>
           </div>

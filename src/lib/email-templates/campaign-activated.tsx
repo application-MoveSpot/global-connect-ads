@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -19,7 +37,17 @@ interface Props {
   unsubscribeUrl?: string;
 }
 
-const Email = ({ company, campaignName, startDate, endDate, amount, vehicleCount, zone, trackingUrl, unsubscribeUrl }: Props) => (
+const Email = ({
+  company,
+  campaignName,
+  startDate,
+  endDate,
+  amount,
+  vehicleCount,
+  zone,
+  trackingUrl,
+  unsubscribeUrl,
+}: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
     <Preview>Paiement validé — votre campagne MoveSpot est en cours de diffusion</Preview>
@@ -36,24 +64,30 @@ const Email = ({ company, campaignName, startDate, endDate, amount, vehicleCount
             </Text>
 
             <Text style={textStyle}>
-              {company ? `Bonjour ${company},` : "Bonjour,"} votre paiement a bien été reçu et confirmé. Vos chauffeurs ont reçu leurs missions — la diffusion de votre campagne est maintenant active.
+              {company ? `Bonjour ${company},` : "Bonjour,"} votre paiement a bien été reçu et
+              confirmé. Vos chauffeurs ont reçu leurs missions — la diffusion de votre campagne est
+              maintenant active.
             </Text>
 
             {/* Récapitulatif financier */}
             <InfoCard>
               {campaignName ? <InfoRow label="Campagne" value={campaignName} /> : null}
               {amount ? <InfoRow label="Montant réglé" value={amount} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
               {vehicleCount ? <InfoRow label="Véhicules assignés" value={vehicleCount} /> : null}
               {zone ? <InfoRow label="Zone de diffusion" value={zone} /> : null}
             </InfoCard>
 
             <Text style={textStyle}>
-              Suivez en temps réel les kilomètres parcourus dans votre zone, les minutes actives et le taux de couverture depuis votre espace annonceur.
+              Suivez en temps réel les kilomètres parcourus dans votre zone, les minutes actives et
+              le taux de couverture depuis votre espace annonceur.
             </Text>
 
             <Text style={mutedText}>
-              Les photographies de pose vous seront envoyées dès que les visuels seront installés sur les véhicules.
+              Les photographies de pose vous seront envoyées dès que les visuels seront installés
+              sur les véhicules.
             </Text>
 
             {trackingUrl ? (

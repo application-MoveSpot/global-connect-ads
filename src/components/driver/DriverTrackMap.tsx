@@ -28,7 +28,11 @@ type Props = {
 
 async function geocodeZone(name: string): Promise<{ lat: number; lng: number } | null> {
   try {
-    const city = name.split(",")[0].trim().replace(/\s+\d+(e|er|ème|eme)\b/gi, "").trim();
+    const city = name
+      .split(",")[0]
+      .trim()
+      .replace(/\s+\d+(e|er|ème|eme)\b/gi, "")
+      .trim();
     const res = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=fr&format=json`,
     );
@@ -66,10 +70,12 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
 
   // Charge le token Mapbox
   useEffect(() => {
-    fetchToken().then((r: { token: string }) => {
-      tokenRef.current = r.token;
-      setTokenLoaded(!!r.token);
-    }).catch(() => {});
+    fetchToken()
+      .then((r: { token: string }) => {
+        tokenRef.current = r.token;
+        setTokenLoaded(!!r.token);
+      })
+      .catch(() => {});
   }, []);
 
   // Initialise la carte quand le panneau s'ouvre et que le token est disponible
@@ -135,9 +141,7 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
             backdrop-filter: blur(4px);
           `;
           el.textContent = `📍 ${zm.name}`;
-          new mapboxgl.Marker({ element: el })
-            .setLngLat([zm.lng, zm.lat])
-            .addTo(map);
+          new mapboxgl.Marker({ element: el }).setLngLat([zm.lng, zm.lat]).addTo(map);
         }
 
         // Position courante
@@ -150,7 +154,9 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
       });
     });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, tokenLoaded]);
 
@@ -209,7 +215,10 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
           {t("driver_track_map.title")}
           {track.length > 0 && (
             <span className="text-[10px] text-muted-foreground font-normal">
-              {t("driver_track_map.points_count", { count: track.length, s: track.length > 1 ? "s" : "" })}
+              {t("driver_track_map.points_count", {
+                count: track.length,
+                s: track.length > 1 ? "s" : "",
+              })}
             </span>
           )}
         </span>
@@ -219,13 +228,13 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
       {open && (
         <>
           <MapConsentGate className="h-64">
-          {!tokenLoaded ? (
-            <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">
-              {t("driver_track_map.loading_map")}
-            </div>
-          ) : (
-            <div ref={containerRef} className="w-full h-64" />
-          )}
+            {!tokenLoaded ? (
+              <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">
+                {t("driver_track_map.loading_map")}
+              </div>
+            ) : (
+              <div ref={containerRef} className="w-full h-64" />
+            )}
           </MapConsentGate>
 
           {!hasData && tokenLoaded && (
@@ -237,7 +246,10 @@ export function DriverTrackMap({ currentPos, track, zones }: Props) {
           {zoneMarkers.length > 0 && (
             <div className="px-4 py-2 border-t border-border/50 flex flex-wrap gap-2">
               {zoneMarkers.map((zm) => (
-                <span key={zm.name} className="text-[10px] text-orange-400 bg-orange-500/10 rounded-full px-2 py-0.5 border border-orange-500/20">
+                <span
+                  key={zm.name}
+                  className="text-[10px] text-orange-400 bg-orange-500/10 rounded-full px-2 py-0.5 border border-orange-500/20"
+                >
                   📍 {zm.name}
                 </span>
               ))}

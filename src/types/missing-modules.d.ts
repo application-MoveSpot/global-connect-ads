@@ -34,7 +34,12 @@ declare module "@tanstack/react-router" {
 declare module "@tanstack/react-start" {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type _A = any;
-  interface _HandlerArgs { data: _A; context: _A; next: _A; input: _A; }
+  interface _HandlerArgs {
+    data: _A;
+    context: _A;
+    next: _A;
+    input: _A;
+  }
   interface ServerFnBuilder {
     handler(fn: (args: _HandlerArgs) => _A): (...a: _A[]) => Promise<_A>;
     middleware(arr: _A[]): ServerFnBuilder;

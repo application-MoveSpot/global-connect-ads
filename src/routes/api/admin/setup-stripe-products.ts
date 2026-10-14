@@ -54,7 +54,10 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
               results.push({ name: p.name, status: "déjà existant", lookupKey: p.lookupKey });
               continue;
             }
-            const product = await stripe.products.create({ name: p.name, description: p.description });
+            const product = await stripe.products.create({
+              name: p.name,
+              description: p.description,
+            });
             const price = await stripe.prices.create({
               product: product.id,
               unit_amount: p.amountCents,

@@ -35,7 +35,10 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           {label}
         </button>
       ))}
-      <span className="text-xs text-muted-foreground font-mono pl-1 select-none" title={activeCurrency}>
+      <span
+        className="text-xs text-muted-foreground font-mono pl-1 select-none"
+        title={activeCurrency}
+      >
         {symbol}
       </span>
     </div>

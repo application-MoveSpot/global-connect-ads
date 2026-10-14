@@ -25,9 +25,7 @@ export type BriefReengagementResult = {
 
 export const suggestBriefAdjustments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof BriefReengagementInput>) =>
-    BriefReengagementInput.parse(d),
-  )
+  .inputValidator((d: z.infer<typeof BriefReengagementInput>) => BriefReengagementInput.parse(d))
   .handler(async ({ data, context }): Promise<BriefReengagementResult> => {
     assertRateLimit(`brief-reengagement:${context.userId}`, { maxRequests: 10, windowMs: 60_000 });
     const apiKey = process.env.LOVABLE_API_KEY;
@@ -89,8 +87,16 @@ Réponds UNIQUEMENT en JSON strict :
       return {
         summary: "Quelques ajustements peuvent attirer plus de propriétaires.",
         tips: [
-          { icon: "💰", title: "Augmentez légèrement votre budget", body: "Un budget plus généreux attire plus de véhicules disponibles." },
-          { icon: "📍", title: "Élargissez votre zone géographique", body: "Une zone plus large donne accès à plus de véhicules." },
+          {
+            icon: "💰",
+            title: "Augmentez légèrement votre budget",
+            body: "Un budget plus généreux attire plus de véhicules disponibles.",
+          },
+          {
+            icon: "📍",
+            title: "Élargissez votre zone géographique",
+            body: "Une zone plus large donne accès à plus de véhicules.",
+          },
         ],
       };
     }

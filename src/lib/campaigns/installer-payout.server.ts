@@ -45,7 +45,9 @@ export async function payInstallerFee(
     installerUserId = photos?.claimed_by ?? null;
   }
   if (!installerUserId) {
-    throw new Error("Poseur introuvable pour cette mission — aucun utilisateur n'a réclamé le job.");
+    throw new Error(
+      "Poseur introuvable pour cette mission — aucun utilisateur n'a réclamé le job.",
+    );
   }
 
   // Fetch payee Stripe account
@@ -56,15 +58,16 @@ export async function payInstallerFee(
     .maybeSingle();
 
   if (!payee?.stripe_account_id) {
-    throw new Error("Le poseur n'a pas encore connecté son compte Stripe. Demandez-lui de finaliser l'onboarding.");
+    throw new Error(
+      "Le poseur n'a pas encore connecté son compte Stripe. Demandez-lui de finaliser l'onboarding.",
+    );
   }
   if (!payee.stripe_payouts_enabled) {
     throw new Error("Le compte Stripe du poseur n'est pas encore actif (onboarding incomplet).");
   }
 
-  const { createStripeClient, getDefaultStripeEnvironment } = await import(
-    "@/lib/payments/stripe.server"
-  );
+  const { createStripeClient, getDefaultStripeEnvironment } =
+    await import("@/lib/payments/stripe.server");
   const stripe = createStripeClient(getDefaultStripeEnvironment());
 
   const spotName = cr["spot_name"] as string | null;

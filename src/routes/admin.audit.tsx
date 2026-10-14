@@ -16,7 +16,12 @@ import { toast } from "sonner";
 import { AlertTriangle, Download, FileText, Loader2, Shield, ShieldAlert } from "lucide-react";
 
 export const Route = createFileRoute("/admin/audit")({
-  head: () => ({ meta: [{ title: "Audit & Conformité — Admin MoveSpot" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [
+      { title: "Audit & Conformité — Admin MoveSpot" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AdminAuditPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
@@ -27,12 +32,14 @@ function toCSV(rows: Record<string, unknown>[]): string {
   const lines = [
     headers.join(";"),
     ...rows.map((r) =>
-      headers.map((h) => {
-        const v = r[h];
-        if (v === null || v === undefined) return "";
-        const s = String(v).replace(/"/g, '""');
-        return s.includes(";") || s.includes('"') || s.includes("\n") ? `"${s}"` : s;
-      }).join(";"),
+      headers
+        .map((h) => {
+          const v = r[h];
+          if (v === null || v === undefined) return "";
+          const s = String(v).replace(/"/g, '""');
+          return s.includes(";") || s.includes('"') || s.includes("\n") ? `"${s}"` : s;
+        })
+        .join(";"),
     ),
   ];
   return lines.join("\n");
@@ -70,16 +77,24 @@ function AdminAuditPage() {
   }
 
   function severityLabel(s: "high" | "medium" | "low") {
-    return s === "high" ? t("admin.audit.severity_high") : s === "medium" ? t("admin.audit.severity_medium") : t("admin.audit.severity_low");
+    return s === "high"
+      ? t("admin.audit.severity_high")
+      : s === "medium"
+        ? t("admin.audit.severity_medium")
+        : t("admin.audit.severity_low");
   }
 
   function severityBadge(s: "high" | "medium" | "low") {
     const cls =
-      s === "high" ? "bg-destructive/15 text-destructive border-destructive/30" :
-      s === "medium" ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/30" :
-      "bg-secondary text-muted-foreground border-border";
+      s === "high"
+        ? "bg-destructive/15 text-destructive border-destructive/30"
+        : s === "medium"
+          ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-400/30"
+          : "bg-secondary text-muted-foreground border-border";
     return (
-      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
+      <span
+        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}
+      >
         {severityLabel(s)}
       </span>
     );
@@ -122,49 +137,55 @@ function AdminAuditPage() {
     const ts = dateFrom + "_" + dateTo;
 
     downloadCSV(
-      toCSV(auditData.campaigns.map((c) => ({
-        "ID Campagne": c.id,
-        "Date création": c.createdAt.slice(0, 10),
-        "Statut": c.status,
-        "Annonceur": c.advertiserName,
-        "Société": c.advertiserCompany ?? "",
-        "SIRET": c.advertiserSiret ?? "",
-        "Propriétaire": c.vehicleOwnerName ?? "",
-        "Véhicule": c.vehicleName ?? "",
-        "Nom spot": c.spotName ?? "",
-        "Début": c.startDate ?? "",
-        "Fin": c.endDate ?? "",
-        "Montant (€)": c.totalPriceCents != null ? (c.totalPriceCents / 100).toFixed(2) : "",
-        "Paiement": c.paymentStatus,
-        "Points GPS": c.gpsPointsCount,
-      }))),
+      toCSV(
+        auditData.campaigns.map((c) => ({
+          "ID Campagne": c.id,
+          "Date création": c.createdAt.slice(0, 10),
+          Statut: c.status,
+          Annonceur: c.advertiserName,
+          Société: c.advertiserCompany ?? "",
+          SIRET: c.advertiserSiret ?? "",
+          Propriétaire: c.vehicleOwnerName ?? "",
+          Véhicule: c.vehicleName ?? "",
+          "Nom spot": c.spotName ?? "",
+          Début: c.startDate ?? "",
+          Fin: c.endDate ?? "",
+          "Montant (€)": c.totalPriceCents != null ? (c.totalPriceCents / 100).toFixed(2) : "",
+          Paiement: c.paymentStatus,
+          "Points GPS": c.gpsPointsCount,
+        })),
+      ),
       `movespot_campagnes_${ts}.csv`,
     );
 
     downloadCSV(
-      toCSV(auditData.walletTransactions.map((t) => ({
-        "ID": t.id,
-        "Date": t.createdAt.slice(0, 10),
-        "Type": t.type,
-        "Montant (€)": (t.amountCents / 100).toFixed(2),
-        "Utilisateur": t.userName ?? "",
-        "SIRET": t.userSiret ?? "",
-        "Description": t.description ?? "",
-        "ID Campagne": t.campaignId ?? "",
-      }))),
+      toCSV(
+        auditData.walletTransactions.map((t) => ({
+          ID: t.id,
+          Date: t.createdAt.slice(0, 10),
+          Type: t.type,
+          "Montant (€)": (t.amountCents / 100).toFixed(2),
+          Utilisateur: t.userName ?? "",
+          SIRET: t.userSiret ?? "",
+          Description: t.description ?? "",
+          "ID Campagne": t.campaignId ?? "",
+        })),
+      ),
       `movespot_transactions_${ts}.csv`,
     );
 
     downloadCSV(
-      toCSV(auditData.bankTransfers.map((t) => ({
-        "ID": t.id,
-        "Date": t.createdAt.slice(0, 10),
-        "Référence": t.reference,
-        "Montant (€)": (t.amountCents / 100).toFixed(2),
-        "Statut": t.status,
-        "Utilisateur": t.userName ?? "",
-        "ID Campagne": t.campaignId ?? "",
-      }))),
+      toCSV(
+        auditData.bankTransfers.map((t) => ({
+          ID: t.id,
+          Date: t.createdAt.slice(0, 10),
+          Référence: t.reference,
+          "Montant (€)": (t.amountCents / 100).toFixed(2),
+          Statut: t.status,
+          Utilisateur: t.userName ?? "",
+          "ID Campagne": t.campaignId ?? "",
+        })),
+      ),
       `movespot_virements_${ts}.csv`,
     );
 
@@ -177,8 +198,12 @@ function AdminAuditPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <nav className="flex gap-4 text-sm text-muted-foreground">
-            <Link to="/admin/dashboard" className="hover:text-foreground">{t("admin.audit.nav_dashboard")}</Link>
-            <Link to="/admin/virements" className="hover:text-foreground">{t("admin.audit.nav_transfers")}</Link>
+            <Link to="/admin/dashboard" className="hover:text-foreground">
+              {t("admin.audit.nav_dashboard")}
+            </Link>
+            <Link to="/admin/virements" className="hover:text-foreground">
+              {t("admin.audit.nav_transfers")}
+            </Link>
           </nav>
         </div>
       </header>
@@ -191,10 +216,14 @@ function AdminAuditPage() {
 
         {/* Sélecteur de période */}
         <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <h2 className="font-semibold flex items-center gap-2"><FileText className="w-4 h-4" /> {t("admin.audit.period_section")}</h2>
+          <h2 className="font-semibold flex items-center gap-2">
+            <FileText className="w-4 h-4" /> {t("admin.audit.period_section")}
+          </h2>
           <div className="flex flex-wrap gap-4 items-end">
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("admin.audit.from")}</label>
+              <label className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("admin.audit.from")}
+              </label>
               <input
                 type="date"
                 value={dateFrom}
@@ -203,7 +232,9 @@ function AdminAuditPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("admin.audit.to")}</label>
+              <label className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("admin.audit.to")}
+              </label>
               <input
                 type="date"
                 value={dateTo}
@@ -217,7 +248,11 @@ function AdminAuditPage() {
                 disabled={loadingAudit}
                 className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
               >
-                {loadingAudit ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                {loadingAudit ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <FileText className="w-4 h-4" />
+                )}
                 {t("admin.audit.load_btn")}
               </button>
               <button
@@ -225,7 +260,11 @@ function AdminAuditPage() {
                 disabled={loadingFraud}
                 className="flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 text-destructive px-4 py-2 text-sm font-semibold hover:bg-destructive/20 disabled:opacity-50"
               >
-                {loadingFraud ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldAlert className="w-4 h-4" />}
+                {loadingFraud ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ShieldAlert className="w-4 h-4" />
+                )}
                 {t("admin.audit.detect_btn")}
               </button>
             </div>
@@ -238,13 +277,28 @@ function AdminAuditPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
                 { labelKey: "admin.audit.kpi_campaigns", value: auditData.summary.totalCampaigns },
-                { labelKey: "admin.audit.kpi_revenue", value: fmt(auditData.summary.totalRevenueCents) },
-                { labelKey: "admin.audit.kpi_commissions", value: fmt(auditData.summary.totalCommissionsCents) },
-                { labelKey: "admin.audit.kpi_transfers", value: fmt(auditData.summary.totalTransfersCents) },
-                { labelKey: "admin.audit.kpi_advertisers", value: auditData.summary.uniqueAdvertisers },
+                {
+                  labelKey: "admin.audit.kpi_revenue",
+                  value: fmt(auditData.summary.totalRevenueCents),
+                },
+                {
+                  labelKey: "admin.audit.kpi_commissions",
+                  value: fmt(auditData.summary.totalCommissionsCents),
+                },
+                {
+                  labelKey: "admin.audit.kpi_transfers",
+                  value: fmt(auditData.summary.totalTransfersCents),
+                },
+                {
+                  labelKey: "admin.audit.kpi_advertisers",
+                  value: auditData.summary.uniqueAdvertisers,
+                },
                 { labelKey: "admin.audit.kpi_owners", value: auditData.summary.uniqueOwners },
               ].map((s) => (
-                <div key={s.labelKey} className="rounded-xl border border-border bg-card p-3 text-center">
+                <div
+                  key={s.labelKey}
+                  className="rounded-xl border border-border bg-card p-3 text-center"
+                >
                   <div className="text-xs text-muted-foreground">{t(s.labelKey)}</div>
                   <div className="font-bold text-sm mt-0.5">{s.value}</div>
                 </div>
@@ -271,11 +325,23 @@ function AdminAuditPage() {
                   <thead className="bg-secondary/50">
                     <tr>
                       {[
-                        t("admin.audit.col_date"), t("admin.audit.col_advertiser"), t("admin.audit.col_siret"),
-                        t("admin.audit.col_vehicle"), t("admin.audit.col_spot"), t("admin.audit.col_start"),
-                        t("admin.audit.col_end"), t("admin.audit.col_amount"), t("admin.audit.col_payment"), t("admin.audit.col_gps"),
+                        t("admin.audit.col_date"),
+                        t("admin.audit.col_advertiser"),
+                        t("admin.audit.col_siret"),
+                        t("admin.audit.col_vehicle"),
+                        t("admin.audit.col_spot"),
+                        t("admin.audit.col_start"),
+                        t("admin.audit.col_end"),
+                        t("admin.audit.col_amount"),
+                        t("admin.audit.col_payment"),
+                        t("admin.audit.col_gps"),
                       ].map((h) => (
-                        <th key={h} className="px-3 py-2 text-left font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
+                        <th
+                          key={h}
+                          className="px-3 py-2 text-left font-semibold text-muted-foreground whitespace-nowrap"
+                        >
+                          {h}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -289,7 +355,9 @@ function AdminAuditPage() {
                         <td className="px-3 py-2">{c.spotName ?? "—"}</td>
                         <td className="px-3 py-2 whitespace-nowrap">{c.startDate ?? "—"}</td>
                         <td className="px-3 py-2 whitespace-nowrap">{c.endDate ?? "—"}</td>
-                        <td className="px-3 py-2 text-right font-mono">{c.totalPriceCents != null ? fmt(c.totalPriceCents) : "—"}</td>
+                        <td className="px-3 py-2 text-right font-mono">
+                          {c.totalPriceCents != null ? fmt(c.totalPriceCents) : "—"}
+                        </td>
                         <td className="px-3 py-2">{c.paymentStatus}</td>
                         <td className="px-3 py-2 text-right">{c.gpsPointsCount}</td>
                       </tr>
@@ -297,7 +365,9 @@ function AdminAuditPage() {
                   </tbody>
                 </table>
                 {auditData.campaigns.length > 50 && (
-                  <p className="px-5 py-2 text-xs text-muted-foreground">{t("admin.audit.more_in_csv", { n: auditData.campaigns.length - 50 })}</p>
+                  <p className="px-5 py-2 text-xs text-muted-foreground">
+                    {t("admin.audit.more_in_csv", { n: auditData.campaigns.length - 50 })}
+                  </p>
                 )}
               </div>
             </details>
@@ -326,13 +396,19 @@ function AdminAuditPage() {
                         <span className="font-semibold text-sm">{f.vehicleName}</span>
                         {severityBadge(f.severity)}
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{f.detectedAt.slice(0, 16).replace("T", " ")}</span>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {f.detectedAt.slice(0, 16).replace("T", " ")}
+                      </span>
                     </div>
                     <p className="text-sm text-muted-foreground">{f.description}</p>
                     <div className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">
-                      {f.flagType === "speed_anomaly" ? t("admin.audit.flag_speed") :
-                       f.flagType === "static_spoofing" ? t("admin.audit.flag_spoofing") :
-                       f.flagType === "no_movement" ? t("admin.audit.flag_no_movement") : f.flagType}
+                      {f.flagType === "speed_anomaly"
+                        ? t("admin.audit.flag_speed")
+                        : f.flagType === "static_spoofing"
+                          ? t("admin.audit.flag_spoofing")
+                          : f.flagType === "no_movement"
+                            ? t("admin.audit.flag_no_movement")
+                            : f.flagType}
                     </div>
                   </div>
                 ))}
@@ -356,7 +432,10 @@ function AdminAuditPage() {
             ) : (
               <div className="space-y-3">
                 {idFrauds.map((f, i) => (
-                  <div key={i} className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-1">
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-amber-400/30 bg-amber-500/10 p-4 space-y-1"
+                  >
                     <div className="flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 text-amber-600" />
                       <span className="font-semibold text-sm">{severityBadge(f.severity)}</span>

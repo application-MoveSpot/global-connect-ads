@@ -5,8 +5,8 @@ export type PublicStats = {
   campaignsLaunched: number;
 };
 
-export const getPublicStats = createServerFn({ method: "GET" })
-  .handler(async (): Promise<PublicStats> => {
+export const getPublicStats = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PublicStats> => {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const [{ count: v }, { count: c }] = await Promise.all([
@@ -23,4 +23,5 @@ export const getPublicStats = createServerFn({ method: "GET" })
     } catch {
       return { vehiclesApproved: 0, campaignsLaunched: 0 };
     }
-  });
+  },
+);

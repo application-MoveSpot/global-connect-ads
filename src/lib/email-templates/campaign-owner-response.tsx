@@ -1,10 +1,27 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -18,7 +35,16 @@ interface Props {
   unsubscribeUrl?: string;
 }
 
-const Email = ({ company, spotName, startDate, endDate, totalPrice, accepted, dashboardUrl, unsubscribeUrl }: Props) => (
+const Email = ({
+  company,
+  spotName,
+  startDate,
+  endDate,
+  totalPrice,
+  accepted,
+  dashboardUrl,
+  unsubscribeUrl,
+}: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
     <Preview>
@@ -32,12 +58,16 @@ const Email = ({ company, spotName, startDate, endDate, totalPrice, accepted, da
           <EmailHeader />
 
           <Section style={contentPadding}>
-            <Text style={{
-              fontSize: "12px", fontWeight: 700, letterSpacing: "1px",
-              textTransform: "uppercase",
-              color: accepted ? "#22c55e" : "#f59e0b",
-              margin: "0 0 10px",
-            }}>
+            <Text
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                color: accepted ? "#22c55e" : "#f59e0b",
+                margin: "0 0 10px",
+              }}
+            >
               {accepted ? "Demande acceptée" : "Demande refusée"}
             </Text>
 
@@ -48,8 +78,7 @@ const Email = ({ company, spotName, startDate, endDate, totalPrice, accepted, da
             </Text>
 
             <Text style={textStyle}>
-              {company ? `Bonjour ${company},` : "Bonjour,"}
-              {" "}
+              {company ? `Bonjour ${company},` : "Bonjour,"}{" "}
               {accepted
                 ? "un propriétaire de flotte vient d'accepter votre demande de campagne sur MoveSpot. Rendez-vous sur votre espace annonceur pour consulter les détails et finaliser la campagne."
                 : "un propriétaire de flotte n'est pas disponible pour votre demande de campagne. D'autres propriétaires peuvent encore accepter votre demande."}
@@ -57,19 +86,23 @@ const Email = ({ company, spotName, startDate, endDate, totalPrice, accepted, da
 
             <InfoCard>
               {spotName ? <InfoRow label="Campagne" value={spotName} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
               {totalPrice ? <InfoRow label="Montant estimé" value={totalPrice} /> : null}
             </InfoCard>
 
             {accepted && (
               <Text style={mutedText}>
-                Connectez-vous à votre espace annonceur pour consulter la proposition et procéder au paiement si nécessaire.
+                Connectez-vous à votre espace annonceur pour consulter la proposition et procéder au
+                paiement si nécessaire.
               </Text>
             )}
 
             {!accepted && (
               <Text style={mutedText}>
-                Ne vous inquiétez pas — votre demande reste visible par d'autres propriétaires de flotte dans votre zone.
+                Ne vous inquiétez pas — votre demande reste visible par d'autres propriétaires de
+                flotte dans votre zone.
               </Text>
             )}
 
@@ -93,8 +126,12 @@ export const template = {
   component: Email,
   subject: (data: Record<string, unknown>) =>
     data.accepted
-      ? data.spotName ? `✅ Votre campagne « ${data.spotName} » a été acceptée` : "✅ Un propriétaire a accepté votre demande"
-      : data.spotName ? `ℹ️ Votre campagne « ${data.spotName} » — réponse d'un propriétaire` : "ℹ️ Réponse d'un propriétaire sur votre demande",
+      ? data.spotName
+        ? `✅ Votre campagne « ${data.spotName} » a été acceptée`
+        : "✅ Un propriétaire a accepté votre demande"
+      : data.spotName
+        ? `ℹ️ Votre campagne « ${data.spotName} » — réponse d'un propriétaire`
+        : "ℹ️ Réponse d'un propriétaire sur votre demande",
   displayName: "Réponse propriétaire à une campagne",
   previewData: {
     company: "Rakoun Klub",

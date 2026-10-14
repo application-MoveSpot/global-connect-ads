@@ -67,9 +67,18 @@ const EN_SIGNALS = [
 
 // Sélecteurs à ignorer : éléments non-UI ou techniques
 const SKIP_SELECTORS = [
-  "script", "style", "meta", "head", "noscript", "template",
-  "code", "pre", "kbd", "samp",
-  "[data-lang-skip]", "[aria-hidden='true']",
+  "script",
+  "style",
+  "meta",
+  "head",
+  "noscript",
+  "template",
+  "code",
+  "pre",
+  "kbd",
+  "samp",
+  "[data-lang-skip]",
+  "[aria-hidden='true']",
   ".sr-only",
 ];
 
@@ -94,7 +103,11 @@ function buildElementPath(el: Element): string {
 
 function shouldSkip(el: Element): boolean {
   return SKIP_SELECTORS.some((sel) => {
-    try { return el.matches(sel); } catch { return false; }
+    try {
+      return el.matches(sel);
+    } catch {
+      return false;
+    }
   });
 }
 
@@ -108,20 +121,16 @@ export function scanPageForLanguageIssues(): LangIssue[] {
   const issues: LangIssue[] = [];
   const seen = new Set<string>();
 
-  const walker = document.createTreeWalker(
-    document.body,
-    NodeFilter.SHOW_TEXT,
-    {
-      acceptNode(node) {
-        const parent = node.parentElement;
-        if (!parent) return NodeFilter.FILTER_REJECT;
-        if (shouldSkip(parent)) return NodeFilter.FILTER_REJECT;
-        const text = (node.textContent ?? "").trim();
-        if (text.length < 3) return NodeFilter.FILTER_SKIP;
-        return NodeFilter.FILTER_ACCEPT;
-      },
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent) return NodeFilter.FILTER_REJECT;
+      if (shouldSkip(parent)) return NodeFilter.FILTER_REJECT;
+      const text = (node.textContent ?? "").trim();
+      if (text.length < 3) return NodeFilter.FILTER_SKIP;
+      return NodeFilter.FILTER_ACCEPT;
     },
-  );
+  });
 
   let node: Node | null;
   while ((node = walker.nextNode())) {

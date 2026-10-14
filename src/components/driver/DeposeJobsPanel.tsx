@@ -36,8 +36,10 @@ const eur = (n: number | null, lang: string) => {
 
 function daysAfter(dateStr: string | null): number | null {
   if (!dateStr) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  target.setHours(0, 0, 0, 0);
   return Math.round((today.getTime() - target.getTime()) / 86400000);
 }
 
@@ -69,7 +71,9 @@ export function DeposeJobsPanel() {
       .catch(() => setJobs([]));
   }, [fetchJobs]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleClaim = async (jobId: string) => {
     setClaiming(jobId);
@@ -109,9 +113,7 @@ export function DeposeJobsPanel() {
     return (
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="font-display text-lg font-semibold">{t("depose_jobs.title")}</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {t("depose_jobs.not_installer_desc")}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("depose_jobs.not_installer_desc")}</p>
       </div>
     );
   }
@@ -125,9 +127,7 @@ export function DeposeJobsPanel() {
         </span>
       </div>
 
-      <p className="mb-4 text-sm text-muted-foreground">
-        {t("depose_jobs.description")}
-      </p>
+      <p className="mb-4 text-sm text-muted-foreground">{t("depose_jobs.description")}</p>
 
       {jobs.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("depose_jobs.empty")}</p>
@@ -153,7 +153,9 @@ export function DeposeJobsPanel() {
                   <div className="text-right space-y-0.5">
                     {job.depose_fee_cents != null && (
                       <p className="text-xs font-semibold text-primary">
-                        {t("depose_jobs.remuneration", { amount: eur(job.depose_fee_cents, i18n.language) })}
+                        {t("depose_jobs.remuneration", {
+                          amount: eur(job.depose_fee_cents, i18n.language),
+                        })}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
@@ -164,11 +166,16 @@ export function DeposeJobsPanel() {
 
                 {/* Urgency badge */}
                 {daysElapsed !== null && daysElapsed >= 0 && (
-                  <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}>
+                  <div
+                    className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}
+                  >
                     <span>{urgent ? "⏰" : "📅"}</span>
                     {daysElapsed === 0
                       ? t("depose_jobs.urgency_today")
-                      : t("depose_jobs.urgency_days", { count: daysElapsed, s: daysElapsed > 1 ? "s" : "" })}
+                      : t("depose_jobs.urgency_days", {
+                          count: daysElapsed,
+                          s: daysElapsed > 1 ? "s" : "",
+                        })}
                     {urgent ? t("depose_jobs.urgency_suffix") : ""}
                   </div>
                 )}
@@ -207,7 +214,9 @@ export function DeposeJobsPanel() {
                     disabled={claiming === job.id}
                     className="mb-3 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
                   >
-                    {claiming === job.id ? t("depose_jobs.btn_claiming") : t("depose_jobs.btn_claim")}
+                    {claiming === job.id
+                      ? t("depose_jobs.btn_claiming")
+                      : t("depose_jobs.btn_claim")}
                   </button>
                 ) : (
                   <div className="mb-3 flex items-center justify-between gap-2">

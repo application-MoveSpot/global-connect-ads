@@ -1,4 +1,11 @@
-const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_id"] as const;
+const UTM_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+  "utm_id",
+] as const;
 type UtmKey = (typeof UTM_KEYS)[number];
 export type UtmData = Partial<Record<UtmKey, string>>;
 
@@ -21,7 +28,10 @@ export function captureUtm(): void {
     if (Object.keys(fresh).length === 0) return;
     const existing = getStoredUtmEntry();
     if (existing) return; // keep first-touch attribution
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ data: fresh, capturedAt: Date.now() } satisfies UtmEntry));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ data: fresh, capturedAt: Date.now() } satisfies UtmEntry),
+    );
   } catch {
     // localStorage may be blocked in some contexts
   }
@@ -49,5 +59,9 @@ export function getStoredUtm(): UtmData | null {
 
 /** Clear stored UTM — call after a conversion (signup, first campaign) if desired. */
 export function clearStoredUtm(): void {
-  try { localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* noop */
+  }
 }

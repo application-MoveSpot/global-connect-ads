@@ -13,7 +13,10 @@ export function polygonToEwkt(coords: [number, number][]) {
   return `SRID=4326;POLYGON((${ring}))`;
 }
 
-const NOM_HEADERS = { "User-Agent": "MoveSpot/1.0 (contact@move-spot.com)", "Accept-Language": "fr" };
+const NOM_HEADERS = {
+  "User-Agent": "MoveSpot/1.0 (contact@move-spot.com)",
+  "Accept-Language": "fr",
+};
 
 // Build a corridor polygon around a route (simple perpendicular offset method)
 function corridorPolygon(pts: [number, number][], bufferKm: number): [number, number][] {
@@ -140,15 +143,27 @@ export function ZoneSelector({
   const tRef = useRef(t);
   tRef.current = t;
   const [mode, setMode] = useState<Mode>(() => {
-    try { return (sessionStorage.getItem("ms_zone_mode") as Mode) || "route"; } catch { return "route"; }
+    try {
+      return (sessionStorage.getItem("ms_zone_mode") as Mode) || "route";
+    } catch {
+      return "route";
+    }
   });
 
   // ── Route mode state ────────────────────────────────────────────────────────
   const [fromAddr, setFromAddr] = useState(() => {
-    try { return sessionStorage.getItem("ms_zone_from") ?? ""; } catch { return ""; }
+    try {
+      return sessionStorage.getItem("ms_zone_from") ?? "";
+    } catch {
+      return "";
+    }
   });
   const [toAddr, setToAddr] = useState(() => {
-    try { return sessionStorage.getItem("ms_zone_to") ?? ""; } catch { return ""; }
+    try {
+      return sessionStorage.getItem("ms_zone_to") ?? "";
+    } catch {
+      return "";
+    }
   });
   const [routeLoading, setRouteLoading] = useState(false);
   const [routeError, setRouteError] = useState("");
@@ -241,11 +256,14 @@ export function ZoneSelector({
         if (polylineRef.current) m.removeLayer(polylineRef.current);
         const pts = drawingRef.current;
         if (pts.length > 1) {
-          polylineRef.current = L.polyline(pts.map(([lng, lat]) => [lat, lng]), {
-            color: "#3b82f6",
-            dashArray: "6 4",
-            weight: 2,
-          }).addTo(map);
+          polylineRef.current = L.polyline(
+            pts.map(([lng, lat]) => [lat, lng]),
+            {
+              color: "#3b82f6",
+              dashArray: "6 4",
+              weight: 2,
+            },
+          ).addTo(map);
         }
       };
 
@@ -292,12 +310,15 @@ export function ZoneSelector({
           polygonRef.current = null;
         }
         const ring: [number, number][] = [...coords, coords[0]];
-        polygonRef.current = L.polygon(ring.map(([lng, lat]) => [lat, lng]), {
-          color: "#3b82f6",
-          fillColor: "#3b82f6",
-          fillOpacity: 0.2,
-          weight: 2,
-        }).addTo(map);
+        polygonRef.current = L.polygon(
+          ring.map(([lng, lat]) => [lat, lng]),
+          {
+            color: "#3b82f6",
+            fillColor: "#3b82f6",
+            fillOpacity: 0.2,
+            weight: 2,
+          },
+        ).addTo(map);
         const km2 =
           area({
             type: "Feature",
@@ -326,7 +347,7 @@ export function ZoneSelector({
         mapRef.current = null;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center[0], center[1]]);
 
   // ── Simple mode: redraw circle ─────────────────────────────────────────────
@@ -428,8 +449,16 @@ export function ZoneSelector({
     setRouteZones([]);
 
     const [geoFrom, geoTo] = await Promise.all([geocodeAddress(from), geocodeAddress(to)]);
-    if (!geoFrom) { setRouteError(t("zone.err_from_not_found")); setRouteLoading(false); return; }
-    if (!geoTo) { setRouteError(t("zone.err_to_not_found")); setRouteLoading(false); return; }
+    if (!geoFrom) {
+      setRouteError(t("zone.err_from_not_found"));
+      setRouteLoading(false);
+      return;
+    }
+    if (!geoTo) {
+      setRouteError(t("zone.err_to_not_found"));
+      setRouteLoading(false);
+      return;
+    }
 
     const profile = osrmProfile(vehicleTypesRef.current);
     try {
@@ -477,31 +506,53 @@ export function ZoneSelector({
         // Draw corridor (buffer zone)
         if (polygon.length > 0) {
           routeBufferRef.current = (
-            L.polygon(polygon.map(([lng, lat]) => [lat, lng] as [number, number]), {
-              color: "#3b82f6",
-              fillColor: "#3b82f6",
-              fillOpacity: 0.1,
-              weight: 1,
-              dashArray: "4 4",
-            }) as { addTo: (m: unknown) => unknown }
+            L.polygon(
+              polygon.map(([lng, lat]) => [lat, lng] as [number, number]),
+              {
+                color: "#3b82f6",
+                fillColor: "#3b82f6",
+                fillOpacity: 0.1,
+                weight: 1,
+                dashArray: "4 4",
+              },
+            ) as { addTo: (m: unknown) => unknown }
           ).addTo(map);
         }
 
         // Draw route line
         routeLineRef.current = (
-          L.polyline(routeCoords.map(([lng, lat]) => [lat, lng] as [number, number]), {
-            color: "#3b82f6",
-            weight: 4,
-            opacity: 0.85,
-          }) as { addTo: (m: unknown) => unknown }
+          L.polyline(
+            routeCoords.map(([lng, lat]) => [lat, lng] as [number, number]),
+            {
+              color: "#3b82f6",
+              weight: 4,
+              opacity: 0.85,
+            },
+          ) as { addTo: (m: unknown) => unknown }
         ).addTo(map);
 
         // Start/end markers
         routeMarkersRef.current.push(
-          (L.circleMarker([geoFrom.lat, geoFrom.lng], { radius: 8, color: "#16a34a", fillColor: "#16a34a", fillOpacity: 1, weight: 2 }) as { addTo: (m: unknown) => unknown }).addTo(map),
+          (
+            L.circleMarker([geoFrom.lat, geoFrom.lng], {
+              radius: 8,
+              color: "#16a34a",
+              fillColor: "#16a34a",
+              fillOpacity: 1,
+              weight: 2,
+            }) as { addTo: (m: unknown) => unknown }
+          ).addTo(map),
         );
         routeMarkersRef.current.push(
-          (L.circleMarker([geoTo.lat, geoTo.lng], { radius: 8, color: "#dc2626", fillColor: "#dc2626", fillOpacity: 1, weight: 2 }) as { addTo: (m: unknown) => unknown }).addTo(map),
+          (
+            L.circleMarker([geoTo.lat, geoTo.lng], {
+              radius: 8,
+              color: "#dc2626",
+              fillColor: "#dc2626",
+              fillOpacity: 1,
+              weight: 2,
+            }) as { addTo: (m: unknown) => unknown }
+          ).addTo(map),
         );
 
         // Fit map to route
@@ -517,7 +568,11 @@ export function ZoneSelector({
       }
 
       setRouteDistKm(distKm);
-      onChangeRef.current({ coordinates: polygon.length > 0 ? polygon : routeCoords, areaKm2, detectedZones: [] });
+      onChangeRef.current({
+        coordinates: polygon.length > 0 ? polygon : routeCoords,
+        areaKm2,
+        detectedZones: [],
+      });
 
       // Detect zones asynchronously
       setRouteDetecting(true);
@@ -527,7 +582,11 @@ export function ZoneSelector({
       const deduped = [...new Set(zones)].slice(0, 8);
       setRouteZones(deduped);
       setRouteDetecting(false);
-      onChangeRef.current({ coordinates: polygon.length > 0 ? polygon : routeCoords, areaKm2, detectedZones: deduped });
+      onChangeRef.current({
+        coordinates: polygon.length > 0 ? polygon : routeCoords,
+        areaKm2,
+        detectedZones: deduped,
+      });
     } catch {
       setRouteError(t("zone.err_route_generic"));
     }
@@ -538,16 +597,34 @@ export function ZoneSelector({
   const switchMode = (newMode: Mode) => {
     const map = mapRef.current as { removeLayer: (l: unknown) => void } | null;
     if (map) {
-      if (routeLineRef.current) { map.removeLayer(routeLineRef.current); routeLineRef.current = null; }
-      if (routeBufferRef.current) { map.removeLayer(routeBufferRef.current); routeBufferRef.current = null; }
+      if (routeLineRef.current) {
+        map.removeLayer(routeLineRef.current);
+        routeLineRef.current = null;
+      }
+      if (routeBufferRef.current) {
+        map.removeLayer(routeBufferRef.current);
+        routeBufferRef.current = null;
+      }
       routeMarkersRef.current.forEach((m) => map.removeLayer(m));
       routeMarkersRef.current = [];
-      if (circleRef.current) { map.removeLayer(circleRef.current); circleRef.current = null; }
+      if (circleRef.current) {
+        map.removeLayer(circleRef.current);
+        circleRef.current = null;
+      }
       ptMarkersRef.current.forEach((m) => map.removeLayer(m));
       ptMarkersRef.current = [];
-      if (polylineRef.current) { map.removeLayer(polylineRef.current); polylineRef.current = null; }
-      if (polygonRef.current) { map.removeLayer(polygonRef.current); polygonRef.current = null; }
-      if (searchMarkerRef.current) { map.removeLayer(searchMarkerRef.current); searchMarkerRef.current = null; }
+      if (polylineRef.current) {
+        map.removeLayer(polylineRef.current);
+        polylineRef.current = null;
+      }
+      if (polygonRef.current) {
+        map.removeLayer(polygonRef.current);
+        polygonRef.current = null;
+      }
+      if (searchMarkerRef.current) {
+        map.removeLayer(searchMarkerRef.current);
+        searchMarkerRef.current = null;
+      }
     }
     drawingRef.current = [];
     setHint(t("zone.hint_start"));
@@ -559,7 +636,9 @@ export function ZoneSelector({
     setRouteError("");
     onChangeRef.current(null);
     setMode(newMode);
-    try { sessionStorage.setItem("ms_zone_mode", newMode); } catch {}
+    try {
+      sessionStorage.setItem("ms_zone_mode", newMode);
+    } catch {}
   };
 
   const clearAdvanced = () => {
@@ -567,9 +646,18 @@ export function ZoneSelector({
     if (!map) return;
     ptMarkersRef.current.forEach((m) => map.removeLayer(m));
     ptMarkersRef.current = [];
-    if (polylineRef.current) { map.removeLayer(polylineRef.current); polylineRef.current = null; }
-    if (polygonRef.current) { map.removeLayer(polygonRef.current); polygonRef.current = null; }
-    if (searchMarkerRef.current) { map.removeLayer(searchMarkerRef.current); searchMarkerRef.current = null; }
+    if (polylineRef.current) {
+      map.removeLayer(polylineRef.current);
+      polylineRef.current = null;
+    }
+    if (polygonRef.current) {
+      map.removeLayer(polygonRef.current);
+      polygonRef.current = null;
+    }
+    if (searchMarkerRef.current) {
+      map.removeLayer(searchMarkerRef.current);
+      searchMarkerRef.current = null;
+    }
     drawingRef.current = [];
     setAdvArea(null);
     setAdvZones([]);
@@ -611,22 +699,36 @@ export function ZoneSelector({
         <div className="mb-3 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-600 font-bold text-sm select-none">A</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-600 font-bold text-sm select-none">
+                A
+              </span>
               <input
                 type="text"
                 value={fromAddr}
-                onChange={(e) => { setFromAddr(e.target.value); try { sessionStorage.setItem("ms_zone_from", e.target.value); } catch {} }}
+                onChange={(e) => {
+                  setFromAddr(e.target.value);
+                  try {
+                    sessionStorage.setItem("ms_zone_from", e.target.value);
+                  } catch {}
+                }}
                 placeholder={t("zone.from_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && traceRoute()}
               />
             </div>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600 font-bold text-sm select-none">B</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-red-600 font-bold text-sm select-none">
+                B
+              </span>
               <input
                 type="text"
                 value={toAddr}
-                onChange={(e) => { setToAddr(e.target.value); try { sessionStorage.setItem("ms_zone_to", e.target.value); } catch {} }}
+                onChange={(e) => {
+                  setToAddr(e.target.value);
+                  try {
+                    sessionStorage.setItem("ms_zone_to", e.target.value);
+                  } catch {}
+                }}
                 placeholder={t("zone.to_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
                 onKeyDown={(e) => e.key === "Enter" && traceRoute()}
@@ -661,7 +763,9 @@ export function ZoneSelector({
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5 pr-10 text-sm"
             />
             {simpleSearching && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground animate-pulse">🔍</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground animate-pulse">
+                🔍
+              </span>
             )}
           </div>
           <div>
@@ -669,7 +773,9 @@ export function ZoneSelector({
               <label className="text-sm text-muted-foreground">
                 {t("zone.radius_label", { km: radiusKm })}
               </label>
-              <span className="text-xs text-muted-foreground">{t("zone.area_approx", { area: circleAreaKm2.toFixed(1) })}</span>
+              <span className="text-xs text-muted-foreground">
+                {t("zone.area_approx", { area: circleAreaKm2.toFixed(1) })}
+              </span>
             </div>
             <input
               type="range"
@@ -706,9 +812,17 @@ export function ZoneSelector({
             type="button"
             onClick={clearAdvanced}
             style={{
-              position: "absolute", top: 8, right: 8, zIndex: 1000,
-              padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 500,
-              background: "white", border: "1px solid #ccc", cursor: "pointer",
+              position: "absolute",
+              top: 8,
+              right: 8,
+              zIndex: 1000,
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 500,
+              background: "white",
+              border: "1px solid #ccc",
+              cursor: "pointer",
               boxShadow: "0 1px 4px rgba(0,0,0,.2)",
             }}
           >
@@ -716,11 +830,20 @@ export function ZoneSelector({
           </button>
         )}
         {advSearching && mode === "advanced" && (
-          <div style={{
-            position: "absolute", bottom: 8, left: 8, zIndex: 1000,
-            padding: "4px 10px", borderRadius: 6, fontSize: 11,
-            background: "white", border: "1px solid #ccc", boxShadow: "0 1px 4px rgba(0,0,0,.15)",
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              bottom: 8,
+              left: 8,
+              zIndex: 1000,
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 11,
+              background: "white",
+              border: "1px solid #ccc",
+              boxShadow: "0 1px 4px rgba(0,0,0,.15)",
+            }}
+          >
             {t("zone.locating")}
           </div>
         )}
@@ -738,7 +861,9 @@ export function ZoneSelector({
             </p>
           )}
           {routeDetecting && (
-            <p className="text-xs text-muted-foreground animate-pulse">{t("zone.detecting_zones")}</p>
+            <p className="text-xs text-muted-foreground animate-pulse">
+              {t("zone.detecting_zones")}
+            </p>
           )}
           {routeZones.length > 0 && !routeDetecting && (
             <p className="text-xs text-primary font-medium">
@@ -746,9 +871,7 @@ export function ZoneSelector({
             </p>
           )}
           {!routeDistKm && !routeError && (
-            <p className="text-xs text-muted-foreground">
-              {t("zone.route_hint")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("zone.route_hint")}</p>
           )}
         </div>
       )}
@@ -757,11 +880,11 @@ export function ZoneSelector({
       {mode === "simple" && (
         <div className="mt-2 space-y-1">
           {simpleZones.length > 0 && (
-            <p className="text-xs text-primary font-medium">{t("zone.zones_found", { list: simpleZones.join(", ") })}</p>
+            <p className="text-xs text-primary font-medium">
+              {t("zone.zones_found", { list: simpleZones.join(", ") })}
+            </p>
           )}
-          <p className="text-xs text-muted-foreground">
-            {t("zone.simple_hint")}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("zone.simple_hint")}</p>
         </div>
       )}
 
@@ -770,10 +893,14 @@ export function ZoneSelector({
         <div className="mt-2 space-y-1">
           <p className="text-xs text-muted-foreground">{hint}</p>
           {advDetecting && (
-            <p className="text-xs text-muted-foreground animate-pulse">{t("zone.detecting_neighborhoods")}</p>
+            <p className="text-xs text-muted-foreground animate-pulse">
+              {t("zone.detecting_neighborhoods")}
+            </p>
           )}
           {advZones.length > 0 && !advDetecting && (
-            <p className="text-xs text-primary font-medium">{t("zone.zones_found", { list: advZones.join(", ") })}</p>
+            <p className="text-xs text-primary font-medium">
+              {t("zone.zones_found", { list: advZones.join(", ") })}
+            </p>
           )}
           {advArea != null && (
             <p className="text-sm">{t("zone.area_label", { area: advArea.toFixed(2) })}</p>

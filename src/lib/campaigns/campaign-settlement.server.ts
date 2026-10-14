@@ -21,16 +21,18 @@ export async function settleCampaignFromWallet(params: {
     .maybeSingle();
   if (error || !campaign) throw new Error("Campagne introuvable");
 
-  const { data: settlement, error: rpcError } = await (supabaseAdmin.rpc as unknown as (
-    fn: string,
-    args: Record<string, unknown>,
-  ) => PromiseLike<{ data: { already_paid?: boolean; amount_cents?: number } | null; error: { message: string } | null }>)(
-    "settle_campaign_from_wallet",
-    {
-      p_campaign_request_id: params.campaignRequestId,
-      p_description: params.description,
-    },
-  );
+  const { data: settlement, error: rpcError } = await (
+    supabaseAdmin.rpc as unknown as (
+      fn: string,
+      args: Record<string, unknown>,
+    ) => PromiseLike<{
+      data: { already_paid?: boolean; amount_cents?: number } | null;
+      error: { message: string } | null;
+    }>
+  )("settle_campaign_from_wallet", {
+    p_campaign_request_id: params.campaignRequestId,
+    p_description: params.description,
+  });
   if (rpcError) throw new Error(rpcError.message);
   const row = Array.isArray(settlement) ? settlement[0] : settlement;
   if (!row || row.already_paid) return { ok: true, alreadyPaid: true };
@@ -40,8 +42,7 @@ export async function settleCampaignFromWallet(params: {
   // Notification automatique de l'annonceur — n'interrompt jamais le règlement.
   if (campaign.email) {
     const { sendAppEmailSafe } = await import("@/lib/email/send.server");
-    const fmtDate = (d: string | null) =>
-      d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
+    const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("fr-FR") : undefined);
     await sendAppEmailSafe({
       templateName: "campaign-activated",
       recipientEmail: campaign.email,
@@ -62,4 +63,3 @@ export async function settleCampaignFromWallet(params: {
 
   return { ok: true, amountCents };
 }
-

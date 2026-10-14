@@ -55,7 +55,9 @@ export function AiAssistantPanel({
             <div className="flex items-center gap-3">
               <span className="text-xl">✨</span>
               <div>
-                <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">{title}</p>
+                <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+                  {title}
+                </p>
                 {description && <p className="text-xs text-muted-foreground">{description}</p>}
               </div>
             </div>
@@ -99,7 +101,9 @@ export function AiAssistantPanel({
                     generateLabel
                   )}
                 </button>
-                <span className="text-xs text-muted-foreground">{context.length}/600 caractères</span>
+                <span className="text-xs text-muted-foreground">
+                  {context.length}/600 caractères
+                </span>
               </div>
               {disclaimer && <p className="text-xs text-muted-foreground">{disclaimer}</p>}
             </div>
@@ -108,7 +112,9 @@ export function AiAssistantPanel({
 
         {filledMessage && onDismissFilled && (
           <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
-            <span className="text-violet-700 dark:text-violet-300 font-medium">{filledMessage}</span>
+            <span className="text-violet-700 dark:text-violet-300 font-medium">
+              {filledMessage}
+            </span>
             <button
               type="button"
               onClick={onDismissFilled}

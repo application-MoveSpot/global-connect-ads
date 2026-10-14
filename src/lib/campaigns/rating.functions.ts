@@ -5,12 +5,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const submitCampaignRating = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      campaignRequestId: z.string().uuid(),
-      stars: z.number().int().min(1).max(5),
-      comment: z.string().max(500).optional(),
-      ratedRole: z.enum(["owner", "driver"]),
-    }).parse(input),
+    z
+      .object({
+        campaignRequestId: z.string().uuid(),
+        stars: z.number().int().min(1).max(5),
+        comment: z.string().max(500).optional(),
+        ratedRole: z.enum(["owner", "driver"]),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -25,18 +27,20 @@ export const submitCampaignRating = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!camp) return { ok: false as const, error: "Campagne introuvable." };
-    if (camp.status !== "approved") return { ok: false as const, error: "La campagne doit être approuvée pour être notée." };
+    if (camp.status !== "approved")
+      return { ok: false as const, error: "La campagne doit être approuvée pour être notée." };
 
     try {
-      const { error } = await supabaseAdmin
-        .from("campaign_ratings" as never)
-        .upsert({
+      const { error } = await supabaseAdmin.from("campaign_ratings" as never).upsert(
+        {
           campaign_request_id: data.campaignRequestId,
           rater_user_id: userId,
           rated_role: data.ratedRole,
           stars: data.stars,
           comment: data.comment ?? null,
-        } as never, { onConflict: "campaign_request_id,rater_user_id,rated_role" });
+        } as never,
+        { onConflict: "campaign_request_id,rater_user_id,rated_role" },
+      );
 
       if (error) {
         // Table may not exist yet — return a graceful response
@@ -51,9 +55,7 @@ export const submitCampaignRating = createServerFn({ method: "POST" })
 
 export const getCampaignRating = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ campaignRequestId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => z.object({ campaignRequestId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -65,51 +67,55 @@ export const getCampaignRating = createServerFn({ method: "POST" })
         .eq("campaign_request_id" as never, data.campaignRequestId)
         .eq("rater_user_id" as never, userId);
 
-      return { ok: true as const, ratings: (rows ?? []) as { rated_role: string; stars: number; comment: string | null }[] };
+      return {
+        ok: true as const,
+        ratings: (rows ?? []) as { rated_role: string; stars: number; comment: string | null }[],
+      };
     } catch {
       return { ok: true as const, ratings: [] };
     }
   });
 
-export const getPublicActiveCampaigns = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const today = new Date().toISOString().slice(0, 10);
+export const getPublicActiveCampaigns = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const today = new Date().toISOString().slice(0, 10);
 
-    const { data } = await supabaseAdmin
-      .from("campaign_requests")
-      .select("id, spot_name, spot_location, estimated_impressions_per_day, days_count, start_date, end_date, route_zones, vehicles(type, format_publicitaire)")
-      .eq("status", "approved")
-      .eq("payment_status", "paid")
-      .lte("start_date", today)
-      .gte("end_date", today)
-      .order("start_date", { ascending: false })
-      .limit(24);
+  const { data } = await supabaseAdmin
+    .from("campaign_requests")
+    .select(
+      "id, spot_name, spot_location, estimated_impressions_per_day, days_count, start_date, end_date, route_zones, vehicles(type, format_publicitaire)",
+    )
+    .eq("status", "approved")
+    .eq("payment_status", "paid")
+    .lte("start_date", today)
+    .gte("end_date", today)
+    .order("start_date", { ascending: false })
+    .limit(24);
 
-    type CampRow = {
-      id: string;
-      spot_name: string;
-      spot_location: string | null;
-      estimated_impressions_per_day: number | null;
-      days_count: number | null;
-      start_date: string;
-      end_date: string;
-      route_zones: string[] | null;
-      vehicles: { type: string; format_publicitaire: string | null } | null;
-    };
+  type CampRow = {
+    id: string;
+    spot_name: string;
+    spot_location: string | null;
+    estimated_impressions_per_day: number | null;
+    days_count: number | null;
+    start_date: string;
+    end_date: string;
+    route_zones: string[] | null;
+    vehicles: { type: string; format_publicitaire: string | null } | null;
+  };
 
-    return {
-      campaigns: ((data ?? []) as unknown as CampRow[]).map((c) => ({
-        id: c.id,
-        spotName: c.spot_name,
-        location: c.spot_location ?? null,
-        impressionsPerDay: c.estimated_impressions_per_day,
-        daysCount: c.days_count,
-        startDate: c.start_date,
-        endDate: c.end_date,
-        vehicleType: c.vehicles?.type ?? null,
-        format: c.vehicles?.format_publicitaire ?? null,
-        zoneCount: (c.route_zones ?? []).length,
-      })),
-    };
-  });
+  return {
+    campaigns: ((data ?? []) as unknown as CampRow[]).map((c) => ({
+      id: c.id,
+      spotName: c.spot_name,
+      location: c.spot_location ?? null,
+      impressionsPerDay: c.estimated_impressions_per_day,
+      daysCount: c.days_count,
+      startDate: c.start_date,
+      endDate: c.end_date,
+      vehicleType: c.vehicles?.type ?? null,
+      format: c.vehicles?.format_publicitaire ?? null,
+      zoneCount: (c.route_zones ?? []).length,
+    })),
+  };
+});

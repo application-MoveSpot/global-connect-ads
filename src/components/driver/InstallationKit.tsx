@@ -34,9 +34,7 @@ export function InstallationKit({ campaignRequestId, creativeFiles }: Props) {
       {hasCreatives ? (
         <CreativeFiles paths={creativeFiles} />
       ) : (
-        <p className="mb-2 text-xs text-muted-foreground">
-          {t("installation_kit.no_creative")}
-        </p>
+        <p className="mb-2 text-xs text-muted-foreground">{t("installation_kit.no_creative")}</p>
       )}
 
       <div className="flex items-center gap-3 pt-1">

@@ -132,7 +132,10 @@ function PartnerSignupPage() {
     try {
       const res = await callPartnerAi({ data: { partnerContext: aiContext.trim() } });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
@@ -219,9 +222,7 @@ function PartnerSignupPage() {
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="font-display text-3xl font-bold mb-2">{t("partner.inscription.title")}</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          {t("partner.inscription.subtitle")}
-        </p>
+        <p className="text-sm text-muted-foreground mb-6">{t("partner.inscription.subtitle")}</p>
 
         {step === "auth" ? (
           <form
@@ -245,7 +246,13 @@ function PartnerSignupPage() {
                 {t("auth.have_account")}
               </button>
             </div>
-            <FormInput label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
+            <FormInput
+              label={t("auth.email")}
+              type="email"
+              value={email}
+              onChange={setEmail}
+              required
+            />
             <FormInput
               label={t("auth.password")}
               type="password"

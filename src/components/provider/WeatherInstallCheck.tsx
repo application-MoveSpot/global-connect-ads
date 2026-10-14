@@ -14,11 +14,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 type DayForecast = {
-  date: string;        // ISO date
-  tempMin: number;     // °C
-  tempMax: number;     // °C
+  date: string; // ISO date
+  tempMin: number; // °C
+  tempMax: number; // °C
   precipitation: number; // mm
-  windspeed: number;   // km/h
+  windspeed: number; // km/h
   weathercode: number; // WMO code
 };
 
@@ -44,19 +44,34 @@ export function WeatherInstallCheck({ zone }: Props) {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   const WMO_LABEL: Record<number, string> = {
-    0: t("weather_install.wmo_0"), 1: t("weather_install.wmo_1"), 2: t("weather_install.wmo_2"), 3: t("weather_install.wmo_3"),
-    45: t("weather_install.wmo_45"), 48: t("weather_install.wmo_48"),
-    51: t("weather_install.wmo_51"), 53: t("weather_install.wmo_53"), 55: t("weather_install.wmo_55"),
-    61: t("weather_install.wmo_61"), 63: t("weather_install.wmo_63"), 65: t("weather_install.wmo_65"),
-    71: t("weather_install.wmo_71"), 73: t("weather_install.wmo_73"), 75: t("weather_install.wmo_75"),
-    80: t("weather_install.wmo_80"), 81: t("weather_install.wmo_81"), 82: t("weather_install.wmo_82"),
-    85: t("weather_install.wmo_85"), 86: t("weather_install.wmo_86"),
-    95: t("weather_install.wmo_95"), 96: t("weather_install.wmo_96"), 99: t("weather_install.wmo_99"),
+    0: t("weather_install.wmo_0"),
+    1: t("weather_install.wmo_1"),
+    2: t("weather_install.wmo_2"),
+    3: t("weather_install.wmo_3"),
+    45: t("weather_install.wmo_45"),
+    48: t("weather_install.wmo_48"),
+    51: t("weather_install.wmo_51"),
+    53: t("weather_install.wmo_53"),
+    55: t("weather_install.wmo_55"),
+    61: t("weather_install.wmo_61"),
+    63: t("weather_install.wmo_63"),
+    65: t("weather_install.wmo_65"),
+    71: t("weather_install.wmo_71"),
+    73: t("weather_install.wmo_73"),
+    75: t("weather_install.wmo_75"),
+    80: t("weather_install.wmo_80"),
+    81: t("weather_install.wmo_81"),
+    82: t("weather_install.wmo_82"),
+    85: t("weather_install.wmo_85"),
+    86: t("weather_install.wmo_86"),
+    95: t("weather_install.wmo_95"),
+    96: t("weather_install.wmo_96"),
+    99: t("weather_install.wmo_99"),
   };
 
   const bannerText: Record<Assessment, string> = {
-    favorable:   t("weather_install.assessment_favorable"),
-    risque:      t("weather_install.assessment_risque"),
+    favorable: t("weather_install.assessment_favorable"),
+    risque: t("weather_install.assessment_risque"),
     deconseille: t("weather_install.assessment_deconseille"),
   };
 
@@ -68,19 +83,22 @@ export function WeatherInstallCheck({ zone }: Props) {
     (async () => {
       try {
         const geoRes = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=fr&format=json`
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=fr&format=json`,
         );
         const geoJson = await geoRes.json();
         const loc = geoJson.results?.[0];
-        if (!loc) { setStatus("error"); return; }
+        if (!loc) {
+          setStatus("error");
+          return;
+        }
 
         setCity(loc.name);
 
         const fxRes = await fetch(
           `https://api.open-meteo.com/v1/forecast` +
-          `?latitude=${loc.latitude}&longitude=${loc.longitude}` +
-          `&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,windspeed_10m_max,weathercode` +
-          `&timezone=Europe%2FParis&forecast_days=3`
+            `?latitude=${loc.latitude}&longitude=${loc.longitude}` +
+            `&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,windspeed_10m_max,weathercode` +
+            `&timezone=Europe%2FParis&forecast_days=3`,
         );
         const fxJson = await fxRes.json();
         const d = fxJson.daily;
@@ -127,12 +145,12 @@ export function WeatherInstallCheck({ zone }: Props) {
 
   const bannerStyle: Record<Assessment, string> = {
     favorable: "border-emerald-500/40 bg-emerald-500/10",
-    risque:    "border-amber-500/40 bg-amber-500/10",
+    risque: "border-amber-500/40 bg-amber-500/10",
     deconseille: "border-destructive/40 bg-destructive/10",
   };
   const bannerIcon: Record<Assessment, string> = {
-    favorable:   "✅",
-    risque:      "⚠️",
+    favorable: "✅",
+    risque: "⚠️",
     deconseille: "❌",
   };
 
@@ -147,32 +165,39 @@ export function WeatherInstallCheck({ zone }: Props) {
       <div className="grid grid-cols-3 gap-2">
         {days.map((day) => {
           const a = assess(day);
-          const dayLabel = new Date(day.date + "T12:00:00").toLocaleDateString(i18n.language, { weekday: "short", day: "numeric", month: "short" });
+          const dayLabel = new Date(day.date + "T12:00:00").toLocaleDateString(i18n.language, {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+          });
           const dot: Record<Assessment, string> = {
-            favorable:   "bg-emerald-500",
-            risque:      "bg-amber-500",
+            favorable: "bg-emerald-500",
+            risque: "bg-amber-500",
             deconseille: "bg-destructive",
           };
           return (
-            <div key={day.date} className="rounded-md border border-border/60 bg-background/60 p-2 text-xs space-y-0.5">
+            <div
+              key={day.date}
+              className="rounded-md border border-border/60 bg-background/60 p-2 text-xs space-y-0.5"
+            >
               <div className="flex items-center gap-1 font-semibold text-foreground capitalize">
                 <span className={`w-2 h-2 rounded-full shrink-0 ${dot[a]}`} />
                 {dayLabel}
               </div>
-              <div className="text-muted-foreground">{WMO_LABEL[day.weathercode] ?? `Code ${day.weathercode}`}</div>
-              <div>{day.tempMin.toFixed(0)}° / {day.tempMax.toFixed(0)} °C</div>
-              {day.precipitation > 0 && (
-                <div>💧 {day.precipitation.toFixed(1)} mm</div>
-              )}
+              <div className="text-muted-foreground">
+                {WMO_LABEL[day.weathercode] ?? `Code ${day.weathercode}`}
+              </div>
+              <div>
+                {day.tempMin.toFixed(0)}° / {day.tempMax.toFixed(0)} °C
+              </div>
+              {day.precipitation > 0 && <div>💧 {day.precipitation.toFixed(1)} mm</div>}
               <div>💨 {day.windspeed.toFixed(0)} km/h</div>
             </div>
           );
         })}
       </div>
 
-      <p className="mt-2 text-[10px] text-muted-foreground">
-        {t("weather_install.tip")}
-      </p>
+      <p className="mt-2 text-[10px] text-muted-foreground">{t("weather_install.tip")}</p>
     </div>
   );
 }

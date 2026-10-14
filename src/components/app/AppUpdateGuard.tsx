@@ -37,8 +37,7 @@ export function AppUpdateGuard() {
       if (e.message && isChunkError(e.message)) softReload();
     };
     const onRejection = (e: PromiseRejectionEvent) => {
-      const msg =
-        typeof e.reason === "string" ? e.reason : (e.reason?.message ?? "");
+      const msg = typeof e.reason === "string" ? e.reason : (e.reason?.message ?? "");
       if (msg && isChunkError(msg)) softReload();
     };
 

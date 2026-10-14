@@ -30,18 +30,16 @@ export const savePushSubscription = createServerFn({ method: "POST" })
   .validator((data: unknown) => SaveSchema.parse(data))
   .handler(async ({ data, context }) => {
     const db = supabaseAdmin();
-    await db
-      .from("push_subscriptions" as never)
-      .upsert(
-        {
-          user_id: context.userId, // from auth session — never trust client-supplied userId
-          endpoint: data.endpoint,
-          p256dh: data.p256dh,
-          auth: data.auth,
-          user_agent: data.userAgent,
-        } as never,
-        { onConflict: "user_id,endpoint" },
-      );
+    await db.from("push_subscriptions" as never).upsert(
+      {
+        user_id: context.userId, // from auth session — never trust client-supplied userId
+        endpoint: data.endpoint,
+        p256dh: data.p256dh,
+        auth: data.auth,
+        user_agent: data.userAgent,
+      } as never,
+      { onConflict: "user_id,endpoint" },
+    );
     return { ok: true };
   });
 

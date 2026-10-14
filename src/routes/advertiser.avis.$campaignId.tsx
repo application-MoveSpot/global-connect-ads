@@ -41,7 +41,10 @@ function AvisPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/advertiser/inscription" });
+        return;
+      }
       const uid = session.user.id;
       setUserId(uid);
 
@@ -52,7 +55,10 @@ function AvisPage() {
         .eq("user_id", uid)
         .maybeSingle();
 
-      if (!camp) { navigate({ to: "/advertiser" }); return; }
+      if (!camp) {
+        navigate({ to: "/advertiser" });
+        return;
+      }
       setCampaign(camp as Campaign);
 
       // Get owner_id from vehicle
@@ -94,7 +100,11 @@ function AvisPage() {
   };
 
   if (!campaign) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Chargement…</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Chargement…
+      </div>
+    );
   }
 
   if (alreadyReviewed || submitted) {

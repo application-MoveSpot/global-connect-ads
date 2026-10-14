@@ -20,8 +20,10 @@ export const Route = createFileRoute("/advertiser/briefs/confirmation/$briefId")
 
 function daysUntil(dateStr: string | null | undefined) {
   if (!dateStr) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  target.setHours(0, 0, 0, 0);
   return Math.round((target.getTime() - today.getTime()) / 86400000);
 }
 
@@ -30,7 +32,11 @@ function ConfirmationPage() {
   const dateLocale = i18n.language;
   const fmtDate = (d: string | null | undefined) => {
     if (!d) return null;
-    return new Date(d).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
+    return new Date(d).toLocaleDateString(dateLocale, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
   const { briefId } = Route.useParams();
   const navigate = useNavigate();
@@ -46,7 +52,10 @@ function ConfirmationPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/advertiser/inscription" });
+        return;
+      }
       const [briefRes, profileRes] = await Promise.allSettled([
         supabase
           .from("advertiser_briefs")
@@ -71,15 +80,20 @@ function ConfirmationPage() {
   }, [briefId, navigate]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("advertiser.briefs_confirm.loading")}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("advertiser.briefs_confirm.loading")}
+      </div>
+    );
   }
 
   const days = daysUntil(brief?.start_date);
   const urgent = days !== null && days >= 0 && days <= 7;
   const zoneLabel = brief?.zones?.length ? brief.zones[0] : null;
-  const daysStr = days === 0
-    ? t("advertiser.briefs_confirm.urgent_days_zero")
-    : t("advertiser.briefs_confirm.urgent_days" as never, { count: days ?? 0 });
+  const daysStr =
+    days === 0
+      ? t("advertiser.briefs_confirm.urgent_days_zero")
+      : t("advertiser.briefs_confirm.urgent_days" as never, { count: days ?? 0 });
 
   const STEPS = [
     { icon: "📬", key: "step1" as const },
@@ -94,7 +108,9 @@ function ConfirmationPage() {
         <header className="border-b border-border">
           <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
             <LogoLink />
-            <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_confirm.back")}</Link>
+            <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("advertiser.briefs_confirm.back")}
+            </Link>
           </div>
         </header>
 
@@ -107,9 +123,7 @@ function ConfirmationPage() {
             <h1 className="font-display text-3xl font-bold mb-2">
               {t("advertiser.briefs_confirm.ind_title")}
             </h1>
-            <p className="text-muted-foreground">
-              {t("advertiser.briefs_confirm.ind_desc")}
-            </p>
+            <p className="text-muted-foreground">{t("advertiser.briefs_confirm.ind_desc")}</p>
           </div>
 
           {urgent && days !== null && (
@@ -123,20 +137,40 @@ function ConfirmationPage() {
           )}
 
           <div className="rounded-2xl border border-border bg-card p-6 mb-6 space-y-3">
-            <h2 className="font-display font-bold text-lg mb-1">{t("advertiser.briefs_confirm.summary_title")}</h2>
-            {brief?.title && <Row label={t("advertiser.briefs_confirm.row_title")} value={brief.title} />}
-            {brief?.start_date && <Row label={t("advertiser.briefs_confirm.row_start")} value={fmtDate(brief.start_date)!} />}
-            {brief?.end_date && <Row label={t("advertiser.briefs_confirm.row_end")} value={fmtDate(brief.end_date)!} />}
+            <h2 className="font-display font-bold text-lg mb-1">
+              {t("advertiser.briefs_confirm.summary_title")}
+            </h2>
+            {brief?.title && (
+              <Row label={t("advertiser.briefs_confirm.row_title")} value={brief.title} />
+            )}
+            {brief?.start_date && (
+              <Row
+                label={t("advertiser.briefs_confirm.row_start")}
+                value={fmtDate(brief.start_date)!}
+              />
+            )}
+            {brief?.end_date && (
+              <Row
+                label={t("advertiser.briefs_confirm.row_end")}
+                value={fmtDate(brief.end_date)!}
+              />
+            )}
             {zoneLabel && <Row label={t("advertiser.briefs_confirm.row_zone")} value={zoneLabel} />}
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-6 mb-6">
-            <h2 className="font-display font-bold text-lg mb-4">{t("advertiser.briefs_confirm.next_title")}</h2>
+            <h2 className="font-display font-bold text-lg mb-4">
+              {t("advertiser.briefs_confirm.next_title")}
+            </h2>
             <ol className="space-y-4">
               {STEPS.map(({ icon, key }, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-base">{icon}</span>
-                  <span className="text-muted-foreground pt-0.5">{t(`advertiser.briefs_confirm.${key}`)}</span>
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-base">
+                    {icon}
+                  </span>
+                  <span className="text-muted-foreground pt-0.5">
+                    {t(`advertiser.briefs_confirm.${key}`)}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -144,7 +178,10 @@ function ConfirmationPage() {
 
           <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 mb-8 flex items-start gap-3">
             <Star className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-            <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: t("advertiser.briefs_confirm.tip") }} />
+            <p
+              className="text-sm text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: t("advertiser.briefs_confirm.tip") }}
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
@@ -173,22 +210,40 @@ function ConfirmationPage() {
       <header className="border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_confirm.back")}</Link>
+          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("advertiser.briefs_confirm.back")}
+          </Link>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-12 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/15 mb-6">
           <Zap className="w-8 h-8 text-emerald-600" />
         </div>
-        <h1 className="font-display text-3xl font-bold mb-3">{t("advertiser.briefs_confirm.biz_title")}</h1>
+        <h1 className="font-display text-3xl font-bold mb-3">
+          {t("advertiser.briefs_confirm.biz_title")}
+        </h1>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
           {t("advertiser.briefs_confirm.biz_desc")}
         </p>
         <div className="rounded-2xl border border-border bg-card p-6 mb-8 text-left space-y-3">
-          {brief?.title && <Row label={t("advertiser.briefs_confirm.biz_row_name")} value={brief.title} />}
-          {brief?.start_date && <Row label={t("advertiser.briefs_confirm.biz_row_start")} value={fmtDate(brief.start_date)!} />}
-          {brief?.end_date && <Row label={t("advertiser.briefs_confirm.biz_row_end")} value={fmtDate(brief.end_date)!} />}
-          {zoneLabel && <Row label={t("advertiser.briefs_confirm.biz_row_zone")} value={zoneLabel} />}
+          {brief?.title && (
+            <Row label={t("advertiser.briefs_confirm.biz_row_name")} value={brief.title} />
+          )}
+          {brief?.start_date && (
+            <Row
+              label={t("advertiser.briefs_confirm.biz_row_start")}
+              value={fmtDate(brief.start_date)!}
+            />
+          )}
+          {brief?.end_date && (
+            <Row
+              label={t("advertiser.briefs_confirm.biz_row_end")}
+              value={fmtDate(brief.end_date)!}
+            />
+          )}
+          {zoneLabel && (
+            <Row label={t("advertiser.briefs_confirm.biz_row_zone")} value={zoneLabel} />
+          )}
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link

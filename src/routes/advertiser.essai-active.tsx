@@ -18,7 +18,8 @@ export const Route = createFileRoute("/advertiser/essai-active")({
       { property: "og:title", content: "Essai gratuit activé — MoveSpot" },
       {
         property: "og:description",
-        content: "Votre essai gratuit de 14 jours est activé, votre campagne est en cours de déploiement.",
+        content:
+          "Votre essai gratuit de 14 jours est activé, votre campagne est en cours de déploiement.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -51,12 +52,17 @@ function TrialActivatedPage() {
     verifySession({ data: { sessionId } })
       .then((r: any) => {
         if ("error" in r) {
-          setState({ phase: "error", message: r.error || t("advertiser.essai_active.error_verify") });
+          setState({
+            phase: "error",
+            message: r.error || t("advertiser.essai_active.error_verify"),
+          });
           return;
         }
         setState({ phase: "ok", status: r.status, trialEnd: r.trialEnd ?? null });
       })
-      .catch(() => setState({ phase: "error", message: t("advertiser.essai_active.error_verify") }));
+      .catch(() =>
+        setState({ phase: "error", message: t("advertiser.essai_active.error_verify") }),
+      );
   }, [sessionId, verifySession, t]);
 
   const active = state.phase === "ok" && (state.status === "trialing" || state.status === "active");
@@ -82,7 +88,9 @@ function TrialActivatedPage() {
             <div className="text-4xl mb-4" aria-hidden="true">
               ⚠️
             </div>
-            <h1 className="font-display text-2xl font-bold">{t("advertiser.essai_active.error_title")}</h1>
+            <h1 className="font-display text-2xl font-bold">
+              {t("advertiser.essai_active.error_title")}
+            </h1>
             <p className="mt-3 text-sm text-muted-foreground">{state.message}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
@@ -99,10 +107,14 @@ function TrialActivatedPage() {
               {active ? "🎉" : "⏳"}
             </div>
             <h1 className="font-display text-3xl font-bold">
-              {active ? t("advertiser.essai_active.success_title") : t("advertiser.essai_active.pending_title")}
+              {active
+                ? t("advertiser.essai_active.success_title")
+                : t("advertiser.essai_active.pending_title")}
             </h1>
             <p className="mt-3 text-muted-foreground">
-              {active ? t("advertiser.essai_active.success_body") : t("advertiser.essai_active.pending_body")}
+              {active
+                ? t("advertiser.essai_active.success_body")
+                : t("advertiser.essai_active.pending_body")}
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -121,13 +133,17 @@ function TrialActivatedPage() {
             </div>
 
             {sessionId ? (
-              <p className="mt-6 text-xs text-muted-foreground break-all">{t("advertiser.essai_active.ref_label")} {sessionId}</p>
+              <p className="mt-6 text-xs text-muted-foreground break-all">
+                {t("advertiser.essai_active.ref_label")} {sessionId}
+              </p>
             ) : null}
           </div>
         )}
 
         <div className="mt-6 rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
-          <p className="font-semibold text-foreground mb-1">{t("advertiser.essai_active.next_title")}</p>
+          <p className="font-semibold text-foreground mb-1">
+            {t("advertiser.essai_active.next_title")}
+          </p>
           <p>{t("advertiser.essai_active.next_body")}</p>
         </div>
       </main>

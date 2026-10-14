@@ -31,8 +31,16 @@ const Email = ({ reference, amount, campaignName }: Props) => (
         </Text>
 
         <Section style={card}>
-          {amount ? <Text style={row}>Montant : <strong>{amount}</strong></Text> : null}
-          {reference ? <Text style={row}>Référence : <strong>{reference}</strong></Text> : null}
+          {amount ? (
+            <Text style={row}>
+              Montant : <strong>{amount}</strong>
+            </Text>
+          ) : null}
+          {reference ? (
+            <Text style={row}>
+              Référence : <strong>{reference}</strong>
+            </Text>
+          ) : null}
           {campaignName ? (
             <Text style={row}>
               Campagne réglée : <strong>{campaignName}</strong>

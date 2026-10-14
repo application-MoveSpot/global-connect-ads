@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -20,8 +38,15 @@ interface Props {
 }
 
 const Email = ({
-  ownerName, briefTitle, company, zone,
-  proposedPrice, startDate, endDate, dashboardUrl, unsubscribeUrl,
+  ownerName,
+  briefTitle,
+  company,
+  zone,
+  proposedPrice,
+  startDate,
+  endDate,
+  dashboardUrl,
+  unsubscribeUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -34,12 +59,12 @@ const Email = ({
           <Section style={contentPadding}>
             <StatusBadge color="green">Proposition acceptée ✅</StatusBadge>
 
-            <Text style={{ ...h1Style, marginTop: "16px" }}>
-              Votre proposition a été retenue !
-            </Text>
+            <Text style={{ ...h1Style, marginTop: "16px" }}>Votre proposition a été retenue !</Text>
 
             <Text style={textStyle}>
-              {ownerName ? `Bonjour ${ownerName},` : "Bonjour,"} l'annonceur{company ? ` ${company}` : ""} a accepté votre proposition pour le brief{briefTitle ? ` « ${briefTitle} »` : ""}. La campagne va démarrer prochainement.
+              {ownerName ? `Bonjour ${ownerName},` : "Bonjour,"} l'annonceur
+              {company ? ` ${company}` : ""} a accepté votre proposition pour le brief
+              {briefTitle ? ` « ${briefTitle} »` : ""}. La campagne va démarrer prochainement.
             </Text>
 
             <InfoCard>
@@ -47,11 +72,14 @@ const Email = ({
               {company ? <InfoRow label="Annonceur" value={company} /> : null}
               {zone ? <InfoRow label="Zone" value={zone} /> : null}
               {proposedPrice ? <InfoRow label="Votre tarif" value={proposedPrice} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
             </InfoCard>
 
             <Text style={textStyle}>
-              Retrouvez les détails de la campagne dans votre espace propriétaire. Le poseur MoveSpot sera mandaté pour apposer le covering sur votre véhicule.
+              Retrouvez les détails de la campagne dans votre espace propriétaire. Le poseur
+              MoveSpot sera mandaté pour apposer le covering sur votre véhicule.
             </Text>
 
             <Text style={mutedText}>

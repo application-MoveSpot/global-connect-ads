@@ -29,24 +29,19 @@ export const getMyVigilanceStatus = createServerFn({ method: "GET" })
 
     if (!data) return null;
 
-    const gains = Number(
-      (data as Record<string, unknown>).vigilance_gains_cumules_centimes ?? 0,
-    );
-    const statut = (
-      (data as Record<string, unknown>).vigilance_statut ?? "EN_ATTENTE"
-    ) as VigilanceStatut;
+    const gains = Number((data as Record<string, unknown>).vigilance_gains_cumules_centimes ?? 0);
+    const statut = ((data as Record<string, unknown>).vigilance_statut ??
+      "EN_ATTENTE") as VigilanceStatut;
 
     return {
       statut,
       gainsCentimes: gains,
       gainsEuros: gains / 100,
       seuilAtteint: gains >= VIGILANCE_SEUIL_CENTIMES,
-      dateVerification: (data as Record<string, unknown>)
-        .vigilance_date_verification as string | null,
-      seuilAtteintAt: (data as Record<string, unknown>)
-        .vigilance_seuil_atteint_at as string | null,
-      attestationUrl: (data as Record<string, unknown>)
-        .vigilance_attestation_url as string | null,
+      dateVerification: (data as Record<string, unknown>).vigilance_date_verification as
+        string | null,
+      seuilAtteintAt: (data as Record<string, unknown>).vigilance_seuil_atteint_at as string | null,
+      attestationUrl: (data as Record<string, unknown>).vigilance_attestation_url as string | null,
     };
   });
 
@@ -59,9 +54,7 @@ const SubmitAttestationInput = z.object({
 
 export const submitAttestationUrssaf = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof SubmitAttestationInput>) =>
-    SubmitAttestationInput.parse(d),
-  )
+  .inputValidator((d: z.infer<typeof SubmitAttestationInput>) => SubmitAttestationInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -83,18 +76,14 @@ export const submitAttestationUrssaf = createServerFn({ method: "POST" })
 
     // Notifier les admins (best-effort)
     try {
-      const { supabaseAdmin } = await import(
-        "@/integrations/supabase/client.server"
-      );
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: admins } = await supabaseAdmin
         .from("user_roles" as never)
         .select("user_id")
         .eq("role" as never, "admin");
 
       if (admins?.length) {
-        const { sendWebPushToUser } = await import(
-          "@/lib/notifications/push-send.server"
-        );
+        const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
         await Promise.allSettled(
           (admins as Array<{ user_id: string }>).map((a) =>
             sendWebPushToUser(a.user_id, {
@@ -135,9 +124,7 @@ export const adminListVigilancePending = createServerFn({ method: "GET" })
     });
     if (!isAdmin) throw new Error("Admin requis");
 
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data, error } = await supabaseAdmin
       .from("owner_profiles")
@@ -149,26 +136,27 @@ export const adminListVigilancePending = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
 
-    return (data ?? []).map((row) => ({
-      id: row.id,
-      user_id: row.user_id,
-      full_name: row.full_name ?? null,
-      gains_centimes: Number(row.vigilance_gains_cumules_centimes ?? 0),
-      statut: (row.vigilance_statut ?? "EN_ATTENTE") as VigilanceStatut,
-      attestation_url: row.vigilance_attestation_url ?? null,
-      seuil_atteint_at: row.vigilance_seuil_atteint_at ?? null,
-      date_verification: row.vigilance_date_verification ?? null,
-      notes: row.vigilance_notes ?? null,
-    } satisfies VigilancePendingRow));
+    return (data ?? []).map(
+      (row) =>
+        ({
+          id: row.id,
+          user_id: row.user_id,
+          full_name: row.full_name ?? null,
+          gains_centimes: Number(row.vigilance_gains_cumules_centimes ?? 0),
+          statut: (row.vigilance_statut ?? "EN_ATTENTE") as VigilanceStatut,
+          attestation_url: row.vigilance_attestation_url ?? null,
+          seuil_atteint_at: row.vigilance_seuil_atteint_at ?? null,
+          date_verification: row.vigilance_date_verification ?? null,
+          notes: row.vigilance_notes ?? null,
+        }) satisfies VigilancePendingRow,
+    );
   });
 
 // ─── Admin : générer une URL signée pour voir l'attestation ──────────────────
 
 export const adminGetAttestationUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
-    z.object({ storagePath: z.string().min(5) }).parse(d),
-  )
+  .inputValidator((d: unknown) => z.object({ storagePath: z.string().min(5) }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
@@ -176,9 +164,7 @@ export const adminGetAttestationUrl = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Admin requis");
 
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: signed, error } = await supabaseAdmin.storage
       .from("attestations-urssaf")
@@ -203,9 +189,7 @@ export type AttestationAnalyse = {
 
 export const adminAnalyseAttestation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
-    z.object({ ownerProfileId: z.string().uuid() }).parse(d),
-  )
+  .inputValidator((d: unknown) => z.object({ ownerProfileId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
@@ -213,9 +197,7 @@ export const adminAnalyseAttestation = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Admin requis");
 
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Récupérer le profil et le chemin de l'attestation
     const { data: profileRaw, error: profileError } = await supabaseAdmin
@@ -270,9 +252,7 @@ Réponds UNIQUEMENT en JSON strict :
   "motifs": ["raison 1 en français", "raison 2"...]
 }`;
 
-    const contentParts: Array<Record<string, unknown>> = [
-      { type: "text", text: systemPrompt },
-    ];
+    const contentParts: Array<Record<string, unknown>> = [{ type: "text", text: systemPrompt }];
 
     if (!isPdf && signed?.signedUrl) {
       contentParts.push({ type: "image_url", image_url: { url: signed.signedUrl } });
@@ -301,7 +281,11 @@ Réponds UNIQUEMENT en JSON strict :
       if (res.ok) {
         const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
         const raw = json.choices?.[0]?.message?.content ?? "{}";
-        try { parsed = JSON.parse(raw); } catch { /* ignore */ }
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          /* ignore */
+        }
       }
     } catch {
       // L'analyse IA a échoué — on retourne suspect par défaut
@@ -334,23 +318,21 @@ Réponds UNIQUEMENT en JSON strict :
 
       // Notifier le propriétaire
       try {
-        const { sendWebPushToUser } = await import(
-          "@/lib/notifications/push-send.server"
-        );
+        const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
         await sendWebPushToUser(profile.user_id as string, {
           title: "⛔ Attestation refusée automatiquement",
           body: raisonRejet,
           url: "/owner",
         });
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     }
 
     // Notify admins when score is borderline (50–84) for manual review
     if (!autoRejete && scoreFraude >= 50) {
       try {
-        const { sendWebPushToUser } = await import(
-          "@/lib/notifications/push-send.server"
-        );
+        const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
         const { data: admins } = await supabaseAdmin
           .from("user_roles" as never)
           .select("user_id")
@@ -360,9 +342,13 @@ Réponds UNIQUEMENT en JSON strict :
             title: "⚠️ Attestation borderline",
             body: `Score fraude ${scoreFraude}/100 — vérification manuelle requise. Motifs : ${motifs.join("; ") || "aucun spécifié"}.`,
             url: "/admin/dashboard",
-          }).catch(() => {/* best-effort */});
+          }).catch(() => {
+            /* best-effort */
+          });
         }
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     }
 
     return {
@@ -387,9 +373,7 @@ const ReviewVigilanceInput = z.object({
 
 export const reviewVigilance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof ReviewVigilanceInput>) =>
-    ReviewVigilanceInput.parse(d),
-  )
+  .inputValidator((d: z.infer<typeof ReviewVigilanceInput>) => ReviewVigilanceInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -400,9 +384,7 @@ export const reviewVigilance = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Admin requis");
 
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("owner_profiles")
       .update({
@@ -416,9 +398,7 @@ export const reviewVigilance = createServerFn({ method: "POST" })
 
     // Notifier le propriétaire (best-effort)
     try {
-      const { sendWebPushToUser } = await import(
-        "@/lib/notifications/push-send.server"
-      );
+      const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
       await sendWebPushToUser(data.ownerUserId, {
         title:
           data.decision === "VALIDE"
@@ -427,7 +407,7 @@ export const reviewVigilance = createServerFn({ method: "POST" })
         body:
           data.decision === "VALIDE"
             ? "Votre attestation Urssaf a été validée. Vos prochains reversements sont débloqués."
-            : data.notes ?? "Veuillez soumettre une nouvelle attestation.",
+            : (data.notes ?? "Veuillez soumettre une nouvelle attestation."),
         url: "/owner",
       });
     } catch {

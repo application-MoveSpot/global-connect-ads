@@ -220,11 +220,17 @@ export const Route = createFileRoute("/api/faq-chat")({
         }
 
         const audienceCtx = audience ? AUDIENCE_CONTEXT[audience] : "";
-        const today = new Date().toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+        const today = new Date().toLocaleDateString("fr-FR", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
         // Sanitize userContext: max 500 chars, strip potential injection
-        const safeUserCtx = typeof userContext === "string"
-          ? userContext.slice(0, 500).replace(/[<>{}[\]]/g, "")
-          : "";
+        const safeUserCtx =
+          typeof userContext === "string"
+            ? userContext.slice(0, 500).replace(/[<>{}[\]]/g, "")
+            : "";
 
         try {
           const gateway = createLovableAiGatewayProvider(key);
@@ -258,10 +264,10 @@ ${KNOWLEDGE_BASE}`,
           return result.toUIMessageStreamResponse();
         } catch (err) {
           log.error("faq_chat_fatal", err, { audience: audience ?? "unknown" });
-          return new Response(
-            JSON.stringify({ error: "Service IA temporairement indisponible" }),
-            { status: 503, headers: { "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ error: "Service IA temporairement indisponible" }), {
+            status: 503,
+            headers: { "Content-Type": "application/json" },
+          });
         }
       },
     },

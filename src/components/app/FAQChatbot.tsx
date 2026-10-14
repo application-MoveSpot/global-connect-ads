@@ -12,7 +12,6 @@ type Props = {
   userContext?: string;
 };
 
-
 // Lightweight markdown renderer — handles **bold**, *italic*, and - lists
 function renderMarkdown(text: string): React.ReactNode[] {
   const lines = text.split("\n");
@@ -28,7 +27,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
             {renderInline(item)}
           </li>
         ))}
-      </ul>
+      </ul>,
     );
     listBuffer = [];
   };
@@ -45,7 +44,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
         result.push(
           <span key={`line-${idx}`} className="block leading-relaxed">
             {renderInline(line)}
-          </span>
+          </span>,
         );
       }
     }
@@ -62,15 +61,24 @@ function renderInline(text: string): React.ReactNode[] {
           {part.slice(2, -2)}
         </strong>
       );
-    if (part.startsWith("*") && part.endsWith("*"))
-      return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part.startsWith("*") && part.endsWith("*")) return <em key={i}>{part.slice(1, -1)}</em>;
     return part;
   });
 }
 
 function IconChat({ size = 20, className }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </svg>
   );
@@ -78,7 +86,15 @@ function IconChat({ size = 20, className }: { size?: number; className?: string 
 
 function IconClose({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    >
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
@@ -87,7 +103,16 @@ function IconClose({ size = 16 }: { size?: number }) {
 
 function IconSend({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
@@ -167,7 +192,9 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
   // Fermer avec Échap
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
@@ -201,7 +228,6 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
       {/* Chat Panel */}
       {open && (
         <div className="fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] sm:w-[400px] max-h-[72vh] rounded-2xl border border-border bg-card shadow-elevated flex flex-col overflow-hidden animate-in slide-in-from-bottom-3 duration-200">
-
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary/5 flex-shrink-0">
             <div className="flex items-center gap-2.5">
@@ -209,8 +235,12 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
                 <IconChat size={16} className="text-primary" />
               </div>
               <div>
-                <div className="font-display font-semibold text-sm leading-tight">{t("faq_chatbot.header_title")}</div>
-                <div className="text-[11px] text-muted-foreground">{t("faq_chatbot.header_subtitle")}</div>
+                <div className="font-display font-semibold text-sm leading-tight">
+                  {t("faq_chatbot.header_title")}
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {t("faq_chatbot.header_subtitle")}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -218,7 +248,10 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
                 <button
                   type="button"
                   title={t("faq_chatbot.btn_new_title")}
-                  onClick={() => { setMessages([]); setInput(""); }}
+                  onClick={() => {
+                    setMessages([]);
+                    setInput("");
+                  }}
                   className="text-[11px] text-muted-foreground hover:text-foreground transition px-2 py-1 rounded-lg hover:bg-muted"
                 >
                   {t("faq_chatbot.btn_clear")}
@@ -226,14 +259,18 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
               )}
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-signal animate-pulse" />
-                <span className="text-[11px] text-muted-foreground">{t("faq_chatbot.status_online")}</span>
+                <span className="text-[11px] text-muted-foreground">
+                  {t("faq_chatbot.status_online")}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-sm min-h-0">
-
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-sm min-h-0"
+          >
             {/* Initial greeting + suggestions */}
             {messages.length === 0 && (
               <div className="space-y-3">
@@ -265,7 +302,10 @@ export function FAQChatbot({ audience, suggestions = [], userContext }: Props) {
               const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
               const isUser = m.role === "user";
               return (
-                <div key={m.id} className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+                <div
+                  key={m.id}
+                  className={`flex gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}
+                >
                   {!isUser && <AssistantAvatar />}
                   <div
                     className={`rounded-2xl px-3.5 py-2.5 max-w-[85%] text-sm ${

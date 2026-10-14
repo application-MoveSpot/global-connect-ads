@@ -10,10 +10,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/owner/briefs/")({
   head: () => ({
-    meta: [
-      { title: "Briefs reçus — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Briefs reçus — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: OpenBriefsPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -62,15 +59,27 @@ function OpenBriefsPage() {
   // Fetches profile + vehicle types once; returns them for page fetches
   const loadProfile = useCallback(async () => {
     const session = await getOrRefreshSession();
-    if (!session) { navigate({ to: "/owner/inscription" }); return null; }
+    if (!session) {
+      navigate({ to: "/owner/inscription" });
+      return null;
+    }
     setUserId(session.user.id);
     const { data: prof } = await supabase
-      .from("owner_profiles").select("id").eq("user_id", session.user.id).maybeSingle();
-    if (!prof) { navigate({ to: "/owner/inscription" }); return null; }
+      .from("owner_profiles")
+      .select("id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (!prof) {
+      navigate({ to: "/owner/inscription" });
+      return null;
+    }
     setOwnerId(prof.id);
     ownerIdRef.current = prof.id;
     const { data: vs } = await supabase
-      .from("vehicles").select("type").eq("owner_id", prof.id).eq("status", "approved");
+      .from("vehicles")
+      .select("type")
+      .eq("owner_id", prof.id)
+      .eq("status", "approved");
     const types = Array.from(new Set((vs ?? []).map((v) => v.type as string)));
     setMyTypes(types);
     myTypesRef.current = types;
@@ -78,7 +87,11 @@ function OpenBriefsPage() {
   }, [navigate]);
 
   const loadPage = useCallback(async (profId: string, types: string[], p: number) => {
-    if (types.length === 0) { setBriefs([]); setTotal(0); return; }
+    if (types.length === 0) {
+      setBriefs([]);
+      setTotal(0);
+      return;
+    }
     setPageLoading(true);
     // Filter briefs by vehicle type relevance.
     // "autre" owners match only briefs that explicitly include "autre" or have no type constraint.
@@ -86,14 +99,19 @@ function OpenBriefsPage() {
     const strictTypes = types.filter((t) => t !== "autre");
     let q = supabase
       .from("advertiser_briefs")
-      .select("id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, created_at", { count: "exact" })
+      .select(
+        "id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, status, created_at",
+        { count: "exact" },
+      )
       .eq("status", "open");
     if (!hasAutre && strictTypes.length > 0) {
       // Standard owner: only briefs whose types overlap with their fleet
       q = q.overlaps("vehicle_types", strictTypes as never);
     } else if (hasAutre && strictTypes.length > 0) {
       // Mixed fleet: match specific types OR briefs open to "autre" OR no-constraint briefs
-      q = q.or(`vehicle_types.ov.{${strictTypes.join(",")}},vehicle_types.cs.{autre},vehicle_types.is.null`);
+      q = q.or(
+        `vehicle_types.ov.{${strictTypes.join(",")}},vehicle_types.cs.{autre},vehicle_types.is.null`,
+      );
     } else {
       // "autre"-only fleet: only briefs that explicitly include "autre" or have no type constraint
       q = q.or("vehicle_types.cs.{autre},vehicle_types.is.null");
@@ -104,7 +122,9 @@ function OpenBriefsPage() {
     setBriefs((bs as Brief[]) ?? []);
     setTotal(count ?? 0);
     const { data: ps } = await supabase
-      .from("brief_proposals").select("id, brief_id, status, price_per_day").eq("owner_id", profId);
+      .from("brief_proposals")
+      .select("id, brief_id, status, price_per_day")
+      .eq("owner_id", profId);
     setMyProposals((ps as Proposal[]) ?? []);
     setPageLoading(false);
   }, []);
@@ -118,7 +138,9 @@ function OpenBriefsPage() {
     setLoading(false);
   }, [loadProfile, loadPage]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   // User-initiated page change: fetch the new page without re-fetching the profile
   useEffect(() => {
@@ -132,25 +154,60 @@ function OpenBriefsPage() {
     if (!ownerId) return;
     const channel = supabase
       .channel(`owner-briefs-${ownerId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "advertiser_briefs" }, () => {
-        pushNotification(t("owner.briefs.index.notif_new_brief"), t("owner.briefs.index.notif_new_brief_body"));
-        setPage(0);
-        void loadPage(ownerIdRef.current!, myTypesRef.current, 0);
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "advertiser_briefs" }, () => {
-        void loadPage(ownerIdRef.current!, myTypesRef.current, pageRef.current);
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "brief_proposals", filter: `owner_id=eq.${ownerId}` }, (payload) => {
-        const newStatus = (payload.new as Record<string, unknown>).status as string | undefined;
-        if (newStatus === "accepted") pushNotification(t("owner.briefs.index.notif_accepted"), t("owner.briefs.index.notif_accepted_body"));
-        else if (newStatus === "rejected") pushNotification(t("owner.briefs.index.notif_rejected"), t("owner.briefs.index.notif_rejected_body"));
-        void loadPage(ownerIdRef.current!, myTypesRef.current, pageRef.current);
-      })
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "advertiser_briefs" },
+        () => {
+          pushNotification(
+            t("owner.briefs.index.notif_new_brief"),
+            t("owner.briefs.index.notif_new_brief_body"),
+          );
+          setPage(0);
+          void loadPage(ownerIdRef.current!, myTypesRef.current, 0);
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "advertiser_briefs" },
+        () => {
+          void loadPage(ownerIdRef.current!, myTypesRef.current, pageRef.current);
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "brief_proposals",
+          filter: `owner_id=eq.${ownerId}`,
+        },
+        (payload) => {
+          const newStatus = (payload.new as Record<string, unknown>).status as string | undefined;
+          if (newStatus === "accepted")
+            pushNotification(
+              t("owner.briefs.index.notif_accepted"),
+              t("owner.briefs.index.notif_accepted_body"),
+            );
+          else if (newStatus === "rejected")
+            pushNotification(
+              t("owner.briefs.index.notif_rejected"),
+              t("owner.briefs.index.notif_rejected_body"),
+            );
+          void loadPage(ownerIdRef.current!, myTypesRef.current, pageRef.current);
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [ownerId, loadPage]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("owner.briefs.index.loading")}</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("owner.briefs.index.loading")}
+      </div>
+    );
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -176,7 +233,9 @@ function OpenBriefsPage() {
         </p>
         {!loading && !pageLoading && myTypes.length > 0 && briefs.length > 0 && (
           <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-300">
-            {t(`owner.briefs.index.match_banner_${briefs.length === 1 ? "one" : "other"}`, { count: briefs.length })}
+            {t(`owner.briefs.index.match_banner_${briefs.length === 1 ? "one" : "other"}`, {
+              count: briefs.length,
+            })}
           </div>
         )}
 
@@ -195,10 +254,15 @@ function OpenBriefsPage() {
               const strictOwnerTypes = myTypes.filter((t) => t !== "autre");
               const hasNoTypeConstraint = !b.vehicle_types || b.vehicle_types.length === 0;
               const hasDirectMatch = strictOwnerTypes.some((t) => b.vehicle_types?.includes(t));
-              const hasAutreExplicit = myTypes.includes("autre") && b.vehicle_types?.includes("autre");
+              const hasAutreExplicit =
+                myTypes.includes("autre") && b.vehicle_types?.includes("autre");
               return (
-                <Link key={b.id} to="/owner/briefs/$briefId" params={{ briefId: b.id }}
-                  className="block rounded-xl border border-border bg-card p-5 hover:bg-secondary/30 transition">
+                <Link
+                  key={b.id}
+                  to="/owner/briefs/$briefId"
+                  params={{ briefId: b.id }}
+                  className="block rounded-xl border border-border bg-card p-5 hover:bg-secondary/30 transition"
+                >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -226,13 +290,20 @@ function OpenBriefsPage() {
                         })}
                         {b.zones.length > 0 && <> · {b.zones.slice(0, 3).join(", ")}</>}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{b.description}</p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {b.description}
+                      </p>
                       <div className="text-xs text-muted-foreground mt-2">
-                        {b.vehicle_types?.length > 0
-                          ? <>{t("owner.briefs.index.types_label")} {b.vehicle_types.join(", ")}</>
-                          : <span className="italic">{t("owner.briefs.index.badge_open")}</span>
-                        }
-                        {b.budget_max ? ` · ${t("owner.briefs.index.budget_max", { amount: b.budget_max })}` : ""}
+                        {b.vehicle_types?.length > 0 ? (
+                          <>
+                            {t("owner.briefs.index.types_label")} {b.vehicle_types.join(", ")}
+                          </>
+                        ) : (
+                          <span className="italic">{t("owner.briefs.index.badge_open")}</span>
+                        )}
+                        {b.budget_max
+                          ? ` · ${t("owner.briefs.index.budget_max", { amount: b.budget_max })}`
+                          : ""}
                       </div>
                     </div>
                     {mine && (
@@ -252,17 +323,27 @@ function OpenBriefsPage() {
         {total > PAGE_SIZE && (
           <div className="mt-6 flex items-center justify-between text-sm">
             <button
-              onClick={() => { userChangedPage.current = true; setPage((p) => Math.max(0, p - 1)); }}
+              onClick={() => {
+                userChangedPage.current = true;
+                setPage((p) => Math.max(0, p - 1));
+              }}
               disabled={page === 0 || pageLoading}
               className="rounded-lg border border-border px-3 py-1.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {t("owner.briefs.index.prev")}
             </button>
             <span className="text-muted-foreground">
-              {t("owner.briefs.index.pagination", { page: page + 1, total_pages: totalPages, count: total })}
+              {t("owner.briefs.index.pagination", {
+                page: page + 1,
+                total_pages: totalPages,
+                count: total,
+              })}
             </span>
             <button
-              onClick={() => { userChangedPage.current = true; setPage((p) => Math.min(totalPages - 1, p + 1)); }}
+              onClick={() => {
+                userChangedPage.current = true;
+                setPage((p) => Math.min(totalPages - 1, p + 1));
+              }}
               disabled={page >= totalPages - 1 || pageLoading}
               className="rounded-lg border border-border px-3 py-1.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
             >

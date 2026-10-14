@@ -55,8 +55,10 @@ const eur = (n: number | null, lang: string) => {
 
 function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateStr);
+  target.setHours(0, 0, 0, 0);
   return Math.round((target.getTime() - today.getTime()) / 86400000);
 }
 
@@ -82,7 +84,10 @@ export function InstallationJobsPanel() {
   const [completedJobs, setCompletedJobs] = useState<CompletedJob[]>([]);
   const [isInstaller, setIsInstaller] = useState(false);
   const [claiming, setClaiming] = useState<string | null>(null);
-  const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; jobId: string | null }>({ open: false, jobId: null });
+  const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; jobId: string | null }>({
+    open: false,
+    jobId: null,
+  });
   const [impossibleReason, setImpossibleReason] = useState("");
   const [impossiblePhotos, setImpossiblePhotos] = useState<File[]>([]);
   const [impossibleLoading, setImpossibleLoading] = useState(false);
@@ -128,13 +133,23 @@ export function InstallationJobsPanel() {
       const photoUrls: string[] = [];
       for (const file of impossiblePhotos) {
         const path = `impossible/${impossibleModal.jobId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error: upErr } = await supabase.storage.from("pose-impossible").upload(path, file, { upsert: true });
+        const { error: upErr } = await supabase.storage
+          .from("pose-impossible")
+          .upload(path, file, { upsert: true });
         if (!upErr) {
-          const { data: signed } = await supabase.storage.from("pose-impossible").createSignedUrl(path, 60 * 60 * 24 * 7);
+          const { data: signed } = await supabase.storage
+            .from("pose-impossible")
+            .createSignedUrl(path, 60 * 60 * 24 * 7);
           if (signed?.signedUrl) photoUrls.push(signed.signedUrl);
         }
       }
-      await doReportImpossible({ data: { campaignRequestId: impossibleModal.jobId, reason: impossibleReason.trim(), photoUrls } });
+      await doReportImpossible({
+        data: {
+          campaignRequestId: impossibleModal.jobId,
+          reason: impossibleReason.trim(),
+          photoUrls,
+        },
+      });
       toast.success(t("install_jobs.impossible_reported"));
       setImpossibleModal({ open: false, jobId: null });
       setImpossibleReason("");
@@ -172,9 +187,7 @@ export function InstallationJobsPanel() {
     return (
       <div className="rounded-2xl border border-border bg-card p-6">
         <h3 className="font-display text-lg font-semibold">{t("install_jobs.title")}</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {t("install_jobs.not_installer")}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("install_jobs.not_installer")}</p>
       </div>
     );
   }
@@ -183,12 +196,24 @@ export function InstallationJobsPanel() {
     <div className="rounded-2xl border border-border bg-card p-6">
       {/* Modale Pose impossible */}
       {impossibleModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={() => setImpossibleModal({ open: false, jobId: null })}>
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elevated" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-display text-lg font-semibold mb-1">{t("install_jobs.impossible_modal_title")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{t("install_jobs.impossible_modal_desc")}</p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+          onClick={() => setImpossibleModal({ open: false, jobId: null })}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elevated"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-display text-lg font-semibold mb-1">
+              {t("install_jobs.impossible_modal_title")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t("install_jobs.impossible_modal_desc")}
+            </p>
 
-            <label className="block text-sm font-medium mb-1.5">{t("install_jobs.impossible_reason_label")}</label>
+            <label className="block text-sm font-medium mb-1.5">
+              {t("install_jobs.impossible_reason_label")}
+            </label>
             <textarea
               value={impossibleReason}
               onChange={(e) => setImpossibleReason(e.target.value)}
@@ -199,7 +224,9 @@ export function InstallationJobsPanel() {
             />
             <div className="text-xs text-muted-foreground mb-3">{impossibleReason.length}/1000</div>
 
-            <label className="block text-sm font-medium mb-1.5">{t("install_jobs.impossible_photos_label")}</label>
+            <label className="block text-sm font-medium mb-1.5">
+              {t("install_jobs.impossible_photos_label")}
+            </label>
             <input
               ref={fileInputRef}
               type="file"
@@ -211,9 +238,20 @@ export function InstallationJobsPanel() {
             {impossiblePhotos.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {impossiblePhotos.map((f, i) => (
-                  <span key={i} className="text-xs bg-secondary rounded px-2 py-0.5 flex items-center gap-1">
+                  <span
+                    key={i}
+                    className="text-xs bg-secondary rounded px-2 py-0.5 flex items-center gap-1"
+                  >
                     🖼 {f.name.slice(0, 20)}
-                    <button type="button" onClick={() => setImpossiblePhotos(impossiblePhotos.filter((_, idx) => idx !== i))} className="text-muted-foreground hover:text-destructive ml-0.5">×</button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setImpossiblePhotos(impossiblePhotos.filter((_, idx) => idx !== i))
+                      }
+                      className="text-muted-foreground hover:text-destructive ml-0.5"
+                    >
+                      ×
+                    </button>
                   </span>
                 ))}
               </div>
@@ -260,9 +298,7 @@ export function InstallationJobsPanel() {
 
       {tab === "pending" && (
         <>
-          <p className="mb-4 text-sm text-muted-foreground">
-            {t("install_jobs.pending_desc")}
-          </p>
+          <p className="mb-4 text-sm text-muted-foreground">{t("install_jobs.pending_desc")}</p>
           {jobs.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t("install_jobs.none_pending")}</p>
           ) : (
@@ -288,7 +324,9 @@ export function InstallationJobsPanel() {
                       <div className="text-right space-y-0.5">
                         {job.total_price != null && (
                           <p className="text-xs font-semibold text-primary">
-                            {t("install_jobs.budget", { amount: eur(job.total_price, i18n.language) })}
+                            {t("install_jobs.budget", {
+                              amount: eur(job.total_price, i18n.language),
+                            })}
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground">
@@ -299,11 +337,16 @@ export function InstallationJobsPanel() {
 
                     {/* Deadline countdown */}
                     {days !== null && !overdue && (
-                      <div className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}>
+                      <div
+                        className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${urgent ? "bg-amber-500/15 text-amber-700 dark:text-amber-300" : "bg-secondary text-muted-foreground"}`}
+                      >
                         <span>{urgent ? "⏰" : "📅"}</span>
                         {days === 0
                           ? t("install_jobs.urgent_today")
-                          : t("install_jobs.due_before", { date: fr(job.start_date, i18n.language), days })}
+                          : t("install_jobs.due_before", {
+                              date: fr(job.start_date, i18n.language),
+                              days,
+                            })}
                       </div>
                     )}
                     {overdue && (
@@ -315,16 +358,23 @@ export function InstallationJobsPanel() {
                     {/* Type de pose + adresse */}
                     {job.pose_location_type && (
                       <div className="mb-2 flex items-center gap-2">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${job.pose_location_type === "garage" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"}`}>
-                          {job.pose_location_type === "garage" ? "🏪" : "🏠"} {t(`install_jobs.pose_type_${job.pose_location_type}`)}
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${job.pose_location_type === "garage" ? "bg-blue-500/15 text-blue-600 dark:text-blue-400" : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"}`}
+                        >
+                          {job.pose_location_type === "garage" ? "🏪" : "🏠"}{" "}
+                          {t(`install_jobs.pose_type_${job.pose_location_type}`)}
                         </span>
                       </div>
                     )}
                     {job.installation_address && (
                       <div className="mb-2 flex items-center gap-2 rounded-lg bg-secondary/40 px-3 py-2 text-xs">
                         <span>📌</span>
-                        <span className="font-medium">{t("install_jobs.installation_address_label")}</span>
-                        <span className="text-muted-foreground flex-1">{job.installation_address}</span>
+                        <span className="font-medium">
+                          {t("install_jobs.installation_address_label")}
+                        </span>
+                        <span className="text-muted-foreground flex-1">
+                          {job.installation_address}
+                        </span>
                         <a
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.installation_address)}`}
                           target="_blank"
@@ -370,7 +420,9 @@ export function InstallationJobsPanel() {
                         disabled={claiming === job.id}
                         className="mb-3 w-full rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition"
                       >
-                        {claiming === job.id ? t("install_jobs.booking") : t("install_jobs.take_job")}
+                        {claiming === job.id
+                          ? t("install_jobs.booking")
+                          : t("install_jobs.take_job")}
                       </button>
                     ) : (
                       <div className="mb-3 flex items-center justify-between gap-2">
@@ -390,23 +442,35 @@ export function InstallationJobsPanel() {
                     )}
 
                     {/* Bouton Pose impossible */}
-                    {claimed && job.installation_status !== "approved" && job.installation_status !== "impossible" && (
-                      <button
-                        type="button"
-                        onClick={() => { setImpossibleModal({ open: true, jobId: job.id }); setImpossibleReason(""); setImpossiblePhotos([]); }}
-                        className="mb-3 w-full rounded-lg border border-destructive/40 bg-destructive/10 text-destructive px-4 py-2 text-sm font-semibold hover:bg-destructive/20 transition"
-                      >
-                        ⚠️ {t("install_jobs.report_impossible")}
-                      </button>
-                    )}
-                    {job.installation_status === "impossible" && job.installation_impossible_reason && (
-                      <div className="mb-3 rounded-lg border border-orange-400/40 bg-orange-500/10 px-3 py-2 text-xs text-orange-700 dark:text-orange-300">
-                        <span className="font-semibold">{t("install_jobs.impossible_reported_label")} </span>
-                        {job.installation_impossible_reason}
-                      </div>
-                    )}
+                    {claimed &&
+                      job.installation_status !== "approved" &&
+                      job.installation_status !== "impossible" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImpossibleModal({ open: true, jobId: job.id });
+                            setImpossibleReason("");
+                            setImpossiblePhotos([]);
+                          }}
+                          className="mb-3 w-full rounded-lg border border-destructive/40 bg-destructive/10 text-destructive px-4 py-2 text-sm font-semibold hover:bg-destructive/20 transition"
+                        >
+                          ⚠️ {t("install_jobs.report_impossible")}
+                        </button>
+                      )}
+                    {job.installation_status === "impossible" &&
+                      job.installation_impossible_reason && (
+                        <div className="mb-3 rounded-lg border border-orange-400/40 bg-orange-500/10 px-3 py-2 text-xs text-orange-700 dark:text-orange-300">
+                          <span className="font-semibold">
+                            {t("install_jobs.impossible_reported_label")}{" "}
+                          </span>
+                          {job.installation_impossible_reason}
+                        </div>
+                      )}
 
-                    <InstallationKit campaignRequestId={job.id} creativeFiles={job.creative_files} />
+                    <InstallationKit
+                      campaignRequestId={job.id}
+                      creativeFiles={job.creative_files}
+                    />
                     <InstallationPhotosPanel
                       campaignRequestId={job.id}
                       installationPhotos={job.installation_photos}
@@ -445,7 +509,9 @@ export function InstallationJobsPanel() {
                           {t("install_jobs.validated")}
                         </span>
                         {job.total_price != null && (
-                          <p className="text-xs text-muted-foreground mt-1">{eur(job.total_price, i18n.language)}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {eur(job.total_price, i18n.language)}
+                          </p>
                         )}
                       </div>
                     </div>

@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { INSTALLATION_VIEWS, type InstallationView } from "@/lib/providers/installation.functions";
 
-export type InstallationPhotos = Partial<Record<InstallationView, string>> & { submitted_at?: string };
+export type InstallationPhotos = Partial<Record<InstallationView, string>> & {
+  submitted_at?: string;
+};
 
 export function parseInstallationPhotos(value: unknown): InstallationPhotos | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -23,10 +25,15 @@ export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos |
   const paths = INSTALLATION_VIEWS.map((v) => photos?.[v]).filter((p): p is string => Boolean(p));
 
   useEffect(() => {
-    if (paths.length === 0) { setUrls({}); return; }
+    if (paths.length === 0) {
+      setUrls({});
+      return;
+    }
     let alive = true;
     const refresh = async () => {
-      const { data } = await supabase.storage.from("campaign-creatives").createSignedUrls(paths, 3600);
+      const { data } = await supabase.storage
+        .from("campaign-creatives")
+        .createSignedUrls(paths, 3600);
       if (!alive || !data) return;
       const map: Record<string, string> = {};
       for (const d of data) {
@@ -37,7 +44,10 @@ export function InstallationPhotoGrid({ photos }: { photos: InstallationPhotos |
     void refresh();
     // Refresh 5 min before the 1-hour expiry so photos never go stale mid-session
     const timer = setInterval(() => void refresh(), 55 * 60 * 1000);
-    return () => { alive = false; clearInterval(timer); };
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paths.join("|")]);
 

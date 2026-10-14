@@ -7,7 +7,10 @@ export const Route = createFileRoute("/_public/previsionnel")({
   head: () => ({
     meta: [
       { title: "Prévisionnel 5 ans — MoveSpot" },
-      { name: "description", content: "Prévisionnel financier MoveSpot sur 5 ans, version imprimable." },
+      {
+        name: "description",
+        content: "Prévisionnel financier MoveSpot sur 5 ans, version imprimable.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -34,8 +37,20 @@ const urssaf = [Math.round(11286 * 0.212), Math.round(57564 * 0.212), 0, 0, 0];
 const versLib = [Math.round(11286 * 0.017), Math.round(57564 * 0.017), 0, 0, 0];
 
 // SASU (années 3-5) : IS 25 % sur résultat avant impôt (commission - charges)
-const ebitdaSASU = [0, 0, commission[2] - chargesCash[2], commission[3] - chargesCash[3], commission[4] - chargesCash[4]];
-const isSASU = [0, 0, Math.round(ebitdaSASU[2] * 0.25), Math.round(ebitdaSASU[3] * 0.25), Math.round(ebitdaSASU[4] * 0.25)];
+const ebitdaSASU = [
+  0,
+  0,
+  commission[2] - chargesCash[2],
+  commission[3] - chargesCash[3],
+  commission[4] - chargesCash[4],
+];
+const isSASU = [
+  0,
+  0,
+  Math.round(ebitdaSASU[2] * 0.25),
+  Math.round(ebitdaSASU[3] * 0.25),
+  Math.round(ebitdaSASU[4] * 0.25),
+];
 
 // Résultat net / cash net annuel
 const resultatNet = years.map((_, i) => {
@@ -70,11 +85,26 @@ const synthese: Array<[string, (string | number)[], (n: number) => string]> = [
   ["Trésorerie fin de période", tresoFin, fmt],
 ];
 
-const hypotheses: Array<{ section?: string; row?: [string, (string | number)[], (n: number) => string] }> = [
+const hypotheses: Array<{
+  section?: string;
+  row?: [string, (string | number)[], (n: number) => string];
+}> = [
   { section: "STRUCTURE JURIDIQUE" },
   { row: ["Régime applicable", structure, txt] },
-  { row: ["Seuil micro-BIC prestations services", ["77 700 €", "77 700 €", "dépassé", "dépassé", "dépassé"], txt] },
-  { row: ["Franchise en base TVA (39 100 €)", ["OK", "TVA due", "TVA due", "TVA due", "TVA due"], txt] },
+  {
+    row: [
+      "Seuil micro-BIC prestations services",
+      ["77 700 €", "77 700 €", "dépassé", "dépassé", "dépassé"],
+      txt,
+    ],
+  },
+  {
+    row: [
+      "Franchise en base TVA (39 100 €)",
+      ["OK", "TVA due", "TVA due", "TVA due", "TVA due"],
+      txt,
+    ],
+  },
   { section: "MANDAT D'ENCAISSEMENT (Stripe Connect)" },
   { row: ["GMV transitant (hors CA)", gmv, fmt] },
   { row: ["Reversé aux propriétaires (flux passant)", reversement, fmt] },
@@ -98,7 +128,11 @@ const hypotheses: Array<{ section?: string; row?: [string, (string | number)[], 
   { row: ["Impôt sur les sociétés (25 %)", isSASU, fmt] },
 ];
 
-const compteResultat: Array<{ section?: string; row?: [string, (number | string)[], (n: number) => string]; bold?: boolean }> = [
+const compteResultat: Array<{
+  section?: string;
+  row?: [string, (number | string)[], (n: number) => string];
+  bold?: boolean;
+}> = [
   { section: "VOLUME MARKETPLACE (information — hors CA grâce au mandat)" },
   { row: ["GMV facturé aux advertisers", gmv, fmt] },
   { row: ["Reversé aux propriétaires (flux passant)", reversement, fmt] },
@@ -122,11 +156,23 @@ const compteResultat: Array<{ section?: string; row?: [string, (number | string)
   { row: ["Marge nette / CA", margeNette, pct] },
 ];
 
-const tresorerie: Array<{ section?: string; row?: [string, (number | string)[], (n: number) => string] }> = [
+const tresorerie: Array<{
+  section?: string;
+  row?: [string, (number | string)[], (n: number) => string];
+}> = [
   { section: "FINANCEMENT INITIAL" },
   { row: ["Apport personnel / fondateurs", [apport, "—", "—", "—", "—"], fmt] },
-  { section: "MODÈLE DE TRÉSORERIE — Encaissement à la confirmation de campagne (pas d'apport requis)" },
-  { row: ["Trésorerie début de période", [apport, tresoFin[0], tresoFin[1], tresoFin[2], tresoFin[3]], fmt] },
+  {
+    section:
+      "MODÈLE DE TRÉSORERIE — Encaissement à la confirmation de campagne (pas d'apport requis)",
+  },
+  {
+    row: [
+      "Trésorerie début de période",
+      [apport, tresoFin[0], tresoFin[1], tresoFin[2], tresoFin[3]],
+      fmt,
+    ],
+  },
   { row: ["(+) Commission encaissée", commission, fmt] },
   { row: ["(-) Charges d'exploitation", chargesCash.map((c) => -c), fmt] },
   { row: ["(-) URSSAF micro", urssaf.map((c) => -c), fmt] },
@@ -163,7 +209,11 @@ function Table({
   rows,
 }: {
   title: string;
-  rows: Array<{ section?: string; row?: [string, (number | string)[], (n: number) => string]; bold?: boolean }>;
+  rows: Array<{
+    section?: string;
+    row?: [string, (number | string)[], (n: number) => string];
+    bold?: boolean;
+  }>;
 }) {
   return (
     <div className="mb-8 avoid-break">
@@ -184,7 +234,10 @@ function Table({
           {rows.map((r, i) =>
             r.section ? (
               <tr key={i} className="bg-gray-50">
-                <td colSpan={6} className="p-2 border border-gray-300 font-semibold text-[11px] uppercase tracking-wide text-gray-700">
+                <td
+                  colSpan={6}
+                  className="p-2 border border-gray-300 font-semibold text-[11px] uppercase tracking-wide text-gray-700"
+                >
                   {r.section}
                 </td>
               </tr>
@@ -197,7 +250,7 @@ function Table({
                   </td>
                 ))}
               </tr>
-            ) : null
+            ) : null,
           )}
         </tbody>
       </table>
@@ -233,17 +286,28 @@ function PrevisionnelPage() {
 
       <div className="max-w-5xl mx-auto p-6 md:p-10">
         <header className="mb-8 border-b border-gray-300 pb-4">
-          <h1 className="font-display text-3xl md:text-4xl font-bold">MoveSpot — Prévisionnel 5 ans</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold">
+            MoveSpot — Prévisionnel 5 ans
+          </h1>
           <p className="text-sm text-gray-600 mt-2">
-            Marketplace d'intermédiation : propriétaires de véhicules ↔ advertisers. MoveSpot perçoit
-            uniquement une commission (take rate 30 %) sur le GMV.
+            Marketplace d'intermédiation : propriétaires de véhicules ↔ advertisers. MoveSpot
+            perçoit uniquement une commission (take rate 30 %) sur le GMV.
           </p>
           <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 text-xs text-gray-800">
             <strong>Hypothèses de structure&nbsp;:</strong>
             <ul className="list-disc ml-5 mt-1 space-y-0.5">
-              <li>Années 1-2 : <strong>micro-entreprise BIC prestations de services</strong> (URSSAF 21,2 % + versement libératoire IR 1,7 %).</li>
-              <li>Bascule en <strong>SASU (IS 25 %)</strong> en année 3 — le CA dépasse le seuil micro de 77 700 €.</li>
-              <li><strong>Mandat d'encaissement via Stripe Connect</strong> : seule la commission constitue le CA ; le reversement aux propriétaires est un flux passant.</li>
+              <li>
+                Années 1-2 : <strong>micro-entreprise BIC prestations de services</strong> (URSSAF
+                21,2 % + versement libératoire IR 1,7 %).
+              </li>
+              <li>
+                Bascule en <strong>SASU (IS 25 %)</strong> en année 3 — le CA dépasse le seuil micro
+                de 77 700 €.
+              </li>
+              <li>
+                <strong>Mandat d'encaissement via Stripe Connect</strong> : seule la commission
+                constitue le CA ; le reversement aux propriétaires est un flux passant.
+              </li>
             </ul>
           </div>
         </header>
@@ -264,7 +328,15 @@ function PrevisionnelPage() {
             </thead>
             <tbody>
               {synthese.map(([label, vals, formatter], i) => (
-                <tr key={i} className={label === "Résultat net (cash après impôts)" || label === "Trésorerie fin de période" ? "font-bold bg-yellow-50" : ""}>
+                <tr
+                  key={i}
+                  className={
+                    label === "Résultat net (cash après impôts)" ||
+                    label === "Trésorerie fin de période"
+                      ? "font-bold bg-yellow-50"
+                      : ""
+                  }
+                >
                   <td className="p-2 border border-gray-300">{label}</td>
                   {vals.map((v, j) => (
                     <td key={j} className="p-2 border border-gray-300 text-right tabular-nums">
@@ -297,10 +369,10 @@ function PrevisionnelPage() {
         <Table title="Trésorerie & financement" rows={tresorerie} />
 
         <footer className="mt-12 pt-4 border-t border-gray-300 text-xs text-gray-500">
-          MoveSpot — Document interne. Modèle marketplace : commission uniquement sur le GMV.
-          Les flux de reversement aux propriétaires transitent via Stripe Connect en mandat d'encaissement
-          et ne constituent pas un revenu de MoveSpot. Bascule micro-entreprise → SASU en année 3
-          (dépassement du seuil 77 700 €).
+          MoveSpot — Document interne. Modèle marketplace : commission uniquement sur le GMV. Les
+          flux de reversement aux propriétaires transitent via Stripe Connect en mandat
+          d'encaissement et ne constituent pas un revenu de MoveSpot. Bascule micro-entreprise →
+          SASU en année 3 (dépassement du seuil 77 700 €).
         </footer>
       </div>
     </div>

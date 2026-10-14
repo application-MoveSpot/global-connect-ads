@@ -111,12 +111,7 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
     id: "financial_services",
     labelEn: "Financial Services / Crypto",
     labelFr: "Services financiers / Crypto",
-    restrictedIn: [
-      "new-york-ny",
-      "los-angeles-ca",
-      "chicago-il",
-      "boston-ma",
-    ],
+    restrictedIn: ["new-york-ny", "los-angeles-ca", "chicago-il", "boston-ma"],
     blockedIn: [],
     disclaimer:
       "Financial advertising must comply with SEC, FINRA Rule 2210, and applicable state investment adviser regulations. " +
@@ -126,13 +121,7 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
     id: "pharma_medical",
     labelEn: "Pharma / Medical Devices",
     labelFr: "Pharmacie / Dispositifs médicaux",
-    restrictedIn: [
-      "new-york-ny",
-      "los-angeles-ca",
-      "chicago-il",
-      "san-francisco-ca",
-      "boston-ma",
-    ],
+    restrictedIn: ["new-york-ny", "los-angeles-ca", "chicago-il", "san-francisco-ca", "boston-ma"],
     blockedIn: [],
     disclaimer:
       "Prescription drug advertising must comply with FDA 21 CFR Part 202, including the mandatory brief summary " +

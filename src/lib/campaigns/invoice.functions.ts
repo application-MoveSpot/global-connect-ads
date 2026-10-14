@@ -54,7 +54,13 @@ export const getInvoiceData = createServerFn({ method: "GET" })
 
     return {
       campaign: campaign as InvoiceData["campaign"],
-      profile: profile ?? { full_name: "Annonceur", company: null, siret: null, address: null, phone: null },
+      profile: profile ?? {
+        full_name: "Annonceur",
+        company: null,
+        siret: null,
+        address: null,
+        phone: null,
+      },
       email: userAuth?.user?.email ?? "",
     };
   });

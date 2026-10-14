@@ -66,7 +66,9 @@ export const getPayeeEarnings = createServerFn({ method: "GET" })
     }[];
 
     const totalCents = rows.reduce((s, r) => s + r.amount_cents, 0);
-    const paidCents = rows.filter((r) => r.status === "paid").reduce((s, r) => s + r.amount_cents, 0);
+    const paidCents = rows
+      .filter((r) => r.status === "paid")
+      .reduce((s, r) => s + r.amount_cents, 0);
     return { rows, totalCents, paidCents, pendingCents: totalCents - paidCents };
   });
 
@@ -122,7 +124,8 @@ export const createPayeeOnboardingLink = createServerFn({ method: "POST" })
       .select("id, stripe_account_id")
       .eq("user_id", userId)
       .maybeSingle();
-    if (error || !profile) throw new Error("Fiche chauffeur/poseur introuvable — complétez d'abord votre inscription.");
+    if (error || !profile)
+      throw new Error("Fiche chauffeur/poseur introuvable — complétez d'abord votre inscription.");
 
     let accountId = (profile as { stripe_account_id: string | null }).stripe_account_id;
     if (!accountId) {
@@ -134,7 +137,11 @@ export const createPayeeOnboardingLink = createServerFn({ method: "POST" })
         ...(email && { email }),
         capabilities: { transfers: { requested: true } },
         business_type: "individual",
-        metadata: { user_id: userId, payee_profile_id: (profile as { id: string }).id, role: "payee" },
+        metadata: {
+          user_id: userId,
+          payee_profile_id: (profile as { id: string }).id,
+          role: "payee",
+        },
       });
       accountId = account.id;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -160,7 +167,9 @@ export const getPayeeConnectStatus = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data: profile } = await supabase
       .from("payee_profiles")
-      .select("stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted")
+      .select(
+        "stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted",
+      )
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -172,7 +181,12 @@ export const getPayeeConnectStatus = createServerFn({ method: "GET" })
     } | null;
 
     if (!row?.stripe_account_id) {
-      return { connected: false, charges_enabled: false, payouts_enabled: false, details_submitted: false };
+      return {
+        connected: false,
+        charges_enabled: false,
+        payouts_enabled: false,
+        details_submitted: false,
+      };
     }
 
     const { createStripeClient, getDefaultStripeEnvironment } = await import("./stripe.server");

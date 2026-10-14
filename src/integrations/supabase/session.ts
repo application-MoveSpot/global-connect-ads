@@ -1,5 +1,5 @@
-import { supabase } from './client';
-import type { Session } from '@supabase/supabase-js';
+import { supabase } from "./client";
+import type { Session } from "@supabase/supabase-js";
 
 /**
  * Returns the current session, refreshing it first if the access token is

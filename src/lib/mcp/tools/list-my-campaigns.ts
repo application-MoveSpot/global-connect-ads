@@ -8,11 +8,17 @@ export default defineTool({
   description:
     "Liste les demandes de campagne visibles par l'utilisateur connecté (dates, statut, paiement, montants).",
   inputSchema: {
-    status: z.string().optional().describe("Filtrer sur un statut exact (ex: pending, accepted, rejected)."),
+    status: z
+      .string()
+      .optional()
+      .describe("Filtrer sur un statut exact (ex: pending, accepted, rejected)."),
     limit: z.number().int().optional().describe("Nombre maximum de campagnes (défaut 20)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ status, limit }: { status?: string; limit?: number }, ctx: import("@lovable.dev/mcp-js").ToolContext) => {
+  handler: async (
+    { status, limit }: { status?: string; limit?: number },
+    ctx: import("@lovable.dev/mcp-js").ToolContext,
+  ) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }

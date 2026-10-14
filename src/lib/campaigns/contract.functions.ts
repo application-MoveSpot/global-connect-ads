@@ -49,7 +49,9 @@ export const getContractData = createServerFn({ method: "GET" })
     // Fetch brief scoped to the authenticated advertiser
     const { data: brief, error: briefErr } = await supabaseAdmin
       .from("advertiser_briefs")
-      .select("id, advertiser_id, title, description, zones, ad_format, vehicle_types, start_date, end_date, days_count, audience_target, budget_max, status")
+      .select(
+        "id, advertiser_id, title, description, zones, ad_format, vehicle_types, start_date, end_date, days_count, audience_target, budget_max, status",
+      )
       .eq("id", data.briefId)
       .eq("advertiser_id", context.userId)
       .maybeSingle();
@@ -64,21 +66,24 @@ export const getContractData = createServerFn({ method: "GET" })
       .eq("status", "accepted");
 
     if (propErr) throw new Error(propErr.message);
-    if (!proposals || proposals.length === 0) throw new Error("Aucune proposition acceptée sur ce brief");
+    if (!proposals || proposals.length === 0)
+      throw new Error("Aucune proposition acceptée sur ce brief");
 
     const vehicleIds = proposals.map((p) => p.vehicle_id);
     const ownerIds = proposals.map((p) => p.owner_id);
 
     // Vehicles + owner profiles in parallel
-    const [{ data: vehicles }, { data: ownerProfiles }, { data: advertiserProfile }, { data: userAuth }] = await Promise.all([
+    const [
+      { data: vehicles },
+      { data: ownerProfiles },
+      { data: advertiserProfile },
+      { data: userAuth },
+    ] = await Promise.all([
       supabaseAdmin
         .from("vehicles")
         .select("id, name, type, format_publicitaire, surface_m2")
         .in("id", vehicleIds),
-      supabaseAdmin
-        .from("owner_profiles")
-        .select("id, full_name, company")
-        .in("id", ownerIds),
+      supabaseAdmin.from("owner_profiles").select("id, full_name, company").in("id", ownerIds),
       supabaseAdmin
         .from("advertiser_profiles")
         .select("full_name, company, phone, address, siret")
@@ -99,7 +104,8 @@ export const getContractData = createServerFn({ method: "GET" })
         vehicleId: p.vehicle_id,
         vehicleName: v?.name ?? "Véhicule",
         vehicleType: v?.type ?? "",
-        formatPublicitaire: (v as unknown as { format_publicitaire?: string | null })?.format_publicitaire ?? null,
+        formatPublicitaire:
+          (v as unknown as { format_publicitaire?: string | null })?.format_publicitaire ?? null,
         surfaceM2: (v as unknown as { surface_m2?: number | null })?.surface_m2 ?? null,
         pricePerDay,
         subtotal: pricePerDay * daysCount,

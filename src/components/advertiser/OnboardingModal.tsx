@@ -115,7 +115,9 @@ export function OnboardingModal({ isIndividual = false }: Props) {
                   onClick={dismiss}
                   className="block text-center rounded-full bg-primary text-primary-foreground py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
                 >
-                  {isIndividual ? t("onboarding.btn_discover_packs") : t("onboarding.btn_create_campaign")}
+                  {isIndividual
+                    ? t("onboarding.btn_discover_packs")
+                    : t("onboarding.btn_create_campaign")}
                 </Link>
                 <button
                   onClick={dismiss}

@@ -96,9 +96,17 @@ test.describe("Flotte propriétaire — /proprietaire/flotte", () => {
     if (bodyText.includes("Chargement")) return;
 
     const html = await page.content();
-    const hasVehicles = html.toLowerCase().includes("véhicule") || html.toLowerCase().includes("vehicle");
-    const hasEmpty = html.toLowerCase().includes("ajouter") || html.toLowerCase().includes("nouveau") || html.toLowerCase().includes("ajoutez") || html.toLowerCase().includes("add") || html.toLowerCase().includes("new");
-    expect(hasVehicles || hasEmpty, "Flotte vide : ni véhicules ni bouton d'ajout trouvé").toBe(true);
+    const hasVehicles =
+      html.toLowerCase().includes("véhicule") || html.toLowerCase().includes("vehicle");
+    const hasEmpty =
+      html.toLowerCase().includes("ajouter") ||
+      html.toLowerCase().includes("nouveau") ||
+      html.toLowerCase().includes("ajoutez") ||
+      html.toLowerCase().includes("add") ||
+      html.toLowerCase().includes("new");
+    expect(hasVehicles || hasEmpty, "Flotte vide : ni véhicules ni bouton d'ajout trouvé").toBe(
+      true,
+    );
   });
 
   test("un lien vers l'ajout de véhicule est présent", async ({ page }) => {
@@ -112,8 +120,16 @@ test.describe("Flotte propriétaire — /proprietaire/flotte", () => {
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
     if (bodyText.includes("Chargement")) return;
 
-    const addLink = page.getByRole("link", { name: /ajouter|nouveau véhicule|nouveau|add.*vehicle|new vehicle|add|new/i }).first();
-    const addBtn = page.getByRole("button", { name: /ajouter|nouveau véhicule|nouveau|add.*vehicle|new vehicle|add|new/i }).first();
+    const addLink = page
+      .getByRole("link", {
+        name: /ajouter|nouveau véhicule|nouveau|add.*vehicle|new vehicle|add|new/i,
+      })
+      .first();
+    const addBtn = page
+      .getByRole("button", {
+        name: /ajouter|nouveau véhicule|nouveau|add.*vehicle|new vehicle|add|new/i,
+      })
+      .first();
     const hasLink = await addLink.isVisible().catch(() => false);
     const hasBtn = await addBtn.isVisible().catch(() => false);
 
@@ -123,7 +139,13 @@ test.describe("Flotte propriétaire — /proprietaire/flotte", () => {
       if (bodyText2.trim().length < 50) return; // contenu minimal — skip
       const html = await page.content();
       // Pas d'assertion stricte : dépend de l'état Supabase en CI
-      if (!html.toLowerCase().includes("nouveau") && !html.toLowerCase().includes("ajouter") && !html.toLowerCase().includes("add") && !html.toLowerCase().includes("new")) return;
+      if (
+        !html.toLowerCase().includes("nouveau") &&
+        !html.toLowerCase().includes("ajouter") &&
+        !html.toLowerCase().includes("add") &&
+        !html.toLowerCase().includes("new")
+      )
+        return;
     } else {
       expect(hasLink || hasBtn).toBe(true);
     }
@@ -159,7 +181,13 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur") ||
+      bodyText.includes("error")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     const nameInput = page.locator('input[type="text"]').first();
@@ -177,13 +205,32 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur") ||
+      bodyText.includes("error")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     const html = await page.content();
-    const knownTypes = ["taxi", "van", "voiture", "scooter", "food_truck", "camion", "velo", "car", "truck"];
+    const knownTypes = [
+      "taxi",
+      "van",
+      "voiture",
+      "scooter",
+      "food_truck",
+      "camion",
+      "velo",
+      "car",
+      "truck",
+    ];
     const found = knownTypes.filter((t) => html.toLowerCase().includes(t));
-    expect(found.length, `Moins de 4 types de véhicule trouvés: ${found.join(", ")}`).toBeGreaterThanOrEqual(4);
+    expect(
+      found.length,
+      `Moins de 4 types de véhicule trouvés: ${found.join(", ")}`,
+    ).toBeGreaterThanOrEqual(4);
   });
 
   test("un champ prix par jour est présent", async ({ page }) => {
@@ -191,7 +238,13 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur") ||
+      bodyText.includes("error")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     const html = await page.content();
@@ -211,7 +264,13 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur") ||
+      bodyText.includes("error")
+    )
+      return;
 
     // Chercher un bouton ou radio pour sélectionner un type
     const taxiBtn = page.locator("button, label").filter({ hasText: /taxi/i }).first();
@@ -228,14 +287,28 @@ test.describe("Ajout véhicule — /proprietaire/vehicules/nouveau", () => {
     if (isAuthRedirect(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur") || bodyText.includes("error") || bodyText.includes("Failed to fetch")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur") ||
+      bodyText.includes("error") ||
+      bodyText.includes("Failed to fetch")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     const submitBtn = page.locator('button[type="submit"]').first();
-    const nextBtn = page.getByRole("button", { name: /suivant|continuer|enregistrer|ajouter|publier|next|continue|save|add|publish/i }).first();
+    const nextBtn = page
+      .getByRole("button", {
+        name: /suivant|continuer|enregistrer|ajouter|publier|next|continue|save|add|publish/i,
+      })
+      .first();
     const hasSubmit = await submitBtn.isVisible().catch(() => false);
     const hasNext = await nextBtn.isVisible().catch(() => false);
-    expect(hasSubmit || hasNext, "Aucun bouton de soumission ou navigation dans le formulaire").toBe(true);
+    expect(
+      hasSubmit || hasNext,
+      "Aucun bouton de soumission ou navigation dans le formulaire",
+    ).toBe(true);
   });
 });
 
@@ -270,7 +343,9 @@ test.describe("Briefs propriétaire — /proprietaire/briefs", () => {
       html.toLowerCase().includes("demande") ||
       html.toLowerCase().includes("campagne") ||
       html.toLowerCase().includes("aucun");
-    expect(hasBriefContent, "Page briefs propriétaire ne contient pas de contenu attendu").toBe(true);
+    expect(hasBriefContent, "Page briefs propriétaire ne contient pas de contenu attendu").toBe(
+      true,
+    );
   });
 });
 

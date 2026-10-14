@@ -8,10 +8,7 @@ import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/provider/profil")({
   head: () => ({
-    meta: [
-      { title: "Mon profil — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Mon profil — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: ProviderProfilPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -54,15 +51,23 @@ function ProviderProfilPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/provider/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/provider/inscription" });
+        return;
+      }
 
       const { data: prof } = await supabase
         .from("provider_profiles")
-        .select("user_id, full_name, company, email, phone, description, coverage_areas, services, pricing_info, siret, status, pose_location_types")
+        .select(
+          "user_id, full_name, company, email, phone, description, coverage_areas, services, pricing_info, siret, status, pose_location_types",
+        )
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (!prof) { navigate({ to: "/provider/inscription" }); return; }
+      if (!prof) {
+        navigate({ to: "/provider/inscription" });
+        return;
+      }
 
       setProfileId(prof.user_id);
       setFullName(prof.full_name ?? "");
@@ -70,7 +75,9 @@ function ProviderProfilPage() {
       setEmail(prof.email ?? "");
       setPhone(prof.phone ?? "");
       setDescription(prof.description ?? "");
-      setCoverageAreas(Array.isArray(prof.coverage_areas) ? (prof.coverage_areas as string[]).join(", ") : "");
+      setCoverageAreas(
+        Array.isArray(prof.coverage_areas) ? (prof.coverage_areas as string[]).join(", ") : "",
+      );
       setServices(Array.isArray(prof.services) ? (prof.services as string[]) : []);
       setPricingInfo(prof.pricing_info ?? "");
       setPoseLocationTypes(Array.isArray(prof.pose_location_types) ? prof.pose_location_types : []);
@@ -81,11 +88,13 @@ function ProviderProfilPage() {
   }, [navigate]);
 
   const toggleService = (s: string) => {
-    setServices((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+    setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
 
   const togglePoseType = (pt: string) => {
-    setPoseLocationTypes((prev) => prev.includes(pt) ? prev.filter((x) => x !== pt) : [...prev, pt]);
+    setPoseLocationTypes((prev) =>
+      prev.includes(pt) ? prev.filter((x) => x !== pt) : [...prev, pt],
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,14 +111,23 @@ function ProviderProfilPage() {
         email: email.trim(),
         phone: phone.trim() || null,
         description: description.trim(),
-        coverage_areas: coverageAreas ? coverageAreas.split(",").map((z) => z.trim()).filter(Boolean) : [],
+        coverage_areas: coverageAreas
+          ? coverageAreas
+              .split(",")
+              .map((z) => z.trim())
+              .filter(Boolean)
+          : [],
         services,
         pricing_info: pricingInfo.trim() || null,
         pose_location_types: poseLocationTypes,
       })
       .eq("user_id", profileId);
 
-    if (upErr) { setError(upErr.message); setLoading(false); return; }
+    if (upErr) {
+      setError(upErr.message);
+      setLoading(false);
+      return;
+    }
     setSaved(true);
     setLoading(false);
   };
@@ -125,8 +143,13 @@ function ProviderProfilPage() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-4"><LogoLink /></div>
-        <Link to="/provider" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
+        <Link
+          to="/provider"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
           {t("profile.back")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
@@ -134,28 +157,54 @@ function ProviderProfilPage() {
           <p className="text-sm text-muted-foreground mb-6">{t("profile.desc")}</p>
 
           {status && (
-            <div className={`mb-4 rounded-lg px-4 py-2.5 text-xs font-semibold ${
-              status === "approved" ? "bg-green-500/15 text-green-700 dark:text-green-400" :
-              status === "pending" ? "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400" :
-              "bg-destructive/15 text-destructive"
-            }`}>
+            <div
+              className={`mb-4 rounded-lg px-4 py-2.5 text-xs font-semibold ${
+                status === "approved"
+                  ? "bg-green-500/15 text-green-700 dark:text-green-400"
+                  : status === "pending"
+                    ? "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400"
+                    : "bg-destructive/15 text-destructive"
+              }`}
+            >
               {t(`provider.inscription.status_${status}`, { defaultValue: status })}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label={t("profile.full_name")} value={fullName} onChange={setFullName} required />
+            <Field
+              label={t("profile.full_name")}
+              value={fullName}
+              onChange={setFullName}
+              required
+            />
             <Field label={t("profile.company")} value={company} onChange={setCompany} required />
             <div className="grid grid-cols-2 gap-4">
-              <Field label={t("profile.email")} value={email} onChange={setEmail} type="email" required />
-              <Field label={t("profile.phone")} value={phone} onChange={setPhone} type="tel" placeholder={t("profile.phone_placeholder")} />
+              <Field
+                label={t("profile.email")}
+                value={email}
+                onChange={setEmail}
+                type="email"
+                required
+              />
+              <Field
+                label={t("profile.phone")}
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                placeholder={t("profile.phone_placeholder")}
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1.5">{t("profile.description")}</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                maxLength={500}
                 placeholder={t("profile.description_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
             </div>
 
             <Field
@@ -169,12 +218,16 @@ function ProviderProfilPage() {
               <label className="block text-sm font-medium mb-2">{t("profile.services")}</label>
               <div className="grid grid-cols-2 gap-2">
                 {SERVICES_OPTIONS.map((s) => (
-                  <button key={s} type="button" onClick={() => toggleService(s)}
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => toggleService(s)}
                     className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
                       services.includes(s)
                         ? "border-primary bg-primary/10 font-semibold"
                         : "border-border bg-input hover:border-primary/40"
-                    }`}>
+                    }`}
+                  >
                     {t(`provider.inscription.service_${s}`, { defaultValue: s })}
                   </button>
                 ))}
@@ -182,16 +235,24 @@ function ProviderProfilPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">{t("profile.pose_location_types")}</label>
-              <p className="text-xs text-muted-foreground mb-2">{t("profile.pose_location_types_hint")}</p>
+              <label className="block text-sm font-medium mb-2">
+                {t("profile.pose_location_types")}
+              </label>
+              <p className="text-xs text-muted-foreground mb-2">
+                {t("profile.pose_location_types_hint")}
+              </p>
               <div className="flex gap-2">
                 {(["garage", "domicile"] as const).map((pt) => (
-                  <button key={pt} type="button" onClick={() => togglePoseType(pt)}
+                  <button
+                    key={pt}
+                    type="button"
+                    onClick={() => togglePoseType(pt)}
                     className={`rounded-lg border px-4 py-2 text-sm transition flex items-center gap-1.5 ${
                       poseLocationTypes.includes(pt)
                         ? "border-primary bg-primary/10 font-semibold"
                         : "border-border bg-input hover:border-primary/40"
-                    }`}>
+                    }`}
+                  >
                     {pt === "garage" ? "🏪" : "🏠"} {t(`provider.dashboard.pose_type_${pt}`)}
                   </button>
                 ))}
@@ -199,25 +260,45 @@ function ProviderProfilPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("profile.pricing_info")}</label>
-              <textarea value={pricingInfo} onChange={(e) => setPricingInfo(e.target.value)} rows={2} maxLength={300}
+              <label className="block text-sm font-medium mb-1.5">
+                {t("profile.pricing_info")}
+              </label>
+              <textarea
+                value={pricingInfo}
+                onChange={(e) => setPricingInfo(e.target.value)}
+                rows={2}
+                maxLength={300}
                 placeholder={t("profile.pricing_info_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
             </div>
 
             {siret && (
               <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("profile.siret_section")}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("profile.siret_section")}
+                </p>
                 <p className="text-sm">{siret}</p>
                 <p className="text-xs text-muted-foreground">{t("profile.siret_readonly_hint")}</p>
               </div>
             )}
 
-            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
-            {saved && <div className="rounded-lg bg-green-500/15 border border-green-500/40 p-3 text-sm text-green-700 dark:text-green-400">{t("profile.saved")}</div>}
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            {saved && (
+              <div className="rounded-lg bg-green-500/15 border border-green-500/40 p-3 text-sm text-green-700 dark:text-green-400">
+                {t("profile.saved")}
+              </div>
+            )}
 
-            <button type="submit" disabled={loading}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
               {loading ? t("profile.saving") : t("profile.submit")}
             </button>
           </form>
@@ -227,14 +308,32 @@ function ProviderProfilPage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string;
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }

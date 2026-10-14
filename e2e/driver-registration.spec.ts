@@ -12,7 +12,9 @@ import { test, expect, type Page } from "@playwright/test";
 
 async function dismissCookieBanner(page: Page) {
   await page.addInitScript(() => {
-    try { localStorage.setItem("ms_cookie_consent", "accepted"); } catch {}
+    try {
+      localStorage.setItem("ms_cookie_consent", "accepted");
+    } catch {}
   });
 }
 
@@ -59,11 +61,14 @@ test.describe("Inscription chauffeur — validation du formulaire auth", () => {
     await submitBtn.click();
     await page.waitForTimeout(500);
 
-    const hasReactError = await page.locator('[role="alert"], .text-destructive, [class*="error"], .text-red').count() > 0;
+    const hasReactError =
+      (await page
+        .locator('[role="alert"], .text-destructive, [class*="error"], .text-red')
+        .count()) > 0;
     const emailInput = page.locator('input[type="email"]');
-    const hasNativeMsg = await emailInput.evaluate(
-      (el: HTMLInputElement) => el.validationMessage.length > 0,
-    ).catch(() => false);
+    const hasNativeMsg = await emailInput
+      .evaluate((el: HTMLInputElement) => el.validationMessage.length > 0)
+      .catch(() => false);
     expect(hasReactError || hasNativeMsg || true, "").toBe(true);
   });
 
@@ -75,9 +80,9 @@ test.describe("Inscription chauffeur — validation du formulaire auth", () => {
     const count = await emailInput.count();
     if (count === 0) return;
     await emailInput.fill("not-an-email");
-    const isInvalid = await emailInput.evaluate(
-      (el: HTMLInputElement) => !el.validity.valid,
-    ).catch(() => true);
+    const isInvalid = await emailInput
+      .evaluate((el: HTMLInputElement) => !el.validity.valid)
+      .catch(() => true);
     expect(isInvalid, "Un email invalide passe la validation").toBe(true);
   });
 });
@@ -86,7 +91,9 @@ test.describe("Inscription chauffeur — switch Connexion / Créer un compte", (
   test("le toggle 'Se connecter' est présent", async ({ page }) => {
     await dismissCookieBanner(page);
     await page.goto("/chauffeur/inscription", { waitUntil: "domcontentloaded" });
-    const loginToggle = page.getByText(/se connecter|connexion|déjà.*compte|log.?in|sign.?in|already.*account/i).first();
+    const loginToggle = page
+      .getByText(/se connecter|connexion|déjà.*compte|log.?in|sign.?in|already.*account/i)
+      .first();
     await expect(loginToggle).toBeVisible();
   });
 
@@ -99,7 +106,9 @@ test.describe("Inscription chauffeur — switch Connexion / Créer un compte", (
     await page.waitForTimeout(200);
 
     // Utiliser getByRole pour cibler précisément le bouton toggle (pas un parent div)
-    const toggle = page.getByRole("button", { name: /déjà un compte|se connecter|already.*account|log.?in/i });
+    const toggle = page.getByRole("button", {
+      name: /déjà un compte|se connecter|already.*account|log.?in/i,
+    });
     const hasToggle = await toggle.isVisible().catch(() => false);
     if (!hasToggle) return; // Skip si le toggle n'est pas rendu (Supabase non dispo en CI)
 

@@ -9,16 +9,16 @@ const ZONE_TIERS: Record<string, TrafficTier> = {
   // --- Guadeloupe ---
   "pointe-a-pitre": "urban_dense",
   "les abymes": "urban",
-  "abymes": "urban",
+  abymes: "urban",
   "baie-mahault": "urban",
-  "jarry": "urban",         // zone industrielle de Baie-Mahault
+  jarry: "urban", // zone industrielle de Baie-Mahault
   "basse-terre": "urban",
-  "gosier": "suburban",
+  gosier: "suburban",
   "sainte-anne": "suburban",
   "saint-francois": "suburban",
-  "lamentin": "suburban",
+  lamentin: "suburban",
   "capesterre-belle-eau": "rural",
-  "capesterre": "rural",
+  capesterre: "rural",
   "petit-bourg": "rural",
   "morne-a-l-eau": "rural",
   "sainte-rose": "rural",
@@ -28,7 +28,7 @@ const ZONE_TIERS: Record<string, TrafficTier> = {
   "fort-de-france": "urban",
   "fort de france": "urban",
   "le lamentin": "suburban",
-  "schoelcher": "suburban",
+  schoelcher: "suburban",
   "le robert": "suburban",
   "saint-pierre martinique": "rural",
   // --- La Réunion ---
@@ -38,46 +38,47 @@ const ZONE_TIERS: Record<string, TrafficTier> = {
   "saint-paul": "suburban",
   "saint-andre": "rural",
   // --- Guyane ---
-  "cayenne": "urban",
-  "matoury": "suburban",
-  "kourou": "suburban",
+  cayenne: "urban",
+  matoury: "suburban",
+  kourou: "suburban",
   "saint-laurent-du-maroni": "rural",
   // --- France métropolitaine — urban_dense ---
-  "paris": "urban_dense",
-  "lyon": "urban_dense",
-  "marseille": "urban_dense",
+  paris: "urban_dense",
+  lyon: "urban_dense",
+  marseille: "urban_dense",
   // --- France métropolitaine — urban ---
-  "toulouse": "urban",
-  "nice": "urban",
-  "nantes": "urban",
-  "bordeaux": "urban",
-  "lille": "urban",
-  "strasbourg": "urban",
-  "rennes": "urban",
-  "montpellier": "urban",
-  "grenoble": "urban",
-  "toulon": "urban",
+  toulouse: "urban",
+  nice: "urban",
+  nantes: "urban",
+  bordeaux: "urban",
+  lille: "urban",
+  strasbourg: "urban",
+  rennes: "urban",
+  montpellier: "urban",
+  grenoble: "urban",
+  toulon: "urban",
   "saint-etienne": "urban",
-  "dijon": "urban",
-  "angers": "urban",
-  "nimes": "urban",
-  "villeurbanne": "urban",
+  dijon: "urban",
+  angers: "urban",
+  nimes: "urban",
+  villeurbanne: "urban",
   "le mans": "urban",
   "aix-en-provence": "urban",
-  "reims": "urban",
+  reims: "urban",
   "clermont-ferrand": "urban",
-  "brest": "urban",
-  "limoges": "urban",
-  "amiens": "urban",
-  "perpignan": "urban",
-  "metz": "urban",
-  "nancy": "urban",
-  "rouen": "urban",
-  "caen": "urban",
+  brest: "urban",
+  limoges: "urban",
+  amiens: "urban",
+  perpignan: "urban",
+  metz: "urban",
+  nancy: "urban",
+  rouen: "urban",
+  caen: "urban",
 };
 
 const TIER_LABELS: Record<TrafficTier, string> = {
-  urban_dense: "centre urbain très dense (flux piétons et voitures très élevé, ex. centre Paris/Lyon/Pointe-à-Pitre)",
+  urban_dense:
+    "centre urbain très dense (flux piétons et voitures très élevé, ex. centre Paris/Lyon/Pointe-à-Pitre)",
   urban: "ville urbaine active (flux quotidien soutenu, artères commerciales)",
   suburban: "zone périurbaine ou banlieue (flux modéré, routes secondaires et nationales)",
   rural: "zone rurale ou semi-rurale (faible densité, trafic limité)",
@@ -88,7 +89,7 @@ function normalizeZone(z: string): string {
     .toLowerCase()
     .trim()
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")   // strip accents
+    .replace(/[̀-ͯ]/g, "") // strip accents
     .replace(/['']/g, "-")
     .replace(/\s+/g, " ");
 }
@@ -100,13 +101,12 @@ function resolveZoneTiers(zones: string[]): string {
     // exact match first, then partial (zone is substring of key or vice versa)
     const tier =
       ZONE_TIERS[key] ??
-      (Object.entries(ZONE_TIERS).find(([k]) => key.includes(k) || k.includes(key))?.[1]);
+      Object.entries(ZONE_TIERS).find(([k]) => key.includes(k) || k.includes(key))?.[1];
     if (tier) matched.push({ zone, tier });
   }
-  if (matched.length === 0) return "(zones non reconnues — estime la densité depuis les noms fournis)";
-  return matched
-    .map(({ zone, tier }) => `  • ${zone} → ${tier} : ${TIER_LABELS[tier]}`)
-    .join("\n");
+  if (matched.length === 0)
+    return "(zones non reconnues — estime la densité depuis les noms fournis)";
+  return matched.map(({ zone, tier }) => `  • ${zone} → ${tier} : ${TIER_LABELS[tier]}`).join("\n");
 }
 
 const InputSchema = z.object({
@@ -211,13 +211,15 @@ Réponds UNIQUEMENT en JSON strict :
   "recommendation": "1-2 phrases en français"
 }`,
       },
-
     ];
     for (const url of data.photo_urls.slice(0, 3)) {
       content.push({ type: "image_url", image_url: { url } });
     }
     if (data.photo_urls.length === 0) {
-      content.push({ type: "text", text: "Aucune photo fournie — réponds photo_match: 'unverified'." });
+      content.push({
+        type: "text",
+        text: "Aucune photo fournie — réponds photo_match: 'unverified'.",
+      });
     }
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -237,7 +239,11 @@ Réponds UNIQUEMENT en JSON strict :
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const raw = json.choices?.[0]?.message?.content ?? "{}";
     let parsed: Partial<EstimateResult> = {};
-    try { parsed = JSON.parse(raw); } catch { /* ignore */ }
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      /* ignore */
+    }
 
     return {
       suggested_price_min: Number(parsed.suggested_price_min ?? 0),

@@ -8,7 +8,10 @@ export default defineTool({
   description:
     "Recherche dans l'annuaire MoveSpot des prestataires approuvés (covering, production vidéo, création graphique).",
   inputSchema: {
-    query: z.string().optional().describe("Texte recherché dans le nom de société ou la description."),
+    query: z
+      .string()
+      .optional()
+      .describe("Texte recherché dans le nom de société ou la description."),
     service: z
       .string()
       .optional()
@@ -16,7 +19,10 @@ export default defineTool({
     limit: z.number().int().optional().describe("Nombre maximum de résultats (défaut 20)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ query, service, limit }: { query?: string; service?: string; limit?: number }, ctx: import("@lovable.dev/mcp-js").ToolContext) => {
+  handler: async (
+    { query, service, limit }: { query?: string; service?: string; limit?: number },
+    ctx: import("@lovable.dev/mcp-js").ToolContext,
+  ) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }

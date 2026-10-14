@@ -11,12 +11,12 @@ const AdminDecisionInput = z.object({
   aiVerificationNotes: z.string().max(500).optional(),
 });
 
-export type AdminDecisionResult =
-  | { ok: true; note: string }
-  | { ok: false; message: string };
+export type AdminDecisionResult = { ok: true; note: string } | { ok: false; message: string };
 
 const PROMPTS: Record<string, (d: z.infer<typeof AdminDecisionInput>) => string> = {
-  vehicle: (d) => `Tu es un modérateur de la plateforme MoveSpot (publicité mobile sur véhicules en France).
+  vehicle: (
+    d,
+  ) => `Tu es un modérateur de la plateforme MoveSpot (publicité mobile sur véhicules en France).
 Tu dois rédiger une note de refus professionnelle et bienveillante pour un véhicule qui ne remplit pas les critères d'acceptation.
 La note doit être courte (2 à 3 phrases), expliquer le motif principal de refus, et inviter le propriétaire à corriger et soumettre à nouveau si possible.
 Ne commence pas par "Bonjour".
@@ -27,7 +27,9 @@ ${d.aiVerificationNotes ? `Vérification IA : ${d.aiVerificationNotes}` : ""}
 
 Réponds uniquement avec le texte de la note, sans titre ni formatage.`,
 
-  brief: (d) => `Tu es un modérateur de la plateforme MoveSpot (publicité mobile sur véhicules en France).
+  brief: (
+    d,
+  ) => `Tu es un modérateur de la plateforme MoveSpot (publicité mobile sur véhicules en France).
 Tu dois rédiger une note de refus professionnelle et bienveillante pour un brief publicitaire qui ne respecte pas les conditions de la plateforme.
 La note doit être courte (2 à 3 phrases), expliquer le motif principal de refus, et guider l'annonceur pour corriger son brief.
 Ne commence pas par "Bonjour".
@@ -38,7 +40,9 @@ ${d.aiVerificationNotes ? `Analyse IA : ${d.aiVerificationNotes}` : ""}
 
 Réponds uniquement avec le texte de la note, sans titre ni formatage.`,
 
-  poseur: (d) => `Tu es un modérateur de la plateforme MoveSpot (publicité mobile sur véhicules en France).
+  poseur: (
+    d,
+  ) => `Tu es un modérateur de la plateforme MoveSpot (publicité mobile sur véhicules en France).
 Tu dois rédiger une note de refus professionnelle et bienveillante pour un dossier de certification de poseur (installateur de publicités).
 La note doit être courte (2 à 3 phrases), expliquer le motif de refus de la certification, et indiquer ce qui peut être amélioré pour une prochaine demande.
 Ne commence pas par "Bonjour".
@@ -68,7 +72,12 @@ export const generateAdminDecisionNote = createServerFn({ method: "POST" })
       const { generateText } = await import("ai");
       const provider = createLovableAiGatewayProvider(apiKey);
       const model = provider("google/gemini-2.5-flash");
-      const { text } = await generateText({ model, prompt, temperature: 0.3, maxOutputTokens: 200 });
+      const { text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.3,
+        maxOutputTokens: 200,
+      });
       const note = text.trim();
       if (!note) return { ok: false, message: "L'IA n'a pas pu générer de note. Réessayez." };
       return { ok: true, note };

@@ -54,7 +54,10 @@ export function Viewer360({ src, kind = "image", className }: Props) {
 
         let renderer: import("three").WebGLRenderer;
         try {
-          renderer = new THREE.WebGLRenderer({ antialias: true, failIfMajorPerformanceCaveat: false });
+          renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            failIfMajorPerformanceCaveat: false,
+          });
         } catch {
           setWebglFailed(true);
           return;
@@ -109,7 +112,9 @@ export function Viewer360({ src, kind = "image", className }: Props) {
           lon = startLon - (e.clientX - startX) * 0.2;
           lat = Math.max(-85, Math.min(85, startLat + (e.clientY - startY) * 0.2));
         };
-        const onUp = () => { dragging = false; };
+        const onUp = () => {
+          dragging = false;
+        };
         const onWheel = (e: WheelEvent) => {
           e.preventDefault();
           camera.fov = Math.max(30, Math.min(90, camera.fov + e.deltaY * 0.05));
@@ -210,7 +215,9 @@ export function Viewer360({ src, kind = "image", className }: Props) {
     <div className={containerClass}>
       <div ref={containerRef} className="absolute inset-0" />
       {error ? (
-        <p className="absolute inset-0 flex items-center justify-center text-xs text-destructive">{error}</p>
+        <p className="absolute inset-0 flex items-center justify-center text-xs text-destructive">
+          {error}
+        </p>
       ) : (
         <span className="absolute bottom-2 left-2 rounded-full bg-background/80 px-2 py-0.5 text-[10px] text-muted-foreground pointer-events-none">
           {t("viewer360.drag_hint")}

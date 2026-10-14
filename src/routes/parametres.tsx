@@ -22,7 +22,9 @@ function ParametresPage() {
   const deleteAccount = useServerFn(requestAccountDeletion);
 
   const [showDanger, setShowDanger] = useState(false);
-  const [step, setStep] = useState<"idle" | "checking" | "blocked" | "confirm" | "deleting" | "done">("idle");
+  const [step, setStep] = useState<
+    "idle" | "checking" | "blocked" | "confirm" | "deleting" | "done"
+  >("idle");
   const [blockers, setBlockers] = useState<Blocker[]>([]);
   const [reason, setReason] = useState("");
   const [confirmText, setConfirmText] = useState("");
@@ -49,7 +51,9 @@ function ParametresPage() {
     if (confirmText !== CONFIRM_WORD) return;
     setStep("deleting");
     try {
-      const result = await deleteAccount({ data: { confirmText: "SUPPRIMER", reason: reason.trim() || undefined } });
+      const result = await deleteAccount({
+        data: { confirmText: "SUPPRIMER", reason: reason.trim() || undefined },
+      });
       setStep("done");
       toast.success(t("parametres.success_delete"));
       setTimeout(() => navigate({ to: "/" }), 3000);
@@ -84,9 +88,17 @@ function ParametresPage() {
             <h2 className="font-semibold text-lg">{t("parametres.rgpd_title")}</h2>
           </div>
           <ul className="text-sm text-muted-foreground space-y-1.5 list-none">
-            <li>✅ <strong>{t("parametres.rgpd_access")}</strong> — {t("parametres.rgpd_access_desc")}</li>
-            <li>✅ <strong>{t("parametres.rgpd_portability")}</strong> — {t("parametres.rgpd_portability_desc")}</li>
-            <li>✅ <strong>{t("parametres.rgpd_erasure")}</strong> — {t("parametres.rgpd_erasure_desc")}</li>
+            <li>
+              ✅ <strong>{t("parametres.rgpd_access")}</strong> — {t("parametres.rgpd_access_desc")}
+            </li>
+            <li>
+              ✅ <strong>{t("parametres.rgpd_portability")}</strong> —{" "}
+              {t("parametres.rgpd_portability_desc")}
+            </li>
+            <li>
+              ✅ <strong>{t("parametres.rgpd_erasure")}</strong> —{" "}
+              {t("parametres.rgpd_erasure_desc")}
+            </li>
           </ul>
         </section>
 
@@ -98,14 +110,19 @@ function ParametresPage() {
           >
             <div className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" />
-              <span className="font-semibold text-destructive">{t("parametres.delete_account")}</span>
+              <span className="font-semibold text-destructive">
+                {t("parametres.delete_account")}
+              </span>
             </div>
-            {showDanger ? <ChevronUp className="w-4 h-4 text-destructive" /> : <ChevronDown className="w-4 h-4 text-destructive" />}
+            {showDanger ? (
+              <ChevronUp className="w-4 h-4 text-destructive" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-destructive" />
+            )}
           </button>
 
           {showDanger && (
             <div className="px-6 pb-6 space-y-5 border-t border-destructive/20 pt-5">
-
               <p className="text-sm text-muted-foreground">{t("parametres.delete_account_desc")}</p>
 
               {/* État : idle → bouton de démarrage */}
@@ -131,35 +148,52 @@ function ParametresPage() {
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-amber-700 dark:text-amber-400 text-sm">{t("parametres.blocked_title")}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t("parametres.blocked_desc")}</p>
+                      <p className="font-semibold text-amber-700 dark:text-amber-400 text-sm">
+                        {t("parametres.blocked_title")}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t("parametres.blocked_desc")}
+                      </p>
                     </div>
                   </div>
                   <ul className="space-y-1.5">
                     {blockers.map((b, i) => (
-                      <li key={i} className="text-sm text-muted-foreground flex justify-between gap-4">
+                      <li
+                        key={i}
+                        className="text-sm text-muted-foreground flex justify-between gap-4"
+                      >
                         <span>{b.description}</span>
                         {b.endDate && (
                           <span className="text-xs font-medium whitespace-nowrap">
-                            {t("parametres.blocked_until", { date: new Date(b.endDate).toLocaleDateString(dateLocale) })}
+                            {t("parametres.blocked_until", {
+                              date: new Date(b.endDate).toLocaleDateString(dateLocale),
+                            })}
                           </span>
                         )}
                       </li>
                     ))}
                   </ul>
                   <p className="text-xs text-muted-foreground">{t("parametres.blocked_return")}</p>
-                  <button onClick={() => setStep("idle")} className="text-xs text-primary underline">{t("parametres.back")}</button>
+                  <button
+                    onClick={() => setStep("idle")}
+                    className="text-xs text-primary underline"
+                  >
+                    {t("parametres.back")}
+                  </button>
                 </div>
               )}
 
               {/* État : confirmation */}
               {step === "confirm" && (
                 <div className="space-y-4">
-                  <p className="text-sm font-semibold text-destructive">{t("parametres.irreversible")}</p>
+                  <p className="text-sm font-semibold text-destructive">
+                    {t("parametres.irreversible")}
+                  </p>
 
                   <div className="space-y-1">
                     <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                      {t("parametres.reason_label")} <span className="normal-case">({t("common.optional")})</span>
+                      {t("parametres.reason_label")}{" "}
+                      <span className="normal-case">({t("common.optional")})</span>
                     </label>
                     <textarea
                       value={reason}
@@ -186,7 +220,11 @@ function ParametresPage() {
 
                   <div className="flex gap-3">
                     <button
-                      onClick={() => { setStep("idle"); setConfirmText(""); setReason(""); }}
+                      onClick={() => {
+                        setStep("idle");
+                        setConfirmText("");
+                        setReason("");
+                      }}
                       className="flex-1 rounded-xl border border-border py-2.5 text-sm font-semibold hover:bg-secondary/50 transition-colors"
                     >
                       {t("parametres.cancel")}

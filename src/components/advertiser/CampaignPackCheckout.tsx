@@ -27,15 +27,65 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
   const isIndividual = accountType === "individual";
 
   const BUSINESS_PACKS: Pack[] = [
-    { id: "starter", label: t("campaign_pack.pack_starter_label"), days: 7, price: 49, perDay: 7, desc: t("campaign_pack.pack_starter_desc") },
-    { id: "standard", label: t("campaign_pack.pack_standard_label"), days: 14, price: 79, perDay: 5.6, badge: t("campaign_pack.pack_standard_badge"), desc: t("campaign_pack.pack_standard_desc") },
-    { id: "boost", label: t("campaign_pack.pack_boost_label"), days: 30, price: 149, perDay: 5, desc: t("campaign_pack.pack_boost_desc") },
+    {
+      id: "starter",
+      label: t("campaign_pack.pack_starter_label"),
+      days: 7,
+      price: 49,
+      perDay: 7,
+      desc: t("campaign_pack.pack_starter_desc"),
+    },
+    {
+      id: "standard",
+      label: t("campaign_pack.pack_standard_label"),
+      days: 14,
+      price: 79,
+      perDay: 5.6,
+      badge: t("campaign_pack.pack_standard_badge"),
+      desc: t("campaign_pack.pack_standard_desc"),
+    },
+    {
+      id: "boost",
+      label: t("campaign_pack.pack_boost_label"),
+      days: 30,
+      price: 149,
+      perDay: 5,
+      desc: t("campaign_pack.pack_boost_desc"),
+    },
   ];
 
   const INDIVIDUAL_PACKS: Pack[] = [
-    { id: "weekend", icon: "🎪", label: t("campaign_pack.pack_weekend_label"), sublabel: t("campaign_pack.pack_weekend_sublabel"), days: 3, price: 49, perDay: 16.3, desc: t("campaign_pack.pack_weekend_desc") },
-    { id: "evenement", icon: "🎪", label: t("campaign_pack.pack_evenement_label"), sublabel: t("campaign_pack.pack_evenement_sublabel"), days: 7, price: 79, perDay: 11.3, badge: t("campaign_pack.pack_evenement_badge"), desc: t("campaign_pack.pack_evenement_desc") },
-    { id: "lancement", icon: "🏪", label: t("campaign_pack.pack_lancement_label"), sublabel: t("campaign_pack.pack_lancement_sublabel"), days: 14, price: 149, perDay: 10.6, desc: t("campaign_pack.pack_lancement_desc") },
+    {
+      id: "weekend",
+      icon: "🎪",
+      label: t("campaign_pack.pack_weekend_label"),
+      sublabel: t("campaign_pack.pack_weekend_sublabel"),
+      days: 3,
+      price: 49,
+      perDay: 16.3,
+      desc: t("campaign_pack.pack_weekend_desc"),
+    },
+    {
+      id: "evenement",
+      icon: "🎪",
+      label: t("campaign_pack.pack_evenement_label"),
+      sublabel: t("campaign_pack.pack_evenement_sublabel"),
+      days: 7,
+      price: 79,
+      perDay: 11.3,
+      badge: t("campaign_pack.pack_evenement_badge"),
+      desc: t("campaign_pack.pack_evenement_desc"),
+    },
+    {
+      id: "lancement",
+      icon: "🏪",
+      label: t("campaign_pack.pack_lancement_label"),
+      sublabel: t("campaign_pack.pack_lancement_sublabel"),
+      days: 14,
+      price: 149,
+      perDay: 10.6,
+      desc: t("campaign_pack.pack_lancement_desc"),
+    },
   ];
 
   const packs = isIndividual ? INDIVIDUAL_PACKS : BUSINESS_PACKS;
@@ -44,9 +94,7 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
   return (
     <div className="space-y-4">
       {isIndividual && (
-        <p className="text-xs text-muted-foreground">
-          {t("campaign_pack.individual_notice")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("campaign_pack.individual_notice")}</p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -65,16 +113,18 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
                 {pack.badge}
               </span>
             )}
-            {pack.icon && (
-              <span className="text-2xl mb-2 block">{pack.icon}</span>
-            )}
+            {pack.icon && <span className="text-2xl mb-2 block">{pack.icon}</span>}
             <p className="font-semibold text-sm mb-0.5">{pack.label}</p>
             {pack.sublabel && (
               <p className="text-[10px] text-muted-foreground mb-1.5">{pack.sublabel}</p>
             )}
             <p className="font-display text-2xl font-bold">{fmtAmount(pack.price)}</p>
             <p className="text-xs text-muted-foreground mb-2">
-              {t("campaign_pack.days_rate", { count: pack.days, s: pack.days > 1 ? "s" : "", rate: pack.perDay.toFixed(0) })}
+              {t("campaign_pack.days_rate", {
+                count: pack.days,
+                s: pack.days > 1 ? "s" : "",
+                rate: pack.perDay.toFixed(0),
+              })}
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">{pack.desc}</p>
           </button>
@@ -91,7 +141,13 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
         amountEuros={selected.price}
         returnUrl={returnUrl ?? (typeof window !== "undefined" ? window.location.href : "/")}
         campaignBriefId={campaignBriefId}
-        buttonLabel={t("campaign_pack.btn_pay", { price: selected.price, icon: selected.icon ?? "", label: selected.label, count: selected.days, s: selected.days > 1 ? "s" : "" })}
+        buttonLabel={t("campaign_pack.btn_pay", {
+          price: selected.price,
+          icon: selected.icon ?? "",
+          label: selected.label,
+          count: selected.days,
+          s: selected.days > 1 ? "s" : "",
+        })}
         className="w-full"
       />
     </div>

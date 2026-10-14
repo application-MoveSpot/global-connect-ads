@@ -20,30 +20,29 @@ type Hub = {
 type VehicleTypeCount = { type: string; count: number };
 
 const FRENCH_CITIES: Omit<Hub, "vehicles" | "status">[] = [
-  { id: "par", city: "Paris",      country: "FR", flag: "🇫🇷", lng: 2.3522,  lat: 48.8566 },
-  { id: "lyo", city: "Lyon",       country: "FR", flag: "🇫🇷", lng: 4.8357,  lat: 45.7640 },
-  { id: "mar", city: "Marseille",  country: "FR", flag: "🇫🇷", lng: 5.3698,  lat: 43.2965 },
-  { id: "bor", city: "Bordeaux",   country: "FR", flag: "🇫🇷", lng: -0.5792, lat: 44.8378 },
-  { id: "tou", city: "Toulouse",   country: "FR", flag: "🇫🇷", lng: 1.4442,  lat: 43.6047 },
-  { id: "nic", city: "Nice",       country: "FR", flag: "🇫🇷", lng: 7.2620,  lat: 43.7102 },
-  { id: "nan", city: "Nantes",     country: "FR", flag: "🇫🇷", lng: -1.5534, lat: 47.2184 },
-  { id: "str", city: "Strasbourg", country: "FR", flag: "🇫🇷", lng: 7.7521,  lat: 48.5734 },
+  { id: "par", city: "Paris", country: "FR", flag: "🇫🇷", lng: 2.3522, lat: 48.8566 },
+  { id: "lyo", city: "Lyon", country: "FR", flag: "🇫🇷", lng: 4.8357, lat: 45.764 },
+  { id: "mar", city: "Marseille", country: "FR", flag: "🇫🇷", lng: 5.3698, lat: 43.2965 },
+  { id: "bor", city: "Bordeaux", country: "FR", flag: "🇫🇷", lng: -0.5792, lat: 44.8378 },
+  { id: "tou", city: "Toulouse", country: "FR", flag: "🇫🇷", lng: 1.4442, lat: 43.6047 },
+  { id: "nic", city: "Nice", country: "FR", flag: "🇫🇷", lng: 7.262, lat: 43.7102 },
+  { id: "nan", city: "Nantes", country: "FR", flag: "🇫🇷", lng: -1.5534, lat: 47.2184 },
+  { id: "str", city: "Strasbourg", country: "FR", flag: "🇫🇷", lng: 7.7521, lat: 48.5734 },
 ];
 
 // Types qui ne sont PAS des véhicules et ne doivent jamais apparaître dans les stats
 const EXCLUDED_TYPES = new Set(["sac_a_dos_lcd", "sac_a_dos_affiche"]);
 
-
 function vehicleStatus(count: number): Hub["status"] {
   if (count >= 20) return "high";
-  if (count >= 5)  return "medium";
+  if (count >= 5) return "medium";
   return "low";
 }
 
 const statusColor: Record<Hub["status"], string> = {
-  high:   "#22c55e",
+  high: "#22c55e",
   medium: "#f59e0b",
-  low:    "#ef4444",
+  low: "#ef4444",
 };
 
 export function MobilityMap() {
@@ -77,7 +76,9 @@ export function MobilityMap() {
 
   // Load Mapbox token
   useEffect(() => {
-    getMapboxToken().then((res: { token: string }) => setToken(res.token)).catch(() => setToken(""));
+    getMapboxToken()
+      .then((res: { token: string }) => setToken(res.token))
+      .catch(() => setToken(""));
   }, []);
 
   // Load real vehicle data from Supabase
@@ -92,7 +93,7 @@ export function MobilityMap() {
           .eq("status", "approved");
 
         if (error || !vehicles) {
-          setHubs(FRENCH_CITIES.map(c => ({ ...c, vehicles: 0, status: "low" as const })));
+          setHubs(FRENCH_CITIES.map((c) => ({ ...c, vehicles: 0, status: "low" as const })));
           setLoading(false);
           return;
         }
@@ -113,8 +114,7 @@ export function MobilityMap() {
           const normalized = ownerCity.trim().toLowerCase();
           const match = FRENCH_CITIES.find(
             (c) =>
-              c.city.toLowerCase() === normalized ||
-              normalized.startsWith(c.city.toLowerCase())
+              c.city.toLowerCase() === normalized || normalized.startsWith(c.city.toLowerCase()),
           );
           const cityKey = match ? match.id : null;
           if (!cityKey) continue;
@@ -144,7 +144,7 @@ export function MobilityMap() {
         }
         setCityTypeCounts(perCityTypes);
       } catch {
-        setHubs(FRENCH_CITIES.map(c => ({ ...c, vehicles: 0, status: "low" as const })));
+        setHubs(FRENCH_CITIES.map((c) => ({ ...c, vehicles: 0, status: "low" as const })));
       } finally {
         setLoading(false);
       }
@@ -206,60 +206,78 @@ export function MobilityMap() {
     };
   }, [token, hubs]);
 
-  const currentVehicles = selected ? hubs.find((h) => h.id === selected.id)?.vehicles ?? 0 : 0;
+  const currentVehicles = selected ? (hubs.find((h) => h.id === selected.id)?.vehicles ?? 0) : 0;
   const currentTypeCounts = selected ? (cityTypeCounts[selected.id] ?? []) : [];
   const isLaunching = totalVehicles === 0 && !loading;
 
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-6">
       <MapConsentGate className="aspect-[16/9]">
-      <div className="relative aspect-[16/9] rounded-2xl border border-border bg-gradient-card overflow-hidden shadow-elevated">
-        {token ? (
-          <div ref={mapContainer} className="absolute inset-0" />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center grid-pattern">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
-              {t("mobility_map.loading_map")}
+        <div className="relative aspect-[16/9] rounded-2xl border border-border bg-gradient-card overflow-hidden shadow-elevated">
+          {token ? (
+            <div ref={mapContainer} className="absolute inset-0" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center grid-pattern">
+              <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
+                {t("mobility_map.loading_map")}
+              </div>
             </div>
-          </div>
-        )}
-        {token && (
-          <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-muted-foreground bg-card/80 backdrop-blur px-3 py-2 rounded-lg border border-border">
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal" /> {t("mobility_map.legend_high")}</span>
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-warning" /> {t("mobility_map.legend_medium")}</span>
-            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-destructive" /> {t("mobility_map.legend_low")}</span>
-          </div>
-        )}
-      </div>
+          )}
+          {token && (
+            <div className="absolute bottom-4 left-4 flex gap-4 text-xs text-muted-foreground bg-card/80 backdrop-blur px-3 py-2 rounded-lg border border-border">
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-signal" /> {t("mobility_map.legend_high")}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-warning" />{" "}
+                {t("mobility_map.legend_medium")}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-destructive" />{" "}
+                {t("mobility_map.legend_low")}
+              </span>
+            </div>
+          )}
+        </div>
       </MapConsentGate>
 
       <div className="rounded-2xl border border-border bg-gradient-card p-6 flex flex-col gap-4">
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">{t("mobility_map.loading")}</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">
+              {t("mobility_map.loading")}
+            </div>
           </div>
         ) : isLaunching ? (
           <LaunchingState />
         ) : (
           <>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("mobility_map.selected_city")}</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("mobility_map.selected_city")}
+            </div>
             {selected && (
               <div className="flex items-center gap-3">
                 <span className="text-4xl">{selected.flag}</span>
                 <div>
                   <div className="font-display text-2xl font-semibold">{selected.city}</div>
-                  <div className="text-sm text-muted-foreground">{t("mobility_map.city_country")}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("mobility_map.city_country")}
+                  </div>
                 </div>
               </div>
             )}
             <div className="h-px bg-border" />
             <div>
-              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("mobility_map.vehicles_available")}</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                {t("mobility_map.vehicles_available")}
+              </div>
               <div className="font-display text-4xl font-bold tabular-nums text-primary">
                 {currentVehicles.toLocaleString(i18n.language)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
-                {currentVehicles === 0 ? t("mobility_map.launching_city") : t("mobility_map.verified")}
+                {currentVehicles === 0
+                  ? t("mobility_map.launching_city")
+                  : t("mobility_map.verified")}
               </div>
             </div>
             {currentVehicles > 0 && currentTypeCounts.length > 0 && (

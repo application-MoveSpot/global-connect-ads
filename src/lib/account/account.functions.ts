@@ -69,10 +69,12 @@ export const checkDeletionBlockers = createServerFn({ method: "POST" })
 export const requestAccountDeletion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      reason: z.string().max(500).optional(),
-      confirmText: z.literal("SUPPRIMER"),
-    }).parse(input),
+    z
+      .object({
+        reason: z.string().max(500).optional(),
+        confirmText: z.literal("SUPPRIMER"),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -88,10 +90,13 @@ export const requestAccountDeletion = createServerFn({ method: "POST" })
       .gte("end_date", today);
 
     if (activeCampaigns && activeCampaigns.length > 0) {
-      const endDates = activeCampaigns.map((c) => c.end_date).sort().reverse();
+      const endDates = activeCampaigns
+        .map((c) => c.end_date)
+        .sort()
+        .reverse();
       throw new Error(
         `Vous avez ${activeCampaigns.length} campagne(s) active(s) jusqu'au ${endDates[0]}. ` +
-        `Votre compte ne peut pas être supprimé avant la fin de vos engagements contractuels.`,
+          `Votre compte ne peut pas être supprimé avant la fin de vos engagements contractuels.`,
       );
     }
 
@@ -118,7 +123,10 @@ export const requestAccountDeletion = createServerFn({ method: "POST" })
     await supabaseAdmin.from("payee_profiles").delete().eq("user_id", userId);
     await supabaseAdmin.from("partner_profiles").delete().eq("user_id", userId);
     await supabaseAdmin.from("provider_profiles").delete().eq("user_id", userId);
-    await supabaseAdmin.from("drivers" as never).delete().eq("user_id" as never, userId);
+    await supabaseAdmin
+      .from("drivers" as never)
+      .delete()
+      .eq("user_id" as never, userId);
 
     // ── 4. Supprimer les données GPS (pas de base légale pour les conserver) ──
     await supabaseAdmin.from("vehicle_positions").delete().eq("owner_id", userId);

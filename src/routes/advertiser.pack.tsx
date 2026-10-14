@@ -41,7 +41,12 @@ function PackPage() {
     })();
   }, [navigate]);
 
-  if (!ready) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("advertiser.pack.loading")}</div>;
+  if (!ready)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("advertiser.pack.loading")}
+      </div>
+    );
 
   const isIndividual = accountType === "individual";
 
@@ -59,10 +64,14 @@ function PackPage() {
       <main className="max-w-3xl mx-auto px-4 py-10">
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold mb-2">
-            {isIndividual ? t("advertiser.pack.title_individual") : t("advertiser.pack.title_business")}
+            {isIndividual
+              ? t("advertiser.pack.title_individual")
+              : t("advertiser.pack.title_business")}
           </h1>
           <p className="text-muted-foreground">
-            {isIndividual ? t("advertiser.pack.desc_individual") : t("advertiser.pack.desc_business")}
+            {isIndividual
+              ? t("advertiser.pack.desc_individual")
+              : t("advertiser.pack.desc_business")}
           </p>
         </div>
 
@@ -70,16 +79,26 @@ function PackPage() {
           <h2 className="font-semibold text-lg mb-1">{t("advertiser.pack.how_title")}</h2>
           <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-none">
             <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">1</span>
-              {isIndividual ? t("advertiser.pack.how_step1_individual") : t("advertiser.pack.how_step1_business")}
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
+                1
+              </span>
+              {isIndividual
+                ? t("advertiser.pack.how_step1_individual")
+                : t("advertiser.pack.how_step1_business")}
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">2</span>
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
+                2
+              </span>
               {t("advertiser.pack.how_step2")}
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">3</span>
-              {isIndividual ? t("advertiser.pack.how_step3_individual") : t("advertiser.pack.how_step3_business")}
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center">
+                3
+              </span>
+              {isIndividual
+                ? t("advertiser.pack.how_step3_individual")
+                : t("advertiser.pack.how_step3_business")}
             </li>
           </ol>
         </div>
@@ -90,13 +109,8 @@ function PackPage() {
         />
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
-            {t("advertiser.pack.sub_teaser")}
-          </p>
-          <Link
-            to="/advertiser/briefs"
-            className="text-sm text-primary hover:underline"
-          >
+          <p className="text-sm text-muted-foreground mb-2">{t("advertiser.pack.sub_teaser")}</p>
+          <Link to="/advertiser/briefs" className="text-sm text-primary hover:underline">
             {t("advertiser.pack.sub_link")}
           </Link>
         </div>

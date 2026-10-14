@@ -8,10 +8,7 @@ import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/owner/profil")({
   head: () => ({
-    meta: [
-      { title: "Mon profil — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Mon profil — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: OwnerProfilPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -41,15 +38,23 @@ function OwnerProfilPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/owner/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
 
       const { data: prof } = await supabase
         .from("owner_profiles")
-        .select("id, full_name, city, phone, company, bio, siret, siret_denomination, siret_verified_at")
+        .select(
+          "id, full_name, city, phone, company, bio, siret, siret_denomination, siret_verified_at",
+        )
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (!prof) { navigate({ to: "/owner/inscription" }); return; }
+      if (!prof) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
 
       setProfileId(prof.id);
       setFullName(prof.full_name ?? "");
@@ -81,7 +86,11 @@ function OwnerProfilPage() {
       })
       .eq("id", profileId);
 
-    if (upErr) { setError(upErr.message); setLoading(false); return; }
+    if (upErr) {
+      setError(upErr.message);
+      setLoading(false);
+      return;
+    }
     setSaved(true);
     setLoading(false);
   };
@@ -97,8 +106,13 @@ function OwnerProfilPage() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-4"><LogoLink /></div>
-        <Link to="/owner" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+        <div className="mb-4">
+          <LogoLink />
+        </div>
+        <Link
+          to="/owner"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
           {t("profile.back")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
@@ -106,25 +120,56 @@ function OwnerProfilPage() {
           <p className="text-sm text-muted-foreground mb-6">{t("profile.desc")}</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label={t("profile.full_name")} value={fullName} onChange={setFullName} required />
+            <Field
+              label={t("profile.full_name")}
+              value={fullName}
+              onChange={setFullName}
+              required
+            />
             <div className="grid grid-cols-2 gap-4">
-              <Field label={t("profile.city")} value={city} onChange={setCity} placeholder={t("profile.city_placeholder")} />
-              <Field label={t("profile.phone")} value={phone} onChange={setPhone} type="tel" placeholder={t("profile.phone_placeholder")} />
+              <Field
+                label={t("profile.city")}
+                value={city}
+                onChange={setCity}
+                placeholder={t("profile.city_placeholder")}
+              />
+              <Field
+                label={t("profile.phone")}
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                placeholder={t("profile.phone_placeholder")}
+              />
             </div>
-            <Field label={t("profile.company")} value={company} onChange={setCompany} placeholder={t("profile.company_placeholder")} />
+            <Field
+              label={t("profile.company")}
+              value={company}
+              onChange={setCompany}
+              placeholder={t("profile.company_placeholder")}
+            />
 
             <div>
               <label className="block text-sm font-medium mb-1.5">{t("profile.bio")}</label>
-              <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} maxLength={300}
+              <textarea
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                rows={3}
+                maxLength={300}
                 placeholder={t("profile.bio_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
               <p className="text-xs text-muted-foreground mt-1">{t("profile.bio_hint")}</p>
             </div>
 
             {siret && (
               <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("profile.siret_section")}</p>
-                <p className="text-sm">{siret}{siretDenomination ? ` — ${siretDenomination}` : ""}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("profile.siret_section")}
+                </p>
+                <p className="text-sm">
+                  {siret}
+                  {siretDenomination ? ` — ${siretDenomination}` : ""}
+                </p>
                 {siretVerifiedAt && (
                   <p className="text-xs text-muted-foreground">{t("profile.siret_verified")}</p>
                 )}
@@ -132,11 +177,22 @@ function OwnerProfilPage() {
               </div>
             )}
 
-            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
-            {saved && <div className="rounded-lg bg-green-500/15 border border-green-500/40 p-3 text-sm text-green-700 dark:text-green-400">{t("profile.saved")}</div>}
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            {saved && (
+              <div className="rounded-lg bg-green-500/15 border border-green-500/40 p-3 text-sm text-green-700 dark:text-green-400">
+                {t("profile.saved")}
+              </div>
+            )}
 
-            <button type="submit" disabled={loading}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
               {loading ? t("profile.saving") : t("profile.submit")}
             </button>
           </form>
@@ -146,14 +202,32 @@ function OwnerProfilPage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string;
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }

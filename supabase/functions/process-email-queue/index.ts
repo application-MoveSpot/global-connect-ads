@@ -8,8 +8,8 @@ const MAX_RETRIES = 3;
 const VT = 30; // visibility timeout in seconds — message invisible to other workers during processing
 
 const QUEUES = [
-  { name: "auth_emails",            dlq: "auth_emails_dlq" },
-  { name: "transactional_emails",   dlq: "transactional_emails_dlq" },
+  { name: "auth_emails", dlq: "auth_emails_dlq" },
+  { name: "transactional_emails", dlq: "transactional_emails_dlq" },
 ];
 
 type QueueMsg = { msg_id: number; read_ct: number; message: EmailPayload };
