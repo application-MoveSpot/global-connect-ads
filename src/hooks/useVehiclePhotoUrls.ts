@@ -1,14 +1,40 @@
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-/**
- * Resolves vehicle photo entries to displayable URLs.
- * Accepts either full https:// CDN URLs (returned as-is) or storage paths
- * (userId/filename) — resolved via getPublicUrl since the bucket is public.
- */
 export function useVehiclePhotoUrls(photosOrPaths: string[] | null | undefined): string[] {
-  return (photosOrPaths ?? []).map((p) => {
-    if (p.startsWith("http")) return p;
-    const { data } = supabase.storage.from("vehicle-photos").getPublicUrl(p);
-    return data.publicUrl;
-  });
+  const [urls, setUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    const input = photosOrPaths ?? [];
+    if (input.length === 0) {
+      setUrls([]);
+      return;
+    }
+
+    let cancelled = false;
+    const resolve = async () => {
+      const resolved = await Promise.all(
+        input.map(async (p) => {
+          let path = p;
+          if (p.includes("/storage/v1/object/public/vehicle-photos/")) {
+            path = p.split("/storage/v1/object/public/vehicle-photos/")[1];
+          } else if (p.startsWith("http")) {
+            return p;
+          }
+          const { data } = await supabase.storage
+            .from("vehicle-photos")
+            .createSignedUrl(path, 7200);
+          return data?.signedUrl ?? "";
+        }),
+      );
+      if (!cancelled) setUrls(resolved.filter(Boolean));
+    };
+    void resolve();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(photosOrPaths)]);
+
+  return urls;
 }
