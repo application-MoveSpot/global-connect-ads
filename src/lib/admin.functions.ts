@@ -624,7 +624,13 @@ export const adminListVehicles = createServerFn({ method: "GET" })
       .select("id, name, type, condition, status, zones, price_per_day, km_per_day, surface_m2, photos, description, ai_verification, admin_notes, created_at, owner_id")
       .order("created_at", { ascending: false })
       .limit(200);
-    return { vehicles: data ?? [] };
+    const vehicles = (data ?? []).map((v: any) => ({
+      ...v,
+      photos: (v.photos ?? []).map((p: string) =>
+        p.startsWith("http") ? p : supabaseAdmin.storage.from("vehicle-photos").getPublicUrl(p).data.publicUrl
+      ),
+    }));
+    return { vehicles };
   });
 
 export const adminReviewVehicle = createServerFn({ method: "POST" })

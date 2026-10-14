@@ -147,23 +147,21 @@ function NewVehiclePage() {
 
   const uploadPhotos = async (): Promise<string[]> => {
     if (!userId) return [];
-    const paths: string[] = [];
+    const urls: string[] = [];
     for (const file of files.slice(0, 5)) {
       const resized = await resizeImageFile(file, 1600, 0.85);
       const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, resized);
       if (upErr) throw new Error(`Upload : ${upErr.message}`);
-      paths.push(path);
+      const { data: { publicUrl } } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
+      urls.push(publicUrl);
     }
-    return paths;
+    return urls;
   };
 
   const pathsToSignedUrls = async (paths: string[]): Promise<string[]> => {
-    const needSign = paths.filter((p) => !p.startsWith("http"));
-    if (needSign.length === 0) return paths;
-    const { data } = await supabase.storage.from("vehicle-photos").createSignedUrls(needSign, 3600);
-    let idx = 0;
-    return paths.map((p) => (p.startsWith("http") ? p : (data?.[idx++]?.signedUrl ?? "")));
+    // Le bucket est public — les URLs http sont déjà utilisables directement
+    return paths;
   };
 
   const runEstimate = async () => {
