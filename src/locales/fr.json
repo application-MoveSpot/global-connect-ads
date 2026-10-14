@@ -4447,6 +4447,18 @@
         "ai_generate": "Générer",
         "ai_generating": "Génération…",
         "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
+      },
+      "modifier": {
+        "title": "Modifier le véhicule",
+        "desc": "Mettez à jour les informations de votre véhicule.",
+        "back": "Retour",
+        "loading": "Chargement…",
+        "not_found": "Véhicule introuvable.",
+        "submit": "Enregistrer les modifications",
+        "photos_readonly_hint": "Les photos ne peuvent pas être modifiées après validation. Contactez le support si nécessaire.",
+        "ai_panel_title": "Mettre à jour avec l'IA — décrivez votre véhicule",
+        "ai_panel_desc": "Décrivez votre véhicule en quelques phrases et l'IA mettra à jour le formulaire pour vous.",
+        "ai_generate_error": "Erreur lors de la génération IA. Réessayez."
       }
     },
     "welcome": "Bienvenue",

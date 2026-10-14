@@ -4402,6 +4402,18 @@
         "ai_generate": "Generate",
         "ai_generating": "Generating…",
         "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
+      },
+      "modifier": {
+        "title": "Edit vehicle",
+        "desc": "Update your vehicle's information.",
+        "back": "Back",
+        "loading": "Loading…",
+        "not_found": "Vehicle not found.",
+        "submit": "Save changes",
+        "photos_readonly_hint": "Photos cannot be changed after validation. Contact support if needed.",
+        "ai_panel_title": "Update with AI — describe your vehicle",
+        "ai_panel_desc": "Describe your vehicle in a few sentences and the AI will update the form for you.",
+        "ai_generate_error": "AI generation error. Please try again."
       }
     },
     "welcome": "Welcome",
