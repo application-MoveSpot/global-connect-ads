@@ -1,20 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-function getBetaWhitelist(): string[] {
-  const raw = import.meta.env.VITE_BETA_EMAILS ?? "";
-  if (!raw.trim()) return [];
-  return raw
-    .split(",")
-    .map((e: string) => e.trim().toLowerCase())
-    .filter(Boolean);
-}
+// Emails autorisés pendant la phase beta. Vide = app ouverte à tous.
+const BETA_WHITELIST: string[] = ["rakounklub@gmail.com"];
 
 export function BetaGuard({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"loading" | "allowed" | "waitlist">("loading");
 
   useEffect(() => {
-    const whitelist = getBetaWhitelist();
+    const whitelist = BETA_WHITELIST.map((e) => e.toLowerCase());
 
     // Whitelist vide → app ouverte à tous
     if (whitelist.length === 0) {
