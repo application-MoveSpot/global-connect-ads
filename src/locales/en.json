@@ -4313,10 +4313,11 @@
     "validation_pending_desc": "Your account is being reviewed. You will be notified once validated.",
     "validation_pending_title": "Validation in progress",
     "vehicle_approved_notif": "Vehicle approved! You can now receive campaigns.",
-    "vehicle_km_per_day": "{{count}} km/day",
+    "vehicle_edit_link": "Edit this vehicle",
+    "vehicle_km_per_day": "{{value}} km/day",
     "vehicle_price_day": "{{price}} €/day",
     "vehicle_rejected_notif": "Your vehicle was not approved.",
-    "vehicle_surface": "{{surface}} m²",
+    "vehicle_surface": "{{value}} m²",
     "vehicules": {
       "nouveau": {
         "autre_type_hint": "Specify the vehicle type",
