@@ -4358,10 +4358,11 @@
     "validation_pending_desc": "Votre compte est en cours de vérification. Vous serez notifié une fois validé.",
     "validation_pending_title": "Validation en cours",
     "vehicle_approved_notif": "Véhicule approuvé ! Vous pouvez maintenant recevoir des campagnes.",
-    "vehicle_km_per_day": "{{count}} km/jour",
+    "vehicle_edit_link": "Modifier ce véhicule",
+    "vehicle_km_per_day": "{{value}} km/jour",
     "vehicle_price_day": "{{price}} €/jour",
     "vehicle_rejected_notif": "Votre véhicule n'a pas été approuvé.",
-    "vehicle_surface": "{{surface}} m²",
+    "vehicle_surface": "{{value}} m²",
     "vehicules": {
       "nouveau": {
         "autre_type_hint": "Précisez le type de véhicule",
