@@ -171,9 +171,17 @@ Analyse ce véhicule proposé sur MoveSpot et :
    - Marque "ne correspond pas" UNIQUEMENT si la photo montre un véhicule clairement d'une autre catégorie (ex: scooter déclaré comme food truck).
 
 2. Détecte INDÉPENDAMMENT si la/les photo(s) ont été générées ou retouchées par une IA. Sois STRICT mais JUSTE :
-   - Indices IA : artefacts de diffusion, textures plastiques/lissées anormalement, plaques d'immatriculation illisibles ou incohérentes, reflets/ombres physiquement impossibles, perspectives déformées, détails flous au mauvais endroit, watermarks IA.
-   - NE classe PAS comme IA une photo authentique simplement parce qu'elle est nette, bien éclairée ou en studio. Une photo pro reste une photo réelle.
-   - En cas de doute raisonnable sur l'authenticité → ai_generated_detected: false, mais signale-le dans recommendation.
+   - Indices IA FORTS (si l'un est présent, mets ai_generated_detected: true) :
+     * Textes ou inscriptions sur la carrosserie/pare-chocs illisibles, garbled ou incohérents (ex: lettres mélangées, mots qui n'existent pas comme "RENAULTARE.CORNGAS" ou "G01GZ1P" — les IA de diffusion génèrent souvent du faux texte).
+     * Plaque d'immatriculation avec caractères illisibles, mélangés ou de format inexistant (plaques françaises : AA-000-AA ou 000-AAA-00 ancienne ; DOM/TOM : similaires).
+     * Artefacts de diffusion : textures anormalement lisses/plastiques, zones bizarrement floues hors bokeh naturel.
+     * Reflets ou ombres physiquement impossibles (ombre côté opposé à la source lumineuse, reflets sans source réelle).
+     * Incohérences entre photos : nombre de rayons de roues différent, couleur qui change légèrement, badge/logo déformé ou asymétrique.
+     * Perspectives géométriquement impossibles, surfaces courbées de façon anormale.
+     * Watermarks ou signatures IA visibles.
+   - NE classe PAS comme IA une photo authentique simplement parce qu'elle est nette, bien éclairée ou prise en studio. Une photo pro de concessionnaire ou de presse automobile est une vraie photo.
+   - En cas de doute raisonnable sans indice fort → ai_generated_detected: false, mentionne le doute dans recommendation.
+   - Si ai_generated_detected: true → dans ai_generated_notes, explique PRÉCISÉMENT et en langage clair ce qui a été détecté (cite l'indice exact, ex : "Le texte sur le pare-choc avant est illisible et incohérent — signe caractéristique d'une image générée par IA. Veuillez photographier votre véhicule réel."). L'explication doit permettre au propriétaire de comprendre pourquoi sa photo est refusée et comment corriger la situation.
 
 3. Estime une fourchette de prix par jour réaliste en € (marché FR) selon type, état, surface, km/jour et zones.
    IMPORTANT : utilise le tier de densité de trafic fourni dans "Densité de trafic par zone" pour calibrer les impressions ET le prix. Un véhicule en zone urban_dense génère 2 à 3× plus d'impressions qu'en zone suburban, et peut justifier un prix 20-40 % plus élevé.
