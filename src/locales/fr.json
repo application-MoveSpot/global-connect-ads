@@ -2570,6 +2570,8 @@
       "pose_status_pending": "En attente de validation",
       "pose_status_approved": "Pose validée",
       "pose_status_rejected": "Pose refusée",
+      "pose_status_impossible": "Pose impossible",
+      "pose_impossible_reason_label": "Motif :",
       "pose_approve_btn": "Approuver la pose",
       "pose_reject_placeholder": "Motif de refus (obligatoire)",
       "pose_transferred": "✅ Forfait pose viré ({{amount}})",
