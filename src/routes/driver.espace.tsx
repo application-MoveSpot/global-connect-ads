@@ -13,7 +13,11 @@ import { PayeeConnectCard } from "@/components/driver/PayeeConnectCard";
 import { InstallationJobsPanel } from "@/components/driver/InstallationJobsPanel";
 import { DeposeJobsPanel } from "@/components/driver/DeposeJobsPanel";
 import { StatusHistory } from "@/components/shared/StatusHistory";
-import { getPayeeEarnings, VEHICLE_KIND_LABEL, type VehicleKind } from "@/lib/payments/payee.functions";
+import {
+  getPayeeEarnings,
+  VEHICLE_KIND_LABEL,
+  type VehicleKind,
+} from "@/lib/payments/payee.functions";
 import { getDriverVehicleQrTokens } from "@/lib/qr/qr.functions";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { RouteError } from "@/components/app/RouteError";
@@ -35,8 +39,6 @@ type Profile = {
   stripe_payouts_enabled: boolean | null;
 };
 
-
-
 export const Route = createFileRoute("/driver/espace")({
   head: () => ({
     meta: [
@@ -46,7 +48,10 @@ export const Route = createFileRoute("/driver/espace")({
         content: "Gérez votre profil provider MoveSpot et vos reversements automatiques sur IBAN.",
       },
       { property: "og:title", content: "Espace driver / poseur — MoveSpot" },
-      { property: "og:description", content: "Profil provider et reversements automatiques MoveSpot." },
+      {
+        property: "og:description",
+        content: "Profil provider et reversements automatiques MoveSpot.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "robots", content: "noindex,nofollow" },
@@ -59,17 +64,24 @@ export const Route = createFileRoute("/driver/espace")({
 function ChauffeurEspace() {
   const { t, i18n } = useTranslation();
   const dateLocale = i18n.language;
-  const eur = (cents: number) => (cents / 100).toLocaleString(dateLocale, { style: "currency", currency: "EUR" });
+  const eur = (cents: number) =>
+    (cents / 100).toLocaleString(dateLocale, { style: "currency", currency: "EUR" });
   const navigate = useNavigate();
   const fetchEarnings = useServerFn(getPayeeEarnings);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [earnings, setEarnings] = useState<{ totalCents: number; paidCents: number; pendingCents: number } | null>(null);
+  const [earnings, setEarnings] = useState<{
+    totalCents: number;
+    paidCents: number;
+    pendingCents: number;
+  } | null>(null);
   const [state, setState] = useState<"loading" | "ready">("loading");
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const userIdRef = useRef<string | null>(null);
   const { state: pushState, subscribe: subscribePush } = usePushSubscription(authUserId);
   const [subscribingPush, setSubscribingPush] = useState(false);
-  const [driverQrs, setDriverQrs] = useState<{ vehicleId: string; vehicleName: string; vehicleType: string; qrImg: string; url: string }[]>([]);
+  const [driverQrs, setDriverQrs] = useState<
+    { vehicleId: string; vehicleName: string; vehicleType: string; qrImg: string; url: string }[]
+  >([]);
   const [vehicleZones, setVehicleZones] = useState<Record<string, string[]>>({});
   const fetchDriverQrs = useServerFn(getDriverVehicleQrTokens);
   const GPS_STORAGE_KEY = "driver_gps_active_v1";
@@ -77,14 +89,21 @@ function ChauffeurEspace() {
     try {
       const stored = localStorage.getItem(GPS_STORAGE_KEY);
       if (stored) return new Set(JSON.parse(stored) as string[]);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return new Set<string>();
   });
   const toggleGps = (vehicleId: string) => {
     setActiveGps((prev) => {
       const next = new Set(prev);
-      if (next.has(vehicleId)) next.delete(vehicleId); else next.add(vehicleId);
-      try { localStorage.setItem(GPS_STORAGE_KEY, JSON.stringify([...next])); } catch { /* ignore */ }
+      if (next.has(vehicleId)) next.delete(vehicleId);
+      else next.add(vehicleId);
+      try {
+        localStorage.setItem(GPS_STORAGE_KEY, JSON.stringify([...next]));
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   };
@@ -92,7 +111,9 @@ function ChauffeurEspace() {
   const loadProfile = async (userId: string) => {
     const { data } = await supabase
       .from("payee_profiles")
-      .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled")
+      .select(
+        "id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled",
+      )
       .eq("user_id", userId)
       .maybeSingle();
     if (data) setProfile(data as Profile);
@@ -101,44 +122,88 @@ function ChauffeurEspace() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/driver/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/driver/inscription" });
+        return;
+      }
       const userId = session.user.id;
       userIdRef.current = userId;
       setAuthUserId(userId);
       const { data } = await supabase
         .from("payee_profiles")
-        .select("id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled")
+        .select(
+          "id, kind, full_name, phone, city, status, vehicle_kind, vehicle_plate, certification_status, certification_notes, stripe_account_id, stripe_payouts_enabled",
+        )
         .eq("user_id", userId)
         .maybeSingle();
-      if (!data) { navigate({ to: "/driver/inscription" }); return; }
+      if (!data) {
+        navigate({ to: "/driver/inscription" });
+        return;
+      }
       setProfile(data as Profile);
       setState("ready");
       fetchEarnings()
-        .then((e: any) => setEarnings({ totalCents: e.totalCents, paidCents: e.paidCents, pendingCents: e.pendingCents }))
+        .then((e: any) =>
+          setEarnings({
+            totalCents: e.totalCents,
+            paidCents: e.paidCents,
+            pendingCents: e.pendingCents,
+          }),
+        )
         .catch(() => setEarnings({ totalCents: 0, paidCents: 0, pendingCents: 0 }));
       // Load driver QR codes for assigned vehicles
-      fetchDriverQrs().then(async (res: { vehicles: { vehicleId: string; vehicleName: string; vehicleType: string; token: string }[] }) => {
-        const origin = window.location.origin;
-        const qrs = await Promise.all(
-          res.vehicles.map(async (v: { vehicleId: string; vehicleName: string; vehicleType: string; token: string }) => {
-            const url = `${origin}/driver?t=${encodeURIComponent(v.token)}`;
-            const qrImg = await QRCode.toDataURL(url, { width: 320, margin: 1 }).catch(() => "");
-            return { vehicleId: v.vehicleId, vehicleName: v.vehicleName, vehicleType: v.vehicleType, qrImg, url };
-          }),
-        );
-        const filtered = qrs.filter((q) => q.qrImg);
-        setDriverQrs(filtered);
-        // Fetch zones for each assigned vehicle
-        if (filtered.length > 0) {
-          const ids = filtered.map((q) => q.vehicleId);
-          supabase.from("vehicles").select("id, zones").in("id", ids).then(({ data }) => {
-            if (!data) return;
-            const map: Record<string, string[]> = {};
-            for (const row of data) map[row.id] = (row.zones ?? []) as string[];
-            setVehicleZones(map);
-          });
-        }
-      }).catch(() => {});
+      fetchDriverQrs()
+        .then(
+          async (res: {
+            vehicles: {
+              vehicleId: string;
+              vehicleName: string;
+              vehicleType: string;
+              token: string;
+            }[];
+          }) => {
+            const origin = window.location.origin;
+            const qrs = await Promise.all(
+              res.vehicles.map(
+                async (v: {
+                  vehicleId: string;
+                  vehicleName: string;
+                  vehicleType: string;
+                  token: string;
+                }) => {
+                  const url = `${origin}/driver?t=${encodeURIComponent(v.token)}`;
+                  const qrImg = await QRCode.toDataURL(url, { width: 320, margin: 1 }).catch(
+                    () => "",
+                  );
+                  return {
+                    vehicleId: v.vehicleId,
+                    vehicleName: v.vehicleName,
+                    vehicleType: v.vehicleType,
+                    qrImg,
+                    url,
+                  };
+                },
+              ),
+            );
+            const filtered = qrs.filter((q) => q.qrImg);
+            setDriverQrs(filtered);
+            // Fetch zones for each assigned vehicle
+            if (filtered.length > 0) {
+              const ids = filtered.map((q) => q.vehicleId);
+              supabase
+                .from("vehicles")
+                .select("id, zones")
+                .in("id", ids)
+                .then(({ data }) => {
+                  if (!data) return;
+                  const map: Record<string, string[]> = {};
+                  for (const row of data) map[row.id] = (row.zones ?? []) as string[];
+                  setVehicleZones(map);
+                });
+            }
+          },
+        )
+        .catch(() => {});
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -150,19 +215,43 @@ function ChauffeurEspace() {
     if (!userId) return;
     const channel = supabase
       .channel(`driver-profile-${profile.id}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "payee_profiles", filter: `user_id=eq.${userId}` }, (payload) => {
-          const newCertif = (payload.new as Record<string, unknown>).certification_status as string | undefined;
-          if (newCertif === "certified") pushNotification(t("driver.espace.certif_notif_ok"), t("driver.espace.certif_notif_ok_desc"));
-          else if (newCertif === "rejected") pushNotification(t("driver.espace.certif_notif_rejected"), t("driver.espace.certif_notif_rejected_desc"));
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "payee_profiles",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const newCertif = (payload.new as Record<string, unknown>).certification_status as
+            string | undefined;
+          if (newCertif === "certified")
+            pushNotification(
+              t("driver.espace.certif_notif_ok"),
+              t("driver.espace.certif_notif_ok_desc"),
+            );
+          else if (newCertif === "rejected")
+            pushNotification(
+              t("driver.espace.certif_notif_rejected"),
+              t("driver.espace.certif_notif_rejected_desc"),
+            );
           void loadProfile(userId);
-        })
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id]);
 
   if (state === "loading") {
-    return <div className="min-h-screen bg-background p-8 text-muted-foreground">{t("common.loading")}</div>;
+    return (
+      <div className="min-h-screen bg-background p-8 text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
   }
 
   const certifStatus = profile?.certification_status ?? "pending";
@@ -188,35 +277,50 @@ function ChauffeurEspace() {
           <LogoLink />
           <div className="flex items-center gap-3">
             <NotificationBell userId={authUserId} />
-            <Link to="/driver" search={{ t: "" }} className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+            <Link
+              to="/driver"
+              search={{ t: "" }}
+              className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+            >
               {t("driver.espace.gps_nav_link")}
             </Link>
           </div>
         </div>
 
         <div>
-          <h1 className="font-display text-3xl font-bold">{t("driver.espace.hello", { name: profile?.full_name })}</h1>
+          <h1 className="font-display text-3xl font-bold">
+            {t("driver.espace.hello", { name: profile?.full_name })}
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {profile ? t(`driver.espace.kind_${profile.kind}`) : ""}
             {profile?.city ? ` · ${profile.city}` : ""}
           </p>
         </div>
 
-        {profile && (profile.kind === "installer" || profile.kind === "both") &&
+        {profile &&
+          (profile.kind === "installer" || profile.kind === "both") &&
           profile.certification_status === "certified" &&
           (pushState === "default" || pushState === "loading") && (
-          <button
-            onClick={async () => { setSubscribingPush(true); await subscribePush(); setSubscribingPush(false); }}
-            disabled={subscribingPush}
-            className="flex items-start gap-3 w-full rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-300 text-left hover:opacity-90 transition disabled:opacity-60"
-          >
-            <span className="mt-0.5 text-base shrink-0">🔔</span>
-            <span>
-              {t("driver.espace.push_desc")}{" "}
-              <strong className="underline">{subscribingPush ? t("driver.espace.push_activating") : t("driver.espace.push_activate")}</strong>
-            </span>
-          </button>
-        )}
+            <button
+              onClick={async () => {
+                setSubscribingPush(true);
+                await subscribePush();
+                setSubscribingPush(false);
+              }}
+              disabled={subscribingPush}
+              className="flex items-start gap-3 w-full rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-300 text-left hover:opacity-90 transition disabled:opacity-60"
+            >
+              <span className="mt-0.5 text-base shrink-0">🔔</span>
+              <span>
+                {t("driver.espace.push_desc")}{" "}
+                <strong className="underline">
+                  {subscribingPush
+                    ? t("driver.espace.push_activating")
+                    : t("driver.espace.push_activate")}
+                </strong>
+              </span>
+            </button>
+          )}
 
         {profile && !profile.stripe_payouts_enabled && (
           <a
@@ -231,8 +335,7 @@ function ChauffeurEspace() {
             <span>
               {profile.stripe_account_id
                 ? t("driver.espace.stripe_incomplete")
-                : t("driver.espace.stripe_no_iban")}
-              {" "}
+                : t("driver.espace.stripe_no_iban")}{" "}
               <strong className="underline">{t("driver.espace.stripe_setup")}</strong>
             </span>
           </a>
@@ -240,7 +343,9 @@ function ChauffeurEspace() {
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("driver.espace.certif_label")}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("driver.espace.certif_label")}
+            </p>
             <p className={`mt-2 text-sm font-semibold ${certif.className}`}>{certif.label}</p>
             {profile?.certification_notes && (
               <p className="mt-1 text-xs text-muted-foreground">{profile.certification_notes}</p>
@@ -260,19 +365,30 @@ function ChauffeurEspace() {
             )}
           </div>
           <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("driver.espace.vehicle_label")}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("driver.espace.vehicle_label")}
+            </p>
             <p className="mt-2 text-sm font-semibold">
-              {profile?.vehicle_kind ? VEHICLE_KIND_LABEL[profile.vehicle_kind] : t("driver.espace.vehicle_not_set")}
+              {profile?.vehicle_kind
+                ? VEHICLE_KIND_LABEL[profile.vehicle_kind]
+                : t("driver.espace.vehicle_not_set")}
             </p>
             {profile?.vehicle_plate && (
-              <p className="mt-1 text-xs text-muted-foreground">{t("driver.espace.vehicle_plate_abbr")} {profile.vehicle_plate}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("driver.espace.vehicle_plate_abbr")} {profile.vehicle_plate}
+              </p>
             )}
           </div>
           <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("driver.espace.earnings_label")}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("driver.espace.earnings_label")}
+            </p>
             <p className="mt-2 text-2xl font-bold">{eur(earnings?.totalCents ?? 0)}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {t("driver.espace.earnings_detail", { paid: eur(earnings?.paidCents ?? 0), pending: eur(earnings?.pendingCents ?? 0) })}
+              {t("driver.espace.earnings_detail", {
+                paid: eur(earnings?.paidCents ?? 0),
+                pending: eur(earnings?.pendingCents ?? 0),
+              })}
             </p>
           </div>
         </div>
@@ -281,9 +397,12 @@ function ChauffeurEspace() {
           <PayeeConnectCard />
         </div>
 
-        {profile && (profile.kind === "installer" || profile.kind === "both") ? <InstallationJobsPanel /> : null}
-        {profile && (profile.kind === "installer" || profile.kind === "both") ? <DeposeJobsPanel /> : null}
-
+        {profile && (profile.kind === "installer" || profile.kind === "both") ? (
+          <InstallationJobsPanel />
+        ) : null}
+        {profile && (profile.kind === "installer" || profile.kind === "both") ? (
+          <DeposeJobsPanel />
+        ) : null}
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-2">
           <h3 className="font-display text-lg font-semibold">{t("driver.espace.payment_title")}</h3>
@@ -303,12 +422,13 @@ function ChauffeurEspace() {
           <h3 className="font-display text-lg font-semibold">{t("driver.espace.gps_title")}</h3>
           {driverQrs.length > 0 ? (
             <>
-              <p className="text-sm text-muted-foreground">
-                {t("driver.espace.qr_desc")}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("driver.espace.qr_desc")}</p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {driverQrs.map((q) => (
-                  <div key={q.vehicleId} className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3">
+                  <div
+                    key={q.vehicleId}
+                    className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3"
+                  >
                     <div className="flex items-center gap-4">
                       <img
                         src={q.qrImg}
@@ -329,8 +449,12 @@ function ChauffeurEspace() {
                               : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${activeGps.has(q.vehicleId) ? "bg-emerald-500" : "bg-muted-foreground"}`} />
-                          {activeGps.has(q.vehicleId) ? t("driver.espace.gps_status_active") : t("driver.espace.gps_status_inactive")}
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full shrink-0 ${activeGps.has(q.vehicleId) ? "bg-emerald-500" : "bg-muted-foreground"}`}
+                          />
+                          {activeGps.has(q.vehicleId)
+                            ? t("driver.espace.gps_status_active")
+                            : t("driver.espace.gps_status_inactive")}
                         </button>
                         <div className="flex flex-wrap gap-2">
                           {q.vehicleType === "camion_led" ? (
@@ -364,14 +488,30 @@ function ChauffeurEspace() {
                       <div>
                         <WeatherInstallCheck zone={vehicleZones[q.vehicleId]![0]!} />
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="text-xs text-muted-foreground">{t("driver.traffic_label")}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {t("driver.traffic_label")}
+                          </span>
                           {(() => {
                             const zone = vehicleZones[q.vehicleId]![0]!;
                             const enc = encodeURIComponent(zone);
                             return (
                               <>
-                                <a href={`https://waze.com/ul?q=${enc}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Waze</a>
-                                <a href={`https://maps.google.com/maps?q=${enc}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Google Maps</a>
+                                <a
+                                  href={`https://waze.com/ul?q=${enc}&navigate=yes`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary"
+                                >
+                                  Waze
+                                </a>
+                                <a
+                                  href={`https://maps.google.com/maps?q=${enc}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary"
+                                >
+                                  Google Maps
+                                </a>
                               </>
                             );
                           })()}
@@ -383,11 +523,13 @@ function ChauffeurEspace() {
               </div>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {t("driver.espace.qr_empty")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("driver.espace.qr_empty")}</p>
           )}
-          <Link to="/driver" search={{ t: "" }} className="inline-block text-sm font-semibold text-primary hover:underline">
+          <Link
+            to="/driver"
+            search={{ t: "" }}
+            className="inline-block text-sm font-semibold text-primary hover:underline"
+          >
             {t("driver.espace.open_gps")}
           </Link>
         </div>
@@ -425,7 +567,11 @@ function InstallationChecklist() {
     setChecked((prev) => {
       const next = [...prev];
       next[i] = !next[i];
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   };
@@ -433,7 +579,9 @@ function InstallationChecklist() {
   const allDone = checked.every(Boolean);
 
   return (
-    <div className={`rounded-2xl border p-6 space-y-4 transition ${allDone ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-card"}`}>
+    <div
+      className={`rounded-2xl border p-6 space-y-4 transition ${allDone ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-card"}`}
+    >
       <h3 className="font-display text-lg font-semibold">{t("driver.espace.checklist_title")}</h3>
       <ul className="space-y-3">
         {STEPS.map((_, i) => (
@@ -450,18 +598,28 @@ function InstallationChecklist() {
             >
               {checked[i] && (
                 <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
-                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M2 6l3 3 5-5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               )}
             </button>
-            <span className={`text-sm leading-snug ${checked[i] ? "line-through text-muted-foreground" : ""}`}>
+            <span
+              className={`text-sm leading-snug ${checked[i] ? "line-through text-muted-foreground" : ""}`}
+            >
               {t(`driver.espace.checklist_step_${i + 1}`)}
             </span>
           </li>
         ))}
       </ul>
       {allDone ? (
-        <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{t("driver.espace.checklist_all_done")}</p>
+        <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+          {t("driver.espace.checklist_all_done")}
+        </p>
       ) : (
         <p className="text-xs text-muted-foreground">{t("driver.espace.checklist_incomplete")}</p>
       )}

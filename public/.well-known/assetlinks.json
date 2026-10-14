@@ -4,9 +4,7 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.movespot.app",
-      "sha256_cert_fingerprints": [
-        "REMPLACER_PAR_SHA256_DE_VOTRE_CLE_ANDROID"
-      ]
+      "sha256_cert_fingerprints": ["REMPLACER_PAR_SHA256_DE_VOTRE_CLE_ANDROID"]
     }
   }
 ]

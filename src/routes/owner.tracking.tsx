@@ -10,7 +10,13 @@ import {
 import { GpsBatchBuffer } from "@/lib/tracking/gps-buffer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
 import { getDrivingRules } from "@/lib/fleet/driving-rules";
 import { toast } from "sonner";
@@ -26,7 +32,11 @@ export const Route = createFileRoute("/owner/tracking")({
   component: TrackingPage,
   errorComponent: ({ error }: { error: Error }) => {
     const { t } = useTranslation();
-    return <div className="p-8 text-center text-destructive">{t("owner.tracking.error", { message: error.message })}</div>;
+    return (
+      <div className="p-8 text-center text-destructive">
+        {t("owner.tracking.error", { message: error.message })}
+      </div>
+    );
   },
 });
 
@@ -42,7 +52,9 @@ function TrackingPage() {
   const [vehicleId, setVehicleId] = useState<string>("");
   const [tracking, setTracking] = useState(false);
   const [lastSent, setLastSent] = useState<Date | null>(null);
-  const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
+  const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(
+    null,
+  );
   const [gpsErrorCount, setGpsErrorCount] = useState(0);
   const [sendErrorCount, setSendErrorCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
@@ -115,7 +127,11 @@ function TrackingPage() {
   async function acquireWakeLock() {
     try {
       if ("wakeLock" in navigator) {
-        wakeLockRef.current = await (navigator as Navigator & { wakeLock: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock.request("screen");
+        wakeLockRef.current = await (
+          navigator as Navigator & {
+            wakeLock: { request: (type: "screen") => Promise<WakeLockSentinel> };
+          }
+        ).wakeLock.request("screen");
       }
     } catch {
       // ignore
@@ -165,7 +181,11 @@ function TrackingPage() {
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
-        setLastCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy });
+        setLastCoords({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          acc: pos.coords.accuracy,
+        });
         // Détection d'arrêt : vitesse < 2 m/s (≈ 7 km/h) ou inconnue = véhicule stoppé/au pas
         const speedMs = pos.coords.speed;
         if (speedMs === null || speedMs < 2) {
@@ -238,8 +258,14 @@ function TrackingPage() {
             {t("owner.tracking.back")}
           </Link>
           <div className="flex items-center gap-1 text-xs">
-            {isMounted && !online ? <WifiOff className="h-4 w-4 text-destructive" /> : <Wifi className="h-4 w-4 text-green-600" />}
-            <span>{isMounted && !online ? t("owner.tracking.offline") : t("owner.tracking.online")}</span>
+            {isMounted && !online ? (
+              <WifiOff className="h-4 w-4 text-destructive" />
+            ) : (
+              <Wifi className="h-4 w-4 text-green-600" />
+            )}
+            <span>
+              {isMounted && !online ? t("owner.tracking.offline") : t("owner.tracking.online")}
+            </span>
           </div>
         </div>
 
@@ -251,7 +277,9 @@ function TrackingPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium">{t("owner.tracking.vehicle_label")}</label>
+              <label className="mb-2 block text-sm font-medium">
+                {t("owner.tracking.vehicle_label")}
+              </label>
               <Select value={vehicleId} onValueChange={setVehicleId} disabled={tracking}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("owner.tracking.vehicle_placeholder")} />
@@ -265,7 +293,9 @@ function TrackingPage() {
                 </SelectContent>
               </Select>
               {vehicles.length === 0 && (
-                <p className="mt-2 text-xs text-muted-foreground">{t("owner.tracking.no_vehicles")}</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("owner.tracking.no_vehicles")}
+                </p>
               )}
             </div>
 
@@ -274,10 +304,14 @@ function TrackingPage() {
                 {campaign ? (
                   <>
                     <p className="font-medium">{t("owner.tracking.campaign_active")}</p>
-                    <p className="text-muted-foreground">{campaign.company} — {campaign.spot_name}</p>
+                    <p className="text-muted-foreground">
+                      {campaign.company} — {campaign.spot_name}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {t("owner.tracking.campaign_until", {
-                        date: campaign.end_date ? new Date(campaign.end_date).toLocaleDateString(dateLocale) : "—",
+                        date: campaign.end_date
+                          ? new Date(campaign.end_date).toLocaleDateString(dateLocale)
+                          : "—",
                       })}
                     </p>
                   </>
@@ -289,7 +323,12 @@ function TrackingPage() {
 
             {!tracking ? (
               <>
-                <Button onClick={startTracking} className="w-full" size="lg" disabled={!vehicleId || !campaign}>
+                <Button
+                  onClick={startTracking}
+                  className="w-full"
+                  size="lg"
+                  disabled={!vehicleId || !campaign}
+                >
                   <Play className="mr-2 h-4 w-4" /> {t("owner.tracking.start")}
                 </Button>
                 {vehicleId && !campaign && (
@@ -305,25 +344,41 @@ function TrackingPage() {
             )}
 
             {tracking && continuousDrivingMin >= warnMin && (
-              <div className={`rounded-md border p-3 text-sm flex gap-2 items-start ${
-                continuousDrivingMin >= alertMin
-                  ? "border-destructive/60 bg-destructive/10 text-destructive"
-                  : "border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300"
-              }`}>
+              <div
+                className={`rounded-md border p-3 text-sm flex gap-2 items-start ${
+                  continuousDrivingMin >= alertMin
+                    ? "border-destructive/60 bg-destructive/10 text-destructive"
+                    : "border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300"
+                }`}
+              >
                 <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
                   {continuousDrivingMin >= alertMin ? (
                     <>
                       <p className="font-semibold">{t("owner.tracking.break_required_title")}</p>
                       <p className="text-xs mt-0.5">
-                        {t("owner.tracking.break_required_detail", { hh: drivingHH, mm: drivingMM, breakMin: requiredBreakMin })}
+                        {t("owner.tracking.break_required_detail", {
+                          hh: drivingHH,
+                          mm: drivingMM,
+                          breakMin: requiredBreakMin,
+                        })}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold">{t("owner.tracking.break_recommended_title", { remaining: alertMin - continuousDrivingMin })}</p>
+                      <p className="font-semibold">
+                        {t("owner.tracking.break_recommended_title", {
+                          remaining: alertMin - continuousDrivingMin,
+                        })}
+                      </p>
                       <p className="text-xs mt-0.5">
-                        {t("owner.tracking.break_recommended_detail", { hh: drivingHH, mm: drivingMM, breakMin: requiredBreakMin, alertHH, alertMM })}
+                        {t("owner.tracking.break_recommended_detail", {
+                          hh: drivingHH,
+                          mm: drivingMM,
+                          breakMin: requiredBreakMin,
+                          alertHH,
+                          alertMM,
+                        })}
                       </p>
                     </>
                   )}
@@ -335,11 +390,17 @@ function TrackingPage() {
               <div className="space-y-2 rounded-md border border-green-500/30 bg-green-500/5 p-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t("owner.tracking.stat_duration")}</span>
-                  <span className="font-mono">{hh}:{mm}:{ss}</span>
+                  <span className="font-mono">
+                    {hh}:{mm}:{ss}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t("owner.tracking.stat_last_sent")}</span>
-                  <span className="font-mono">{lastSent ? lastSent.toLocaleTimeString(dateLocale) : "—"}</span>
+                  <span className="text-muted-foreground">
+                    {t("owner.tracking.stat_last_sent")}
+                  </span>
+                  <span className="font-mono">
+                    {lastSent ? lastSent.toLocaleTimeString(dateLocale) : "—"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t("owner.tracking.stat_pending")}</span>
@@ -348,20 +409,29 @@ function TrackingPage() {
                 {lastCoords && (
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">{t("owner.tracking.stat_coords")}</span>
-                    <span className="font-mono">{lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)} (±{Math.round(lastCoords.acc ?? 0)}m)</span>
+                    <span className="font-mono">
+                      {lastCoords.lat.toFixed(5)}, {lastCoords.lng.toFixed(5)} (±
+                      {Math.round(lastCoords.acc ?? 0)}m)
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t("owner.tracking.stat_driving")}</span>
-                  <span className={`font-mono ${continuousDrivingMin >= alertMin ? "text-destructive font-bold" : continuousDrivingMin >= warnMin ? "text-amber-600" : ""}`}>
+                  <span
+                    className={`font-mono ${continuousDrivingMin >= alertMin ? "text-destructive font-bold" : continuousDrivingMin >= warnMin ? "text-amber-600" : ""}`}
+                  >
                     {drivingHH}h{drivingMM}
                   </span>
                 </div>
                 {gpsErrorCount > 0 && (
-                  <p className="text-xs text-amber-600">{t("owner.tracking.gps_errors", { count: gpsErrorCount })}</p>
+                  <p className="text-xs text-amber-600">
+                    {t("owner.tracking.gps_errors", { count: gpsErrorCount })}
+                  </p>
                 )}
                 {sendErrorCount > 0 && (
-                  <p className="text-xs text-destructive">{t("owner.tracking.send_errors", { count: sendErrorCount })}</p>
+                  <p className="text-xs text-destructive">
+                    {t("owner.tracking.send_errors", { count: sendErrorCount })}
+                  </p>
                 )}
               </div>
             )}

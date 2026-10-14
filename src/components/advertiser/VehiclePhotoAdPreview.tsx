@@ -18,7 +18,10 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!videoFile) { setVideoObjectUrl(null); return; }
+    if (!videoFile) {
+      setVideoObjectUrl(null);
+      return;
+    }
     const url = URL.createObjectURL(videoFile);
     setVideoObjectUrl(url);
     return () => URL.revokeObjectURL(url);
@@ -48,7 +51,9 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
       <div className="h-56 rounded-xl bg-secondary/40 border border-dashed border-border flex flex-col items-center justify-center gap-2">
         <span className="text-2xl">📷</span>
         <p className="text-sm text-muted-foreground">{t("vehicle_photo_preview.no_photos")}</p>
-        <p className="text-xs text-muted-foreground/60">{t("vehicle_photo_preview.no_photos_hint")}</p>
+        <p className="text-xs text-muted-foreground/60">
+          {t("vehicle_photo_preview.no_photos_hint")}
+        </p>
       </div>
     );
   }

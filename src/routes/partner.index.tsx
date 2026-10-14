@@ -11,10 +11,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/partner/")({
   head: () => ({
-    meta: [
-      { title: "Espace partner — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Espace partner — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: PartnerDashboard,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -43,21 +40,35 @@ function PartnerDashboard() {
 
   const load = useCallback(async () => {
     const session = await getOrRefreshSession();
-    if (!session) { navigate({ to: "/partner/inscription" }); return; }
+    if (!session) {
+      navigate({ to: "/partner/inscription" });
+      return;
+    }
     const { data: p } = await supabase
       .from("partner_profiles")
-      .select("id, user_id, company, full_name, email, phone, website, description, status, admin_notes, stripe_subscription_status, stripe_subscription_period_end")
+      .select(
+        "id, user_id, company, full_name, email, phone, website, description, status, admin_notes, stripe_subscription_status, stripe_subscription_period_end",
+      )
       .eq("user_id", session.user.id)
       .maybeSingle();
-    if (!p) { navigate({ to: "/partner/inscription" }); return; }
+    if (!p) {
+      navigate({ to: "/partner/inscription" });
+      return;
+    }
     setProfile(p as unknown as PartnerProfile);
     setLoading(false);
   }, [navigate]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   if (loading || !profile) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
   }
 
   return (
@@ -66,7 +77,9 @@ function PartnerDashboard() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:inline">{profile.company}</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              {profile.company}
+            </span>
             <a
               href="https://www.instagram.com/movespot_pub/"
               target="_blank"
@@ -76,10 +89,23 @@ function PartnerDashboard() {
             >
               <Instagram className="h-4 w-4" />
             </a>
-            <Link to="/partner/profil" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("profile.title")}</Link>
-            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("common.settings")}</Link>
+            <Link
+              to="/partner/profil"
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
+            >
+              {t("profile.title")}
+            </Link>
+            <Link
+              to="/parametres"
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
+            >
+              {t("common.settings")}
+            </Link>
             <button
-              onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate({ to: "/" });
+              }}
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
             >
               {t("common.logout")}
@@ -92,7 +118,9 @@ function PartnerDashboard() {
         <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
           <div>
             <h1 className="font-display text-3xl font-bold">{t("partner.dashboard.title")}</h1>
-            <p className="text-sm text-muted-foreground mt-1">{t("partner.dashboard.welcome", { name: profile.full_name })}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t("partner.dashboard.welcome", { name: profile.full_name })}
+            </p>
           </div>
           <StatusBadge status={profile.status} />
         </div>
@@ -104,7 +132,13 @@ function PartnerDashboard() {
         )}
         {profile.status === "rejected" && (
           <div className="mb-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
-            {t("partner.dashboard.rejected_notice")}{profile.admin_notes && <span> {t("common.reason_label")} {profile.admin_notes}</span>}
+            {t("partner.dashboard.rejected_notice")}
+            {profile.admin_notes && (
+              <span>
+                {" "}
+                {t("common.reason_label")} {profile.admin_notes}
+              </span>
+            )}
           </div>
         )}
 
@@ -117,7 +151,9 @@ function PartnerDashboard() {
         {/* Referral link */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-1">{t("partner.dashboard.referral_link_title")}</h2>
+            <h2 className="font-display text-lg font-bold mb-1">
+              {t("partner.dashboard.referral_link_title")}
+            </h2>
             <p className="text-sm text-muted-foreground mb-4">
               {t("partner.dashboard.referral_link_body")}
             </p>
@@ -131,28 +167,42 @@ function PartnerDashboard() {
         {/* How it works */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-4">{t("partner.dashboard.how_it_works_title")}</h2>
+            <h2 className="font-display text-lg font-bold mb-4">
+              {t("partner.dashboard.how_it_works_title")}
+            </h2>
             <ol className="space-y-3 text-sm text-muted-foreground list-none">
               <li className="flex gap-3">
-                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">1</span>
+                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  1
+                </span>
                 <span>{t("partner.dashboard.step1")}</span>
               </li>
               <li className="flex gap-3">
-                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">2</span>
+                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  2
+                </span>
                 <span>{t("partner.dashboard.step2")}</span>
               </li>
               <li className="flex gap-3">
-                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">3</span>
+                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  3
+                </span>
                 <span>{t("partner.dashboard.step3")}</span>
               </li>
               <li className="flex gap-3">
-                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">4</span>
+                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                  4
+                </span>
                 <span>{t("partner.dashboard.step4")}</span>
               </li>
             </ol>
             <div className="mt-4 rounded-xl bg-primary/5 border border-primary/20 px-4 py-3 text-sm">
-              <span className="font-semibold text-primary">{t("partner.dashboard.commission_label")}</span>{" "}
-              <span className="text-muted-foreground">{t("partner.dashboard.commission_value")}</span>
+              <span className="font-semibold text-primary">
+                {t("partner.dashboard.commission_label")}
+              </span>{" "}
+              <span className="text-muted-foreground">
+                {t("partner.dashboard.commission_value")}
+              </span>
             </div>
           </section>
         )}
@@ -160,7 +210,9 @@ function PartnerDashboard() {
         {/* Resources */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-4">{t("partner.dashboard.resources_title")}</h2>
+            <h2 className="font-display text-lg font-bold mb-4">
+              {t("partner.dashboard.resources_title")}
+            </h2>
             <p className="text-sm text-muted-foreground mb-4">
               {t("partner.dashboard.resources_subtitle")}
             </p>
@@ -196,7 +248,9 @@ function PartnerDashboard() {
         {/* Contact */}
         {profile.status === "approved" && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="font-display text-lg font-bold mb-2">{t("partner.dashboard.contact_title")}</h2>
+            <h2 className="font-display text-lg font-bold mb-2">
+              {t("partner.dashboard.contact_title")}
+            </h2>
             <p className="text-sm text-muted-foreground mb-4">
               {t("partner.dashboard.contact_body")}
             </p>
@@ -210,7 +264,9 @@ function PartnerDashboard() {
         )}
 
         <section className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="font-display text-lg font-bold mb-4">{t("partner.dashboard.profile_title")}</h2>
+          <h2 className="font-display text-lg font-bold mb-4">
+            {t("partner.dashboard.profile_title")}
+          </h2>
           <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
             <Row label={t("common.company")} value={profile.company} />
             <Row label={t("common.manager")} value={profile.full_name} />
@@ -220,12 +276,17 @@ function PartnerDashboard() {
           </dl>
           {profile.description && (
             <div className="mt-4">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{t("common.description")}</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+                {t("common.description")}
+              </div>
               <p className="text-sm whitespace-pre-wrap">{profile.description}</p>
             </div>
           )}
           <div className="mt-4">
-            <Link to="/partner/inscription" className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary">
+            <Link
+              to="/partner/inscription"
+              className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary"
+            >
               {t("partner.dashboard.edit_profile")}
             </Link>
           </div>
@@ -247,10 +308,16 @@ function Row({ label, value }: { label: string; value: string }) {
 function StatusBadge({ status }: { status: string }) {
   const { t } = useTranslation();
   const m: Record<string, { l: string; c: string }> = {
-    pending:  { l: t("partner.dashboard.status_pending"),   c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
-    approved: { l: t("partner.dashboard.status_approved"),  c: "bg-signal/20 text-signal" },
-    rejected: { l: t("partner.dashboard.status_rejected"),  c: "bg-destructive/15 text-destructive" },
-    suspended:{ l: t("partner.dashboard.status_suspended"), c: "bg-secondary" },
+    pending: {
+      l: t("partner.dashboard.status_pending"),
+      c: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    },
+    approved: { l: t("partner.dashboard.status_approved"), c: "bg-signal/20 text-signal" },
+    rejected: {
+      l: t("partner.dashboard.status_rejected"),
+      c: "bg-destructive/15 text-destructive",
+    },
+    suspended: { l: t("partner.dashboard.status_suspended"), c: "bg-secondary" },
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
@@ -285,7 +352,17 @@ function ReferralLinkBox({ partnerId }: { partnerId: string }) {
   );
 }
 
-function ResourceCard({ icon, title, description, href }: { icon: string; title: string; description: string; href: string }) {
+function ResourceCard({
+  icon,
+  title,
+  description,
+  href,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+  href: string;
+}) {
   return (
     <a
       href={href}

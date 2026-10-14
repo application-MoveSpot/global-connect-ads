@@ -43,11 +43,22 @@ describe("findDenseMetro", () => {
   });
 
   it("retourne null pour un polygone à 2 points (< 3)", () => {
-    assert.equal(findDenseMetro([[2.3, 48.85], [2.31, 48.86]]), null);
+    assert.equal(
+      findDenseMetro([
+        [2.3, 48.85],
+        [2.31, 48.86],
+      ]),
+      null,
+    );
   });
 
   it("reconnaît Lyon", () => {
-    const lyon: LngLat[] = [[4.8, 45.75], [4.82, 45.75], [4.82, 45.73], [4.8, 45.73]];
+    const lyon: LngLat[] = [
+      [4.8, 45.75],
+      [4.82, 45.75],
+      [4.82, 45.73],
+      [4.8, 45.73],
+    ];
     assert.equal(findDenseMetro(lyon)?.name, "Lyon");
   });
 });

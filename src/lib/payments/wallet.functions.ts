@@ -43,13 +43,17 @@ export const getWalletTransactions = createServerFn({ method: "GET" })
 
     const base = supabase
       .from("wallet_transactions")
-      .select("id, kind, amount_cents, currency, description, created_at, campaign_request_id", { count: "exact" })
+      .select("id, kind, amount_cents, currency, description, created_at, campaign_request_id", {
+        count: "exact",
+      })
       .eq("user_id", userId);
 
     const filtered = data.kind !== "all" ? base.eq("kind", data.kind) : base;
-    const { data: txs, count, error } = await filtered
-      .order("created_at", { ascending: false })
-      .range(from, to);
+    const {
+      data: txs,
+      count,
+      error,
+    } = await filtered.order("created_at", { ascending: false }).range(from, to);
 
     if (error) throw new Error(error.message);
     return { transactions: txs ?? [], total: count ?? 0, page: data.page, pageSize: data.pageSize };
@@ -66,55 +70,65 @@ export const issueCampaignRefund = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof RefundInput>) => RefundInput.parse(d))
   .handler(({ data, context }) =>
-    withSentryCapture(async () => {
-    const { supabase, userId: callerId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: callerId, _role: "admin" });
-    if (!isAdmin) throw new Error("Admin requis");
+    withSentryCapture(
+      async () => {
+        const { supabase, userId: callerId } = context;
+        const { data: isAdmin } = await supabase.rpc("has_role", {
+          _user_id: callerId,
+          _role: "admin",
+        });
+        if (!isAdmin) throw new Error("Admin requis");
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: campaign, error: cErr } = await supabaseAdmin
-      .from("campaign_requests")
-      .select("id, user_id, total_price")
-      .eq("id", data.campaignRequestId)
-      .single();
-    if (cErr || !campaign) throw new Error("Campagne introuvable");
-    if (!campaign.user_id) throw new Error("Campagne sans annonceur identifié");
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: campaign, error: cErr } = await supabaseAdmin
+          .from("campaign_requests")
+          .select("id, user_id, total_price")
+          .eq("id", data.campaignRequestId)
+          .single();
+        if (cErr || !campaign) throw new Error("Campagne introuvable");
+        if (!campaign.user_id) throw new Error("Campagne sans annonceur identifié");
 
-    const amountCents = Math.round(data.amountEuros * 100);
+        const amountCents = Math.round(data.amountEuros * 100);
 
-    const { data: refundRow, error: rErr } = await supabaseAdmin
-      .from("refunds")
-      .insert({
-        campaign_request_id: campaign.id,
-        user_id: campaign.user_id,
-        amount_cents: amountCents,
-        currency: "eur",
-        reason: data.reason,
-        channel: "wallet_credit",
-        status: "pending",
-      } as never)
-      .select("id")
-      .single();
-    if (rErr || !refundRow) throw new Error(rErr?.message ?? "Création remboursement échouée");
+        const { data: refundRow, error: rErr } = await supabaseAdmin
+          .from("refunds")
+          .insert({
+            campaign_request_id: campaign.id,
+            user_id: campaign.user_id,
+            amount_cents: amountCents,
+            currency: "eur",
+            reason: data.reason,
+            channel: "wallet_credit",
+            status: "pending",
+          } as never)
+          .select("id")
+          .single();
+        if (rErr || !refundRow) throw new Error(rErr?.message ?? "Création remboursement échouée");
 
-    const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
-      p_user_id: campaign.user_id,
-      p_kind: "refund",
-      p_amount_cents: amountCents,
-      p_description: `Remboursement — ${data.reason}`,
-      p_campaign_request_id: campaign.id,
-    });
-    if (rpcError) {
-      await supabaseAdmin
-        .from("refunds")
-        .update({ status: "failed", notes: rpcError.message } as never)
-        .eq("id", refundRow.id);
-      throw new Error(`Crédit du portefeuille échoué : ${rpcError.message}`);
-    }
-    await supabaseAdmin.from("refunds").update({ status: "succeeded" } as never).eq("id", refundRow.id);
+        const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
+          p_user_id: campaign.user_id,
+          p_kind: "refund",
+          p_amount_cents: amountCents,
+          p_description: `Remboursement — ${data.reason}`,
+          p_campaign_request_id: campaign.id,
+        });
+        if (rpcError) {
+          await supabaseAdmin
+            .from("refunds")
+            .update({ status: "failed", notes: rpcError.message } as never)
+            .eq("id", refundRow.id);
+          throw new Error(`Crédit du portefeuille échoué : ${rpcError.message}`);
+        }
+        await supabaseAdmin
+          .from("refunds")
+          .update({ status: "succeeded" } as never)
+          .eq("id", refundRow.id);
 
-    return { ok: true, refundId: refundRow.id };
-    }, "payment", { userId: context.userId })
+        return { ok: true, refundId: refundRow.id };
+      },
+      "payment",
+      { userId: context.userId },
+    ),
   );
 
 // ----- Advertiser: pay an approved campaign with prepaid wallet credits -----
@@ -124,20 +138,27 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof PayInput>) => PayInput.parse(d))
   .handler(({ data, context }) =>
-    withSentryCapture(async () => {
-    const { supabase, userId } = context;
-    const { data: campaign, error } = await supabase
-      .from("campaign_requests")
-      .select("id, user_id, total_price, status, payment_status, spot_name")
-      .eq("id", data.campaignRequestId)
-      .maybeSingle();
-    if (error || !campaign) throw new Error("Campagne introuvable");
-    if (campaign.user_id !== userId) throw new Error("Accès refusé");
-    if (campaign.status !== "approved") throw new Error("La campagne doit être validée avant le paiement");
-    if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
-    if (!campaign.total_price || Number(campaign.total_price) <= 0) throw new Error("Montant invalide");
+    withSentryCapture(
+      async () => {
+        const { supabase, userId } = context;
+        const { data: campaign, error } = await supabase
+          .from("campaign_requests")
+          .select("id, user_id, total_price, status, payment_status, spot_name")
+          .eq("id", data.campaignRequestId)
+          .maybeSingle();
+        if (error || !campaign) throw new Error("Campagne introuvable");
+        if (campaign.user_id !== userId) throw new Error("Accès refusé");
+        if (campaign.status !== "approved")
+          throw new Error("La campagne doit être validée avant le paiement");
+        if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
+        if (!campaign.total_price || Number(campaign.total_price) <= 0)
+          throw new Error("Montant invalide");
 
-    const { settleCampaignFromWallet } = await import("@/lib/campaigns/campaign-settlement.server");
-    return settleCampaignFromWallet({ campaignRequestId: campaign.id });
-    }, "payment", { userId: context.userId })
+        const { settleCampaignFromWallet } =
+          await import("@/lib/campaigns/campaign-settlement.server");
+        return settleCampaignFromWallet({ campaignRequestId: campaign.id });
+      },
+      "payment",
+      { userId: context.userId },
+    ),
   );

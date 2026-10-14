@@ -15,9 +15,7 @@ export function NetworkErrorBanner({ message, onRetry, retrying = false }: Props
       className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
     >
       <WifiOff size={16} className="shrink-0" />
-      <span className="flex-1">
-        {message ?? t("errors.network")}
-      </span>
+      <span className="flex-1">{message ?? t("errors.network")}</span>
       {onRetry && (
         <button
           type="button"

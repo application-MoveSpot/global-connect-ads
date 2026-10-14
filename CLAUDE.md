@@ -28,14 +28,14 @@ npm run format     # Prettier
 
 ## Rôles utilisateurs
 
-| Rôle | Préfixe route | Description |
-|---|---|---|
-| Annonceur | `/annonceur` | Crée des briefs, gère campagnes et portefeuille |
-| Propriétaire | `/proprietaire` | Gère sa flotte, répond aux briefs |
-| Chauffeur | `/chauffeur` | Espace chauffeur, photos d'installation |
-| Prestataire | `/prestataire` | Poseur de publicités, gestion clients |
-| Partenaire | `/partenaire` | Partenaire réseau |
-| Admin | `/admin` | Dashboard, virements, prestataires |
+| Rôle         | Préfixe route   | Description                                     |
+| ------------ | --------------- | ----------------------------------------------- |
+| Annonceur    | `/annonceur`    | Crée des briefs, gère campagnes et portefeuille |
+| Propriétaire | `/proprietaire` | Gère sa flotte, répond aux briefs               |
+| Chauffeur    | `/chauffeur`    | Espace chauffeur, photos d'installation         |
+| Prestataire  | `/prestataire`  | Poseur de publicités, gestion clients           |
+| Partenaire   | `/partenaire`   | Partenaire réseau                               |
+| Admin        | `/admin`        | Dashboard, virements, prestataires              |
 
 ## Structure des dossiers
 
@@ -69,25 +69,30 @@ src/
 ## Points critiques à connaître
 
 ### Paiements Stripe
+
 - Utiliser **`VITE_PAYMENTS_CLIENT_TOKEN`** et l'intégration Lovable, pas `STRIPE_SECRET_KEY` directement.
 - Les composants de checkout sont dans `src/components/advertiser/` : `WalletTopupCheckout.tsx`, `CampaignPaymentCheckout.tsx`, `CampaignTrialCheckout.tsx`.
 - Le webhook Supabase crédite le portefeuille après paiement validé.
 
 ### Routing
+
 - TanStack Router file-based : les routes correspondent aux noms de fichiers dans `src/routes/`.
 - `src/routeTree.gen.ts` est **auto-généré** — ne pas modifier manuellement.
 - Paramètres dynamiques : `$campaignId`, `$briefId`, `$providerId`.
 
 ### Auth
+
 - Supabase Auth, middleware dans `src/integrations/supabase/auth-middleware.ts`.
 - RLS Supabase gère les permissions par rôle.
 
 ### Cartes
+
 - Mapbox GL pour la carte de flotte (`FleetMap.tsx`).
 - Leaflet + `@mapbox/mapbox-gl-draw` pour le dessin de zones polygones (`ZonePolygonDraw.tsx`).
 - Turf.js pour les calculs de surface.
 
 ### Lovable
+
 - Le fichier `.lovable/plan.md` contient le dernier diagnostic/plan de l'IA Lovable.
 - Éviter de modifier les fichiers `.lovable/` manuellement.
 

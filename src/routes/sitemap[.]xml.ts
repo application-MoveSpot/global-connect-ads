@@ -23,7 +23,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/pourquoi-movespot", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/comment-ca-marche", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/tarifs", changefreq: "monthly", priority: "0.9", lastmod: today },
-          { path: "/advertisers-entreprise", changefreq: "monthly", priority: "0.8", lastmod: today },
+          {
+            path: "/advertisers-entreprise",
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: today,
+          },
           { path: "/commencer", changefreq: "monthly", priority: "0.8", lastmod: today },
           { path: "/campagnes", changefreq: "weekly", priority: "0.7", lastmod: today },
           { path: "/devenir-partner", changefreq: "monthly", priority: "0.7", lastmod: today },

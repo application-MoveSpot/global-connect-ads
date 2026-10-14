@@ -9,7 +9,9 @@ export async function track(event: string, properties?: Record<string, unknown>)
     const { data } = await supabase.auth.getUser();
     const utm = getStoredUtm();
     // analytics_events is not in the generated Supabase types (append-only log table)
-    await (supabase as unknown as { from: (t: string) => { insert: (r: unknown) => Promise<unknown> } })
+    await (
+      supabase as unknown as { from: (t: string) => { insert: (r: unknown) => Promise<unknown> } }
+    )
       .from("analytics_events")
       .insert({
         event,

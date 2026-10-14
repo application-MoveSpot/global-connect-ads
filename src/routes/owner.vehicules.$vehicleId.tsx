@@ -60,19 +60,27 @@ function EditVehiclePage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/owner/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
 
       const { data: prof } = await supabase
         .from("owner_profiles")
         .select("id")
         .eq("user_id", session.user.id)
         .maybeSingle();
-      if (!prof) { navigate({ to: "/owner/inscription" }); return; }
+      if (!prof) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
       setOwnerId(prof.id);
 
       const { data: vehicle, error: vErr } = await supabase
         .from("vehicles")
-        .select("id, type, condition, name, license_plate, brand, model, color, description, surface_m2, km_per_day, zones, price_per_day")
+        .select(
+          "id, type, condition, name, license_plate, brand, model, color, description, surface_m2, km_per_day, zones, price_per_day",
+        )
         .eq("id", vehicleId)
         .eq("owner_id", prof.id)
         .maybeSingle();
@@ -85,7 +93,7 @@ function EditVehiclePage() {
 
       setVehicleType(vehicle.type as string);
       setCondition((vehicle.condition as ConditionValue) ?? "bon");
-      setName(vehicle.name as string ?? "");
+      setName((vehicle.name as string) ?? "");
       setLicensePlate((vehicle.license_plate as string) ?? "");
       setBrand((vehicle.brand as string) ?? "");
       setVehicleModel((vehicle.model as string) ?? "");
@@ -115,18 +123,39 @@ function EditVehiclePage() {
         },
       });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const { suggestion } = res;
       const filled: string[] = [];
-      if (suggestion.name) { setName(suggestion.name); filled.push("nom"); }
-      if (suggestion.description) { setDescription(suggestion.description); filled.push("description"); }
-      if (suggestion.surface_m2) { setSurface(String(suggestion.surface_m2)); filled.push("surface"); }
-      if (suggestion.km_per_day) { setKm(String(suggestion.km_per_day)); filled.push("km/jour"); }
-      if (suggestion.zones) { setZones(suggestion.zones); filled.push("zones"); }
-      if (suggestion.price_per_day) { setPrice(String(suggestion.price_per_day)); filled.push("prix"); }
+      if (suggestion.name) {
+        setName(suggestion.name);
+        filled.push("nom");
+      }
+      if (suggestion.description) {
+        setDescription(suggestion.description);
+        filled.push("description");
+      }
+      if (suggestion.surface_m2) {
+        setSurface(String(suggestion.surface_m2));
+        filled.push("surface");
+      }
+      if (suggestion.km_per_day) {
+        setKm(String(suggestion.km_per_day));
+        filled.push("km/jour");
+      }
+      if (suggestion.zones) {
+        setZones(suggestion.zones);
+        filled.push("zones");
+      }
+      if (suggestion.price_per_day) {
+        setPrice(String(suggestion.price_per_day));
+        filled.push("prix");
+      }
       setAiFilled(filled);
       setAiPanelOpen(false);
     } catch {
@@ -157,7 +186,12 @@ function EditVehiclePage() {
         description: description || null,
         surface_m2: surface ? Number(surface) : null,
         km_per_day: km ? Number(km) : null,
-        zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+        zones: zones
+          ? zones
+              .split(",")
+              .map((z) => z.trim())
+              .filter(Boolean)
+          : [],
         price_per_day: Number(price),
       })
       .eq("id", vehicleId)
@@ -174,7 +208,9 @@ function EditVehiclePage() {
   if (pageLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground text-sm animate-pulse">{t("owner.vehicules.modifier.loading")}</div>
+        <div className="text-muted-foreground text-sm animate-pulse">
+          {t("owner.vehicules.modifier.loading")}
+        </div>
       </div>
     );
   }
@@ -184,7 +220,9 @@ function EditVehiclePage() {
       <div className="min-h-screen bg-background p-4 flex items-center justify-center">
         <div className="text-center space-y-3">
           <p className="text-destructive text-sm">{loadError}</p>
-          <Link to="/owner" className="text-xs text-muted-foreground underline">{t("owner.vehicules.modifier.back")}</Link>
+          <Link to="/owner" className="text-xs text-muted-foreground underline">
+            {t("owner.vehicules.modifier.back")}
+          </Link>
         </div>
       </div>
     );
@@ -196,11 +234,16 @@ function EditVehiclePage() {
         <div className="mb-4">
           <LogoLink />
         </div>
-        <Link to="/owner" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+        <Link
+          to="/owner"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
           {t("owner.vehicules.modifier.back")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
-          <h1 className="font-display text-3xl font-bold mb-2">{t("owner.vehicules.modifier.title")}</h1>
+          <h1 className="font-display text-3xl font-bold mb-2">
+            {t("owner.vehicules.modifier.title")}
+          </h1>
           <p className="text-sm text-muted-foreground mb-6">{t("owner.vehicules.modifier.desc")}</p>
 
           <div className="mb-6">
@@ -219,83 +262,170 @@ function EditVehiclePage() {
               placeholder={t("owner.vehicules.nouveau.ai_placeholder")}
               generateLabel={t("owner.vehicules.nouveau.ai_generate")}
               generateLoadingLabel={t("owner.vehicules.nouveau.ai_generating")}
-              filledMessage={aiFilled.length > 0 ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              filledMessage={
+                aiFilled.length > 0
+                  ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") })
+                  : undefined
+              }
               onDismissFilled={() => setAiFilled([])}
             />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.condition_label")}</label>
+              <label className="block text-sm font-medium mb-1.5">
+                {t("owner.vehicules.nouveau.condition_label")}
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 {CONDITION_VALUES.map((v) => (
-                  <button type="button" key={v} onClick={() => setCondition(v)}
+                  <button
+                    type="button"
+                    key={v}
+                    onClick={() => setCondition(v)}
                     className={`rounded-lg border px-3 py-2.5 text-left transition ${
                       condition === v
                         ? v === "mauvais"
                           ? "border-destructive bg-destructive/10"
                           : "border-primary bg-primary/10"
                         : "border-border bg-input hover:border-primary/40"
-                    }`}>
-                    <div className="text-sm font-semibold">{t(`owner.vehicules.nouveau.condition_${v}`)}</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">{t(`owner.vehicules.nouveau.condition_${v}_desc`)}</div>
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">
+                      {t(`owner.vehicules.nouveau.condition_${v}`)}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {t(`owner.vehicules.nouveau.condition_${v}_desc`)}
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <Field label={t("owner.vehicules.nouveau.name_label")} value={name} onChange={setName} required placeholder={t("owner.vehicules.nouveau.name_placeholder")} />
+            <Field
+              label={t("owner.vehicules.nouveau.name_label")}
+              value={name}
+              onChange={setName}
+              required
+              placeholder={t("owner.vehicules.nouveau.name_placeholder")}
+            />
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("owner.vehicules.nouveau.id_section_title")}</p>
-                <p className="text-xs text-muted-foreground">{t("owner.vehicules.nouveau.id_section_desc")}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  {t("owner.vehicules.nouveau.id_section_title")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("owner.vehicules.nouveau.id_section_desc")}
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label={t("owner.vehicules.nouveau.plate_label")} value={licensePlate} onChange={setLicensePlate} placeholder={t("owner.vehicules.nouveau.plate_placeholder")} />
-                <Field label={t("owner.vehicules.nouveau.color_label")} value={color} onChange={setColor} placeholder={t("owner.vehicules.nouveau.color_placeholder")} />
+                <Field
+                  label={t("owner.vehicules.nouveau.plate_label")}
+                  value={licensePlate}
+                  onChange={setLicensePlate}
+                  placeholder={t("owner.vehicules.nouveau.plate_placeholder")}
+                />
+                <Field
+                  label={t("owner.vehicules.nouveau.color_label")}
+                  value={color}
+                  onChange={setColor}
+                  placeholder={t("owner.vehicules.nouveau.color_placeholder")}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label={t("owner.vehicules.nouveau.brand_label")} value={brand} onChange={setBrand} placeholder={t("owner.vehicules.nouveau.brand_placeholder")} />
-                <Field label={t("owner.vehicules.nouveau.model_label")} value={vehicleModel} onChange={setVehicleModel} placeholder={t("owner.vehicules.nouveau.model_placeholder")} />
+                <Field
+                  label={t("owner.vehicules.nouveau.brand_label")}
+                  value={brand}
+                  onChange={setBrand}
+                  placeholder={t("owner.vehicules.nouveau.brand_placeholder")}
+                />
+                <Field
+                  label={t("owner.vehicules.nouveau.model_label")}
+                  value={vehicleModel}
+                  onChange={setVehicleModel}
+                  placeholder={t("owner.vehicules.nouveau.model_placeholder")}
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.description_label")}</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
+              <label className="block text-sm font-medium mb-1.5">
+                {t("owner.vehicules.nouveau.description_label")}
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                maxLength={500}
                 placeholder={t("owner.vehicules.nouveau.description_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              <p className="text-xs text-muted-foreground mt-1.5">{t("owner.vehicules.nouveau.description_hint")}</p>
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {t("owner.vehicules.nouveau.description_hint")}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Field label={t("owner.vehicules.nouveau.surface_label")} value={surface} onChange={setSurface} type="number" />
-              <Field label={t("owner.vehicules.nouveau.km_label")} value={km} onChange={setKm} type="number" />
+              <Field
+                label={t("owner.vehicules.nouveau.surface_label")}
+                value={surface}
+                onChange={setSurface}
+                type="number"
+              />
+              <Field
+                label={t("owner.vehicules.nouveau.km_label")}
+                value={km}
+                onChange={setKm}
+                type="number"
+              />
             </div>
 
-            <Field label={t("owner.vehicules.nouveau.zones_label")} value={zones} onChange={setZones} placeholder={t("owner.vehicules.nouveau.zones_placeholder")} />
+            <Field
+              label={t("owner.vehicules.nouveau.zones_label")}
+              value={zones}
+              onChange={setZones}
+              placeholder={t("owner.vehicules.nouveau.zones_placeholder")}
+            />
 
             <div>
-              <Field label={t("owner.vehicules.nouveau.price_label")} value={price} onChange={setPrice} type="number" required />
-              <p className="text-xs text-muted-foreground mt-1.5">{t("owner.vehicules.nouveau.price_hint")}</p>
+              <Field
+                label={t("owner.vehicules.nouveau.price_label")}
+                value={price}
+                onChange={setPrice}
+                type="number"
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {t("owner.vehicules.nouveau.price_hint")}
+              </p>
             </div>
 
             <div className="rounded-xl border border-border bg-secondary/20 p-3 text-xs text-muted-foreground">
               {t("owner.vehicules.modifier.photos_readonly_hint")}
             </div>
 
-            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
 
-            <button type="submit" disabled={loading}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-              {loading ? t("owner.vehicules.nouveau.submitting") : t("owner.vehicules.modifier.submit")}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
+              {loading
+                ? t("owner.vehicules.nouveau.submitting")
+                : t("owner.vehicules.modifier.submit")}
             </button>
           </form>
         </div>
 
         <div className="mt-8">
-          <h2 className="font-display text-xl font-bold mb-4">{t("owner.vehicules.calendar.title")}</h2>
+          <h2 className="font-display text-xl font-bold mb-4">
+            {t("owner.vehicules.calendar.title")}
+          </h2>
           <VehicleCalendar vehicleId={vehicleId} />
         </div>
       </div>
@@ -305,7 +435,14 @@ function EditVehiclePage() {
 
 function VehicleCalendar({ vehicleId }: { vehicleId: string }) {
   const { t, i18n } = useTranslation();
-  type Booking = { id: string; start_date: string | null; end_date: string | null; days_count: number | null; spot_name: string; status: string };
+  type Booking = {
+    id: string;
+    start_date: string | null;
+    end_date: string | null;
+    days_count: number | null;
+    spot_name: string;
+    status: string;
+  };
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [calLoading, setCalLoading] = useState(true);
 
@@ -322,7 +459,8 @@ function VehicleCalendar({ vehicleId }: { vehicleId: string }) {
     })();
   }, [vehicleId]);
 
-  if (calLoading) return <div className="text-sm text-muted-foreground animate-pulse">{t("common.loading")}</div>;
+  if (calLoading)
+    return <div className="text-sm text-muted-foreground animate-pulse">{t("common.loading")}</div>;
 
   if (bookings.length === 0) {
     return (
@@ -346,19 +484,17 @@ function VehicleCalendar({ vehicleId }: { vehicleId: string }) {
             <div className="min-w-0">
               <p className="font-semibold text-sm">{b.spot_name}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {b.start_date
-                  ? new Date(b.start_date).toLocaleDateString(i18n.language)
-                  : "—"}
+                {b.start_date ? new Date(b.start_date).toLocaleDateString(i18n.language) : "—"}
                 {b.start_date && b.end_date && " → "}
-                {b.end_date
-                  ? new Date(b.end_date).toLocaleDateString(i18n.language)
-                  : ""}
+                {b.end_date ? new Date(b.end_date).toLocaleDateString(i18n.language) : ""}
                 {b.days_count != null && (
                   <> · {t("owner.vehicules.calendar.days", { count: b.days_count })}</>
                 )}
               </p>
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-semibold shrink-0 ${statusColors[b.status] ?? "bg-secondary text-foreground"}`}>
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full font-semibold shrink-0 ${statusColors[b.status] ?? "bg-secondary text-foreground"}`}
+            >
               {t(`owner.vehicules.calendar.status_${b.status}`, b.status)}
             </span>
           </div>
@@ -368,14 +504,32 @@ function VehicleCalendar({ vehicleId }: { vehicleId: string }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string;
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }

@@ -194,14 +194,26 @@ function AnnonceurInscription() {
     try {
       const res = await callAdvertiserAi({ data: { advertiserContext: aiContext.trim() } });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const filled: string[] = [];
-      if (res.suggestion.fullName) { setFullName(res.suggestion.fullName); filled.push(t("advertiser.inscription.label_full_name")); }
-      if (res.suggestion.company) { setCompany(res.suggestion.company); filled.push(t("advertiser.inscription.label_company")); }
-      if (res.suggestion.city) { setCity(res.suggestion.city); filled.push(t("advertiser.inscription.label_city")); }
+      if (res.suggestion.fullName) {
+        setFullName(res.suggestion.fullName);
+        filled.push(t("advertiser.inscription.label_full_name"));
+      }
+      if (res.suggestion.company) {
+        setCompany(res.suggestion.company);
+        filled.push(t("advertiser.inscription.label_company"));
+      }
+      if (res.suggestion.city) {
+        setCity(res.suggestion.city);
+        filled.push(t("advertiser.inscription.label_city"));
+      }
       setAiFilled(filled);
       setAiPanelOpen(false);
     } catch {
@@ -286,10 +298,14 @@ function AnnonceurInscription() {
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? t("advertiser.inscription.auth_signup_title") : t("advertiser.inscription.auth_signin_title")}
+              {mode === "signup"
+                ? t("advertiser.inscription.auth_signup_title")
+                : t("advertiser.inscription.auth_signin_title")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
-              {mode === "signup" ? t("advertiser.inscription.auth_signup_desc") : t("advertiser.inscription.auth_signin_desc")}
+              {mode === "signup"
+                ? t("advertiser.inscription.auth_signup_desc")
+                : t("advertiser.inscription.auth_signin_desc")}
               {mode === "signup" && (
                 <>
                   {" "}
@@ -305,7 +321,13 @@ function AnnonceurInscription() {
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
-              <Input label={t("advertiser.inscription.label_email")} type="email" value={email} onChange={setEmail} required />
+              <Input
+                label={t("advertiser.inscription.label_email")}
+                type="email"
+                value={email}
+                onChange={setEmail}
+                required
+              />
               <div>
                 <Input
                   label={t("advertiser.inscription.label_password")}
@@ -332,7 +354,11 @@ function AnnonceurInscription() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : mode === "signup" ? t("advertiser.inscription.btn_signup") : t("advertiser.inscription.btn_signin")}
+                {loading
+                  ? "..."
+                  : mode === "signup"
+                    ? t("advertiser.inscription.btn_signup")
+                    : t("advertiser.inscription.btn_signin")}
               </button>
             </form>
             <button
@@ -342,17 +368,23 @@ function AnnonceurInscription() {
               }}
               className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
             >
-              {mode === "signup" ? t("advertiser.inscription.toggle_to_signin") : t("advertiser.inscription.toggle_to_signup")}
+              {mode === "signup"
+                ? t("advertiser.inscription.toggle_to_signin")
+                : t("advertiser.inscription.toggle_to_signup")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("advertiser.inscription.profile_title")}</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">
+              {t("advertiser.inscription.profile_title")}
+            </h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
             {commercialName && (
               <div
                 className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400"
-                dangerouslySetInnerHTML={{ __html: t("advertiser.inscription.referral_banner", { name: commercialName }) }}
+                dangerouslySetInnerHTML={{
+                  __html: t("advertiser.inscription.referral_banner", { name: commercialName }),
+                }}
               />
             )}
             {inviterName && (
@@ -372,14 +404,22 @@ function AnnonceurInscription() {
                   onClick={() => setAccountType(type)}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition ${accountType === type ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  {type === "business" ? t("advertiser.inscription.type_business") : t("advertiser.inscription.type_individual")}
+                  {type === "business"
+                    ? t("advertiser.inscription.type_business")
+                    : t("advertiser.inscription.type_individual")}
                 </button>
               ))}
             </div>
 
             <AiAssistantPanel
               open={aiPanelOpen}
-              onOpenChange={(v) => { setAiPanelOpen(v); if (!v) { setAiError(""); setAiSessionExpired(false); } }}
+              onOpenChange={(v) => {
+                setAiPanelOpen(v);
+                if (!v) {
+                  setAiError("");
+                  setAiSessionExpired(false);
+                }
+              }}
               context={aiContext}
               onContextChange={setAiContext}
               onGenerate={handleAdvertiserAiGenerate}
@@ -392,22 +432,37 @@ function AnnonceurInscription() {
               placeholder={t("advertiser.inscription.ai_placeholder")}
               generateLabel={t("advertiser.inscription.ai_generate")}
               generateLoadingLabel={t("advertiser.inscription.ai_generating")}
-              filledMessage={aiFilled.length > 0 ? t("advertiser.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              filledMessage={
+                aiFilled.length > 0
+                  ? t("advertiser.inscription.ai_filled", { fields: aiFilled.join(", ") })
+                  : undefined
+              }
               onDismissFilled={() => setAiFilled([])}
             />
 
             <form onSubmit={handleProfile} className="space-y-4">
-              <Input label={t("advertiser.inscription.label_full_name")} value={fullName} onChange={setFullName} required />
+              <Input
+                label={t("advertiser.inscription.label_full_name")}
+                value={fullName}
+                onChange={setFullName}
+                required
+              />
 
               {accountType === "business" ? (
                 <>
                   <SiretField value={siret} onChange={setSiret} />
-                  <Input label={t("advertiser.inscription.label_company")} value={company} onChange={setCompany} />
+                  <Input
+                    label={t("advertiser.inscription.label_company")}
+                    value={company}
+                    onChange={setCompany}
+                  />
                 </>
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">{t("advertiser.inscription.label_address")}</label>
+                    <label className="block text-sm font-medium mb-1.5">
+                      {t("advertiser.inscription.label_address")}
+                    </label>
                     <textarea
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
@@ -419,13 +474,25 @@ function AnnonceurInscription() {
                   </div>
                   <div
                     className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200"
-                    dangerouslySetInnerHTML={{ __html: t("advertiser.inscription.individual_warning") }}
+                    dangerouslySetInnerHTML={{
+                      __html: t("advertiser.inscription.individual_warning"),
+                    }}
                   />
                 </>
               )}
 
-              <Input label={t("advertiser.inscription.label_phone")} type="tel" value={phone} onChange={setPhone} placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"} />
-              <Input label={t("advertiser.inscription.label_city")} value={city} onChange={setCity} />
+              <Input
+                label={t("advertiser.inscription.label_phone")}
+                type="tel"
+                value={phone}
+                onChange={setPhone}
+                placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"}
+              />
+              <Input
+                label={t("advertiser.inscription.label_city")}
+                value={city}
+                onChange={setCity}
+              />
 
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input

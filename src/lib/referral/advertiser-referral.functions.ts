@@ -15,7 +15,8 @@ export const resolveAdvertiserInviteCode = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!profile) return { ok: false as const };
-    const displayName: string = (profile.company as string | null) ?? (profile.full_name as string) ?? "un annonceur";
+    const displayName: string =
+      (profile.company as string | null) ?? (profile.full_name as string) ?? "un annonceur";
     return { ok: true as const, advertiserId: profile.id as string, name: displayName };
   });
 

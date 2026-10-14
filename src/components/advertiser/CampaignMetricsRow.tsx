@@ -28,9 +28,8 @@ export function CampaignMetricsRow({ campaignId, status, paymentStatus }: Props)
   const hasData = metrics && metrics.totals.pointsTotal > 0;
   const kmTotal = hasData ? (metrics.totals.distanceM / 1000).toFixed(1) : null;
   const kmZone = hasData ? (metrics.totals.distanceInZoneM / 1000).toFixed(1) : null;
-  const coverage = hasData && metrics.coverageRate != null
-    ? `${Math.round(metrics.coverageRate * 100)} %`
-    : null;
+  const coverage =
+    hasData && metrics.coverageRate != null ? `${Math.round(metrics.coverageRate * 100)} %` : null;
   const minutes = hasData ? metrics.totals.activeMinutes : null;
   const coverageHigh = hasData && metrics.coverageRate != null && metrics.coverageRate > 0.5;
 
@@ -50,22 +49,12 @@ export function CampaignMetricsRow({ campaignId, status, paymentStatus }: Props)
       </div>
 
       {!hasData ? (
-        <p className="text-xs text-muted-foreground italic">
-          {t("metrics.waiting_gps")}
-        </p>
+        <p className="text-xs text-muted-foreground italic">{t("metrics.waiting_gps")}</p>
       ) : (
         <>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <MetricTile
-              value={kmTotal!}
-              unit="km"
-              label={t("metrics.label_km")}
-            />
-            <MetricTile
-              value={String(minutes!)}
-              unit="min"
-              label={t("metrics.label_min")}
-            />
+            <MetricTile value={kmTotal!} unit="km" label={t("metrics.label_km")} />
+            <MetricTile value={String(minutes!)} unit="min" label={t("metrics.label_min")} />
             <MetricTile
               value={coverage ?? "—"}
               label={t("metrics.label_coverage")}
@@ -96,7 +85,9 @@ function MetricTile({
 }) {
   return (
     <div className="rounded-md bg-background/60 border border-border/50 px-2 py-2.5">
-      <p className={`text-xl font-bold font-mono leading-none ${highlight ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}>
+      <p
+        className={`text-xl font-bold font-mono leading-none ${highlight ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"}`}
+      >
         {value}
         {unit && <span className="text-xs font-normal text-muted-foreground ml-0.5">{unit}</span>}
       </p>

@@ -35,7 +35,7 @@ type Issue = {
 
 function TranslationIssuesPage() {
   const qc = useQueryClient();
-  const doList    = useServerFn(listTranslationIssues);
+  const doList = useServerFn(listTranslationIssues);
   const doResolve = useServerFn(resolveTranslationIssue);
 
   const [showResolved, setShowResolved] = useState(false);
@@ -48,8 +48,7 @@ function TranslationIssuesPage() {
   });
 
   const resolveMut = useMutation({
-    mutationFn: ({ id, note }: { id: string; note?: string }) =>
-      doResolve({ data: { id, note } }),
+    mutationFn: ({ id, note }: { id: string; note?: string }) => doResolve({ data: { id, note } }),
     onSuccess: () => {
       toast.success("Marqué comme résolu");
       qc.invalidateQueries({ queryKey: ["translation-issues"] });
@@ -58,7 +57,7 @@ function TranslationIssuesPage() {
   });
 
   const issues: Issue[] = (data?.issues ?? []) as Issue[];
-  const visible = issues.filter((i) => showResolved ? true : !i.resolved_at);
+  const visible = issues.filter((i) => (showResolved ? true : !i.resolved_at));
   const pendingCount = issues.filter((i) => !i.resolved_at).length;
 
   return (
@@ -73,10 +72,7 @@ function TranslationIssuesPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              to="/admin"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
               ← Admin
             </Link>
             <button
@@ -95,7 +91,11 @@ function TranslationIssuesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <StatCard label="Problèmes en attente" value={pendingCount} accent="orange" />
           <StatCard label="Résolus" value={issues.length - pendingCount} accent="green" />
-          <StatCard label="Routes affectées" value={new Set(issues.filter((i) => !i.resolved_at).map((i) => i.route)).size} accent="blue" />
+          <StatCard
+            label="Routes affectées"
+            value={new Set(issues.filter((i) => !i.resolved_at).map((i) => i.route)).size}
+            accent="blue"
+          />
         </div>
 
         {/* Filter */}
@@ -118,7 +118,10 @@ function TranslationIssuesPage() {
         {isLoading ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="rounded-xl border border-border bg-card p-5 animate-pulse h-28" />
+              <div
+                key={i}
+                className="rounded-xl border border-border bg-card p-5 animate-pulse h-28"
+              />
             ))}
           </div>
         ) : visible.length === 0 ? (
@@ -135,9 +138,7 @@ function TranslationIssuesPage() {
                 issue={issue}
                 note={noteFor[issue.id] ?? ""}
                 onNoteChange={(v) => setNoteFor((prev) => ({ ...prev, [issue.id]: v }))}
-                onResolve={() =>
-                  resolveMut.mutate({ id: issue.id, note: noteFor[issue.id] })
-                }
+                onResolve={() => resolveMut.mutate({ id: issue.id, note: noteFor[issue.id] })}
                 resolving={resolveMut.isPending}
               />
             ))}
@@ -149,9 +150,16 @@ function TranslationIssuesPage() {
           <p className="font-semibold">Comment fonctionne la détection ?</p>
           <ul className="list-disc list-inside text-muted-foreground space-y-1 text-xs">
             <li>Chaque page visitée est analysée 1,5 s après son chargement.</li>
-            <li>L'analyseur cherche des mots anglais typiques d'interfaces non traduites (ex. "Subtitle", "Tip", "My …").</li>
+            <li>
+              L'analyseur cherche des mots anglais typiques d'interfaces non traduites (ex.
+              "Subtitle", "Tip", "My …").
+            </li>
             <li>Chaque route n'est analysée qu'une fois par session pour éviter le bruit.</li>
-            <li>Pour corriger : ouvrir le fichier <code>.tsx</code> de la route concernée et remplacer le texte anglais par une clé <code>t("…")</code> dans <code>src/locales/fr.json</code>.</li>
+            <li>
+              Pour corriger : ouvrir le fichier <code>.tsx</code> de la route concernée et remplacer
+              le texte anglais par une clé <code>t("…")</code> dans <code>src/locales/fr.json</code>
+              .
+            </li>
           </ul>
         </div>
       </main>
@@ -192,13 +200,9 @@ function IssueCard({
               {issue.route}
             </code>
           </div>
-          <p className="text-sm font-medium mt-1 ml-6">
-            « {issue.text_snippet} »
-          </p>
+          <p className="text-sm font-medium mt-1 ml-6">« {issue.text_snippet} »</p>
           {issue.element_path && (
-            <p className="text-xs text-muted-foreground ml-6 font-mono">
-              {issue.element_path}
-            </p>
+            <p className="text-xs text-muted-foreground ml-6 font-mono">{issue.element_path}</p>
           )}
         </div>
         <div className="text-xs text-muted-foreground text-right shrink-0">
@@ -206,17 +210,13 @@ function IssueCard({
             {issue.detected_lang.toUpperCase()} → {issue.expected_lang.toUpperCase()}
           </span>
           <p>{new Date(issue.created_at).toLocaleDateString("fr-FR")}</p>
-          {issue.occurrences > 1 && (
-            <p>{issue.occurrences}× signalé</p>
-          )}
+          {issue.occurrences > 1 && <p>{issue.occurrences}× signalé</p>}
         </div>
       </div>
 
       {resolved ? (
         issue.resolution_note && (
-          <p className="text-xs text-muted-foreground ml-6">
-            Note : {issue.resolution_note}
-          </p>
+          <p className="text-xs text-muted-foreground ml-6">Note : {issue.resolution_note}</p>
         )
       ) : (
         <div className="flex gap-2 mt-2 ml-6">

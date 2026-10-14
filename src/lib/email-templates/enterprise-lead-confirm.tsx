@@ -2,17 +2,24 @@ import * as React from "react";
 import { Body, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
 } from "./_base";
 
 const COMMISSION_TABLE: Record<string, { rate: string; vehicles: string }> = {
-  "Moins de 5 000 € / an":   { rate: "28 %",       vehicles: "1 à 3 véhicules" },
-  "5 000 – 10 000 € / an":   { rate: "25 %",       vehicles: "3 à 8 véhicules" },
-  "10 000 – 30 000 € / an":  { rate: "22 %",       vehicles: "8 à 20 véhicules" },
-  "30 000 – 100 000 € / an": { rate: "18 %",       vehicles: "20 à 60 véhicules" },
-  "Plus de 100 000 € / an":  { rate: "sur mesure", vehicles: "60+ véhicules" },
+  "Moins de 5 000 € / an": { rate: "28 %", vehicles: "1 à 3 véhicules" },
+  "5 000 – 10 000 € / an": { rate: "25 %", vehicles: "3 à 8 véhicules" },
+  "10 000 – 30 000 € / an": { rate: "22 %", vehicles: "8 à 20 véhicules" },
+  "30 000 – 100 000 € / an": { rate: "18 %", vehicles: "20 à 60 véhicules" },
+  "Plus de 100 000 € / an": { rate: "sur mesure", vehicles: "60+ véhicules" },
 };
 
 interface Props {
@@ -33,14 +40,22 @@ const Email = ({ contactName, company, budgetRange, unsubscribeUrl }: Props) => 
           <Container style={containerStyle}>
             <EmailHeader />
             <Section style={contentPadding}>
-              <Text style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" as const, color: "#F05A28", margin: "0 0 10px" }}>
+              <Text
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  letterSpacing: "1px",
+                  textTransform: "uppercase" as const,
+                  color: "#F05A28",
+                  margin: "0 0 10px",
+                }}
+              >
                 Proposition générée par IA ✦
               </Text>
-              <Text style={h1Style}>
-                Bonjour {contactName ?? ""} !
-              </Text>
+              <Text style={h1Style}>Bonjour {contactName ?? ""} !</Text>
               <Text style={textStyle}>
-                Voici la proposition commerciale personnalisée que notre assistant IA a établie pour{company ? ` ${company}` : " votre entreprise"}, basée sur votre échange.
+                Voici la proposition commerciale personnalisée que notre assistant IA a établie pour
+                {company ? ` ${company}` : " votre entreprise"}, basée sur votre échange.
               </Text>
 
               <InfoCard>
@@ -52,13 +67,16 @@ const Email = ({ contactName, company, budgetRange, unsubscribeUrl }: Props) => 
                 <InfoRow label="Rapport PDF mensuel" value="Inclus" />
                 <InfoRow label="Contrat-cadre annuel + SLA" value="Inclus" />
                 <InfoRow label="Onboarding personnalisé" value="Inclus" />
-                {tier?.rate !== "sur mesure"
-                  ? <InfoRow label="Account manager" value="Dédié à votre compte" />
-                  : <InfoRow label="Équipe dédiée" value="Relation premium" />}
+                {tier?.rate !== "sur mesure" ? (
+                  <InfoRow label="Account manager" value="Dédié à votre compte" />
+                ) : (
+                  <InfoRow label="Équipe dédiée" value="Relation premium" />
+                )}
               </InfoCard>
 
               <Text style={{ ...textStyle, marginTop: "20px" }}>
-                Un account manager MoveSpot vous contactera dans les <strong>24h ouvrées</strong> pour valider les détails, affiner les conditions et préparer votre contrat-cadre.
+                Un account manager MoveSpot vous contactera dans les <strong>24h ouvrées</strong>{" "}
+                pour valider les détails, affiner les conditions et préparer votre contrat-cadre.
               </Text>
               <Text style={mutedText}>
                 Des questions ? Répondez directement à cet email ou écrivez à contact@move-spot.com

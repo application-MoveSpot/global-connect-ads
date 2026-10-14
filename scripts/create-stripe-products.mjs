@@ -9,7 +9,9 @@ import Stripe from "stripe";
 
 const key = process.env.STRIPE_SECRET_KEY;
 if (!key) {
-  console.error("❌  STRIPE_SECRET_KEY manquante.\nUsage : STRIPE_SECRET_KEY=sk_... node scripts/create-stripe-products.mjs");
+  console.error(
+    "❌  STRIPE_SECRET_KEY manquante.\nUsage : STRIPE_SECRET_KEY=sk_... node scripts/create-stripe-products.mjs",
+  );
   process.exit(1);
 }
 
@@ -50,7 +52,9 @@ for (const p of products) {
     const existing = await stripe.prices.list({ lookup_keys: [p.lookupKey], limit: 1 });
     if (existing.data.length > 0) {
       const price = existing.data[0];
-      console.log(`⏭️  ${p.name} — déjà existant (${p.lookupKey} → ${(price.unit_amount / 100).toFixed(2)} €/mois)`);
+      console.log(
+        `⏭️  ${p.name} — déjà existant (${p.lookupKey} → ${(price.unit_amount / 100).toFixed(2)} €/mois)`,
+      );
       continue;
     }
 

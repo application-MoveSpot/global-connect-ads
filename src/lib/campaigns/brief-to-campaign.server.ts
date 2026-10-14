@@ -42,11 +42,19 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
     ]);
 
     const brief = briefRes.data as {
-      id: string; title: string; start_date: string; end_date: string;
-      days_count: number | null; advertiser_id: string;
+      id: string;
+      title: string;
+      start_date: string;
+      end_date: string;
+      days_count: number | null;
+      advertiser_id: string;
     } | null;
     const proposal = proposalRes.data as {
-      id: string; vehicle_id: string; price_per_day: number; status: string; owner_id: string;
+      id: string;
+      vehicle_id: string;
+      price_per_day: number;
+      status: string;
+      owner_id: string;
     } | null;
     const profile = profileRes.data as { full_name?: string; account_type?: string } | null;
 
@@ -64,7 +72,13 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         .maybeSingle();
       if (existing) {
         const cr = existing as { id: string; payment_status: string };
-        return { ok: true as const, campaignRequestId: cr.id, alreadyExists: true, settled: cr.payment_status === "paid", insufficientFunds: false };
+        return {
+          ok: true as const,
+          campaignRequestId: cr.id,
+          alreadyExists: true,
+          settled: cr.payment_status === "paid",
+          insufficientFunds: false,
+        };
       }
     }
 
@@ -128,7 +142,9 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
       campaignRequestId,
       vehicleId: proposal.vehicle_id,
       location: vehicleLocation,
-    }).catch(() => { /* non-critical: fallback fees already stored */ });
+    }).catch(() => {
+      /* non-critical: fallback fees already stored */
+    });
 
     // For individuals: attempt immediate wallet settlement
     const isIndividual = profile?.account_type === "individual";
@@ -137,9 +153,8 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
 
     if (isIndividual) {
       try {
-        const { settleCampaignFromWallet } = await import(
-          "@/lib/campaigns/campaign-settlement.server"
-        );
+        const { settleCampaignFromWallet } =
+          await import("@/lib/campaigns/campaign-settlement.server");
         await settleCampaignFromWallet({
           campaignRequestId,
           description: `Campagne "${brief.title}" — ${brief.days_count ?? 0} jour(s)`,
@@ -178,7 +193,9 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
             dashboardUrl: `https://move-spot.com/annonceur/briefs/${brief.id}`,
           },
         });
-      } catch { /* non-critical */ }
+      } catch {
+        /* non-critical */
+      }
     }
 
     // 2. Accepted notification to owner
@@ -199,7 +216,9 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
             .select("zones")
             .eq("id", proposal.vehicle_id)
             .maybeSingle();
-          const zone = ((vehicleData as { zones?: string[] | null } | null)?.zones ?? []).join(", ") || undefined;
+          const zone =
+            ((vehicleData as { zones?: string[] | null } | null)?.zones ?? []).join(", ") ||
+            undefined;
           await sendAppEmailSafe({
             templateName: "brief-proposal-accepted",
             recipientEmail: ownerEmail,
@@ -217,7 +236,15 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
           });
         }
       }
-    } catch { /* non-critical */ }
+    } catch {
+      /* non-critical */
+    }
 
-    return { ok: true as const, campaignRequestId, settled, insufficientFunds, alreadyExists: false };
+    return {
+      ok: true as const,
+      campaignRequestId,
+      settled,
+      insufficientFunds,
+      alreadyExists: false,
+    };
   });

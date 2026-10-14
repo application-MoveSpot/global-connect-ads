@@ -65,10 +65,7 @@ async function getCertifiedInstallerUserIds(): Promise<string[]> {
 }
 
 async function getAdminUserIds(): Promise<string[]> {
-  const { data } = await supabase
-    .from("user_roles")
-    .select("user_id")
-    .eq("role", "admin");
+  const { data } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
   return (data as Array<{ user_id: string }> | null)?.map((r) => r.user_id) ?? [];
 }
 

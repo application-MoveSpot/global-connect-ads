@@ -29,9 +29,7 @@ export type ProposalComparisonResult = {
 
 export const compareProposals = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof ProposalCompareInput>) =>
-    ProposalCompareInput.parse(d),
-  )
+  .inputValidator((d: z.infer<typeof ProposalCompareInput>) => ProposalCompareInput.parse(d))
   .handler(async ({ data, context }): Promise<ProposalComparisonResult> => {
     assertRateLimit(`compare-proposals:${context.userId}`, { maxRequests: 20, windowMs: 60_000 });
     const apiKey = process.env.LOVABLE_API_KEY;
@@ -50,9 +48,7 @@ export const compareProposals = createServerFn({ method: "POST" })
       )
       .join("\n");
 
-    const budgetNote = data.briefBudgetMax
-      ? `Budget max annonceur : ${data.briefBudgetMax}€.`
-      : "";
+    const budgetNote = data.briefBudgetMax ? `Budget max annonceur : ${data.briefBudgetMax}€.` : "";
 
     const prompt = `Tu es un conseiller en publicité mobile pour des particuliers en France. Aide cet annonceur à choisir parmi les propositions reçues pour son brief "${data.briefTitle}".
 
@@ -103,7 +99,12 @@ Réponds en JSON strict. Pour chaque proposition, identifie 1-2 avantages et 1-2
     } catch {
       return {
         summary: "Plusieurs propositions disponibles.",
-        items: data.proposals.map((p: z.infer<typeof ProposalInput>) => ({ id: p.id, pros: [], cons: [], verdict: "" })),
+        items: data.proposals.map((p: z.infer<typeof ProposalInput>) => ({
+          id: p.id,
+          pros: [],
+          cons: [],
+          verdict: "",
+        })),
         recommendation: "Comparez les prix et les messages des propriétaires avant de décider.",
       };
     }

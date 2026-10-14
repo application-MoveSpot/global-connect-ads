@@ -2,7 +2,10 @@ import { type Page } from "@playwright/test";
 
 const SUPABASE_KEY = "sb-phononlhfyljhhhvlmrm-auth-token";
 
-export function injectSession(page: Page, role: "annonceur" | "proprietaire" | "driver" | "admin" = "annonceur") {
+export function injectSession(
+  page: Page,
+  role: "annonceur" | "proprietaire" | "driver" | "admin" = "annonceur",
+) {
   const emails: Record<string, string> = {
     annonceur: "annonceur@movespot.fr",
     proprietaire: "proprietaire@movespot.fr",

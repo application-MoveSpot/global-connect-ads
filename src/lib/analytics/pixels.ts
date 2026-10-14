@@ -28,12 +28,7 @@ const GADS_ID = import.meta.env.VITE_GADS_ID as string | undefined;
 const GADS_REGISTRATION_LABEL = import.meta.env.VITE_GADS_REGISTRATION_LABEL as string | undefined;
 
 export type PixelEvent =
-  | "PageView"
-  | "Lead"
-  | "CompleteRegistration"
-  | "Purchase"
-  | "InitiateCheckout"
-  | "ViewContent";
+  "PageView" | "Lead" | "CompleteRegistration" | "Purchase" | "InitiateCheckout" | "ViewContent";
 
 export type PixelEventData = Record<string, unknown>;
 

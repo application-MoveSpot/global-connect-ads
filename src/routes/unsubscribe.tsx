@@ -33,9 +33,8 @@ function UnsubscribePage() {
   const [email, setEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const token = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("token")
-    : null;
+  const token =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("token") : null;
 
   useEffect(() => {
     if (!token) {
@@ -110,9 +109,7 @@ function UnsubscribePage() {
         <p className="mt-4 text-muted-foreground">{t("unsubscribe.invalid")}</p>
       ) : null}
 
-      {state === "error" ? (
-        <p className="mt-4 text-destructive">{t("unsubscribe.error")}</p>
-      ) : null}
+      {state === "error" ? <p className="mt-4 text-destructive">{t("unsubscribe.error")}</p> : null}
     </main>
   );
 }

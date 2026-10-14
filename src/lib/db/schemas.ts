@@ -259,10 +259,7 @@ export type AdvertiserBriefRow = z.infer<typeof AdvertiserBriefRowSchema>;
  * Safely parse a Supabase row, returning null on failure instead of throwing.
  * Use this when you want a runtime guard without crashing the UI on schema drift.
  */
-export function safeParseRow<T>(
-  schema: z.ZodType<T>,
-  data: unknown,
-): T | null {
+export function safeParseRow<T>(schema: z.ZodType<T>, data: unknown): T | null {
   const result = schema.safeParse(data);
   if (!result.success) {
     if (process.env.NODE_ENV === "development") {
@@ -276,10 +273,7 @@ export function safeParseRow<T>(
 /**
  * Safely parse an array of Supabase rows, filtering out any rows that fail validation.
  */
-export function safeParseRows<T>(
-  schema: z.ZodType<T>,
-  data: unknown[],
-): T[] {
+export function safeParseRows<T>(schema: z.ZodType<T>, data: unknown[]): T[] {
   return data.flatMap((row) => {
     const parsed = safeParseRow(schema, row);
     return parsed !== null ? [parsed] : [];

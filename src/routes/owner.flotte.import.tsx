@@ -24,7 +24,10 @@ function ImportPage() {
   const navigate = useNavigate();
   const [csv, setCsv] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ inserted: number; errors: { line: number; error: string }[] } | null>(null);
+  const [result, setResult] = useState<{
+    inserted: number;
+    errors: { line: number; error: string }[];
+  } | null>(null);
 
   const handleFile = async (f: File | null) => {
     if (!f) return;
@@ -41,7 +44,8 @@ function ImportPage() {
     try {
       const r = await importFn({ data: { csv } });
       setResult(r);
-      if (r.inserted > 0) toast.success(t("owner.flotte.import.toast_imported", { count: r.inserted }));
+      if (r.inserted > 0)
+        toast.success(t("owner.flotte.import.toast_imported", { count: r.inserted }));
       if (r.errors.length === 0 && r.inserted > 0) {
         setTimeout(() => navigate({ to: "/owner/flotte" }), 1500);
       }
@@ -65,8 +69,7 @@ function ImportPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold mb-2">{t("owner.flotte.import.title")}</h1>
         <p className="text-muted-foreground mb-6">
-          {t("owner.flotte.import.desc")}{" "}
-          <strong>{t("owner.flotte.import.desc_status")}</strong>{" "}
+          {t("owner.flotte.import.desc")} <strong>{t("owner.flotte.import.desc_status")}</strong>{" "}
           {t("owner.flotte.import.desc_suffix")}
         </p>
 
@@ -88,7 +91,9 @@ function ImportPage() {
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">{t("owner.flotte.import.file_label")}</label>
+            <label className="block text-sm font-medium mb-2">
+              {t("owner.flotte.import.file_label")}
+            </label>
             <input
               type="file"
               accept=".csv,text/csv"
@@ -97,7 +102,9 @@ function ImportPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">{t("owner.flotte.import.paste_label")}</label>
+            <label className="block text-sm font-medium mb-2">
+              {t("owner.flotte.import.paste_label")}
+            </label>
             <textarea
               value={csv}
               onChange={(e) => setCsv(e.target.value)}
@@ -120,7 +127,9 @@ function ImportPage() {
             <h2 className="font-semibold mb-3">{t("owner.flotte.import.result_title")}</h2>
             <p
               className="text-sm"
-              dangerouslySetInnerHTML={{ __html: t("owner.flotte.import.result_inserted", { count: result.inserted }) }}
+              dangerouslySetInnerHTML={{
+                __html: t("owner.flotte.import.result_inserted", { count: result.inserted }),
+              }}
             />
             {result.errors.length > 0 && (
               <div className="mt-3">

@@ -2,10 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Camera, Clock, CheckCircle, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  getDriverControlPhotoRequest,
-  submitControlPhoto,
-} from "@/lib/tracking/control-photo";
+import { getDriverControlPhotoRequest, submitControlPhoto } from "@/lib/tracking/control-photo";
 
 type Props = {
   vehicleId: string;
@@ -49,12 +46,16 @@ export function ControlPhotoPrompt({ vehicleId, pollIntervalMs = 60_000 }: Props
         });
       } else if (state.phase === "pending") {
         // Demande disparue (expirée côté serveur)
-        setState({ phase: "done", success: false, message: "Délai expiré. Cette demande a été marquée comme non-répondue." });
+        setState({
+          phase: "done",
+          success: false,
+          message: "Délai expiré. Cette demande a été marquée comme non-répondue.",
+        });
       }
     } catch {
       // erreur réseau — on réessaie au prochain tick
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleId, fetchRequest]);
 
   // Polling
@@ -183,8 +184,8 @@ export function ControlPhotoPrompt({ vehicleId, pollIntervalMs = 60_000 }: Props
             <span className="ml-auto font-mono text-lg tabular-nums">{countdown}</span>
           </div>
           <p className="text-sm text-amber-700 dark:text-amber-300">
-            MoveSpot demande une photo de votre véhicule dans les prochaines minutes.
-            Prenez une photo montrant clairement le véhicule et la publicité apposée.
+            MoveSpot demande une photo de votre véhicule dans les prochaines minutes. Prenez une
+            photo montrant clairement le véhicule et la publicité apposée.
           </p>
           <button
             type="button"

@@ -35,11 +35,11 @@ type Reversement = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  approved:  "text-emerald-600 bg-emerald-500/10",
-  paid:      "text-emerald-600 bg-emerald-500/10",
+  approved: "text-emerald-600 bg-emerald-500/10",
+  paid: "text-emerald-600 bg-emerald-500/10",
   completed: "text-blue-600 bg-blue-500/10",
-  pending:   "text-amber-600 bg-amber-500/10",
-  rejected:  "text-red-600 bg-red-500/10",
+  pending: "text-amber-600 bg-amber-500/10",
+  rejected: "text-red-600 bg-red-500/10",
 };
 
 const COMPLETED_STATUSES = new Set(["approved", "paid", "completed"]);
@@ -92,7 +92,9 @@ function HistoriquePage() {
 
       const { data: requests, error: rErr } = await supabase
         .from("campaign_requests")
-        .select("id, vehicle_id, spot_name, company, start_date, end_date, days_count, total_price, status, owner_response, created_at")
+        .select(
+          "id, vehicle_id, spot_name, company, start_date, end_date, days_count, total_price, status, owner_response, created_at",
+        )
         .in("vehicle_id", vehicleIds)
         .or("owner_response.eq.accepted,status.in.(approved,paid,completed)")
         .order("created_at", { ascending: false });
@@ -107,7 +109,7 @@ function HistoriquePage() {
         (requests ?? []).map((r) => ({
           ...r,
           vehicle_name: r.vehicle_id ? (vehicleMap[r.vehicle_id] ?? null) : null,
-        }))
+        })),
       );
       setLoading(false);
     })();
@@ -159,7 +161,6 @@ function HistoriquePage() {
       </div>
     );
 
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
@@ -186,11 +187,15 @@ function HistoriquePage() {
 
         <div className="grid sm:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.historique.kpi_campaigns")}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("owner.historique.kpi_campaigns")}
+            </p>
             <p className="font-display text-3xl font-bold">{reversements.length}</p>
           </div>
           <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.historique.kpi_total")}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              {t("owner.historique.kpi_total")}
+            </p>
             <p className="font-display text-3xl font-bold text-primary">
               {totalEarnings.toLocaleString(currencyLocale, { style: "currency", currency: "EUR" })}
             </p>
@@ -198,10 +203,15 @@ function HistoriquePage() {
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 space-y-1">
             <div className="flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.historique.kpi_completed")}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("owner.historique.kpi_completed")}
+              </p>
             </div>
             <p className="font-display text-3xl font-bold text-emerald-600">
-              {completedEarnings.toLocaleString(currencyLocale, { style: "currency", currency: "EUR" })}
+              {completedEarnings.toLocaleString(currencyLocale, {
+                style: "currency",
+                currency: "EUR",
+              })}
             </p>
           </div>
         </div>
@@ -216,14 +226,16 @@ function HistoriquePage() {
             level === "gold"
               ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-700 dark:text-yellow-300"
               : level === "silver"
-              ? "border-slate-400/40 bg-slate-400/10 text-slate-600 dark:text-slate-300"
-              : "border-amber-700/40 bg-amber-700/10 text-amber-800 dark:text-amber-300";
+                ? "border-slate-400/40 bg-slate-400/10 text-slate-600 dark:text-slate-300"
+                : "border-amber-700/40 bg-amber-700/10 text-amber-800 dark:text-amber-300";
           return (
             <div className={`rounded-xl border p-4 flex items-center gap-3 ${colorClass}`}>
               <span className="text-3xl shrink-0">{icon}</span>
               <div>
                 <p className="font-semibold">{t(`owner.historique.badge_${level}_title`)}</p>
-                <p className="text-xs opacity-80">{t(`owner.historique.badge_${level}`, { count })}</p>
+                <p className="text-xs opacity-80">
+                  {t(`owner.historique.badge_${level}`, { count })}
+                </p>
               </div>
             </div>
           );
@@ -269,23 +281,32 @@ function HistoriquePage() {
                           <span className="text-xs uppercase tracking-widest text-muted-foreground">
                             {r.spot_name}
                           </span>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor}`}>
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusColor}`}
+                          >
                             {statusLabel}
                           </span>
                         </div>
                         <h3 className="font-semibold mt-0.5">{r.company}</h3>
                         {r.vehicle_name && (
-                          <p className="text-xs text-muted-foreground mt-0.5">🚗 {r.vehicle_name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            🚗 {r.vehicle_name}
+                          </p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
                         {r.total_price != null && (
                           <p className="font-display text-xl font-bold text-primary">
-                            {r.total_price.toLocaleString(currencyLocale, { style: "currency", currency: "EUR" })}
+                            {r.total_price.toLocaleString(currencyLocale, {
+                              style: "currency",
+                              currency: "EUR",
+                            })}
                           </p>
                         )}
                         {r.days_count != null && (
-                          <p className="text-xs text-muted-foreground">{t("owner.historique.days", { count: r.days_count })}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {t("owner.historique.days", { count: r.days_count })}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -293,16 +314,24 @@ function HistoriquePage() {
                       <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-4 text-xs text-muted-foreground">
                         {r.start_date && (
                           <span>
-                            {t("owner.historique.date_start")} <strong className="text-foreground">{new Date(r.start_date).toLocaleDateString(dateLocale)}</strong>
+                            {t("owner.historique.date_start")}{" "}
+                            <strong className="text-foreground">
+                              {new Date(r.start_date).toLocaleDateString(dateLocale)}
+                            </strong>
                           </span>
                         )}
                         {r.end_date && (
                           <span>
-                            {t("owner.historique.date_end")} <strong className="text-foreground">{new Date(r.end_date).toLocaleDateString(dateLocale)}</strong>
+                            {t("owner.historique.date_end")}{" "}
+                            <strong className="text-foreground">
+                              {new Date(r.end_date).toLocaleDateString(dateLocale)}
+                            </strong>
                           </span>
                         )}
                         <span className="ml-auto">
-                          {t("owner.historique.received_at", { date: new Date(r.created_at).toLocaleDateString(dateLocale) })}
+                          {t("owner.historique.received_at", {
+                            date: new Date(r.created_at).toLocaleDateString(dateLocale),
+                          })}
                         </span>
                       </div>
                     )}
@@ -317,14 +346,24 @@ function HistoriquePage() {
   );
 }
 
-function MonthlyChart({ data, locale }: { data: { label: string; key: string; value: number }[]; locale: string }) {
+function MonthlyChart({
+  data,
+  locale,
+}: {
+  data: { label: string; key: string; value: number }[];
+  locale: string;
+}) {
   const max = Math.max(...data.map((d) => d.value), 1);
   const barW = 100 / data.length;
 
   return (
     <div className="w-full space-y-2">
       <div className="relative h-40 w-full">
-        <svg viewBox={`0 0 ${data.length * 40} 120`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
+        <svg
+          viewBox={`0 0 ${data.length * 40} 120`}
+          className="w-full h-full overflow-visible"
+          preserveAspectRatio="none"
+        >
           {data.map((d, i) => {
             const barH = Math.max((d.value / max) * 100, d.value > 0 ? 4 : 0);
             const x = i * 40 + 4;
@@ -337,7 +376,11 @@ function MonthlyChart({ data, locale }: { data: { label: string; key: string; va
                   width={32}
                   height={barH}
                   rx={4}
-                  className={d.value > 0 ? "fill-primary/60 hover:fill-primary transition-colors" : "fill-secondary"}
+                  className={
+                    d.value > 0
+                      ? "fill-primary/60 hover:fill-primary transition-colors"
+                      : "fill-secondary"
+                  }
                 />
                 {d.value > 0 && (
                   <text
@@ -347,7 +390,11 @@ function MonthlyChart({ data, locale }: { data: { label: string; key: string; va
                     className="fill-muted-foreground"
                     style={{ fontSize: 8 }}
                   >
-                    {d.value.toLocaleString(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
+                    {d.value.toLocaleString(locale, {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 0,
+                    })}
                   </text>
                 )}
               </g>
@@ -355,9 +402,14 @@ function MonthlyChart({ data, locale }: { data: { label: string; key: string; va
           })}
         </svg>
       </div>
-      <div className="grid text-[10px] text-muted-foreground text-center" style={{ gridTemplateColumns: `repeat(${data.length}, 1fr)` }}>
+      <div
+        className="grid text-[10px] text-muted-foreground text-center"
+        style={{ gridTemplateColumns: `repeat(${data.length}, 1fr)` }}
+      >
         {data.map((d) => (
-          <span key={d.key} className="truncate">{d.label}</span>
+          <span key={d.key} className="truncate">
+            {d.label}
+          </span>
         ))}
       </div>
     </div>

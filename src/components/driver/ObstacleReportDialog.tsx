@@ -2,7 +2,12 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { reportObstacleWithToken, OBSTACLE_TYPES, IMPACT_DURATION_OPTIONS, type ObstacleType } from "@/lib/tracking/obstacle.functions";
+import {
+  reportObstacleWithToken,
+  OBSTACLE_TYPES,
+  IMPACT_DURATION_OPTIONS,
+  type ObstacleType,
+} from "@/lib/tracking/obstacle.functions";
 import { Camera, X, Loader2 } from "lucide-react";
 
 interface Props {
@@ -10,8 +15,8 @@ interface Props {
 }
 
 type CapturedPhoto = {
-  dataUrl: string;   // data:image/jpeg;base64,...  (pour l'aperçu)
-  b64: string;       // base64 brut (sans préfixe)
+  dataUrl: string; // data:image/jpeg;base64,...  (pour l'aperçu)
+  b64: string; // base64 brut (sans préfixe)
   mime: "image/jpeg" | "image/png" | "image/webp";
 };
 
@@ -25,8 +30,13 @@ function compressImage(file: File): Promise<CapturedPhoto> {
       const MAX = 900;
       let { width, height } = img;
       if (width > MAX || height > MAX) {
-        if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
-        else { width = Math.round(width * MAX / height); height = MAX; }
+        if (width > height) {
+          height = Math.round((height * MAX) / width);
+          width = MAX;
+        } else {
+          width = Math.round((width * MAX) / height);
+          height = MAX;
+        }
       }
       const canvas = document.createElement("canvas");
       canvas.width = width;
@@ -89,7 +99,9 @@ export function ObstacleReportDialog({ token }: Props) {
         },
       });
       if (res.photoCount > 0) {
-        toast.success(t("obstacle.success_photos", { count: res.photoCount, s: res.photoCount > 1 ? "s" : "" }));
+        toast.success(
+          t("obstacle.success_photos", { count: res.photoCount, s: res.photoCount > 1 ? "s" : "" }),
+        );
       } else {
         toast.success(t("obstacle.success"));
       }
@@ -126,7 +138,9 @@ export function ObstacleReportDialog({ token }: Props) {
   return (
     <div className="rounded-2xl border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-amber-800 dark:text-amber-300">{t("obstacle.dialog_title")}</h3>
+        <h3 className="font-semibold text-amber-800 dark:text-amber-300">
+          {t("obstacle.dialog_title")}
+        </h3>
         <button onClick={reset} className="text-xs text-muted-foreground hover:text-foreground">
           {t("obstacle.btn_cancel")}
         </button>
@@ -134,7 +148,9 @@ export function ObstacleReportDialog({ token }: Props) {
 
       {/* Type d'obstacle */}
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("obstacle.label_type")}</label>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">
+          {t("obstacle.label_type")}
+        </label>
         <div className="grid grid-cols-2 gap-2">
           {OBSTACLE_TYPES.map((obsType) => (
             <button
@@ -155,7 +171,8 @@ export function ObstacleReportDialog({ token }: Props) {
       {/* Description */}
       <div className="space-y-1">
         <label className="text-xs uppercase tracking-widest text-muted-foreground">
-          {t("obstacle.label_description")} <span className="normal-case">{t("obstacle.label_optional")}</span>
+          {t("obstacle.label_description")}{" "}
+          <span className="normal-case">{t("obstacle.label_optional")}</span>
         </label>
         <textarea
           value={description}
@@ -170,7 +187,9 @@ export function ObstacleReportDialog({ token }: Props) {
 
       {/* Durée estimée */}
       <div className="space-y-2">
-        <label className="text-xs uppercase tracking-widest text-muted-foreground">{t("obstacle.label_duration")}</label>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">
+          {t("obstacle.label_duration")}
+        </label>
         <div className="flex flex-wrap gap-2">
           {IMPACT_DURATION_OPTIONS.map((opt) => (
             <button
@@ -196,14 +215,22 @@ export function ObstacleReportDialog({ token }: Props) {
       {/* Preuves photographiques */}
       <div className="space-y-2">
         <label className="text-xs uppercase tracking-widest text-muted-foreground">
-          {t("obstacle.label_photos")} <span className="normal-case text-muted-foreground">{t("obstacle.photos_max")}</span>
+          {t("obstacle.label_photos")}{" "}
+          <span className="normal-case text-muted-foreground">{t("obstacle.photos_max")}</span>
         </label>
 
         {photos.length > 0 && (
           <div className="grid grid-cols-2 gap-2">
             {photos.map((p, i) => (
-              <div key={i} className="relative rounded-xl overflow-hidden border border-border aspect-video bg-secondary/30">
-                <img src={p.dataUrl} alt={t("obstacle.photo_alt", { n: i + 1 })} className="w-full h-full object-cover" />
+              <div
+                key={i}
+                className="relative rounded-xl overflow-hidden border border-border aspect-video bg-secondary/30"
+              >
+                <img
+                  src={p.dataUrl}
+                  alt={t("obstacle.photo_alt", { n: i + 1 })}
+                  className="w-full h-full object-cover"
+                />
                 <button
                   onClick={() => removePhoto(i)}
                   className="absolute top-1 right-1 rounded-full bg-black/60 text-white p-0.5 hover:bg-black/80"
@@ -232,34 +259,38 @@ export function ObstacleReportDialog({ token }: Props) {
               disabled={compressing}
               className="flex items-center justify-center gap-2 w-full rounded-xl border-2 border-dashed border-amber-300 dark:border-amber-700 bg-transparent py-3 text-xs text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors disabled:opacity-50"
             >
-              {compressing
-                ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("obstacle.btn_compressing")}</>
-                : <><Camera className="w-4 h-4" /> {t("obstacle.btn_add_photo")}</>
-              }
+              {compressing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> {t("obstacle.btn_compressing")}
+                </>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4" /> {t("obstacle.btn_add_photo")}
+                </>
+              )}
             </button>
           </>
         )}
 
-        <p className="text-[10px] text-muted-foreground">
-          {t("obstacle.photos_info")}
-        </p>
+        <p className="text-[10px] text-muted-foreground">{t("obstacle.photos_info")}</p>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        {t("obstacle.disclaimer")}
-      </p>
+      <p className="text-xs text-muted-foreground">{t("obstacle.disclaimer")}</p>
 
       <button
         onClick={submit}
         disabled={sending || compressing}
         className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
-        {sending
-          ? <><Loader2 className="w-4 h-4 animate-spin" /> {t("obstacle.sending")}</>
-          : photos.length > 0
-            ? t("obstacle.btn_submit_photos", { count: photos.length, s: photos.length > 1 ? "s" : "" })
-            : t("obstacle.btn_submit")
-        }
+        {sending ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" /> {t("obstacle.sending")}
+          </>
+        ) : photos.length > 0 ? (
+          t("obstacle.btn_submit_photos", { count: photos.length, s: photos.length > 1 ? "s" : "" })
+        ) : (
+          t("obstacle.btn_submit")
+        )}
       </button>
     </div>
   );

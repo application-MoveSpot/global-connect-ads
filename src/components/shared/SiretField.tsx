@@ -107,14 +107,19 @@ export function SiretField({
       {/* Success */}
       {value.verified && value.denomination && (
         <div className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 space-y-0.5">
-          <p>✓ {value.denomination}{value.isIndividual && ` ${t("siret.individual_note")}`}</p>
+          <p>
+            ✓ {value.denomination}
+            {value.isIndividual && ` ${t("siret.individual_note")}`}
+          </p>
           {value.address && <p className="text-muted-foreground">{value.address}</p>}
         </div>
       )}
 
       {/* Luhn or API error */}
       {error && (
-        <p id="siret-error" className="mt-1.5 text-xs text-destructive">{error}</p>
+        <p id="siret-error" className="mt-1.5 text-xs text-destructive">
+          {error}
+        </p>
       )}
 
       {/* Digit counter (only while typing, before reaching 14) */}
@@ -126,9 +131,7 @@ export function SiretField({
 
       {/* Client-side Luhn warning (14 digits entered but invalid) */}
       {!value.verified && !error && cleaned.length === 14 && !luhnOk && (
-        <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
-          {t("siret.err_luhn")}
-        </p>
+        <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">{t("siret.err_luhn")}</p>
       )}
     </div>
   );

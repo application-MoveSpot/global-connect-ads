@@ -21,7 +21,10 @@ export const Route = createFileRoute("/api/admin/intrusion-alert")({
 
         const token = authHeader.slice("Bearer ".length).trim();
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
-        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser(token);
 
         if (authError || !user) {
           return Response.json({ error: "Unauthorized" }, { status: 401 });

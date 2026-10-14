@@ -39,9 +39,17 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
   head: () => ({
     meta: [
       { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partner MoveSpot" },
-      { name: "description", content: "Transformez vos kilomètres en revenu complémentaire avec MoveSpot. Taxi, VTC, food truck, van ou scooter : inscription gratuite, 70 % du budget campagne vous revient, minimum garanti 17,50 €/jour." },
+      {
+        name: "description",
+        content:
+          "Transformez vos kilomètres en revenu complémentaire avec MoveSpot. Taxi, VTC, food truck, van ou scooter : inscription gratuite, 70 % du budget campagne vous revient, minimum garanti 17,50 €/jour.",
+      },
       { property: "og:title", content: "Revenu complémentaire sur votre véhicule — MoveSpot" },
-      { property: "og:description", content: "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h." },
+      {
+        property: "og:description",
+        content:
+          "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h.",
+      },
     ],
     scripts: [
       {
@@ -62,16 +70,32 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
           "@context": "https://schema.org",
           "@type": "HowTo",
           name: "Comment devenir partner MoveSpot et générer un revenu complémentaire",
-          description: "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'advertisers locaux.",
+          description:
+            "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'advertisers locaux.",
           step: [
-            { "@type": "HowToStep", name: "Créez votre profil gratuit", text: "Inscrivez-vous en 2 minutes avec votre email. Renseignez vos informations et ajoutez votre premier véhicule avec 4 photos." },
-            { "@type": "HowToStep", name: "Validation sous 48h par MoveSpot", text: "MoveSpot vérifie votre véhicule et votre SIRET pour garantir la qualité de la marketplace. Vous recevez une confirmation par email." },
-            { "@type": "HowToStep", name: "Recevez des campagnes et encaissez", text: "Les advertisers vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu." },
+            {
+              "@type": "HowToStep",
+              name: "Créez votre profil gratuit",
+              text: "Inscrivez-vous en 2 minutes avec votre email. Renseignez vos informations et ajoutez votre premier véhicule avec 4 photos.",
+            },
+            {
+              "@type": "HowToStep",
+              name: "Validation sous 48h par MoveSpot",
+              text: "MoveSpot vérifie votre véhicule et votre SIRET pour garantir la qualité de la marketplace. Vous recevez une confirmation par email.",
+            },
+            {
+              "@type": "HowToStep",
+              name: "Recevez des campagnes et encaissez",
+              text: "Les advertisers vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu.",
+            },
           ],
         }),
       },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/devenir-partner" }, ...hreflangLinks("/devenir-partner")],
+    links: [
+      { rel: "canonical", href: "https://move-spot.com/devenir-partner" },
+      ...hreflangLinks("/devenir-partner"),
+    ],
   }),
   component: DevenirPartenaire,
 });
@@ -81,21 +105,21 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
  *  maxPerDay = campagne typique large zone pour ce type de véhicule × 70 %
  *  cityMult  = reflet de la demande + multiplicateur zone dense (×1,5 en agglo) */
 const VEHICULE_CONFIG: Record<string, { emoji: string; minPerDay: number; maxPerDay: number }> = {
-  taxi:      { emoji: "🚕", minPerDay: 17.5, maxPerDay: 49 },
-  van:       { emoji: "🚐", minPerDay: 17.5, maxPerDay: 42 },
+  taxi: { emoji: "🚕", minPerDay: 17.5, maxPerDay: 49 },
+  van: { emoji: "🚐", minPerDay: 17.5, maxPerDay: 42 },
   foodtruck: { emoji: "🍔", minPerDay: 17.5, maxPerDay: 35 },
-  scooter:   { emoji: "🛵", minPerDay: 17.5, maxPerDay: 28 },
-  voiture:   { emoji: "🚗", minPerDay: 17.5, maxPerDay: 28 },
-  flotte:    { emoji: "🚛", minPerDay: 17.5, maxPerDay: 56 },
+  scooter: { emoji: "🛵", minPerDay: 17.5, maxPerDay: 28 },
+  voiture: { emoji: "🚗", minPerDay: 17.5, maxPerDay: 28 },
+  flotte: { emoji: "🚛", minPerDay: 17.5, maxPerDay: 56 },
 };
 
 const CITY_CONFIG: Record<string, { mult: number; dense: boolean }> = {
-  paris:     { mult: 1.5,  dense: true  },
-  lyon:      { mult: 1.2,  dense: true  },
-  marseille: { mult: 1.1,  dense: true  },
-  bordeaux:  { mult: 1.0,  dense: false },
-  toulouse:  { mult: 1.0,  dense: false },
-  autre:     { mult: 0.85, dense: false },
+  paris: { mult: 1.5, dense: true },
+  lyon: { mult: 1.2, dense: true },
+  marseille: { mult: 1.1, dense: true },
+  bordeaux: { mult: 1.0, dense: false },
+  toulouse: { mult: 1.0, dense: false },
+  autre: { mult: 0.85, dense: false },
 };
 
 function RevenueSimulator() {
@@ -109,12 +133,12 @@ function RevenueSimulator() {
   const city = CITY_CONFIG[ville];
   const mult = city.mult;
 
-  const minDay  = Math.round(cfg.minPerDay * mult * 10) / 10;
-  const maxDay  = Math.round(cfg.maxPerDay * mult * 10) / 10;
+  const minDay = Math.round(cfg.minPerDay * mult * 10) / 10;
+  const maxDay = Math.round(cfg.maxPerDay * mult * 10) / 10;
   const minMois = Math.round(minDay * jours * nb);
   const maxMois = Math.round(maxDay * jours * nb);
-  const minAn   = minMois * 12;
-  const maxAn   = maxMois * 12;
+  const minAn = minMois * 12;
+  const maxAn = maxMois * 12;
 
   const loc = i18n.language;
 
@@ -127,34 +151,46 @@ function RevenueSimulator() {
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold">{t("partner.sim.title")}</h2>
           <p className="text-muted-foreground mt-2 text-sm">
-            {t("partner.sim.subtitle_pre")}<strong>70 % du budget campagne</strong>{t("partner.sim.subtitle_mid")}<strong>17,50 € / véhicule / jour actif</strong>.
+            {t("partner.sim.subtitle_pre")}
+            <strong>70 % du budget campagne</strong>
+            {t("partner.sim.subtitle_mid")}
+            <strong>17,50 € / véhicule / jour actif</strong>.
           </p>
         </div>
 
         {/* Inputs */}
         <div className="grid sm:grid-cols-2 gap-5 mb-6">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("partner.sim.vehicle_label")}</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              {t("partner.sim.vehicle_label")}
+            </label>
             <select
               value={vehicule}
-              onChange={e => setVehicule(e.target.value)}
+              onChange={(e) => setVehicule(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(VEHICULE_CONFIG).map(([k, v]) => (
-                <option key={k} value={k}>{v.emoji} {t(`partner.vehicle.${k}`)}</option>
+                <option key={k} value={k}>
+                  {v.emoji} {t(`partner.vehicle.${k}`)}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("partner.sim.city_label")}</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+              {t("partner.sim.city_label")}
+            </label>
             <select
               value={ville}
-              onChange={e => setVille(e.target.value)}
+              onChange={(e) => setVille(e.target.value)}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(CITY_CONFIG).map(([k, v]) => (
-                <option key={k} value={k}>{t(`partner.city.${k}`)}{v.dense ? " ✦" : ""}</option>
+                <option key={k} value={k}>
+                  {t(`partner.city.${k}`)}
+                  {v.dense ? " ✦" : ""}
+                </option>
               ))}
             </select>
             {city.dense && (
@@ -173,11 +209,13 @@ function RevenueSimulator() {
               min={5}
               max={25}
               value={jours}
-              onChange={e => setJours(Number(e.target.value))}
+              onChange={(e) => setJours(Number(e.target.value))}
               className="w-full accent-primary mt-2"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>5</span><span>15</span><span>25</span>
+              <span>5</span>
+              <span>15</span>
+              <span>25</span>
             </div>
           </div>
 
@@ -190,11 +228,13 @@ function RevenueSimulator() {
               min={1}
               max={20}
               value={nb}
-              onChange={e => setNb(Number(e.target.value))}
+              onChange={(e) => setNb(Number(e.target.value))}
               className="w-full accent-primary mt-2"
             />
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>1</span><span>10</span><span>20</span>
+              <span>1</span>
+              <span>10</span>
+              <span>20</span>
             </div>
           </div>
         </div>
@@ -213,7 +253,9 @@ function RevenueSimulator() {
             <p className="font-display text-3xl font-bold text-primary">
               {minMois.toLocaleString(loc)} – {maxMois.toLocaleString(loc)} €
             </p>
-            <p className="text-xs text-muted-foreground mt-1">{t("partner.sim.monthly_detail", { days: jours, nb })}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("partner.sim.monthly_detail", { days: jours, nb })}
+            </p>
           </div>
           <div className="rounded-2xl bg-muted/50 border border-border p-4 text-center">
             <p className="text-xs text-muted-foreground mb-1">{t("partner.sim.yearly_label")}</p>
@@ -268,7 +310,10 @@ function FAQAccordion() {
               className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left text-sm font-semibold hover:bg-muted/40 transition"
             >
               <span>{item.q}</span>
-              <span className="shrink-0 text-muted-foreground text-lg leading-none select-none" aria-hidden>
+              <span
+                className="shrink-0 text-muted-foreground text-lg leading-none select-none"
+                aria-hidden
+              >
                 {isOpen ? "−" : "+"}
               </span>
             </button>
@@ -297,17 +342,26 @@ function DevenirPartenaire() {
           {t("partner.badge")}
         </div>
         <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight">
-          {t("partner.hero_line1")}<br />
-          <span className="bg-gradient-signal bg-clip-text text-transparent">{t("partner.hero_line2")}</span>
+          {t("partner.hero_line1")}
+          <br />
+          <span className="bg-gradient-signal bg-clip-text text-transparent">
+            {t("partner.hero_line2")}
+          </span>
         </h1>
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
           {t("partner.hero_subtitle")}
         </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <Link to="/owner/inscription" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+          <Link
+            to="/owner/inscription"
+            className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
+          >
             {t("partner.cta_signup")}
           </Link>
-          <Link to="/owner" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+          <Link
+            to="/owner"
+            className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition"
+          >
             {t("partner.cta_existing")}
           </Link>
         </div>
@@ -318,7 +372,9 @@ function DevenirPartenaire() {
           {(["01", "02", "03"] as const).map((n, i) => (
             <div key={n} className="rounded-2xl border border-border bg-card p-6">
               <div className="text-xs font-mono text-primary mb-2">{n}</div>
-              <h3 className="font-display text-xl font-bold mb-2">{t(`partner.steps.s${i + 1}_title`)}</h3>
+              <h3 className="font-display text-xl font-bold mb-2">
+                {t(`partner.steps.s${i + 1}_title`)}
+              </h3>
               <p className="text-sm text-muted-foreground">{t(`partner.steps.s${i + 1}_desc`)}</p>
             </div>
           ))}
@@ -329,7 +385,12 @@ function DevenirPartenaire() {
         <h2 className="font-display text-3xl font-bold mb-4">{t("partner.vehicles_title")}</h2>
         <div className="flex flex-wrap gap-3 justify-center">
           {(["foodtruck", "van", "taxi", "scooter", "voiture", "flotte"] as const).map((k) => (
-            <span key={k} className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium">{t(`partner.vehicle.${k}`)}</span>
+            <span
+              key={k}
+              className="rounded-full border border-border bg-card px-5 py-2 text-sm font-medium"
+            >
+              {t(`partner.vehicle.${k}`)}
+            </span>
           ))}
         </div>
       </section>
@@ -339,7 +400,9 @@ function DevenirPartenaire() {
       <section className="max-w-4xl mx-auto px-6 py-12">
         <div className="rounded-2xl border border-border bg-card/60 backdrop-blur p-6 md:p-8">
           <div className="flex items-start gap-3">
-            <span className="text-2xl" aria-hidden>⚠️</span>
+            <span className="text-2xl" aria-hidden>
+              ⚠️
+            </span>
             <div className="space-y-3">
               <h2 className="font-display text-xl md:text-2xl font-bold">
                 {t("partner.legal.title")}
@@ -375,14 +438,19 @@ function DevenirPartenaire() {
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-4 py-1.5 text-xs font-medium mb-4">
             {t("partner.faq_badge")}
           </span>
-          <h2 id="faq-title" className="font-display text-3xl font-bold">{t("partner.faq_title")}</h2>
+          <h2 id="faq-title" className="font-display text-3xl font-bold">
+            {t("partner.faq_title")}
+          </h2>
         </div>
         <FAQAccordion />
       </section>
 
       <section className="max-w-3xl mx-auto px-6 py-16 text-center">
         <h2 className="font-display text-3xl font-bold mb-4">{t("partner.cta_bottom_title")}</h2>
-        <Link to="/owner/inscription" className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+        <Link
+          to="/owner/inscription"
+          className="inline-block mt-4 rounded-full bg-primary text-primary-foreground px-8 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
+        >
           {t("partner.cta_start")}
         </Link>
         <p className="text-sm text-muted-foreground mt-8">

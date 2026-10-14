@@ -107,7 +107,9 @@ export type InstallationPhotoResult = {
 
 export const validateInstallationPhotos = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof ValidateInstallationInput>) => ValidateInstallationInput.parse(d))
+  .inputValidator((d: z.infer<typeof ValidateInstallationInput>) =>
+    ValidateInstallationInput.parse(d),
+  )
   .handler(async ({ data, context }): Promise<InstallationPhotoResult> => {
     assertRateLimit(`validate-photos:${context.userId}`, { maxRequests: 20, windowMs: 60_000 });
     const views = ["front", "left", "right", "rear"] as const;

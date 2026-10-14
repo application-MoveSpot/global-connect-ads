@@ -33,7 +33,8 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
         shadowUrl: "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
 
-      const center: [number, number] = points.length > 0 ? [points[0].lat, points[0].lng] : [46.6, 2.35];
+      const center: [number, number] =
+        points.length > 0 ? [points[0].lat, points[0].lng] : [46.6, 2.35];
       map = L.map(container.current!, { center, zoom: points.length > 0 ? 13 : 5 });
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -53,7 +54,7 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
         L.marker([p.lat, p.lng], { icon })
           .bindPopup(
             `<strong>${p.campaignName ?? t("fleet_map.popup_campaign")}</strong><br/>${p.company ?? ""}<br/>` +
-            `${new Date(p.recordedAt).toLocaleString(i18n.language)}`,
+              `${new Date(p.recordedAt).toLocaleString(i18n.language)}`,
           )
           .addTo(map!);
         bounds.extend([p.lat, p.lng]);
@@ -61,7 +62,9 @@ function FleetMapLeaflet({ points }: { points: FleetPoint[] }) {
       if (points.length > 0) map!.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
     });
 
-    return () => { map?.remove(); };
+    return () => {
+      map?.remove();
+    };
   }, [points]);
 
   return <div ref={container} className="h-[520px] w-full rounded-2xl border border-border" />;
@@ -140,7 +143,12 @@ function FleetMapMapboxCore({
       const captureView = (): MapView | undefined => {
         const m = mapRef.current;
         if (!m) return undefined;
-        return { center: [m.getCenter().lng, m.getCenter().lat], zoom: m.getZoom(), pitch: m.getPitch(), bearing: m.getBearing() };
+        return {
+          center: [m.getCenter().lng, m.getCenter().lat],
+          zoom: m.getZoom(),
+          pitch: m.getPitch(),
+          bearing: m.getBearing(),
+        };
       };
       const handleContextLost = (e: Event) => {
         e.preventDefault();
@@ -184,7 +192,10 @@ function FleetMapMapboxCore({
         clearInterval(watchdog);
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
-        if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
+        }
       };
       // Stocké pour le return du useEffect
       (map as unknown as { _cleanupFn?: () => void })._cleanupFn = origCleanup;
@@ -192,14 +203,18 @@ function FleetMapMapboxCore({
 
     return () => {
       const m = mapRef.current as unknown as { _cleanupFn?: () => void } | null;
-      if (m?._cleanupFn) { m._cleanupFn(); }
-      else {
+      if (m?._cleanupFn) {
+        m._cleanupFn();
+      } else {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
-        if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+        if (mapRef.current) {
+          mapRef.current.remove();
+          mapRef.current = null;
+        }
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -240,13 +255,16 @@ function FleetMapMapboxCore({
     const map = mapRef.current;
     if (!map) return;
     if (immersive) {
-      stopOrbit(); setOrbit(false);
+      stopOrbit();
+      setOrbit(false);
       map.setTerrain(null);
       map.easeTo({ pitch: 0, bearing: 0, zoom: 4.2, duration: 1500 });
       setImmersive(false);
       return;
     }
-    const target = points[0] ? ([points[0].lng, points[0].lat] as [number, number]) : map.getCenter();
+    const target = points[0]
+      ? ([points[0].lng, points[0].lat] as [number, number])
+      : map.getCenter();
     if (map.getSource("mapbox-dem")) map.setTerrain({ source: "mapbox-dem", exaggeration: 1.3 });
     map.easeTo({ center: target, pitch: 60, bearing: 180, zoom: 15.5, duration: 2000 });
     setImmersive(true);
@@ -255,7 +273,11 @@ function FleetMapMapboxCore({
   const toggleOrbit = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (orbit) { stopOrbit(); setOrbit(false); return; }
+    if (orbit) {
+      stopOrbit();
+      setOrbit(false);
+      return;
+    }
     setOrbit(true);
     const step = () => {
       const m = mapRef.current;
@@ -269,10 +291,21 @@ function FleetMapMapboxCore({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <Button type="button" size="sm" variant={immersive ? "default" : "outline"} onClick={toggleImmersive}>
+        <Button
+          type="button"
+          size="sm"
+          variant={immersive ? "default" : "outline"}
+          onClick={toggleImmersive}
+        >
           {immersive ? t("fleet_map.btn_flat") : t("fleet_map.btn_immersive")}
         </Button>
-        <Button type="button" size="sm" variant={orbit ? "default" : "outline"} onClick={toggleOrbit} disabled={!immersive}>
+        <Button
+          type="button"
+          size="sm"
+          variant={orbit ? "default" : "outline"}
+          onClick={toggleOrbit}
+          disabled={!immersive}
+        >
           {orbit ? t("fleet_map.btn_stop_orbit") : t("fleet_map.btn_orbit")}
         </Button>
       </div>
@@ -296,20 +329,26 @@ function FleetMapMapbox({ points }: { points: FleetPoint[] }) {
       .catch(() => setToken(""));
   }, []);
 
-  const handleContextLost = useCallback((view?: MapView) => {
-    if (recovering) return;
-    if (view) savedView.current = view;
-    setRecovering(true);
-    if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
-    recoverTimeout.current = setTimeout(() => {
-      setMapKey((k) => k + 1);
-      setRecovering(false);
-    }, 1800);
-  }, [recovering]);
+  const handleContextLost = useCallback(
+    (view?: MapView) => {
+      if (recovering) return;
+      if (view) savedView.current = view;
+      setRecovering(true);
+      if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
+      recoverTimeout.current = setTimeout(() => {
+        setMapKey((k) => k + 1);
+        setRecovering(false);
+      }, 1800);
+    },
+    [recovering],
+  );
 
-  useEffect(() => () => {
-    if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (recoverTimeout.current) clearTimeout(recoverTimeout.current);
+    },
+    [],
+  );
 
   if (!token) {
     return (
@@ -346,14 +385,18 @@ export default function FleetMap({ points }: { points: FleetPoint[] }) {
 
   useEffect(() => {
     // Exécuté uniquement sur le client, jamais sur le serveur SSR
-    import("mapbox-gl").then((mod) => {
-      const mapboxgl = mod.default ?? mod;
-      setWebglOk(mapboxgl.supported({ failIfMajorPerformanceCaveat: false }));
-    }).catch(() => setWebglOk(false));
+    import("mapbox-gl")
+      .then((mod) => {
+        const mapboxgl = mod.default ?? mod;
+        setWebglOk(mapboxgl.supported({ failIfMajorPerformanceCaveat: false }));
+      })
+      .catch(() => setWebglOk(false));
   }, []);
 
   if (webglOk === null) {
-    return <div className="h-[520px] w-full rounded-2xl border border-border bg-card animate-pulse" />;
+    return (
+      <div className="h-[520px] w-full rounded-2xl border border-border bg-card animate-pulse" />
+    );
   }
 
   return (

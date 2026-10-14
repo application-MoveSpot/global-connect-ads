@@ -55,7 +55,7 @@ function ProviderLoginPage() {
       setError(
         error.message === "Invalid login credentials"
           ? t("provider.connexion.invalid_credentials")
-          : error.message
+          : error.message,
       );
       setLoading(false);
       return;
@@ -93,11 +93,12 @@ function ProviderLoginPage() {
 
       <main className="max-w-md mx-auto px-4 py-16">
         <h1 className="font-display text-3xl font-bold mb-2">{t("provider.connexion.title")}</h1>
-        <p className="text-sm text-muted-foreground mb-8">
-          {t("provider.connexion.subtitle")}
-        </p>
+        <p className="text-sm text-muted-foreground mb-8">{t("provider.connexion.subtitle")}</p>
 
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl border border-border bg-card p-6 space-y-4"
+        >
           <div>
             <label className="block text-sm font-medium mb-1.5">{t("auth.email")}</label>
             <input
@@ -148,10 +149,7 @@ function ProviderLoginPage() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {t("provider.connexion.no_account")}{" "}
-          <Link
-            to="/provider/inscription"
-            className="font-medium text-foreground hover:underline"
-          >
+          <Link to="/provider/inscription" className="font-medium text-foreground hover:underline">
             {t("provider.connexion.create_account")}
           </Link>
         </p>

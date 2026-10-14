@@ -9,10 +9,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { US_CITIES, findUsCity } from "@/lib/compliance/us-markets";
-import {
-  CONTENT_CATEGORIES,
-  checkContentCompliance,
-} from "@/lib/compliance/content-restrictions";
+import { CONTENT_CATEGORIES, checkContentCompliance } from "@/lib/compliance/content-restrictions";
 import {
   ZoneSelector,
   polygonToEwkt,
@@ -174,9 +171,12 @@ function addDays(base: Date, n: number): string {
 
 function NewBriefPage() {
   const { t, i18n } = useTranslation();
-  const vtLabel = (v: string) => t(`briefs.vehicle.${v}`, { defaultValue: VEHICLE_TYPES.find((vt) => vt.v === v)?.l ?? v });
-  const fmtLabel = (v: string, fallback: string) => t(`briefs.ad_format.${v}`, { defaultValue: fallback });
-  const fmtDesc = (v: string, fallback: string) => t(`briefs.ad_format_desc.${v}`, { defaultValue: fallback });
+  const vtLabel = (v: string) =>
+    t(`briefs.vehicle.${v}`, { defaultValue: VEHICLE_TYPES.find((vt) => vt.v === v)?.l ?? v });
+  const fmtLabel = (v: string, fallback: string) =>
+    t(`briefs.ad_format.${v}`, { defaultValue: fallback });
+  const fmtDesc = (v: string, fallback: string) =>
+    t(`briefs.ad_format_desc.${v}`, { defaultValue: fallback });
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
@@ -402,14 +402,19 @@ function NewBriefPage() {
       }
       const { suggestion } = result;
       const filled: string[] = [];
-      setTitle(suggestion.title); filled.push("titre");
-      setDescription(suggestion.description); filled.push("description");
-      setAudience(suggestion.audience); filled.push("audience");
+      setTitle(suggestion.title);
+      filled.push("titre");
+      setDescription(suggestion.description);
+      filled.push("description");
+      setAudience(suggestion.audience);
+      filled.push("audience");
       if (suggestion.vehicleTypes?.length) {
         setVehicleTypes(suggestion.vehicleTypes);
         const hasLed = suggestion.vehicleTypes.includes("camion_led");
-        if (hasLed) { setAdFormat("boxled"); setDisplayType("digital"); }
-        else if (displayType !== "digital") setDisplayType("traditionnel");
+        if (hasLed) {
+          setAdFormat("boxled");
+          setDisplayType("digital");
+        } else if (displayType !== "digital") setDisplayType("traditionnel");
         filled.push("véhicules");
       }
       if (suggestion.zones) {
@@ -514,7 +519,9 @@ function NewBriefPage() {
           name: file.name,
           ok: false,
           score: 0,
-          issues: ["⚠️ Validation IA indisponible — ce visuel sera examiné manuellement par notre équipe."],
+          issues: [
+            "⚠️ Validation IA indisponible — ce visuel sera examiné manuellement par notre équipe.",
+          ],
         });
       }
     }
@@ -696,7 +703,7 @@ function NewBriefPage() {
       if (cityInfo?.status === "restricted") {
         setError(
           `La ville sélectionnée (${cityInfo.name}) est classée « accès restreint » pour la publicité mobile. ` +
-          `Contactez MoveSpot avant de soumettre ce brief : une vérification juridique est requise.`,
+            `Contactez MoveSpot avant de soumettre ce brief : une vérification juridique est requise.`,
         );
         return;
       }
@@ -775,7 +782,9 @@ function NewBriefPage() {
         </header>
         <main className="max-w-3xl mx-auto px-4 py-10">
           <div className="mb-8 text-center">
-            <h1 className="font-display text-3xl font-bold mb-2">{t("advertiser.briefs.nouveau.display_type_title")}</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">
+              {t("advertiser.briefs.nouveau.display_type_title")}
+            </h1>
             <p className="text-sm text-muted-foreground">
               {t("advertiser.briefs.nouveau.display_type_subtitle")}
             </p>
@@ -804,7 +813,9 @@ function NewBriefPage() {
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">📺</span>
-                  <span className="font-bold text-white text-base">{t("advertiser.briefs.nouveau.digital_label")}</span>
+                  <span className="font-bold text-white text-base">
+                    {t("advertiser.briefs.nouveau.digital_label")}
+                  </span>
                   <span
                     className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ml-auto"
                     style={{
@@ -862,7 +873,9 @@ function NewBriefPage() {
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">🎨</span>
-                  <span className="font-bold text-base">{t("advertiser.briefs.nouveau.traditional_label")}</span>
+                  <span className="font-bold text-base">
+                    {t("advertiser.briefs.nouveau.traditional_label")}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
                   {t("advertiser.briefs.nouveau.traditional_desc")}
@@ -903,7 +916,9 @@ function NewBriefPage() {
         </header>
         <main className="max-w-3xl mx-auto px-4 py-8">
           <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold mb-2">{t("advertiser.briefs.nouveau.event_type_title")}</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">
+              {t("advertiser.briefs.nouveau.event_type_title")}
+            </h1>
             <p className="text-sm text-muted-foreground">
               {t("advertiser.briefs.nouveau.event_type_subtitle")}
             </p>
@@ -921,7 +936,9 @@ function NewBriefPage() {
                 <p className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">
                   {t(`briefs.template.t${idx}.label`, { defaultValue: tpl.label })}
                 </p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{t(`briefs.template.t${idx}.desc`, { defaultValue: tpl.desc })}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {t(`briefs.template.t${idx}.desc`, { defaultValue: tpl.desc })}
+                </p>
                 <div className="mt-3 flex flex-wrap gap-1">
                   {tpl.vehicleTypes.map((v) => (
                     <span
@@ -936,7 +953,9 @@ function NewBriefPage() {
                   </span>
                 </div>
                 <p className="mt-2 text-[11px] text-primary font-medium">
-                  {t("advertiser.briefs.nouveau.event_type_starting_at", { amount: MIN_EUR_PER_DAY * tpl.days })}
+                  {t("advertiser.briefs.nouveau.event_type_starting_at", {
+                    amount: MIN_EUR_PER_DAY * tpl.days,
+                  })}
                 </p>
               </button>
             ))}
@@ -969,7 +988,9 @@ function NewBriefPage() {
       <main id="main-content" className="max-w-3xl mx-auto px-4 py-8">
         {created && (
           <div className="mb-8 rounded-2xl border border-primary/40 bg-primary/5 p-6">
-            <h2 className="font-display text-2xl font-bold">{t("advertiser.briefs.nouveau.recap_title")}</h2>
+            <h2 className="font-display text-2xl font-bold">
+              {t("advertiser.briefs.nouveau.recap_title")}
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               {t("advertiser.briefs.nouveau.recap_desc")}{" "}
               <strong className="text-foreground">
@@ -1010,7 +1031,9 @@ function NewBriefPage() {
           </div>
         )}
 
-        <h1 className="font-display text-3xl font-bold mb-2">{t("advertiser.briefs.nouveau.form_title")}</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">
+          {t("advertiser.briefs.nouveau.form_title")}
+        </h1>
         <p className="text-sm text-muted-foreground mb-6">
           {t("advertiser.briefs.nouveau.form_subtitle")}
         </p>
@@ -1082,7 +1105,11 @@ function NewBriefPage() {
             generateLoadingLabel={t("advertiser.briefs.nouveau.ai_btn_loading")}
             disclaimer={t("advertiser.briefs.nouveau.ai_disclaimer")}
             placeholder="Ex. Je suis une boulangerie artisanale à Lyon qui ouvre un 2e magasin. Je veux toucher les habitants du 6e arrondissement et les travailleurs du quartier Part-Dieu. Mon point fort : les viennoiseries au levain naturel."
-            filledMessage={aiFilled.length > 0 ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.` : undefined}
+            filledMessage={
+              aiFilled.length > 0
+                ? `✨ L'IA a rempli : ${aiFilled.join(", ")} — vérifiez et ajustez si besoin.`
+                : undefined
+            }
             onDismissFilled={() => setAiFilled([])}
           />
 
@@ -1095,7 +1122,11 @@ function NewBriefPage() {
                   <button
                     key={m}
                     type="button"
-                    onClick={() => { setMarket(m); setUsCity(""); setContentCategory(""); }}
+                    onClick={() => {
+                      setMarket(m);
+                      setUsCity("");
+                      setContentCategory("");
+                    }}
                     className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
                       market === m
                         ? "border-primary bg-primary/10 text-primary"
@@ -1122,37 +1153,47 @@ function NewBriefPage() {
                     <option value="">{t("compliance.us_city_placeholder")}</option>
                     {US_CITIES.filter((c) => c.status !== "restricted").map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name}, {c.state}{c.status === "license_required" ? " — Licence requise" : ""}
+                        {c.name}, {c.state}
+                        {c.status === "license_required" ? " — Licence requise" : ""}
                       </option>
                     ))}
                     <optgroup label="Accès restreint">
                       {US_CITIES.filter((c) => c.status === "restricted").map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}, {c.state} — Restreint</option>
+                        <option key={c.id} value={c.id}>
+                          {c.name}, {c.state} — Restreint
+                        </option>
                       ))}
                     </optgroup>
                   </select>
-                  {usCity && (() => {
-                    const city = findUsCity(usCity);
-                    if (!city) return null;
-                    return (
-                      <div className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
-                        city.status === "open"
-                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          : city.status === "license_required"
-                          ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                          : "bg-red-500/10 text-red-700 dark:text-red-400"
-                      }`}>
-                        {city.status === "open" && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
-                        {city.status === "license_required" && `⚠ Licence municipale requise. ${city.notes ?? ""}`}
-                        {city.status === "restricted" && `⛔ Marché restreint. ${city.notes ?? ""}`}
-                      </div>
-                    );
-                  })()}
+                  {usCity &&
+                    (() => {
+                      const city = findUsCity(usCity);
+                      if (!city) return null;
+                      return (
+                        <div
+                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
+                            city.status === "open"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                              : city.status === "license_required"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                : "bg-red-500/10 text-red-700 dark:text-red-400"
+                          }`}
+                        >
+                          {city.status === "open" &&
+                            "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
+                          {city.status === "license_required" &&
+                            `⚠ Licence municipale requise. ${city.notes ?? ""}`}
+                          {city.status === "restricted" &&
+                            `⛔ Marché restreint. ${city.notes ?? ""}`}
+                        </div>
+                      );
+                    })()}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.content_category_label")} <span className="text-destructive">*</span>
+                    {t("compliance.content_category_label")}{" "}
+                    <span className="text-destructive">*</span>
                   </label>
                   <select
                     value={contentCategory}
@@ -1166,33 +1207,33 @@ function NewBriefPage() {
                       </option>
                     ))}
                   </select>
-                  {contentCategory && usCity && (() => {
-                    const result = checkContentCompliance(contentCategory, usCity);
-                    if (result.status === "restricted") {
+                  {contentCategory &&
+                    usCity &&
+                    (() => {
+                      const result = checkContentCompliance(contentCategory, usCity);
+                      if (result.status === "restricted") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
+                            ⚠ {result.disclaimer}
+                          </div>
+                        );
+                      }
+                      if (result.status === "blocked") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
+                            ⛔ {result.reason}
+                          </div>
+                        );
+                      }
                       return (
-                        <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
-                          ⚠ {result.disclaimer}
-                        </div>
+                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          ✓ {t("compliance.content_ok")}
+                        </p>
                       );
-                    }
-                    if (result.status === "blocked") {
-                      return (
-                        <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
-                          ⛔ {result.reason}
-                        </div>
-                      );
-                    }
-                    return (
-                      <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                        ✓ {t("compliance.content_ok")}
-                      </p>
-                    );
-                  })()}
+                    })()}
                 </div>
 
-                <p className="text-xs text-muted-foreground">
-                  {t("compliance.us_legal_note")}
-                </p>
+                <p className="text-xs text-muted-foreground">{t("compliance.us_legal_note")}</p>
               </>
             )}
           </div>
@@ -1228,11 +1269,15 @@ function NewBriefPage() {
               className={`rounded-xl border px-4 py-3 text-xs transition-all ${qualityLoading ? "border-border bg-secondary/20 animate-pulse" : qualityScore && qualityScore.global >= 7 ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}`}
             >
               {qualityLoading ? (
-                <p className="text-muted-foreground">{t("advertiser.briefs.nouveau.quality_loading")}</p>
+                <p className="text-muted-foreground">
+                  {t("advertiser.briefs.nouveau.quality_loading")}
+                </p>
               ) : qualityScore ? (
                 <>
                   <div className="flex items-center gap-3 flex-wrap mb-2">
-                    <span className="font-semibold text-sm">{t("advertiser.briefs.nouveau.quality_title")}</span>
+                    <span className="font-semibold text-sm">
+                      {t("advertiser.briefs.nouveau.quality_title")}
+                    </span>
                     <span
                       className={`text-xl font-bold ${qualityScore.global >= 7 ? "text-emerald-600" : qualityScore.global >= 5 ? "text-amber-600" : "text-destructive"}`}
                     >
@@ -1305,7 +1350,9 @@ function NewBriefPage() {
             {displayType !== "digital" && (
               <>
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-                  {displayType === "traditionnel" ? t("advertiser.briefs.nouveau.vehicles_available") : t("advertiser.briefs.nouveau.vehicles_other")}
+                  {displayType === "traditionnel"
+                    ? t("advertiser.briefs.nouveau.vehicles_available")
+                    : t("advertiser.briefs.nouveau.vehicles_other")}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {VEHICLE_TYPES.filter((vt) => vt.v !== "camion_led").map((vt) => {
@@ -1354,9 +1401,13 @@ function NewBriefPage() {
           {vehicleTypes.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-medium">{t("advertiser.briefs.nouveau.preview_label")}</span>
+                <span className="text-sm font-medium">
+                  {t("advertiser.briefs.nouveau.preview_label")}
+                </span>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground">{t("advertiser.briefs.nouveau.preview_color_label")}</label>
+                  <label className="text-xs text-muted-foreground">
+                    {t("advertiser.briefs.nouveau.preview_color_label")}
+                  </label>
                   <input
                     type="color"
                     value={brandColor}
@@ -1365,7 +1416,9 @@ function NewBriefPage() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground">{t("advertiser.briefs.nouveau.preview_logo_label")}</label>
+                  <label className="text-xs text-muted-foreground">
+                    {t("advertiser.briefs.nouveau.preview_logo_label")}
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
@@ -1504,7 +1557,9 @@ function NewBriefPage() {
                 );
                 return (
                   <div className="mt-3 rounded-xl border border-border bg-secondary/20 p-4 text-sm">
-                    <p className="font-medium">{t("advertiser.briefs.nouveau.zone_budget_title")}</p>
+                    <p className="font-medium">
+                      {t("advertiser.briefs.nouveau.zone_budget_title")}
+                    </p>
                     <p className="mt-1 text-muted-foreground">
                       {zonePolygon.areaKm2.toFixed(2)} km² × {estimatedDays} jour(s) ≈{" "}
                       <strong className="text-foreground">
@@ -1514,7 +1569,10 @@ function NewBriefPage() {
                     </p>
                     {est.denseMetro && (
                       <p className="mt-2 text-xs text-foreground">
-                        {t("advertiser.briefs.nouveau.zone_dense", { metro: est.denseMetro, mult: est.multiplier })}
+                        {t("advertiser.briefs.nouveau.zone_dense", {
+                          metro: est.denseMetro,
+                          mult: est.multiplier,
+                        })}
                       </p>
                     )}
                   </div>
@@ -1648,7 +1706,9 @@ function NewBriefPage() {
               className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 space-y-4"
             >
               <div>
-                <p className="font-semibold text-sm">{t("advertiser.briefs.nouveau.guest_title")}</p>
+                <p className="font-semibold text-sm">
+                  {t("advertiser.briefs.nouveau.guest_title")}
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {t("advertiser.briefs.nouveau.guest_desc")}
                 </p>
@@ -1733,7 +1793,8 @@ function ContentChecker({ text }: { text: string }) {
           ⛔ Contenu non conforme — {match.category}
         </p>
         <p className="text-xs text-destructive/80">
-          {t("advertiser.briefs.nouveau.content_nok_term")} <strong>« {match.keyword} »</strong> {t("advertiser.briefs.nouveau.content_nok_forbidden")}
+          {t("advertiser.briefs.nouveau.content_nok_term")} <strong>« {match.keyword} »</strong>{" "}
+          {t("advertiser.briefs.nouveau.content_nok_forbidden")}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed">{match.advice}</p>
         <p className="text-xs font-medium text-destructive">
@@ -1799,7 +1860,9 @@ function LiveBudgetEstimator({
       <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="font-semibold text-sm">{t("advertiser.briefs.nouveau.budget_title")}</p>
         <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-          {zonePolygon ? t("advertiser.briefs.nouveau.budget_zone_drawn") : t("advertiser.briefs.nouveau.budget_realtime")}
+          {zonePolygon
+            ? t("advertiser.briefs.nouveau.budget_zone_drawn")
+            : t("advertiser.briefs.nouveau.budget_realtime")}
         </span>
       </div>
 
@@ -1813,9 +1876,15 @@ function LiveBudgetEstimator({
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="text-xs text-muted-foreground border-b border-border">
-                  <th className="text-left py-1.5 font-medium">{t("advertiser.briefs.nouveau.budget_col_vehicles")}</th>
-                  <th className="text-right py-1.5 font-medium">{t("advertiser.briefs.nouveau.budget_col_total")}</th>
-                  <th className="text-right py-1.5 font-medium">{t("advertiser.briefs.nouveau.budget_col_per_day")}</th>
+                  <th className="text-left py-1.5 font-medium">
+                    {t("advertiser.briefs.nouveau.budget_col_vehicles")}
+                  </th>
+                  <th className="text-right py-1.5 font-medium">
+                    {t("advertiser.briefs.nouveau.budget_col_total")}
+                  </th>
+                  <th className="text-right py-1.5 font-medium">
+                    {t("advertiser.briefs.nouveau.budget_col_per_day")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -1849,12 +1918,12 @@ function LiveBudgetEstimator({
           <div className="rounded-lg bg-background/60 border border-border p-3 text-xs text-muted-foreground space-y-1">
             <p>
               • Estimation basée sur{" "}
-              {zonePolygon ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés` : t("advertiser.briefs.nouveau.budget_note_floor")}{" "}
+              {zonePolygon
+                ? `${zonePolygon.areaKm2.toFixed(1)} km² dessinés`
+                : t("advertiser.briefs.nouveau.budget_note_floor")}{" "}
               × {d} jour{d > 1 ? "s" : ""}.
             </p>
-            <p>
-              • {t("advertiser.briefs.nouveau.budget_note_2")}
-            </p>
+            <p>• {t("advertiser.briefs.nouveau.budget_note_2")}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -1862,7 +1931,9 @@ function LiveBudgetEstimator({
               to="/advertiser/portefeuille"
               className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition"
             >
-              {t("advertiser.briefs.nouveau.budget_prepare", { amount: approxForV.toLocaleString(i18n.language) })}
+              {t("advertiser.briefs.nouveau.budget_prepare", {
+                amount: approxForV.toLocaleString(i18n.language),
+              })}
             </Link>
             <Link
               to="/advertiser/pack"

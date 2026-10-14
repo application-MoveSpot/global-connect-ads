@@ -29,7 +29,7 @@ export const DENSE_METROS: Metro[] = [
   { name: "Grenoble", bbox: [5.66, 45.14, 5.78, 45.21] },
   // DOM-TOM
   { name: "Pointe-à-Pitre", bbox: [-61.56, 16.21, -61.52, 16.25] },
-  { name: "Basse-Terre", bbox: [-61.74, 15.99, -61.70, 16.02] },
+  { name: "Basse-Terre", bbox: [-61.74, 15.99, -61.7, 16.02] },
   { name: "Fort-de-France", bbox: [-61.09, 14.59, -61.03, 14.63] },
   { name: "Saint-Denis (La Réunion)", bbox: [55.42, -20.93, 55.48, -20.88] },
   { name: "Cayenne", bbox: [-52.35, 4.9, -52.28, 4.95] },
@@ -44,10 +44,7 @@ function bboxOf(coordinates: LngLat[]): [number, number, number, number] {
   return [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)];
 }
 
-function bboxIntersect(
-  a: [number, number, number, number],
-  b: [number, number, number, number],
-) {
+function bboxIntersect(a: [number, number, number, number], b: [number, number, number, number]) {
   return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
 }
 

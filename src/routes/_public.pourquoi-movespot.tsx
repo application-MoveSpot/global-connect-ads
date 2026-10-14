@@ -140,7 +140,13 @@ const AVANTAGES = {
 
 const COMPARATIF = {
   fr: [
-    { label: "Délai de lancement", ms: "5 min", ag: "3–6 semaines", bb: "2–4 semaines", wr: "Non disponible" },
+    {
+      label: "Délai de lancement",
+      ms: "5 min",
+      ag: "3–6 semaines",
+      bb: "2–4 semaines",
+      wr: "Non disponible",
+    },
     { label: "Prix minimum", ms: "25 €/j", ag: "1 000 € +", bb: "500 €/sem", wr: "~15 $/j (US)" },
     { label: "Sans engagement", ms: "✓", ag: "✗", bb: "✗", wr: "✓ (US)" },
     { label: "Mesure GPS", ms: "✓", ag: "Estimée", bb: "✗", wr: "✓ (US)" },
@@ -182,7 +188,8 @@ const CONTENT = {
     comparatif_h2: "MoveSpot vs la concurrence",
     comparatif_headers: ["MoveSpot", "Agence trad.", "Billboard", "Wrapify (US)"],
     cta_h2: "Prêt à lancer votre campagne ?",
-    cta_desc: "Rejoignez les advertisers qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
+    cta_desc:
+      "Rejoignez les advertisers qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
     cta_final_primary: "Créer mon compte gratuitement →",
     cta_final_secondary: "Voir les véhicules disponibles",
     footer_rights: "Tous droits réservés.",
@@ -207,7 +214,8 @@ const CONTENT = {
     comparatif_h2: "MoveSpot vs the competition",
     comparatif_headers: ["MoveSpot", "Trad. agency", "Billboard", "Wrapify (US)"],
     cta_h2: "Ready to launch your campaign?",
-    cta_desc: "Join advertisers who chose mobile advertising without an agency. Free account, first campaign in 5 minutes.",
+    cta_desc:
+      "Join advertisers who chose mobile advertising without an agency. Free account, first campaign in 5 minutes.",
     cta_final_primary: "Create my free account →",
     cta_final_secondary: "See available vehicles",
     footer_rights: "All rights reserved.",
@@ -271,7 +279,9 @@ function PourquoiMovespot() {
 
       {/* Avantages détaillés */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="text-xs uppercase tracking-widest text-primary mb-2">{c.avantages_label}</div>
+        <div className="text-xs uppercase tracking-widest text-primary mb-2">
+          {c.avantages_label}
+        </div>
         <h2 className="font-display text-3xl md:text-4xl font-bold mb-12">{c.avantages_h2}</h2>
         <div className="grid md:grid-cols-2 gap-6">
           {avantages.map((a) => (
@@ -293,7 +303,9 @@ function PourquoiMovespot() {
 
       {/* Comparatif tableau */}
       <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-xs uppercase tracking-widest text-primary mb-2">{c.comparatif_label}</div>
+        <div className="text-xs uppercase tracking-widest text-primary mb-2">
+          {c.comparatif_label}
+        </div>
         <h2 className="font-display text-3xl md:text-4xl font-bold mb-8">{c.comparatif_h2}</h2>
         <div className="overflow-x-auto rounded-2xl border border-border">
           <table className="w-full text-sm border-collapse">
@@ -359,9 +371,13 @@ function PourquoiMovespot() {
       {/* Footer minimal */}
       <footer className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} MoveSpot. {c.footer_rights}</div>
+          <div>
+            © {new Date().getFullYear()} MoveSpot. {c.footer_rights}
+          </div>
           <div className="flex flex-wrap gap-4">
-            <Link to="/cgu" className="hover:text-foreground transition">CGU</Link>
+            <Link to="/cgu" className="hover:text-foreground transition">
+              CGU
+            </Link>
             <Link to="/confidentialite" className="hover:text-foreground transition">
               {isEn ? "Privacy" : "Confidentialité"}
             </Link>

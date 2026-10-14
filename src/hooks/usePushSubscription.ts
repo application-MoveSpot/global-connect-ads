@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { savePushSubscription, removePushSubscription, getVapidPublicKey } from "@/lib/notifications/push-subscribe.server";
+import {
+  savePushSubscription,
+  removePushSubscription,
+  getVapidPublicKey,
+} from "@/lib/notifications/push-subscribe.server";
 
 function urlB64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -20,11 +24,13 @@ export function usePushSubscription(userId: string | null) {
   const fetchPublicKey = useServerFn(getVapidPublicKey);
 
   useEffect(() => {
-    fetchPublicKey().then((res: { publicKey: string }) => {
-      publicKeyRef.current = res.publicKey;
-      setPublicKey(res.publicKey);
-    }).catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchPublicKey()
+      .then((res: { publicKey: string }) => {
+        publicKeyRef.current = res.publicKey;
+        setPublicKey(res.publicKey);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const register = useCallback(async () => {
@@ -51,7 +57,10 @@ export function usePushSubscription(userId: string | null) {
       }
 
       const permission = Notification.permission;
-      if (permission === "denied") { setState("denied"); return; }
+      if (permission === "denied") {
+        setState("denied");
+        return;
+      }
 
       setState(permission === "granted" ? "default" : "default");
     } catch {
@@ -61,7 +70,10 @@ export function usePushSubscription(userId: string | null) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!("serviceWorker" in navigator)) { setState("unsupported"); return; }
+    if (!("serviceWorker" in navigator)) {
+      setState("unsupported");
+      return;
+    }
     void register();
   }, [register]);
 
@@ -72,7 +84,10 @@ export function usePushSubscription(userId: string | null) {
       setState("loading");
       const reg = await navigator.serviceWorker.ready;
       const permission = await Notification.requestPermission();
-      if (permission !== "granted") { setState("denied"); return false; }
+      if (permission !== "granted") {
+        setState("denied");
+        return false;
+      }
 
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
@@ -80,7 +95,10 @@ export function usePushSubscription(userId: string | null) {
       });
 
       const keys = sub.toJSON().keys;
-      if (!keys) { setState("default"); return false; }
+      if (!keys) {
+        setState("default");
+        return false;
+      }
 
       await save({
         endpoint: sub.endpoint,

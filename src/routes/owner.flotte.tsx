@@ -18,13 +18,27 @@ import { Button } from "@/components/ui/button";
 import { MapConsentGate } from "@/components/app/MapConsentGate";
 import { Input } from "@/components/ui/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Truck, Users, Activity, Euro, Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +49,11 @@ export const Route = createFileRoute("/owner/flotte")({
   component: FleetPage,
   errorComponent: ({ error }: { error: Error }) => {
     const { t } = useTranslation();
-    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+    return (
+      <div className="p-8 text-center text-destructive">
+        {t("errors.prefix")} : {error.message}
+      </div>
+    );
   },
 });
 
@@ -58,8 +76,24 @@ type Driver = {
   notes?: string | null;
   user_id?: string | null;
 };
-type Position = { vehicle_id: string; lat: number; lng: number; speed: number | null; heading: number | null; recorded_at: string };
-type Campaign = { id: string; vehicle_id: string; spot_name: string; company: string; start_date: string; end_date: string; total_price: number | null; status: string };
+type Position = {
+  vehicle_id: string;
+  lat: number;
+  lng: number;
+  speed: number | null;
+  heading: number | null;
+  recorded_at: string;
+};
+type Campaign = {
+  id: string;
+  vehicle_id: string;
+  spot_name: string;
+  company: string;
+  start_date: string;
+  end_date: string;
+  total_price: number | null;
+  status: string;
+};
 
 function FleetPage() {
   const { t, i18n } = useTranslation();
@@ -106,7 +140,10 @@ function FleetPage() {
     });
   }, [vehicles, statusFilter, formatFilter, driverFilter, search]);
 
-  const formats = useMemo(() => Array.from(new Set(vehicles.map((v) => v.format_publicitaire).filter(Boolean))), [vehicles]);
+  const formats = useMemo(
+    () => Array.from(new Set(vehicles.map((v) => v.format_publicitaire).filter(Boolean))),
+    [vehicles],
+  );
   const driversById = useMemo(() => new Map(drivers.map((d) => [d.id, d] as const)), [drivers]);
   const campaignByVehicle = useMemo(() => {
     const m = new Map<string, Campaign>();
@@ -122,7 +159,8 @@ function FleetPage() {
   // KPIs
   const approvedCount = vehicles.filter((v) => v.status === "approved").length;
   const activeNow = positions.length;
-  const occupancyRate = approvedCount > 0 ? Math.round((activeCampaigns.length / approvedCount) * 100) : 0;
+  const occupancyRate =
+    approvedCount > 0 ? Math.round((activeCampaigns.length / approvedCount) * 100) : 0;
   const monthlyRevenue = activeCampaigns.reduce((s, c) => s + (c.total_price ?? 0), 0);
 
   // Map
@@ -164,24 +202,36 @@ function FleetPage() {
         let m = markersRef.current.get(p.vehicle_id);
         if (!m) {
           const el = document.createElement("div");
-          el.className = "rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shadow-lg border-2 border-white";
+          el.className =
+            "rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shadow-lg border-2 border-white";
           el.style.width = "28px";
           el.style.height = "28px";
           el.textContent = (v?.name ?? "?").slice(0, 2).toUpperCase();
           m = new mgl.Marker({ element: el })
             .setLngLat([p.lng, p.lat])
-            .setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString(dateLocale)}`))
+            .setPopup(
+              new mgl.Popup({ offset: 16 }).setHTML(
+                `<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString(dateLocale)}`,
+              ),
+            )
             .addTo(map);
           markersRef.current.set(p.vehicle_id, m);
         } else {
           m.setLngLat([p.lng, p.lat]);
-          m.setPopup(new mgl.Popup({ offset: 16 }).setHTML(`<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString(dateLocale)}`));
+          m.setPopup(
+            new mgl.Popup({ offset: 16 }).setHTML(
+              `<strong>${label}</strong><br/>${new Date(p.recorded_at).toLocaleTimeString(dateLocale)}`,
+            ),
+          );
         }
         bounds.extend([p.lng, p.lat]);
         hasAny = true;
       }
       for (const [id, m] of markersRef.current) {
-        if (!seen.has(id)) { m.remove(); markersRef.current.delete(id); }
+        if (!seen.has(id)) {
+          m.remove();
+          markersRef.current.delete(id);
+        }
       }
       if (hasAny && !bounds.isEmpty()) {
         map.fitBounds(bounds, { padding: 60, maxZoom: 13, duration: 600 });
@@ -204,7 +254,7 @@ function FleetPage() {
       full_name: String(form.get("full_name") || ""),
       phone: (String(form.get("phone") || "") || null) as string | null,
       email: (String(form.get("email") || "") || null) as string | null,
-      status: (String(form.get("status") || "active") as "active" | "inactive"),
+      status: String(form.get("status") || "active") as "active" | "inactive",
       notes: (String(form.get("notes") || "") || null) as string | null,
     };
     try {
@@ -231,14 +281,18 @@ function FleetPage() {
       toast.success(t("owner.flotte.toast_driver_deleted"));
       qc.invalidateQueries({ queryKey: ["fleet-drivers"] });
       qc.invalidateQueries({ queryKey: ["fleet-overview"] });
-    } catch (e) { toast.error((e as Error).message); }
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
   }
 
   async function assignDriver(vehicleId: string, driverId: string) {
     try {
       await assignFn({ data: { vehicleId, driverId: driverId === "none" ? null : driverId } });
       qc.invalidateQueries({ queryKey: ["fleet-overview"] });
-    } catch (e) { toast.error((e as Error).message); }
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
   }
 
   // suppress unused lint warning for driversById — used externally via map
@@ -252,17 +306,35 @@ function FleetPage() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">{t("owner.flotte.title")}</h1>
           </div>
-          <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">{t("owner.flotte.back")}</Link>
+          <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("owner.flotte.back")}
+          </Link>
         </div>
       </header>
 
       <main id="main-content" className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Kpi icon={<Truck className="h-4 w-4" />} label={t("owner.flotte.kpi_approved")} value={approvedCount} />
-          <Kpi icon={<Activity className="h-4 w-4" />} label={t("owner.flotte.kpi_active")} value={activeNow} />
-          <Kpi icon={<Users className="h-4 w-4" />} label={t("owner.flotte.kpi_occupancy")} value={`${occupancyRate}%`} />
-          <Kpi icon={<Euro className="h-4 w-4" />} label={t("owner.flotte.kpi_revenue")} value={`${monthlyRevenue.toLocaleString(dateLocale)} €`} />
+          <Kpi
+            icon={<Truck className="h-4 w-4" />}
+            label={t("owner.flotte.kpi_approved")}
+            value={approvedCount}
+          />
+          <Kpi
+            icon={<Activity className="h-4 w-4" />}
+            label={t("owner.flotte.kpi_active")}
+            value={activeNow}
+          />
+          <Kpi
+            icon={<Users className="h-4 w-4" />}
+            label={t("owner.flotte.kpi_occupancy")}
+            value={`${occupancyRate}%`}
+          />
+          <Kpi
+            icon={<Euro className="h-4 w-4" />}
+            label={t("owner.flotte.kpi_revenue")}
+            value={`${monthlyRevenue.toLocaleString(dateLocale)} €`}
+          />
         </div>
 
         {/* Map */}
@@ -284,34 +356,63 @@ function FleetPage() {
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <CardTitle>{t("owner.flotte.vehicles_title", { filtered: filteredVehicles.length, total: vehicles.length })}</CardTitle>
-              <Link to="/owner/vehicules/nouveau" className="text-sm text-primary hover:underline">{t("owner.flotte.vehicles_add")}</Link>
+              <CardTitle>
+                {t("owner.flotte.vehicles_title", {
+                  filtered: filteredVehicles.length,
+                  total: vehicles.length,
+                })}
+              </CardTitle>
+              <Link to="/owner/vehicules/nouveau" className="text-sm text-primary hover:underline">
+                {t("owner.flotte.vehicles_add")}
+              </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
-              <Input placeholder={t("owner.flotte.filter_search")} value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input
+                placeholder={t("owner.flotte.filter_search")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger><SelectValue placeholder={t("owner.flotte.col_status")} /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("owner.flotte.col_status")} />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("owner.flotte.filter_status_all")}</SelectItem>
-                  <SelectItem value="approved">{t("owner.flotte.filter_status_approved")}</SelectItem>
+                  <SelectItem value="approved">
+                    {t("owner.flotte.filter_status_approved")}
+                  </SelectItem>
                   <SelectItem value="pending">{t("owner.flotte.filter_status_pending")}</SelectItem>
-                  <SelectItem value="rejected">{t("owner.flotte.filter_status_rejected")}</SelectItem>
+                  <SelectItem value="rejected">
+                    {t("owner.flotte.filter_status_rejected")}
+                  </SelectItem>
                   <SelectItem value="paused">{t("owner.flotte.filter_status_paused")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={formatFilter} onValueChange={setFormatFilter}>
-                <SelectTrigger><SelectValue placeholder={t("owner.flotte.col_format")} /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("owner.flotte.col_format")} />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("owner.flotte.filter_format_all")}</SelectItem>
-                  {formats.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                  {formats.map((f) => (
+                    <SelectItem key={f} value={f}>
+                      {f}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select value={driverFilter} onValueChange={setDriverFilter}>
-                <SelectTrigger><SelectValue placeholder={t("owner.flotte.col_driver")} /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("owner.flotte.col_driver")} />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("owner.flotte.filter_driver_all")}</SelectItem>
                   <SelectItem value="none">{t("owner.flotte.filter_driver_none")}</SelectItem>
-                  {drivers.map((d) => <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>)}
+                  {drivers.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.full_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -337,38 +438,65 @@ function FleetPage() {
                       <TableRow key={v.id}>
                         <TableCell>
                           <div className="font-medium">{v.name}</div>
-                          <div className="text-xs text-muted-foreground">{v.type} · {v.price_per_day}€/j</div>
+                          <div className="text-xs text-muted-foreground">
+                            {v.type} · {v.price_per_day}€/j
+                          </div>
                         </TableCell>
                         <TableCell className="text-xs">{v.format_publicitaire}</TableCell>
-                        <TableCell><StatusBadge status={v.status} /></TableCell>
                         <TableCell>
-                          <Select value={v.driver_id ?? "none"} onValueChange={(val) => assignDriver(v.id, val)}>
-                            <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue /></SelectTrigger>
+                          <StatusBadge status={v.status} />
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={v.driver_id ?? "none"}
+                            onValueChange={(val) => assignDriver(v.id, val)}
+                          >
+                            <SelectTrigger className="h-8 w-[160px] text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="none">{t("owner.flotte.no_driver")}</SelectItem>
-                              {drivers.filter((d) => d.status === "active").map((d) => (
-                                <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
-                              ))}
+                              {drivers
+                                .filter((d) => d.status === "active")
+                                .map((d) => (
+                                  <SelectItem key={d.id} value={d.id}>
+                                    {d.full_name}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
                         </TableCell>
                         <TableCell className="text-xs">
                           {camp ? (
-                            <Link to="/advertiser/suivi/$campaignId" params={{ campaignId: camp.id }} className="text-primary hover:underline">
+                            <Link
+                              to="/advertiser/suivi/$campaignId"
+                              params={{ campaignId: camp.id }}
+                              className="text-primary hover:underline"
+                            >
                               {camp.company} · {camp.spot_name}
                             </Link>
-                          ) : <span className="text-muted-foreground">—</span>}
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
                         </TableCell>
                         <TableCell className="text-xs font-mono">
                           {pos ? (
-                            <span className="text-green-600">● {new Date(pos.recorded_at).toLocaleTimeString(dateLocale)}</span>
-                          ) : <span className="text-muted-foreground">—</span>}
+                            <span className="text-green-600">
+                              ● {new Date(pos.recorded_at).toLocaleTimeString(dateLocale)}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
                   })}
                   {filteredVehicles.length === 0 && (
-                    <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-6">{t("owner.flotte.no_vehicles")}</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
+                        {t("owner.flotte.no_vehicles")}
+                      </TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -381,42 +509,86 @@ function FleetPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>{t("owner.flotte.drivers_title", { count: drivers.length })}</CardTitle>
-              <Dialog open={driverOpen} onOpenChange={(o) => { setDriverOpen(o); if (!o) setEditingDriver(null); }}>
+              <Dialog
+                open={driverOpen}
+                onOpenChange={(o) => {
+                  setDriverOpen(o);
+                  if (!o) setEditingDriver(null);
+                }}
+              >
                 <DialogTrigger asChild>
-                  <Button size="sm"><Plus className="h-4 w-4 mr-1" /> {t("owner.flotte.driver_new_btn")}</Button>
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-1" /> {t("owner.flotte.driver_new_btn")}
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>{editingDriver ? t("owner.flotte.driver_dialog_edit") : t("owner.flotte.driver_dialog_create")}</DialogTitle>
+                    <DialogTitle>
+                      {editingDriver
+                        ? t("owner.flotte.driver_dialog_edit")
+                        : t("owner.flotte.driver_dialog_create")}
+                    </DialogTitle>
                   </DialogHeader>
-                  <form onSubmit={(e) => { e.preventDefault(); saveDriver(new FormData(e.currentTarget)); }} className="space-y-3">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      saveDriver(new FormData(e.currentTarget));
+                    }}
+                    className="space-y-3"
+                  >
                     <div>
-                      <label className="text-xs font-medium">{t("owner.flotte.driver_name_label")}</label>
-                      <Input name="full_name" required defaultValue={editingDriver?.full_name ?? ""} />
+                      <label className="text-xs font-medium">
+                        {t("owner.flotte.driver_name_label")}
+                      </label>
+                      <Input
+                        name="full_name"
+                        required
+                        defaultValue={editingDriver?.full_name ?? ""}
+                      />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="text-xs font-medium">{t("owner.flotte.driver_phone_label")}</label>
+                        <label className="text-xs font-medium">
+                          {t("owner.flotte.driver_phone_label")}
+                        </label>
                         <Input name="phone" defaultValue={editingDriver?.phone ?? ""} />
                       </div>
                       <div>
-                        <label className="text-xs font-medium">{t("owner.flotte.driver_email_label")}</label>
-                        <Input name="email" type="email" defaultValue={editingDriver?.email ?? ""} />
+                        <label className="text-xs font-medium">
+                          {t("owner.flotte.driver_email_label")}
+                        </label>
+                        <Input
+                          name="email"
+                          type="email"
+                          defaultValue={editingDriver?.email ?? ""}
+                        />
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium">{t("owner.flotte.driver_status_label")}</label>
-                      <select name="status" defaultValue={editingDriver?.status ?? "active"} className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm">
+                      <label className="text-xs font-medium">
+                        {t("owner.flotte.driver_status_label")}
+                      </label>
+                      <select
+                        name="status"
+                        defaultValue={editingDriver?.status ?? "active"}
+                        className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                      >
                         <option value="active">{t("owner.flotte.driver_status_active")}</option>
                         <option value="inactive">{t("owner.flotte.driver_status_inactive")}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs font-medium">{t("owner.flotte.driver_notes_label")}</label>
+                      <label className="text-xs font-medium">
+                        {t("owner.flotte.driver_notes_label")}
+                      </label>
                       <Input name="notes" defaultValue={editingDriver?.notes ?? ""} />
                     </div>
                     <DialogFooter>
-                      <Button type="submit">{editingDriver ? t("owner.flotte.driver_save") : t("owner.flotte.driver_create")}</Button>
+                      <Button type="submit">
+                        {editingDriver
+                          ? t("owner.flotte.driver_save")
+                          : t("owner.flotte.driver_create")}
+                      </Button>
                     </DialogFooter>
                   </form>
                 </DialogContent>
@@ -446,15 +618,30 @@ function FleetPage() {
                           {d.email && <div className="text-muted-foreground">{d.email}</div>}
                         </TableCell>
                         <TableCell>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${d.status === "active" ? "bg-green-500/15 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                            {d.status === "active" ? t("owner.flotte.driver_status_active") : t("owner.flotte.driver_status_inactive")}
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${d.status === "active" ? "bg-green-500/15 text-green-700" : "bg-muted text-muted-foreground"}`}
+                          >
+                            {d.status === "active"
+                              ? t("owner.flotte.driver_status_active")
+                              : t("owner.flotte.driver_status_inactive")}
                           </span>
                         </TableCell>
                         <TableCell className="text-xs">
-                          {assigned.length === 0 ? <span className="text-muted-foreground">—</span> : assigned.map((v) => v.name).join(", ")}
+                          {assigned.length === 0 ? (
+                            <span className="text-muted-foreground">—</span>
+                          ) : (
+                            assigned.map((v) => v.name).join(", ")
+                          )}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button size="sm" variant="ghost" onClick={() => { setEditingDriver(d); setDriverOpen(true); }}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingDriver(d);
+                              setDriverOpen(true);
+                            }}
+                          >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => removeDriver(d.id)}>
@@ -465,7 +652,11 @@ function FleetPage() {
                     );
                   })}
                   {drivers.length === 0 && (
-                    <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-6">{t("owner.flotte.no_drivers")}</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                        {t("owner.flotte.no_drivers")}
+                      </TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>
@@ -477,11 +668,21 @@ function FleetPage() {
   );
 }
 
-function Kpi({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+function Kpi({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">{icon} {label}</div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {icon} {label}
+        </div>
         <div className="mt-2 font-display text-2xl font-bold">{value}</div>
       </CardContent>
     </Card>
@@ -493,9 +694,16 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     pending: { label: t("owner.flotte.status_pending"), cls: "bg-secondary text-foreground" },
     approved: { label: t("owner.flotte.status_approved"), cls: "bg-green-500/15 text-green-700" },
-    rejected: { label: t("owner.flotte.status_rejected"), cls: "bg-destructive/15 text-destructive" },
+    rejected: {
+      label: t("owner.flotte.status_rejected"),
+      cls: "bg-destructive/15 text-destructive",
+    },
     paused: { label: t("owner.flotte.status_paused"), cls: "bg-muted text-muted-foreground" },
   };
   const x = map[status] ?? { label: status, cls: "bg-secondary" };
-  return <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${x.cls}`}>{x.label}</span>;
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${x.cls}`}>
+      {x.label}
+    </span>
+  );
 }

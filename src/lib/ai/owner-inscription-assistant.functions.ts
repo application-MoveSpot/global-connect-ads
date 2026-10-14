@@ -26,14 +26,25 @@ const BIO_MAX = 300;
 export const generateOwnerInscriptionSuggestion = createServerFn({ method: "POST" })
   .validator((d: z.infer<typeof OwnerInscriptionInput>) => OwnerInscriptionInput.parse(d))
   .handler(async ({ data }): Promise<OwnerInscriptionResult> => {
-    assertRateLimit(`owner-inscription-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
+    assertRateLimit(`owner-inscription-suggest:${getRequestIp()}`, {
+      maxRequests: 10,
+      windowMs: 60_000,
+    });
     if (!(await hasAuthenticatedBriefRequest())) {
-      return { ok: false, code: "UNAUTHORIZED", message: "Session expirée — reconnectez-vous puis réessayez." };
+      return {
+        ok: false,
+        code: "UNAUTHORIZED",
+        message: "Session expirée — reconnectez-vous puis réessayez.",
+      };
     }
 
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) {
-      return { ok: false, code: "AI_UNAVAILABLE", message: "Le service IA est indisponible. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "Le service IA est indisponible. Réessayez.",
+      };
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
@@ -56,7 +67,12 @@ Réponds UNIQUEMENT en JSON strict (toutes les clés sont optionnelles, n'inclus
 
     try {
       const { generateText } = await import("ai");
-      const { text } = await generateText({ model, prompt, temperature: 0.35, maxOutputTokens: 300 });
+      const { text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.35,
+        maxOutputTokens: 300,
+      });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as OwnerInscriptionSuggestion;
@@ -72,6 +88,10 @@ Réponds UNIQUEMENT en JSON strict (toutes les clés sont optionnelles, n'inclus
       return { ok: true, suggestion };
     } catch (err) {
       captureServerException(err, { category: "ai" });
-      return { ok: false, code: "AI_UNAVAILABLE", message: "L'IA n'a pas pu générer de suggestion. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+      };
     }
   });

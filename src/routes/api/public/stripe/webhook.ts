@@ -10,7 +10,9 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
         try {
           event = await verifyWebhook(request);
         } catch (e) {
-          return new Response(`Signature invalide: ${e instanceof Error ? e.message : "?"}`, { status: 400 });
+          return new Response(`Signature invalide: ${e instanceof Error ? e.message : "?"}`, {
+            status: 400,
+          });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -27,7 +29,8 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
           .insert({ id: event.id, type: event.type, payload: event as never } as never);
 
         try {
-          const { handleStripeEvent } = await import("@/lib/payments/stripe-webhook-handlers.server");
+          const { handleStripeEvent } =
+            await import("@/lib/payments/stripe-webhook-handlers.server");
           await handleStripeEvent(event, supabaseAdmin);
           log.info("stripe_webhook_ok", { event_id: event.id, type: event.type });
           return Response.json({ received: true });

@@ -52,19 +52,22 @@ function WalletPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   // Declared before refs so the refs can capture this function
-  const loadTransactions = useCallback(async (kind: TxKind, p: number) => {
-    setTxLoading(true);
-    try {
-      const r = await fetchTransactions({ data: { kind, page: p, pageSize: PAGE_SIZE } });
-      setTransactions(r.transactions);
-      setTotal(r.total);
-    } catch {
-      setTransactions([]);
-      setTotal(0);
-    } finally {
-      setTxLoading(false);
-    }
-  }, [fetchTransactions]);
+  const loadTransactions = useCallback(
+    async (kind: TxKind, p: number) => {
+      setTxLoading(true);
+      try {
+        const r = await fetchTransactions({ data: { kind, page: p, pageSize: PAGE_SIZE } });
+        setTransactions(r.transactions);
+        setTotal(r.total);
+      } catch {
+        setTransactions([]);
+        setTotal(0);
+      } finally {
+        setTxLoading(false);
+      }
+    },
+    [fetchTransactions],
+  );
 
   // Stable refs so realtime callback always uses current values without re-subscribing
   const loadTransactionsRef = useRef(loadTransactions);
@@ -78,11 +81,18 @@ function WalletPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/advertiser/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/advertiser/inscription" });
+        return;
+      }
       setUserId(session.user.id);
       const [walletResult, profResult] = await Promise.allSettled([
         fetchWallet(),
-        supabase.from("advertiser_profiles").select("account_type").eq("user_id", session.user.id).maybeSingle(),
+        supabase
+          .from("advertiser_profiles")
+          .select("account_type")
+          .eq("user_id", session.user.id)
+          .maybeSingle(),
       ]);
       if (walletResult.status === "fulfilled") setBalanceCents(walletResult.value.balance_cents);
       if (profResult.status === "fulfilled") {
@@ -104,7 +114,12 @@ function WalletPage() {
       .channel(`wallet-realtime-${userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "wallet_transactions",
+          filter: `user_id=eq.${userId}`,
+        },
         (payload) => {
           const tx = payload.new as { amount_cents: number; kind: string };
           setBalanceCents((prev) => prev + tx.amount_cents);
@@ -113,7 +128,9 @@ function WalletPage() {
         },
       )
       .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   // Reload transactions when filter or page changes
@@ -155,7 +172,12 @@ function WalletPage() {
     }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,7 +185,9 @@ function WalletPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("wallet.back_to_dashboard")}</Link>
+          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("wallet.back_to_dashboard")}
+          </Link>
         </div>
       </header>
 
@@ -176,15 +200,22 @@ function WalletPage() {
               : t("wallet.subtitle_business")}
           </p>
           {accountType === "individual" && (
-            <Link to="/advertiser/pack" className="inline-block mt-1 text-xs text-primary hover:underline">
+            <Link
+              to="/advertiser/pack"
+              className="inline-block mt-1 text-xs text-primary hover:underline"
+            >
               {t("wallet.see_packs")}
             </Link>
           )}
         </section>
 
         <section className="rounded-2xl border border-border bg-gradient-to-br from-primary/15 to-card p-8">
-          <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("wallet.balance")}</div>
-          <div className="font-display text-5xl font-bold mt-2">{fmt(fromEurCents(balanceCents))}</div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground">
+            {t("wallet.balance")}
+          </div>
+          <div className="font-display text-5xl font-bold mt-2">
+            {fmt(fromEurCents(balanceCents))}
+          </div>
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
@@ -192,7 +223,11 @@ function WalletPage() {
           <p className="text-sm text-muted-foreground">{t("wallet.topup_card_subtitle")}</p>
           <div className="flex flex-wrap items-center gap-2">
             {(accountType === "individual"
-              ? [{ v: 49, label: "49 € · Week-end" }, { v: 79, label: "79 € · Événement" }, { v: 149, label: "149 € · Lancement" }]
+              ? [
+                  { v: 49, label: "49 € · Week-end" },
+                  { v: 79, label: "79 € · Événement" },
+                  { v: 149, label: "149 € · Lancement" },
+                ]
               : [50, 100, 250, 500, 1000].map((v) => ({ v, label: `${v} €` }))
             ).map(({ v, label }) => (
               <button
@@ -211,7 +246,10 @@ function WalletPage() {
               className="w-28 px-3 py-1.5 rounded-lg border border-border bg-background text-sm"
             />
           </div>
-          <WalletTopupCheckout amountEuros={amount} buttonLabel={t("wallet.topup_btn", { amount })} />
+          <WalletTopupCheckout
+            amountEuros={amount}
+            buttonLabel={t("wallet.topup_btn", { amount })}
+          />
         </section>
 
         <section>
@@ -270,18 +308,26 @@ function WalletPage() {
                         {new Date(tx.created_at).toLocaleString(locale)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                          tx.kind === "topup" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" :
-                          tx.kind === "campaign_debit" ? "bg-blue-500/15 text-blue-700 dark:text-blue-400" :
-                          tx.kind === "refund" ? "bg-amber-500/15 text-amber-700 dark:text-amber-400" :
-                          "bg-secondary text-muted-foreground"
-                        }`}>
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                            tx.kind === "topup"
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                              : tx.kind === "campaign_debit"
+                                ? "bg-blue-500/15 text-blue-700 dark:text-blue-400"
+                                : tx.kind === "refund"
+                                  ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                                  : "bg-secondary text-muted-foreground"
+                          }`}
+                        >
                           {t(`wallet.tx_label.${tx.kind}` as Parameters<typeof t>[0]) ?? tx.kind}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{tx.description ?? "—"}</td>
-                      <td className={`px-4 py-3 text-right font-semibold font-mono whitespace-nowrap ${tx.amount_cents >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
-                        {tx.amount_cents >= 0 ? "+" : ""}{fmt(fromEurCents(tx.amount_cents))}
+                      <td
+                        className={`px-4 py-3 text-right font-semibold font-mono whitespace-nowrap ${tx.amount_cents >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}
+                      >
+                        {tx.amount_cents >= 0 ? "+" : ""}
+                        {fmt(fromEurCents(tx.amount_cents))}
                       </td>
                     </tr>
                   ))}

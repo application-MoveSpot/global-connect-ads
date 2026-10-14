@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -19,8 +37,14 @@ interface Props {
 }
 
 const Email = ({
-  advertiserName, briefTitle, vehicleTypes,
-  startDate, endDate, budgetMax, dashboardUrl, unsubscribeUrl,
+  advertiserName,
+  briefTitle,
+  vehicleTypes,
+  startDate,
+  endDate,
+  budgetMax,
+  dashboardUrl,
+  unsubscribeUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -33,23 +57,27 @@ const Email = ({
           <Section style={contentPadding}>
             <StatusBadge color="blue">Brief publié 📋</StatusBadge>
 
-            <Text style={{ ...h1Style, marginTop: "16px" }}>
-              Votre brief est en ligne !
-            </Text>
+            <Text style={{ ...h1Style, marginTop: "16px" }}>Votre brief est en ligne !</Text>
 
             <Text style={textStyle}>
-              {advertiserName ? `Bonjour ${advertiserName},` : "Bonjour,"} votre brief{briefTitle ? ` « ${briefTitle} »` : ""} a été publié avec succès. Les propriétaires de véhicules dans votre zone vont recevoir votre demande et pourront vous soumettre leurs propositions.
+              {advertiserName ? `Bonjour ${advertiserName},` : "Bonjour,"} votre brief
+              {briefTitle ? ` « ${briefTitle} »` : ""} a été publié avec succès. Les propriétaires
+              de véhicules dans votre zone vont recevoir votre demande et pourront vous soumettre
+              leurs propositions.
             </Text>
 
             <InfoCard>
               {briefTitle ? <InfoRow label="Brief" value={briefTitle} /> : null}
               {vehicleTypes ? <InfoRow label="Véhicules recherchés" value={vehicleTypes} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
               {budgetMax ? <InfoRow label="Budget max" value={budgetMax} /> : null}
             </InfoCard>
 
             <Text style={textStyle}>
-              Dès qu'un propriétaire soumet une proposition, vous recevrez un email. Vous pouvez consulter et gérer vos propositions depuis votre tableau de bord.
+              Dès qu'un propriétaire soumet une proposition, vous recevrez un email. Vous pouvez
+              consulter et gérer vos propositions depuis votre tableau de bord.
             </Text>
 
             <Text style={mutedText}>

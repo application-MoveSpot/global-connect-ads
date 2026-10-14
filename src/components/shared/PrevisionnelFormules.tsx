@@ -20,7 +20,6 @@ const FORMULES = [
 
 const PRIX_MOYEN_PONDERE = FORMULES.reduce((acc, f) => acc + f.prix * f.part, 0); // 42,50 €
 
-
 export default function PrevisionnelFormules() {
   const { t, i18n } = useTranslation();
   const { fmtAmount } = useCurrency();
@@ -33,18 +32,11 @@ export default function PrevisionnelFormules() {
 
   return (
     <div className="avoid-break rounded-xl border border-gray-300 bg-white p-6 my-8">
-      <h3 className="font-display text-xl font-bold text-gray-900 mb-1">
-        {t("prev.title")}
-      </h3>
-      <p className="text-xs text-gray-600 mb-5">
-        {t("prev.subtitle")}
-      </p>
+      <h3 className="font-display text-xl font-bold text-gray-900 mb-1">{t("prev.title")}</h3>
+      <p className="text-xs text-gray-600 mb-5">{t("prev.subtitle")}</p>
 
       <div className="mb-6">
-        <label
-          htmlFor="vehicles-slider"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
+        <label htmlFor="vehicles-slider" className="block text-sm font-medium text-gray-700 mb-2">
           {t("prev.vehicles_label")}
         </label>
         <input
@@ -70,7 +62,9 @@ export default function PrevisionnelFormules() {
           <p className="text-xl font-bold text-gray-900 tabular-nums">
             {eur(revenueUnique)} <span className="text-sm font-medium">{t("prev.per_year")}</span>
           </p>
-          <p className="text-[11px] text-gray-500 mt-1">{t("prev.per_vehicle_month", { price: PRIX_UNIQUE })}</p>
+          <p className="text-[11px] text-gray-500 mt-1">
+            {t("prev.per_vehicle_month", { price: PRIX_UNIQUE })}
+          </p>
         </div>
         <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
           <p className="text-[11px] text-emerald-700 uppercase tracking-wide">
@@ -80,7 +74,9 @@ export default function PrevisionnelFormules() {
             {eur(revenueFormules)} <span className="text-sm font-medium">{t("prev.per_year")}</span>
           </p>
           <p className="text-[11px] text-emerald-700 mt-1">
-            {t("prev.weighted_avg", { avg: PRIX_MOYEN_PONDERE.toLocaleString(i18n.language, { minimumFractionDigits: 2 }) })}
+            {t("prev.weighted_avg", {
+              avg: PRIX_MOYEN_PONDERE.toLocaleString(i18n.language, { minimumFractionDigits: 2 }),
+            })}
           </p>
         </div>
       </div>

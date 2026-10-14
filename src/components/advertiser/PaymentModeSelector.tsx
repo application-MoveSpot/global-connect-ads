@@ -24,9 +24,7 @@ export function PaymentModeSelector({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm font-semibold text-foreground">
-        {t("payment_mode.question")}
-      </p>
+      <p className="text-sm font-semibold text-foreground">{t("payment_mode.question")}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <ModeCard
@@ -59,7 +57,9 @@ export function PaymentModeSelector({
           <div className="space-y-3">
             <p
               className="text-sm text-muted-foreground"
-              dangerouslySetInnerHTML={{ __html: t("payment_mode.subscription_billing", { count: vehicleQuantity }) }}
+              dangerouslySetInnerHTML={{
+                __html: t("payment_mode.subscription_billing", { count: vehicleQuantity }),
+              }}
             />
             <CampaignTrialCheckout
               campaignRequestId={campaignRequestId}

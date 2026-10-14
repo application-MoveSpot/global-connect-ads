@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
 import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
 
-
 export function Navbar() {
   const { t } = useTranslation();
   const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });

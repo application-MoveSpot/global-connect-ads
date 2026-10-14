@@ -24,7 +24,10 @@ export function currencyCode(locale: string): Currency {
 }
 
 /** Config par devise (symbole, décimales, locale BCP 47). */
-export const CURRENCY_CONFIGS: Record<Currency, { symbol: string; decimals: number; locale: string }> = {
+export const CURRENCY_CONFIGS: Record<
+  Currency,
+  { symbol: string; decimals: number; locale: string }
+> = {
   EUR: { symbol: "€", decimals: 2, locale: "fr-FR" },
   USD: { symbol: "$", decimals: 2, locale: "en-US" },
 };
@@ -37,13 +40,23 @@ export function getCurrencyFromLang(lang: string): Currency {
 /** Formate un montant en centimes avec décimales : 12050 → "120,50 €". */
 export function formatCurrencyExact(cents: number, currency: Currency): string {
   const { locale } = CURRENCY_CONFIGS[currency];
-  return (cents / 100).toLocaleString(locale, { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (cents / 100).toLocaleString(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 /** Formate un montant entier (unités, pas centimes) : 375 → "375 €". */
 export function formatAmount(amount: number, currency: Currency): string {
   const { locale } = CURRENCY_CONFIGS[currency];
-  return amount.toLocaleString(locale, { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return amount.toLocaleString(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
 }
 
 /** Convertit des centimes EUR vers la devise cible (taux d'affichage approximatif, pas de vrai FX). */

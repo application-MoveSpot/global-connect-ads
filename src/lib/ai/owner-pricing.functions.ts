@@ -48,8 +48,12 @@ export const recommendVehiclePrice = createServerFn({ method: "POST" })
       .eq("type", vehicle.type)
       .eq("status", "approved");
 
-    const prices = (stats ?? []).map((v: { price_per_day: number }) => Number(v.price_per_day)).filter((p: number) => p > 0);
-    const avgPrice = prices.length ? Math.round(prices.reduce((a: number, b: number) => a + b, 0) / prices.length) : null;
+    const prices = (stats ?? [])
+      .map((v: { price_per_day: number }) => Number(v.price_per_day))
+      .filter((p: number) => p > 0);
+    const avgPrice = prices.length
+      ? Math.round(prices.reduce((a: number, b: number) => a + b, 0) / prices.length)
+      : null;
     const minPrice = prices.length ? Math.min(...prices) : null;
     const maxPrice = prices.length ? Math.max(...prices) : null;
 
@@ -106,6 +110,12 @@ Réponds UNIQUEMENT en JSON strict :
         factors: Array.isArray(parsed.factors) ? (parsed.factors as string[]).slice(0, 4) : [],
       };
     } catch {
-      return { suggested: avgPrice ?? 20, min: minPrice ?? 10, max: maxPrice ?? 50, rationale: "Basé sur les prix de la plateforme.", factors: [] };
+      return {
+        suggested: avgPrice ?? 20,
+        min: minPrice ?? 10,
+        max: maxPrice ?? 50,
+        rationale: "Basé sur les prix de la plateforme.",
+        factors: [],
+      };
     }
   });

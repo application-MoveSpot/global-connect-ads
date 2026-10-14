@@ -6,12 +6,14 @@ export const Route = createFileRoute("/kit")({
   head: () => ({
     meta: [
       { title: "Kit média — MoveSpot" },
-      { name: "description", content: "Kit média et ressources partners MoveSpot : présentation, tarifs, chiffres clés et contacts." },
+      {
+        name: "description",
+        content:
+          "Kit média et ressources partners MoveSpot : présentation, tarifs, chiffres clés et contacts.",
+      },
       { property: "og:title", content: "Kit média MoveSpot" },
     ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/kit" },
-    ],
+    links: [{ rel: "canonical", href: "https://move-spot.com/kit" }],
   }),
   component: KitMedia,
 });
@@ -34,7 +36,9 @@ function KitMedia() {
         {/* En-tête */}
         <section className="flex flex-col sm:flex-row items-start sm:items-center gap-6 border-b border-border pb-10 print:pb-6">
           <div className="flex-1">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("kit.eyebrow", { year: new Date().getFullYear() })}</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+              {t("kit.eyebrow", { year: new Date().getFullYear() })}
+            </p>
             <h1 className="text-4xl font-black tracking-tight mb-3">MoveSpot</h1>
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
               {t("kit.tagline")}
@@ -44,19 +48,35 @@ function KitMedia() {
             <p className="text-xs text-muted-foreground">{t("kit.founded")}</p>
             <p className="text-xs text-muted-foreground">Paris, France</p>
             <p className="text-xs text-muted-foreground mt-2">
-              <a href="https://move-spot.com" className="underline underline-offset-2">move-spot.com</a>
+              <a href="https://move-spot.com" className="underline underline-offset-2">
+                move-spot.com
+              </a>
             </p>
           </div>
         </section>
 
         {/* Chiffres clés */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.stats_heading")}</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">
+            {t("kit.stats_heading")}
+          </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { value: "1,80 €", label: "par km²/jour (ville)", sub: "2,70 € grandes agglomérations" },
-              { value: "dès 25 €/jour", label: "budget campagne par véhicule", sub: "sans abonnement" },
-              { value: "70 / 30", label: "reversé au propriétaire", sub: "30 % commission plateforme" },
+              {
+                value: "1,80 €",
+                label: "par km²/jour (ville)",
+                sub: "2,70 € grandes agglomérations",
+              },
+              {
+                value: "dès 25 €/jour",
+                label: "budget campagne par véhicule",
+                sub: "sans abonnement",
+              },
+              {
+                value: "70 / 30",
+                label: "reversé au propriétaire",
+                sub: "30 % commission plateforme",
+              },
               { value: "14 jours", label: "essai gratuit advertiser", sub: "sans CB requise" },
             ].map(({ value, label, sub }) => (
               <div key={label} className="rounded-xl border border-border p-4 flex flex-col gap-1">
@@ -70,33 +90,64 @@ function KitMedia() {
 
         {/* Types de véhicules */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.vehicles_heading")}</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">
+            {t("kit.vehicles_heading")}
+          </h2>
           <div className="flex flex-wrap gap-2">
-            {["Taxi", "VTC", "Van publicitaire", "Scooter", "Vélo cargo", "Food truck", "Camion léger", "Voiture", "Autre"].map((v) => (
-              <span key={v} className="rounded-full border border-border px-3 py-1 text-sm">{v}</span>
+            {[
+              "Taxi",
+              "VTC",
+              "Van publicitaire",
+              "Scooter",
+              "Vélo cargo",
+              "Food truck",
+              "Camion léger",
+              "Voiture",
+              "Autre",
+            ].map((v) => (
+              <span key={v} className="rounded-full border border-border px-3 py-1 text-sm">
+                {v}
+              </span>
             ))}
           </div>
         </section>
 
         {/* Proposition de valeur par rôle */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.actors_heading")}</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">
+            {t("kit.actors_heading")}
+          </h2>
           <div className="grid sm:grid-cols-3 gap-4">
             {[
               {
                 role: "Annonceur",
                 icon: "📣",
-                points: ["Brief en 5 min", "Ciblage par zone GPS", "Rapport de diffusion", "Essai 14 jours offert"],
+                points: [
+                  "Brief en 5 min",
+                  "Ciblage par zone GPS",
+                  "Rapport de diffusion",
+                  "Essai 14 jours offert",
+                ],
               },
               {
                 role: "Propriétaire de flotte",
                 icon: "🚗",
-                points: ["Inscription gratuite", "70 % des revenus reversés", "Tableau de bord flotte", "Validation des briefs"],
+                points: [
+                  "Inscription gratuite",
+                  "70 % des revenus reversés",
+                  "Tableau de bord flotte",
+                  "Validation des briefs",
+                ],
               },
               {
                 role: "Prestataire (poseur)",
                 icon: "🛠️",
-                points: ["Gestion des chantiers", "Photos d'installation", "Portfolio clients", "Facturation intégrée"],
+                points: [
+                  "Gestion des chantiers",
+                  "Photos d'installation",
+                  "Portfolio clients",
+                  "Facturation intégrée",
+                ],
               },
             ].map(({ role, icon, points }) => (
               <div key={role} className="rounded-xl border border-border p-5 space-y-3">
@@ -117,7 +168,9 @@ function KitMedia() {
 
         {/* Tarifs résumé */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.prices_heading")}</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">
+            {t("kit.prices_heading")}
+          </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
@@ -129,13 +182,41 @@ function KitMedia() {
               </thead>
               <tbody className="divide-y divide-border">
                 {[
-                  { profil: "Propriétaire", modele: "Gratuit", detail: "Commission prélevée sur chaque campagne diffusée" },
-                  { profil: "Annonceur particulier", modele: "30 % commission", detail: "Du budget campagne — pas d'abonnement" },
-                  { profil: "Annonceur PME", modele: "25 % commission", detail: "À partir de 500 €/mois de budget" },
-                  { profil: "Annonceur grand compte", modele: "Sur devis", detail: "Tarif négocié, SLA dédié" },
-                  { profil: "Prestataire Starter", modele: "29 €/mois", detail: "Jusqu'à 5 clients actifs" },
-                  { profil: "Prestataire Standard", modele: "42 €/mois", detail: "Jusqu'à 20 clients, portfolio avancé" },
-                  { profil: "Prestataire Pro", modele: "59 €/mois", detail: "Clients illimités, marque blanche" },
+                  {
+                    profil: "Propriétaire",
+                    modele: "Gratuit",
+                    detail: "Commission prélevée sur chaque campagne diffusée",
+                  },
+                  {
+                    profil: "Annonceur particulier",
+                    modele: "30 % commission",
+                    detail: "Du budget campagne — pas d'abonnement",
+                  },
+                  {
+                    profil: "Annonceur PME",
+                    modele: "25 % commission",
+                    detail: "À partir de 500 €/mois de budget",
+                  },
+                  {
+                    profil: "Annonceur grand compte",
+                    modele: "Sur devis",
+                    detail: "Tarif négocié, SLA dédié",
+                  },
+                  {
+                    profil: "Prestataire Starter",
+                    modele: "29 €/mois",
+                    detail: "Jusqu'à 5 clients actifs",
+                  },
+                  {
+                    profil: "Prestataire Standard",
+                    modele: "42 €/mois",
+                    detail: "Jusqu'à 20 clients, portfolio avancé",
+                  },
+                  {
+                    profil: "Prestataire Pro",
+                    modele: "59 €/mois",
+                    detail: "Clients illimités, marque blanche",
+                  },
                 ].map(({ profil, modele, detail }) => (
                   <tr key={profil}>
                     <td className="py-2 pr-6 font-medium">{profil}</td>
@@ -147,13 +228,18 @@ function KitMedia() {
             </table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            {t("kit.prices_full_link")} <a href="/tarifs" className="underline underline-offset-2">move-spot.com/tarifs</a>
+            {t("kit.prices_full_link")}{" "}
+            <a href="/tarifs" className="underline underline-offset-2">
+              move-spot.com/tarifs
+            </a>
           </p>
         </section>
 
         {/* Identité visuelle */}
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">{t("kit.brand_heading")}</h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-5">
+            {t("kit.brand_heading")}
+          </h2>
           <div className="flex flex-wrap gap-3">
             {[
               { name: "Signal", hex: "#FF6B35", text: "white" },
@@ -182,7 +268,14 @@ function KitMedia() {
             <p className="text-sm text-muted-foreground">{t("kit.contact_desc")}</p>
           </div>
           <div className="text-sm space-y-1 shrink-0">
-            <p><a href="mailto:partners@move-spot.com" className="font-semibold underline underline-offset-2">partners@move-spot.com</a></p>
+            <p>
+              <a
+                href="mailto:partners@move-spot.com"
+                className="font-semibold underline underline-offset-2"
+              >
+                partners@move-spot.com
+              </a>
+            </p>
             <p className="text-muted-foreground">{t("kit.contact_response")}</p>
           </div>
         </section>

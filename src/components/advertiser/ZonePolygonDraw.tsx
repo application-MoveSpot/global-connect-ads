@@ -13,7 +13,10 @@ export function polygonToEwkt(coords: [number, number][]) {
   return `SRID=4326;POLYGON((${ring}))`;
 }
 
-const NOM_HEADERS = { "User-Agent": "MoveSpot/1.0 (contact@move-spot.com)", "Accept-Language": "fr" };
+const NOM_HEADERS = {
+  "User-Agent": "MoveSpot/1.0 (contact@move-spot.com)",
+  "Accept-Language": "fr",
+};
 
 async function reverseGeocode(lat: number, lng: number): Promise<string[]> {
   try {
@@ -21,11 +24,19 @@ async function reverseGeocode(lat: number, lng: number): Promise<string[]> {
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
       { headers: NOM_HEADERS },
     );
-    const j = await r.json() as { address?: Record<string, string> };
+    const j = (await r.json()) as { address?: Record<string, string> };
     const addr = j.address ?? {};
-    return [addr.quarter, addr.suburb, addr.neighbourhood, addr.city_district, addr.town, addr.city]
-      .filter(Boolean) as string[];
-  } catch { return []; }
+    return [
+      addr.quarter,
+      addr.suburb,
+      addr.neighbourhood,
+      addr.city_district,
+      addr.town,
+      addr.city,
+    ].filter(Boolean) as string[];
+  } catch {
+    return [];
+  }
 }
 
 async function detectZones(coords: [number, number][]): Promise<string[]> {
@@ -41,12 +52,14 @@ async function detectZones(coords: [number, number][]): Promise<string[]> {
   }
 
   const seen = new Set<string>();
-  return results.filter((z) => {
-    const key = z.toLowerCase().replace(/\s+/g, "");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  }).slice(0, 8);
+  return results
+    .filter((z) => {
+      const key = z.toLowerCase().replace(/\s+/g, "");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 8);
 }
 
 type Props = {
@@ -56,7 +69,12 @@ type Props = {
   className?: string;
 };
 
-export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.8566], className }: Props) {
+export function ZonePolygonDraw({
+  onChange,
+  searchQuery,
+  center = [2.3522, 48.8566],
+  className,
+}: Props) {
   const { t } = useTranslation();
   const tRef = useRef(t);
   tRef.current = t;
@@ -114,7 +132,10 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
       mapRef.current = map;
 
       const refreshPolyline = () => {
-        const m = mapRef.current as { removeLayer: (l: unknown) => void; addLayer?: (l: unknown) => void } | null;
+        const m = mapRef.current as {
+          removeLayer: (l: unknown) => void;
+          addLayer?: (l: unknown) => void;
+        } | null;
         if (!m) return;
         if (polylineRef.current) m.removeLayer(polylineRef.current);
         const pts = drawingRef.current;
@@ -130,7 +151,11 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         const { lat, lng } = e.latlng;
         drawingRef.current.push([lng, lat]);
         const marker = L.circleMarker([lat, lng], {
-          radius: 5, color: "#3b82f6", fillColor: "#fff", fillOpacity: 1, weight: 2,
+          radius: 5,
+          color: "#3b82f6",
+          fillColor: "#fff",
+          fillOpacity: 1,
+          weight: 2,
         }).addTo(map);
         markersRef.current.push(marker);
         refreshPolyline();
@@ -153,8 +178,14 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         // Clear preview
         markersRef.current.forEach((m) => map.removeLayer(m));
         markersRef.current = [];
-        if (polylineRef.current) { map.removeLayer(polylineRef.current); polylineRef.current = null; }
-        if (polygonLayerRef.current) { map.removeLayer(polygonLayerRef.current); polygonLayerRef.current = null; }
+        if (polylineRef.current) {
+          map.removeLayer(polylineRef.current);
+          polylineRef.current = null;
+        }
+        if (polygonLayerRef.current) {
+          map.removeLayer(polygonLayerRef.current);
+          polygonLayerRef.current = null;
+        }
 
         const ring: [number, number][] = [...coords, coords[0]];
         polygonLayerRef.current = L.polygon(
@@ -162,7 +193,11 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
           { color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.2, weight: 2 },
         ).addTo(map);
 
-        const feature = { type: "Feature", geometry: { type: "Polygon", coordinates: [ring] }, properties: {} };
+        const feature = {
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: [ring] },
+          properties: {},
+        };
         const km2 = area(feature as never) / 1_000_000;
         setAreaKm2(km2);
         setHint(tRef.current("zone_draw.hint_done"));
@@ -172,7 +207,11 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         const zones = await detectZones(coords);
         setDetecting(false);
         setDetectedZones(zones);
-        onChangeRef.current({ coordinates: ring, areaKm2: Number(km2.toFixed(4)), detectedZones: zones });
+        onChangeRef.current({
+          coordinates: ring,
+          areaKm2: Number(km2.toFixed(4)),
+          detectedZones: zones,
+        });
       });
     });
 
@@ -183,7 +222,7 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
         mapRef.current = null;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center[0], center[1]]);
 
   // Forward geocoding: searchQuery → pan map
@@ -198,8 +237,11 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
           `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`,
           { headers: NOM_HEADERS },
         );
-        const results = await r.json() as Array<{
-          lat: string; lon: string; display_name: string; boundingbox?: string[];
+        const results = (await r.json()) as Array<{
+          lat: string;
+          lon: string;
+          display_name: string;
+          boundingbox?: string[];
         }>;
         const map = mapRef.current as {
           fitBounds: (b: [[number, number], [number, number]], o: unknown) => void;
@@ -215,21 +257,31 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
           const { lat, lon, boundingbox } = results[0];
           if (boundingbox) {
             const [s, n, w, e] = boundingbox.map(parseFloat);
-            map.fitBounds([[s, w], [n, e]], { padding: [30, 30] });
+            map.fitBounds(
+              [
+                [s, w],
+                [n, e],
+              ],
+              { padding: [30, 30] },
+            );
           } else {
             map.setView([parseFloat(lat), parseFloat(lon)], 13);
           }
           if (searchMarkerRef.current) map.removeLayer(searchMarkerRef.current);
-          searchMarkerRef.current = (L.marker([parseFloat(lat), parseFloat(lon)], {
-            icon: (L as { divIcon: (o: unknown) => unknown }).divIcon({
-              html: `<div style="background:#3b82f6;width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>`,
-              iconSize: [12, 12],
-              iconAnchor: [6, 6],
-              className: "",
-            }),
-          }) as { addTo: (m: unknown) => unknown }).addTo(map);
+          searchMarkerRef.current = (
+            L.marker([parseFloat(lat), parseFloat(lon)], {
+              icon: (L as { divIcon: (o: unknown) => unknown }).divIcon({
+                html: `<div style="background:#3b82f6;width:12px;height:12px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6],
+                className: "",
+              }),
+            }) as { addTo: (m: unknown) => unknown }
+          ).addTo(map);
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       setSearching(false);
     }, 800);
 
@@ -241,9 +293,18 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
     if (!map) return;
     markersRef.current.forEach((m) => map.removeLayer(m));
     markersRef.current = [];
-    if (polylineRef.current) { map.removeLayer(polylineRef.current); polylineRef.current = null; }
-    if (polygonLayerRef.current) { map.removeLayer(polygonLayerRef.current); polygonLayerRef.current = null; }
-    if (searchMarkerRef.current) { map.removeLayer(searchMarkerRef.current); searchMarkerRef.current = null; }
+    if (polylineRef.current) {
+      map.removeLayer(polylineRef.current);
+      polylineRef.current = null;
+    }
+    if (polygonLayerRef.current) {
+      map.removeLayer(polygonLayerRef.current);
+      polygonLayerRef.current = null;
+    }
+    if (searchMarkerRef.current) {
+      map.removeLayer(searchMarkerRef.current);
+      searchMarkerRef.current = null;
+    }
     drawingRef.current = [];
     setAreaKm2(null);
     setDetectedZones([]);
@@ -253,37 +314,69 @@ export function ZonePolygonDraw({ onChange, searchQuery, center = [2.3522, 48.85
 
   return (
     <div className={className}>
-      <div style={{ position: "relative", overflow: "hidden", borderRadius: "0.5rem", border: "1px solid hsl(var(--border))" }}>
+      <div
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "0.5rem",
+          border: "1px solid hsl(var(--border))",
+        }}
+      >
         <div ref={containerRef} style={{ height: 380, width: "100%" }} />
         <button
           type="button"
           onClick={clearAll}
           style={{
-            position: "absolute", top: 8, right: 8, zIndex: 1000,
-            padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 500,
-            background: "white", border: "1px solid #ccc", cursor: "pointer",
+            position: "absolute",
+            top: 8,
+            right: 8,
+            zIndex: 1000,
+            padding: "4px 10px",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 500,
+            background: "white",
+            border: "1px solid #ccc",
+            cursor: "pointer",
             boxShadow: "0 1px 4px rgba(0,0,0,.2)",
           }}
         >
           🗑 {t("zone_draw.btn_clear")}
         </button>
         {searching && (
-          <div style={{
-            position: "absolute", bottom: 8, left: 8, zIndex: 1000,
-            padding: "4px 10px", borderRadius: 6, fontSize: 11,
-            background: "white", border: "1px solid #ccc", boxShadow: "0 1px 4px rgba(0,0,0,.15)",
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              bottom: 8,
+              left: 8,
+              zIndex: 1000,
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 11,
+              background: "white",
+              border: "1px solid #ccc",
+              boxShadow: "0 1px 4px rgba(0,0,0,.15)",
+            }}
+          >
             🔍 {t("zone_draw.searching")}
           </div>
         )}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
-      {detecting && <p className="mt-1 text-xs text-muted-foreground animate-pulse">{t("zone_draw.detecting")}</p>}
+      {detecting && (
+        <p className="mt-1 text-xs text-muted-foreground animate-pulse">
+          {t("zone_draw.detecting")}
+        </p>
+      )}
       {detectedZones.length > 0 && !detecting && (
-        <p className="mt-1 text-xs text-primary font-medium">✓ {t("zone_draw.zones_detected", { zones: detectedZones.join(", ") })}</p>
+        <p className="mt-1 text-xs text-primary font-medium">
+          ✓ {t("zone_draw.zones_detected", { zones: detectedZones.join(", ") })}
+        </p>
       )}
       {areaKm2 != null && (
-        <p className="mt-1 text-sm">{t("zone_draw.area_label")} <strong>{areaKm2.toFixed(2)} km²</strong></p>
+        <p className="mt-1 text-sm">
+          {t("zone_draw.area_label")} <strong>{areaKm2.toFixed(2)} km²</strong>
+        </p>
       )}
     </div>
   );

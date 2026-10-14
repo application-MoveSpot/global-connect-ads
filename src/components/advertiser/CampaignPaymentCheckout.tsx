@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
 import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
 
-
 type Props = {
   campaignRequestId: string;
   totalPriceEur: number;
@@ -47,14 +46,17 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   }, []);
 
   const onPayWallet = async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       await payWithWallet({ data: { campaignRequestId } });
       onPaid?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : t("campaign_payment.err_generic"));
       captureError(e, "payment", { flow: "wallet_debit", campaignRequestId });
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Called when the topup dialog closes — subscribe to realtime until webhook credits wallet, then auto-pay.
@@ -73,7 +75,11 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
 
     const { data: sess } = await supabase.auth.getSession();
     const userId = sess.session?.user.id;
-    if (!userId) { setChecking(false); setPendingTopup(true); return; }
+    if (!userId) {
+      setChecking(false);
+      setPendingTopup(true);
+      return;
+    }
 
     // Fallback: if realtime doesn't fire within 60 s, show manual button.
     const fallbackTimer = setTimeout(() => {
@@ -94,7 +100,12 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
       .channel(`topup-await-${campaignRequestId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "wallet_transactions",
+          filter: `user_id=eq.${userId}`,
+        },
         async (payload) => {
           const tx = payload.new as { kind: string; amount_cents: number };
           if (tx.kind !== "topup") return;
@@ -130,32 +141,44 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-border bg-secondary/30 p-3 text-sm">
-        {t("campaign_payment.balance", { balance: ((balance ?? 0) / 100).toFixed(2), total: totalPriceEur.toFixed(2) })}
+        {t("campaign_payment.balance", {
+          balance: ((balance ?? 0) / 100).toFixed(2),
+          total: totalPriceEur.toFixed(2),
+        })}
       </div>
 
       {checking ? (
-        <p className="text-sm text-muted-foreground animate-pulse">{t("campaign_payment.checking")}</p>
+        <p className="text-sm text-muted-foreground animate-pulse">
+          {t("campaign_payment.checking")}
+        </p>
       ) : enough ? (
         <Button onClick={onPayWallet} disabled={loading}>
-          {loading ? t("campaign_payment.btn_paying") : t("campaign_payment.btn_pay", { amount: totalPriceEur.toFixed(2) })}
+          {loading
+            ? t("campaign_payment.btn_paying")
+            : t("campaign_payment.btn_pay", { amount: totalPriceEur.toFixed(2) })}
         </Button>
       ) : pendingTopup ? (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
-            {t("campaign_payment.topup_received")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("campaign_payment.topup_received")}</p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onManualCheck} disabled={loading}>
               {t("campaign_payment.btn_check_balance")}
             </Button>
-            <Button variant="ghost" size="sm" className="text-xs" onClick={() => setPendingTopup(false)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs"
+              onClick={() => setPendingTopup(false)}
+            >
               {t("campaign_payment.btn_topup_again")}
             </Button>
           </div>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">{t("campaign_payment.balance_insufficient")}</p>
+          <p className="text-sm text-muted-foreground">
+            {t("campaign_payment.balance_insufficient")}
+          </p>
           <WalletTopupCheckout
             amountEuros={missingEur}
             disabled={loading}
@@ -166,7 +189,9 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
       )}
 
       <details className="rounded-lg border border-border p-3">
-        <summary className="cursor-pointer text-sm font-medium">{t("campaign_payment.bank_transfer_summary")}</summary>
+        <summary className="cursor-pointer text-sm font-medium">
+          {t("campaign_payment.bank_transfer_summary")}
+        </summary>
         <div className="pt-4">
           <BankTransferPanel
             campaignRequestId={campaignRequestId}

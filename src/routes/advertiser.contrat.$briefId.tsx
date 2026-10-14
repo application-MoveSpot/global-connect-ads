@@ -10,7 +10,11 @@ export const Route = createFileRoute("/advertiser/contrat/$briefId")({
   component: ContratPage,
   errorComponent: ({ error }: { error: Error }) => {
     const { t } = useTranslation();
-    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+    return (
+      <div className="p-8 text-center text-destructive">
+        {t("errors.prefix")} : {error.message}
+      </div>
+    );
   },
 });
 
@@ -72,7 +76,11 @@ function ContratPage() {
 
       {/* Toolbar */}
       <div className="no-print bg-muted border-b py-3 px-6 flex items-center justify-between">
-        <Link to="/advertiser/briefs/$briefId" params={{ briefId }} className="text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/advertiser/briefs/$briefId"
+          params={{ briefId }}
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
           {t("advertiser.contrat.back")}
         </Link>
         <button
@@ -95,9 +103,13 @@ function ContratPage() {
               <div className="text-xs text-gray-500 mt-0.5">{t("advertiser.contrat.tagline")}</div>
             </div>
             <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 uppercase tracking-wide">{t("advertiser.contrat.doc_type")}</div>
+              <div className="text-lg font-bold text-gray-900 uppercase tracking-wide">
+                {t("advertiser.contrat.doc_type")}
+              </div>
               <div className="text-xs text-gray-500 mt-0.5">{contractNumber}</div>
-              <div className="text-xs text-gray-500">{t("advertiser.contrat.established", { date: generatedAt })}</div>
+              <div className="text-xs text-gray-500">
+                {t("advertiser.contrat.established", { date: generatedAt })}
+              </div>
               <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-2.5 py-0.5 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
                 {t("advertiser.contrat.status_pending")}
               </div>
@@ -107,24 +119,41 @@ function ContratPage() {
           {/* Parties */}
           <div className="grid grid-cols-2 gap-6 mb-8">
             <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{t("advertiser.contrat.party_advertiser")}</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                {t("advertiser.contrat.party_advertiser")}
+              </div>
               <div className="font-semibold text-gray-900">{data.advertiser.fullName}</div>
-              {data.advertiser.company && <div className="text-xs text-gray-700">{data.advertiser.company}</div>}
-              {data.advertiser.siret && <div className="text-xs text-gray-500">{t("advertiser.contrat.siret_label")} {data.advertiser.siret}</div>}
+              {data.advertiser.company && (
+                <div className="text-xs text-gray-700">{data.advertiser.company}</div>
+              )}
+              {data.advertiser.siret && (
+                <div className="text-xs text-gray-500">
+                  {t("advertiser.contrat.siret_label")} {data.advertiser.siret}
+                </div>
+              )}
               {data.advertiser.address && (
-                <div className="text-xs text-gray-600 leading-relaxed mt-0.5 whitespace-pre-line">{data.advertiser.address}</div>
+                <div className="text-xs text-gray-600 leading-relaxed mt-0.5 whitespace-pre-line">
+                  {data.advertiser.address}
+                </div>
               )}
               <div className="text-xs text-gray-500 mt-0.5">{data.advertiser.email}</div>
-              {data.advertiser.phone && <div className="text-xs text-gray-500">{data.advertiser.phone}</div>}
+              {data.advertiser.phone && (
+                <div className="text-xs text-gray-500">{data.advertiser.phone}</div>
+              )}
             </div>
             <div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{t("advertiser.contrat.party_provider")}</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+                {t("advertiser.contrat.party_provider")}
+              </div>
               <div className="font-semibold text-gray-900">RAKOUN KLUB</div>
               <div className="text-xs text-gray-700">MoveSpot</div>
               <div className="text-xs text-gray-600 leading-relaxed mt-0.5">
-                1 Lot, Immeuble Sud Jarry<br />
-                ZAC de Houelbourg<br />
-                97122 Baie-Mahault, Guadeloupe<br />
+                1 Lot, Immeuble Sud Jarry
+                <br />
+                ZAC de Houelbourg
+                <br />
+                97122 Baie-Mahault, Guadeloupe
+                <br />
                 contact@move-spot.com
               </div>
             </div>
@@ -134,16 +163,37 @@ function ContratPage() {
 
           {/* Campaign details */}
           <div className="mb-6">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{t("advertiser.contrat.section_campaign")}</div>
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              {t("advertiser.contrat.section_campaign")}
+            </div>
             <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
               <tbody>
                 <Row label={t("advertiser.contrat.row_title")} value={data.briefTitle} />
                 <Row label={t("advertiser.contrat.row_description")} value={data.description} />
-                <Row label={t("advertiser.contrat.row_period")} value={String(t("advertiser.contrat.row_period_value", { from: fmt(data.startDate), to: fmt(data.endDate), count: data.daysCount } as never))} />
-                <Row label={t("advertiser.contrat.row_zones")} value={data.zones.length > 0 ? data.zones.join(", ") : "—"} />
-                {data.adFormat && <Row label={t("advertiser.contrat.row_format")} value={data.adFormat} />}
-                <Row label={t("advertiser.contrat.row_vehicle_types")} value={data.vehicleTypes.join(", ")} />
-                {data.audienceTarget && <Row label={t("advertiser.contrat.row_audience")} value={data.audienceTarget} />}
+                <Row
+                  label={t("advertiser.contrat.row_period")}
+                  value={String(
+                    t("advertiser.contrat.row_period_value", {
+                      from: fmt(data.startDate),
+                      to: fmt(data.endDate),
+                      count: data.daysCount,
+                    } as never),
+                  )}
+                />
+                <Row
+                  label={t("advertiser.contrat.row_zones")}
+                  value={data.zones.length > 0 ? data.zones.join(", ") : "—"}
+                />
+                {data.adFormat && (
+                  <Row label={t("advertiser.contrat.row_format")} value={data.adFormat} />
+                )}
+                <Row
+                  label={t("advertiser.contrat.row_vehicle_types")}
+                  value={data.vehicleTypes.join(", ")}
+                />
+                {data.audienceTarget && (
+                  <Row label={t("advertiser.contrat.row_audience")} value={data.audienceTarget} />
+                )}
               </tbody>
             </table>
           </div>
@@ -158,31 +208,49 @@ function ContratPage() {
             <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-                  <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("advertiser.contrat.col_vehicle")}</th>
-                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("advertiser.contrat.col_qty")}</th>
-                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("advertiser.contrat.col_unit")}</th>
-                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">{t("advertiser.contrat.col_subtotal")}</th>
+                  <th className="text-left py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {t("advertiser.contrat.col_vehicle")}
+                  </th>
+                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {t("advertiser.contrat.col_qty")}
+                  </th>
+                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {t("advertiser.contrat.col_unit")}
+                  </th>
+                  <th className="text-right py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {t("advertiser.contrat.col_subtotal")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {data.vehicles.map((v: import("@/lib/campaigns/contract.functions").ContractVehicle, i: number) => (
-                  <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                    <td className="py-3 pr-3">
-                      <div className="font-medium text-gray-900">{v.vehicleName}</div>
-                      <div className="text-gray-500">
-                        {v.vehicleType}{v.formatPublicitaire ? ` · ${v.formatPublicitaire}` : ""}
-                        {v.surfaceM2 ? ` · ${v.surfaceM2} m²` : ""}
-                      </div>
-                      <div className="text-gray-400 italic">{t("advertiser.contrat.owner_label")} {v.ownerName}{v.ownerCompany ? ` (${v.ownerCompany})` : ""}</div>
-                      {v.proposalMessage && (
-                        <div className="text-gray-500 mt-0.5 italic">« {v.proposalMessage} »</div>
-                      )}
-                    </td>
-                    <td className="py-3 text-right text-gray-700">{data.daysCount}</td>
-                    <td className="py-3 text-right text-gray-700">{v.pricePerDay.toFixed(2)} €</td>
-                    <td className="py-3 text-right font-semibold text-gray-900">{v.subtotal.toFixed(2)} €</td>
-                  </tr>
-                ))}
+                {data.vehicles.map(
+                  (v: import("@/lib/campaigns/contract.functions").ContractVehicle, i: number) => (
+                    <tr key={i} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                      <td className="py-3 pr-3">
+                        <div className="font-medium text-gray-900">{v.vehicleName}</div>
+                        <div className="text-gray-500">
+                          {v.vehicleType}
+                          {v.formatPublicitaire ? ` · ${v.formatPublicitaire}` : ""}
+                          {v.surfaceM2 ? ` · ${v.surfaceM2} m²` : ""}
+                        </div>
+                        <div className="text-gray-400 italic">
+                          {t("advertiser.contrat.owner_label")} {v.ownerName}
+                          {v.ownerCompany ? ` (${v.ownerCompany})` : ""}
+                        </div>
+                        {v.proposalMessage && (
+                          <div className="text-gray-500 mt-0.5 italic">« {v.proposalMessage} »</div>
+                        )}
+                      </td>
+                      <td className="py-3 text-right text-gray-700">{data.daysCount}</td>
+                      <td className="py-3 text-right text-gray-700">
+                        {v.pricePerDay.toFixed(2)} €
+                      </td>
+                      <td className="py-3 text-right font-semibold text-gray-900">
+                        {v.subtotal.toFixed(2)} €
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
@@ -210,7 +278,9 @@ function ContratPage() {
 
           {/* Conditions */}
           <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-600 mb-8">
-            <div className="font-semibold text-gray-800 mb-2">{t("advertiser.contrat.conditions_title")}</div>
+            <div className="font-semibold text-gray-800 mb-2">
+              {t("advertiser.contrat.conditions_title")}
+            </div>
             <ul className="space-y-1 list-disc list-inside text-gray-500">
               {([1, 2, 3, 4, 5] as const).map((n) => (
                 <li key={n}>{t(`advertiser.contrat.condition${n}` as never)}</li>
@@ -225,7 +295,9 @@ function ContratPage() {
                 {t("advertiser.contrat.sig_advertiser")}
               </div>
               <div className="text-xs text-gray-500 mb-1">{data.advertiser.fullName}</div>
-              {data.advertiser.company && <div className="text-xs text-gray-400">{data.advertiser.company}</div>}
+              {data.advertiser.company && (
+                <div className="text-xs text-gray-400">{data.advertiser.company}</div>
+              )}
               <div className="mt-6 border-t border-gray-300" style={{ height: 48 }} />
               <div className="text-xs text-gray-400 mt-1">{t("advertiser.contrat.sig_date")}</div>
             </div>
@@ -233,7 +305,9 @@ function ContratPage() {
               <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
                 {t("advertiser.contrat.sig_movespot")}
               </div>
-              <div className="text-xs text-gray-500 mb-1">{t("advertiser.contrat.sig_manager")}</div>
+              <div className="text-xs text-gray-500 mb-1">
+                {t("advertiser.contrat.sig_manager")}
+              </div>
               <div className="mt-6 border-t border-gray-300" style={{ height: 48 }} />
               <div className="text-xs text-gray-400 mt-1">{t("advertiser.contrat.sig_stamp")}</div>
             </div>
@@ -241,8 +315,10 @@ function ContratPage() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-            MoveSpot — RAKOUN KLUB · contact@move-spot.com<br />
-            1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe<br />
+            MoveSpot — RAKOUN KLUB · contact@move-spot.com
+            <br />
+            1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe
+            <br />
             {t("advertiser.contrat.footer", { date: generatedAt, ref: contractNumber })}
           </div>
         </div>

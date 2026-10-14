@@ -28,12 +28,20 @@ export const generateVehicleSuggestion = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<VehicleSuggestionResult> => {
     assertRateLimit(`vehicle-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     if (!(await hasAuthenticatedBriefRequest())) {
-      return { ok: false, code: "UNAUTHORIZED", message: "Session expirée — reconnectez-vous puis réessayez." };
+      return {
+        ok: false,
+        code: "UNAUTHORIZED",
+        message: "Session expirée — reconnectez-vous puis réessayez.",
+      };
     }
 
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) {
-      return { ok: false, code: "AI_UNAVAILABLE", message: "Le service IA est indisponible. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "Le service IA est indisponible. Réessayez.",
+      };
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
@@ -66,7 +74,12 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
 
     try {
       const { generateText } = await import("ai");
-      const { text } = await generateText({ model, prompt, temperature: 0.7, maxOutputTokens: 600 });
+      const { text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.7,
+        maxOutputTokens: 600,
+      });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as VehicleSuggestion;
@@ -75,17 +88,27 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
         suggestion: {
           name: String(parsed.name ?? "").slice(0, 80),
           description: String(parsed.description ?? "").slice(0, 500),
-          surface_m2: typeof parsed.surface_m2 === "number" && parsed.surface_m2 > 0
-            ? Math.round(parsed.surface_m2 * 10) / 10 : undefined,
-          km_per_day: typeof parsed.km_per_day === "number" && parsed.km_per_day > 0
-            ? Math.round(parsed.km_per_day) : undefined,
+          surface_m2:
+            typeof parsed.surface_m2 === "number" && parsed.surface_m2 > 0
+              ? Math.round(parsed.surface_m2 * 10) / 10
+              : undefined,
+          km_per_day:
+            typeof parsed.km_per_day === "number" && parsed.km_per_day > 0
+              ? Math.round(parsed.km_per_day)
+              : undefined,
           zones: parsed.zones ? String(parsed.zones).slice(0, 200) : undefined,
-          price_per_day: typeof parsed.price_per_day === "number" && parsed.price_per_day > 0
-            ? Math.round(parsed.price_per_day) : undefined,
+          price_per_day:
+            typeof parsed.price_per_day === "number" && parsed.price_per_day > 0
+              ? Math.round(parsed.price_per_day)
+              : undefined,
         },
       };
     } catch (err) {
       captureServerException(err, { category: "ai" });
-      return { ok: false, code: "AI_UNAVAILABLE", message: "L'IA n'a pas pu générer de suggestion. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+      };
     }
   });

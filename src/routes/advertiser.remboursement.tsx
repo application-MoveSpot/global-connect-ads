@@ -112,7 +112,9 @@ function RemboursementAnnonceurPage() {
         await reload();
       }
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : t("advertiser.remboursement.error_sending"));
+      setFormError(
+        err instanceof Error ? err.message : t("advertiser.remboursement.error_sending"),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -123,7 +125,9 @@ function RemboursementAnnonceurPage() {
       <header className="border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.remboursement.back")}</Link>
+          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("advertiser.remboursement.back")}
+          </Link>
         </div>
       </header>
 
@@ -132,7 +136,9 @@ function RemboursementAnnonceurPage() {
           <h1 className="font-display text-3xl font-bold">{t("advertiser.remboursement.title")}</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             {t("advertiser.remboursement.desc")}{" "}
-            <Link to="/remboursement" className="text-primary underline">{t("advertiser.remboursement.policy_link")}</Link>
+            <Link to="/remboursement" className="text-primary underline">
+              {t("advertiser.remboursement.policy_link")}
+            </Link>
           </p>
         </div>
 
@@ -142,7 +148,10 @@ function RemboursementAnnonceurPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                {t("advertiser.remboursement.label_campaign")} <span className="normal-case">{t("advertiser.remboursement.label_campaign_optional")}</span>
+                {t("advertiser.remboursement.label_campaign")}{" "}
+                <span className="normal-case">
+                  {t("advertiser.remboursement.label_campaign_optional")}
+                </span>
               </label>
               <select
                 value={campaignId}
@@ -151,14 +160,19 @@ function RemboursementAnnonceurPage() {
               >
                 <option value="">{t("advertiser.remboursement.select_placeholder")}</option>
                 {campaigns.map((c) => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.label}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-1">
               <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                {t("advertiser.remboursement.label_amount")} <span className="normal-case">{t("advertiser.remboursement.label_campaign_optional")}</span>
+                {t("advertiser.remboursement.label_amount")}{" "}
+                <span className="normal-case">
+                  {t("advertiser.remboursement.label_campaign_optional")}
+                </span>
               </label>
               <input
                 type="number"
@@ -173,7 +187,10 @@ function RemboursementAnnonceurPage() {
 
             <div className="space-y-1">
               <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                {t("advertiser.remboursement.label_reason")} <span className="normal-case">{t("advertiser.remboursement.label_reason_hint")}</span>
+                {t("advertiser.remboursement.label_reason")}{" "}
+                <span className="normal-case">
+                  {t("advertiser.remboursement.label_reason_hint")}
+                </span>
               </label>
               <textarea
                 value={reason}
@@ -183,11 +200,15 @@ function RemboursementAnnonceurPage() {
                 placeholder={t("advertiser.remboursement.reason_placeholder")}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
-              <p className="text-xs text-muted-foreground text-right">{t("advertiser.remboursement.char_count", { count: reason.length })}</p>
+              <p className="text-xs text-muted-foreground text-right">
+                {t("advertiser.remboursement.char_count", { count: reason.length })}
+              </p>
             </div>
 
             {formError && (
-              <p className="text-sm text-destructive rounded-lg bg-destructive/10 border border-destructive/30 px-3 py-2">{formError}</p>
+              <p className="text-sm text-destructive rounded-lg bg-destructive/10 border border-destructive/30 px-3 py-2">
+                {formError}
+              </p>
             )}
 
             <button
@@ -195,7 +216,9 @@ function RemboursementAnnonceurPage() {
               disabled={submitting}
               className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
-              {submitting ? t("advertiser.remboursement.btn_submitting") : t("advertiser.remboursement.btn_submit")}
+              {submitting
+                ? t("advertiser.remboursement.btn_submitting")
+                : t("advertiser.remboursement.btn_submit")}
             </button>
           </form>
         </section>
@@ -229,17 +252,30 @@ function RemboursementAnnonceurPage() {
                           : t("advertiser.remboursement.amount_undefined")}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(r.created_at).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" })}
+                        {new Date(r.created_at).toLocaleDateString(dateLocale, {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
                       </p>
                     </div>
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${STATUS_COLOR[r.status] ?? ""}`}>
-                      {t(`advertiser.remboursement.status_${r.status}` as never, { defaultValue: r.status })}
+                    <span
+                      className={`text-xs font-semibold px-3 py-1 rounded-full border ${STATUS_COLOR[r.status] ?? ""}`}
+                    >
+                      {t(`advertiser.remboursement.status_${r.status}` as never, {
+                        defaultValue: r.status,
+                      })}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{r.reason}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    {r.reason}
+                  </p>
                   {r.admin_notes && (
                     <div className="rounded-lg bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
-                      <strong className="text-foreground">{t("advertiser.remboursement.admin_note_label")}</strong> {r.admin_notes}
+                      <strong className="text-foreground">
+                        {t("advertiser.remboursement.admin_note_label")}
+                      </strong>{" "}
+                      {r.admin_notes}
                     </div>
                   )}
                 </div>

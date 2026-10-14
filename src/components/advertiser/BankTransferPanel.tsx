@@ -25,7 +25,6 @@ type TransferRow = {
   campaign_request_id: string | null;
 };
 
-
 function fmt(cents: number, lang: string) {
   const currency = getCurrencyFromLang(lang);
   const { locale } = CURRENCY_CONFIGS[currency];
@@ -34,8 +33,17 @@ function fmt(cents: number, lang: string) {
 
 function LockIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5 shrink-0">
-      <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6A1.5 1.5 0 0 0 3 7.5v5A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 6V4.5A3.5 3.5 0 0 0 8 1Zm2 5V4.5a2 2 0 1 0-4 0V6h4Z" clipRule="evenodd" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      className="w-3.5 h-3.5 shrink-0"
+    >
+      <path
+        fillRule="evenodd"
+        d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6A1.5 1.5 0 0 0 3 7.5v5A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 6V4.5A3.5 3.5 0 0 0 8 1Zm2 5V4.5a2 2 0 1 0-4 0V6h4Z"
+        clipRule="evenodd"
+      />
     </svg>
   );
 }
@@ -79,10 +87,22 @@ export function BankTransferPanel({
   const fetchList = useServerFn(listMyBankTransfers);
 
   const statusConfig: Record<string, { label: string; className: string }> = {
-    pending: { label: t("bank_transfer.status_pending"), className: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
-    submitted: { label: t("bank_transfer.status_submitted"), className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
-    approved: { label: t("bank_transfer.status_approved"), className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
-    rejected: { label: t("bank_transfer.status_rejected"), className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
+    pending: {
+      label: t("bank_transfer.status_pending"),
+      className: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+    },
+    submitted: {
+      label: t("bank_transfer.status_submitted"),
+      className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    },
+    approved: {
+      label: t("bank_transfer.status_approved"),
+      className: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+    },
+    rejected: {
+      label: t("bank_transfer.status_rejected"),
+      className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    },
   };
 
   const [details, setDetails] = useState<BankDetails | null>(null);
@@ -94,12 +114,17 @@ export function BankTransferPanel({
 
   const reload = async () => {
     const list = (await fetchList()) as TransferRow[];
-    setRows(campaignRequestId ? list.filter((r) => r.campaign_request_id === campaignRequestId) : list);
+    setRows(
+      campaignRequestId ? list.filter((r) => r.campaign_request_id === campaignRequestId) : list,
+    );
   };
 
   useEffect(() => {
     fetchDetails()
-      .then((d: unknown) => { setDetails(d as BankDetails | null); setDetailsLoaded(true); })
+      .then((d: unknown) => {
+        setDetails(d as BankDetails | null);
+        setDetailsLoaded(true);
+      })
       .catch(() => setDetailsLoaded(true));
     reload().catch(() => setRows([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,7 +153,12 @@ export function BankTransferPanel({
       if (file.size > 10 * 1024 * 1024) throw new Error(t("bank_transfer.err_file_size"));
 
       const resized = await resizeImageFile(file, 1600, 0.85);
-      const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "pdf";
+      const ext =
+        file.name
+          .split(".")
+          .pop()
+          ?.toLowerCase()
+          .replace(/[^a-z0-9]/g, "") || "pdf";
       const path = `${userId}/${requestId}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("bank-receipts")
@@ -158,7 +188,9 @@ export function BankTransferPanel({
       {/* Step 1 — Coordonnées bancaires */}
       <div>
         <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">1</span>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+            1
+          </span>
           <span className="text-sm font-medium">{t("bank_transfer.step1_label")}</span>
         </div>
 
@@ -216,7 +248,9 @@ export function BankTransferPanel({
       {/* Step 2 — Enregistrer la demande */}
       <div>
         <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">2</span>
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+            2
+          </span>
           <span className="text-sm font-medium">{t("bank_transfer.step2_label")}</span>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -254,25 +288,37 @@ export function BankTransferPanel({
       {rows.length > 0 ? (
         <div>
           <div className="mb-2 flex items-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">3</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+              3
+            </span>
             <span className="text-sm font-medium">{t("bank_transfer.step3_label")}</span>
           </div>
           <div className="space-y-3">
             {rows.map((row) => {
-              const sc = statusConfig[row.status] ?? { label: row.status, className: "bg-secondary text-secondary-foreground" };
+              const sc = statusConfig[row.status] ?? {
+                label: row.status,
+                className: "bg-secondary text-secondary-foreground",
+              };
               return (
-                <div key={row.id} className="rounded-xl border border-border bg-card p-4 text-sm space-y-3">
+                <div
+                  key={row.id}
+                  className="rounded-xl border border-border bg-card p-4 text-sm space-y-3"
+                >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
                       <div className="font-semibold">
                         {fmt(row.amount_cents, i18n.language)}
-                        <span className="ml-2 font-mono text-xs text-muted-foreground">{t("bank_transfer.ref_label", { ref: row.reference })}</span>
+                        <span className="ml-2 font-mono text-xs text-muted-foreground">
+                          {t("bank_transfer.ref_label", { ref: row.reference })}
+                        </span>
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {new Date(row.created_at).toLocaleString(i18n.language)}
                       </div>
                     </div>
-                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${sc.className}`}>
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${sc.className}`}
+                    >
                       {sc.label}
                     </span>
                   </div>
@@ -283,11 +329,18 @@ export function BankTransferPanel({
                   ) : null}
                   {row.status === "pending" || row.status === "submitted" ? (
                     <label className="flex cursor-pointer items-center gap-2 self-start rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-secondary transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3.5 w-3.5">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                        className="h-3.5 w-3.5"
+                      >
                         <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
                         <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                       </svg>
-                      {row.receipt_path ? t("bank_transfer.replace_receipt") : t("bank_transfer.attach_receipt")}
+                      {row.receipt_path
+                        ? t("bank_transfer.replace_receipt")
+                        : t("bank_transfer.attach_receipt")}
                       <input
                         type="file"
                         accept="image/*,application/pdf"

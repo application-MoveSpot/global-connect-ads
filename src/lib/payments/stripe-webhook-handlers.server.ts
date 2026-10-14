@@ -11,7 +11,13 @@ type AdminClient = SupabaseClient<Database>;
 
 async function syncProviderSubscription(
   supabaseAdmin: AdminClient,
-  params: { userId?: string | null; subscriptionId: string; customerId: string | null; status: string; currentPeriodEnd?: number | null },
+  params: {
+    userId?: string | null;
+    subscriptionId: string;
+    customerId: string | null;
+    status: string;
+    currentPeriodEnd?: number | null;
+  },
 ) {
   const patch = {
     stripe_subscription_id: params.subscriptionId,
@@ -26,12 +32,21 @@ async function syncProviderSubscription(
     await supabaseAdmin.from("provider_profiles").update(patch).eq("user_id", params.userId);
     return;
   }
-  await supabaseAdmin.from("provider_profiles").update(patch).eq("stripe_subscription_id", params.subscriptionId);
+  await supabaseAdmin
+    .from("provider_profiles")
+    .update(patch)
+    .eq("stripe_subscription_id", params.subscriptionId);
 }
 
 async function syncPartnerSubscription(
   supabaseAdmin: AdminClient,
-  params: { userId?: string | null; subscriptionId: string; customerId: string | null; status: string; currentPeriodEnd?: number | null },
+  params: {
+    userId?: string | null;
+    subscriptionId: string;
+    customerId: string | null;
+    status: string;
+    currentPeriodEnd?: number | null;
+  },
 ) {
   const patch = {
     stripe_subscription_id: params.subscriptionId,
@@ -46,7 +61,10 @@ async function syncPartnerSubscription(
     await supabaseAdmin.from("partner_profiles").update(patch).eq("user_id", params.userId);
     return;
   }
-  await supabaseAdmin.from("partner_profiles").update(patch).eq("stripe_subscription_id" as never, params.subscriptionId);
+  await supabaseAdmin
+    .from("partner_profiles")
+    .update(patch)
+    .eq("stripe_subscription_id" as never, params.subscriptionId);
 }
 
 async function syncCampaignSubscription(
@@ -74,7 +92,10 @@ async function syncCampaignSubscription(
   }
   // Pas de campagne connue dans les metadata de l'événement (ex. subscription.updated
   // reçu avant le checkout.session.completed) : on retrouve la ligne par l'ID Stripe déjà posé.
-  await supabaseAdmin.from("campaign_requests").update(patch).eq("stripe_subscription_id" as never, params.subscriptionId);
+  await supabaseAdmin
+    .from("campaign_requests")
+    .update(patch)
+    .eq("stripe_subscription_id" as never, params.subscriptionId);
 }
 
 export async function handleStripeEvent(
@@ -95,7 +116,8 @@ export async function handleStripeEvent(
             p_amount_cents: amountCents,
             p_description: "Recharge par carte bancaire",
             p_stripe_checkout_session_id: s.id,
-            p_stripe_payment_intent_id: typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id,
+            p_stripe_payment_intent_id:
+              typeof s.payment_intent === "string" ? s.payment_intent : s.payment_intent?.id,
           });
 
           // Email d'alerte sécurité — permet à l'utilisateur de détecter une recharge frauduleuse.
@@ -110,7 +132,9 @@ export async function handleStripeEvent(
                 recipientEmail: email,
                 idempotencyKey: `topup-alert-${s.id}`,
                 templateData: {
-                  amountEur: (amountCents / 100).toLocaleString("fr-FR", { minimumFractionDigits: 2 }),
+                  amountEur: (amountCents / 100).toLocaleString("fr-FR", {
+                    minimumFractionDigits: 2,
+                  }),
                   date: now.toLocaleDateString("fr-FR"),
                   time: now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
                 },
@@ -156,8 +180,10 @@ export async function handleStripeEvent(
     case "customer.subscription.created":
     case "customer.subscription.updated": {
       const sub = event.data.object as Stripe.Subscription;
-      const periodEnd = (sub as unknown as { current_period_end?: number }).current_period_end ?? null;
-      const customerId = typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null);
+      const periodEnd =
+        (sub as unknown as { current_period_end?: number }).current_period_end ?? null;
+      const customerId =
+        typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null);
 
       if (sub.metadata?.kind === "provider_subscription") {
         await syncProviderSubscription(supabaseAdmin, {
@@ -189,7 +215,8 @@ export async function handleStripeEvent(
 
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
-      const customerId = typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null);
+      const customerId =
+        typeof sub.customer === "string" ? sub.customer : (sub.customer?.id ?? null);
 
       if (sub.metadata?.kind === "provider_subscription") {
         await syncProviderSubscription(supabaseAdmin, {
@@ -219,7 +246,8 @@ export async function handleStripeEvent(
     case "invoice.paid": {
       const invoice = event.data.object as Stripe.Invoice;
       const subscriptionId =
-        typeof (invoice as unknown as { subscription?: string | { id: string } }).subscription === "string"
+        typeof (invoice as unknown as { subscription?: string | { id: string } }).subscription ===
+        "string"
           ? (invoice as unknown as { subscription: string }).subscription
           : (invoice as unknown as { subscription?: { id: string } }).subscription?.id;
       if (subscriptionId) {
@@ -234,7 +262,8 @@ export async function handleStripeEvent(
     case "invoice.payment_failed": {
       const invoice = event.data.object as Stripe.Invoice;
       const subscriptionId =
-        typeof (invoice as unknown as { subscription?: string | { id: string } }).subscription === "string"
+        typeof (invoice as unknown as { subscription?: string | { id: string } }).subscription ===
+        "string"
           ? (invoice as unknown as { subscription: string }).subscription
           : (invoice as unknown as { subscription?: { id: string } }).subscription?.id;
       if (subscriptionId) {
@@ -259,11 +288,17 @@ export async function handleStripeEvent(
 
       // Propriétaires de véhicules
       await supabaseAdmin.from("owner_profiles").update(patch).eq("stripe_account_id", a.id);
-      await supabaseAdmin.from("owner_profiles").update(patch).eq("stripe_connect_account_id", a.id);
+      await supabaseAdmin
+        .from("owner_profiles")
+        .update(patch)
+        .eq("stripe_connect_account_id", a.id);
 
       // Chauffeurs / poseurs (payees)
       await supabaseAdmin.from("payee_profiles").update(patch).eq("stripe_account_id", a.id);
-      await supabaseAdmin.from("payee_profiles").update(patch).eq("stripe_connect_account_id", a.id);
+      await supabaseAdmin
+        .from("payee_profiles")
+        .update(patch)
+        .eq("stripe_connect_account_id", a.id);
 
       console.info("[stripe] account.updated", a.id, { fullyEnabled });
       break;
@@ -271,7 +306,10 @@ export async function handleStripeEvent(
 
     case "payment_intent.payment_failed": {
       const pi = event.data.object as { id: string; last_payment_error?: { code?: string } };
-      console.warn("[stripe] payment_intent.payment_failed", { id: pi.id, code: pi.last_payment_error?.code });
+      console.warn("[stripe] payment_intent.payment_failed", {
+        id: pi.id,
+        code: pi.last_payment_error?.code,
+      });
       break;
     }
 

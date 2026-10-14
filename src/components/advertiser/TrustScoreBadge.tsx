@@ -72,9 +72,7 @@ export function TrustScoreBadge({ driverId, compact = false }: Props) {
   }, [driverId, fetchScore]);
 
   if (!trustData) {
-    return (
-      <span className="inline-block w-20 h-6 rounded-full bg-muted animate-pulse" />
-    );
+    return <span className="inline-block w-20 h-6 rounded-full bg-muted animate-pulse" />;
   }
 
   const { label, color } = scoreLabel(trustData.score);
@@ -99,13 +97,7 @@ export function TrustScoreBadge({ driverId, compact = false }: Props) {
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border p-4 flex flex-col gap-3",
-        cls.bg,
-        cls.border,
-      )}
-    >
+    <div className={cn("rounded-xl border p-4 flex flex-col gap-3", cls.bg, cls.border)}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <ScoreIcon score={trustData.score} className={cn("w-5 h-5", cls.icon)} />
@@ -113,12 +105,7 @@ export function TrustScoreBadge({ driverId, compact = false }: Props) {
             Fiabilité chauffeur — {label}
           </span>
         </div>
-        <span
-          className={cn(
-            "font-bold text-2xl tabular-nums leading-none",
-            cls.text,
-          )}
-        >
+        <span className={cn("font-bold text-2xl tabular-nums leading-none", cls.text)}>
           {trustData.score}
           <span className="text-sm font-normal opacity-60">/100</span>
         </span>
@@ -129,9 +116,13 @@ export function TrustScoreBadge({ driverId, compact = false }: Props) {
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500",
-            color === "green" ? "bg-green-500" :
-            color === "blue"  ? "bg-blue-500" :
-            color === "amber" ? "bg-amber-500" : "bg-red-500",
+            color === "green"
+              ? "bg-green-500"
+              : color === "blue"
+                ? "bg-blue-500"
+                : color === "amber"
+                  ? "bg-amber-500"
+                  : "bg-red-500",
           )}
           style={{ width: `${trustData.score}%` }}
         />

@@ -13,10 +13,7 @@ const TopupInput = z.object({
   billingPostalCode: z.string().max(12).optional(),
 });
 
-
-type CheckoutSessionResult =
-  | { clientSecret: string; id: string }
-  | { error: string };
+type CheckoutSessionResult = { clientSecret: string; id: string } | { error: string };
 
 export const createWalletTopupCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -43,7 +40,10 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
     }
     const dailyTotalCents = txs.reduce((s, t) => s + (t.amount_cents ?? 0), 0);
     if (dailyTotalCents >= 100_000) {
-      return { error: "Limite de recharge journalière atteinte (1 000 €). Contactez le support si nécessaire." };
+      return {
+        error:
+          "Limite de recharge journalière atteinte (1 000 €). Contactez le support si nécessaire.",
+      };
     }
 
     try {
@@ -83,13 +83,9 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
 
       const customerId = await resolveOrCreateCustomer({ email, userId });
 
-
       // Traitement fiscal selon la localisation de l'annonceur (DOM 8,5 % vs art. 259 B CGI)
       const { determineTaxBehavior } = await import("./tax");
-      const tax = determineTaxBehavior(
-        data.billingCountry ?? "",
-        data.billingPostalCode ?? "",
-      );
+      const tax = determineTaxBehavior(data.billingCountry ?? "", data.billingPostalCode ?? "");
       if (data.billingCountry) {
         try {
           await stripe.customers.update(customerId, { tax_exempt: tax.exempt } as never);
@@ -105,19 +101,21 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         ui_mode: "embedded",
         return_url: returnUrl,
         customer: customerId,
-        line_items: [{
-          price_data: {
-            // Facturation en euros (règles fiscales MoveSpot Guadeloupe / art. 259 B CGI).
-            currency: "eur",
-            product_data: {
-              name: "Recharge portefeuille MoveSpot",
-              description: "Crédit publicitaire pour campagnes ponctuelles",
+        line_items: [
+          {
+            price_data: {
+              // Facturation en euros (règles fiscales MoveSpot Guadeloupe / art. 259 B CGI).
+              currency: "eur",
+              product_data: {
+                name: "Recharge portefeuille MoveSpot",
+                description: "Crédit publicitaire pour campagnes ponctuelles",
+              },
+              unit_amount: amountCents,
+              tax_behavior: tax.tax_behavior,
             },
-            unit_amount: amountCents,
-            tax_behavior: tax.tax_behavior,
+            quantity: 1,
           },
-          quantity: 1,
-        }],
+        ],
 
         metadata: {
           kind: "wallet_topup",
@@ -153,14 +151,12 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         payment_method_options: { card: { request_three_d_secure: "any" } },
       } as never);
 
-
       return { clientSecret: session.client_secret ?? "", id: session.id };
     } catch (error) {
       captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
     }
   });
-
 
 // ================== OWNER — Stripe Connect Express onboarding ==================
 const OnboardingInput = z.object({ returnUrl: z.string().url() });
@@ -218,12 +214,19 @@ export const getConnectAccountStatus = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data: profile } = await supabase
       .from("owner_profiles")
-      .select("stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted")
+      .select(
+        "stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted",
+      )
       .eq("user_id", userId)
       .maybeSingle();
 
     if (!profile?.stripe_account_id) {
-      return { connected: false, charges_enabled: false, payouts_enabled: false, details_submitted: false };
+      return {
+        connected: false,
+        charges_enabled: false,
+        payouts_enabled: false,
+        details_submitted: false,
+      };
     }
 
     // Refresh live status from Stripe
@@ -271,7 +274,9 @@ export const transferToOwner = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: campaign, error } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, vehicle_id, owner_amount_cents, payment_status, payout_status, stripe_transfer_id, spot_name")
+      .select(
+        "id, vehicle_id, owner_amount_cents, payment_status, payout_status, stripe_transfer_id, spot_name",
+      )
       .eq("id", data.campaignRequestId)
       .single();
     if (error || !campaign) throw new Error("Campagne introuvable");
@@ -279,7 +284,8 @@ export const transferToOwner = createServerFn({ method: "POST" })
     if (campaign.payout_status === "transferred" || campaign.stripe_transfer_id) {
       return { ok: true, alreadyDone: true };
     }
-    if (!campaign.owner_amount_cents || campaign.owner_amount_cents <= 0) throw new Error("Montant à reverser invalide");
+    if (!campaign.owner_amount_cents || campaign.owner_amount_cents <= 0)
+      throw new Error("Montant à reverser invalide");
     if (!campaign.vehicle_id) throw new Error("Véhicule introuvable");
 
     const { data: vehicle } = await supabaseAdmin
@@ -289,22 +295,35 @@ export const transferToOwner = createServerFn({ method: "POST" })
       .single();
     if (!vehicle?.owner_id) throw new Error("Propriétaire introuvable");
 
-    const { data: ownerRaw } = await (supabaseAdmin as unknown as {
-      from: (t: string) => {
-        select: (c: string) => {
-          eq: (col: string, val: string) => {
-            single: () => Promise<{ data: { stripe_account_id: string | null; stripe_payouts_enabled: boolean; vigilance_statut: string | null } | null }>;
+    const { data: ownerRaw } = await (
+      supabaseAdmin as unknown as {
+        from: (t: string) => {
+          select: (c: string) => {
+            eq: (
+              col: string,
+              val: string,
+            ) => {
+              single: () => Promise<{
+                data: {
+                  stripe_account_id: string | null;
+                  stripe_payouts_enabled: boolean;
+                  vigilance_statut: string | null;
+                } | null;
+              }>;
+            };
           };
         };
-      };
-    })
+      }
+    )
       .from("owner_profiles")
       .select("stripe_account_id, stripe_payouts_enabled, vigilance_statut")
       .eq("id", vehicle.owner_id)
       .single();
     const owner = ownerRaw;
-    if (!owner?.stripe_account_id) throw new Error("Le propriétaire n'a pas connecté son compte Stripe");
-    if (!owner.stripe_payouts_enabled) throw new Error("Le compte Stripe du propriétaire n'est pas encore actif");
+    if (!owner?.stripe_account_id)
+      throw new Error("Le propriétaire n'a pas connecté son compte Stripe");
+    if (!owner.stripe_payouts_enabled)
+      throw new Error("Le compte Stripe du propriétaire n'est pas encore actif");
 
     // ── Contrôle de vigilance Urssaf (Art. L.8222-1 Code du travail) ──────────
     // Si le propriétaire a dépassé 5 000 € de gains et que son attestation
@@ -312,7 +331,7 @@ export const transferToOwner = createServerFn({ method: "POST" })
     if (owner.vigilance_statut === "BLOQUE") {
       throw new Error(
         "Virement suspendu : l'attestation de vigilance Urssaf du propriétaire est en attente de validation. " +
-        "Le propriétaire doit se connecter à son espace pour soumettre son attestation.",
+          "Le propriétaire doit se connecter à son espace pour soumettre son attestation.",
       );
     }
 
@@ -350,7 +369,6 @@ const SubscriptionInput = z.object({
   environment: z.enum(["sandbox", "live"]).optional(),
   billingCountry: z.string().min(2).max(2).optional(),
   billingPostalCode: z.string().max(12).optional(),
-
 });
 
 export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST" })
@@ -399,10 +417,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
 
       // Traitement fiscal selon la localisation de l'annonceur
       const { determineTaxBehavior } = await import("./tax");
-      const tax = determineTaxBehavior(
-        data.billingCountry ?? "",
-        data.billingPostalCode ?? "",
-      );
+      const tax = determineTaxBehavior(data.billingCountry ?? "", data.billingPostalCode ?? "");
       if (data.billingCountry) {
         try {
           await stripe.customers.update(customerId, { tax_exempt: tax.exempt } as never);
@@ -463,13 +478,18 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
 
 // ================== PRESTATAIRE — Abonnement mensuel (provider_monthly) ==================
 const ProviderSubscriptionInput = z.object({
-  priceId: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("provider_monthly"),
+  priceId: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]+$/)
+    .default("provider_monthly"),
   returnUrl: z.string().url(),
 });
 
 export const createProviderSubscriptionCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.input<typeof ProviderSubscriptionInput>) => ProviderSubscriptionInput.parse(d))
+  .inputValidator((d: z.input<typeof ProviderSubscriptionInput>) =>
+    ProviderSubscriptionInput.parse(d),
+  )
   .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
     const { userId, supabase } = context;
     const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
@@ -492,12 +512,17 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
         if (existing.data.length) {
           customerId = existing.data[0].id;
           if (existing.data[0].metadata?.userId !== userId) {
-            await stripe.customers.update(customerId, { metadata: { ...existing.data[0].metadata, userId } });
+            await stripe.customers.update(customerId, {
+              metadata: { ...existing.data[0].metadata, userId },
+            });
           }
         }
       }
       if (!customerId) {
-        const created = await stripe.customers.create({ ...(email && { email }), metadata: { userId } });
+        const created = await stripe.customers.create({
+          ...(email && { email }),
+          metadata: { userId },
+        });
         customerId = created.id;
       }
 
@@ -510,7 +535,8 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
 
       // Résout le tarif via lookup_key
       const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
-      if (!prices.data.length) return { error: "Tarif prestataire introuvable (lookup key : provider_monthly)" };
+      if (!prices.data.length)
+        return { error: "Tarif prestataire introuvable (lookup key : provider_monthly)" };
       const price = prices.data[0];
 
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -550,13 +576,18 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
 
 // ================== PARTENAIRE — Abonnement mensuel (partner_monthly) ==================
 const PartnerSubscriptionInput = z.object({
-  priceId: z.string().regex(/^[a-zA-Z0-9_-]+$/).default("partner_monthly"),
+  priceId: z
+    .string()
+    .regex(/^[a-zA-Z0-9_-]+$/)
+    .default("partner_monthly"),
   returnUrl: z.string().url(),
 });
 
 export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.input<typeof PartnerSubscriptionInput>) => PartnerSubscriptionInput.parse(d))
+  .inputValidator((d: z.input<typeof PartnerSubscriptionInput>) =>
+    PartnerSubscriptionInput.parse(d),
+  )
   .handler(async ({ data, context }): Promise<CheckoutSessionResult> => {
     const { userId, supabase } = context;
     const { createStripeClient, getStripeErrorMessage } = await import("./stripe.server");
@@ -579,12 +610,17 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
         if (existing.data.length) {
           customerId = existing.data[0].id;
           if (existing.data[0].metadata?.userId !== userId) {
-            await stripe.customers.update(customerId, { metadata: { ...existing.data[0].metadata, userId } });
+            await stripe.customers.update(customerId, {
+              metadata: { ...existing.data[0].metadata, userId },
+            });
           }
         }
       }
       if (!customerId) {
-        const created = await stripe.customers.create({ ...(email && { email }), metadata: { userId } });
+        const created = await stripe.customers.create({
+          ...(email && { email }),
+          metadata: { userId },
+        });
         customerId = created.id;
       }
 
@@ -597,7 +633,8 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
 
       // Résout le tarif via lookup_key
       const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
-      if (!prices.data.length) return { error: "Tarif partenaire introuvable (lookup key : partner_monthly)" };
+      if (!prices.data.length)
+        return { error: "Tarif partenaire introuvable (lookup key : partner_monthly)" };
       const price = prices.data[0];
 
       const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -658,7 +695,10 @@ export const verifyCampaignSubscriptionSession = createServerFn({ method: "POST"
         return { error: "Cette session ne vous appartient pas" };
       }
 
-      const subscription = session.subscription && typeof session.subscription !== "string" ? session.subscription : null;
+      const subscription =
+        session.subscription && typeof session.subscription !== "string"
+          ? session.subscription
+          : null;
       const campaignRequestId = session.metadata?.campaign_id ?? null;
       const status = subscription?.status ?? (session.status === "complete" ? "active" : "pending");
 
@@ -667,12 +707,16 @@ export const verifyCampaignSubscriptionSession = createServerFn({ method: "POST"
         const patch = {
           stripe_subscription_id: subscription.id,
           subscription_customer_id:
-            typeof subscription.customer === "string" ? subscription.customer : (subscription.customer?.id ?? null),
+            typeof subscription.customer === "string"
+              ? subscription.customer
+              : (subscription.customer?.id ?? null),
           subscription_status: subscription.status,
-          subscription_current_period_end: (subscription as unknown as { current_period_end?: number })
-            .current_period_end
+          subscription_current_period_end: (
+            subscription as unknown as { current_period_end?: number }
+          ).current_period_end
             ? new Date(
-                (subscription as unknown as { current_period_end: number }).current_period_end * 1000,
+                (subscription as unknown as { current_period_end: number }).current_period_end *
+                  1000,
               ).toISOString()
             : null,
         } as never;
@@ -684,7 +728,9 @@ export const verifyCampaignSubscriptionSession = createServerFn({ method: "POST"
       return {
         status,
         campaignRequestId,
-        trialEnd: subscription?.trial_end ? new Date(subscription.trial_end * 1000).toISOString() : null,
+        trialEnd: subscription?.trial_end
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : null,
       };
     } catch (error) {
       captureServerException(error, { category: "payment", userId });

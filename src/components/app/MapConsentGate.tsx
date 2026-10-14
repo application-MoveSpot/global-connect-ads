@@ -23,9 +23,7 @@ export function MapConsentGate({ children, className }: MapConsentGateProps) {
         className={`flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-secondary/30 p-8 text-center ${className ?? ""}`}
       >
         <MapPin className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground max-w-xs">
-          {t("map_consent_gate.msg")}
-        </p>
+        <p className="text-sm text-muted-foreground max-w-xs">{t("map_consent_gate.msg")}</p>
         <Link
           to="/cookies"
           className="text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"

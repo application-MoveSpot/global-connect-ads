@@ -48,10 +48,11 @@ export const estimatePoseFeeForCampaign = createServerFn({ method: "POST" })
         .maybeSingle();
 
       if (vehicle) {
-        vehicleType    = (vehicle as { type: string }).type ?? vehicleType;
-        surfaceM2      = (vehicle as { surface_m2: number | null }).surface_m2 ?? surfaceM2;
-        formatPub      = (vehicle as { format_publicitaire: string | null }).format_publicitaire ?? formatPub;
-        const zones    = (vehicle as { zones: string[] | null }).zones;
+        vehicleType = (vehicle as { type: string }).type ?? vehicleType;
+        surfaceM2 = (vehicle as { surface_m2: number | null }).surface_m2 ?? surfaceM2;
+        formatPub =
+          (vehicle as { format_publicitaire: string | null }).format_publicitaire ?? formatPub;
+        const zones = (vehicle as { zones: string[] | null }).zones;
         if (!location && zones?.length) location = zones[0];
       }
     }
@@ -87,7 +88,9 @@ Donne en 1–2 phrases : une validation ou un ajustement de cette fourchette sel
           });
 
           if (res.ok) {
-            const json = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+            const json = (await res.json()) as {
+              choices?: Array<{ message?: { content?: string } }>;
+            };
             const text = json.choices?.[0]?.message?.content?.trim();
             if (text) aiRecommendation = text;
           }
@@ -100,7 +103,7 @@ Donne en 1–2 phrases : une validation ou un ajustement de cette fourchette sel
     return {
       range,
       formatLabel: FORMAT_LABELS[formatKey],
-      zoneLabel:   ZONE_LABELS[range.zone],
+      zoneLabel: ZONE_LABELS[range.zone],
       aiRecommendation,
       source: aiRecommendation ? "rules+ai" : "rules",
     };
@@ -110,18 +113,24 @@ Donne en 1–2 phrases : une validation ou un ajustement de cette fourchette sel
 export const validateInstallerQuoteFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({
-      quoteCents:    z.number().int().positive(),
-      operation:     z.enum(["pose", "depose"]),
-      vehicleType:   z.string(),
-      surfaceM2:     z.number().nullable().optional(),
-      formatPub:     z.string().nullable().optional(),
-      location:      z.string().max(200),
-    }).parse(d),
+    z
+      .object({
+        quoteCents: z.number().int().positive(),
+        operation: z.enum(["pose", "depose"]),
+        vehicleType: z.string(),
+        surfaceM2: z.number().nullable().optional(),
+        formatPub: z.string().nullable().optional(),
+        location: z.string().max(200),
+      })
+      .parse(d),
   )
   .handler(async ({ data }) => {
     const formatKey = inferFormatKey(data.surfaceM2 ?? null, data.formatPub ?? null);
-    const range = estimatePoseFee({ formatKey, vehicleType: data.vehicleType, location: data.location });
+    const range = estimatePoseFee({
+      formatKey,
+      vehicleType: data.vehicleType,
+      location: data.location,
+    });
     const result = validateInstallerQuote(data.quoteCents, range, data.operation);
     return { ...result, range, formatKey };
   });
@@ -146,20 +155,21 @@ export async function computeAndStorePoseFees(opts: {
     .maybeSingle();
 
   const vehicleType = (vehicle as { type?: string } | null)?.type ?? "autre";
-  const surfaceM2   = (vehicle as { surface_m2?: number | null } | null)?.surface_m2 ?? null;
-  const formatPub   = (vehicle as { format_publicitaire?: string | null } | null)?.format_publicitaire ?? null;
+  const surfaceM2 = (vehicle as { surface_m2?: number | null } | null)?.surface_m2 ?? null;
+  const formatPub =
+    (vehicle as { format_publicitaire?: string | null } | null)?.format_publicitaire ?? null;
 
   const formatKey = inferFormatKey(surfaceM2, formatPub);
   const range = estimatePoseFee({ formatKey, vehicleType, location: opts.location });
 
   // Use the midpoint of the range as the stored fee
-  const poseFee   = Math.round((range.poseMin   + range.poseMax)   / 2) * 100; // in cents
+  const poseFee = Math.round((range.poseMin + range.poseMax) / 2) * 100; // in cents
   const deposeFee = Math.round((range.deposeMin + range.deposeMax) / 2) * 100;
 
   await supabaseAdmin
     .from("campaign_requests")
     .update({
-      pose_fee_cents:   poseFee,
+      pose_fee_cents: poseFee,
       depose_fee_cents: deposeFee,
     } as never)
     .eq("id", opts.campaignRequestId);
@@ -168,5 +178,10 @@ export async function computeAndStorePoseFees(opts: {
 }
 
 // Re-export pure helpers for UI usage
-export { estimatePoseFee, inferFormatKey, detectZone, validateInstallerQuote } from "./pose-fee-estimate";
+export {
+  estimatePoseFee,
+  inferFormatKey,
+  detectZone,
+  validateInstallerQuote,
+} from "./pose-fee-estimate";
 export type { FormatKey, PoseFeeRange } from "./pose-fee-estimate";

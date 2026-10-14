@@ -10,19 +10,33 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
   }),
-  beforeLoad: async ({ search, location }: { search: Record<string, string>; location: { pathname: string; searchStr: string; search: string } }) => {
+  beforeLoad: async ({
+    search,
+    location,
+  }: {
+    search: Record<string, string>;
+    location: { pathname: string; searchStr: string; search: string };
+  }) => {
     if (!search.authorization_id) throw new Error("authorization_id manquant");
     const session = await getOrRefreshSession();
     const next = location.pathname + location.searchStr;
     if (!session) throw redirect({ to: "/auth", search: { next } });
   },
-  loader: async ({ location }: { location: { pathname: string; searchStr: string; search: string } }) => {
+  loader: async ({
+    location,
+  }: {
+    location: { pathname: string; searchStr: string; search: string };
+  }) => {
     const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;
-    const oauth = (supabase.auth as unknown as {
-      oauth: {
-        getAuthorizationDetails: (id: string) => Promise<{ data: AuthorizationDetails | null; error: Error | null }>;
-      };
-    }).oauth;
+    const oauth = (
+      supabase.auth as unknown as {
+        oauth: {
+          getAuthorizationDetails: (
+            id: string,
+          ) => Promise<{ data: AuthorizationDetails | null; error: Error | null }>;
+        };
+      }
+    ).oauth;
     const { data, error } = await oauth.getAuthorizationDetails(authorizationId);
     if (error) throw error;
     const immediate = data?.redirect_url ?? data?.redirect_to;
@@ -59,12 +73,18 @@ function Consent() {
   async function decide(approve: boolean) {
     setBusy(true);
     setError(null);
-    const oauth = (supabase.auth as unknown as {
-      oauth: {
-        approveAuthorization: (id: string) => Promise<{ data: AuthorizationDetails | null; error: Error | null }>;
-        denyAuthorization: (id: string) => Promise<{ data: AuthorizationDetails | null; error: Error | null }>;
-      };
-    }).oauth;
+    const oauth = (
+      supabase.auth as unknown as {
+        oauth: {
+          approveAuthorization: (
+            id: string,
+          ) => Promise<{ data: AuthorizationDetails | null; error: Error | null }>;
+          denyAuthorization: (
+            id: string,
+          ) => Promise<{ data: AuthorizationDetails | null; error: Error | null }>;
+        };
+      }
+    ).oauth;
     const { data, error: decisionError } = approve
       ? await oauth.approveAuthorization(authorization_id)
       : await oauth.denyAuthorization(authorization_id);
@@ -85,7 +105,9 @@ function Consent() {
   return (
     <main className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated space-y-4">
-        <h1 className="font-display text-xl font-bold">{t("oauth.authorize_title", { name: clientName })}</h1>
+        <h1 className="font-display text-xl font-bold">
+          {t("oauth.authorize_title", { name: clientName })}
+        </h1>
         <p className="text-sm text-muted-foreground">
           {t("oauth.authorize_desc", { name: clientName })}
         </p>

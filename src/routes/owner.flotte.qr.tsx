@@ -36,7 +36,11 @@ type QrData = {
 };
 
 function formatDate(unix: number, locale: string) {
-  return new Date(unix * 1000).toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(unix * 1000).toLocaleDateString(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 function QrPage() {
@@ -77,7 +81,9 @@ function QrPage() {
           vehicleType: r.vehicleType,
           vehicleFormat: r.vehicleFormat,
         };
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
     setQrs(next);
     setGenerating(false);
@@ -97,7 +103,10 @@ function QrPage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex gap-3 items-center">
-            <Link to="/owner/flotte" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link
+              to="/owner/flotte"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
               {t("owner.flotte.qr.back")}
             </Link>
             <button
@@ -142,7 +151,10 @@ function QrPage() {
               {expiresInDays && (
                 <p className="text-xs text-muted-foreground mt-1.5">
                   {t("owner.flotte.qr.expiry_expires", {
-                    date: formatDate(Math.floor(Date.now() / 1000) + expiresInDays * 86400, dateLocale),
+                    date: formatDate(
+                      Math.floor(Date.now() / 1000) + expiresInDays * 86400,
+                      dateLocale,
+                    ),
                   })}
                 </p>
               )}
@@ -162,20 +174,23 @@ function QrPage() {
               {generating
                 ? t("owner.flotte.qr.generating")
                 : Object.keys(qrs).length > 0
-                ? t("owner.flotte.qr.regenerate")
-                : t("owner.flotte.qr.generate")}
+                  ? t("owner.flotte.qr.regenerate")
+                  : t("owner.flotte.qr.generate")}
             </button>
           </div>
         </div>
 
-        {isLoading && <div className="text-muted-foreground print:hidden">{t("owner.flotte.qr.loading")}</div>}
+        {isLoading && (
+          <div className="text-muted-foreground print:hidden">{t("owner.flotte.qr.loading")}</div>
+        )}
 
         {!isLoading && vehicles.length === 0 && (
           <div className="rounded-2xl border border-border bg-card p-12 text-center text-muted-foreground print:hidden">
             {t("owner.flotte.qr.no_vehicles")}{" "}
             <Link to="/owner/flotte/import" className="text-primary underline">
               {t("owner.flotte.qr.import_link")}
-            </Link>.
+            </Link>
+            .
           </div>
         )}
 
@@ -193,11 +208,15 @@ function QrPage() {
                     <div>
                       <div className="font-display font-bold text-base leading-tight">{v.name}</div>
                       {q.licensePlate && (
-                        <div className="font-mono text-xs tracking-widest text-slate-300 mt-0.5">{q.licensePlate}</div>
+                        <div className="font-mono text-xs tracking-widest text-slate-300 mt-0.5">
+                          {q.licensePlate}
+                        </div>
                       )}
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">MoveSpot</div>
+                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">
+                        MoveSpot
+                      </div>
                       <div className="text-[10px] text-slate-400">{q.vehicleType}</div>
                     </div>
                   </div>
@@ -212,7 +231,9 @@ function QrPage() {
                         <span className="text-[10px] uppercase tracking-widest text-slate-400">
                           {t("owner.flotte.qr.card_format")}
                         </span>
-                        <div className="text-xs font-medium text-slate-700 dark:text-slate-300">{q.vehicleFormat}</div>
+                        <div className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                          {q.vehicleFormat}
+                        </div>
                       </div>
                     )}
 
@@ -223,8 +244,12 @@ function QrPage() {
                       </div>
                       <div className="flex justify-between text-[10px]">
                         <span className="text-slate-500">{t("owner.flotte.qr.expires_at")}</span>
-                        <span className={q.expiresAt ? "font-medium text-amber-600" : "text-slate-400"}>
-                          {q.expiresAt ? formatDate(q.expiresAt, dateLocale) : t("owner.flotte.qr.never")}
+                        <span
+                          className={q.expiresAt ? "font-medium text-amber-600" : "text-slate-400"}
+                        >
+                          {q.expiresAt
+                            ? formatDate(q.expiresAt, dateLocale)
+                            : t("owner.flotte.qr.never")}
                         </span>
                       </div>
                     </div>

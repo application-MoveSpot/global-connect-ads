@@ -44,7 +44,9 @@ export const listInstallationJobs = createServerFn({ method: "GET" })
       .maybeSingle();
 
     const isInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isInstaller) return { jobs: [], isInstaller: false as const };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -79,13 +81,17 @@ export const listCompletedInstallationJobs = createServerFn({ method: "GET" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const isInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isInstaller) return { jobs: [] };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, spot_name, spot_location, company, start_date, end_date, installation_photos, total_price")
+      .select(
+        "id, spot_name, spot_location, company, start_date, end_date, installation_photos, total_price",
+      )
       .eq("status", "approved")
       .eq("installation_status", "approved")
       .order("start_date", { ascending: false })
@@ -112,7 +118,9 @@ export const claimInstallationJob = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const isInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isInstaller) throw new Error("Accès réservé aux poseurs certifiés.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -161,7 +169,8 @@ export const unclaimInstallationJob = createServerFn({ method: "POST" })
     const existing = job.installation_photos as InstallationPhotosJson | null;
     if (existing?.claimed_by !== context.userId) throw new Error("Mission non réclamée par vous.");
     // Can only unclaim if photos not yet submitted
-    if (existing?.front || existing?.left) throw new Error("Impossible de libérer une mission dont les photos ont été soumises.");
+    if (existing?.front || existing?.left)
+      throw new Error("Impossible de libérer une mission dont les photos ont été soumises.");
 
     await supabaseAdmin
       .from("campaign_requests")
@@ -180,7 +189,9 @@ export const getInstallationPhotosForAdvertiser = createServerFn({ method: "GET"
 
     const { data: campaign, error } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, spot_name, installation_photos, installation_status, installation_notes, installation_reviewed_at")
+      .select(
+        "id, spot_name, installation_photos, installation_status, installation_notes, installation_reviewed_at",
+      )
       .eq("id", data.campaignId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -217,7 +228,9 @@ export const reportInstallationImpossible = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const isInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isInstaller) throw new Error("Accès réservé aux poseurs certifiés.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -265,7 +278,9 @@ export const listDeposeJobs = createServerFn({ method: "GET" })
       .maybeSingle();
 
     const isInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isInstaller) return { jobs: [], isInstaller: false as const };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -302,7 +317,9 @@ export const claimDeposeJob = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const isInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isInstaller) throw new Error("Accès réservé aux poseurs certifiés.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -314,7 +331,8 @@ export const claimDeposeJob = createServerFn({ method: "POST" })
       .eq("installation_status", "approved")
       .maybeSingle();
     if (!job) throw new Error("Mission introuvable.");
-    if (!job.depose_status || job.depose_status === "approved") throw new Error("Cette mission n'est pas disponible pour dépose.");
+    if (!job.depose_status || job.depose_status === "approved")
+      throw new Error("Cette mission n'est pas disponible pour dépose.");
 
     type DeposePhotosJson = { claimed_by?: string };
     const existing = job.depose_photos as DeposePhotosJson | null;
@@ -326,7 +344,10 @@ export const claimDeposeJob = createServerFn({ method: "POST" })
     await supabaseAdmin
       .from("campaign_requests")
       .update({
-        depose_photos: { claimed_by: context.userId, claimed_at: new Date().toISOString() } as never,
+        depose_photos: {
+          claimed_by: context.userId,
+          claimed_at: new Date().toISOString(),
+        } as never,
       })
       .eq("id", data.campaignRequestId);
 
@@ -349,7 +370,8 @@ export const unclaimDeposeJob = createServerFn({ method: "POST" })
     type DeposePhotosJson = { claimed_by?: string; front?: string };
     const existing = job.depose_photos as DeposePhotosJson | null;
     if (existing?.claimed_by !== context.userId) throw new Error("Mission non réclamée par vous.");
-    if (existing?.front) throw new Error("Impossible de libérer une mission dont les photos ont été soumises.");
+    if (existing?.front)
+      throw new Error("Impossible de libérer une mission dont les photos ont été soumises.");
 
     await supabaseAdmin
       .from("campaign_requests")
@@ -366,7 +388,12 @@ export const submitDeposePhotos = createServerFn({ method: "POST" })
     z
       .object({
         campaignRequestId: z.string().uuid(),
-        photos: z.object({ front: z.string().min(1), left: z.string().min(1), right: z.string().min(1), rear: z.string().min(1) }),
+        photos: z.object({
+          front: z.string().min(1),
+          left: z.string().min(1),
+          right: z.string().min(1),
+          rear: z.string().min(1),
+        }),
         lat: z.number().nullable().optional(),
         lng: z.number().nullable().optional(),
       })
@@ -382,18 +409,26 @@ export const submitDeposePhotos = createServerFn({ method: "POST" })
       .eq("id", data.campaignRequestId)
       .maybeSingle();
     if (!campaign?.vehicle_id) throw new Error("Campagne ou véhicule introuvable");
-    if (campaign.installation_status !== "approved") throw new Error("La pose doit être validée avant de soumettre la dépose.");
+    if (campaign.installation_status !== "approved")
+      throw new Error("La pose doit être validée avant de soumettre la dépose.");
 
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     const { data: payee } = await context.supabase
       .from("payee_profiles")
       .select("kind, certification_status")
       .eq("user_id", context.userId)
       .maybeSingle();
     const isCertifiedInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
     if (!isAdmin && !isCertifiedInstaller) {
-      throw new Error("Seul un poseur professionnel certifié MoveSpot peut transmettre les photos de dépose.");
+      throw new Error(
+        "Seul un poseur professionnel certifié MoveSpot peut transmettre les photos de dépose.",
+      );
     }
 
     type DeposePhotosJson = { claimed_by?: string; claimed_at?: string };
@@ -458,7 +493,9 @@ export const submitInstallationPhotos = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const isCertifiedInstaller =
-      !!payee && (payee.kind === "installer" || payee.kind === "both") && payee.certification_status === "certified";
+      !!payee &&
+      (payee.kind === "installer" || payee.kind === "both") &&
+      payee.certification_status === "certified";
 
     if (!isAdmin && !isCertifiedInstaller) {
       throw new Error(

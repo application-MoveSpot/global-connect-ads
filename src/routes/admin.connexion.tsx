@@ -8,10 +8,7 @@ import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/admin/connexion")({
   head: () => ({
-    meta: [
-      { title: "Administration — MoveSpot" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Administration — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: AdminLoginPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -34,7 +31,11 @@ function readAttempts(): AttemptRecord {
 }
 
 function writeAttempts(rec: AttemptRecord): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rec)); } catch { /* */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rec));
+  } catch {
+    /* */
+  }
 }
 
 function recordFailure(): AttemptRecord {
@@ -49,7 +50,11 @@ function recordFailure(): AttemptRecord {
 }
 
 function clearAttempts(): void {
-  try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    /* */
+  }
 }
 
 function AdminLoginPage() {
@@ -77,7 +82,9 @@ function AdminLoginPage() {
       }
     };
     timerRef.current = setInterval(tick, 1000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [lockoutUntil]);
 
   // Check existing session
@@ -91,7 +98,10 @@ function AdminLoginPage() {
 
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data.session) { setChecking(false); return; }
+      if (!data.session) {
+        setChecking(false);
+        return;
+      }
       // Check MFA level
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
@@ -119,7 +129,10 @@ function AdminLoginPage() {
       const totp = factors?.totp?.find((f) => f.status === "verified");
       if (totp) {
         const { data: ch, error: chErr } = await supabase.auth.mfa.challenge({ factorId: totp.id });
-        if (chErr || !ch) { setError(chErr?.message ?? t("auth.error_mfa")); return; }
+        if (chErr || !ch) {
+          setError(chErr?.message ?? t("auth.error_mfa"));
+          return;
+        }
         setMfa({ factorId: totp.id, challengeId: ch.id });
         return;
       }
@@ -197,9 +210,7 @@ function AdminLoginPage() {
     goAdmin();
   };
 
-  const lockoutMinutes = lockoutUntil
-    ? Math.ceil((lockoutUntil - Date.now()) / 60_000)
-    : 0;
+  const lockoutMinutes = lockoutUntil ? Math.ceil((lockoutUntil - Date.now()) / 60_000) : 0;
 
   if (checking) {
     return (
@@ -232,9 +243,7 @@ function AdminLoginPage() {
         {lockoutUntil ? (
           <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-5 text-center space-y-2">
             <div className="text-2xl">🔒</div>
-            <p className="font-semibold text-destructive">
-              {t("admin.connexion.lockout_title")}
-            </p>
+            <p className="font-semibold text-destructive">{t("admin.connexion.lockout_title")}</p>
             <p className="text-sm text-muted-foreground">
               {t("admin.connexion.lockout_desc", { minutes: lockoutMinutes })}
             </p>

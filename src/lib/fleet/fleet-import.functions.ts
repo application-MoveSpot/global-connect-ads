@@ -15,9 +15,7 @@ const RowSchema = z.object({
 
 export const importVehiclesCSV = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ csv: z.string().min(1).max(2_000_000) }).parse(input),
-  )
+  .inputValidator((input) => z.object({ csv: z.string().min(1).max(2_000_000) }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -43,7 +41,10 @@ export const importVehiclesCSV = createServerFn({ method: "POST" })
     parsed.data.forEach((raw: Record<string, string>, i: number) => {
       const r = RowSchema.safeParse(raw);
       if (!r.success) {
-        errors.push({ line: i + 2, error: r.error.issues.map((x) => `${x.path}: ${x.message}`).join(", ") });
+        errors.push({
+          line: i + 2,
+          error: r.error.issues.map((x) => `${x.path}: ${x.message}`).join(", "),
+        });
         return;
       }
       rows.push({
@@ -62,10 +63,7 @@ export const importVehiclesCSV = createServerFn({ method: "POST" })
       return { inserted: 0, errors };
     }
 
-    const { data: inserted, error } = await supabase
-      .from("vehicles")
-      .insert(rows)
-      .select("id");
+    const { data: inserted, error } = await supabase.from("vehicles").insert(rows).select("id");
     if (error) throw new Error(error.message);
 
     return { inserted: inserted?.length ?? 0, errors };

@@ -29,8 +29,7 @@ export const Route = createFileRoute("/driver/inscription")({
       { property: "og:title", content: "Inscription driver / poseur — MoveSpot" },
       {
         property: "og:description",
-        content:
-          "Créez votre compte provider MoveSpot et recevez vos paiements automatiquement.",
+        content: "Créez votre compte provider MoveSpot et recevez vos paiements automatiquement.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -162,15 +161,27 @@ function ChauffeurInscription() {
     try {
       const res = await callDriverAi({ data: { driverContext: aiContext.trim() } });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const { suggestion } = res;
       const filled: string[] = [];
-      if (suggestion.city) { setCity(suggestion.city); filled.push("ville"); }
-      if (suggestion.vehicleKind) { setVehicleKind(suggestion.vehicleKind); filled.push("type de véhicule"); }
-      if (suggestion.kind) { setKind(suggestion.kind); filled.push("rôle"); }
+      if (suggestion.city) {
+        setCity(suggestion.city);
+        filled.push("ville");
+      }
+      if (suggestion.vehicleKind) {
+        setVehicleKind(suggestion.vehicleKind);
+        filled.push("type de véhicule");
+      }
+      if (suggestion.kind) {
+        setKind(suggestion.kind);
+        filled.push("rôle");
+      }
       setAiFilled(filled);
       setAiPanelOpen(false);
     } catch {
@@ -255,14 +266,24 @@ function ChauffeurInscription() {
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? t("driver.inscription.title_signup") : t("driver.inscription.title_signin")}
+              {mode === "signup"
+                ? t("driver.inscription.title_signup")
+                : t("driver.inscription.title_signin")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
-              {mode === "signup" ? t("driver.inscription.desc_signup") : t("driver.inscription.desc_signin")}
+              {mode === "signup"
+                ? t("driver.inscription.desc_signup")
+                : t("driver.inscription.desc_signin")}
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
-              <Input label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
+              <Input
+                label={t("auth.email")}
+                type="email"
+                value={email}
+                onChange={setEmail}
+                required
+              />
               <div>
                 <Input
                   label={t("auth.password")}
@@ -289,7 +310,11 @@ function ChauffeurInscription() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : mode === "signup" ? t("driver.inscription.submit_signup") : t("driver.inscription.submit_signin")}
+                {loading
+                  ? "..."
+                  : mode === "signup"
+                    ? t("driver.inscription.submit_signup")
+                    : t("driver.inscription.submit_signin")}
               </button>
             </form>
             <button
@@ -299,12 +324,16 @@ function ChauffeurInscription() {
               }}
               className="w-full text-sm text-muted-foreground hover:text-foreground mt-4"
             >
-              {mode === "signup" ? t("driver.inscription.switch_to_signin") : t("driver.inscription.switch_to_signup")}
+              {mode === "signup"
+                ? t("driver.inscription.switch_to_signin")
+                : t("driver.inscription.switch_to_signup")}
             </button>
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("driver.inscription.profile_title")}</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">
+              {t("driver.inscription.profile_title")}
+            </h1>
             <SignedInBanner onSignedOut={() => setStep("auth")} />
             <p className="text-sm text-muted-foreground mb-4">
               {t("driver.inscription.profile_step")}
@@ -327,14 +356,20 @@ function ChauffeurInscription() {
                 placeholder={t("driver.inscription.ai_placeholder")}
                 generateLabel={t("driver.inscription.ai_generate")}
                 generateLoadingLabel={t("driver.inscription.ai_generating")}
-                filledMessage={aiFilled.length > 0 ? t("driver.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+                filledMessage={
+                  aiFilled.length > 0
+                    ? t("driver.inscription.ai_filled", { fields: aiFilled.join(", ") })
+                    : undefined
+                }
                 onDismissFilled={() => setAiFilled([])}
               />
             </div>
 
             <form onSubmit={handleProfile} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5">{t("driver.inscription.role_label")}</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("driver.inscription.role_label")}
+                </label>
                 <div className="grid gap-2">
                   {(
                     [
@@ -360,7 +395,12 @@ function ChauffeurInscription() {
                 </div>
               </div>
 
-              <Input label={t("driver.inscription.name_label")} value={fullName} onChange={setFullName} required />
+              <Input
+                label={t("driver.inscription.name_label")}
+                value={fullName}
+                onChange={setFullName}
+                required
+              />
               <Input
                 label={t("driver.inscription.phone_label")}
                 type="tel"
@@ -369,7 +409,11 @@ function ChauffeurInscription() {
                 placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"}
               />
               <Input
-                label={market === "US" ? t("driver.inscription.city_label_us") : t("driver.inscription.city_label")}
+                label={
+                  market === "US"
+                    ? t("driver.inscription.city_label_us")
+                    : t("driver.inscription.city_label")
+                }
                 value={city}
                 onChange={setCity}
                 placeholder={market === "US" ? "Miami, FL" : undefined}
@@ -378,7 +422,9 @@ function ChauffeurInscription() {
               {kind !== "installer" && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">{t("driver.inscription.vehicle_type_label")}</label>
+                    <label className="block text-sm font-medium mb-1.5">
+                      {t("driver.inscription.vehicle_type_label")}
+                    </label>
                     <select
                       value={vehicleKind}
                       onChange={(e) => setVehicleKind(e.target.value as VehicleKind)}
@@ -391,7 +437,11 @@ function ChauffeurInscription() {
                       ))}
                     </select>
                   </div>
-                  <Input label={t("driver.inscription.plate_label")} value={vehiclePlate} onChange={setVehiclePlate} />
+                  <Input
+                    label={t("driver.inscription.plate_label")}
+                    value={vehiclePlate}
+                    onChange={setVehiclePlate}
+                  />
                 </>
               )}
 
@@ -422,11 +472,18 @@ function ChauffeurInscription() {
                   {t("driver.inscription.cgu_after_strong")}
                 </span>
               </label>
-              {hasCompany && (
-                market === "US"
-                  ? <Input label={t("common.ein_label")} value={ein} onChange={setEin} placeholder="12-3456789" required />
-                  : <SiretField value={siret} onChange={setSiret} />
-              )}
+              {hasCompany &&
+                (market === "US" ? (
+                  <Input
+                    label={t("common.ein_label")}
+                    value={ein}
+                    onChange={setEin}
+                    placeholder="12-3456789"
+                    required
+                  />
+                ) : (
+                  <SiretField value={siret} onChange={setSiret} />
+                ))}
 
               {error && <Err msg={error} />}
               <button

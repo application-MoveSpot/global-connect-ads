@@ -20,23 +20,46 @@ type VigilanceInfo = Awaited<ReturnType<typeof getMyVigilanceStatus>>;
 
 function IconWarning({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
-      <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clipRule="evenodd" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={className}
+    >
+      <path
+        fillRule="evenodd"
+        d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
+        clipRule="evenodd"
+      />
     </svg>
   );
 }
 
 function IconCheck({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
-      <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5z" clipRule="evenodd" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={className}
+    >
+      <path
+        fillRule="evenodd"
+        d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5z"
+        clipRule="evenodd"
+      />
     </svg>
   );
 }
 
 function IconUpload({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={className}>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={className}
+    >
       <path d="M9.25 13.25a.75.75 0 0 0 1.5 0V4.636l2.955 3.129a.75.75 0 0 0 1.09-1.03l-4.25-4.5a.75.75 0 0 0-1.09 0l-4.25 4.5a.75.75 0 1 0 1.09 1.03L9.25 4.636v8.614z" />
       <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
     </svg>
@@ -56,7 +79,9 @@ function GainsProgress({ gainsCentimes }: { gainsCentimes: number }) {
     <div className="space-y-1">
       <div className="flex justify-between text-xs font-medium">
         <span>{t("vig.gains_label", { amount: gainsEuros })}</span>
-        <span className="text-muted-foreground">{t("vig.threshold_label", { amount: seuilEuros })}</span>
+        <span className="text-muted-foreground">
+          {t("vig.threshold_label", { amount: seuilEuros })}
+        </span>
       </div>
       <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
         <div
@@ -70,13 +95,7 @@ function GainsProgress({ gainsCentimes }: { gainsCentimes: number }) {
 
 // ─── Zone d'upload de l'attestation ──────────────────────────────────────────
 
-function UploadAttestation({
-  userId,
-  onSuccess,
-}: {
-  userId: string;
-  onSuccess: () => void;
-}) {
+function UploadAttestation({ userId, onSuccess }: { userId: string; onSuccess: () => void }) {
   const { t } = useTranslation();
   const submitFn = useServerFn(submitAttestationUrssaf);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -207,7 +226,9 @@ export function VigAlerte() {
         <div className="flex items-start gap-3">
           <IconWarning className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-amber-800 dark:text-amber-300">{t("vig.warning_title")}</p>
+            <p className="font-semibold text-amber-800 dark:text-amber-300">
+              {t("vig.warning_title")}
+            </p>
             <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">
               {t("vig.warning_desc")}
             </p>
@@ -227,9 +248,7 @@ export function VigAlerte() {
           <IconWarning className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-bold text-destructive">{t("vig.blocked_title")}</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t("vig.blocked_desc")}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">{t("vig.blocked_desc")}</p>
           </div>
         </div>
 
@@ -270,9 +289,7 @@ export function VigAlerte() {
         )}
 
         {/* Note légale */}
-        <p className="text-xs text-muted-foreground">
-          {t("vig.legal_note")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("vig.legal_note")}</p>
       </div>
     );
   }
@@ -286,7 +303,9 @@ export function VigAlerte() {
           {t("vig.valid_text")}{" "}
           {info.dateVerification && (
             <span className="font-normal text-muted-foreground">
-              {t("vig.valid_date", { date: new Date(info.dateVerification).toLocaleDateString(i18n.language) })}
+              {t("vig.valid_date", {
+                date: new Date(info.dateVerification).toLocaleDateString(i18n.language),
+              })}
             </span>
           )}
         </p>

@@ -31,23 +31,35 @@ const Email = ({ fullName, spotName, company, startDate, endDate, spaceUrl }: Pr
         <Text style={brand}>MoveSpot</Text>
         <Heading style={h1}>🚗 Une campagne est prête à être équipée</Heading>
         <Text style={text}>
-          {fullName ? `Bonjour ${fullName},` : "Bonjour,"} une campagne validée par MoveSpot cherche un poseur
-          certifié pour la pose du covering.
+          {fullName ? `Bonjour ${fullName},` : "Bonjour,"} une campagne validée par MoveSpot cherche
+          un poseur certifié pour la pose du covering.
         </Text>
 
         <Section style={card}>
-          {spotName ? <Text style={row}>Campagne : <strong>{spotName}</strong></Text> : null}
-          {company ? <Text style={row}>Annonceur : <strong>{company}</strong></Text> : null}
+          {spotName ? (
+            <Text style={row}>
+              Campagne : <strong>{spotName}</strong>
+            </Text>
+          ) : null}
+          {company ? (
+            <Text style={row}>
+              Annonceur : <strong>{company}</strong>
+            </Text>
+          ) : null}
           {startDate && endDate ? (
             <Text style={row}>
-              Période : <strong>{startDate} → {endDate}</strong>
+              Période :{" "}
+              <strong>
+                {startDate} → {endDate}
+              </strong>
             </Text>
           ) : null}
         </Section>
 
         <Text style={text}>
-          L'affiche/vidéo à imprimer ainsi que le QR code à coller sont disponibles dans votre espace poseur,
-          dans la fiche de cette campagne. Après la pose, transmettez les 4 photos du véhicule pour validation.
+          L'affiche/vidéo à imprimer ainsi que le QR code à coller sont disponibles dans votre
+          espace poseur, dans la fiche de cette campagne. Après la pose, transmettez les 4 photos du
+          véhicule pour validation.
         </Text>
 
         {spaceUrl ? (
@@ -58,8 +70,8 @@ const Email = ({ fullName, spotName, company, startDate, endDate, spaceUrl }: Pr
 
         <Hr style={hr} />
         <Text style={footer}>
-          MoveSpot — publicité mobile sur véhicules. Vous recevez cet email car votre profil poseur est certifié
-          MoveSpot.
+          MoveSpot — publicité mobile sur véhicules. Vous recevez cet email car votre profil poseur
+          est certifié MoveSpot.
         </Text>
       </Container>
     </Body>

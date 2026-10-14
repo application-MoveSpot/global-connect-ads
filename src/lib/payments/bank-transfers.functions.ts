@@ -37,7 +37,8 @@ export const createBankTransferRequest = createServerFn({ method: "POST" })
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .gte("created_at", since);
-    if ((count ?? 0) >= 5) throw new Error("Trop de demandes de virement. Réessayez dans une heure.");
+    if ((count ?? 0) >= 5)
+      throw new Error("Trop de demandes de virement. Réessayez dans une heure.");
 
     const reference = `MS-${Date.now().toString(36).toUpperCase()}-${userId.slice(0, 4).toUpperCase()}`;
 
@@ -163,7 +164,8 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
       // (débit du portefeuille, passage en "payée", répartition 70/30 propriétaire).
       if (row.campaign_request_id) {
         try {
-          const { settleCampaignFromWallet } = await import("@/lib/campaigns/campaign-settlement.server");
+          const { settleCampaignFromWallet } =
+            await import("@/lib/campaigns/campaign-settlement.server");
           const result = await settleCampaignFromWallet({
             campaignRequestId: row.campaign_request_id,
             description: `Paiement campagne par virement bancaire — réf. ${row.reference}`,
@@ -181,12 +183,13 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
         status: data.approve ? "approved" : "rejected",
         admin_notes: campaignError
           ? `${data.notes ? `${data.notes} — ` : ""}⚠️ Solde crédité mais campagne non réglée : ${campaignError}`
-          : data.notes ?? null,
+          : (data.notes ?? null),
         reviewed_at: new Date().toISOString(),
       } as never)
       .eq("id", row.id);
 
-    if (campaignError) throw new Error(`Solde crédité, mais la campagne n'a pas pu être réglée : ${campaignError}`);
+    if (campaignError)
+      throw new Error(`Solde crédité, mais la campagne n'a pas pu être réglée : ${campaignError}`);
 
     // Confirmation automatique au client (réception du virement).
     if (data.approve) {
@@ -221,4 +224,3 @@ export const reviewBankTransfer = createServerFn({ method: "POST" })
 
     return { ok: true, campaignSettled };
   });
-

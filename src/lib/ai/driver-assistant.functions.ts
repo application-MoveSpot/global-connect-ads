@@ -27,12 +27,20 @@ export const generateDriverSuggestion = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<DriverSuggestionResult> => {
     assertRateLimit(`driver-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     if (!(await hasAuthenticatedBriefRequest())) {
-      return { ok: false, code: "UNAUTHORIZED", message: "Session expirée — reconnectez-vous puis réessayez." };
+      return {
+        ok: false,
+        code: "UNAUTHORIZED",
+        message: "Session expirée — reconnectez-vous puis réessayez.",
+      };
     }
 
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) {
-      return { ok: false, code: "AI_UNAVAILABLE", message: "Le service IA est indisponible. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "Le service IA est indisponible. Réessayez.",
+      };
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
@@ -55,19 +63,31 @@ Réponds UNIQUEMENT en JSON strict (toutes les clés sont optionnelles, n'inclus
 
     try {
       const { generateText } = await import("ai");
-      const { text } = await generateText({ model, prompt, temperature: 0.3, maxOutputTokens: 200 });
+      const { text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.3,
+        maxOutputTokens: 200,
+      });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
       const parsed = JSON.parse(raw.trim()) as DriverSuggestion;
 
       const suggestion: DriverSuggestion = {};
-      if (typeof parsed.city === "string" && parsed.city.trim()) suggestion.city = String(parsed.city).trim().slice(0, 100);
-      if (typeof parsed.vehicleKind === "string" && VALID_VEHICLE_KINDS.has(parsed.vehicleKind)) suggestion.vehicleKind = parsed.vehicleKind as DriverSuggestion["vehicleKind"];
-      if (typeof parsed.kind === "string" && VALID_KINDS.has(parsed.kind)) suggestion.kind = parsed.kind as DriverSuggestion["kind"];
+      if (typeof parsed.city === "string" && parsed.city.trim())
+        suggestion.city = String(parsed.city).trim().slice(0, 100);
+      if (typeof parsed.vehicleKind === "string" && VALID_VEHICLE_KINDS.has(parsed.vehicleKind))
+        suggestion.vehicleKind = parsed.vehicleKind as DriverSuggestion["vehicleKind"];
+      if (typeof parsed.kind === "string" && VALID_KINDS.has(parsed.kind))
+        suggestion.kind = parsed.kind as DriverSuggestion["kind"];
 
       return { ok: true, suggestion };
     } catch (err) {
       captureServerException(err, { category: "ai" });
-      return { ok: false, code: "AI_UNAVAILABLE", message: "L'IA n'a pas pu générer de suggestion. Réessayez." };
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+      };
     }
   });

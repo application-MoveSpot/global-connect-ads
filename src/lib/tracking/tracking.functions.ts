@@ -80,7 +80,14 @@ export const pushPosition = createServerFn({ method: "POST" })
         .select("daily_start_time, daily_end_time, timezone")
         .eq("id", campaignRequestId)
         .maybeSingle();
-      if (!isWithinDailyWindow(new Date().toISOString(), cr?.daily_start_time ?? null, cr?.daily_end_time ?? null, cr?.timezone ?? "Europe/Paris")) {
+      if (
+        !isWithinDailyWindow(
+          new Date().toISOString(),
+          cr?.daily_start_time ?? null,
+          cr?.daily_end_time ?? null,
+          cr?.timezone ?? "Europe/Paris",
+        )
+      ) {
         campaignRequestId = null;
       }
     }
@@ -149,7 +156,11 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
     // Récupère la plage horaire de la campagne pour ne taguer les points
     // qu'à l'intérieur de la fenêtre déclarée (RGPD – minimisation des données,
     // Directive plateforme 2024/2831 – protection des travailleurs).
-    let campaignWindow: { daily_start_time: string | null; daily_end_time: string | null; timezone: string } | null = null;
+    let campaignWindow: {
+      daily_start_time: string | null;
+      daily_end_time: string | null;
+      timezone: string;
+    } | null = null;
     if (data.campaignRequestId) {
       const { data: cr } = await supabase
         .from("campaign_requests")
@@ -221,7 +232,8 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
       }));
       const { flags } = detectGpsAnomalies(anomalyPoints);
       if (flags.length > 0) {
-        const { supabaseAdmin: adminForAnomalies } = await import("@/integrations/supabase/client.server");
+        const { supabaseAdmin: adminForAnomalies } =
+          await import("@/integrations/supabase/client.server");
         // Persiste les flags sur la campaign_request pour audit
         const { data: existing } = await adminForAnomalies
           .from("campaign_requests")
@@ -274,11 +286,9 @@ export const getCampaignMetrics = createServerFn({ method: "GET" })
       }),
       { distanceM: 0, distanceInZoneM: 0, activeMinutes: 0, pointsTotal: 0, pointsInZone: 0 },
     );
-    const coverageRate =
-      totals.distanceM > 0 ? totals.distanceInZoneM / totals.distanceM : null;
+    const coverageRate = totals.distanceM > 0 ? totals.distanceInZoneM / totals.distanceM : null;
     return { days, totals, coverageRate };
   });
-
 
 export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -288,7 +298,9 @@ export const getActiveCampaignForVehicle = createServerFn({ method: "GET" })
     const today = new Date().toISOString().slice(0, 10);
     const { data: rows, error } = await supabase
       .from("campaign_requests")
-      .select("id, start_date, end_date, spot_name, company, daily_start_time, daily_end_time, country_code, timezone")
+      .select(
+        "id, start_date, end_date, spot_name, company, daily_start_time, daily_end_time, country_code, timezone",
+      )
       .eq("vehicle_id", data.vehicleId)
       .eq("status", "approved")
       .lte("start_date", today)
@@ -398,7 +410,9 @@ function analyzeDrivingBlocks(
   let blockEnd = sorted[0].recorded_at;
 
   for (let i = 1; i < sorted.length; i++) {
-    const gapMin = (new Date(sorted[i].recorded_at).getTime() - new Date(sorted[i - 1].recorded_at).getTime()) / 60_000;
+    const gapMin =
+      (new Date(sorted[i].recorded_at).getTime() - new Date(sorted[i - 1].recorded_at).getTime()) /
+      60_000;
     if (gapMin >= STOP_THRESHOLD_MIN) {
       const durationMinutes = Math.round(
         (new Date(blockEnd).getTime() - new Date(blockStart).getTime()) / 60_000,
@@ -429,7 +443,11 @@ function analyzeDrivingBlocks(
 
   const violations = blocks
     .filter((b) => b.durationMinutes > MAX_CONTINUOUS_MIN && !b.breakAdequate)
-    .map((b) => ({ blockStart: b.startTime, blockEnd: b.endTime, durationMinutes: b.durationMinutes }));
+    .map((b) => ({
+      blockStart: b.startTime,
+      blockEnd: b.endTime,
+      durationMinutes: b.durationMinutes,
+    }));
 
   return {
     blocks,

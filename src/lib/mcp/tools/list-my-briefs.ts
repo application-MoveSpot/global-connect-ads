@@ -11,7 +11,10 @@ export default defineTool({
     limit: z.number().int().optional().describe("Nombre maximum de briefs (défaut 20)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ limit }: { limit?: number }, ctx: import("@lovable.dev/mcp-js").ToolContext) => {
+  handler: async (
+    { limit }: { limit?: number },
+    ctx: import("@lovable.dev/mcp-js").ToolContext,
+  ) => {
     if (!ctx.isAuthenticated()) {
       return { content: [{ type: "text", text: "Non authentifié" }], isError: true };
     }

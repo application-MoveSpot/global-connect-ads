@@ -100,7 +100,11 @@ function NewVehiclePage() {
     const overflow = merged.length > MAX_PHOTOS ? merged.slice(MAX_PHOTOS).map((f) => f.name) : [];
     const final = merged.slice(0, MAX_PHOTOS);
     const rejected = [...tooLarge, ...overflow];
-    setError(rejected.length > 0 ? t("owner.vehicules.nouveau.error_photos_ignored", { files: rejected.join(", ") }) : "");
+    setError(
+      rejected.length > 0
+        ? t("owner.vehicules.nouveau.error_photos_ignored", { files: rejected.join(", ") })
+        : "",
+    );
     return final;
   };
 
@@ -111,7 +115,8 @@ function NewVehiclePage() {
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
         e.target instanceof HTMLSelectElement
-      ) return;
+      )
+        return;
       const items = Array.from(e.clipboardData?.items ?? []);
       const imageItems = items.filter((item) => item.type.startsWith("image/"));
       if (!imageItems.length) return;
@@ -133,14 +138,20 @@ function NewVehiclePage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/owner/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
       setUserId(session.user.id);
       const { data: prof } = await supabase
         .from("owner_profiles")
         .select("id")
         .eq("user_id", session.user.id)
         .maybeSingle();
-      if (!prof) { navigate({ to: "/owner/inscription" }); return; }
+      if (!prof) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
       setOwnerId(prof.id);
     })();
   }, [navigate]);
@@ -153,15 +164,19 @@ function NewVehiclePage() {
       const path = `${userId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, resized);
       if (upErr) throw new Error(`Upload : ${upErr.message}`);
-      const { data: { publicUrl } } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
-      urls.push(publicUrl);
+      urls.push(path);
     }
     return urls;
   };
 
   const pathsToSignedUrls = async (paths: string[]): Promise<string[]> => {
-    // Le bucket est public — les URLs http sont déjà utilisables directement
-    return paths;
+    return Promise.all(
+      paths.map(async (p) => {
+        if (p.startsWith("http")) return p;
+        const { data } = await supabase.storage.from("vehicle-photos").createSignedUrl(p, 3600);
+        return data?.signedUrl ?? p;
+      }),
+    );
   };
 
   const runEstimate = async () => {
@@ -182,19 +197,29 @@ function NewVehiclePage() {
         data: {
           type,
           condition,
-          ...(type === "autre" && autreDescription.trim() ? { vehicle_description: autreDescription.trim() } : {}),
+          ...(type === "autre" && autreDescription.trim()
+            ? { vehicle_description: autreDescription.trim() }
+            : {}),
           surface_m2: surface ? Number(surface) : null,
           km_per_day: km ? Number(km) : null,
-          zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+          zones: zones
+            ? zones
+                .split(",")
+                .map((z) => z.trim())
+                .filter(Boolean)
+            : [],
           price_per_day: price ? Number(price) : null,
           photo_urls: signedUrls,
         },
       });
       setEstimate({ ...res, uploaded_urls: paths });
     } catch (e) {
-      if (e instanceof Error && e.message.startsWith("Upload")) captureError(e, "upload", { flow: "vehicle_photo" });
+      if (e instanceof Error && e.message.startsWith("Upload"))
+        captureError(e, "upload", { flow: "vehicle_photo" });
       const msg = e instanceof Error ? e.message : "";
-      const isTechnical = /API_KEY|secret|token|supabase|postgres|prisma|internal server/i.test(msg);
+      const isTechnical = /API_KEY|secret|token|supabase|postgres|prisma|internal server/i.test(
+        msg,
+      );
       setError(isTechnical || !msg ? t("owner.vehicules.nouveau.error_estimate_generic") : msg);
     } finally {
       setEstimating(false);
@@ -217,18 +242,39 @@ function NewVehiclePage() {
         },
       });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const { suggestion } = res;
       const filled: string[] = [];
-      if (suggestion.name) { setName(suggestion.name); filled.push("nom"); }
-      if (suggestion.description) { setDescription(suggestion.description); filled.push("description"); }
-      if (suggestion.surface_m2) { setSurface(String(suggestion.surface_m2)); filled.push("surface"); }
-      if (suggestion.km_per_day) { setKm(String(suggestion.km_per_day)); filled.push("km/jour"); }
-      if (suggestion.zones) { setZones(suggestion.zones); filled.push("zones"); }
-      if (suggestion.price_per_day && !estimate) { setPrice(String(suggestion.price_per_day)); filled.push("prix"); }
+      if (suggestion.name) {
+        setName(suggestion.name);
+        filled.push("nom");
+      }
+      if (suggestion.description) {
+        setDescription(suggestion.description);
+        filled.push("description");
+      }
+      if (suggestion.surface_m2) {
+        setSurface(String(suggestion.surface_m2));
+        filled.push("surface");
+      }
+      if (suggestion.km_per_day) {
+        setKm(String(suggestion.km_per_day));
+        filled.push("km/jour");
+      }
+      if (suggestion.zones) {
+        setZones(suggestion.zones);
+        filled.push("zones");
+      }
+      if (suggestion.price_per_day && !estimate) {
+        setPrice(String(suggestion.price_per_day));
+        filled.push("prix");
+      }
       setAiFilled(filled);
       setAiPanelOpen(false);
     } catch {
@@ -254,15 +300,21 @@ function NewVehiclePage() {
       setError(t("owner.vehicules.nouveau.error_ai_photo"));
       return;
     }
-    if (estimate && estimate.suggested_price_max > 0 && Number(price) > estimate.suggested_price_max * 0.7) {
+    if (
+      estimate &&
+      estimate.suggested_price_max > 0 &&
+      Number(price) > estimate.suggested_price_max * 0.7
+    ) {
       const maxAcceptable = Math.floor(estimate.suggested_price_max * 0.7);
       const minAcceptable = Math.floor(estimate.suggested_price_min * 0.7);
-      setError(t("owner.vehicules.nouveau.error_price_too_high", {
-        aiMin: estimate.suggested_price_min,
-        aiMax: estimate.suggested_price_max,
-        ownerMin: minAcceptable,
-        ownerMax: maxAcceptable,
-      }));
+      setError(
+        t("owner.vehicules.nouveau.error_price_too_high", {
+          aiMin: estimate.suggested_price_min,
+          aiMax: estimate.suggested_price_max,
+          ownerMin: minAcceptable,
+          ownerMax: maxAcceptable,
+        }),
+      );
       return;
     }
 
@@ -271,35 +323,58 @@ function NewVehiclePage() {
       const photoUrls = estimate?.uploaded_urls ?? (await uploadPhotos());
       const { error: insErr } = await supabase.from("vehicles").insert({
         owner_id: ownerId,
-        type: (type === "camion_led" ? "camion_boxled" : type) as "camion_boxled" | "food_truck" | "van" | "taxi" | "scooter" | "velo_cargo" | "velo_remorque" | "triporteur" | "tutuk" | "voiture" | "autre",
+        type: (type === "camion_led" ? "camion_boxled" : type) as
+          | "camion_boxled"
+          | "food_truck"
+          | "van"
+          | "taxi"
+          | "scooter"
+          | "velo_cargo"
+          | "velo_remorque"
+          | "triporteur"
+          | "tutuk"
+          | "voiture"
+          | "autre",
         condition,
         name,
         license_plate: licensePlate.trim().toUpperCase() || null,
         brand: brand.trim() || null,
         model: vehicleModel.trim() || null,
         color: color.trim() || null,
-        description: type === "autre" && autreDescription.trim()
-          ? `[Véhicule : ${autreDescription.trim()}]${description ? `\n\n${description}` : ""}`
-          : description || null,
+        description:
+          type === "autre" && autreDescription.trim()
+            ? `[Véhicule : ${autreDescription.trim()}]${description ? `\n\n${description}` : ""}`
+            : description || null,
         format_publicitaire: type === "camion_led" ? "boxled" : null,
         surface_m2: surface ? Number(surface) : null,
         km_per_day: km ? Number(km) : null,
-        zones: zones ? zones.split(",").map((z) => z.trim()).filter(Boolean) : [],
+        zones: zones
+          ? zones
+              .split(",")
+              .map((z) => z.trim())
+              .filter(Boolean)
+          : [],
         price_per_day: Number(price),
         photos: photoUrls,
-        ai_verification: estimate ? {
-          photo_match: estimate.photo_match,
-          photo_notes: estimate.photo_notes,
-          condition_alert: estimate.condition_alert,
-          ai_generated_detected: estimate.ai_generated_detected,
-          ai_generated_notes: estimate.ai_generated_notes,
-          suggested_price_min: estimate.suggested_price_min,
-          suggested_price_max: estimate.suggested_price_max,
-          estimated_impressions_per_day: estimate.estimated_impressions_per_day,
-          checked_at: new Date().toISOString(),
-        } : null,
+        ai_verification: estimate
+          ? {
+              photo_match: estimate.photo_match,
+              photo_notes: estimate.photo_notes,
+              condition_alert: estimate.condition_alert,
+              ai_generated_detected: estimate.ai_generated_detected,
+              ai_generated_notes: estimate.ai_generated_notes,
+              suggested_price_min: estimate.suggested_price_min,
+              suggested_price_max: estimate.suggested_price_max,
+              estimated_impressions_per_day: estimate.estimated_impressions_per_day,
+              checked_at: new Date().toISOString(),
+            }
+          : null,
       });
-      if (insErr) { setError(insErr.message); setLoading(false); return; }
+      if (insErr) {
+        setError(insErr.message);
+        setLoading(false);
+        return;
+      }
       navigate({ to: "/owner" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
@@ -313,11 +388,16 @@ function NewVehiclePage() {
         <div className="mb-4">
           <LogoLink />
         </div>
-        <Link to="/owner" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+        <Link
+          to="/owner"
+          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+        >
           {t("owner.vehicules.nouveau.back")}
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8 mt-4">
-          <h1 className="font-display text-3xl font-bold mb-2">{t("owner.vehicules.nouveau.title")}</h1>
+          <h1 className="font-display text-3xl font-bold mb-2">
+            {t("owner.vehicules.nouveau.title")}
+          </h1>
           <p className="text-sm text-muted-foreground mb-6">{t("owner.vehicules.nouveau.desc")}</p>
 
           {/* AI assistant panel */}
@@ -337,19 +417,31 @@ function NewVehiclePage() {
               placeholder={t("owner.vehicules.nouveau.ai_placeholder")}
               generateLabel={t("owner.vehicules.nouveau.ai_generate")}
               generateLoadingLabel={t("owner.vehicules.nouveau.ai_generating")}
-              filledMessage={aiFilled.length > 0 ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              filledMessage={
+                aiFilled.length > 0
+                  ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") })
+                  : undefined
+              }
               onDismissFilled={() => setAiFilled([])}
             />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.vehicle_type_label")}</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} required
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+              <label className="block text-sm font-medium mb-1.5">
+                {t("owner.vehicules.nouveau.vehicle_type_label")}
+              </label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                required
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
                 <optgroup label={t("owner.vehicules.nouveau.group_vehicles")}>
                   {VEHICLE_TYPE_VALUES.map((v) => (
-                    <option key={v} value={v}>{t(`vehicle_types.${v}`)}</option>
+                    <option key={v} value={v}>
+                      {t(`vehicle_types.${v}`)}
+                    </option>
                   ))}
                 </optgroup>
                 <optgroup label={t("owner.vehicules.nouveau.group_other")}>
@@ -359,7 +451,9 @@ function NewVehiclePage() {
             </div>
             {type === "autre" && (
               <div>
-                <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.autre_type_label")}</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("owner.vehicules.nouveau.autre_type_label")}
+                </label>
                 <input
                   type="text"
                   required
@@ -369,23 +463,38 @@ function NewVehiclePage() {
                   placeholder={t("owner.vehicules.nouveau.autre_type_placeholder")}
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                <p className="text-xs text-muted-foreground mt-1.5">{t("owner.vehicules.nouveau.autre_type_hint")}</p>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {t("owner.vehicules.nouveau.autre_type_hint")}
+                </p>
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.condition_label")}</label>
+              <label className="block text-sm font-medium mb-1.5">
+                {t("owner.vehicules.nouveau.condition_label")}
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 {CONDITION_VALUES.map((v) => (
-                  <button type="button" key={v} onClick={() => { setCondition(v); setEstimate(null); }}
+                  <button
+                    type="button"
+                    key={v}
+                    onClick={() => {
+                      setCondition(v);
+                      setEstimate(null);
+                    }}
                     className={`rounded-lg border px-3 py-2.5 text-left transition ${
                       condition === v
                         ? v === "mauvais"
                           ? "border-destructive bg-destructive/10"
                           : "border-primary bg-primary/10"
                         : "border-border bg-input hover:border-primary/40"
-                    }`}>
-                    <div className="text-sm font-semibold">{t(`owner.vehicules.nouveau.condition_${v}`)}</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">{t(`owner.vehicules.nouveau.condition_${v}_desc`)}</div>
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">
+                      {t(`owner.vehicules.nouveau.condition_${v}`)}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {t(`owner.vehicules.nouveau.condition_${v}_desc`)}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -394,42 +503,103 @@ function NewVehiclePage() {
               </p>
             </div>
 
-            <Field label={t("owner.vehicules.nouveau.name_label")} value={name} onChange={setName} required placeholder={t("owner.vehicules.nouveau.name_placeholder")} />
+            <Field
+              label={t("owner.vehicules.nouveau.name_label")}
+              value={name}
+              onChange={setName}
+              required
+              placeholder={t("owner.vehicules.nouveau.name_placeholder")}
+            />
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">{t("owner.vehicules.nouveau.id_section_title")}</p>
-                <p className="text-xs text-muted-foreground">{t("owner.vehicules.nouveau.id_section_desc")}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  {t("owner.vehicules.nouveau.id_section_title")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("owner.vehicules.nouveau.id_section_desc")}
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label={t("owner.vehicules.nouveau.plate_label")} value={licensePlate} onChange={setLicensePlate} placeholder={t("owner.vehicules.nouveau.plate_placeholder")} />
-                <Field label={t("owner.vehicules.nouveau.color_label")} value={color} onChange={setColor} placeholder={t("owner.vehicules.nouveau.color_placeholder")} />
+                <Field
+                  label={t("owner.vehicules.nouveau.plate_label")}
+                  value={licensePlate}
+                  onChange={setLicensePlate}
+                  placeholder={t("owner.vehicules.nouveau.plate_placeholder")}
+                />
+                <Field
+                  label={t("owner.vehicules.nouveau.color_label")}
+                  value={color}
+                  onChange={setColor}
+                  placeholder={t("owner.vehicules.nouveau.color_placeholder")}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <Field label={t("owner.vehicules.nouveau.brand_label")} value={brand} onChange={setBrand} placeholder={t("owner.vehicules.nouveau.brand_placeholder")} />
-                <Field label={t("owner.vehicules.nouveau.model_label")} value={vehicleModel} onChange={setVehicleModel} placeholder={t("owner.vehicules.nouveau.model_placeholder")} />
+                <Field
+                  label={t("owner.vehicules.nouveau.brand_label")}
+                  value={brand}
+                  onChange={setBrand}
+                  placeholder={t("owner.vehicules.nouveau.brand_placeholder")}
+                />
+                <Field
+                  label={t("owner.vehicules.nouveau.model_label")}
+                  value={vehicleModel}
+                  onChange={setVehicleModel}
+                  placeholder={t("owner.vehicules.nouveau.model_placeholder")}
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.description_label")}</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500}
+              <label className="block text-sm font-medium mb-1.5">
+                {t("owner.vehicules.nouveau.description_label")}
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                maxLength={500}
                 placeholder={t("owner.vehicules.nouveau.description_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              <p className="text-xs text-muted-foreground mt-1.5">{t("owner.vehicules.nouveau.description_hint")}</p>
+                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {t("owner.vehicules.nouveau.description_hint")}
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Field label={t("owner.vehicules.nouveau.surface_label")} value={surface} onChange={setSurface} type="number" />
-              <Field label={t("owner.vehicules.nouveau.km_label")} value={km} onChange={setKm} type="number" />
+              <Field
+                label={t("owner.vehicules.nouveau.surface_label")}
+                value={surface}
+                onChange={setSurface}
+                type="number"
+              />
+              <Field
+                label={t("owner.vehicules.nouveau.km_label")}
+                value={km}
+                onChange={setKm}
+                type="number"
+              />
             </div>
-            <Field label={t("owner.vehicules.nouveau.zones_label")} value={zones} onChange={setZones} placeholder={t("owner.vehicules.nouveau.zones_placeholder")} />
+            <Field
+              label={t("owner.vehicules.nouveau.zones_label")}
+              value={zones}
+              onChange={setZones}
+              placeholder={t("owner.vehicules.nouveau.zones_placeholder")}
+            />
             <div>
-              <Field label={t("owner.vehicules.nouveau.price_label")} value={price} onChange={setPrice} type="number" required />
+              <Field
+                label={t("owner.vehicules.nouveau.price_label")}
+                value={price}
+                onChange={setPrice}
+                type="number"
+                required
+              />
               <p className="text-xs text-muted-foreground mt-1.5">
                 {t("owner.vehicules.nouveau.price_hint")}
                 {estimate && estimate.suggested_price_max > 0 && (
                   <>
-                    {" "}{t("owner.vehicules.nouveau.price_range_hint", {
+                    {" "}
+                    {t("owner.vehicules.nouveau.price_range_hint", {
                       min: Math.floor(estimate.suggested_price_min * 0.7),
                       max: Math.floor(estimate.suggested_price_max * 0.7),
                     })}
@@ -439,7 +609,9 @@ function NewVehiclePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">{t("owner.vehicules.nouveau.photos_label")}</label>
+              <label className="block text-sm font-medium mb-1.5">
+                {t("owner.vehicules.nouveau.photos_label")}
+              </label>
               <div
                 className="relative rounded-xl border-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/30 transition-colors"
                 onPaste={(e) => {
@@ -447,7 +619,9 @@ function NewVehiclePage() {
                   const imageItems = items.filter((item) => item.type.startsWith("image/"));
                   if (!imageItems.length) return;
                   e.preventDefault();
-                  const newFiles = imageItems.map(i => i.getAsFile()).filter((f): f is File => f !== null);
+                  const newFiles = imageItems
+                    .map((i) => i.getAsFile())
+                    .filter((f): f is File => f !== null);
                   setFiles((prev) => applyPhotos(newFiles, prev));
                   setEstimate(null);
                   setPastedHint(true);
@@ -456,22 +630,36 @@ function NewVehiclePage() {
               >
                 <label className="flex flex-col items-center justify-center gap-2 py-5 cursor-pointer">
                   <span className="text-2xl">📷</span>
-                  <span className="text-sm text-muted-foreground font-medium">{t("owner.vehicules.nouveau.photos_choose")}</span>
-                  <span className="text-xs text-muted-foreground/70">{t("owner.vehicules.nouveau.photos_drag")}</span>
+                  <span className="text-sm text-muted-foreground font-medium">
+                    {t("owner.vehicules.nouveau.photos_choose")}
+                  </span>
+                  <span className="text-xs text-muted-foreground/70">
+                    {t("owner.vehicules.nouveau.photos_drag")}
+                  </span>
                   <div className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full bg-card border border-border">
-                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">Ctrl</kbd>
+                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">
+                      Ctrl
+                    </kbd>
                     <span className="text-[10px] text-muted-foreground">+</span>
-                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">V</kbd>
-                    <span className="text-[10px] text-muted-foreground ml-1">{t("owner.vehicules.nouveau.photos_paste")}</span>
+                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">
+                      V
+                    </kbd>
+                    <span className="text-[10px] text-muted-foreground ml-1">
+                      {t("owner.vehicules.nouveau.photos_paste")}
+                    </span>
                   </div>
-                  <input type="file" accept="image/*" multiple
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
                     onChange={(e) => {
                       const picked = Array.from(e.target.files ?? []);
                       setFiles((prev) => applyPhotos(picked, prev));
                       setEstimate(null);
                       e.currentTarget.value = "";
                     }}
-                    className="hidden" />
+                    className="hidden"
+                  />
                 </label>
                 {pastedHint && (
                   <div className="absolute inset-0 flex items-center justify-center bg-primary/10 border-2 border-primary rounded-xl pointer-events-none">
@@ -484,19 +672,31 @@ function NewVehiclePage() {
               {files.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {files.map((f, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-xs bg-secondary rounded-lg px-2.5 py-1.5">
+                    <div
+                      key={i}
+                      className="flex items-center gap-1.5 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
+                    >
                       <span>🖼</span>
-                      <span className="font-medium truncate max-w-[140px]">{f.name || `Image collée ${i + 1}`}</span>
+                      <span className="font-medium truncate max-w-[140px]">
+                        {f.name || `Image collée ${i + 1}`}
+                      </span>
                       <button
                         type="button"
-                        onClick={() => { setFiles(prev => prev.filter((_, j) => j !== i)); setEstimate(null); }}
+                        onClick={() => {
+                          setFiles((prev) => prev.filter((_, j) => j !== i));
+                          setEstimate(null);
+                        }}
                         className="text-muted-foreground hover:text-destructive ml-1 transition"
-                      >×</button>
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
                 </div>
               )}
-              <p className="text-xs text-muted-foreground mt-1.5">{t("owner.vehicules.nouveau.photos_hint")}</p>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {t("owner.vehicules.nouveau.photos_hint")}
+              </p>
               <p className="text-xs text-muted-foreground mt-1.5">
                 {t("owner.vehicules.nouveau.photos_3d_hint")}
               </p>
@@ -505,88 +705,141 @@ function NewVehiclePage() {
             <div className="rounded-xl border border-border bg-secondary/30 p-4">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <div>
-                  <div className="text-sm font-semibold">{t("owner.vehicules.nouveau.estimate_title")}</div>
-                  <div className="text-xs text-muted-foreground">{t("owner.vehicules.nouveau.estimate_desc")}</div>
+                  <div className="text-sm font-semibold">
+                    {t("owner.vehicules.nouveau.estimate_title")}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("owner.vehicules.nouveau.estimate_desc")}
+                  </div>
                 </div>
-                <button type="button" onClick={runEstimate} disabled={estimating || condition === "mauvais"}
-                  className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap">
-                  {estimating ? t("owner.vehicules.nouveau.estimating") : t("owner.vehicules.nouveau.estimate_btn")}
+                <button
+                  type="button"
+                  onClick={runEstimate}
+                  disabled={estimating || condition === "mauvais"}
+                  className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap"
+                >
+                  {estimating
+                    ? t("owner.vehicules.nouveau.estimating")
+                    : t("owner.vehicules.nouveau.estimate_btn")}
                 </button>
               </div>
               {estimate && (
                 <div className="space-y-2 text-sm mt-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">{t("owner.vehicules.nouveau.estimate_market_price")}</div>
-                      <div className="font-semibold">{estimate.suggested_price_min}–{estimate.suggested_price_max} €/j</div>
+                      <div className="text-[11px] text-muted-foreground uppercase">
+                        {t("owner.vehicules.nouveau.estimate_market_price")}
+                      </div>
+                      <div className="font-semibold">
+                        {estimate.suggested_price_min}–{estimate.suggested_price_max} €/j
+                      </div>
                     </div>
                     <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">{t("owner.vehicules.nouveau.estimate_impressions")}</div>
-                      <div className="font-semibold">{estimate.estimated_impressions_per_day.toLocaleString(i18n.language)} /j</div>
+                      <div className="text-[11px] text-muted-foreground uppercase">
+                        {t("owner.vehicules.nouveau.estimate_impressions")}
+                      </div>
+                      <div className="font-semibold">
+                        {estimate.estimated_impressions_per_day.toLocaleString(i18n.language)} /j
+                      </div>
                     </div>
                   </div>
 
-                  <div className={`rounded-lg p-2.5 text-xs ${
-                    estimate.photo_match === "ok" ? "bg-signal/10 text-signal" :
-                    estimate.photo_match === "doubtful" ? "bg-yellow-500/10 text-yellow-600" :
-                    estimate.photo_match === "mismatch" ? "bg-destructive/10 text-destructive" :
-                    "bg-muted text-muted-foreground"
-                  }`}>
+                  <div
+                    className={`rounded-lg p-2.5 text-xs ${
+                      estimate.photo_match === "ok"
+                        ? "bg-signal/10 text-signal"
+                        : estimate.photo_match === "doubtful"
+                          ? "bg-yellow-500/10 text-yellow-600"
+                          : estimate.photo_match === "mismatch"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-muted text-muted-foreground"
+                    }`}
+                  >
                     <strong>{t("owner.vehicules.nouveau.estimate_photo_label")} </strong>
-                    {estimate.photo_match === "ok" && t("owner.vehicules.nouveau.estimate_photo_ok")}
-                    {estimate.photo_match === "doubtful" && t("owner.vehicules.nouveau.estimate_photo_doubtful")}
-                    {estimate.photo_match === "mismatch" && t("owner.vehicules.nouveau.estimate_photo_mismatch")}
-                    {estimate.photo_match === "unverified" && t("owner.vehicules.nouveau.estimate_photo_unverified")}
-                    {estimate.photo_notes && <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>}
+                    {estimate.photo_match === "ok" &&
+                      t("owner.vehicules.nouveau.estimate_photo_ok")}
+                    {estimate.photo_match === "doubtful" &&
+                      t("owner.vehicules.nouveau.estimate_photo_doubtful")}
+                    {estimate.photo_match === "mismatch" &&
+                      t("owner.vehicules.nouveau.estimate_photo_mismatch")}
+                    {estimate.photo_match === "unverified" &&
+                      t("owner.vehicules.nouveau.estimate_photo_unverified")}
+                    {estimate.photo_notes && (
+                      <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>
+                    )}
                   </div>
                   {estimate.condition_alert && (
-                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
+                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">
+                      ⚠️ {estimate.condition_alert}
+                    </div>
                   )}
                   {estimate.ai_generated_detected && (
                     <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-3 text-xs space-y-2">
-                      <div className="font-semibold text-sm">🚫 {t("owner.vehicules.nouveau.estimate_ai_detected")}</div>
+                      <div className="font-semibold text-sm">
+                        🚫 {t("owner.vehicules.nouveau.estimate_ai_detected")}
+                      </div>
                       {estimate.ai_generated_notes && (
                         <div className="bg-destructive/10 rounded p-2 leading-relaxed">
                           <strong>{t("owner.vehicules.nouveau.estimate_ai_reason_label")}</strong>{" "}
                           {estimate.ai_generated_notes}
                         </div>
                       )}
-                      <div className="text-destructive/80">{t("owner.vehicules.nouveau.estimate_ai_upload")}</div>
+                      <div className="text-destructive/80">
+                        {t("owner.vehicules.nouveau.estimate_ai_upload")}
+                      </div>
                     </div>
                   )}
                   {estimate.suggested_price_max > 0 && (
                     <div className="rounded-lg border border-primary/30 bg-primary/5 p-2.5 text-xs">
                       <div>
                         <strong>{t("owner.vehicules.nouveau.estimate_owner_remun")}</strong>{" "}
-                        {Math.floor(estimate.suggested_price_min * 0.7)}–{Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                        {Math.floor(estimate.suggested_price_min * 0.7)}–
+                        {Math.floor(estimate.suggested_price_max * 0.7)} €/j
                       </div>
                       <div className="mt-1 text-muted-foreground">
                         {t("owner.vehicules.nouveau.estimate_commission")}
                       </div>
                       <button
                         type="button"
-                        onClick={() => { setPrice(String(Math.floor(estimate.suggested_price_max * 0.7))); setError(""); }}
+                        onClick={() => {
+                          setPrice(String(Math.floor(estimate.suggested_price_max * 0.7)));
+                          setError("");
+                        }}
                         className="mt-2 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 font-medium hover:bg-primary/90 transition"
                       >
-                        {t("owner.vehicules.nouveau.estimate_use_price", { price: Math.floor(estimate.suggested_price_max * 0.7) })}
+                        {t("owner.vehicules.nouveau.estimate_use_price", {
+                          price: Math.floor(estimate.suggested_price_max * 0.7),
+                        })}
                       </button>
                     </div>
                   )}
                   {estimate.recommendation && (
-                    <div className="text-xs text-muted-foreground italic">💡 {estimate.recommendation}</div>
+                    <div className="text-xs text-muted-foreground italic">
+                      💡 {estimate.recommendation}
+                    </div>
                   )}
                 </div>
               )}
             </div>
 
-            {error && <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">{error}</div>}
+            {error && (
+              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
 
             <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
               {t("owner.vehicules.nouveau.ip_notice")}
             </div>
 
-            <button type="submit" disabled={loading} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60">
-              {loading ? t("owner.vehicules.nouveau.submitting") : t("owner.vehicules.nouveau.submit")}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+            >
+              {loading
+                ? t("owner.vehicules.nouveau.submitting")
+                : t("owner.vehicules.nouveau.submit")}
             </button>
           </form>
         </div>
@@ -595,14 +848,32 @@ function NewVehiclePage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required, placeholder }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string; required?: boolean; placeholder?: string;
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
 }) {
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input type={type} required={required} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <input
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </div>
   );
 }

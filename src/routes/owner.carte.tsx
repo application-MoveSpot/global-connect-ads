@@ -56,11 +56,10 @@ function CartePage() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex gap-3">
-            <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">{t("owner.carte.back")}</Link>
-            <button
-              onClick={() => window.print()}
-              className="text-sm text-primary hover:underline"
-            >
+            <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("owner.carte.back")}
+            </Link>
+            <button onClick={() => window.print()} className="text-sm text-primary hover:underline">
               {t("owner.carte.print")}
             </button>
           </div>
@@ -70,17 +69,11 @@ function CartePage() {
       <main className="max-w-4xl mx-auto px-4 py-8 print:p-0">
         <div className="print:hidden mb-6">
           <h1 className="font-display text-3xl font-bold mb-1">{t("owner.carte.title")}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t("owner.carte.desc")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("owner.carte.desc")}</p>
         </div>
 
         {/* Card preview — matches print layout */}
-        <div
-          ref={cardRef}
-          className="mx-auto print:mx-0"
-          style={{ maxWidth: 680 }}
-        >
+        <div ref={cardRef} className="mx-auto print:mx-0" style={{ maxWidth: 680 }}>
           {/* Front of card */}
           <div
             className="rounded-2xl overflow-hidden shadow-xl print:rounded-none print:shadow-none"
@@ -95,16 +88,43 @@ function CartePage() {
             }}
           >
             {/* Top accent */}
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 5, background: "#f97316" }} />
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 5,
+                background: "#f97316",
+              }}
+            />
 
             {/* Header row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}
+            >
               <div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: "#ffffff", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+                <div
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 800,
+                    color: "#ffffff",
+                    letterSpacing: "-0.02em",
+                    lineHeight: 1.1,
+                  }}
+                >
                   <span style={{ color: "#ffffff" }}>Move</span>
                   <span style={{ color: "#f97316" }}>Spot</span>
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "#94a3b8",
+                    marginTop: 4,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {t("owner.carte.card_tagline")}
                 </div>
               </div>
@@ -133,43 +153,61 @@ function CartePage() {
                   </div>
                   {vehicleTypes.length > 0 && (
                     <div style={{ color: "#94a3b8", fontSize: 12 }}>
-                      {vehicleTypes.map((type) => t(`vehicle_types.${type}` as never, { defaultValue: type })).join(" · ")}
+                      {vehicleTypes
+                        .map((type) => t(`vehicle_types.${type}` as never, { defaultValue: type }))
+                        .join(" · ")}
                     </div>
                   )}
                 </>
               ) : (
-                <div style={{ color: "#94a3b8", fontSize: 13 }}>
-                  {t("owner.carte.no_vehicles")}
-                </div>
+                <div style={{ color: "#94a3b8", fontSize: 13 }}>{t("owner.carte.no_vehicles")}</div>
               )}
             </div>
 
             {/* Bottom row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}
+            >
               <div>
-                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>{t("owner.carte.card_fleet_role")}</div>
+                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>
+                  {t("owner.carte.card_fleet_role")}
+                </div>
                 <div style={{ fontSize: 11, color: "#64748b" }}>{t("owner.carte.card_cta")}</div>
               </div>
-              <div style={{
-                background: "#f97316",
-                color: "#ffffff",
-                fontSize: 10,
-                fontWeight: 700,
-                padding: "4px 12px",
-                borderRadius: 999,
-                letterSpacing: "0.03em",
-              }}>
+              <div
+                style={{
+                  background: "#f97316",
+                  color: "#ffffff",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: "4px 12px",
+                  borderRadius: 999,
+                  letterSpacing: "0.03em",
+                }}
+              >
                 B2B · B2C
               </div>
             </div>
 
             {/* Bottom accent */}
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 5, background: "#f97316" }} />
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 5,
+                background: "#f97316",
+              }}
+            />
           </div>
         </div>
 
         {/* Instructions */}
-        <div className="print:hidden mt-6 rounded-xl border border-border bg-card p-5 space-y-3 text-sm text-muted-foreground" style={{ maxWidth: 680, margin: "24px auto 0" }}>
+        <div
+          className="print:hidden mt-6 rounded-xl border border-border bg-card p-5 space-y-3 text-sm text-muted-foreground"
+          style={{ maxWidth: 680, margin: "24px auto 0" }}
+        >
           <p className="font-medium text-foreground">{t("owner.carte.how_title")}</p>
           <ul className="space-y-1.5 list-disc list-inside">
             <li>{t("owner.carte.how_1")}</li>

@@ -49,8 +49,13 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         await Promise.allSettled(
           (unpaidCampaigns ?? []).map(async (c) => {
             const cr = c as {
-              id: string; spot_name: string; company: string; email: string;
-              user_id: string | null; created_at: string; total_price: number | null;
+              id: string;
+              spot_name: string;
+              company: string;
+              email: string;
+              user_id: string | null;
+              created_at: string;
+              total_price: number | null;
             };
             const ageMs = now.getTime() - new Date(cr.created_at).getTime();
             const ageDays = Math.floor(ageMs / 86_400_000);
@@ -146,8 +151,11 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         await Promise.allSettled(
           (overdueInstallations ?? []).map(async (c) => {
             const cr = c as {
-              id: string; spot_name: string; start_date: string | null;
-              vehicle_id: string | null; user_id: string | null;
+              id: string;
+              spot_name: string;
+              start_date: string | null;
+              vehicle_id: string | null;
+              user_id: string | null;
             };
             if (!cr.vehicle_id) return;
 
@@ -173,7 +181,11 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                 .select("full_name, email, user_id")
                 .eq("id", veh.driver_id)
                 .maybeSingle();
-              const drv = driver as { full_name: string; email: string | null; user_id: string | null } | null;
+              const drv = driver as {
+                full_name: string;
+                email: string | null;
+                user_id: string | null;
+              } | null;
               if (drv?.email) {
                 await sendAppEmailSafe({
                   templateName: "installation-overdue",
@@ -301,13 +313,20 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
             .eq("status", "approved");
 
           if (recentBriefs?.length && approvedVehicles?.length) {
-            type OwnerBucket = { userId: string; name: string; types: Set<string>; };
+            type OwnerBucket = { userId: string; name: string; types: Set<string> };
             const ownerMap = new Map<string, OwnerBucket>();
             for (const v of approvedVehicles) {
-              const prof = (v as unknown as Record<string, unknown>).owner_profiles as { user_id: string; full_name: string } | null;
+              const prof = (v as unknown as Record<string, unknown>).owner_profiles as {
+                user_id: string;
+                full_name: string;
+              } | null;
               if (!prof) continue;
               if (!ownerMap.has(prof.user_id)) {
-                ownerMap.set(prof.user_id, { userId: prof.user_id, name: prof.full_name ?? "", types: new Set() });
+                ownerMap.set(prof.user_id, {
+                  userId: prof.user_id,
+                  name: prof.full_name ?? "",
+                  types: new Set(),
+                });
               }
               ownerMap.get(prof.user_id)!.types.add(String(v.type));
             }
@@ -321,11 +340,14 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
               const top = compatible[0]!;
               await sendWebPushToUser(owner.userId, {
                 title: "🎯 Nouveaux briefs pour votre flotte",
-                body: compatible.length === 1
-                  ? `"${top.title}" correspond à votre flotte — répondez en premier !`
-                  : `${compatible.length} briefs correspondent à votre flotte. Ne les ratez pas !`,
+                body:
+                  compatible.length === 1
+                    ? `"${top.title}" correspond à votre flotte — répondez en premier !`
+                    : `${compatible.length} briefs correspondent à votre flotte. Ne les ratez pas !`,
                 url: "/owner/briefs",
-              }).catch(() => {/* best-effort */});
+              }).catch(() => {
+                /* best-effort */
+              });
               matchingStats.notified++;
             }
             results.matching = matchingStats;
@@ -373,16 +395,27 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
 
                   const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${apiKey}`,
+                    },
                     body: JSON.stringify({
                       model: "google/gemini-2.5-flash",
-                      messages: [{
-                        role: "user",
-                        content: [
-                          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
-                          { type: "text", text: 'Analyse ce visuel publicitaire. Réponds en JSON: {"safe":true/false,"score_risque":0-100,"verdict":"conforme"|"suspect"|"interdit","issues":[]}. Score > 50 = suspect.' },
-                        ],
-                      }],
+                      messages: [
+                        {
+                          role: "user",
+                          content: [
+                            {
+                              type: "image_url",
+                              image_url: { url: `data:${mimeType};base64,${base64}` },
+                            },
+                            {
+                              type: "text",
+                              text: 'Analyse ce visuel publicitaire. Réponds en JSON: {"safe":true/false,"score_risque":0-100,"verdict":"conforme"|"suspect"|"interdit","issues":[]}. Score > 50 = suspect.',
+                            },
+                          ],
+                        },
+                      ],
                       temperature: 0.1,
                       max_tokens: 150,
                     }),
@@ -390,10 +423,16 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
 
                   modStats.analysed++;
                   if (aiResp.ok) {
-                    const json = await aiResp.json() as { choices?: Array<{ message?: { content?: string } }> };
+                    const json = (await aiResp.json()) as {
+                      choices?: Array<{ message?: { content?: string } }>;
+                    };
                     const raw = json.choices?.[0]?.message?.content ?? "{}";
                     let parsed: { score_risque?: number; verdict?: string } = {};
-                    try { parsed = JSON.parse(raw.replace(/```json\n?|\n?```/g, "")); } catch { /* ignore */ }
+                    try {
+                      parsed = JSON.parse(raw.replace(/```json\n?|\n?```/g, ""));
+                    } catch {
+                      /* ignore */
+                    }
                     const score = Number(parsed.score_risque ?? 0);
                     if (score >= 50) {
                       modStats.suspects++;
@@ -402,11 +441,15 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                           title: "🚨 Visuel suspect détecté",
                           body: `Brief "${brief.title}" : visuel avec score risque ${score}/100. Vérifiez dans Modération IA.`,
                           url: "/admin/dashboard",
-                        }).catch(() => {/* best-effort */});
+                        }).catch(() => {
+                          /* best-effort */
+                        });
                       }
                     }
                   }
-                } catch { /* best-effort per file */ }
+                } catch {
+                  /* best-effort per file */
+                }
               }
             }
           }
@@ -463,7 +506,10 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         if (token !== cronSecret) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
-        return Response.json({ ok: true, message: "Endpoint cron actif. Utilisez POST pour exécuter." });
+        return Response.json({
+          ok: true,
+          message: "Endpoint cron actif. Utilisez POST pour exécuter.",
+        });
       },
     },
   },

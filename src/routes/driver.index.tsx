@@ -12,7 +12,9 @@ import { RouteError } from "@/components/app/RouteError";
 import { CheckCircle, XCircle, Car } from "lucide-react";
 
 export const Route = createFileRoute("/driver/")({
-  head: () => ({ meta: [{ title: "Chauffeur — MoveSpot" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Chauffeur — MoveSpot" }, { name: "robots", content: "noindex" }],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({ t: typeof s.t === "string" ? s.t : "" }),
   component: DriverPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -34,7 +36,9 @@ function DriverPage() {
   const verify = useServerFn(verifyDriverToken);
   const pushBatch = useServerFn(pushPositionBatchWithToken);
 
-  const [state, setState] = useState<"verifying" | "confirming" | "ready" | "invalid" | "tracking">("verifying");
+  const [state, setState] = useState<"verifying" | "confirming" | "ready" | "invalid" | "tracking">(
+    "verifying",
+  );
   const [error, setError] = useState<string | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [count, setCount] = useState(0);
@@ -48,7 +52,8 @@ function DriverPage() {
   const bufferRef = useRef<GpsBatchBuffer | null>(null);
 
   useEffect(() => {
-    const stored = typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
+    const stored =
+      typeof localStorage !== "undefined" ? localStorage.getItem("movespot_driver_token") : null;
     const tok = tokenSearch || stored || "";
     if (!tok) {
       setState("invalid");
@@ -56,19 +61,23 @@ function DriverPage() {
       return;
     }
     tokenRef.current = tok;
-    verify({ data: { token: tok } }).then((r: any) => {
-      if (r.ok) {
-        setVehicle(r.vehicle as Vehicle);
-        setState("confirming");
-        try { localStorage.setItem("movespot_driver_token", tok); } catch {}
-      } else {
+    verify({ data: { token: tok } })
+      .then((r: any) => {
+        if (r.ok) {
+          setVehicle(r.vehicle as Vehicle);
+          setState("confirming");
+          try {
+            localStorage.setItem("movespot_driver_token", tok);
+          } catch {}
+        } else {
+          setState("invalid");
+          setError(r.error);
+        }
+      })
+      .catch(() => {
         setState("invalid");
-        setError(r.error);
-      }
-    }).catch(() => {
-      setState("invalid");
-      setError(t("driver.error_verify"));
-    });
+        setError(t("driver.error_verify"));
+      });
   }, [tokenSearch, verify, t]);
 
   const confirmVehicle = () => {
@@ -77,7 +86,9 @@ function DriverPage() {
   };
 
   const rejectVehicle = () => {
-    try { localStorage.removeItem("movespot_driver_token"); } catch {}
+    try {
+      localStorage.removeItem("movespot_driver_token");
+    } catch {}
     setState("invalid");
     setError(t("driver.invalid_vehicle"));
   };
@@ -134,7 +145,11 @@ function DriverPage() {
   const stop = () => {
     if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current);
     watchIdRef.current = null;
-    if (wakeLockRef.current) { try { wakeLockRef.current.release(); } catch {} }
+    if (wakeLockRef.current) {
+      try {
+        wakeLockRef.current.release();
+      } catch {}
+    }
     wakeLockRef.current = null;
     void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));
     setSessionTrack([]);
@@ -142,7 +157,12 @@ function DriverPage() {
     toast(t("driver.gps_stopped"));
   };
 
-  useEffect(() => () => { if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current);
+    },
+    [],
+  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-start p-6">
@@ -152,7 +172,9 @@ function DriverPage() {
           <h1 className="font-display text-2xl font-bold mt-2">MoveSpot Chauffeur</h1>
         </div>
 
-        {state === "verifying" && <p className="text-center text-muted-foreground">{t("driver.verifying")}</p>}
+        {state === "verifying" && (
+          <p className="text-center text-muted-foreground">{t("driver.verifying")}</p>
+        )}
 
         {state === "invalid" && (
           <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-6 text-center">
@@ -180,7 +202,9 @@ function DriverPage() {
                 </div>
                 {vehicle.format && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t("driver.vehicle_format_label")}</span>
+                    <span className="text-muted-foreground">
+                      {t("driver.vehicle_format_label")}
+                    </span>
                     <span>{vehicle.format}</span>
                   </div>
                 )}
@@ -198,9 +222,7 @@ function DriverPage() {
                 )}
               </div>
 
-              <p className="text-sm font-medium text-center mb-4">
-                {t("driver.confirm_question")}
-              </p>
+              <p className="text-sm font-medium text-center mb-4">{t("driver.confirm_question")}</p>
 
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -225,23 +247,42 @@ function DriverPage() {
         {(state === "ready" || state === "tracking") && vehicle && (
           <div className="space-y-4">
             <div className="rounded-2xl border border-border bg-card p-6 text-center">
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">{t("driver.vehicle_confirmed_label")}</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("driver.vehicle_confirmed_label")}
+              </div>
               <div className="font-display text-xl font-bold mt-1">{vehicle.name}</div>
               <div className="text-sm text-muted-foreground">
-                {vehicle.type}{vehicle.format ? ` · ${vehicle.format}` : ""}
+                {vehicle.type}
+                {vehicle.format ? ` · ${vehicle.format}` : ""}
                 {vehicle.plate && <span className="ml-2 font-mono font-bold">{vehicle.plate}</span>}
               </div>
               {vehicle.zones.length > 0 && (
                 <div className="mt-3 text-left">
                   <WeatherInstallCheck zone={vehicle.zones[0]!} />
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{t("driver.traffic_label")}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t("driver.traffic_label")}
+                    </span>
                     {(() => {
                       const q = encodeURIComponent(vehicle.zones[0]!);
                       return (
                         <>
-                          <a href={`https://waze.com/ul?q=${q}&navigate=yes`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Waze</a>
-                          <a href={`https://maps.google.com/maps?q=${q}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary">Google Maps</a>
+                          <a
+                            href={`https://waze.com/ul?q=${q}&navigate=yes`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary"
+                          >
+                            Waze
+                          </a>
+                          <a
+                            href={`https://maps.google.com/maps?q=${q}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary/50 px-2 py-0.5 text-xs font-medium hover:bg-secondary"
+                          >
+                            Google Maps
+                          </a>
                         </>
                       );
                     })()}
@@ -267,8 +308,12 @@ function DriverPage() {
                     </span>
                     <span className="font-semibold text-signal">{t("driver.in_progress")}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground">{t("driver.points_sent", { count })}</div>
-                  <div className="text-xs text-muted-foreground">{t("driver.pending_desc", { count: pending })}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("driver.points_sent", { count })}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("driver.pending_desc", { count: pending })}
+                  </div>
                   {lastPos && (
                     <div className="text-[10px] font-mono mt-1 text-muted-foreground">
                       {lastPos.lat.toFixed(5)}, {lastPos.lng.toFixed(5)}
@@ -281,11 +326,7 @@ function DriverPage() {
                 >
                   {t("driver.stop")}
                 </button>
-                <DriverTrackMap
-                  currentPos={lastPos}
-                  track={sessionTrack}
-                  zones={vehicle.zones}
-                />
+                <DriverTrackMap currentPos={lastPos} track={sessionTrack} zones={vehicle.zones} />
                 <ObstacleReportDialog token={tokenRef.current} />
                 <p className="text-xs text-muted-foreground text-center">
                   {t("driver.keep_screen_on")}

@@ -1,10 +1,27 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -18,7 +35,16 @@ interface Props {
   unsubscribeUrl?: string;
 }
 
-const Email = ({ company, spotName, startDate, endDate, budget, zone, dashboardUrl, unsubscribeUrl }: Props) => (
+const Email = ({
+  company,
+  spotName,
+  startDate,
+  endDate,
+  budget,
+  zone,
+  dashboardUrl,
+  unsubscribeUrl,
+}: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
     <Preview>Brief reçu — notre équipe l'examine sous 48h ouvrées</Preview>
@@ -29,22 +55,33 @@ const Email = ({ company, spotName, startDate, endDate, budget, zone, dashboardU
 
           <Section style={contentPadding}>
             {/* Status */}
-            <Text style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#6366f1", margin: "0 0 10px" }}>
+            <Text
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                color: "#6366f1",
+                margin: "0 0 10px",
+              }}
+            >
               Confirmation de brief
             </Text>
 
-            <Text style={h1Style}>
-              Votre brief est bien reçu ✓
-            </Text>
+            <Text style={h1Style}>Votre brief est bien reçu ✓</Text>
 
             <Text style={textStyle}>
-              {company ? `Bonjour ${company},` : "Bonjour,"} merci d'avoir soumis votre demande de campagne sur MoveSpot. Notre équipe va vérifier la conformité de votre visuel et la disponibilité des véhicules dans votre zone.
+              {company ? `Bonjour ${company},` : "Bonjour,"} merci d'avoir soumis votre demande de
+              campagne sur MoveSpot. Notre équipe va vérifier la conformité de votre visuel et la
+              disponibilité des véhicules dans votre zone.
             </Text>
 
             {/* Récapitulatif */}
             <InfoCard>
               {spotName ? <InfoRow label="Campagne" value={spotName} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
               {budget ? <InfoRow label="Budget" value={budget} /> : null}
               {zone ? <InfoRow label="Zone ciblée" value={zone} /> : null}
               <InfoRow label="Délai d'examen" value="48h ouvrées" />

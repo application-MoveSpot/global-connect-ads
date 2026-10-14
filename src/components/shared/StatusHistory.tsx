@@ -32,7 +32,8 @@ export function StatusHistory({ entityType, entityId, statusLabel, triggerLabel 
 
   const label = (s: string | null) => (s ? (statusLabel?.[s] ?? s) : "—");
 
-  const fmt = (d: string) => new Date(d).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" });
+  const fmt = (d: string) =>
+    new Date(d).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" });
 
   const toggle = async () => {
     const next = !open;

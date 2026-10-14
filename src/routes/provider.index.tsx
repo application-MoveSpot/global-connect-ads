@@ -26,27 +26,53 @@ export const Route = createFileRoute("/provider/")({
 });
 
 type Profile = {
-  user_id: string; company: string; full_name: string; status: string; admin_notes: string | null;
-  siret: string | null; email: string | null; phone: string | null; website: string | null;
-  description: string | null; services: string[] | null; coverage_areas: string[] | null;
-  pricing_info: string | null; logo_url: string | null;
+  user_id: string;
+  company: string;
+  full_name: string;
+  status: string;
+  admin_notes: string | null;
+  siret: string | null;
+  email: string | null;
+  phone: string | null;
+  website: string | null;
+  description: string | null;
+  services: string[] | null;
+  coverage_areas: string[] | null;
+  pricing_info: string | null;
+  logo_url: string | null;
   stripe_subscription_status: string | null;
   stripe_subscription_period_end: string | null;
   pose_location_types: string[];
 };
 
 type Quote = {
-  id: string; advertiser_id: string; service_type: string; vehicle_type: string | null;
+  id: string;
+  advertiser_id: string;
+  service_type: string;
+  vehicle_type: string | null;
   vehicle_id: string | null;
-  format: string | null; quantity: number | null; deadline: string | null; zone: string | null;
-  message: string; status: string; quoted_price_cents: number | null; quoted_message: string | null;
-  impossible_reason: string | null; impossible_photos: string[]; impossible_at: string | null;
+  format: string | null;
+  quantity: number | null;
+  deadline: string | null;
+  zone: string | null;
+  message: string;
+  status: string;
+  quoted_price_cents: number | null;
+  quoted_message: string | null;
+  impossible_reason: string | null;
+  impossible_photos: string[];
+  impossible_at: string | null;
   created_at: string;
 };
 
 type VehicleId = {
-  license_plate: string | null; brand: string | null; model: string | null; color: string | null;
-  name: string; type: string; photos: string[] | null;
+  license_plate: string | null;
+  brand: string | null;
+  model: string | null;
+  color: string | null;
+  name: string;
+  type: string;
+  photos: string[] | null;
 };
 
 function ProviderDashboard() {
@@ -56,26 +82,43 @@ function ProviderDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [vehicleMap, setVehicleMap] = useState<Record<string, VehicleId>>({});
-  const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>({ open: false, quoteId: null });
+  const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>(
+    { open: false, quoteId: null },
+  );
 
   const load = useCallback(async () => {
     const session = await getOrRefreshSession();
-    if (!session) { navigate({ to: "/provider/connexion" }); return; }
-    const { data: p } = await supabase.from("provider_profiles")
-      .select("user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end, pose_location_types")
-      .eq("user_id", session.user.id).maybeSingle();
-    if (!p) { navigate({ to: "/provider/inscription" }); return; }
+    if (!session) {
+      navigate({ to: "/provider/connexion" });
+      return;
+    }
+    const { data: p } = await supabase
+      .from("provider_profiles")
+      .select(
+        "user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end, pose_location_types",
+      )
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+    if (!p) {
+      navigate({ to: "/provider/inscription" });
+      return;
+    }
     setProfile(p as Profile);
-    const { data: qs } = await supabase.from("service_quotes")
-      .select("*").eq("provider_id", session.user.id)
+    const { data: qs } = await supabase
+      .from("service_quotes")
+      .select("*")
+      .eq("provider_id", session.user.id)
       .order("created_at", { ascending: false });
     const quoteList = (qs as Quote[]) ?? [];
     setQuotes(quoteList);
 
     // Fetch identification data for quoted vehicles
-    const vehicleIds = [...new Set(quoteList.map((q) => q.vehicle_id).filter((id): id is string => !!id))];
+    const vehicleIds = [
+      ...new Set(quoteList.map((q) => q.vehicle_id).filter((id): id is string => !!id)),
+    ];
     if (vehicleIds.length > 0) {
-      const { data: vehicles } = await supabase.from("vehicles")
+      const { data: vehicles } = await supabase
+        .from("vehicles")
         .select("id, license_plate, brand, model, color, name, type, photos")
         .in("id", vehicleIds);
       const map: Record<string, VehicleId> = {};
@@ -86,14 +129,25 @@ function ProviderDashboard() {
     setLoading(false);
   }, [navigate]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const respondQuote = async (id: string, priceEur: string, msg: string) => {
     const cents = Math.round(Number(priceEur) * 100);
-    if (!cents || cents < 0) { alert(t("provider.dashboard.error_invalid_price")); return; }
-    await supabase.from("service_quotes").update({
-      status: "quoted", quoted_price_cents: cents, quoted_message: msg || null, quoted_at: new Date().toISOString(),
-    }).eq("id", id);
+    if (!cents || cents < 0) {
+      alert(t("provider.dashboard.error_invalid_price"));
+      return;
+    }
+    await supabase
+      .from("service_quotes")
+      .update({
+        status: "quoted",
+        quoted_price_cents: cents,
+        quoted_message: msg || null,
+        quoted_at: new Date().toISOString(),
+      })
+      .eq("id", id);
     await load();
   };
 
@@ -103,8 +157,7 @@ function ProviderDashboard() {
     await load();
   };
 
-  const openImpossibleModal = (id: string) =>
-    setImpossibleModal({ open: true, quoteId: id });
+  const openImpossibleModal = (id: string) => setImpossibleModal({ open: true, quoteId: id });
 
   const submitImpossible = async (reason: string, files: File[]) => {
     const { quoteId } = impossibleModal;
@@ -117,25 +170,37 @@ function ProviderDashboard() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const path = `${uid}/${quoteId}/photo-${i + 1}.${file.name.split(".").pop()}`;
-      const { error } = await supabase.storage.from("pose-impossible").upload(path, file, { upsert: true });
+      const { error } = await supabase.storage
+        .from("pose-impossible")
+        .upload(path, file, { upsert: true });
       if (!error) {
-        const { data: signed } = await supabase.storage.from("pose-impossible").createSignedUrl(path, 60 * 60 * 24 * 7);
+        const { data: signed } = await supabase.storage
+          .from("pose-impossible")
+          .createSignedUrl(path, 60 * 60 * 24 * 7);
         if (signed) photoUrls.push(signed.signedUrl);
       }
     }
 
-    await supabase.from("service_quotes").update({
-      status: "impossible_pending",
-      impossible_reason: reason,
-      impossible_photos: photoUrls,
-      impossible_at: new Date().toISOString(),
-    }).eq("id", quoteId);
+    await supabase
+      .from("service_quotes")
+      .update({
+        status: "impossible_pending",
+        impossible_reason: reason,
+        impossible_photos: photoUrls,
+        impossible_at: new Date().toISOString(),
+      })
+      .eq("id", quoteId);
 
     setImpossibleModal({ open: false, quoteId: null });
     await load();
   };
 
-  if (loading || !profile) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("common.loading")}</div>;
+  if (loading || !profile)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("common.loading")}
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,7 +208,9 @@ function ProviderDashboard() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:inline">{profile.company}</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              {profile.company}
+            </span>
             <a
               href="https://www.instagram.com/movespot_pub/"
               target="_blank"
@@ -153,10 +220,27 @@ function ProviderDashboard() {
             >
               <Instagram className="h-4 w-4" />
             </a>
-            <Link to="/provider/profil" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("profile.title")}</Link>
-            <Link to="/parametres" className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("common.settings")}</Link>
-            <button onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}
-              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary">{t("common.logout")}</button>
+            <Link
+              to="/provider/profil"
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
+            >
+              {t("profile.title")}
+            </Link>
+            <Link
+              to="/parametres"
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
+            >
+              {t("common.settings")}
+            </Link>
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate({ to: "/" });
+              }}
+              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
+            >
+              {t("common.logout")}
+            </button>
           </div>
         </div>
       </header>
@@ -176,14 +260,23 @@ function ProviderDashboard() {
         )}
         {profile.status === "rejected" && (
           <div className="mb-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
-            {t("provider.dashboard.rejected_notice")} {profile.admin_notes && <span>{t("common.reason_label")} {profile.admin_notes}</span>}
+            {t("provider.dashboard.rejected_notice")}{" "}
+            {profile.admin_notes && (
+              <span>
+                {t("common.reason_label")} {profile.admin_notes}
+              </span>
+            )}
           </div>
         )}
         <div className="mb-6">
           <StatusHistory
             entityType="provider_status"
             entityId={profile.user_id}
-            statusLabel={{ pending: t("provider.dashboard.status_pending"), approved: t("provider.dashboard.status_approved"), rejected: t("provider.dashboard.status_rejected") }}
+            statusLabel={{
+              pending: t("provider.dashboard.status_pending"),
+              approved: t("provider.dashboard.status_approved"),
+              rejected: t("provider.dashboard.status_rejected"),
+            }}
           />
         </div>
 
@@ -198,23 +291,31 @@ function ProviderDashboard() {
         {quotes.length > 0 && (
           <div className="grid sm:grid-cols-4 gap-4 mb-6">
             <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_total")}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("provider.dashboard.kpi_total")}
+              </p>
               <p className="font-display text-2xl font-bold">{quotes.length}</p>
             </div>
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_pending")}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("provider.dashboard.kpi_pending")}
+              </p>
               <p className="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">
                 {quotes.filter((q) => q.status === "pending").length}
               </p>
             </div>
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_quoted")}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("provider.dashboard.kpi_quoted")}
+              </p>
               <p className="font-display text-2xl font-bold text-primary">
                 {quotes.filter((q) => q.status === "quoted").length}
               </p>
             </div>
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("provider.dashboard.kpi_accepted")}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("provider.dashboard.kpi_accepted")}
+              </p>
               <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                 {quotes.filter((q) => q.status === "accepted").length}
               </p>
@@ -222,14 +323,25 @@ function ProviderDashboard() {
           </div>
         )}
 
-        <h2 className="font-display text-xl font-bold mb-3">{t("provider.dashboard.requests_count", { count: quotes.length })}</h2>
+        <h2 className="font-display text-xl font-bold mb-3">
+          {t("provider.dashboard.requests_count", { count: quotes.length })}
+        </h2>
         {quotes.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
             {t("provider.dashboard.no_requests")}
           </div>
         ) : (
           <div className="space-y-3">
-            {quotes.map((q) => <QuoteCard key={q.id} q={q} vehicle={q.vehicle_id ? vehicleMap[q.vehicle_id] : undefined} onRespond={respondQuote} onReject={rejectQuote} onOpenImpossible={openImpossibleModal} />)}
+            {quotes.map((q) => (
+              <QuoteCard
+                key={q.id}
+                q={q}
+                vehicle={q.vehicle_id ? vehicleMap[q.vehicle_id] : undefined}
+                onRespond={respondQuote}
+                onReject={rejectQuote}
+                onOpenImpossible={openImpossibleModal}
+              />
+            ))}
           </div>
         )}
       </main>
@@ -266,7 +378,11 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
     <section className="mb-8 rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start gap-4 mb-4">
         {profile.logo_url ? (
-          <img src={profile.logo_url} alt={profile.company} className="w-16 h-16 rounded-lg object-cover" />
+          <img
+            src={profile.logo_url}
+            alt={profile.company}
+            className="w-16 h-16 rounded-lg object-cover"
+          />
         ) : (
           <div className="w-16 h-16 rounded-lg bg-primary/15 text-primary font-bold flex items-center justify-center text-xl">
             {profile.company.charAt(0).toUpperCase()}
@@ -274,10 +390,19 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
         )}
         <div className="min-w-0 flex-1">
           <h2 className="font-display text-lg font-bold truncate">{profile.company}</h2>
-          <div className="text-sm text-muted-foreground">{t("common.contact_label")} {profile.full_name}</div>
-          {profile.siret && <div className="text-xs text-muted-foreground mt-0.5">{t("common.siret_label")} {profile.siret}</div>}
+          <div className="text-sm text-muted-foreground">
+            {t("common.contact_label")} {profile.full_name}
+          </div>
+          {profile.siret && (
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t("common.siret_label")} {profile.siret}
+            </div>
+          )}
         </div>
-        <Link to="/provider/inscription" className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary shrink-0">
+        <Link
+          to="/provider/inscription"
+          className="text-xs rounded-full border border-border px-3 py-1.5 hover:bg-secondary shrink-0"
+        >
           {t("common.edit")}
         </Link>
       </div>
@@ -289,25 +414,41 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
       </dl>
       {profile.description && (
         <div className="mt-3">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{t("common.description")}</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+            {t("common.description")}
+          </div>
           <p className="text-sm whitespace-pre-wrap">{profile.description}</p>
         </div>
       )}
       {arr(profile.services) && (
         <div className="mt-3">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">{t("provider.dashboard.profile_roles")}</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
+            {t("provider.dashboard.profile_roles")}
+          </div>
           <div className="flex flex-wrap gap-1">
-            {profile.services!.map((s) => <span key={s} className="text-xs bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full">{providerServiceLabel(s)}</span>)}
+            {profile.services!.map((s) => (
+              <span
+                key={s}
+                className="text-xs bg-primary/15 text-primary font-medium px-2 py-0.5 rounded-full"
+              >
+                {providerServiceLabel(s)}
+              </span>
+            ))}
           </div>
         </div>
       )}
       <div className="mt-3">
         <div className="flex items-center justify-between mb-1">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("provider.dashboard.profile_areas")}</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+            {t("provider.dashboard.profile_areas")}
+          </div>
           {!editingAreas && (
             <button
               type="button"
-              onClick={() => { setAreaList(profile.coverage_areas ?? []); setEditingAreas(true); }}
+              onClick={() => {
+                setAreaList(profile.coverage_areas ?? []);
+                setEditingAreas(true);
+              }}
               className="text-xs text-primary hover:underline"
             >
               {t("common.edit")}
@@ -316,14 +457,21 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
         </div>
         {editingAreas ? (
           <div className="space-y-2">
-            <ZoneTagInput value={areaList} onChange={setAreaList} placeholder={t("provider.inscription.coverage_hint")} />
+            <ZoneTagInput
+              value={areaList}
+              onChange={setAreaList}
+              placeholder={t("provider.inscription.coverage_hint")}
+            />
             <div className="flex gap-2">
               <button
                 type="button"
                 disabled={savingAreas}
                 onClick={async () => {
                   setSavingAreas(true);
-                  await supabase.from("provider_profiles").update({ coverage_areas: areaList }).eq("user_id", profile.user_id);
+                  await supabase
+                    .from("provider_profiles")
+                    .update({ coverage_areas: areaList })
+                    .eq("user_id", profile.user_id);
                   setSavingAreas(false);
                   setEditingAreas(false);
                   onSaved?.();
@@ -344,16 +492,24 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
         ) : (
           <div className="flex flex-wrap gap-1">
             {areaList.length > 0 ? (
-              areaList.map((z) => <span key={z} className="text-xs bg-secondary px-2 py-0.5 rounded-full">{z}</span>)
+              areaList.map((z) => (
+                <span key={z} className="text-xs bg-secondary px-2 py-0.5 rounded-full">
+                  {z}
+                </span>
+              ))
             ) : (
-              <span className="text-xs text-muted-foreground">{t("provider.inscription.coverage_hint")}</span>
+              <span className="text-xs text-muted-foreground">
+                {t("provider.inscription.coverage_hint")}
+              </span>
             )}
           </div>
         )}
       </div>
       <div className="mt-3">
         <div className="flex items-center justify-between mb-1">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("provider.dashboard.profile_pose_types")}</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">
+            {t("provider.dashboard.profile_pose_types")}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {(["garage", "domicile"] as const).map((type) => {
@@ -367,7 +523,10 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
                   const next = checked ? poseTypes.filter((x) => x !== type) : [...poseTypes, type];
                   setPoseTypes(next);
                   setSavingPoseTypes(true);
-                  await supabase.from("provider_profiles").update({ pose_location_types: next }).eq("user_id", profile.user_id);
+                  await supabase
+                    .from("provider_profiles")
+                    .update({ pose_location_types: next })
+                    .eq("user_id", profile.user_id);
                   setSavingPoseTypes(false);
                   onSaved?.();
                 }}
@@ -383,7 +542,9 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
             );
           })}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{t("provider.dashboard.profile_pose_types_hint")}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {t("provider.dashboard.profile_pose_types_hint")}
+        </p>
       </div>
     </section>
   );
@@ -398,7 +559,19 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Quote; vehicle?: VehicleId; onRespond: (id: string, price: string, msg: string) => void; onReject: (id: string) => void; onOpenImpossible: (id: string) => void }) {
+function QuoteCard({
+  q,
+  vehicle,
+  onRespond,
+  onReject,
+  onOpenImpossible,
+}: {
+  q: Quote;
+  vehicle?: VehicleId;
+  onRespond: (id: string, price: string, msg: string) => void;
+  onReject: (id: string) => void;
+  onOpenImpossible: (id: string) => void;
+}) {
   const { t, i18n } = useTranslation();
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
@@ -436,55 +609,101 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div>
-          <div className="font-semibold">{t("provider.dashboard.quote_request")}{q.id.slice(0, 8)}</div>
-          <div className="text-xs text-muted-foreground">{new Date(q.created_at).toLocaleString(i18n.language)}</div>
+          <div className="font-semibold">
+            {t("provider.dashboard.quote_request")}
+            {q.id.slice(0, 8)}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {new Date(q.created_at).toLocaleString(i18n.language)}
+          </div>
         </div>
         <QuoteBadge status={q.status} />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-muted-foreground mb-3">
-        {q.vehicle_type && <div><strong className="text-foreground">{t("provider.dashboard.quote_type")}</strong> {q.vehicle_type}</div>}
-        {q.format && <div><strong className="text-foreground">{t("provider.dashboard.quote_format")}</strong> {q.format}</div>}
-        {q.quantity && <div><strong className="text-foreground">{t("provider.dashboard.quote_qty")}</strong> {q.quantity}</div>}
-        {q.deadline && <div><strong className="text-foreground">{t("provider.dashboard.quote_deadline")}</strong> {new Date(q.deadline).toLocaleDateString(i18n.language)}</div>}
-        {q.zone && <div className="col-span-2"><strong className="text-foreground">{t("provider.dashboard.quote_zone")}</strong> {q.zone}</div>}
+        {q.vehicle_type && (
+          <div>
+            <strong className="text-foreground">{t("provider.dashboard.quote_type")}</strong>{" "}
+            {q.vehicle_type}
+          </div>
+        )}
+        {q.format && (
+          <div>
+            <strong className="text-foreground">{t("provider.dashboard.quote_format")}</strong>{" "}
+            {q.format}
+          </div>
+        )}
+        {q.quantity && (
+          <div>
+            <strong className="text-foreground">{t("provider.dashboard.quote_qty")}</strong>{" "}
+            {q.quantity}
+          </div>
+        )}
+        {q.deadline && (
+          <div>
+            <strong className="text-foreground">{t("provider.dashboard.quote_deadline")}</strong>{" "}
+            {new Date(q.deadline).toLocaleDateString(i18n.language)}
+          </div>
+        )}
+        {q.zone && (
+          <div className="col-span-2">
+            <strong className="text-foreground">{t("provider.dashboard.quote_zone")}</strong>{" "}
+            {q.zone}
+          </div>
+        )}
       </div>
       {vehicle && (
         <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">{t("provider.dashboard.vehicle_id_title")}</div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">
+            {t("provider.dashboard.vehicle_id_title")}
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
             {vehicle.license_plate && (
               <div className="col-span-2 sm:col-span-1">
-                <span className="text-xs text-muted-foreground block">{t("provider.dashboard.vehicle_plate")}</span>
+                <span className="text-xs text-muted-foreground block">
+                  {t("provider.dashboard.vehicle_plate")}
+                </span>
                 <span className="font-mono font-bold tracking-widest">{vehicle.license_plate}</span>
               </div>
             )}
             {vehicle.brand && (
               <div>
-                <span className="text-xs text-muted-foreground block">{t("provider.dashboard.vehicle_brand")}</span>
+                <span className="text-xs text-muted-foreground block">
+                  {t("provider.dashboard.vehicle_brand")}
+                </span>
                 <span className="font-medium">{vehicle.brand}</span>
               </div>
             )}
             {vehicle.model && (
               <div>
-                <span className="text-xs text-muted-foreground block">{t("provider.dashboard.vehicle_model")}</span>
+                <span className="text-xs text-muted-foreground block">
+                  {t("provider.dashboard.vehicle_model")}
+                </span>
                 <span className="font-medium">{vehicle.model}</span>
               </div>
             )}
             {vehicle.color && (
               <div>
-                <span className="text-xs text-muted-foreground block">{t("provider.dashboard.vehicle_color")}</span>
+                <span className="text-xs text-muted-foreground block">
+                  {t("provider.dashboard.vehicle_color")}
+                </span>
                 <span className="font-medium">{vehicle.color}</span>
               </div>
             )}
           </div>
           {vehicle.name && (
-            <div className="mt-1 text-xs text-muted-foreground">{t("provider.dashboard.vehicle_nickname")} {vehicle.name}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {t("provider.dashboard.vehicle_nickname")} {vehicle.name}
+            </div>
           )}
           {vehicle.photos && vehicle.photos.length > 0 && (
             <div className="mt-2 flex gap-2">
               {vehicle.photos.slice(0, 3).map((url, i) => (
-                <img key={i} src={url} alt={`${t("provider.dashboard.vehicle_photo")} ${i + 1}`}
-                  className="w-16 h-16 rounded-lg object-cover border border-border" />
+                <img
+                  key={i}
+                  src={url}
+                  alt={`${t("provider.dashboard.vehicle_photo")} ${i + 1}`}
+                  className="w-16 h-16 rounded-lg object-cover border border-border"
+                />
               ))}
             </div>
           )}
@@ -493,20 +712,21 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
       <p className="text-sm whitespace-pre-wrap mb-3">{q.message}</p>
       {q.status === "quoted" && (
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
-          {t("provider.dashboard.quote_sent")} <strong>{((q.quoted_price_cents ?? 0) / 100).toFixed(2)} €</strong>
-          {q.quoted_message && <p className="text-xs mt-1 whitespace-pre-wrap">{q.quoted_message}</p>}
+          {t("provider.dashboard.quote_sent")}{" "}
+          <strong>{((q.quoted_price_cents ?? 0) / 100).toFixed(2)} €</strong>
+          {q.quoted_message && (
+            <p className="text-xs mt-1 whitespace-pre-wrap">{q.quoted_message}</p>
+          )}
         </div>
       )}
-      {(q.status === "quoted" || q.status === "accepted") && (
-        <WeatherInstallCheck zone={q.zone} />
-      )}
-      {q.status === "accepted" && q.zone && (
-        <TrafficLinks zone={q.zone} />
-      )}
+      {(q.status === "quoted" || q.status === "accepted") && <WeatherInstallCheck zone={q.zone} />}
+      {q.status === "accepted" && q.zone && <TrafficLinks zone={q.zone} />}
       {(q.status === "quoted" || q.status === "accepted") && (
         <div className="mt-3 border-t border-border pt-3">
-          <button onClick={() => onOpenImpossible(q.id)}
-            className="rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/40 px-3 py-2 text-sm font-semibold hover:bg-orange-500/25">
+          <button
+            onClick={() => onOpenImpossible(q.id)}
+            className="rounded-lg bg-orange-500/15 text-orange-700 dark:text-orange-300 border border-orange-500/40 px-3 py-2 text-sm font-semibold hover:bg-orange-500/25"
+          >
             {t("provider.dashboard.report_impossible")}
           </button>
         </div>
@@ -514,7 +734,11 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
       {q.status === "impossible_pending" && (
         <div className="mt-3 rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-700 dark:text-amber-300">
           {t("provider.dashboard.impossible_pending")}
-          {q.impossible_reason && <p className="mt-1 text-xs italic">{t("provider.dashboard.impossible_reason")} {q.impossible_reason}</p>}
+          {q.impossible_reason && (
+            <p className="mt-1 text-xs italic">
+              {t("provider.dashboard.impossible_reason")} {q.impossible_reason}
+            </p>
+          )}
         </div>
       )}
       {q.status === "impossible" && (
@@ -525,20 +749,33 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
       {q.status === "pending" && (
         <div className="space-y-2 mt-3 border-t border-border pt-3">
           <div className="flex gap-2">
-            <input type="number" min={0} step="0.01" value={price} onChange={(e) => setPrice(e.target.value)}
-              placeholder={t("provider.dashboard.price_label")} className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-            <button onClick={() => onRespond(q.id, price, msg)}
-              className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90">
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder={t("provider.dashboard.price_label")}
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
+            <button
+              onClick={() => onRespond(q.id, price, msg)}
+              className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90"
+            >
               {t("provider.dashboard.send_quote_btn")}
             </button>
-            <button onClick={() => onReject(q.id)}
-              className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-3 py-2 text-sm font-semibold hover:bg-destructive/25">
+            <button
+              onClick={() => onReject(q.id)}
+              className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-3 py-2 text-sm font-semibold hover:bg-destructive/25"
+            >
               {t("provider.dashboard.reject_btn")}
             </button>
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs text-muted-foreground">{t("provider.dashboard.message_label")}</label>
+              <label className="text-xs text-muted-foreground">
+                {t("provider.dashboard.message_label")}
+              </label>
               <button
                 type="button"
                 disabled={aiLoading}
@@ -550,12 +787,20 @@ function QuoteCard({ q, vehicle, onRespond, onReject, onOpenImpossible }: { q: Q
                 ) : (
                   "✨"
                 )}
-                {aiLoading ? t("provider.dashboard.ai_quote_generating") : t("provider.dashboard.ai_quote_btn")}
+                {aiLoading
+                  ? t("provider.dashboard.ai_quote_generating")
+                  : t("provider.dashboard.ai_quote_btn")}
               </button>
             </div>
             {aiError && <p className="text-xs text-destructive mb-1">{aiError}</p>}
-            <textarea value={msg} onChange={(e) => setMsg(e.target.value)} rows={3} maxLength={1000}
-              placeholder={t("provider.dashboard.message_label")} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+            <textarea
+              value={msg}
+              onChange={(e) => setMsg(e.target.value)}
+              rows={3}
+              maxLength={1000}
+              placeholder={t("provider.dashboard.message_label")}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
           </div>
         </div>
       )}
@@ -571,12 +816,20 @@ function TrafficLinks({ zone }: { zone: string }) {
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
       <span className="text-xs text-muted-foreground">{t("provider.dashboard.traffic_link")}</span>
-      <a href={wazeUrl} target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors">
+      <a
+        href={wazeUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors"
+      >
         Waze
       </a>
-      <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors">
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/80 transition-colors"
+      >
         Google Maps
       </a>
     </div>
@@ -586,9 +839,15 @@ function TrafficLinks({ zone }: { zone: string }) {
 function StatusBadge({ status }: { status: string }) {
   const { t } = useTranslation();
   const m: Record<string, { l: string; c: string }> = {
-    pending: { l: t("provider.dashboard.status_pending"), c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    pending: {
+      l: t("provider.dashboard.status_pending"),
+      c: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    },
     approved: { l: t("provider.dashboard.status_approved"), c: "bg-signal/20 text-signal" },
-    rejected: { l: t("provider.dashboard.status_rejected"), c: "bg-destructive/15 text-destructive" },
+    rejected: {
+      l: t("provider.dashboard.status_rejected"),
+      c: "bg-destructive/15 text-destructive",
+    },
     suspended: { l: t("provider.dashboard.status_suspended"), c: "bg-secondary" },
   };
   const x = m[status] ?? m.pending;
@@ -598,13 +857,22 @@ function StatusBadge({ status }: { status: string }) {
 function QuoteBadge({ status }: { status: string }) {
   const { t } = useTranslation();
   const m: Record<string, { l: string; c: string }> = {
-    pending: { l: t("provider.dashboard.qs_new"), c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    pending: {
+      l: t("provider.dashboard.qs_new"),
+      c: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    },
     quoted: { l: t("provider.dashboard.qs_quoted"), c: "bg-primary/15 text-primary" },
     accepted: { l: t("provider.dashboard.qs_accepted"), c: "bg-signal/20 text-signal" },
     rejected: { l: t("provider.dashboard.qs_rejected"), c: "bg-destructive/15 text-destructive" },
     cancelled: { l: t("provider.dashboard.qs_cancelled"), c: "bg-secondary text-muted-foreground" },
-    impossible_pending: { l: t("provider.dashboard.qs_impossible_pending"), c: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
-    impossible: { l: t("provider.dashboard.qs_impossible"), c: "bg-orange-500/20 text-orange-700 dark:text-orange-300" },
+    impossible_pending: {
+      l: t("provider.dashboard.qs_impossible_pending"),
+      c: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    },
+    impossible: {
+      l: t("provider.dashboard.qs_impossible"),
+      c: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
+    },
   };
   const x = m[status] ?? m.pending;
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${x.c}`}>{x.l}</span>;
@@ -624,7 +892,10 @@ function ZoneTagInput({
   const [input, setInput] = useState("");
 
   const addZones = (raw: string) => {
-    const zones = raw.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    const zones = raw
+      .split(/[,;]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
     onChange([...value, ...zones.filter((z) => !value.includes(z))].slice(0, max));
     setInput("");
   };
@@ -641,7 +912,10 @@ function ZoneTagInput({
   return (
     <div className="w-full rounded-lg border border-border bg-background px-3 py-2 flex flex-wrap gap-1.5 min-h-[42px] cursor-text">
       {value.map((z) => (
-        <span key={z} className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-xs font-medium px-2.5 py-0.5">
+        <span
+          key={z}
+          className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-xs font-medium px-2.5 py-0.5"
+        >
           {z}
           <button
             type="button"
@@ -659,7 +933,9 @@ function ZoneTagInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          onBlur={() => { if (input.trim()) addZones(input); }}
+          onBlur={() => {
+            if (input.trim()) addZones(input);
+          }}
           placeholder={value.length === 0 ? placeholder : ""}
           className="flex-1 min-w-[8rem] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />
@@ -668,7 +944,10 @@ function ZoneTagInput({
   );
 }
 
-function ImpossibleModal({ onSubmit, onCancel }: {
+function ImpossibleModal({
+  onSubmit,
+  onCancel,
+}: {
   onSubmit: (reason: string, files: File[]) => Promise<void>;
   onCancel: () => void;
 }) {
@@ -685,7 +964,10 @@ function ImpossibleModal({ onSubmit, onCancel }: {
   };
 
   const handleSubmit = async () => {
-    if (!reason.trim()) { alert(t("provider.dashboard.error_reason_required")); return; }
+    if (!reason.trim()) {
+      alert(t("provider.dashboard.error_reason_required"));
+      return;
+    }
     setUploading(true);
     await onSubmit(reason.trim(), files);
     setUploading(false);
@@ -694,10 +976,10 @@ function ImpossibleModal({ onSubmit, onCancel }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-2xl bg-background border border-border p-6 shadow-xl">
-        <h2 className="font-display text-lg font-bold mb-1">{t("provider.dashboard.modal_title")}</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          {t("provider.dashboard.modal_body")}
-        </p>
+        <h2 className="font-display text-lg font-bold mb-1">
+          {t("provider.dashboard.modal_title")}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">{t("provider.dashboard.modal_body")}</p>
 
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
           {t("provider.dashboard.modal_reason_label")}
@@ -724,18 +1006,29 @@ function ImpossibleModal({ onSubmit, onCancel }: {
         {previews.length > 0 && (
           <div className="flex gap-2 mb-4">
             {previews.map((src, i) => (
-              <img key={i} src={src} alt={`Photo ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-border" />
+              <img
+                key={i}
+                src={src}
+                alt={`Photo ${i + 1}`}
+                className="w-20 h-20 object-cover rounded-lg border border-border"
+              />
             ))}
           </div>
         )}
 
         <div className="flex gap-2 justify-end">
-          <button onClick={onCancel} disabled={uploading}
-            className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary">
+          <button
+            onClick={onCancel}
+            disabled={uploading}
+            className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-secondary"
+          >
             {t("common.cancel")}
           </button>
-          <button onClick={handleSubmit} disabled={uploading || !reason.trim()}
-            className="rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold hover:bg-orange-600 disabled:opacity-50">
+          <button
+            onClick={handleSubmit}
+            disabled={uploading || !reason.trim()}
+            className="rounded-lg bg-orange-500 text-white px-4 py-2 text-sm font-semibold hover:bg-orange-600 disabled:opacity-50"
+          >
             {uploading ? t("common.sending") : t("provider.dashboard.modal_submit")}
           </button>
         </div>

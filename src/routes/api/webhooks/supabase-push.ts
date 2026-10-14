@@ -64,7 +64,8 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
             if (vehicleId) {
               const db = createClient(
                 process.env["SUPABASE_URL"]!,
-                process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                process.env["SUPABASE_SERVICE_ROLE_KEY"] ??
+                  process.env["SUPABASE_PUBLISHABLE_KEY"]!,
               );
               const { data: v } = await db
                 .from("vehicles" as never)
@@ -108,8 +109,8 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       title: "Nouvelle mission disponible !",
                       body: "Une mission d'installation est disponible dans votre espace.",
                       url: "/driver/espace",
-                    })
-                  )
+                    }),
+                  ),
                 );
               }
             }
@@ -117,7 +118,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
             // Installer submitted photos → notify admins
             const newInstallStatus = record.installation_status as string | undefined;
             const prevInstallStatus = oldRecord.installation_status as string | undefined;
-            if (newInstallStatus === "pending_approval" && prevInstallStatus !== "pending_approval") {
+            if (
+              newInstallStatus === "pending_approval" &&
+              prevInstallStatus !== "pending_approval"
+            ) {
               const { data: admins } = await db
                 .from("user_roles" as never)
                 .select("user_id")
@@ -129,8 +133,8 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       title: "Photos à valider",
                       body: "Un installateur a soumis des photos d'installation.",
                       url: "/admin",
-                    })
-                  )
+                    }),
+                  ),
                 );
               }
             }
@@ -160,7 +164,8 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
             if (briefId) {
               const db = createClient(
                 process.env["SUPABASE_URL"]!,
-                process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                process.env["SUPABASE_SERVICE_ROLE_KEY"] ??
+                  process.env["SUPABASE_PUBLISHABLE_KEY"]!,
               );
               // Load brief + advertiser profile in parallel
               const [briefRes, vehicleRes] = await Promise.allSettled([
@@ -178,12 +183,23 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                   : Promise.resolve({ data: null }),
               ]);
 
-              const brief = briefRes.status === "fulfilled"
-                ? (briefRes.value.data as { user_id?: string; title?: string; start_date?: string; zones?: string[] } | null)
-                : null;
-              const vehicle = vehicleRes.status === "fulfilled"
-                ? (vehicleRes.value.data as { owner_id?: string; kind?: string; name?: string } | null)
-                : null;
+              const brief =
+                briefRes.status === "fulfilled"
+                  ? (briefRes.value.data as {
+                      user_id?: string;
+                      title?: string;
+                      start_date?: string;
+                      zones?: string[];
+                    } | null)
+                  : null;
+              const vehicle =
+                vehicleRes.status === "fulfilled"
+                  ? (vehicleRes.value.data as {
+                      owner_id?: string;
+                      kind?: string;
+                      name?: string;
+                    } | null)
+                  : null;
 
               if (brief?.user_id) {
                 const [userRes, profileRes, ownerRes] = await Promise.allSettled([
@@ -202,15 +218,19 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     : Promise.resolve({ data: null }),
                 ]);
 
-                const email = userRes.status === "fulfilled"
-                  ? userRes.value.data?.user?.email
-                  : undefined;
-                const profile = profileRes.status === "fulfilled"
-                  ? (profileRes.value.data as { full_name?: string; account_type?: string } | null)
-                  : null;
-                const ownerProfile = ownerRes.status === "fulfilled"
-                  ? (ownerRes.value.data as { full_name?: string } | null)
-                  : null;
+                const email =
+                  userRes.status === "fulfilled" ? userRes.value.data?.user?.email : undefined;
+                const profile =
+                  profileRes.status === "fulfilled"
+                    ? (profileRes.value.data as {
+                        full_name?: string;
+                        account_type?: string;
+                      } | null)
+                    : null;
+                const ownerProfile =
+                  ownerRes.status === "fulfilled"
+                    ? (ownerRes.value.data as { full_name?: string } | null)
+                    : null;
 
                 if (email) {
                   const isIndividual = profile?.account_type === "individual";
@@ -221,12 +241,17 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
 
                   const daysUntilEvent = brief.start_date
-                    ? Math.round((new Date(brief.start_date).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000)
+                    ? Math.round(
+                        (new Date(brief.start_date).setHours(0, 0, 0, 0) -
+                          new Date().setHours(0, 0, 0, 0)) /
+                          86400000,
+                      )
                     : undefined;
 
-                  const priceLabel = pricePerDay != null
-                    ? `${Number(pricePerDay).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })} / jour`
-                    : undefined;
+                  const priceLabel =
+                    pricePerDay != null
+                      ? `${Number(pricePerDay).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })} / jour`
+                      : undefined;
 
                   const zoneLabel = brief.zones?.length ? brief.zones[0] : undefined;
 
@@ -270,17 +295,22 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
           if (table === "brief_proposals" && type === "UPDATE") {
             const newStatus = record.status as string | undefined;
             const prevStatus = oldRecord.status as string | undefined;
-            if (newStatus !== prevStatus && (newStatus === "accepted" || newStatus === "rejected")) {
+            if (
+              newStatus !== prevStatus &&
+              (newStatus === "accepted" || newStatus === "rejected")
+            ) {
               const ownerId = record.owner_id as string | undefined;
               const briefId = record.brief_id as string | undefined;
               if (ownerId) {
                 const userId = await getOwnerUserId(ownerId);
                 if (userId) {
                   await sendWebPushToUser(userId, {
-                    title: newStatus === "accepted" ? "Proposition acceptée !" : "Proposition refusée",
-                    body: newStatus === "accepted"
-                      ? "Un advertiser a accepté votre proposition."
-                      : "Un advertiser a refusé votre proposition.",
+                    title:
+                      newStatus === "accepted" ? "Proposition acceptée !" : "Proposition refusée",
+                    body:
+                      newStatus === "accepted"
+                        ? "Un advertiser a accepté votre proposition."
+                        : "Un advertiser a refusé votre proposition.",
                     url: "/owner/briefs",
                   });
                 }
@@ -288,22 +318,42 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                 // Send email to the owner
                 const db = createClient(
                   process.env["SUPABASE_URL"]!,
-                  process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                  process.env["SUPABASE_SERVICE_ROLE_KEY"] ??
+                    process.env["SUPABASE_PUBLISHABLE_KEY"]!,
                 );
 
                 const [ownerProfileRes, briefRes] = await Promise.allSettled([
-                  db.from("owner_profiles" as never).select("user_id, full_name").eq("id" as never, ownerId).maybeSingle(),
+                  db
+                    .from("owner_profiles" as never)
+                    .select("user_id, full_name")
+                    .eq("id" as never, ownerId)
+                    .maybeSingle(),
                   briefId
-                    ? db.from("advertiser_briefs" as never).select("title, zones, start_date, end_date, user_id").eq("id" as never, briefId).maybeSingle()
+                    ? db
+                        .from("advertiser_briefs" as never)
+                        .select("title, zones, start_date, end_date, user_id")
+                        .eq("id" as never, briefId)
+                        .maybeSingle()
                     : Promise.resolve({ data: null }),
                 ]);
 
-                const ownerProfile = ownerProfileRes.status === "fulfilled"
-                  ? (ownerProfileRes.value.data as { user_id?: string; full_name?: string } | null)
-                  : null;
-                const brief = briefRes.status === "fulfilled"
-                  ? (briefRes.value.data as { title?: string; zones?: string[]; start_date?: string; end_date?: string; user_id?: string } | null)
-                  : null;
+                const ownerProfile =
+                  ownerProfileRes.status === "fulfilled"
+                    ? (ownerProfileRes.value.data as {
+                        user_id?: string;
+                        full_name?: string;
+                      } | null)
+                    : null;
+                const brief =
+                  briefRes.status === "fulfilled"
+                    ? (briefRes.value.data as {
+                        title?: string;
+                        zones?: string[];
+                        start_date?: string;
+                        end_date?: string;
+                        user_id?: string;
+                      } | null)
+                    : null;
 
                 if (ownerProfile?.user_id) {
                   const userRes = await db.auth.admin.getUserById(ownerProfile.user_id);
@@ -325,7 +375,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       d ? new Date(d).toLocaleDateString("fr-FR") : undefined;
 
                     const { sendAppEmailSafe } = await import("@/lib/email/send.server");
-                    const templateName = newStatus === "accepted" ? "brief-proposal-accepted" : "brief-proposal-rejected";
+                    const templateName =
+                      newStatus === "accepted"
+                        ? "brief-proposal-accepted"
+                        : "brief-proposal-rejected";
 
                     await sendAppEmailSafe({
                       templateName,
@@ -337,9 +390,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                         zone: brief?.zones?.length ? brief.zones[0] : undefined,
                         startDate: fmtDate(brief?.start_date),
                         endDate: fmtDate(brief?.end_date),
-                        dashboardUrl: newStatus === "accepted"
-                          ? "https://move-spot.com/owner"
-                          : "https://move-spot.com/owner/briefs",
+                        dashboardUrl:
+                          newStatus === "accepted"
+                            ? "https://move-spot.com/owner"
+                            : "https://move-spot.com/owner/briefs",
                       },
                     });
                   }
@@ -351,21 +405,27 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
           if (table === "payee_profiles" && type === "UPDATE") {
             const newCertif = record.certification_status as string | undefined;
             const prevCertif = oldRecord.certification_status as string | undefined;
-            if (newCertif !== prevCertif && (newCertif === "certified" || newCertif === "rejected")) {
+            if (
+              newCertif !== prevCertif &&
+              (newCertif === "certified" || newCertif === "rejected")
+            ) {
               const userId = record.user_id as string | undefined;
               if (userId) {
                 // Push
                 await sendWebPushToUser(userId, {
-                  title: newCertif === "certified" ? "Certification validée !" : "Certification refusée",
-                  body: newCertif === "certified"
-                    ? "Vous êtes maintenant certifié MoveSpot."
-                    : "Votre certification a été refusée. Consultez les notes.",
+                  title:
+                    newCertif === "certified" ? "Certification validée !" : "Certification refusée",
+                  body:
+                    newCertif === "certified"
+                      ? "Vous êtes maintenant certifié MoveSpot."
+                      : "Votre certification a été refusée. Consultez les notes.",
                   url: "/driver/espace",
                 });
                 // Email
                 const db = createClient(
                   process.env["SUPABASE_URL"]!,
-                  process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                  process.env["SUPABASE_SERVICE_ROLE_KEY"] ??
+                    process.env["SUPABASE_PUBLISHABLE_KEY"]!,
                 );
                 const userRes = await db.auth.admin.getUserById(userId);
                 const payeeEmail = userRes.data?.user?.email;
@@ -377,9 +437,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                     templateData: {
                       fullName: (record.full_name as string | undefined) ?? undefined,
                       certified: newCertif === "certified",
-                      notes: newCertif === "rejected"
-                        ? (record.certification_notes as string | undefined) ?? undefined
-                        : undefined,
+                      notes:
+                        newCertif === "rejected"
+                          ? ((record.certification_notes as string | undefined) ?? undefined)
+                          : undefined,
                       spaceUrl: "https://move-spot.com/driver/espace",
                     },
                   });
@@ -391,7 +452,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
           if (table === "vehicles" && type === "UPDATE") {
             const newStatus = record.status as string | undefined;
             const prevStatus = oldRecord.status as string | undefined;
-            if (newStatus !== prevStatus && (newStatus === "approved" || newStatus === "rejected")) {
+            if (
+              newStatus !== prevStatus &&
+              (newStatus === "approved" || newStatus === "rejected")
+            ) {
               const ownerId = record.owner_id as string | undefined;
               if (ownerId) {
                 const userId = await getOwnerUserId(ownerId);
@@ -401,16 +465,17 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                   await sendWebPushToUser(userId, {
                     title: newStatus === "approved" ? "Véhicule approuvé !" : "Véhicule refusé",
                     body: name
-                      ? (newStatus === "approved"
-                          ? `${name} est maintenant visible par les advertisers.`
-                          : `${name} n'a pas été approuvé. Consultez les notes.`)
+                      ? newStatus === "approved"
+                        ? `${name} est maintenant visible par les advertisers.`
+                        : `${name} n'a pas été approuvé. Consultez les notes.`
                       : undefined,
                     url: "/owner",
                   });
                   // Email
                   const db = createClient(
                     process.env["SUPABASE_URL"]!,
-                    process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"]!,
+                    process.env["SUPABASE_SERVICE_ROLE_KEY"] ??
+                      process.env["SUPABASE_PUBLISHABLE_KEY"]!,
                   );
                   const userRes = await db.auth.admin.getUserById(userId);
                   const ownerEmail = userRes.data?.user?.email;
@@ -422,9 +487,10 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       templateData: {
                         vehicleName: name,
                         approved: newStatus === "approved",
-                        reason: newStatus === "rejected"
-                          ? (record.admin_notes as string | undefined) ?? undefined
-                          : undefined,
+                        reason:
+                          newStatus === "rejected"
+                            ? ((record.admin_notes as string | undefined) ?? undefined)
+                            : undefined,
                         dashboardUrl: "https://move-spot.com/owner",
                       },
                     });

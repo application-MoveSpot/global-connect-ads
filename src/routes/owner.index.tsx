@@ -3,7 +3,10 @@ import { Instagram } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { recommendVehiclePrice, type PricingRecommendation } from "@/lib/ai/owner-pricing.functions";
+import {
+  recommendVehiclePrice,
+  type PricingRecommendation,
+} from "@/lib/ai/owner-pricing.functions";
 import { respondToCampaignRequest } from "@/lib/campaigns/campaign-notifications.server";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
@@ -145,11 +148,7 @@ function DashboardPage() {
       try {
         await withRetry(load, { maxAttempts: 3 });
       } catch (err) {
-        setLoadError(
-          err instanceof Error
-            ? err.message
-            : t("errors.network"),
-        );
+        setLoadError(err instanceof Error ? err.message : t("errors.network"));
         setLoading(false);
       } finally {
         if (isManualRetry) setRetrying(false);
@@ -264,7 +263,9 @@ function DashboardPage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">{t("owner.welcome", { name: profile?.full_name })}</h1>
+            <h1 className="font-display text-2xl font-bold mt-1">
+              {t("owner.welcome", { name: profile?.full_name })}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
@@ -283,10 +284,7 @@ function DashboardPage() {
             >
               {t("profile.title")}
             </Link>
-            <Link
-              to="/parametres"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Link to="/parametres" className="text-sm text-muted-foreground hover:text-foreground">
               {t("common.settings")}
             </Link>
             <button
@@ -317,26 +315,48 @@ function DashboardPage() {
         {(vehicles.length > 0 || requests.length > 0) && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-border bg-card p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_approved_vehicles")}</p>
-              <p className="font-display text-2xl font-bold">{vehicles.filter((v) => v.status === "approved").length}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("owner.kpi_approved_vehicles")}
+              </p>
+              <p className="font-display text-2xl font-bold">
+                {vehicles.filter((v) => v.status === "approved").length}
+              </p>
             </div>
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_pending_requests")}</p>
-              <p className="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">{requests.filter((r) => !r.owner_response).length}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("owner.kpi_pending_requests")}
+              </p>
+              <p className="font-display text-2xl font-bold text-amber-600 dark:text-amber-400">
+                {requests.filter((r) => !r.owner_response).length}
+              </p>
             </div>
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_active_campaigns")}</p>
-              <p className="font-display text-2xl font-bold text-primary">{requests.filter((r) => r.status === "approved").length}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("owner.kpi_active_campaigns")}
+              </p>
+              <p className="font-display text-2xl font-bold text-primary">
+                {requests.filter((r) => r.status === "approved").length}
+              </p>
             </div>
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-1">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("owner.kpi_month_revenue")}</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                {t("owner.kpi_month_revenue")}
+              </p>
               <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                 {(() => {
                   const key = new Date().toISOString().slice(0, 7);
                   const total = requests
-                    .filter((r) => ["approved", "paid", "completed"].includes(r.status) && r.created_at.startsWith(key))
+                    .filter(
+                      (r) =>
+                        ["approved", "paid", "completed"].includes(r.status) &&
+                        r.created_at.startsWith(key),
+                    )
                     .reduce((s, r) => s + (r.total_price ?? 0), 0);
-                  return total.toLocaleString(dateLocale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+                  return total.toLocaleString(dateLocale, {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  });
                 })()}
               </p>
             </div>
@@ -450,7 +470,10 @@ function DashboardPage() {
             </div>
           )
         ) : requests.length === 0 ? (
-          <OwnerRequestsEmpty hasVehicles={vehicles.length > 0} hasApproved={vehicles.some(v => v.status === "approved")} />
+          <OwnerRequestsEmpty
+            hasVehicles={vehicles.length > 0}
+            hasApproved={vehicles.some((v) => v.status === "approved")}
+          />
         ) : (
           <div className="space-y-4">
             {requests.map((r) => (
@@ -507,12 +530,8 @@ function DashboardPage() {
         )}
 
         <section className="mt-12">
-          <h2 className="font-display text-2xl font-bold mb-2">
-            {t("owner.map_title")}
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t("owner.map_desc")}
-          </p>
+          <h2 className="font-display text-2xl font-bold mb-2">{t("owner.map_title")}</h2>
+          <p className="text-sm text-muted-foreground mb-4">{t("owner.map_desc")}</p>
           <Suspense fallback={<div className="h-64 rounded-xl bg-secondary/40 animate-pulse" />}>
             <MobilityMap />
           </Suspense>
@@ -582,9 +601,7 @@ function OwnerVehicleOnboarding() {
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">🚀</div>
         <h2 className="font-display text-2xl font-bold">{t("owner.onboarding_title")}</h2>
-        <p className="text-muted-foreground text-sm mt-2">
-          {t("owner.onboarding_desc")}
-        </p>
+        <p className="text-muted-foreground text-sm mt-2">{t("owner.onboarding_desc")}</p>
       </div>
 
       <ol className="space-y-3">
@@ -595,8 +612,8 @@ function OwnerVehicleOnboarding() {
               step.done
                 ? "bg-emerald-500/5 border border-emerald-500/20"
                 : i === 1
-                ? "bg-primary/5 border border-primary/20"
-                : "bg-secondary/30 border border-border"
+                  ? "bg-primary/5 border border-primary/20"
+                  : "bg-secondary/30 border border-border"
             }`}
           >
             <div
@@ -604,17 +621,21 @@ function OwnerVehicleOnboarding() {
                 step.done
                   ? "bg-emerald-500/15 text-emerald-600"
                   : i === 1
-                  ? "bg-primary/15 text-primary"
-                  : "bg-secondary text-muted-foreground"
+                    ? "bg-primary/15 text-primary"
+                    : "bg-secondary text-muted-foreground"
               }`}
             >
               {step.done ? "✓" : i + 1}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm">{step.icon} {step.title}</span>
+                <span className="font-semibold text-sm">
+                  {step.icon} {step.title}
+                </span>
                 {step.done && (
-                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">{t("owner.onboarding_step_done")}</span>
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    {t("owner.onboarding_step_done")}
+                  </span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
@@ -636,11 +657,12 @@ function OwnerVehicleOnboarding() {
       </ol>
 
       <div className="mt-6 pt-5 border-t border-border">
-        <p className="text-xs text-muted-foreground text-center">
-          {t("owner.onboarding_footer")}
-        </p>
+        <p className="text-xs text-muted-foreground text-center">{t("owner.onboarding_footer")}</p>
         <div className="flex justify-center gap-3 mt-3">
-          <Link to="/owner/flotte/import" className="text-xs text-primary hover:underline font-medium">
+          <Link
+            to="/owner/flotte/import"
+            className="text-xs text-primary hover:underline font-medium"
+          >
             {t("owner.onboarding_import")}
           </Link>
           <Link to="/owner/flotte/qr" className="text-xs text-primary hover:underline font-medium">
@@ -669,9 +691,7 @@ function OwnerRequestsEmpty({
       <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center max-w-lg mx-auto">
         <div className="text-3xl mb-3">🚗</div>
         <h3 className="font-semibold mb-1">{t("owner.no_vehicle_title")}</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          {t("owner.no_vehicle_desc")}
-        </p>
+        <p className="text-sm text-muted-foreground mb-4">{t("owner.no_vehicle_desc")}</p>
         <Link
           to="/owner/vehicules/nouveau"
           className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
@@ -687,9 +707,7 @@ function OwnerRequestsEmpty({
       <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-10 text-center max-w-lg mx-auto">
         <div className="text-3xl mb-3">⏳</div>
         <h3 className="font-semibold mb-1">{t("owner.validation_pending_title")}</h3>
-        <p className="text-sm text-muted-foreground">
-          {t("owner.validation_pending_desc")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("owner.validation_pending_desc")}</p>
       </div>
     );
   }
@@ -698,12 +716,8 @@ function OwnerRequestsEmpty({
     <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center max-w-lg mx-auto">
       <div className="text-3xl mb-3">📭</div>
       <h3 className="font-semibold mb-1">{t("owner.no_requests_title")}</h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        {t("owner.no_requests_desc")}
-      </p>
-      <p className="text-xs text-muted-foreground">
-        {t("owner.no_requests_hint")}
-      </p>
+      <p className="text-sm text-muted-foreground mb-4">{t("owner.no_requests_desc")}</p>
+      <p className="text-xs text-muted-foreground">{t("owner.no_requests_hint")}</p>
       <Link
         to="/owner/briefs"
         className="inline-block mt-3 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary transition"
@@ -746,9 +760,10 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
   const { t } = useTranslation();
   const photoUrls = useVehiclePhotoUrls(v.photos);
   const typeLabel = t(`vehicle_types.${v.type}`, { defaultValue: TYPE_LABELS[v.type] ?? v.type });
-  const formatLabel = v.format_publicitaire === "boxled"
-    ? t("owner.format_boxled")
-    : (v.format_publicitaire || t(`owner.vehicle_formats.${v.type}`, "—"));
+  const formatLabel =
+    v.format_publicitaire === "boxled"
+      ? t("owner.format_boxled")
+      : v.format_publicitaire || t(`owner.vehicle_formats.${v.type}`, "—");
   const [pricing, setPricing] = useState<PricingRecommendation | null>(null);
   const [pricingLoading, setPricingLoading] = useState(false);
 
@@ -779,24 +794,37 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
 
       {/* Type & format publicitaire */}
       <div className="flex flex-wrap gap-1.5 mb-3">
-        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">{typeLabel}</span>
-        <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium">{formatLabel}</span>
+        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium">
+          {typeLabel}
+        </span>
+        <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-medium">
+          {formatLabel}
+        </span>
         {v.condition && (
-          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">{t(`owner.vehicle_condition.${v.condition}`, v.condition)}</span>
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs">
+            {t(`owner.vehicle_condition.${v.condition}`, v.condition)}
+          </span>
         )}
       </div>
 
       {/* Caractéristiques */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
         {v.surface_m2 != null && <span>{t("owner.vehicle_surface", { value: v.surface_m2 })}</span>}
-        {v.km_per_day != null && <span>{t("owner.vehicle_km_per_day", { value: v.km_per_day })}</span>}
+        {v.km_per_day != null && (
+          <span>{t("owner.vehicle_km_per_day", { value: v.km_per_day })}</span>
+        )}
       </div>
 
       {/* Zones */}
       {v.zones && v.zones.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {v.zones.map((z) => (
-            <span key={z} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{z}</span>
+            <span
+              key={z}
+              className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+            >
+              {z}
+            </span>
           ))}
         </div>
       )}
@@ -822,7 +850,9 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
                 <span className="inline-block w-2.5 h-2.5 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
                 {t("owner.ai_pricing_loading")}
               </span>
-            ) : t("owner.ai_pricing_cta")}
+            ) : (
+              t("owner.ai_pricing_cta")
+            )}
           </button>
         )}
       </div>
@@ -830,14 +860,26 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
       {pricing && (
         <div className="mt-2 rounded-xl border border-violet-500/30 bg-violet-500/5 p-3 text-xs space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-violet-700 dark:text-violet-300">{t("owner.ai_pricing_title", { price: pricing.suggested })}</span>
-            <span className="text-muted-foreground">{t("owner.ai_pricing_range", { min: pricing.min, max: pricing.max })}</span>
-            <button type="button" onClick={() => setPricing(null)} className="ml-auto text-muted-foreground hover:text-foreground text-[10px]">✕</button>
+            <span className="font-semibold text-violet-700 dark:text-violet-300">
+              {t("owner.ai_pricing_title", { price: pricing.suggested })}
+            </span>
+            <span className="text-muted-foreground">
+              {t("owner.ai_pricing_range", { min: pricing.min, max: pricing.max })}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPricing(null)}
+              className="ml-auto text-muted-foreground hover:text-foreground text-[10px]"
+            >
+              ✕
+            </button>
           </div>
           <p className="text-muted-foreground leading-relaxed">{pricing.rationale}</p>
           {pricing.factors.length > 0 && (
             <ul className="space-y-0.5 text-muted-foreground">
-              {pricing.factors.map((f, i) => <li key={i}>• {f}</li>)}
+              {pricing.factors.map((f, i) => (
+                <li key={i}>• {f}</li>
+              ))}
             </ul>
           )}
         </div>

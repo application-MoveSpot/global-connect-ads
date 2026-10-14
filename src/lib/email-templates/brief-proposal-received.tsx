@@ -1,10 +1,28 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter, InfoCard, InfoRow, StatusBadge,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  InfoCard,
+  InfoRow,
+  StatusBadge,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -21,8 +39,16 @@ interface Props {
 }
 
 const Email = ({
-  company, spotName, ownerName, vehicleCount, zone,
-  proposedPrice, startDate, endDate, dashboardUrl, unsubscribeUrl,
+  company,
+  spotName,
+  ownerName,
+  vehicleCount,
+  zone,
+  proposedPrice,
+  startDate,
+  endDate,
+  dashboardUrl,
+  unsubscribeUrl,
 }: Props) => (
   <Html lang="fr" dir="ltr">
     <Head />
@@ -35,12 +61,11 @@ const Email = ({
           <Section style={contentPadding}>
             <StatusBadge color="blue">Nouvelle proposition</StatusBadge>
 
-            <Text style={{ ...h1Style, marginTop: "16px" }}>
-              Vous avez reçu une proposition 📬
-            </Text>
+            <Text style={{ ...h1Style, marginTop: "16px" }}>Vous avez reçu une proposition 📬</Text>
 
             <Text style={textStyle}>
-              {company ? `Bonjour ${company},` : "Bonjour,"} un propriétaire de flotte a répondu à votre brief et soumet une proposition pour diffuser votre campagne.
+              {company ? `Bonjour ${company},` : "Bonjour,"} un propriétaire de flotte a répondu à
+              votre brief et soumet une proposition pour diffuser votre campagne.
             </Text>
 
             <InfoCard>
@@ -49,15 +74,19 @@ const Email = ({
               {vehicleCount ? <InfoRow label="Véhicules proposés" value={vehicleCount} /> : null}
               {zone ? <InfoRow label="Zone de diffusion" value={zone} /> : null}
               {proposedPrice ? <InfoRow label="Tarif proposé" value={proposedPrice} /> : null}
-              {startDate && endDate ? <InfoRow label="Période" value={`${startDate} → ${endDate}`} /> : null}
+              {startDate && endDate ? (
+                <InfoRow label="Période" value={`${startDate} → ${endDate}`} />
+              ) : null}
             </InfoCard>
 
             <Text style={textStyle}>
-              Consultez les détails de la proposition et décidez si elle correspond à vos attentes. Vous pouvez l'accepter directement depuis votre espace annonceur.
+              Consultez les détails de la proposition et décidez si elle correspond à vos attentes.
+              Vous pouvez l'accepter directement depuis votre espace annonceur.
             </Text>
 
             <Text style={mutedText}>
-              Cette proposition vous est réservée pendant 48h. Passé ce délai, le propriétaire sera libre de la retirer.
+              Cette proposition vous est réservée pendant 48h. Passé ce délai, le propriétaire sera
+              libre de la retirer.
             </Text>
 
             {dashboardUrl ? (

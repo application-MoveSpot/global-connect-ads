@@ -82,14 +82,26 @@ function InscriptionPage() {
     try {
       const res = await callOwnerAi({ data: { ownerContext: aiContext } });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const filled: string[] = [];
-      if (res.suggestion.fullName) { setFullName(res.suggestion.fullName); filled.push(t("owner.inscription.name_label").replace(" *", "")); }
-      if (res.suggestion.city) { setCity(res.suggestion.city); filled.push(t("owner.inscription.city_label")); }
-      if (res.suggestion.bio) { setBio(res.suggestion.bio); filled.push(t("owner.inscription.bio_label")); }
+      if (res.suggestion.fullName) {
+        setFullName(res.suggestion.fullName);
+        filled.push(t("owner.inscription.name_label").replace(" *", ""));
+      }
+      if (res.suggestion.city) {
+        setCity(res.suggestion.city);
+        filled.push(t("owner.inscription.city_label"));
+      }
+      if (res.suggestion.bio) {
+        setBio(res.suggestion.bio);
+        filled.push(t("owner.inscription.bio_label"));
+      }
       setAiFilled(filled);
       if (filled.length > 0) setAiPanelOpen(false);
     } catch {
@@ -177,19 +189,20 @@ function InscriptionPage() {
       setLoading(false);
       return;
     }
-    const { error } = await supabase.from("owner_profiles").upsert({
-      user_id: session.user.id,
-      full_name: fullName,
-      phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
-      company: isParticulier
-        ? null
-        : company || siret.denomination,
-      city: city || null,
-      bio: bio || null,
-      siret: isParticulier ? null : siret.siret || null,
-      siret_denomination: isParticulier ? null : siret.denomination,
-      siret_verified_at: isParticulier ? null : new Date().toISOString(),
-    }, { onConflict: "user_id" });
+    const { error } = await supabase.from("owner_profiles").upsert(
+      {
+        user_id: session.user.id,
+        full_name: fullName,
+        phone: phone ? (normalizePhoneForMarket(phone, market) ?? null) : null,
+        company: isParticulier ? null : company || siret.denomination,
+        city: city || null,
+        bio: bio || null,
+        siret: isParticulier ? null : siret.siret || null,
+        siret_denomination: isParticulier ? null : siret.denomination,
+        siret_verified_at: isParticulier ? null : new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -229,18 +242,22 @@ function InscriptionPage() {
                     i < currentStep
                       ? "bg-primary text-primary-foreground"
                       : i === currentStep
-                      ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                      : "bg-muted text-muted-foreground"
+                        ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                        : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {i < currentStep ? "✓" : i + 1}
                 </div>
-                <span className={`text-[10px] font-medium whitespace-nowrap ${i === currentStep ? "text-foreground" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-[10px] font-medium whitespace-nowrap ${i === currentStep ? "text-foreground" : "text-muted-foreground"}`}
+                >
                   {label}
                 </span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mb-4 mx-1 transition ${i < currentStep ? "bg-primary" : "bg-border"}`} />
+                <div
+                  className={`flex-1 h-0.5 mb-4 mx-1 transition ${i < currentStep ? "bg-primary" : "bg-border"}`}
+                />
               )}
             </div>
           ))}
@@ -249,7 +266,9 @@ function InscriptionPage() {
         {step === "auth" ? (
           <>
             <h1 className="font-display text-3xl font-bold mt-4 mb-2">
-              {mode === "signup" ? t("owner.inscription.title_signup") : t("owner.inscription.title_signin")}
+              {mode === "signup"
+                ? t("owner.inscription.title_signup")
+                : t("owner.inscription.title_signin")}
             </h1>
             <p className="text-sm text-muted-foreground mb-6">
               {mode === "signup"
@@ -258,7 +277,13 @@ function InscriptionPage() {
             </p>
             <form onSubmit={handleAuth} className="space-y-4">
               <HoneypotField value={honeypot} onChange={setHoneypot} />
-              <Input label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
+              <Input
+                label={t("auth.email")}
+                type="email"
+                value={email}
+                onChange={setEmail}
+                required
+              />
               <div>
                 <Input
                   label={t("auth.password")}
@@ -285,7 +310,11 @@ function InscriptionPage() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading ? "..." : mode === "signup" ? t("auth.submit_signup") : t("auth.submit_signin")}
+                {loading
+                  ? "..."
+                  : mode === "signup"
+                    ? t("auth.submit_signup")
+                    : t("auth.submit_signin")}
               </button>
             </form>
             <button
@@ -302,7 +331,9 @@ function InscriptionPage() {
           </>
         ) : (
           <>
-            <h1 className="font-display text-3xl font-bold mt-4 mb-2">{t("owner.inscription.profile_title")}</h1>
+            <h1 className="font-display text-3xl font-bold mt-4 mb-2">
+              {t("owner.inscription.profile_title")}
+            </h1>
             {sessionEmail && (
               <div className="mb-4 rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
                 {t("owner.inscription.signed_in_as")}{" "}
@@ -323,7 +354,11 @@ function InscriptionPage() {
             <div className="flex rounded-lg border border-border overflow-hidden mb-6">
               <button
                 type="button"
-                onClick={() => { setIsParticulier(true); setSiret({ siret: "", denomination: null, verified: false }); setCompany(""); }}
+                onClick={() => {
+                  setIsParticulier(true);
+                  setSiret({ siret: "", denomination: null, verified: false });
+                  setCompany("");
+                }}
                 className={`flex-1 py-2.5 text-sm font-medium transition ${isParticulier ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"}`}
               >
                 {t("owner.inscription.tab_particulier")}
@@ -352,23 +387,44 @@ function InscriptionPage() {
               sessionExpiredHref="/owner/inscription?mode=signin"
               generateLabel={t("owner.inscription.ai_generate")}
               generateLoadingLabel={t("owner.inscription.ai_generating")}
-              filledMessage={aiFilled.length > 0 ? t("owner.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              filledMessage={
+                aiFilled.length > 0
+                  ? t("owner.inscription.ai_filled", { fields: aiFilled.join(", ") })
+                  : undefined
+              }
             />
             <form onSubmit={handleProfile} className="space-y-4">
-              <Input label={t("owner.inscription.name_label")} value={fullName} onChange={setFullName} required />
+              <Input
+                label={t("owner.inscription.name_label")}
+                value={fullName}
+                onChange={setFullName}
+                required
+              />
               {!isParticulier && (
                 <>
                   <SiretField value={siret} onChange={setSiret} />
                   {/* Nom commercial uniquement pour les sociétés (pas les EI) */}
                   {siret.verified && !siret.isIndividual && (
-                    <Input label={t("owner.inscription.company_label")} value={company} onChange={setCompany} />
+                    <Input
+                      label={t("owner.inscription.company_label")}
+                      value={company}
+                      onChange={setCompany}
+                    />
                   )}
                 </>
               )}
-              <Input label={t("owner.inscription.phone_label")} value={phone} onChange={setPhone} type="tel" placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"} />
+              <Input
+                label={t("owner.inscription.phone_label")}
+                value={phone}
+                onChange={setPhone}
+                type="tel"
+                placeholder={market === "US" ? "(555) 123-4567" : "06 12 34 56 78"}
+              />
               <Input label={t("owner.inscription.city_label")} value={city} onChange={setCity} />
               <div>
-                <label className="block text-sm font-medium mb-1.5">{t("owner.inscription.bio_label")}</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("owner.inscription.bio_label")}
+                </label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}

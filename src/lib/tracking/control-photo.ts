@@ -23,15 +23,10 @@ export const scheduleControlPhoto = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;
 
-    const { data: adminRow } = await supabase
-      .from("admin_profiles")
-      .select("id")
-      .maybeSingle();
+    const { data: adminRow } = await supabase.from("admin_profiles").select("id").maybeSingle();
     if (!adminRow) throw new Error("Accès refusé.");
 
-    const { supabaseAdmin: _sa } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin: _sa } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabaseAdmin = _sa as any;
 
@@ -94,9 +89,7 @@ export const scheduleControlPhoto = createServerFn({ method: "POST" })
 // ─── Chauffeur : récupère la demande en attente (s'il y en a une) ────────────
 export const getDriverControlPhotoRequest = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ vehicleId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => z.object({ vehicleId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;
@@ -151,9 +144,7 @@ export const submitControlPhoto = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!driverRec) throw new Error("Profil chauffeur introuvable.");
 
-    const { supabaseAdmin: _sa } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin: _sa } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabaseAdmin = _sa as any;
 
@@ -182,7 +173,12 @@ export const submitControlPhoto = createServerFn({ method: "POST" })
     }
 
     // Upload de la photo
-    const ext = data.photoMimeType === "image/png" ? "png" : data.photoMimeType === "image/webp" ? "webp" : "jpg";
+    const ext =
+      data.photoMimeType === "image/png"
+        ? "png"
+        : data.photoMimeType === "image/webp"
+          ? "webp"
+          : "jpg";
     const ts = now.toISOString().replace(/[:.]/g, "-").slice(0, 19);
     const path = `${req.vehicle_id}/${ts}.${ext}`;
     const buf = Buffer.from(data.photo, "base64");
@@ -230,15 +226,10 @@ export const adminReviewControlPhoto = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;
-    const { data: adminRow } = await supabase
-      .from("admin_profiles")
-      .select("id")
-      .maybeSingle();
+    const { data: adminRow } = await supabase.from("admin_profiles").select("id").maybeSingle();
     if (!adminRow) throw new Error("Accès refusé.");
 
-    const { supabaseAdmin: _sa } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin: _sa } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabaseAdmin = _sa as any;
 
@@ -249,10 +240,7 @@ export const adminReviewControlPhoto = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!req) throw new Error("Demande introuvable.");
 
-    const mergedFlags = [
-      ...((req.fraud_flags as string[]) ?? []),
-      ...(data.fraudFlags ?? []),
-    ];
+    const mergedFlags = [...((req.fraud_flags as string[]) ?? []), ...(data.fraudFlags ?? [])];
 
     const { error } = await supabaseAdmin
       .from("control_photo_requests")
@@ -278,15 +266,10 @@ export const adminListControlPhotoRequests = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;
-    const { data: adminRow } = await supabase
-      .from("admin_profiles")
-      .select("id")
-      .maybeSingle();
+    const { data: adminRow } = await supabase.from("admin_profiles").select("id").maybeSingle();
     if (!adminRow) throw new Error("Accès refusé.");
 
-    const { supabaseAdmin: _sa } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin: _sa } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabaseAdmin = _sa as any;
     const { data, error } = await supabaseAdmin
@@ -303,9 +286,7 @@ export const adminListControlPhotoRequests = createServerFn({ method: "GET" })
 // ─── Annonceur : consulte les contrôles de ses campagnes ─────────────────────
 export const getAdvertiserControlPhotos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ campaignRequestId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => z.object({ campaignRequestId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;
@@ -322,9 +303,7 @@ export const getAdvertiserControlPhotos = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await supabase
       .from("control_photo_requests")
-      .select(
-        "id, scheduled_at, deadline_at, status, submitted_at, admin_validated, fraud_flags",
-      )
+      .select("id, scheduled_at, deadline_at, status, submitted_at, admin_validated, fraud_flags")
       .eq("campaign_request_id", data.campaignRequestId)
       .order("scheduled_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -334,17 +313,13 @@ export const getAdvertiserControlPhotos = createServerFn({ method: "GET" })
 // ─── Génère une URL signée pour la photo d'un contrôle (admin / annonceur) ──
 export const getControlPhotoUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ requestId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => z.object({ requestId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;
     const { userId } = context;
 
-    const { supabaseAdmin: _sa } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin: _sa } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabaseAdmin = _sa as any;
 
@@ -356,9 +331,7 @@ export const getControlPhotoUrl = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!req?.photo_path) return { url: null };
 
-    const isAdmin = !!(
-      await supabase.from("admin_profiles").select("id").maybeSingle()
-    ).data;
+    const isAdmin = !!(await supabase.from("admin_profiles").select("id").maybeSingle()).data;
     if (!isAdmin) {
       const { data: cr } = await supabase
         .from("campaign_requests")
@@ -427,9 +400,7 @@ export async function recomputeTrustScore(supabaseAdmin: any, driverId: string) 
 // ─── Lecture du score (annonceur / admin) ────────────────────────────────────
 export const getDriverTrustScore = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ driverId: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => z.object({ driverId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = context.supabase as any;

@@ -36,15 +36,17 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
           if (event.type === "transfer.created") {
             const transfer = event.data.object as {
               id: string;
-              amount: number;          // centimes
-              destination: string;     // stripe_account_id du propriétaire
+              amount: number; // centimes
+              destination: string; // stripe_account_id du propriétaire
               metadata?: Record<string, string>;
             };
 
             // Retrouver le propriétaire via son stripe_account_id
             const { data: ownerProfile } = await db
               .from("owner_profiles" as never)
-              .select("id, user_id, vigilance_statut, vigilance_gains_cumules_centimes, vigilance_seuil_atteint_at")
+              .select(
+                "id, user_id, vigilance_statut, vigilance_gains_cumules_centimes, vigilance_seuil_atteint_at",
+              )
               .eq("stripe_account_id" as never, transfer.destination)
               .maybeSingle();
 
@@ -64,8 +66,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
             const anciensCumul = Number(owner.vigilance_gains_cumules_centimes ?? 0);
             const nouveauCumul = anciensCumul + transfer.amount;
             const seuilAtteintPourPremiereFois =
-              anciensCumul < VIGILANCE_SEUIL_CENTIMES &&
-              nouveauCumul >= VIGILANCE_SEUIL_CENTIMES;
+              anciensCumul < VIGILANCE_SEUIL_CENTIMES && nouveauCumul >= VIGILANCE_SEUIL_CENTIMES;
 
             // ─── 3. Mise à jour du cumul des gains ──────────────────────────
             const miseAJour: Record<string, unknown> = {
@@ -89,9 +90,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
 
               // Notifier le propriétaire (best-effort)
               try {
-                const { sendWebPushToUser } = await import(
-                  "@/lib/notifications/push-send.server"
-                );
+                const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
                 await sendWebPushToUser(owner.user_id, {
                   title: "⚠️ Action requise — Attestation Urssaf",
                   body: "Vous avez dépassé 5 000 € de gains. Fournissez votre attestation Urssaf pour débloquer vos virements.",

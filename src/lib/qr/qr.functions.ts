@@ -6,12 +6,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const generateVehicleQrToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      vehicleId: z.string().uuid(),
-      driverId: z.string().uuid().nullable().optional(),
-      // null = permanent; number = days until expiry
-      expiresInDays: z.number().int().positive().nullable().optional(),
-    }).parse(input),
+    z
+      .object({
+        vehicleId: z.string().uuid(),
+        driverId: z.string().uuid().nullable().optional(),
+        // null = permanent; number = days until expiry
+        expiresInDays: z.number().int().positive().nullable().optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -58,19 +60,26 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: v, error } = await supabaseAdmin
       .from("vehicles")
-      .select("id, name, type, format_publicitaire, status, owner_id, zones, driver_id, license_plate")
+      .select(
+        "id, name, type, format_publicitaire, status, owner_id, zones, driver_id, license_plate",
+      )
       .eq("id", payload.v)
       .maybeSingle();
     if (error) return { ok: false as const, error: "Erreur serveur." };
     if (!v) return { ok: false as const, error: "Véhicule introuvable." };
-    if (v.owner_id !== payload.o) return { ok: false as const, error: "QR falsifié (propriétaire incohérent)." };
+    if (v.owner_id !== payload.o)
+      return { ok: false as const, error: "QR falsifié (propriétaire incohérent)." };
     if (v.status !== "approved") return { ok: false as const, error: "Véhicule non approuvé." };
 
     // Si le véhicule est assigné à un chauffeur précis et que le token identifie
     // un autre chauffeur → refus pour éviter les confusions de véhicule.
     const vehicleDriverId = (v as any).driver_id as string | null;
     if (vehicleDriverId && payload.d && vehicleDriverId !== payload.d) {
-      return { ok: false as const, error: "Ce véhicule est assigné à un autre chauffeur. Vérifiez que vous êtes dans le bon véhicule." };
+      return {
+        ok: false as const,
+        error:
+          "Ce véhicule est assigné à un autre chauffeur. Vérifiez que vous êtes dans le bon véhicule.",
+      };
     }
 
     return {
@@ -81,7 +90,7 @@ export const verifyDriverToken = createServerFn({ method: "POST" })
         type: v.type,
         format: v.format_publicitaire,
         zones: (v.zones ?? []) as string[],
-        plate: (v as any).license_plate as string | null ?? null,
+        plate: ((v as any).license_plate as string | null) ?? null,
         driverAssigned: !!vehicleDriverId,
       },
       driverId: payload.d ?? null,
@@ -101,7 +110,9 @@ export const getVehicleActiveCampaignVideo = createServerFn({ method: "POST" })
     const today = new Date().toISOString().slice(0, 10);
     const { data: camp } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, company, spot_name, creative_files, start_date, end_date, daily_start_time, daily_end_time")
+      .select(
+        "id, company, spot_name, creative_files, start_date, end_date, daily_start_time, daily_end_time",
+      )
       .eq("vehicle_id", payload.v)
       .eq("status", "approved")
       .eq("installation_status", "approved")
@@ -138,14 +149,16 @@ export const getVehicleActiveCampaignVideo = createServerFn({ method: "POST" })
 // ── Public: push a position using a signed driver token (no Supabase auth) ────
 export const pushPositionWithToken = createServerFn({ method: "POST" })
   .inputValidator((input) =>
-    z.object({
-      token: z.string().min(10).max(2000),
-      lat: z.number().min(-90).max(90),
-      lng: z.number().min(-180).max(180),
-      accuracy: z.number().nullable().optional(),
-      speed: z.number().nullable().optional(),
-      heading: z.number().nullable().optional(),
-    }).parse(input),
+    z
+      .object({
+        token: z.string().min(10).max(2000),
+        lat: z.number().min(-90).max(90),
+        lng: z.number().min(-180).max(180),
+        accuracy: z.number().nullable().optional(),
+        speed: z.number().nullable().optional(),
+        heading: z.number().nullable().optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const { verifyQrToken } = await import("@/lib/qr/qr-sign.server");
@@ -184,22 +197,24 @@ export const pushPositionWithToken = createServerFn({ method: "POST" })
 // ── Public: push a batch of positions with a signed driver token ──────────────
 export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
   .inputValidator((input) =>
-    z.object({
-      token: z.string().min(10).max(2000),
-      points: z
-        .array(
-          z.object({
-            lat: z.number().min(-90).max(90),
-            lng: z.number().min(-180).max(180),
-            accuracy: z.number().nullable().optional(),
-            speed: z.number().nullable().optional(),
-            heading: z.number().nullable().optional(),
-            recordedAt: z.string().min(10),
-          }),
-        )
-        .min(1)
-        .max(500),
-    }).parse(input),
+    z
+      .object({
+        token: z.string().min(10).max(2000),
+        points: z
+          .array(
+            z.object({
+              lat: z.number().min(-90).max(90),
+              lng: z.number().min(-180).max(180),
+              accuracy: z.number().nullable().optional(),
+              speed: z.number().nullable().optional(),
+              heading: z.number().nullable().optional(),
+              recordedAt: z.string().min(10),
+            }),
+          )
+          .min(1)
+          .max(500),
+      })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const { verifyQrToken } = await import("@/lib/qr/qr-sign.server");
@@ -231,7 +246,7 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
 
     const windows = (obstacleWindows ?? []).map((w) => ({
       start: new Date(w.impact_start!).getTime(),
-      end:   new Date(w.impact_end!).getTime(),
+      end: new Date(w.impact_end!).getTime(),
     }));
 
     const isInObstacleWindow = (recordedAt: string) => {
@@ -257,9 +272,7 @@ export const pushPositionBatchWithToken = createServerFn({ method: "POST" })
     // Met à jour les métriques de couverture — en excluant les points dans les
     // fenêtres d'obstacles validées par l'admin.
     if (camp?.id) {
-      const pointsForMetrics = data.points.filter(
-        (p: any) => !isInObstacleWindow(p.recordedAt),
-      );
+      const pointsForMetrics = data.points.filter((p: any) => !isInObstacleWindow(p.recordedAt));
       if (pointsForMetrics.length > 0) {
         await supabaseAdmin.rpc("record_campaign_gps_batch", {
           p_campaign_id: camp.id,

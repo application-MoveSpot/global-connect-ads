@@ -18,20 +18,20 @@ export type UsCity = {
 
 export const US_CITIES: UsCity[] = [
   // ── Open markets ──────────────────────────────────────────────────────────
-  { id: "miami-fl",      name: "Miami",        state: "FL", status: "open" },
-  { id: "orlando-fl",    name: "Orlando",      state: "FL", status: "open" },
-  { id: "las-vegas-nv",  name: "Las Vegas",    state: "NV", status: "open" },
-  { id: "dallas-tx",     name: "Dallas",       state: "TX", status: "open" },
-  { id: "houston-tx",    name: "Houston",      state: "TX", status: "open" },
-  { id: "austin-tx",     name: "Austin",       state: "TX", status: "open" },
-  { id: "atlanta-ga",    name: "Atlanta",      state: "GA", status: "open" },
-  { id: "phoenix-az",    name: "Phoenix",      state: "AZ", status: "open" },
-  { id: "denver-co",     name: "Denver",       state: "CO", status: "open" },
-  { id: "nashville-tn",  name: "Nashville",    state: "TN", status: "open" },
-  { id: "charlotte-nc",  name: "Charlotte",    state: "NC", status: "open" },
-  { id: "tampa-fl",      name: "Tampa",        state: "FL", status: "open" },
-  { id: "minneapolis-mn",name: "Minneapolis",  state: "MN", status: "open" },
-  { id: "portland-or",   name: "Portland",     state: "OR", status: "open" },
+  { id: "miami-fl", name: "Miami", state: "FL", status: "open" },
+  { id: "orlando-fl", name: "Orlando", state: "FL", status: "open" },
+  { id: "las-vegas-nv", name: "Las Vegas", state: "NV", status: "open" },
+  { id: "dallas-tx", name: "Dallas", state: "TX", status: "open" },
+  { id: "houston-tx", name: "Houston", state: "TX", status: "open" },
+  { id: "austin-tx", name: "Austin", state: "TX", status: "open" },
+  { id: "atlanta-ga", name: "Atlanta", state: "GA", status: "open" },
+  { id: "phoenix-az", name: "Phoenix", state: "AZ", status: "open" },
+  { id: "denver-co", name: "Denver", state: "CO", status: "open" },
+  { id: "nashville-tn", name: "Nashville", state: "TN", status: "open" },
+  { id: "charlotte-nc", name: "Charlotte", state: "NC", status: "open" },
+  { id: "tampa-fl", name: "Tampa", state: "FL", status: "open" },
+  { id: "minneapolis-mn", name: "Minneapolis", state: "MN", status: "open" },
+  { id: "portland-or", name: "Portland", state: "OR", status: "open" },
   // ── License required ──────────────────────────────────────────────────────
   {
     id: "new-york-ny",
@@ -74,8 +74,7 @@ export const US_CITIES: UsCity[] = [
     name: "Philadelphia",
     state: "PA",
     status: "license_required",
-    notes:
-      "Billboard-truck ordinance requires permit from City's Streets Department.",
+    notes: "Billboard-truck ordinance requires permit from City's Streets Department.",
   },
   // ── Restricted ────────────────────────────────────────────────────────────
   {

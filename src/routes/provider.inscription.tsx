@@ -156,16 +156,25 @@ function ProviderSignupPage() {
     try {
       const res = await callProviderAi({ data: { providerContext: aiContext.trim() } });
       if (!res.ok) {
-        if (res.code === "UNAUTHORIZED") { setAiSessionExpired(true); return; }
+        if (res.code === "UNAUTHORIZED") {
+          setAiSessionExpired(true);
+          return;
+        }
         setAiError(res.message);
         return;
       }
       const { suggestion } = res;
       const filled: string[] = [];
-      if (suggestion.description) { setDescription(suggestion.description); filled.push("description"); }
+      if (suggestion.description) {
+        setDescription(suggestion.description);
+        filled.push("description");
+      }
       if (suggestion.coverageAreas.length > 0) {
         setCoverageList((prev) => {
-          const merged = [...prev, ...suggestion.coverageAreas.filter((z: string) => !prev.includes(z))].slice(0, 30);
+          const merged = [
+            ...prev,
+            ...suggestion.coverageAreas.filter((z: string) => !prev.includes(z)),
+          ].slice(0, 30);
           return merged;
         });
         filled.push("zones");
@@ -221,16 +230,12 @@ function ProviderSignupPage() {
       !denom.includes(typed) &&
       !typed.includes(denom)
     ) {
-      setError(
-        t("provider.inscription.error.siret_mismatch"),
-      );
+      setError(t("provider.inscription.error.siret_mismatch"));
       return;
     }
     const nameRe = /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,}(?:\s+[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,})+$/;
     if (!nameRe.test(fullNameTrim)) {
-      setError(
-        t("provider.inscription.error.invalid_name"),
-      );
+      setError(t("provider.inscription.error.invalid_name"));
       return;
     }
     if (description.trim().length < 30) {
@@ -304,9 +309,7 @@ function ProviderSignupPage() {
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
         <h1 className="font-display text-3xl font-bold mb-2">{t("provider.inscription.title")}</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          {t("provider.inscription.subtitle")}
-        </p>
+        <p className="text-sm text-muted-foreground mb-6">{t("provider.inscription.subtitle")}</p>
 
         {step === "auth" ? (
           <form
@@ -314,7 +317,13 @@ function ProviderSignupPage() {
             className="space-y-4 rounded-2xl border border-border bg-card p-6"
           >
             <HoneypotField value={honeypot} onChange={setHoneypot} />
-            <Input label={t("auth.email")} type="email" value={email} onChange={setEmail} required />
+            <Input
+              label={t("auth.email")}
+              type="email"
+              value={email}
+              onChange={setEmail}
+              required
+            />
             <Input
               label={t("provider.inscription.password_label")}
               type="password"
@@ -360,7 +369,8 @@ function ProviderSignupPage() {
           >
             {sessionEmail && (
               <div className="rounded-lg border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
-                {t("auth.connected_as")} <strong className="text-foreground">{sessionEmail}</strong> —{" "}
+                {t("auth.connected_as")} <strong className="text-foreground">{sessionEmail}</strong>{" "}
+                —{" "}
                 <button
                   type="button"
                   onClick={handleSignOut}
@@ -387,7 +397,11 @@ function ProviderSignupPage() {
               placeholder={t("provider.inscription.ai_placeholder")}
               generateLabel={t("provider.inscription.ai_generate")}
               generateLoadingLabel={t("provider.inscription.ai_generating")}
-              filledMessage={aiFilled.length > 0 ? t("provider.inscription.ai_filled", { fields: aiFilled.join(", ") }) : undefined}
+              filledMessage={
+                aiFilled.length > 0
+                  ? t("provider.inscription.ai_filled", { fields: aiFilled.join(", ") })
+                  : undefined
+              }
               onDismissFilled={() => setAiFilled([])}
             />
 
@@ -514,7 +528,9 @@ function ProviderSignupPage() {
               <div className="rounded-xl border border-border bg-secondary/30 p-4 mb-2">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
-                    <div className="text-sm font-semibold">{t("provider.inscription.ai_estimate_title")}</div>
+                    <div className="text-sm font-semibold">
+                      {t("provider.inscription.ai_estimate_title")}
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       {t("provider.inscription.ai_estimate_subtitle")}
                     </div>
@@ -537,15 +553,24 @@ function ProviderSignupPage() {
                         if (res.pricing_text) setPricingInfo(res.pricing_text);
                       } catch (e) {
                         const msg = e instanceof Error ? e.message : "";
-                        const isTechnical = /API_KEY|secret|token|supabase|postgres|prisma|internal server/i.test(msg);
-                        setError(isTechnical || !msg ? t("provider.inscription.error.pricing_estimate") : msg);
+                        const isTechnical =
+                          /API_KEY|secret|token|supabase|postgres|prisma|internal server/i.test(
+                            msg,
+                          );
+                        setError(
+                          isTechnical || !msg
+                            ? t("provider.inscription.error.pricing_estimate")
+                            : msg,
+                        );
                       } finally {
                         setEstimatingPricing(false);
                       }
                     }}
                     className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap shrink-0"
                   >
-                    {estimatingPricing ? t("provider.inscription.estimating") : t("provider.inscription.estimate_btn")}
+                    {estimatingPricing
+                      ? t("provider.inscription.estimating")
+                      : t("provider.inscription.estimate_btn")}
                   </button>
                 </div>
                 {services.length === 0 && (
@@ -660,7 +685,10 @@ function ZoneTagInput({
   const [input, setInput] = useState("");
 
   const addZones = (raw: string) => {
-    const zones = raw.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    const zones = raw
+      .split(/[,;]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
     onChange([...value, ...zones.filter((z) => !value.includes(z))].slice(0, max));
     setInput("");
   };
@@ -677,7 +705,10 @@ function ZoneTagInput({
   return (
     <div className="w-full rounded-lg border border-border bg-background px-3 py-2 flex flex-wrap gap-1.5 min-h-[42px] cursor-text">
       {value.map((z) => (
-        <span key={z} className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-xs font-medium px-2.5 py-0.5">
+        <span
+          key={z}
+          className="inline-flex items-center gap-1 rounded-full bg-primary/15 text-primary text-xs font-medium px-2.5 py-0.5"
+        >
           {z}
           <button
             type="button"
@@ -695,7 +726,9 @@ function ZoneTagInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          onBlur={() => { if (input.trim()) addZones(input); }}
+          onBlur={() => {
+            if (input.trim()) addZones(input);
+          }}
           placeholder={value.length === 0 ? placeholder : ""}
           className="flex-1 min-w-[8rem] bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />

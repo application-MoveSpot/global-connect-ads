@@ -3,7 +3,10 @@ import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 
-import { listCommercialsForAdmin, type CommercialProfile } from "@/lib/commercial/commercial.functions";
+import {
+  listCommercialsForAdmin,
+  type CommercialProfile,
+} from "@/lib/commercial/commercial.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { toast } from "sonner";
@@ -29,7 +32,9 @@ function AdminCommerciauxPage() {
 
   useEffect(() => {
     listFn({ data: {} })
-      .then((res: any) => { if (res.ok) setRows(res.commercials); })
+      .then((res: any) => {
+        if (res.ok) setRows(res.commercials);
+      })
       .catch((e: unknown) => toast.error(e instanceof Error ? e.message : "Erreur"))
       .finally(() => setLoading(false));
   }, [listFn]);
@@ -42,7 +47,10 @@ function AdminCommerciauxPage() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">{t("admin.commerciaux.title")}</h1>
           </div>
-          <Link to="/admin" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/admin"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="w-4 h-4" /> {t("admin.back")}
           </Link>
         </div>
@@ -58,13 +66,20 @@ function AdminCommerciauxPage() {
         ) : (
           <div className="space-y-2">
             {rows.map((r) => (
-              <div key={r.id} className="rounded-xl border border-border bg-card px-5 py-4 flex flex-wrap items-center justify-between gap-4">
+              <div
+                key={r.id}
+                className="rounded-xl border border-border bg-card px-5 py-4 flex flex-wrap items-center justify-between gap-4"
+              >
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-sm">{r.full_name}</p>
-                    {r.company && <span className="text-xs text-muted-foreground">{r.company}</span>}
+                    {r.company && (
+                      <span className="text-xs text-muted-foreground">{r.company}</span>
+                    )}
                     {!r.active && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/30">{t("admin.commerciaux.inactive")}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/30">
+                        {t("admin.commerciaux.inactive")}
+                      </span>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -73,8 +88,14 @@ function AdminCommerciauxPage() {
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold">{Math.round(r.commission_rate * 100)} {t("admin.commerciaux.commission")}</p>
-                  <p className="text-xs text-muted-foreground">{t("admin.commerciaux.since", { date: new Date(r.created_at).toLocaleDateString(i18n.language) })}</p>
+                  <p className="text-sm font-semibold">
+                    {Math.round(r.commission_rate * 100)} {t("admin.commerciaux.commission")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("admin.commerciaux.since", {
+                      date: new Date(r.created_at).toLocaleDateString(i18n.language),
+                    })}
+                  </p>
                 </div>
               </div>
             ))}

@@ -38,7 +38,7 @@ export function PoseFeeEstimateCard({
     return estimatePoseFee({ formatKey, vehicleType, location: location ?? "" });
   }, [vehicleType, surfaceM2, formatPublicitaire, location]);
 
-  const showPose   = operation === "pose"   || operation === "both";
+  const showPose = operation === "pose" || operation === "both";
   const showDepose = operation === "depose" || operation === "both";
 
   return (
@@ -75,8 +75,8 @@ export function PoseFeeEstimateCard({
       </div>
 
       <p className="text-xs text-muted-foreground leading-snug">
-        Fourchette indicative calculée selon le format du véhicule et la zone géographique.
-        Le montant final est fixé d'un commun accord avec l'annonceur.
+        Fourchette indicative calculée selon le format du véhicule et la zone géographique. Le
+        montant final est fixé d'un commun accord avec l'annonceur.
       </p>
     </div>
   );
@@ -94,7 +94,8 @@ function FeeRow({
   storedCents?: number | null;
 }) {
   const stored = storedCents != null ? Math.round(storedCents / 100) : null;
-  const inRange = stored != null && stored >= Math.round(min * 0.70) && stored <= Math.round(max * 1.30);
+  const inRange =
+    stored != null && stored >= Math.round(min * 0.7) && stored <= Math.round(max * 1.3);
 
   return (
     <div className="flex items-center justify-between gap-2">

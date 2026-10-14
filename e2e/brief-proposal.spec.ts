@@ -45,15 +45,18 @@ test.describe("Brief nouveau — chargement", () => {
 
     const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
     const url = page.url();
-    const isRedirected = url.includes("login") || url.includes("auth") || url.includes("inscription");
+    const isRedirected =
+      url.includes("login") || url.includes("auth") || url.includes("inscription");
 
-    expect(isRedirected || bodyText.length > 10, "Écran blanc sur /advertiser/briefs/nouveau").toBe(true);
+    expect(isRedirected || bodyText.length > 10, "Écran blanc sur /advertiser/briefs/nouveau").toBe(
+      true,
+    );
   });
 
   test("le type de véhicule 'camion_led' est présent dans le HTML", () => {
     const src = fs.readFileSync(
       path.join(process.cwd(), "src/routes/advertiser.briefs.nouveau.tsx"),
-      "utf-8"
+      "utf-8",
     );
     expect(src).toContain("camion_led");
   });
@@ -70,10 +73,14 @@ test.describe("Brief nouveau — structure du stepper", () => {
     await injectTestSession(page);
     await page.goto("/advertiser/briefs/nouveau", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-    await page.waitForFunction(
-      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
-      { timeout: 2000 },
-    ).catch(() => {});
+    await page
+      .waitForFunction(
+        () =>
+          !document.body.innerText.includes("Chargement") &&
+          !document.body.innerText.includes("Loading"),
+        { timeout: 2000 },
+      )
+      .catch(() => {});
     await page.waitForTimeout(300);
   });
 
@@ -82,10 +89,19 @@ test.describe("Brief nouveau — structure du stepper", () => {
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur est survenue") || bodyText.includes("error occurred") || bodyText.includes("Failed to fetch")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur est survenue") ||
+      bodyText.includes("error occurred") ||
+      bodyText.includes("Failed to fetch")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
-    const vehicleOptions = page.locator('[data-vehicle-kind], input[value*="voiture"], input[value*="utilitaire"], input[value*="camion"]');
+    const vehicleOptions = page.locator(
+      '[data-vehicle-kind], input[value*="voiture"], input[value*="utilitaire"], input[value*="camion"]',
+    );
     const count = await vehicleOptions.count();
 
     if (count === 0) {
@@ -104,7 +120,14 @@ test.describe("Brief nouveau — structure du stepper", () => {
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur est survenue") || bodyText.includes("error occurred") || bodyText.includes("Failed to fetch")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur est survenue") ||
+      bodyText.includes("error occurred") ||
+      bodyText.includes("Failed to fetch")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     const textInputs = page.locator('input[type="text"], textarea');
@@ -117,7 +140,14 @@ test.describe("Brief nouveau — structure du stepper", () => {
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur est survenue") || bodyText.includes("error occurred") || bodyText.includes("Failed to fetch")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur est survenue") ||
+      bodyText.includes("error occurred") ||
+      bodyText.includes("Failed to fetch")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     const nextBtn = page.getByRole("button", { name: /suivant|continuer|next|étape/i }).first();
@@ -149,21 +179,36 @@ test.describe("Brief nouveau — liste des briefs", () => {
     await injectTestSession(page);
     await page.goto("/advertiser/briefs", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-    await page.waitForFunction(
-      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
-      { timeout: 2000 },
-    ).catch(() => {});
+    await page
+      .waitForFunction(
+        () =>
+          !document.body.innerText.includes("Chargement") &&
+          !document.body.innerText.includes("Loading"),
+        { timeout: 2000 },
+      )
+      .catch(() => {});
     await page.waitForTimeout(300);
 
     const url = page.url();
     if (isRedirected(url)) return;
 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
-    if (bodyText.includes("Chargement") || bodyText.includes("Loading") || bodyText.includes("erreur est survenue") || bodyText.includes("error occurred") || bodyText.includes("Failed to fetch")) return;
+    if (
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading") ||
+      bodyText.includes("erreur est survenue") ||
+      bodyText.includes("error occurred") ||
+      bodyText.includes("Failed to fetch")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
-    const createLink = page.getByRole("link", { name: /nouveau|créer|brief|campagne|new|create/i }).first();
-    const createBtn = page.getByRole("button", { name: /nouveau|créer|brief|campagne|new|create/i }).first();
+    const createLink = page
+      .getByRole("link", { name: /nouveau|créer|brief|campagne|new|create/i })
+      .first();
+    const createBtn = page
+      .getByRole("button", { name: /nouveau|créer|brief|campagne|new|create/i })
+      .first();
 
     const hasLink = await createLink.isVisible().catch(() => false);
     const hasBtn = await createBtn.isVisible().catch(() => false);

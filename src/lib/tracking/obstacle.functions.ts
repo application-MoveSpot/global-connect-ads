@@ -3,21 +3,21 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const OBSTACLE_TYPES = [
-  { value: "travaux",       label: "Travaux de voirie" },
+  { value: "travaux", label: "Travaux de voirie" },
   { value: "manifestation", label: "Manifestation / cortège" },
-  { value: "meteo",         label: "Conditions climatiques extrêmes" },
-  { value: "route_barree",  label: "Route barrée / barrage" },
-  { value: "accident",      label: "Accident / déviation imposée" },
-  { value: "autre",         label: "Autre obstacle" },
+  { value: "meteo", label: "Conditions climatiques extrêmes" },
+  { value: "route_barree", label: "Route barrée / barrage" },
+  { value: "accident", label: "Accident / déviation imposée" },
+  { value: "autre", label: "Autre obstacle" },
 ] as const;
 
 export type ObstacleType = (typeof OBSTACLE_TYPES)[number]["value"];
 
 export const IMPACT_DURATION_OPTIONS = [
-  { value: 30,   label: "~30 min" },
-  { value: 60,   label: "~1 heure" },
-  { value: 120,  label: "~2 heures" },
-  { value: 240,  label: "~4 heures" },
+  { value: 30, label: "~30 min" },
+  { value: 60, label: "~1 heure" },
+  { value: 120, label: "~2 heures" },
+  { value: 240, label: "~4 heures" },
   { value: null, label: "Durée inconnue" },
 ] as const;
 
@@ -33,7 +33,10 @@ const ReportSchema = z.object({
   impactDurationMinutes: z.number().int().min(1).max(1440).nullable().optional(),
   // Jusqu'à 4 photos, base64 brut (sans préfixe data:)
   photos: z.array(PhotoSchema).max(4).optional(),
-  photoMimeTypes: z.array(z.enum(["image/jpeg", "image/png", "image/webp"])).max(4).optional(),
+  photoMimeTypes: z
+    .array(z.enum(["image/jpeg", "image/png", "image/webp"]))
+    .max(4)
+    .optional(),
 });
 
 export const reportObstacleWithToken = createServerFn({ method: "POST" })
@@ -70,7 +73,9 @@ export const reportObstacleWithToken = createServerFn({ method: "POST" })
     const impactStart = reportedAt;
     let impactEnd: string | null = null;
     if (data.impactDurationMinutes != null) {
-      const endDate = new Date(new Date(reportedAt).getTime() + data.impactDurationMinutes * 60_000);
+      const endDate = new Date(
+        new Date(reportedAt).getTime() + data.impactDurationMinutes * 60_000,
+      );
       impactEnd = endDate.toISOString();
     }
 
@@ -156,16 +161,23 @@ export const adminListObstacleReports = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("obstacle_reports")
-      .select("id, vehicle_id, campaign_id, obstacle_type, description, photo_paths, reported_at, impact_start, impact_end, admin_validated, admin_validated_at, admin_notes")
+      .select(
+        "id, vehicle_id, campaign_id, obstacle_type, description, photo_paths, reported_at, impact_start, impact_end, admin_validated, admin_validated_at, admin_notes",
+      )
       .order("reported_at", { ascending: false })
       .limit(100);
     if (error) throw new Error(error.message);
 
     // Enrichit avec le nom du véhicule
-    const vehicleIds = [...new Set((data ?? []).map((r) => r.vehicle_id).filter(Boolean))] as string[];
+    const vehicleIds = [
+      ...new Set((data ?? []).map((r) => r.vehicle_id).filter(Boolean)),
+    ] as string[];
     let vehicleNames: Record<string, string> = {};
     if (vehicleIds.length > 0) {
-      const { data: vv } = await supabaseAdmin.from("vehicles").select("id, name").in("id", vehicleIds);
+      const { data: vv } = await supabaseAdmin
+        .from("vehicles")
+        .select("id, name")
+        .in("id", vehicleIds);
       for (const v of vv ?? []) vehicleNames[v.id] = v.name;
     }
 
@@ -178,13 +190,15 @@ export const adminListObstacleReports = createServerFn({ method: "GET" })
 export const adminValidateObstacleReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      reportId: z.string().uuid(),
-      validated: z.boolean(),
-      notes: z.string().max(500).optional(),
-      // L'admin peut ajuster la fenêtre d'impact
-      impactEnd: z.string().datetime().nullable().optional(),
-    }).parse(input),
+    z
+      .object({
+        reportId: z.string().uuid(),
+        validated: z.boolean(),
+        notes: z.string().max(500).optional(),
+        // L'admin peut ajuster la fenêtre d'impact
+        impactEnd: z.string().datetime().nullable().optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;

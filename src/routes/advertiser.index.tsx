@@ -130,11 +130,7 @@ function AnnonceurDashboard() {
       try {
         await withRetry(init, { maxAttempts: 3 });
       } catch (err) {
-        setLoadError(
-          err instanceof Error
-            ? err.message
-            : t("errors.network"),
-        );
+        setLoadError(err instanceof Error ? err.message : t("errors.network"));
         setLoading(false);
       } finally {
         if (isManualRetry) setRetrying(false);
@@ -189,7 +185,11 @@ function AnnonceurDashboard() {
   const handlePay = async (r: Req) => {
     const cents = Math.round(Number(r.total_price ?? 0) * 100);
     if (cents > balanceCents) {
-      toast.error(t("advertiser.insufficient_balance", { missing: ((cents - balanceCents) / 100).toFixed(2) }));
+      toast.error(
+        t("advertiser.insufficient_balance", {
+          missing: ((cents - balanceCents) / 100).toFixed(2),
+        }),
+      );
       navigate({ to: "/advertiser/portefeuille" });
       return;
     }
@@ -197,7 +197,11 @@ function AnnonceurDashboard() {
     try {
       await payFn({ data: { campaignRequestId: r.id } });
       void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
-      firePixelEvent("Purchase", { value: (r.total_price ?? 0) / 100, currency: "EUR", content_name: "campaign" });
+      firePixelEvent("Purchase", {
+        value: (r.total_price ?? 0) / 100,
+        currency: "EUR",
+        content_name: "campaign",
+      });
       toast.success(t("advertiser.payment_success"));
       const session = await getOrRefreshSession();
       if (session) await reload(session.user.id);
@@ -573,7 +577,11 @@ function AnnonceurDashboard() {
                 <StatusHistory
                   entityType="campaign_status"
                   entityId={r.id}
-                  statusLabel={{ pending: t("advertiser.campaign.status_pending"), approved: t("advertiser.campaign.status_approved"), rejected: t("advertiser.campaign.status_rejected") }}
+                  statusLabel={{
+                    pending: t("advertiser.campaign.status_pending"),
+                    approved: t("advertiser.campaign.status_approved"),
+                    rejected: t("advertiser.campaign.status_rejected"),
+                  }}
                   triggerLabel={t("advertiser.campaign.status_history_label")}
                 />
                 <RouteSummary
@@ -620,13 +628,17 @@ function AnnonceurDashboard() {
                         {t("advertiser.campaign.invoice")}
                       </Link>
                     )}
-                    {(r.installation_status === "approved" || r.installation_status === "pending_approval") && (
+                    {(r.installation_status === "approved" ||
+                      r.installation_status === "pending_approval") && (
                       <Link
                         to="/advertiser/suivi/$campaignId"
                         params={{ campaignId: r.id }}
                         className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${r.installation_status === "approved" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20" : "border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"}`}
                       >
-                        📸 {r.installation_status === "approved" ? t("advertiser.campaign.installation_approved") : t("advertiser.campaign.installation_pending")}
+                        📸{" "}
+                        {r.installation_status === "approved"
+                          ? t("advertiser.campaign.installation_approved")
+                          : t("advertiser.campaign.installation_pending")}
                       </Link>
                     )}
                     {r.installation_status === "approved" && (
@@ -645,20 +657,19 @@ function AnnonceurDashboard() {
           </div>
         )}
 
-        {!isIndividual && requests.some((r) => ["approved", "paid", "completed"].includes(r.status)) && (
-          <section className="mt-10">
-            <h2 className="font-display text-2xl font-bold mb-4">{t("advertiser.analytics.title")}</h2>
-            <AnalyticsDashboard requests={requests} />
-          </section>
-        )}
+        {!isIndividual &&
+          requests.some((r) => ["approved", "paid", "completed"].includes(r.status)) && (
+            <section className="mt-10">
+              <h2 className="font-display text-2xl font-bold mb-4">
+                {t("advertiser.analytics.title")}
+              </h2>
+              <AnalyticsDashboard requests={requests} />
+            </section>
+          )}
 
         <section className="mt-12">
-          <h2 className="font-display text-2xl font-bold mb-2">
-            {t("advertiser.map_title")}
-          </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t("advertiser.map_desc")}
-          </p>
+          <h2 className="font-display text-2xl font-bold mb-2">{t("advertiser.map_title")}</h2>
+          <p className="text-sm text-muted-foreground mb-4">{t("advertiser.map_desc")}</p>
           <MobilityMap />
         </section>
 
@@ -721,7 +732,10 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
       title: t("advertiser.onboarding.step_i3_title"),
       desc: t("advertiser.onboarding.step_i3_desc"),
       done: false,
-      cta: { label: t("advertiser.onboarding.step_i3_cta"), to: "/advertiser/briefs/nouveau" } as const,
+      cta: {
+        label: t("advertiser.onboarding.step_i3_cta"),
+        to: "/advertiser/briefs/nouveau",
+      } as const,
     },
     {
       icon: "🚗",
@@ -752,7 +766,10 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
       title: t("advertiser.onboarding.step_b3_title"),
       desc: t("advertiser.onboarding.step_b3_desc"),
       done: false,
-      cta: { label: t("advertiser.onboarding.step_b3_cta"), to: "/advertiser/briefs/nouveau" } as const,
+      cta: {
+        label: t("advertiser.onboarding.step_b3_cta"),
+        to: "/advertiser/briefs/nouveau",
+      } as const,
     },
     {
       icon: "🚀",
@@ -770,10 +787,14 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
       <div className="text-center mb-8">
         <div className="text-4xl mb-3">{isIndividual ? "🎉" : "📣"}</div>
         <h2 className="font-display text-2xl font-bold">
-          {isIndividual ? t("advertiser.onboarding.title_individual") : t("advertiser.onboarding.title_business")}
+          {isIndividual
+            ? t("advertiser.onboarding.title_individual")
+            : t("advertiser.onboarding.title_business")}
         </h2>
         <p className="text-muted-foreground text-sm mt-2">
-          {isIndividual ? t("advertiser.onboarding.subtitle_individual") : t("advertiser.onboarding.subtitle_business")}
+          {isIndividual
+            ? t("advertiser.onboarding.subtitle_individual")
+            : t("advertiser.onboarding.subtitle_business")}
         </p>
         {isIndividual && (
           <Link
@@ -787,15 +808,24 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
 
       <ol className="space-y-4">
         {steps.map((step, i) => (
-          <li key={i} className={`flex gap-4 rounded-xl p-4 transition ${step.done ? "bg-emerald-500/5 border border-emerald-500/20" : i === 1 ? "bg-primary/5 border border-primary/20" : "bg-secondary/30 border border-border"}`}>
-            <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold ${step.done ? "bg-emerald-500/15 text-emerald-600" : i === 1 ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>
+          <li
+            key={i}
+            className={`flex gap-4 rounded-xl p-4 transition ${step.done ? "bg-emerald-500/5 border border-emerald-500/20" : i === 1 ? "bg-primary/5 border border-primary/20" : "bg-secondary/30 border border-border"}`}
+          >
+            <div
+              className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-lg font-bold ${step.done ? "bg-emerald-500/15 text-emerald-600" : i === 1 ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}
+            >
               {step.done ? "✓" : i + 1}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm">{step.icon} {step.title}</span>
+                <span className="font-semibold text-sm">
+                  {step.icon} {step.title}
+                </span>
                 {step.done && (
-                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">{t("advertiser.onboarding.done")}</span>
+                  <span className="text-xs text-emerald-600 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    {t("advertiser.onboarding.done")}
+                  </span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{step.desc}</p>
@@ -822,7 +852,9 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
 
       <div className="mt-6 pt-5 border-t border-border flex items-center justify-between flex-wrap gap-3">
         <p className="text-xs text-muted-foreground">
-          {isIndividual ? t("advertiser.onboarding.wallet_tip_individual") : t("advertiser.onboarding.wallet_tip_business")}
+          {isIndividual
+            ? t("advertiser.onboarding.wallet_tip_individual")
+            : t("advertiser.onboarding.wallet_tip_business")}
         </p>
         <Link
           to="/advertiser/portefeuille"
@@ -844,7 +876,21 @@ function ReferralWidget() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    void (statsFn({}) as Promise<{ ok: false } | { ok: true; referralCode: string; rewards: Array<{ id: string; status: string; credited_at: string | null; created_at: string }> }>).then((res) => {
+    void (
+      statsFn({}) as Promise<
+        | { ok: false }
+        | {
+            ok: true;
+            referralCode: string;
+            rewards: Array<{
+              id: string;
+              status: string;
+              credited_at: string | null;
+              created_at: string;
+            }>;
+          }
+      >
+    ).then((res) => {
       if (!res.ok) return;
       setCode(res.referralCode);
       setCredited(res.rewards.filter((r) => r.status === "credited").length);
@@ -872,18 +918,24 @@ function ReferralWidget() {
     <div className="rounded-2xl border border-border bg-card p-6">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h2 className="font-display text-xl font-bold mb-1">🎁 {t("advertiser.referral.title")}</h2>
+          <h2 className="font-display text-xl font-bold mb-1">
+            🎁 {t("advertiser.referral.title")}
+          </h2>
           <p className="text-sm text-muted-foreground max-w-md">{t("advertiser.referral.desc")}</p>
         </div>
         <div className="flex gap-4 text-center shrink-0">
           <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-5 py-3">
             <div className="text-2xl font-bold text-emerald-600 tabular-nums">{credited}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">{t("advertiser.referral.credited")}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t("advertiser.referral.credited")}
+            </div>
           </div>
           {pending > 0 && (
             <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-5 py-3">
               <div className="text-2xl font-bold text-amber-600 tabular-nums">{pending}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{t("advertiser.referral.pending")}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {t("advertiser.referral.pending")}
+              </div>
             </div>
           )}
         </div>
@@ -914,7 +966,11 @@ function Badge({ status }: { status: string }) {
     rejected: "bg-destructive/20 text-destructive",
   };
   const label = t(`campaign_status.${status}`, { defaultValue: status });
-  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] ?? cls.pending}`}>{label}</span>;
+  return (
+    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] ?? cls.pending}`}>
+      {label}
+    </span>
+  );
 }
 
 function PaymentBadge({ status }: { status: string }) {
@@ -932,7 +988,11 @@ function PaymentBadge({ status }: { status: string }) {
     partial_refund: t("payment_status.refunded"),
   };
   const label = labels[status] ?? status;
-  return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] ?? cls.unpaid}`}>{label}</span>;
+  return (
+    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${cls[status] ?? cls.unpaid}`}>
+      {label}
+    </span>
+  );
 }
 
 function SubscriptionBadge({ status }: { status: string }) {
@@ -943,7 +1003,10 @@ function SubscriptionBadge({ status }: { status: string }) {
     past_due: { label: t("common.status.pending"), cls: "bg-destructive/20 text-destructive" },
     unpaid: { label: t("payment_status.unpaid"), cls: "bg-destructive/20 text-destructive" },
     canceled: { label: t("common.status.cancelled"), cls: "bg-secondary text-foreground" },
-    incomplete: { label: t("common.status.pending"), cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" },
+    incomplete: {
+      label: t("common.status.pending"),
+      cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300",
+    },
   };
   const s = map[status];
   if (!s) return null;
@@ -962,29 +1025,43 @@ function AnalyticsDashboard({ requests }: { requests: Req[] }) {
 
   const zoneCount: Record<string, number> = {};
   for (const r of done) {
-    for (const z of (r.route_zones ?? [])) {
+    for (const z of r.route_zones ?? []) {
       zoneCount[z] = (zoneCount[z] ?? 0) + 1;
     }
   }
-  const topZones = Object.entries(zoneCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topZones = Object.entries(zoneCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
   const maxZone = topZones[0]?.[1] ?? 1;
 
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("advertiser.analytics.campaigns_count")}</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            {t("advertiser.analytics.campaigns_count")}
+          </p>
           <p className="font-display text-3xl font-bold">{done.length}</p>
         </div>
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("advertiser.analytics.total_impressions")}</p>
-          <p className="font-display text-3xl font-bold text-primary">{totalImpressions.toLocaleString(locale)}</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            {t("advertiser.analytics.total_impressions")}
+          </p>
+          <p className="font-display text-3xl font-bold text-primary">
+            {totalImpressions.toLocaleString(locale)}
+          </p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("advertiser.analytics.cpm")}</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            {t("advertiser.analytics.cpm")}
+          </p>
           <p className="font-display text-3xl font-bold">
             {cpm > 0
-              ? cpm.toLocaleString(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 2 })
+              ? cpm.toLocaleString(locale, {
+                  style: "currency",
+                  currency: "EUR",
+                  maximumFractionDigits: 2,
+                })
               : "—"}
           </p>
         </div>
@@ -1005,7 +1082,9 @@ function AnalyticsDashboard({ requests }: { requests: Req[] }) {
                       style={{ width: `${(count / maxZone) * 100}%` }}
                     />
                   </div>
-                  <span className="text-xs text-muted-foreground w-6 text-right tabular-nums">{count}</span>
+                  <span className="text-xs text-muted-foreground w-6 text-right tabular-nums">
+                    {count}
+                  </span>
                 </div>
               </div>
             ))}

@@ -7,7 +7,11 @@ export const Route = createFileRoute("/_public/commencer")({
   head: () => ({
     meta: [
       { title: "Get started with MoveSpot | Rejoindre MoveSpot — Choisissez votre profil" },
-      { name: "description", content: "Advertiser, vehicle owner, driver, installer, partner or sales rep — create your MoveSpot account in 2 minutes. Annonceur, propriétaire de véhicule, driver, poseur, partner ou commercial — créez votre compte MoveSpot en 2 minutes." },
+      {
+        name: "description",
+        content:
+          "Advertiser, vehicle owner, driver, installer, partner or sales rep — create your MoveSpot account in 2 minutes. Annonceur, propriétaire de véhicule, driver, poseur, partner ou commercial — créez votre compte MoveSpot en 2 minutes.",
+      },
       { name: "robots", content: "index,follow" },
     ],
     links: [
@@ -40,7 +44,8 @@ const ROLES = {
       desc: "Louez l'espace publicitaire de votre flotte ou de votre véhicule personnel. 70 % des revenus vous revient.",
       cta: "Inscrire mon véhicule",
       href: "/owner/inscription",
-      accent: "border-emerald-500/40 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
+      accent:
+        "border-emerald-500/40 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
       iconColor: "text-emerald-500",
       badge: "70 % reversé",
     },
@@ -114,7 +119,8 @@ const ROLES = {
       desc: "Rent out the advertising space on your fleet or personal vehicle. You keep 70% of the revenue.",
       cta: "Register my vehicle",
       href: "/owner/inscription",
-      accent: "border-emerald-500/40 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
+      accent:
+        "border-emerald-500/40 hover:border-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10",
       iconColor: "text-emerald-500",
       badge: "70% paid out",
     },
@@ -197,12 +203,8 @@ function CommencerPage() {
           <p className="text-xs uppercase tracking-widest text-primary mb-3 font-semibold">
             {c.eyebrow}
           </p>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight">
-            {c.h1}
-          </h1>
-          <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
-            {c.desc}
-          </p>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight">{c.h1}</h1>
+          <p className="mt-4 text-muted-foreground max-w-lg mx-auto">{c.desc}</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -219,17 +221,21 @@ function CommencerPage() {
                     {role.badge}
                   </span>
                 )}
-                <div className={`w-10 h-10 rounded-xl bg-background border border-border flex items-center justify-center ${role.iconColor}`}>
+                <div
+                  className={`w-10 h-10 rounded-xl bg-background border border-border flex items-center justify-center ${role.iconColor}`}
+                >
                   <Icon className="w-5 h-5" />
                 </div>
                 <div>
                   <p className="font-display font-bold text-lg leading-tight">{role.title}</p>
-                  <p className="text-xs font-medium text-muted-foreground mt-0.5">{role.subtitle}</p>
+                  <p className="text-xs font-medium text-muted-foreground mt-0.5">
+                    {role.subtitle}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground flex-1 leading-relaxed">
-                  {role.desc}
-                </p>
-                <div className={`flex items-center gap-1.5 text-sm font-semibold mt-1 ${role.iconColor}`}>
+                <p className="text-sm text-muted-foreground flex-1 leading-relaxed">{role.desc}</p>
+                <div
+                  className={`flex items-center gap-1.5 text-sm font-semibold mt-1 ${role.iconColor}`}
+                >
                   {role.cta}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </div>

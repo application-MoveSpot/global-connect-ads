@@ -15,7 +15,10 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Demande de devis — MoveSpot" },
-      { name: "description", content: "Obtenez un devis personnalisé pour votre campagne Grand Compte MoveSpot." },
+      {
+        name: "description",
+        content: "Obtenez un devis personnalisé pour votre campagne Grand Compte MoveSpot.",
+      },
     ],
   }),
   component: ContactPage,
@@ -31,7 +34,13 @@ function ContactPage() {
   const navigate = useNavigate();
 
   if (form === "1") {
-    return <ClassicForm onSwitchToChat={() => navigate({ to: "/contact", search: { plan: "enterprise", form: "" } })} />;
+    return (
+      <ClassicForm
+        onSwitchToChat={() =>
+          navigate({ to: "/contact", search: { plan: "enterprise", form: "" } })
+        }
+      />
+    );
   }
 
   return <ChatPage />;
@@ -40,10 +49,12 @@ function ContactPage() {
 function ChatPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [messages, setMessages] = useState<Message[]>(() => [{
-    role: "assistant",
-    content: t("contact.initial_message"),
-  }]);
+  const [messages, setMessages] = useState<Message[]>(() => [
+    {
+      role: "assistant",
+      content: t("contact.initial_message"),
+    },
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -89,9 +100,10 @@ function ChatPage() {
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setError(msg.includes("LOVABLE_API_KEY") || msg.includes("manquant")
-        ? "Configuration manquante : ajoutez LOVABLE_API_KEY dans Lovable Dashboard → Secrets."
-        : `Erreur : ${msg.slice(0, 120)}`
+      setError(
+        msg.includes("LOVABLE_API_KEY") || msg.includes("manquant")
+          ? "Configuration manquante : ajoutez LOVABLE_API_KEY dans Lovable Dashboard → Secrets."
+          : `Erreur : ${msg.slice(0, 120)}`,
       );
     } finally {
       setLoading(false);
@@ -138,9 +150,7 @@ function ChatPage() {
       <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-6 gap-4">
         <div className="text-center mb-2">
           <h1 className="text-2xl font-bold">{t("contact.chat.title")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("contact.chat.subtitle")}
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{t("contact.chat.subtitle")}</p>
         </div>
 
         {/* Chat messages */}
@@ -158,13 +168,19 @@ function ChatPage() {
             <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4">
               <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{t("contact.chat.success_title")}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("contact.chat.success_msg")}</p>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                  {t("contact.chat.success_title")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t("contact.chat.success_msg")}
+                </p>
               </div>
             </div>
           )}
           {error && (
-            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">{error}</p>
+            <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">
+              {error}
+            </p>
           )}
           <div ref={bottomRef} />
         </div>
@@ -195,7 +211,9 @@ function ChatPage() {
 
         {done && (
           <div className="text-center">
-            <Link to="/" className="text-sm text-primary hover:underline">{t("contact.chat.back_home")}</Link>
+            <Link to="/" className="text-sm text-primary hover:underline">
+              {t("contact.chat.back_home")}
+            </Link>
           </div>
         )}
 
@@ -207,9 +225,11 @@ function ChatPage() {
             onClick={() => navigate({ to: "/contact", search: { plan: "enterprise", form: "1" } })}
           >
             {t("contact.chat.click_here")}
-          </button>
-          {" "}{t("contact.chat.or_email")}{" "}
-          <a href="mailto:contact@move-spot.com" className="underline hover:text-foreground">contact@move-spot.com</a>
+          </button>{" "}
+          {t("contact.chat.or_email")}{" "}
+          <a href="mailto:contact@move-spot.com" className="underline hover:text-foreground">
+            contact@move-spot.com
+          </a>
         </p>
       </main>
     </div>
@@ -219,7 +239,13 @@ function ChatPage() {
 function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
   const { t } = useTranslation();
   const doSubmit = useServerFn(submitContactLead);
-  const [fields, setFields] = useState({ name: "", email: "", company: "", phone: "", message: "" });
+  const [fields, setFields] = useState({
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+    message: "",
+  });
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -261,55 +287,73 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold">{t("contact.form.title")}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("contact.form.subtitle")}
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{t("contact.form.subtitle")}</p>
         </div>
         {done ? (
           <div className="flex flex-col items-center gap-4 py-12">
             <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 w-full max-w-md">
               <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{t("contact.form.success_title")}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("contact.form.success_msg")}</p>
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                  {t("contact.form.success_title")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t("contact.form.success_msg")}
+                </p>
               </div>
             </div>
-            <Link to="/" className="text-sm text-primary hover:underline">{t("contact.chat.back_home")}</Link>
+            <Link to="/" className="text-sm text-primary hover:underline">
+              {t("contact.chat.back_home")}
+            </Link>
           </div>
         ) : (
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 max-w-lg mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium mb-1">{t("contact.form.name_label")}</label>
+                <label className="block text-xs font-medium mb-1">
+                  {t("contact.form.name_label")}
+                </label>
                 <input
-                  type="text" required value={fields.name}
+                  type="text"
+                  required
+                  value={fields.name}
                   onChange={(e) => setFields((f) => ({ ...f, name: e.target.value }))}
                   className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   placeholder="Sophie Martin"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1">{t("contact.form.email_label")}</label>
+                <label className="block text-xs font-medium mb-1">
+                  {t("contact.form.email_label")}
+                </label>
                 <input
-                  type="email" required value={fields.email}
+                  type="email"
+                  required
+                  value={fields.email}
                   onChange={(e) => setFields((f) => ({ ...f, email: e.target.value }))}
                   className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   placeholder="sophie@entreprise.com"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1">{t("contact.form.company_label")}</label>
+                <label className="block text-xs font-medium mb-1">
+                  {t("contact.form.company_label")}
+                </label>
                 <input
-                  type="text" value={fields.company}
+                  type="text"
+                  value={fields.company}
                   onChange={(e) => setFields((f) => ({ ...f, company: e.target.value }))}
                   className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   placeholder="Caraïbes Distribution"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium mb-1">{t("contact.form.phone_label")}</label>
+                <label className="block text-xs font-medium mb-1">
+                  {t("contact.form.phone_label")}
+                </label>
                 <input
-                  type="tel" value={fields.phone}
+                  type="tel"
+                  value={fields.phone}
                   onChange={(e) => setFields((f) => ({ ...f, phone: e.target.value }))}
                   className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   placeholder="+33 6 00 00 00 00"
@@ -317,25 +361,41 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">{t("contact.form.message_label")}</label>
+              <label className="block text-xs font-medium mb-1">
+                {t("contact.form.message_label")}
+              </label>
               <textarea
-                rows={4} value={fields.message}
+                rows={4}
+                value={fields.message}
                 onChange={(e) => setFields((f) => ({ ...f, message: e.target.value }))}
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
                 placeholder={t("contact.form.message_placeholder")}
               />
             </div>
-            {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">{error}</p>}
+            {error && (
+              <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg p-3">
+                {error}
+              </p>
+            )}
             <button
-              type="submit" disabled={loading || !fields.name.trim() || !fields.email.trim()}
+              type="submit"
+              disabled={loading || !fields.name.trim() || !fields.email.trim()}
               className="w-full rounded-xl bg-[#F05A28] text-white py-3 text-sm font-semibold hover:bg-[#d94e20] transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
               {t("contact.form.submit_btn")}
             </button>
             <p className="text-center text-xs text-muted-foreground">
               {t("contact.form.prefer_chat")}{" "}
-              <button type="button" className="underline hover:text-foreground" onClick={onSwitchToChat}>
+              <button
+                type="button"
+                className="underline hover:text-foreground"
+                onClick={onSwitchToChat}
+              >
                 {t("contact.form.start_chat")}
               </button>
             </p>

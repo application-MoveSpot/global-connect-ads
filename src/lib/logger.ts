@@ -26,9 +26,14 @@ export const log = {
   info: (event: string, extra?: Record<string, unknown>) => emit("info", event, extra),
   warn: (event: string, extra?: Record<string, unknown>) => emit("warn", event, extra),
   error: (event: string, err: unknown, extra?: Record<string, unknown>) => {
-    const errObj = err instanceof Error
-      ? { msg: err.message, code: (err as NodeJS.ErrnoException).code ?? null, stack: err.stack?.split("\n")[1]?.trim() ?? null }
-      : { msg: String(err) };
+    const errObj =
+      err instanceof Error
+        ? {
+            msg: err.message,
+            code: (err as NodeJS.ErrnoException).code ?? null,
+            stack: err.stack?.split("\n")[1]?.trim() ?? null,
+          }
+        : { msg: String(err) };
     emit("error", event, { ...errObj, ...extra });
   },
 };
@@ -47,8 +52,14 @@ export async function withRetry<T>(
     try {
       return await fn();
     } catch (err) {
-      const code = err instanceof Error ? (err as NodeJS.ErrnoException).code ?? "" : "";
-      const retryable = ["ECONNRESET", "ECONNREFUSED", "ETIMEDOUT", "ENOTFOUND", "UND_ERR_SOCKET"].includes(code);
+      const code = err instanceof Error ? ((err as NodeJS.ErrnoException).code ?? "") : "";
+      const retryable = [
+        "ECONNRESET",
+        "ECONNREFUSED",
+        "ETIMEDOUT",
+        "ENOTFOUND",
+        "UND_ERR_SOCKET",
+      ].includes(code);
       attempt++;
       if (!retryable || attempt > maxRetries) {
         log.error(event, err, { attempt, retryable: false });

@@ -2,15 +2,32 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { getCampaignPositions, getCampaignMetrics, getCampaignPauseAlerts } from "@/lib/tracking/tracking.functions";
+import {
+  getCampaignPositions,
+  getCampaignMetrics,
+  getCampaignPauseAlerts,
+} from "@/lib/tracking/tracking.functions";
 import { getInstallationPhotosForAdvertiser } from "@/lib/providers/installation.functions";
-import { InstallationPhotoGrid, parseInstallationPhotos } from "@/components/driver/InstallationPhotoGrid";
+import {
+  InstallationPhotoGrid,
+  parseInstallationPhotos,
+} from "@/components/driver/InstallationPhotoGrid";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle, MapPin, Radio, CreditCard, Camera, Clock, Star, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  MapPin,
+  Radio,
+  CreditCard,
+  Camera,
+  Clock,
+  Star,
+  TrendingUp,
+} from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 import { submitCampaignRating, getCampaignRating } from "@/lib/campaigns/rating.functions";
 import { toast } from "sonner";
@@ -22,11 +39,21 @@ export const Route = createFileRoute("/advertiser/suivi/$campaignId")({
   component: SuiviPage,
   errorComponent: ({ error }: { error: Error }) => {
     const { t } = useTranslation();
-    return <div className="p-8 text-center text-destructive">{t("errors.prefix")} : {error.message}</div>;
+    return (
+      <div className="p-8 text-center text-destructive">
+        {t("errors.prefix")} : {error.message}
+      </div>
+    );
   },
 });
 
-type Position = { lat: number; lng: number; recorded_at: string; speed: number | null; heading: number | null };
+type Position = {
+  lat: number;
+  lng: number;
+  recorded_at: string;
+  speed: number | null;
+  heading: number | null;
+};
 
 function SuiviPage() {
   const { t, i18n } = useTranslation();
@@ -80,7 +107,9 @@ function SuiviPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("campaign_requests")
-        .select("id, status, payment_status, total_price, start_date, end_date, spot_name, estimated_impressions_per_day, days_count")
+        .select(
+          "id, status, payment_status, total_price, start_date, end_date, spot_name, estimated_impressions_per_day, days_count",
+        )
         .eq("id", campaignId)
         .maybeSingle();
       return data;
@@ -94,7 +123,9 @@ function SuiviPage() {
     staleTime: 60_000,
   });
 
-  const existingRating = ratingData?.ratings?.find((r: { rated_role: string; stars: number; comment: string | null }) => r.rated_role === "owner");
+  const existingRating = ratingData?.ratings?.find(
+    (r: { rated_role: string; stars: number; comment: string | null }) => r.rated_role === "owner",
+  );
 
   const { data: advertiserMeta } = useQuery({
     queryKey: ["campaign-advertiser-meta", campaignId],
@@ -123,10 +154,30 @@ function SuiviPage() {
       .channel(`positions-${campaignId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "vehicle_positions", filter: `campaign_request_id=eq.${campaignId}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "vehicle_positions",
+          filter: `campaign_request_id=eq.${campaignId}`,
+        },
         (payload) => {
-          const r = payload.new as { lat: number; lng: number; recorded_at: string; speed: number | null; heading: number | null };
-          setPositions((prev) => [...prev, { lat: r.lat, lng: r.lng, recorded_at: r.recorded_at, speed: r.speed, heading: r.heading }]);
+          const r = payload.new as {
+            lat: number;
+            lng: number;
+            recorded_at: string;
+            speed: number | null;
+            heading: number | null;
+          };
+          setPositions((prev) => [
+            ...prev,
+            {
+              lat: r.lat,
+              lng: r.lng,
+              recorded_at: r.recorded_at,
+              speed: r.speed,
+              heading: r.heading,
+            },
+          ]);
           setLive(true);
         },
       )
@@ -165,7 +216,9 @@ function SuiviPage() {
 
     const draw = () => {
       if (!markerRef.current) {
-        markerRef.current = new mgl.Marker({ color: "#0f172a" }).setLngLat([last.lng, last.lat]).addTo(map);
+        markerRef.current = new mgl.Marker({ color: "#0f172a" })
+          .setLngLat([last.lng, last.lat])
+          .addTo(map);
         map.flyTo({ center: [last.lng, last.lat], zoom: 14 });
       } else {
         markerRef.current.setLngLat([last.lng, last.lat]);
@@ -213,13 +266,21 @@ function SuiviPage() {
               "heatmap-weight": 0.4,
               "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 1, 15, 3],
               "heatmap-color": [
-                "interpolate", ["linear"], ["heatmap-density"],
-                0, "rgba(33,102,172,0)",
-                0.2, "rgb(103,169,207)",
-                0.4, "rgb(209,229,240)",
-                0.6, "rgb(253,219,199)",
-                0.8, "rgb(239,138,98)",
-                1, "rgb(178,24,43)",
+                "interpolate",
+                ["linear"],
+                ["heatmap-density"],
+                0,
+                "rgba(33,102,172,0)",
+                0.2,
+                "rgb(103,169,207)",
+                0.4,
+                "rgb(209,229,240)",
+                0.6,
+                "rgb(253,219,199)",
+                0.8,
+                "rgb(239,138,98)",
+                1,
+                "rgb(178,24,43)",
               ],
               "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 15, 20],
               "heatmap-opacity": 0.5,
@@ -243,14 +304,22 @@ function SuiviPage() {
     <div className="min-h-screen bg-background">
       <div className="border-b bg-card p-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.suivi.back")}</Link>
+          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+            {t("advertiser.suivi.back")}
+          </Link>
           <div className="flex items-center gap-3 text-sm">
             <div className="flex items-center gap-2">
-              <Radio className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`} />
+              <Radio
+                className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`}
+              />
               <span>
                 {live
-                  ? (isIndividual ? t("advertiser.suivi.live_individual") : t("advertiser.suivi.live_business"))
-                  : (isIndividual ? t("advertiser.suivi.waiting_individual") : t("advertiser.suivi.waiting_business"))}
+                  ? isIndividual
+                    ? t("advertiser.suivi.live_individual")
+                    : t("advertiser.suivi.live_business")
+                  : isIndividual
+                    ? t("advertiser.suivi.waiting_individual")
+                    : t("advertiser.suivi.waiting_business")}
               </span>
             </div>
             <Link
@@ -266,62 +335,85 @@ function SuiviPage() {
 
       <div className="mx-auto max-w-6xl space-y-4 p-4">
         {/* Bannière événement pour les particuliers */}
-        {isIndividual && campaign?.start_date && (() => {
-          const today = new Date(); today.setHours(0, 0, 0, 0);
-          const start = new Date(campaign.start_date); start.setHours(0, 0, 0, 0);
-          const d = Math.round((start.getTime() - today.getTime()) / 86400000);
-          if (d < 0) return null;
-          const urgent = d <= 3;
-          return (
-            <Card className={urgent ? "border-amber-500/50 bg-amber-500/5" : "border-primary/20 bg-primary/5"}>
-              <CardContent className="py-4 flex items-center gap-3 text-sm">
-                <Clock className={`h-5 w-5 shrink-0 ${urgent ? "text-amber-600" : "text-primary"}`} />
-                <span className={urgent ? "text-amber-900 dark:text-amber-200" : "text-foreground"}>
-                  {d === 0
-                    ? t("advertiser.suivi.event_today")
-                    : d === 1
-                    ? t("advertiser.suivi.event_tomorrow")
-                    : t("advertiser.suivi.event_days", {
-                        count: d,
-                        date: new Date(campaign.start_date).toLocaleDateString(dateLocale, { day: "numeric", month: "long" }),
-                      })}
-                </span>
+        {isIndividual &&
+          campaign?.start_date &&
+          (() => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const start = new Date(campaign.start_date);
+            start.setHours(0, 0, 0, 0);
+            const d = Math.round((start.getTime() - today.getTime()) / 86400000);
+            if (d < 0) return null;
+            const urgent = d <= 3;
+            return (
+              <Card
+                className={
+                  urgent ? "border-amber-500/50 bg-amber-500/5" : "border-primary/20 bg-primary/5"
+                }
+              >
+                <CardContent className="py-4 flex items-center gap-3 text-sm">
+                  <Clock
+                    className={`h-5 w-5 shrink-0 ${urgent ? "text-amber-600" : "text-primary"}`}
+                  />
+                  <span
+                    className={urgent ? "text-amber-900 dark:text-amber-200" : "text-foreground"}
+                  >
+                    {d === 0
+                      ? t("advertiser.suivi.event_today")
+                      : d === 1
+                        ? t("advertiser.suivi.event_tomorrow")
+                        : t("advertiser.suivi.event_days", {
+                            count: d,
+                            date: new Date(campaign.start_date).toLocaleDateString(dateLocale, {
+                              day: "numeric",
+                              month: "long",
+                            }),
+                          })}
+                  </span>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
+        {campaign?.status === "approved" &&
+          campaign.payment_status !== "paid" &&
+          campaign.total_price && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" /> {t("advertiser.suivi.payment_card_title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {t("advertiser.suivi.payment_total_desc", {
+                    amount: `${Number(campaign.total_price).toFixed(2)} €`,
+                  })}
+                </p>
+                <PaymentModeSelector
+                  campaignRequestId={campaignId}
+                  totalPriceEur={Number(campaign.total_price)}
+                  vehicleQuantity={1}
+                />
               </CardContent>
             </Card>
-          );
-        })()}
-
-        {campaign?.status === "approved" && campaign.payment_status !== "paid" && campaign.total_price && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" /> {t("advertiser.suivi.payment_card_title")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {t("advertiser.suivi.payment_total_desc", { amount: `${Number(campaign.total_price).toFixed(2)} €` })}
-              </p>
-              <PaymentModeSelector
-                campaignRequestId={campaignId}
-                totalPriceEur={Number(campaign.total_price)}
-                vehicleQuantity={1}
-              />
-            </CardContent>
-          </Card>
-        )}
+          )}
         {campaign?.payment_status === "paid" && (
           <Card>
-            <CardContent className="py-4 text-sm text-emerald-700">{t("advertiser.suivi.payment_paid_card")}</CardContent>
+            <CardContent className="py-4 text-sm text-emerald-700">
+              {t("advertiser.suivi.payment_paid_card")}
+            </CardContent>
           </Card>
         )}
         {!isIndividual && pauseData && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {pauseData.hasViolation
-                  ? <AlertTriangle className="h-5 w-5 text-destructive" />
-                  : <CheckCircle className="h-5 w-5 text-emerald-600" />}
+                {pauseData.hasViolation ? (
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
+                ) : (
+                  <CheckCircle className="h-5 w-5 text-emerald-600" />
+                )}
                 {t("advertiser.suivi.pause_card_title")}
               </CardTitle>
             </CardHeader>
@@ -331,29 +423,50 @@ function SuiviPage() {
                   <p className="font-semibold">{t("advertiser.suivi.pause_violation_detected")}</p>
                 </div>
               ) : (
-                <p className="text-sm text-emerald-700">{t("advertiser.suivi.pause_no_violation")}</p>
+                <p className="text-sm text-emerald-700">
+                  {t("advertiser.suivi.pause_no_violation")}
+                </p>
               )}
               {pauseData.analysis && pauseData.analysis.blocks.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t("advertiser.suivi.pause_blocks_title")}</p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    {t("advertiser.suivi.pause_blocks_title")}
+                  </p>
                   <div className="divide-y rounded-md border text-sm">
                     {pauseData.analysis.blocks.map((b: any, i: number) => (
-                      <div key={i} className={`flex items-center justify-between px-3 py-2 ${b.durationMinutes > 270 && !b.breakAdequate ? "bg-destructive/5" : ""}`}>
+                      <div
+                        key={i}
+                        className={`flex items-center justify-between px-3 py-2 ${b.durationMinutes > 270 && !b.breakAdequate ? "bg-destructive/5" : ""}`}
+                      >
                         <div>
                           <span className="font-mono">
-                            {new Date(b.startTime).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
+                            {new Date(b.startTime).toLocaleTimeString(dateLocale, {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                             {" → "}
-                            {new Date(b.endTime).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
+                            {new Date(b.endTime).toLocaleTimeString(dateLocale, {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </span>
                           {b.breakAfterMinutes !== null && (
-                            <span className={`ml-2 text-xs ${b.breakAdequate ? "text-emerald-600" : "text-amber-600"}`}>
+                            <span
+                              className={`ml-2 text-xs ${b.breakAdequate ? "text-emerald-600" : "text-amber-600"}`}
+                            >
                               {b.breakAdequate
-                                ? t("advertiser.suivi.pause_break_adequate", { n: b.breakAfterMinutes })
-                                : t("advertiser.suivi.pause_break_insufficient", { n: b.breakAfterMinutes })}
+                                ? t("advertiser.suivi.pause_break_adequate", {
+                                    n: b.breakAfterMinutes,
+                                  })
+                                : t("advertiser.suivi.pause_break_insufficient", {
+                                    n: b.breakAfterMinutes,
+                                  })}
                             </span>
                           )}
                         </div>
-                        <span className={`font-mono text-xs ${b.durationMinutes > 270 ? "text-destructive font-bold" : b.durationMinutes > 240 ? "text-amber-600" : "text-muted-foreground"}`}>
+                        <span
+                          className={`font-mono text-xs ${b.durationMinutes > 270 ? "text-destructive font-bold" : b.durationMinutes > 240 ? "text-amber-600" : "text-muted-foreground"}`}
+                        >
                           {fmtDuration(b.durationMinutes)}
                         </span>
                       </div>
@@ -368,7 +481,9 @@ function SuiviPage() {
                 </div>
               )}
               {pauseData.analysis === null && (
-                <p className="text-xs text-muted-foreground">{t("advertiser.suivi.pause_no_data")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("advertiser.suivi.pause_no_data")}
+                </p>
               )}
             </CardContent>
           </Card>
@@ -393,7 +508,11 @@ function SuiviPage() {
               <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                 <Stat
                   label={t("advertiser.suivi.stat_coverage_rate")}
-                  value={metrics.coverageRate != null ? `${Math.round(metrics.coverageRate * 100)} %` : "—"}
+                  value={
+                    metrics.coverageRate != null
+                      ? `${Math.round(metrics.coverageRate * 100)} %`
+                      : "—"
+                  }
                 />
                 <Stat
                   label={t("advertiser.suivi.stat_distance_zone")}
@@ -431,15 +550,21 @@ function SuiviPage() {
               <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                 <Stat
                   label={t("advertiser.suivi.stat_impressions_day")}
-                  value={campaign.estimated_impressions_per_day != null
-                    ? campaign.estimated_impressions_per_day.toLocaleString(dateLocale)
-                    : "—"}
+                  value={
+                    campaign.estimated_impressions_per_day != null
+                      ? campaign.estimated_impressions_per_day.toLocaleString(dateLocale)
+                      : "—"
+                  }
                 />
                 <Stat
                   label={t("advertiser.suivi.stat_impressions_total")}
-                  value={campaign.estimated_impressions_per_day != null && campaign.days_count != null
-                    ? (campaign.estimated_impressions_per_day * campaign.days_count).toLocaleString(dateLocale)
-                    : "—"}
+                  value={
+                    campaign.estimated_impressions_per_day != null && campaign.days_count != null
+                      ? (
+                          campaign.estimated_impressions_per_day * campaign.days_count
+                        ).toLocaleString(dateLocale)
+                      : "—"
+                  }
                 />
                 <Stat
                   label={t("advertiser.suivi.stat_cpm")}
@@ -457,9 +582,7 @@ function SuiviPage() {
                   value={campaign.days_count ?? "—"}
                 />
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                {t("advertiser.suivi.roi_note")}
-              </p>
+              <p className="mt-3 text-xs text-muted-foreground">{t("advertiser.suivi.roi_note")}</p>
             </CardContent>
           </Card>
         )}
@@ -467,7 +590,9 @@ function SuiviPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              {isIndividual ? t("advertiser.suivi.map_title_individual") : t("advertiser.suivi.map_title_business")}
+              {isIndividual
+                ? t("advertiser.suivi.map_title_individual")
+                : t("advertiser.suivi.map_title_business")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -481,15 +606,34 @@ function SuiviPage() {
             )}
             {isIndividual ? (
               <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                <Stat label={t("advertiser.suivi.stat_update")} value={last ? new Date(last.recorded_at).toLocaleTimeString(dateLocale) : t("advertiser.suivi.stat_waiting")} />
-                <Stat label={t("advertiser.suivi.stat_speed_current")} value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"} />
+                <Stat
+                  label={t("advertiser.suivi.stat_update")}
+                  value={
+                    last
+                      ? new Date(last.recorded_at).toLocaleTimeString(dateLocale)
+                      : t("advertiser.suivi.stat_waiting")
+                  }
+                />
+                <Stat
+                  label={t("advertiser.suivi.stat_speed_current")}
+                  value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"}
+                />
               </div>
             ) : (
               <div className="mt-4 grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                 <Stat label={t("advertiser.suivi.stat_points")} value={positions.length} />
-                <Stat label={t("advertiser.suivi.stat_last_pos")} value={last ? new Date(last.recorded_at).toLocaleTimeString(dateLocale) : "—"} />
-                <Stat label={t("advertiser.suivi.stat_speed")} value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"} />
-                <Stat label={t("advertiser.suivi.stat_coords")} value={last ? `${last.lat.toFixed(4)}, ${last.lng.toFixed(4)}` : "—"} />
+                <Stat
+                  label={t("advertiser.suivi.stat_last_pos")}
+                  value={last ? new Date(last.recorded_at).toLocaleTimeString(dateLocale) : "—"}
+                />
+                <Stat
+                  label={t("advertiser.suivi.stat_speed")}
+                  value={last?.speed != null ? `${Math.round(last.speed * 3.6)} km/h` : "—"}
+                />
+                <Stat
+                  label={t("advertiser.suivi.stat_coords")}
+                  value={last ? `${last.lat.toFixed(4)}, ${last.lng.toFixed(4)}` : "—"}
+                />
               </div>
             )}
           </CardContent>
@@ -560,7 +704,9 @@ function SuiviPage() {
                     }}
                     className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-60 transition"
                   >
-                    {ratingSubmitting ? t("advertiser.suivi.rating_submitting") : t("advertiser.suivi.rating_submit")}
+                    {ratingSubmitting
+                      ? t("advertiser.suivi.rating_submitting")
+                      : t("advertiser.suivi.rating_submit")}
                   </button>
                 </>
               )}
@@ -575,8 +721,11 @@ function SuiviPage() {
               {t("advertiser.suivi.rating_done")}
               {existingRating && (
                 <span className="ml-2 flex gap-0.5">
-                  {[1,2,3,4,5].map((s) => (
-                    <Star key={s} className={`h-4 w-4 ${s <= existingRating.stars ? "fill-amber-400 text-amber-400" : "text-muted/30"}`} />
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      className={`h-4 w-4 ${s <= existingRating.stars ? "fill-amber-400 text-amber-400" : "text-muted/30"}`}
+                    />
                   ))}
                 </span>
               )}
@@ -603,9 +752,18 @@ function InstallationPhotosCard({
 }) {
   const { t } = useTranslation();
   const statusConfig: Record<string, { label: string; cls: string }> = {
-    pending_approval: { label: t("advertiser.suivi.install_status_pending_approval"), cls: "bg-amber-500/10 text-amber-700 border-amber-500/30" },
-    approved: { label: t("advertiser.suivi.install_status_approved"), cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30" },
-    rejected: { label: t("advertiser.suivi.install_status_rejected"), cls: "bg-destructive/10 text-destructive border-destructive/30" },
+    pending_approval: {
+      label: t("advertiser.suivi.install_status_pending_approval"),
+      cls: "bg-amber-500/10 text-amber-700 border-amber-500/30",
+    },
+    approved: {
+      label: t("advertiser.suivi.install_status_approved"),
+      cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
+    },
+    rejected: {
+      label: t("advertiser.suivi.install_status_rejected"),
+      cls: "bg-destructive/10 text-destructive border-destructive/30",
+    },
   };
   const s = status ? (statusConfig[status] ?? null) : null;
 
@@ -618,7 +776,9 @@ function InstallationPhotosCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {s && (
-          <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${s.cls}`}>
+          <div
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${s.cls}`}
+          >
             {s.label}
             {reviewedAt && (
               <span className="opacity-70">
@@ -629,14 +789,13 @@ function InstallationPhotosCard({
         )}
         {status === "rejected" && notes && (
           <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-            <span className="font-semibold">{t("advertiser.suivi.install_rejected_label")} </span>{notes}
+            <span className="font-semibold">{t("advertiser.suivi.install_rejected_label")} </span>
+            {notes}
           </div>
         )}
         <InstallationPhotoGrid photos={photos} />
         {!photos && (
-          <p className="text-xs text-muted-foreground">
-            {t("advertiser.suivi.install_no_photos")}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("advertiser.suivi.install_no_photos")}</p>
         )}
       </CardContent>
     </Card>

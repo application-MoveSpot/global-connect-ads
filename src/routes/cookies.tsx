@@ -7,12 +7,23 @@ export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
       { title: "Politique relative aux cookies — MoveSpot" },
-      { name: "description", content: "Comment MoveSpot utilise les cookies et traceurs (session, cartographie Mapbox, paiement Stripe) et comment gérer vos préférences." },
+      {
+        name: "description",
+        content:
+          "Comment MoveSpot utilise les cookies et traceurs (session, cartographie Mapbox, paiement Stripe) et comment gérer vos préférences.",
+      },
       { property: "og:title", content: "Politique relative aux cookies — MoveSpot" },
-      { property: "og:description", content: "Cookies et traceurs utilisés par MoveSpot, durées de conservation et gestion du consentement." },
+      {
+        property: "og:description",
+        content:
+          "Cookies et traceurs utilisés par MoveSpot, durées de conservation et gestion du consentement.",
+      },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://move-spot.com/cookies" }, ...hreflangLinks("/cookies")],
+    links: [
+      { rel: "canonical", href: "https://move-spot.com/cookies" },
+      ...hreflangLinks("/cookies"),
+    ],
   }),
 
   component: Cookies,
@@ -24,9 +35,9 @@ function Cookies() {
     <LegalPage eyebrow={t("cookies.eyebrow")} title={t("cookies.title")} updatedAt="12 août 2026">
       <LegalSection title={t("cookies.s1")}>
         <p>
-          Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette, smartphone) lors de
-          la consultation d'un site web. Il permet de stocker des informations relatives à votre navigation et
-          d'améliorer votre expérience utilisateur.
+          Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette,
+          smartphone) lors de la consultation d'un site web. Il permet de stocker des informations
+          relatives à votre navigation et d'améliorer votre expérience utilisateur.
         </p>
       </LegalSection>
 
@@ -49,19 +60,27 @@ function Cookies() {
             </tr>
             <tr>
               <td className="p-3">Authentification</td>
-              <td className="p-3">Maintien de la session connectée et de l'authentification à deux facteurs (TOTP)</td>
+              <td className="p-3">
+                Maintien de la session connectée et de l'authentification à deux facteurs (TOTP)
+              </td>
               <td className="p-3">Jusqu'à 30 jours</td>
               <td className="p-3">Non requis</td>
             </tr>
             <tr>
               <td className="p-3">Stockage local technique</td>
-              <td className="p-3">Mémoire tampon des positions GPS du driver avant envoi par lots (aucune lecture publicitaire)</td>
+              <td className="p-3">
+                Mémoire tampon des positions GPS du driver avant envoi par lots (aucune lecture
+                publicitaire)
+              </td>
               <td className="p-3">Jusqu'à l'envoi</td>
               <td className="p-3">Non requis</td>
             </tr>
             <tr>
               <td className="p-3">Stockage local de session</td>
-              <td className="p-3">Conservation du jeton de connexion afin que les mises à jour de l'application ne déconnectent pas l'utilisateur</td>
+              <td className="p-3">
+                Conservation du jeton de connexion afin que les mises à jour de l'application ne
+                déconnectent pas l'utilisateur
+              </td>
               <td className="p-3">Jusqu'à déconnexion</td>
               <td className="p-3">Non requis</td>
             </tr>
@@ -79,63 +98,109 @@ function Cookies() {
             </tr>
             <tr>
               <td className="p-3">Tiers (cartographie)</td>
-              <td className="p-3">Affichage des cartes interactives et du dessin de zone (Mapbox)</td>
+              <td className="p-3">
+                Affichage des cartes interactives et du dessin de zone (Mapbox)
+              </td>
               <td className="p-3">Variable</td>
               <td className="p-3">Requis</td>
             </tr>
             <tr>
               <td className="p-3">Tiers (paiement)</td>
-              <td className="p-3">Sécurisation du tunnel de paiement et prévention de la fraude (Stripe)</td>
+              <td className="p-3">
+                Sécurisation du tunnel de paiement et prévention de la fraude (Stripe)
+              </td>
               <td className="p-3">Variable</td>
               <td className="p-3">Non requis (nécessaire au paiement)</td>
             </tr>
           </tbody>
-
         </table>
       </LegalSection>
 
       <LegalSection title={t("cookies.s3")}>
         <p>
-          Lors de votre première visite, un bandeau vous permet d'accepter, refuser ou personnaliser les cookies non
-          essentiels. Vous pouvez à tout moment modifier vos préférences via le lien « Gérer mes cookies » présent en
-          pied de page.
+          Lors de votre première visite, un bandeau vous permet d'accepter, refuser ou personnaliser
+          les cookies non essentiels. Vous pouvez à tout moment modifier vos préférences via le lien
+          « Gérer mes cookies » présent en pied de page.
         </p>
       </LegalSection>
 
       <LegalSection title={t("cookies.s4")}>
         <p>
-          Vous pouvez également configurer votre navigateur pour bloquer ou supprimer les cookies. La désactivation
-          de certains cookies peut toutefois altérer le bon fonctionnement de la Plateforme.
+          Vous pouvez également configurer votre navigateur pour bloquer ou supprimer les cookies.
+          La désactivation de certains cookies peut toutefois altérer le bon fonctionnement de la
+          Plateforme.
         </p>
         <ul className="list-disc pl-6 space-y-2">
-          <li><a href="https://support.google.com/chrome/answer/95647" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Google Chrome</a></li>
-          <li><a href="https://support.mozilla.org/fr/kb/cookies-informations-sites-enregistrent" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Mozilla Firefox</a></li>
-          <li><a href="https://support.apple.com/fr-fr/guide/safari/sfri11471/mac" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Apple Safari</a></li>
-          <li><a href="https://support.microsoft.com/fr-fr/microsoft-edge" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Microsoft Edge</a></li>
+          <li>
+            <a
+              href="https://support.google.com/chrome/answer/95647"
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Google Chrome
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://support.mozilla.org/fr/kb/cookies-informations-sites-enregistrent"
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Mozilla Firefox
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://support.apple.com/fr-fr/guide/safari/sfri11471/mac"
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apple Safari
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://support.microsoft.com/fr-fr/microsoft-edge"
+              className="text-primary hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Microsoft Edge
+            </a>
+          </li>
         </ul>
       </LegalSection>
 
       <LegalSection title={t("cookies.s5")}>
         <p>
-          Votre choix concernant les cookies est conservé pendant 6 mois. Au terme de cette période, le bandeau de
-          consentement vous sera de nouveau présenté.
+          Votre choix concernant les cookies est conservé pendant 6 mois. Au terme de cette période,
+          le bandeau de consentement vous sera de nouveau présenté.
         </p>
       </LegalSection>
 
       <LegalSection title={t("cookies.s6")}>
         <p>
-          Les emails envoyés par MoveSpot depuis le domaine <strong>notify.move-spot.com</strong> ne contiennent aucun
-          pixel espion ni traceur publicitaire. Les emails d'information commerciale comportent un lien de
-          désinscription qui fonctionne sans cookie, via la page{" "}
-          <a href="/unsubscribe" className="text-primary hover:underline">de désinscription</a>.
+          Les emails envoyés par MoveSpot depuis le domaine <strong>notify.move-spot.com</strong> ne
+          contiennent aucun pixel espion ni traceur publicitaire. Les emails d'information
+          commerciale comportent un lien de désinscription qui fonctionne sans cookie, via la page{" "}
+          <a href="/unsubscribe" className="text-primary hover:underline">
+            de désinscription
+          </a>
+          .
         </p>
       </LegalSection>
-
 
       <LegalSection title={t("cookies.s7")}>
         <p>
           Pour toute question relative à cette politique cookies, contactez-nous à
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline"> contact@notify.move-spot.com</a>.
+          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">
+            {" "}
+            contact@notify.move-spot.com
+          </a>
+          .
         </p>
       </LegalSection>
     </LegalPage>

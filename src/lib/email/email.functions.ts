@@ -30,7 +30,8 @@ export const sendAdvertiserWelcomeEmail = createServerFn({ method: "POST" })
     if (!email) return { sent: false, reason: "no_email" };
 
     const profile = profileResult.data;
-    const firstName = (profile?.company as string | null) ?? (profile?.full_name as string | null) ?? undefined;
+    const firstName =
+      (profile?.company as string | null) ?? (profile?.full_name as string | null) ?? undefined;
     const displayName = firstName?.split(" ")[0]; // first word of company or full_name
 
     const { sendAppEmailSafe } = await import("@/lib/email/send.server");

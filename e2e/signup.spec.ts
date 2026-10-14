@@ -17,7 +17,9 @@ import { hasVisibleContent } from "./helpers";
 test.describe("Inscription annonceur — /annonceur/inscription", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("ms_cookie_consent", "accepted"); } catch {}
+      try {
+        localStorage.setItem("ms_cookie_consent", "accepted");
+      } catch {}
     });
     await page.goto("/annonceur/inscription", { waitUntil: "domcontentloaded" });
   });
@@ -53,11 +55,14 @@ test.describe("Inscription annonceur — /annonceur/inscription", () => {
     await submitBtn.click();
     await page.waitForTimeout(500);
     // Vérifier qu'une forme de validation a eu lieu (native ou React)
-    const hasReactError = await page.locator('[role="alert"], .text-destructive, [class*="error"], .text-red').count() > 0;
+    const hasReactError =
+      (await page
+        .locator('[role="alert"], .text-destructive, [class*="error"], .text-red')
+        .count()) > 0;
     const emailInput = page.locator('input[type="email"]').first();
-    const hasNativeMsg = await emailInput.evaluate(
-      (el: HTMLInputElement) => el.validationMessage.length > 0,
-    ).catch(() => false);
+    const hasNativeMsg = await emailInput
+      .evaluate((el: HTMLInputElement) => el.validationMessage.length > 0)
+      .catch(() => false);
     // Si aucune erreur visible : acceptable, la page est peut-être déjà en train de rediriger
     expect(hasReactError || hasNativeMsg || true, "").toBe(true);
   });
@@ -70,14 +75,16 @@ test.describe("Inscription annonceur — /annonceur/inscription", () => {
     const count = await emailInput.count();
     if (count === 0) return;
     await emailInput.fill("pas-un-email");
-    const isInvalid = await emailInput.evaluate(
-      (el: HTMLInputElement) => !el.validity.valid,
-    ).catch(() => true);
+    const isInvalid = await emailInput
+      .evaluate((el: HTMLInputElement) => !el.validity.valid)
+      .catch(() => true);
     expect(isInvalid, "Email invalide non détecté par le navigateur").toBe(true);
   });
 
   test("un lien vers la connexion ou déjà un compte est présent", async ({ page }) => {
-    const link = page.getByText(/déjà un compte|se connecter|connexion|already.*account|log.?in|sign.?in/i).first();
+    const link = page
+      .getByText(/déjà un compte|se connecter|connexion|already.*account|log.?in|sign.?in/i)
+      .first();
     await expect(link).toBeVisible();
   });
 });
@@ -87,7 +94,9 @@ test.describe("Inscription annonceur — /annonceur/inscription", () => {
 test.describe("Inscription propriétaire — /proprietaire/inscription", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("ms_cookie_consent", "accepted"); } catch {}
+      try {
+        localStorage.setItem("ms_cookie_consent", "accepted");
+      } catch {}
     });
     await page.goto("/proprietaire/inscription", { waitUntil: "domcontentloaded" });
   });
@@ -121,11 +130,14 @@ test.describe("Inscription propriétaire — /proprietaire/inscription", () => {
     if (!hasBtn) return;
     await submitBtn.click();
     await page.waitForTimeout(500);
-    const hasReactError = await page.locator('[role="alert"], .text-destructive, [class*="error"], .text-red').count() > 0;
+    const hasReactError =
+      (await page
+        .locator('[role="alert"], .text-destructive, [class*="error"], .text-red')
+        .count()) > 0;
     const emailInput = page.locator('input[type="email"]').first();
-    const hasNativeMsg = await emailInput.evaluate(
-      (el: HTMLInputElement) => el.validationMessage.length > 0,
-    ).catch(() => false);
+    const hasNativeMsg = await emailInput
+      .evaluate((el: HTMLInputElement) => el.validationMessage.length > 0)
+      .catch(() => false);
     expect(hasReactError || hasNativeMsg || true, "").toBe(true);
   });
 });
@@ -135,7 +147,9 @@ test.describe("Inscription propriétaire — /proprietaire/inscription", () => {
 test.describe("Inscription partenaire — /partenaire/inscription", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("ms_cookie_consent", "accepted"); } catch {}
+      try {
+        localStorage.setItem("ms_cookie_consent", "accepted");
+      } catch {}
     });
     await page.goto("/partenaire/inscription", { waitUntil: "domcontentloaded" });
   });
@@ -154,7 +168,9 @@ test.describe("Inscription partenaire — /partenaire/inscription", () => {
     if (!hasSubmit) {
       // Certaines pages partenaire utilisent un flux multi-étapes sans submit standard
       const html = await page.content();
-      expect(html.toLowerCase()).toMatch(/inscription|s'inscrire|créer|continuer|suivant|rejoindre/i);
+      expect(html.toLowerCase()).toMatch(
+        /inscription|s'inscrire|créer|continuer|suivant|rejoindre/i,
+      );
     } else {
       expect(hasSubmit).toBe(true);
     }
@@ -166,7 +182,9 @@ test.describe("Inscription partenaire — /partenaire/inscription", () => {
 test.describe("Inscription prestataire — /prestataire/inscription", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      try { localStorage.setItem("ms_cookie_consent", "accepted"); } catch {}
+      try {
+        localStorage.setItem("ms_cookie_consent", "accepted");
+      } catch {}
     });
     await page.goto("/prestataire/inscription", { waitUntil: "domcontentloaded" });
   });

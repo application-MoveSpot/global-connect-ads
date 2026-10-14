@@ -54,12 +54,21 @@ function OwnerMessagesPage() {
   useEffect(() => {
     (async () => {
       const session = await getOrRefreshSession();
-      if (!session) { navigate({ to: "/owner/inscription" }); return; }
+      if (!session) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
       const uid = session.user.id;
       setUserId(uid);
       const { data: prof } = await supabase
-        .from("owner_profiles").select("id").eq("user_id", uid).maybeSingle();
-      if (!prof) { navigate({ to: "/owner/inscription" }); return; }
+        .from("owner_profiles")
+        .select("id")
+        .eq("user_id", uid)
+        .maybeSingle();
+      if (!prof) {
+        navigate({ to: "/owner/inscription" });
+        return;
+      }
       setOwnerId(prof.id);
       await loadThreads(uid);
       setLoading(false);
@@ -145,16 +154,26 @@ function OwnerMessagesPage() {
     if (!userId) return;
     const channel = supabase
       .channel(`owner-messages-${userId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, async () => {
-        await loadThreads(userId);
-        if (activeThread) await loadMessages(activeThread);
-      })
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        async () => {
+          await loadThreads(userId);
+          if (activeThread) await loadMessages(activeThread);
+        },
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId, activeThread]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">{t("owner.messages.loading")}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        {t("owner.messages.loading")}
+      </div>
+    );
   }
 
   return (
@@ -165,7 +184,10 @@ function OwnerMessagesPage() {
             <LogoLink />
             <h1 className="font-display text-2xl font-bold mt-1">{t("owner.messages.title")}</h1>
           </div>
-          <Link to="/owner" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/owner"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="w-4 h-4" /> {t("owner.messages.back")}
           </Link>
         </div>
@@ -186,7 +208,9 @@ function OwnerMessagesPage() {
                   onClick={() => openThread(t)}
                   className={cn(
                     "w-full text-left px-4 py-3 border-b border-border hover:bg-secondary/40 transition",
-                    activeThread?.brief_id === t.brief_id && activeThread.proposal_id === t.proposal_id && "bg-secondary/60",
+                    activeThread?.brief_id === t.brief_id &&
+                      activeThread.proposal_id === t.proposal_id &&
+                      "bg-secondary/60",
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -216,13 +240,25 @@ function OwnerMessagesPage() {
                   const isMe = m.sender_role === "owner";
                   return (
                     <div key={m.id} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
-                      <div className={cn(
-                        "max-w-[70%] rounded-2xl px-4 py-2.5 text-sm",
-                        isMe ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-secondary rounded-bl-sm",
-                      )}>
+                      <div
+                        className={cn(
+                          "max-w-[70%] rounded-2xl px-4 py-2.5 text-sm",
+                          isMe
+                            ? "bg-primary text-primary-foreground rounded-br-sm"
+                            : "bg-secondary rounded-bl-sm",
+                        )}
+                      >
                         <p className="leading-relaxed">{m.body}</p>
-                        <p className={cn("text-[10px] mt-1", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>
-                          {new Date(m.created_at).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" })}
+                        <p
+                          className={cn(
+                            "text-[10px] mt-1",
+                            isMe ? "text-primary-foreground/60" : "text-muted-foreground",
+                          )}
+                        >
+                          {new Date(m.created_at).toLocaleTimeString(dateLocale, {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
                       </div>
                     </div>
@@ -234,7 +270,12 @@ function OwnerMessagesPage() {
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      void sendMessage();
+                    }
+                  }}
                   placeholder={t("owner.messages.placeholder")}
                   maxLength={2000}
                   className="flex-1 rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"

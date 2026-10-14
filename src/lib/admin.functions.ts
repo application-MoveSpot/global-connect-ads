@@ -53,7 +53,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const adminNotes = data.approve
       ? "✅ Visuel et zone de ciblage approuvés par MoveSpot — recherche de chauffeurs lancée."
-      : (data.notes?.trim() || "⛔ Visuel ou zone refusés par MoveSpot.");
+      : data.notes?.trim() || "⛔ Visuel ou zone refusés par MoveSpot.";
 
     const { data: campaign, error } = await supabaseAdmin
       .from("campaign_requests")
@@ -82,9 +82,13 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
             spotName: campaign.spot_name,
             startDate: fmtDate(campaign.start_date),
             endDate: fmtDate(campaign.end_date),
-            totalPrice: campaign.total_price != null
-              ? Number(campaign.total_price).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })
-              : undefined,
+            totalPrice:
+              campaign.total_price != null
+                ? Number(campaign.total_price).toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                  })
+                : undefined,
             paymentUrl: "https://move-spot.com/annonceur",
           },
         }).catch((e) => console.error("campaign-approved email failed", e));
@@ -100,9 +104,13 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         }).catch(() => {});
       }
       // Notifie les poseurs certifiés
-      notifyCertifiedInstallers(campaign).catch((e) => console.error("notifyCertifiedInstallers failed", e));
+      notifyCertifiedInstallers(campaign).catch((e) =>
+        console.error("notifyCertifiedInstallers failed", e),
+      );
       // Notifie les prestataires actifs (covering, vidéo, graphisme)
-      notifyActiveProviders(campaign).catch((e) => console.error("notifyActiveProviders failed", e));
+      notifyActiveProviders(campaign).catch((e) =>
+        console.error("notifyActiveProviders failed", e),
+      );
     } else {
       // Email annonceur — campagne refusée
       if (campaign.email) {
@@ -220,7 +228,11 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z
-      .object({ briefId: z.string().uuid(), approve: z.boolean().default(true), notes: z.string().max(500).optional() })
+      .object({
+        briefId: z.string().uuid(),
+        approve: z.boolean().default(true),
+        notes: z.string().max(500).optional(),
+      })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -254,21 +266,24 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
         url: "/annonceur",
         tag: `brief-decision-${data.briefId}`,
       }).catch(() => {});
-      supabaseAdmin.auth.admin.getUserById(briefUserId).then(({ data: u }) => {
-        if (u?.user?.email) {
-          sendAppEmailSafe({
-            templateName: "brief-decision",
-            recipientEmail: u.user.email,
-            idempotencyKey: `brief-decision-${data.briefId}`,
-            templateData: {
-              briefTitle: (brief as { title?: string }).title ?? "votre brief",
-              approved: data.approve,
-              reason: data.approve ? undefined : (data.notes?.trim() || undefined),
-              dashboardUrl: "https://move-spot.com/annonceur",
-            },
-          }).catch((e) => console.error("brief-decision email failed", e));
-        }
-      }).catch((e) => console.error("brief-decision email lookup failed", e));
+      supabaseAdmin.auth.admin
+        .getUserById(briefUserId)
+        .then(({ data: u }) => {
+          if (u?.user?.email) {
+            sendAppEmailSafe({
+              templateName: "brief-decision",
+              recipientEmail: u.user.email,
+              idempotencyKey: `brief-decision-${data.briefId}`,
+              templateData: {
+                briefTitle: (brief as { title?: string }).title ?? "votre brief",
+                approved: data.approve,
+                reason: data.approve ? undefined : data.notes?.trim() || undefined,
+                dashboardUrl: "https://move-spot.com/annonceur",
+              },
+            }).catch((e) => console.error("brief-decision email failed", e));
+          }
+        })
+        .catch((e) => console.error("brief-decision email lookup failed", e));
     }
 
     return { ok: true };
@@ -312,7 +327,8 @@ export const adminCertifyPoseur = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const certNotes = data.notes ??
+    const certNotes =
+      data.notes ??
       (data.certified
         ? "🏅 Garage certifié manuellement par MoveSpot."
         : "⛔ Certification refusée par MoveSpot.");
@@ -341,21 +357,24 @@ export const adminCertifyPoseur = createServerFn({ method: "POST" })
         url: "/prestataire",
         tag: `poseur-certification-${data.payeeProfileId}`,
       }).catch(() => {});
-      supabaseAdmin.auth.admin.getUserById(poseur.user_id as string).then(({ data: u }) => {
-        if (u?.user?.email) {
-          sendAppEmailSafe({
-            templateName: "payee-certification",
-            recipientEmail: u.user.email,
-            idempotencyKey: `poseur-certification-${data.payeeProfileId}`,
-            templateData: {
-              fullName: (poseur as { full_name?: string }).full_name ?? undefined,
-              certified: data.certified,
-              notes: data.certified ? undefined : certNotes,
-              spaceUrl: "https://move-spot.com/prestataire",
-            },
-          }).catch((e) => console.error("payee-certification email failed", e));
-        }
-      }).catch((e) => console.error("payee-certification email lookup failed", e));
+      supabaseAdmin.auth.admin
+        .getUserById(poseur.user_id as string)
+        .then(({ data: u }) => {
+          if (u?.user?.email) {
+            sendAppEmailSafe({
+              templateName: "payee-certification",
+              recipientEmail: u.user.email,
+              idempotencyKey: `poseur-certification-${data.payeeProfileId}`,
+              templateData: {
+                fullName: (poseur as { full_name?: string }).full_name ?? undefined,
+                certified: data.certified,
+                notes: data.certified ? undefined : certNotes,
+                spaceUrl: "https://move-spot.com/prestataire",
+              },
+            }).catch((e) => console.error("payee-certification email failed", e));
+          }
+        })
+        .catch((e) => console.error("payee-certification email lookup failed", e));
     }
 
     return { ok: true };
@@ -518,7 +537,9 @@ export const adminListInactiveStripeAccounts = createServerFn({ method: "GET" })
     // Comptes avec Stripe démarré mais onboarding incomplet
     const { data: incomplete } = await supabaseAdmin
       .from("payee_profiles")
-      .select("id, user_id, kind, full_name, phone, city, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, status, created_at")
+      .select(
+        "id, user_id, kind, full_name, phone, city, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, status, created_at",
+      )
       .not("stripe_account_id", "is", null)
       .or("stripe_charges_enabled.eq.false,stripe_payouts_enabled.eq.false")
       .order("created_at", { ascending: false })
@@ -527,7 +548,9 @@ export const adminListInactiveStripeAccounts = createServerFn({ method: "GET" })
     // Comptes inscrits depuis > 30 jours sans jamais démarrer Stripe
     const { data: neverStarted } = await supabaseAdmin
       .from("payee_profiles")
-      .select("id, user_id, kind, full_name, phone, city, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, status, created_at")
+      .select(
+        "id, user_id, kind, full_name, phone, city, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled, status, created_at",
+      )
       .is("stripe_account_id", null)
       .lt("created_at", thirtyDaysAgo)
       .order("created_at", { ascending: false })
@@ -621,15 +644,31 @@ export const adminListVehicles = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("vehicles")
-      .select("id, name, type, condition, status, zones, price_per_day, km_per_day, surface_m2, photos, description, ai_verification, admin_notes, created_at, owner_id")
+      .select(
+        "id, name, type, condition, status, zones, price_per_day, km_per_day, surface_m2, photos, description, ai_verification, admin_notes, created_at, owner_id",
+      )
       .order("created_at", { ascending: false })
       .limit(200);
-    const vehicles = (data ?? []).map((v: any) => ({
-      ...v,
-      photos: (v.photos ?? []).map((p: string) =>
-        p.startsWith("http") ? p : supabaseAdmin.storage.from("vehicle-photos").getPublicUrl(p).data.publicUrl
-      ),
-    }));
+    const toSignedUrl = async (p: string): Promise<string> => {
+      let path = p;
+      if (p.includes("/storage/v1/object/public/vehicle-photos/")) {
+        path = p.split("/storage/v1/object/public/vehicle-photos/")[1];
+      } else if (p.startsWith("http")) {
+        return p;
+      }
+      const { data: signed } = await supabaseAdmin.storage
+        .from("vehicle-photos")
+        .createSignedUrl(path, 7200);
+      return signed?.signedUrl ?? "";
+    };
+    const vehicles = await Promise.all(
+      (data ?? []).map(async (v: any) => ({
+        ...v,
+        photos: (await Promise.all(((v.photos ?? []) as string[]).map(toSignedUrl))).filter(
+          Boolean,
+        ),
+      })),
+    );
     return { vehicles };
   });
 
@@ -651,9 +690,9 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const adminNotes = data.notes ?? (data.approve
-      ? "✅ Véhicule approuvé par MoveSpot."
-      : "⛔ Véhicule refusé par MoveSpot.");
+    const adminNotes =
+      data.notes ??
+      (data.approve ? "✅ Véhicule approuvé par MoveSpot." : "⛔ Véhicule refusé par MoveSpot.");
     const { data: vehicle, error } = await supabaseAdmin
       .from("vehicles")
       .update({
@@ -665,7 +704,9 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    const vehicleUserId = (vehicle as unknown as { owner_profiles?: { user_id?: string } })?.owner_profiles?.user_id ?? null;
+    const vehicleUserId =
+      (vehicle as unknown as { owner_profiles?: { user_id?: string } })?.owner_profiles?.user_id ??
+      null;
 
     // Push + Email propriétaire — décision véhicule (fire-and-forget)
     if (vehicleUserId) {
@@ -680,21 +721,24 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
         url: "/proprietaire",
         tag: `vehicle-decision-${data.vehicleId}`,
       }).catch(() => {});
-      supabaseAdmin.auth.admin.getUserById(vehicleUserId).then(({ data: u }) => {
-        if (u?.user?.email) {
-          sendAppEmailSafe({
-            templateName: "vehicle-status",
-            recipientEmail: u.user.email,
-            idempotencyKey: `vehicle-decision-${data.vehicleId}`,
-            templateData: {
-              vehicleName: (vehicle as { name?: string }).name ?? "votre véhicule",
-              approved: data.approve,
-              reason: data.approve ? undefined : adminNotes,
-              dashboardUrl: "https://move-spot.com/proprietaire",
-            },
-          }).catch((e) => console.error("vehicle-status email failed", e));
-        }
-      }).catch((e) => console.error("vehicle-status email lookup failed", e));
+      supabaseAdmin.auth.admin
+        .getUserById(vehicleUserId)
+        .then(({ data: u }) => {
+          if (u?.user?.email) {
+            sendAppEmailSafe({
+              templateName: "vehicle-status",
+              recipientEmail: u.user.email,
+              idempotencyKey: `vehicle-decision-${data.vehicleId}`,
+              templateData: {
+                vehicleName: (vehicle as { name?: string }).name ?? "votre véhicule",
+                approved: data.approve,
+                reason: data.approve ? undefined : adminNotes,
+                dashboardUrl: "https://move-spot.com/proprietaire",
+              },
+            }).catch((e) => console.error("vehicle-status email failed", e));
+          }
+        })
+        .catch((e) => console.error("vehicle-status email lookup failed", e));
     }
 
     return { ok: true };
@@ -704,7 +748,10 @@ export const adminReAnalyzeVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ vehicleId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: vehicle, error } = await supabaseAdmin
@@ -716,9 +763,22 @@ export const adminReAnalyzeVehicle = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
     const v = vehicle as any;
-    const photoUrls: string[] = ((v.photos ?? []) as string[])
-      .map((p: string) => p.startsWith("http") ? p : supabaseAdmin.storage.from("vehicle-photos").getPublicUrl(p).data.publicUrl)
-      .slice(0, 3);
+    const photoUrls: string[] = (
+      await Promise.all(
+        ((v.photos ?? []) as string[]).slice(0, 3).map(async (p: string) => {
+          let path = p;
+          if (p.includes("/storage/v1/object/public/vehicle-photos/")) {
+            path = p.split("/storage/v1/object/public/vehicle-photos/")[1];
+          } else if (p.startsWith("http")) {
+            return p;
+          }
+          const { data: signed } = await supabaseAdmin.storage
+            .from("vehicle-photos")
+            .createSignedUrl(path, 3600);
+          return signed?.signedUrl ?? "";
+        }),
+      )
+    ).filter(Boolean);
     if (photoUrls.length === 0) throw new Error("Aucune photo disponible pour l'analyse");
     const content: Array<Record<string, unknown>> = [
       {
@@ -766,12 +826,21 @@ Réponds UNIQUEMENT en JSON strict :
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: [{ role: "user", content }], response_format: { type: "json_object" }, temperature: 0 }),
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content }],
+        response_format: { type: "json_object" },
+        temperature: 0,
+      }),
     });
     if (!res.ok) throw new Error(`AI gateway ${res.status}`);
-    const json = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+    const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     let parsed: Record<string, unknown> = {};
-    try { parsed = JSON.parse(json.choices?.[0]?.message?.content ?? "{}"); } catch { /* ignore */ }
+    try {
+      parsed = JSON.parse(json.choices?.[0]?.message?.content ?? "{}");
+    } catch {
+      /* ignore */
+    }
     const aiVerification = {
       photo_match: (parsed.photo_match as string) ?? "unverified",
       photo_notes: String(parsed.photo_notes ?? ""),
@@ -783,7 +852,10 @@ Réponds UNIQUEMENT en JSON strict :
       estimated_impressions_per_day: Number(parsed.estimated_impressions_per_day ?? 0),
       checked_at: new Date().toISOString(),
     };
-    await supabaseAdmin.from("vehicles").update({ ai_verification: aiVerification } as never).eq("id", data.vehicleId);
+    await supabaseAdmin
+      .from("vehicles")
+      .update({ ai_verification: aiVerification } as never)
+      .eq("id", data.vehicleId);
     return aiVerification;
   });
 
@@ -861,12 +933,17 @@ export const adminRevenueData = createServerFn({ method: "GET" })
 
     const { data: campaigns } = await supabaseAdmin
       .from("campaign_requests")
-      .select("id, total_price, payment_status, company, spot_name, start_date, end_date, created_at")
+      .select(
+        "id, total_price, payment_status, company, spot_name, start_date, end_date, created_at",
+      )
       .order("created_at", { ascending: false });
 
     const all = campaigns ?? [];
     const paid = all.filter((c) => (c as { payment_status: string }).payment_status === "paid");
-    const totalRevenue = paid.reduce((s, c) => s + (Number((c as { total_price: number | null }).total_price) || 0), 0);
+    const totalRevenue = paid.reduce(
+      (s, c) => s + (Number((c as { total_price: number | null }).total_price) || 0),
+      0,
+    );
     const commission = Math.round(totalRevenue * 0.3 * 100) / 100;
     const avgTicket = paid.length > 0 ? Math.round((totalRevenue / paid.length) * 100) / 100 : 0;
     const conversionRate = all.length > 0 ? Math.round((paid.length / all.length) * 1000) / 10 : 0;
@@ -880,7 +957,7 @@ export const adminRevenueData = createServerFn({ method: "GET" })
       months[key] = { revenue: 0, commission: 0, count: 0 };
     }
     for (const c of paid) {
-      const key = ((c as { created_at: string }).created_at).slice(0, 7);
+      const key = (c as { created_at: string }).created_at.slice(0, 7);
       if (key in months) {
         const amount = Number((c as { total_price: number | null }).total_price) || 0;
         months[key].revenue += amount;
@@ -891,14 +968,25 @@ export const adminRevenueData = createServerFn({ method: "GET" })
 
     const monthly = Object.entries(months).map(([month, v]) => ({
       month,
-      label: new Date(month + "-01").toLocaleDateString("fr-FR", { month: "short", year: "2-digit" }),
+      label: new Date(month + "-01").toLocaleDateString("fr-FR", {
+        month: "short",
+        year: "2-digit",
+      }),
       revenue: Math.round(v.revenue * 100) / 100,
       commission: Math.round(v.commission * 100) / 100,
       count: v.count,
     }));
 
     const recentPaid = paid.slice(0, 20).map((c) => {
-      const row = c as { id: string; company: string | null; spot_name: string | null; total_price: number | null; start_date: string | null; end_date: string | null; created_at: string };
+      const row = c as {
+        id: string;
+        company: string | null;
+        spot_name: string | null;
+        total_price: number | null;
+        start_date: string | null;
+        end_date: string | null;
+        created_at: string;
+      };
       return {
         id: row.id,
         company: row.company,
@@ -911,7 +999,16 @@ export const adminRevenueData = createServerFn({ method: "GET" })
       };
     });
 
-    return { totalRevenue, commission, avgTicket, conversionRate, paidCount: paid.length, totalCount: all.length, monthly, recentPaid };
+    return {
+      totalRevenue,
+      commission,
+      avgTicket,
+      conversionRate,
+      paidCount: paid.length,
+      totalCount: all.length,
+      monthly,
+      recentPaid,
+    };
   });
 
 // ============ Onglet Utilisateurs ============
@@ -935,10 +1032,26 @@ export const adminListUsers = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [advRes, ownRes, payRes, parRes] = await Promise.all([
-      supabaseAdmin.from("advertiser_profiles").select("user_id, full_name, company, account_type, created_at").order("created_at", { ascending: false }).limit(300),
-      supabaseAdmin.from("owner_profiles").select("user_id, full_name, phone, city, created_at").order("created_at", { ascending: false }).limit(300),
-      supabaseAdmin.from("payee_profiles").select("user_id, full_name, kind, certification_status, status, created_at").order("created_at", { ascending: false }).limit(300),
-      supabaseAdmin.from("partner_profiles").select("user_id, full_name, status, created_at").order("created_at", { ascending: false }).limit(300),
+      supabaseAdmin
+        .from("advertiser_profiles")
+        .select("user_id, full_name, company, account_type, created_at")
+        .order("created_at", { ascending: false })
+        .limit(300),
+      supabaseAdmin
+        .from("owner_profiles")
+        .select("user_id, full_name, phone, city, created_at")
+        .order("created_at", { ascending: false })
+        .limit(300),
+      supabaseAdmin
+        .from("payee_profiles")
+        .select("user_id, full_name, kind, certification_status, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(300),
+      supabaseAdmin
+        .from("partner_profiles")
+        .select("user_id, full_name, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(300),
     ]);
 
     const users: AdminUserRow[] = [
@@ -946,7 +1059,9 @@ export const adminListUsers = createServerFn({ method: "GET" })
         user_id: u.user_id,
         full_name: u.full_name as string | null,
         role: "advertiser" as const,
-        detail: ((u as { company?: string | null }).company ?? (u as { account_type?: string | null }).account_type ?? null) as string | null,
+        detail: ((u as { company?: string | null }).company ??
+          (u as { account_type?: string | null }).account_type ??
+          null) as string | null,
         status: "active",
         created_at: u.created_at as string,
       })),
@@ -954,7 +1069,9 @@ export const adminListUsers = createServerFn({ method: "GET" })
         user_id: u.user_id,
         full_name: u.full_name as string | null,
         role: "owner" as const,
-        detail: ((u as { city?: string | null }).city ?? (u as { phone?: string | null }).phone ?? null) as string | null,
+        detail: ((u as { city?: string | null }).city ??
+          (u as { phone?: string | null }).phone ??
+          null) as string | null,
         status: "active",
         created_at: u.created_at as string,
       })),
@@ -1004,11 +1121,13 @@ export const adminListReferrals = createServerFn({ method: "GET" })
 
     const { data, error } = await (supabaseAdmin as any)
       .from("advertiser_referral_rewards")
-      .select(`
+      .select(
+        `
         id, status, created_at, credited_at,
         referrer:referrer_id(full_name, company, referral_code, user_id),
         referee:referee_id(full_name, company, user_id)
-      `)
+      `,
+      )
       .order("created_at", { ascending: false })
       .limit(500);
 
@@ -1060,14 +1179,34 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes] = await Promise.all([
-      supabaseAdmin.from("vehicles").select("id", { count: "exact", head: true }).eq("status", "pending"),
-      supabaseAdmin.from("advertiser_briefs").select("id", { count: "exact", head: true }).eq("status" as never, "pending"),
-      supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("installation_status" as never, "pending_approval"),
-      supabaseAdmin.from("campaign_requests").select("id", { count: "exact", head: true }).eq("depose_status" as never, "pending_approval"),
-      supabaseAdmin.from("payee_profiles").select("id", { count: "exact", head: true }).eq("certification_status" as never, "pending"),
-      supabaseAdmin.from("payee_profiles").select("stripe_account_id, stripe_charges_enabled").eq("kind" as never, "installer"),
-    ]);
+    const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes] = await Promise.all(
+      [
+        supabaseAdmin
+          .from("vehicles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabaseAdmin
+          .from("advertiser_briefs")
+          .select("id", { count: "exact", head: true })
+          .eq("status" as never, "pending"),
+        supabaseAdmin
+          .from("campaign_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("installation_status" as never, "pending_approval"),
+        supabaseAdmin
+          .from("campaign_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("depose_status" as never, "pending_approval"),
+        supabaseAdmin
+          .from("payee_profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("certification_status" as never, "pending"),
+        supabaseAdmin
+          .from("payee_profiles")
+          .select("stripe_account_id, stripe_charges_enabled")
+          .eq("kind" as never, "installer"),
+      ],
+    );
 
     const stripeIncomplete = (stripeRes.data ?? []).filter(
       (p: { stripe_account_id: string | null; stripe_charges_enabled: boolean | null }) =>

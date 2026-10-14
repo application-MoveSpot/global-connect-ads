@@ -5,7 +5,15 @@ import { resizeImageFile } from "@/lib/images/resize";
 
 const MAX_FILES = 10;
 const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
-const ACCEPTED = ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm", "video/quicktime"];
+const ACCEPTED = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+];
 
 export type PortfolioItem = { path: string; url: string; name: string; mime: string };
 
@@ -28,7 +36,9 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
   const refresh = async (items: PortfolioItem[]) => {
     if (items.length === 0) return items;
     const paths = items.map((i) => i.path);
-    const { data } = await supabase.storage.from("provider-portfolio").createSignedUrls(paths, 3600);
+    const { data } = await supabase.storage
+      .from("provider-portfolio")
+      .createSignedUrls(paths, 3600);
     if (!data) return items;
     return items.map((it) => {
       const m = data.find((d) => d.path === it.path);
@@ -40,21 +50,38 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
     if (!files || !userId) return;
     setError(null);
     const remaining = MAX_FILES - value.length;
-    if (remaining <= 0) { setError(t("portfolio_uploader.err_max_files", { max: MAX_FILES })); return; }
+    if (remaining <= 0) {
+      setError(t("portfolio_uploader.err_max_files", { max: MAX_FILES }));
+      return;
+    }
     const toUpload = Array.from(files).slice(0, remaining);
     setUploading(true);
     const next = [...value];
     for (const f of toUpload) {
-      if (!ACCEPTED.includes(f.type)) { setError(t("portfolio_uploader.err_format", { name: f.name })); continue; }
-      if (f.size > MAX_SIZE) { setError(t("portfolio_uploader.err_size", { name: f.name })); continue; }
+      if (!ACCEPTED.includes(f.type)) {
+        setError(t("portfolio_uploader.err_format", { name: f.name }));
+        continue;
+      }
+      if (f.size > MAX_SIZE) {
+        setError(t("portfolio_uploader.err_size", { name: f.name }));
+        continue;
+      }
       const resized = await resizeImageFile(f, 1600, 0.85);
       const ext = f.name.split(".").pop()?.toLowerCase() ?? "bin";
       const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("provider-portfolio").upload(path, resized, {
-        contentType: resized.type, upsert: false,
-      });
-      if (upErr) { setError(upErr.message); continue; }
-      const { data: signed } = await supabase.storage.from("provider-portfolio").createSignedUrl(path, 3600);
+      const { error: upErr } = await supabase.storage
+        .from("provider-portfolio")
+        .upload(path, resized, {
+          contentType: resized.type,
+          upsert: false,
+        });
+      if (upErr) {
+        setError(upErr.message);
+        continue;
+      }
+      const { data: signed } = await supabase.storage
+        .from("provider-portfolio")
+        .createSignedUrl(path, 3600);
       next.push({ path, url: signed?.signedUrl ?? "", name: f.name, mime: f.type });
     }
     onChange(next);
@@ -69,9 +96,10 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
 
   // refresh signed URLs once on mount in case they expired
   useEffect(() => {
-    if (value.length > 0) refresh(value).then((items) => {
-      if (items.some((it, i) => it.url !== value[i]?.url)) onChange(items);
-    });
+    if (value.length > 0)
+      refresh(value).then((items) => {
+        if (items.some((it, i) => it.url !== value[i]?.url)) onChange(items);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -87,18 +115,28 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
           disabled={uploading || !userId || value.length >= MAX_FILES}
           className="text-sm"
         />
-        <span className="text-xs text-muted-foreground">{value.length}/{MAX_FILES}</span>
+        <span className="text-xs text-muted-foreground">
+          {value.length}/{MAX_FILES}
+        </span>
       </div>
       <p className="text-xs text-muted-foreground">{t("portfolio_uploader.accepted_hint")}</p>
       {error && <p className="text-xs text-destructive">{error}</p>}
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
           {value.map((it) => (
-            <div key={it.path} className="relative rounded-md border border-border bg-background overflow-hidden">
+            <div
+              key={it.path}
+              className="relative rounded-md border border-border bg-background overflow-hidden"
+            >
               {it.mime.startsWith("image/") ? (
                 <img src={it.url} alt={it.name} className="w-full h-28 object-cover" />
               ) : (
-                <video src={it.url} className="w-full h-28 object-cover bg-black" muted playsInline />
+                <video
+                  src={it.url}
+                  className="w-full h-28 object-cover bg-black"
+                  muted
+                  playsInline
+                />
               )}
               <button
                 type="button"
@@ -107,7 +145,9 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
               >
                 ✕
               </button>
-              <div className="truncate text-[10px] px-1.5 py-1 text-muted-foreground">{it.name}</div>
+              <div className="truncate text-[10px] px-1.5 py-1 text-muted-foreground">
+                {it.name}
+              </div>
             </div>
           ))}
         </div>

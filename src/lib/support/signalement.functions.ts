@@ -11,24 +11,20 @@ const SubmitSignalementInput = z.object({
 
 export const submitSignalement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof SubmitSignalementInput>) =>
-    SubmitSignalementInput.parse(d),
-  )
+  .inputValidator((d: z.infer<typeof SubmitSignalementInput>) => SubmitSignalementInput.parse(d))
   .handler(async ({ data, context }) => {
     assertRateLimit(`signalement:${context.userId}`, { maxRequests: 10, windowMs: 10 * 60_000 });
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin
-      .from("support_tickets" as never)
-      .insert({
-        user_id: userId,
-        subject: data.subject,
-        message: data.message,
-        context_url: data.contextUrl ?? null,
-        status: "open",
-        created_at: new Date().toISOString(),
-      } as never);
+    const { error } = await supabaseAdmin.from("support_tickets" as never).insert({
+      user_id: userId,
+      subject: data.subject,
+      message: data.message,
+      context_url: data.contextUrl ?? null,
+      status: "open",
+      created_at: new Date().toISOString(),
+    } as never);
 
     if (error) throw new Error(error.message);
 
@@ -48,9 +44,13 @@ export const submitSignalement = createServerFn({ method: "POST" })
           title: "🚨 Nouveau signalement",
           body: `${email} : ${data.subject}`,
           url: "/admin/dashboard",
-        }).catch(() => {/* best-effort */});
+        }).catch(() => {
+          /* best-effort */
+        });
       }
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
 
     return { ok: true };
   });
@@ -114,9 +114,7 @@ const ResolveTicketInput = z.object({
 
 export const adminResolveTicket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.infer<typeof ResolveTicketInput>) =>
-    ResolveTicketInput.parse(d),
-  )
+  .inputValidator((d: z.infer<typeof ResolveTicketInput>) => ResolveTicketInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -157,7 +155,9 @@ export const adminResolveTicket = createServerFn({ method: "POST" })
           url: "/",
         });
       }
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
 
     return { ok: true };
   });

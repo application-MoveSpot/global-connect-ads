@@ -7,7 +7,7 @@ import searchProviders from "./tools/search-providers";
 
 // L'émetteur OAuth doit être l'hôte Supabase direct : seule la référence projet
 // survit à la publication, et Vite l'inline à la compilation.
-const projectRef = import.meta.env['VITE_SUPABASE_PROJECT_ID'] ?? "project-ref-unset";
+const projectRef = import.meta.env["VITE_SUPABASE_PROJECT_ID"] ?? "project-ref-unset";
 
 export default defineMcp({
   name: "movespot",

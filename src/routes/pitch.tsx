@@ -6,9 +6,16 @@ export const Route = createFileRoute("/pitch")({
   head: () => ({
     meta: [
       { title: "Pitch — MoveSpot · La mobilité mondiale, monétisée localement" },
-      { name: "description", content: "Pitch de présentation MoveSpot : transformer la mobilité partagée mondiale en réseau publicitaire de proximité, en temps réel." },
+      {
+        name: "description",
+        content:
+          "Pitch de présentation MoveSpot : transformer la mobilité partagée mondiale en réseau publicitaire de proximité, en temps réel.",
+      },
       { property: "og:title", content: "Pitch MoveSpot" },
-      { property: "og:description", content: "La mobilité mondiale, monétisée localement. Découvrez le pitch MoveSpot." },
+      {
+        property: "og:description",
+        content: "La mobilité mondiale, monétisée localement. Découvrez le pitch MoveSpot.",
+      },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -26,14 +33,17 @@ const slides: Slide[] = [
     kicker: "01 · Vision",
     title: (
       <>
-        La mobilité mondiale,<br />
-        <span className="bg-gradient-signal bg-clip-text text-transparent">monétisée localement.</span>
+        La mobilité mondiale,
+        <br />
+        <span className="bg-gradient-signal bg-clip-text text-transparent">
+          monétisée localement.
+        </span>
       </>
     ),
     body: (
       <p className="slide-body-lg text-muted-foreground max-w-3xl">
-        MoveSpot transforme chaque hub de mobilité partagée — vélos, scooters, voitures — en
-        vitrine publicitaire pour les commerces de proximité, partout dans le monde.
+        MoveSpot transforme chaque hub de mobilité partagée — vélos, scooters, voitures — en vitrine
+        publicitaire pour les commerces de proximité, partout dans le monde.
       </p>
     ),
   },
@@ -61,8 +71,9 @@ const slides: Slide[] = [
     body: (
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
-          MoveSpot transforme les véhicules du quotidien — taxis, VTC, vans, food trucks, scooters de
-          livraison — en supports publicitaires géolocalisés, réservables à la zone et à la journée.
+          MoveSpot transforme les véhicules du quotidien — taxis, VTC, vans, food trucks, scooters
+          de livraison — en supports publicitaires géolocalisés, réservables à la zone et à la
+          journée.
         </p>
         <ul className="space-y-3 text-muted-foreground">
           {[
@@ -87,13 +98,30 @@ const slides: Slide[] = [
     body: (
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl">
         {[
-          { step: "1", t: "L'advertiser dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls." },
-          { step: "2", t: "Il valide le devis et paie par carte, portefeuille prépayé ou virement B2B." },
-          { step: "3", t: "MoveSpot modère la création, le véhicule, puis contrôle la pose sur 4 photos." },
-          { step: "4", t: "Le driver roule : GPS agrégé, km réels et taux de couverture de zone en direct." },
+          {
+            step: "1",
+            t: "L'advertiser dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls.",
+          },
+          {
+            step: "2",
+            t: "Il valide le devis et paie par carte, portefeuille prépayé ou virement B2B.",
+          },
+          {
+            step: "3",
+            t: "MoveSpot modère la création, le véhicule, puis contrôle la pose sur 4 photos.",
+          },
+          {
+            step: "4",
+            t: "Le driver roule : GPS agrégé, km réels et taux de couverture de zone en direct.",
+          },
         ].map((s) => (
-          <div key={s.step} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6">
-            <div className="h-10 w-10 rounded-full bg-gradient-signal flex items-center justify-center font-display font-bold text-primary-foreground shadow-glow">{s.step}</div>
+          <div
+            key={s.step}
+            className="rounded-2xl border border-border bg-card/50 backdrop-blur p-6"
+          >
+            <div className="h-10 w-10 rounded-full bg-gradient-signal flex items-center justify-center font-display font-bold text-primary-foreground shadow-glow">
+              {s.step}
+            </div>
             <p className="mt-4 text-muted-foreground">{s.t}</p>
           </div>
         ))}
@@ -106,12 +134,26 @@ const slides: Slide[] = [
     body: (
       <div className="grid md:grid-cols-2 gap-4 max-w-5xl">
         {[
-          { t: "Zones & géo", d: "Polygones dessinés sur Leaflet / OpenStreetMap, itinéraire automatisé via Mapbox (géocodage, quartiers, points d'intérêt, impressions estimées), positions validées en base par PostGIS, budget pondéré par densité." },
-          { t: "Suivi temps réel", d: "Relevés GPS mis en tampon puis envoyés par lots, agrégés en distance, minutes actives et couverture." },
-          { t: "Paiements", d: "Carte, abonnements par véhicule (Starter 29 € / Standard 42 € / Pro 59 €, essai 14 jours), portefeuille prépayé, USDC, virement B2B validé en un clic qui règle la campagne et déclenche la répartition 70 / 30." },
-          { t: "Automatisation", d: "Emails transactionnels déclenchés par la base : campagne activée, virement validé, avec désinscription conforme." },
-          { t: "Confiance", d: "SIRET vérifié, QR véhicules signés, contrôle de pose en 4 photos, double authentification, modération humaine, sessions préservées à chaque mise à jour." },
-
+          {
+            t: "Zones & géo",
+            d: "Polygones dessinés sur Leaflet / OpenStreetMap, itinéraire automatisé via Mapbox (géocodage, quartiers, points d'intérêt, impressions estimées), positions validées en base par PostGIS, budget pondéré par densité.",
+          },
+          {
+            t: "Suivi temps réel",
+            d: "Relevés GPS mis en tampon puis envoyés par lots, agrégés en distance, minutes actives et couverture.",
+          },
+          {
+            t: "Paiements",
+            d: "Carte, abonnements par véhicule (Starter 29 € / Standard 42 € / Pro 59 €, essai 14 jours), portefeuille prépayé, USDC, virement B2B validé en un clic qui règle la campagne et déclenche la répartition 70 / 30.",
+          },
+          {
+            t: "Automatisation",
+            d: "Emails transactionnels déclenchés par la base : campagne activée, virement validé, avec désinscription conforme.",
+          },
+          {
+            t: "Confiance",
+            d: "SIRET vérifié, QR véhicules signés, contrôle de pose en 4 photos, double authentification, modération humaine, sessions préservées à chaque mise à jour.",
+          },
         ].map((c) => (
           <div key={c.t} className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">{c.t}</div>
@@ -126,9 +168,9 @@ const slides: Slide[] = [
     title: <>Un terrain à structurer.</>,
     body: (
       <p className="slide-body-lg text-muted-foreground max-w-3xl">
-        La publicité extérieure se digitalise vite, et la mobilité partagée s'étend dans
-        un nombre croissant de villes. À ce croisement, il reste de la place pour une
-        plateforme simple, locale et transparente — c'est l'espace que MoveSpot veut occuper.
+        La publicité extérieure se digitalise vite, et la mobilité partagée s'étend dans un nombre
+        croissant de villes. À ce croisement, il reste de la place pour une plateforme simple,
+        locale et transparente — c'est l'espace que MoveSpot veut occuper.
       </p>
     ),
   },
@@ -139,23 +181,30 @@ const slides: Slide[] = [
       <div className="space-y-4 max-w-3xl">
         <p className="slide-body-lg text-muted-foreground">
           Le prix suit la surface réellement couverte : 1,80 € par km² et par jour, 2,70 € dans les
-          grandes agglomérations. Pour les campagnes récurrentes, trois formules d'abonnement mensuel par véhicule —
-          Starter 29 €, Standard 42 €, Pro 59 € — pour un panier moyen de 42,50 €. MoveSpot prélève 30 % de commission
-          d'intermédiation, 70 % vont au propriétaire, au driver et au poseur.
+          grandes agglomérations. Pour les campagnes récurrentes, trois formules d'abonnement
+          mensuel par véhicule — Starter 29 €, Standard 42 €, Pro 59 € — pour un panier moyen de
+          42,50 €. MoveSpot prélève 30 % de commission d'intermédiation, 70 % vont au propriétaire,
+          au driver et au poseur.
         </p>
 
         <div className="grid md:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">Annonceur</div>
-            <p className="mt-2 text-muted-foreground">Paie sa zone et ses jours, sans engagement.</p>
+            <p className="mt-2 text-muted-foreground">
+              Paie sa zone et ses jours, sans engagement.
+            </p>
           </div>
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">Partenaires</div>
-            <p className="mt-2 text-muted-foreground">70 % reversés après validation des métriques.</p>
+            <p className="mt-2 text-muted-foreground">
+              70 % reversés après validation des métriques.
+            </p>
           </div>
           <div className="rounded-2xl border border-border bg-card/50 backdrop-blur p-5">
             <div className="text-xs uppercase tracking-widest text-primary">MoveSpot</div>
-            <p className="mt-2 text-muted-foreground">30 % de commission + modération éditoriale.</p>
+            <p className="mt-2 text-muted-foreground">
+              30 % de commission + modération éditoriale.
+            </p>
           </div>
         </div>
       </div>
@@ -193,10 +242,16 @@ const slides: Slide[] = [
           MoveSpot en est à ses débuts. Si le projet vous parle, discutons-en.
         </p>
         <div className="flex flex-wrap gap-3">
-          <a href="mailto:contact@notify.move-spot.com" className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow">
+          <a
+            href="mailto:contact@notify.move-spot.com"
+            className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
+          >
             contact@notify.move-spot.com
           </a>
-          <Link to="/" className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition">
+          <Link
+            to="/"
+            className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition"
+          >
             Voir la plateforme
           </Link>
         </div>
@@ -242,7 +297,9 @@ function Pitch() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <div className={`flex justify-end px-6 py-3 border-b border-border gap-4 items-center ${isFullscreen ? "hidden" : ""}`}>
+      <div
+        className={`flex justify-end px-6 py-3 border-b border-border gap-4 items-center ${isFullscreen ? "hidden" : ""}`}
+      >
         <div className="text-xs text-muted-foreground tracking-widest">
           {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
         </div>
@@ -254,7 +311,6 @@ function Pitch() {
           {t("pitch.fullscreen_btn")}
         </button>
       </div>
-
 
       <main className="relative flex-1 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero opacity-50" />
@@ -284,7 +340,9 @@ function Pitch() {
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === current ? "w-8 bg-primary shadow-glow" : "w-1.5 bg-border hover:bg-muted-foreground"
+                  i === current
+                    ? "w-8 bg-primary shadow-glow"
+                    : "w-1.5 bg-border hover:bg-muted-foreground"
                 }`}
                 aria-label={t("pitch.slide_goto", { n: i + 1 })}
               />

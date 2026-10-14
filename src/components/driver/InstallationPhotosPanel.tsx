@@ -15,7 +15,10 @@ import {
   parseInstallationPhotos,
 } from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
-import { validateInstallationPhotos, type InstallationPhotoResult } from "@/lib/ai/visual-validation.functions";
+import {
+  validateInstallationPhotos,
+  type InstallationPhotoResult,
+} from "@/lib/ai/visual-validation.functions";
 
 type Props = {
   campaignRequestId: string;
@@ -25,10 +28,12 @@ type Props = {
   onSubmitted?: () => void;
 };
 
-
 function getGeolocation(): Promise<{ lat: number; lng: number } | null> {
   return new Promise((resolve) => {
-    if (!navigator.geolocation) { resolve(null); return; }
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => resolve(null),
@@ -54,7 +59,10 @@ export function InstallationPhotosPanel({
 
   const STATUS: Record<string, { label: string; className: string }> = {
     pending: { label: t("install_photos.status_pending"), className: "text-muted-foreground" },
-    pending_approval: { label: t("install_photos.status_pending_approval"), className: "text-amber-500" },
+    pending_approval: {
+      label: t("install_photos.status_pending_approval"),
+      className: "text-amber-500",
+    },
     approved: { label: t("install_photos.status_approved"), className: "text-emerald-500" },
     rejected: { label: t("install_photos.status_rejected"), className: "text-destructive" },
   };
@@ -67,7 +75,7 @@ export function InstallationPhotosPanel({
   const fileToBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(((reader.result as string).split(",")[1]) ?? "");
+      reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
@@ -186,9 +194,7 @@ export function InstallationPhotosPanel({
               <li>{t("install_photos.checklist_3")}</li>
             </ul>
           </div>
-          <p className="mb-2 text-xs text-muted-foreground">
-            {t("install_photos.instructions")}
-          </p>
+          <p className="mb-2 text-xs text-muted-foreground">{t("install_photos.instructions")}</p>
           <div className="grid gap-2 sm:grid-cols-4">
             {INSTALLATION_VIEWS.map((view) => (
               <label key={view} className="text-[11px] text-muted-foreground">
@@ -221,8 +227,12 @@ export function InstallationPhotosPanel({
           )}
 
           {aiValidation && !aiValidating && (
-            <div className={`mt-2 rounded-lg border px-3 py-2 text-xs ${aiValidation.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}>
-              <p className={`font-medium ${aiValidation.ok ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"}`}>
+            <div
+              className={`mt-2 rounded-lg border px-3 py-2 text-xs ${aiValidation.ok ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/40 bg-amber-500/5"}`}
+            >
+              <p
+                className={`font-medium ${aiValidation.ok ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"}`}
+              >
                 {aiValidation.globalNote}
               </p>
             </div>

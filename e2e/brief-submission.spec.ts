@@ -43,9 +43,14 @@ test.describe("Brief nouveau — chargement de la page", () => {
     await page.goto("/annonceur/briefs/nouveau", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1200);
 
-    const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "").catch(() => "loaded");
+    const bodyText = await page
+      .evaluate(() => document.body?.innerText?.trim() ?? "")
+      .catch(() => "loaded");
     const url = page.url();
-    expect(isRedirected(url) || bodyText.length > 10, "Écran blanc sur /annonceur/briefs/nouveau").toBe(true);
+    expect(
+      isRedirected(url) || bodyText.length > 10,
+      "Écran blanc sur /annonceur/briefs/nouveau",
+    ).toBe(true);
   });
 
   test("le titre de la page mentionne brief ou campagne", async ({ page }) => {
@@ -66,10 +71,14 @@ test.describe("Brief nouveau — chargement de la page", () => {
     if (isRedirected(url)) return;
 
     // Attendre que le chargement soit terminé
-    await page.waitForFunction(
-      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
-      { timeout: 2000 },
-    ).catch(() => {});
+    await page
+      .waitForFunction(
+        () =>
+          !document.body.innerText.includes("Chargement") &&
+          !document.body.innerText.includes("Loading"),
+        { timeout: 2000 },
+      )
+      .catch(() => {});
 
     const bodyText2 = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
     if (bodyText2.length < 50) return; // skeleton sans Supabase en CI
@@ -138,7 +147,9 @@ test.describe("Brief nouveau — formulaire", () => {
     if (bodyText0.length < 50) return; // skeleton sans Supabase en CI
 
     // Boutons de sélection de type dans le formulaire
-    const vehicleBtns = page.locator('button').filter({ hasText: /taxi|van|voiture|camion|scooter|triporteur|food/i });
+    const vehicleBtns = page
+      .locator("button")
+      .filter({ hasText: /taxi|van|voiture|camion|scooter|triporteur|food/i });
     const count = await vehicleBtns.count();
 
     if (count < 3) {
@@ -194,12 +205,23 @@ test.describe("Brief nouveau — formulaire", () => {
 
     // Si l'erreur boundary s'affiche (module dynamique non chargé), skip
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "").catch(() => "");
-    if (bodyText.includes("erreur est survenue") || bodyText.includes("error occurred") || bodyText.includes("Failed to fetch") || bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
+    if (
+      bodyText.includes("erreur est survenue") ||
+      bodyText.includes("error occurred") ||
+      bodyText.includes("Failed to fetch") ||
+      bodyText.includes("Chargement") ||
+      bodyText.includes("Loading")
+    )
+      return;
     if (bodyText.trim().length < 50) return; // skeleton sans Supabase en CI
 
     // Chercher le bouton submit ou un bouton de soumission
     const submitBtn = page.locator('button[type="submit"]').first();
-    const publishBtn = page.getByRole("button", { name: /publier|soumettre|suivant|continuer|créer|publish|submit|next|continue|create/i }).first();
+    const publishBtn = page
+      .getByRole("button", {
+        name: /publier|soumettre|suivant|continuer|créer|publish|submit|next|continue|create/i,
+      })
+      .first();
 
     const hasSubmit = await submitBtn.isVisible().catch(() => false);
     const hasBtn = await publishBtn.isVisible().catch(() => false);
@@ -227,7 +249,8 @@ test.describe("Brief nouveau — soumission", () => {
     // Soit une erreur de validation, soit on reste sur la même page
     const newUrl = page.url();
     const stayed = newUrl.includes("nouveau") || newUrl.includes("briefs");
-    const hasError = await page.locator('[role="alert"], .text-destructive, .text-red').count() > 0;
+    const hasError =
+      (await page.locator('[role="alert"], .text-destructive, .text-red').count()) > 0;
     expect(stayed || hasError, "Soumission vide n'a pas été bloquée").toBe(true);
   });
 
@@ -242,10 +265,14 @@ test.describe("Brief nouveau — soumission", () => {
     if (isRedirected(url)) return;
 
     // Attendre la fin du chargement (disparition du spinner)
-    await page.waitForFunction(
-      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
-      { timeout: 2000 },
-    ).catch(() => {});
+    await page
+      .waitForFunction(
+        () =>
+          !document.body.innerText.includes("Chargement") &&
+          !document.body.innerText.includes("Loading"),
+        { timeout: 2000 },
+      )
+      .catch(() => {});
     const currentUrl = page.url();
     if (isRedirected(currentUrl)) return;
 

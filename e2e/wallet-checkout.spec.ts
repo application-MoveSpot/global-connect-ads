@@ -38,10 +38,16 @@ test.describe("Portefeuille annonceur — redirection sans auth", () => {
     const url = page.url();
     const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
 
-    const isRedirected = url.includes("login") || url.includes("auth") || url.includes("inscription") || url === page.evaluate(() => window.location.origin + "/");
+    const isRedirected =
+      url.includes("login") ||
+      url.includes("auth") ||
+      url.includes("inscription") ||
+      url === page.evaluate(() => window.location.origin + "/");
     const hasContent = bodyText.length > 10;
 
-    expect(isRedirected || hasContent, "Écran blanc sans auth — ni redirection ni contenu").toBe(true);
+    expect(isRedirected || hasContent, "Écran blanc sans auth — ni redirection ni contenu").toBe(
+      true,
+    );
   });
 });
 
@@ -88,9 +94,13 @@ test.describe("Portefeuille annonceur — formulaire de recharge", () => {
 
     // Fallback: la page contient au moins une mention du portefeuille
     const html = await page.content();
-    const hasWalletContent = html.toLowerCase().includes("portefeuille") || html.toLowerCase().includes("solde");
+    const hasWalletContent =
+      html.toLowerCase().includes("portefeuille") || html.toLowerCase().includes("solde");
 
-    expect(hasAmountField || hasRechargeBtn || hasWalletContent, "Aucun moyen de recharger le portefeuille visible").toBe(true);
+    expect(
+      hasAmountField || hasRechargeBtn || hasWalletContent,
+      "Aucun moyen de recharger le portefeuille visible",
+    ).toBe(true);
   });
 });
 
@@ -107,6 +117,8 @@ test.describe("Portefeuille annonceur — bannière mode test Stripe", () => {
     // La bannière PaymentTestModeBanner doit injecter une mention "test" dans le HTML
     const hasTestMention = /test|sandbox|stripe/i.test(html);
     // C'est informatif — soft assertion pour ne pas bloquer si la bannière est conditionnelle
-    expect.soft(hasTestMention, "Aucune mention 'test/stripe' dans le HTML de la page portefeuille").toBe(true);
+    expect
+      .soft(hasTestMention, "Aucune mention 'test/stripe' dans le HTML de la page portefeuille")
+      .toBe(true);
   });
 });

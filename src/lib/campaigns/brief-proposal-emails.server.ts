@@ -35,11 +35,18 @@ export const sendBriefProposalReceivedEmail = createServerFn({ method: "POST" })
     ]);
 
     const brief = briefRes.data as {
-      id: string; title: string; start_date: string; end_date: string;
-      zones: string[] | null; advertiser_id: string;
+      id: string;
+      title: string;
+      start_date: string;
+      end_date: string;
+      zones: string[] | null;
+      advertiser_id: string;
     } | null;
     const proposal = proposalRes.data as {
-      id: string; vehicle_id: string; owner_id: string; price_per_day: number;
+      id: string;
+      vehicle_id: string;
+      owner_id: string;
+      price_per_day: number;
     } | null;
 
     if (!brief || !proposal) return { sent: false, reason: "not_found" };
@@ -58,7 +65,9 @@ export const sendBriefProposalReceivedEmail = createServerFn({ method: "POST" })
     ]);
 
     const advertiserProfile = advertiserProfileRes.data as {
-      full_name?: string; company?: string; user_id: string;
+      full_name?: string;
+      company?: string;
+      user_id: string;
     } | null;
 
     if (!advertiserProfile?.user_id) return { sent: false, reason: "no_advertiser" };
@@ -143,7 +152,10 @@ export const rejectBriefProposal = createServerFn({ method: "POST" })
     ]);
 
     const ownerProfile = ownerProfileRes.data as { full_name?: string; user_id: string } | null;
-    const advertiserProfile = advertiserProfileRes.data as { company?: string; full_name?: string } | null;
+    const advertiserProfile = advertiserProfileRes.data as {
+      company?: string;
+      full_name?: string;
+    } | null;
     if (!ownerProfile?.user_id) return { ok: true };
 
     const ownerAuthRes = await supabaseAdmin.auth.admin.getUserById(ownerProfile.user_id);
@@ -163,7 +175,9 @@ export const rejectBriefProposal = createServerFn({ method: "POST" })
           dashboardUrl: `${BASE_URL}/proprietaire/briefs`,
         },
       });
-    } catch { /* non-critical */ }
+    } catch {
+      /* non-critical */
+    }
 
     return { ok: true };
   });

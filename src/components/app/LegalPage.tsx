@@ -35,7 +35,9 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
         <div className="relative max-w-4xl mx-auto px-6 pt-16 pb-12">
           <div className="text-xs uppercase tracking-widest text-primary mb-3">{eyebrow}</div>
           <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight">{title}</h1>
-          <p className="mt-4 text-sm text-muted-foreground">{t("legal.updated_at", { date: updatedAt })}</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            {t("legal.updated_at", { date: updatedAt })}
+          </p>
         </div>
       </section>
 
@@ -49,10 +51,18 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
           <div>{t("legal.copyright", { year: new Date().getFullYear() })}</div>
           <div className="flex flex-wrap items-center gap-4">
-            <Link to="/cgu" className="hover:text-foreground transition">{t("legal.link_cgu")}</Link>
-            <Link to="/cgv" className="hover:text-foreground transition">{t("legal.link_cgv")}</Link>
-            <Link to="/confidentialite" className="hover:text-foreground transition">{t("legal.link_privacy")}</Link>
-            <Link to="/cookies" className="hover:text-foreground transition">{t("legal.link_cookies")}</Link>
+            <Link to="/cgu" className="hover:text-foreground transition">
+              {t("legal.link_cgu")}
+            </Link>
+            <Link to="/cgv" className="hover:text-foreground transition">
+              {t("legal.link_cgv")}
+            </Link>
+            <Link to="/confidentialite" className="hover:text-foreground transition">
+              {t("legal.link_privacy")}
+            </Link>
+            <Link to="/cookies" className="hover:text-foreground transition">
+              {t("legal.link_cookies")}
+            </Link>
           </div>
         </div>
       </footer>

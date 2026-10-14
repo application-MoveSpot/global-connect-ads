@@ -77,10 +77,14 @@ test.describe("Dashboard annonceur — état sans campagne (onboarding)", () => 
     await injectTestSession(page);
     await page.goto("/annonceur", { waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
-    await page.waitForFunction(
-      () => !document.body.innerText.includes("Chargement") && !document.body.innerText.includes("Loading"),
-      { timeout: 2000 },
-    ).catch(() => {});
+    await page
+      .waitForFunction(
+        () =>
+          !document.body.innerText.includes("Chargement") &&
+          !document.body.innerText.includes("Loading"),
+        { timeout: 2000 },
+      )
+      .catch(() => {});
     await page.waitForTimeout(300);
   });
 
@@ -90,10 +94,28 @@ test.describe("Dashboard annonceur — état sans campagne (onboarding)", () => 
 
     const html = await page.content();
     // Soit des campagnes, soit onboarding, soit le dashboard nav (portefeuille, briefs, annonceur)
-    const hasCampaigns = html.toLowerCase().includes("actif") || html.toLowerCase().includes("campagne") || html.toLowerCase().includes("campaign") || html.toLowerCase().includes("active");
-    const hasOnboarding = html.toLowerCase().includes("étape") || html.toLowerCase().includes("brief") || html.toLowerCase().includes("commencer") || html.toLowerCase().includes("créer") || html.toLowerCase().includes("step") || html.toLowerCase().includes("create") || html.toLowerCase().includes("start");
-    const hasDashboard = html.toLowerCase().includes("portefeuille") || html.toLowerCase().includes("movespot") || html.toLowerCase().includes("annonceur") || html.toLowerCase().includes("wallet");
-    expect(hasCampaigns || hasOnboarding || hasDashboard, "Ni campagnes ni onboarding trouvé sur le dashboard").toBe(true);
+    const hasCampaigns =
+      html.toLowerCase().includes("actif") ||
+      html.toLowerCase().includes("campagne") ||
+      html.toLowerCase().includes("campaign") ||
+      html.toLowerCase().includes("active");
+    const hasOnboarding =
+      html.toLowerCase().includes("étape") ||
+      html.toLowerCase().includes("brief") ||
+      html.toLowerCase().includes("commencer") ||
+      html.toLowerCase().includes("créer") ||
+      html.toLowerCase().includes("step") ||
+      html.toLowerCase().includes("create") ||
+      html.toLowerCase().includes("start");
+    const hasDashboard =
+      html.toLowerCase().includes("portefeuille") ||
+      html.toLowerCase().includes("movespot") ||
+      html.toLowerCase().includes("annonceur") ||
+      html.toLowerCase().includes("wallet");
+    expect(
+      hasCampaigns || hasOnboarding || hasDashboard,
+      "Ni campagnes ni onboarding trouvé sur le dashboard",
+    ).toBe(true);
   });
 
   test("un lien vers les briefs est accessible", async ({ page }) => {
@@ -103,7 +125,9 @@ test.describe("Dashboard annonceur — état sans campagne (onboarding)", () => 
     const bodyText = await page.evaluate(() => document.body?.innerText ?? "");
     if (bodyText.includes("Chargement") || bodyText.includes("Loading")) return;
 
-    const briefLink = page.getByRole("link", { name: /brief|campagne|nouveau|créer|campaign|new|create/i }).first();
+    const briefLink = page
+      .getByRole("link", { name: /brief|campagne|nouveau|créer|campaign|new|create/i })
+      .first();
     const hasLink = await briefLink.isVisible().catch(() => false);
 
     if (!hasLink) {
@@ -141,7 +165,9 @@ test.describe("Brief detail — activation campagne", () => {
   test("la page /annonceur/briefs/:id charge sans écran blanc", async ({ page }) => {
     await injectTestSession(page);
     // ID fictif — la page doit rediriger vers la liste si le brief n'existe pas
-    await page.goto("/annonceur/briefs/00000000-0000-0000-0000-000000000099", { waitUntil: "domcontentloaded" });
+    await page.goto("/annonceur/briefs/00000000-0000-0000-0000-000000000099", {
+      waitUntil: "domcontentloaded",
+    });
     await page.waitForTimeout(1000);
 
     const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
@@ -162,7 +188,9 @@ test.describe("Brief detail — activation campagne", () => {
     expect(bodyText.length).toBeGreaterThan(10);
   });
 
-  test("la page brief detail avec propositions acceptées affiche les options de paiement", async ({ page }) => {
+  test("la page brief detail avec propositions acceptées affiche les options de paiement", async ({
+    page,
+  }) => {
     await injectTestSession(page);
     await page.goto("/annonceur/briefs", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(800);
@@ -171,7 +199,10 @@ test.describe("Brief detail — activation campagne", () => {
     if (isRedirected(url)) return;
 
     // Cherche un lien vers un brief existant
-    const briefLink = page.getByRole("link").filter({ hasText: /voir|détail|consulter/i }).first();
+    const briefLink = page
+      .getByRole("link")
+      .filter({ hasText: /voir|détail|consulter/i })
+      .first();
     const hasLink = await briefLink.isVisible().catch(() => false);
     if (!hasLink) return; // Pas de brief en DB dans cet env de test
 
@@ -180,14 +211,20 @@ test.describe("Brief detail — activation campagne", () => {
 
     const newHtml = await page.content();
     // Si des propositions acceptées existent, les boutons d'activation doivent être visibles
-    const hasActivation = newHtml.toLowerCase().includes("essai") || newHtml.toLowerCase().includes("portefeuille") || newHtml.toLowerCase().includes("activer") || newHtml.toLowerCase().includes("payer");
+    const hasActivation =
+      newHtml.toLowerCase().includes("essai") ||
+      newHtml.toLowerCase().includes("portefeuille") ||
+      newHtml.toLowerCase().includes("activer") ||
+      newHtml.toLowerCase().includes("payer");
     // Acceptable qu'aucune proposition ne soit disponible dans le test env
     expect(newHtml.length).toBeGreaterThan(100);
   });
 });
 
 test.describe("Activation — boutons de paiement", () => {
-  test("le bouton d'essai gratuit 14 jours est accessible sur brief avec propositions", async ({ page }) => {
+  test("le bouton d'essai gratuit 14 jours est accessible sur brief avec propositions", async ({
+    page,
+  }) => {
     await injectTestSession(page);
     await page.goto("/annonceur/briefs", { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(800);
@@ -200,23 +237,34 @@ test.describe("Activation — boutons de paiement", () => {
 
     const html = await page.content();
     // Dans un env sans données, on vérifie juste que le chemin de navigation est correct
-    const hasBriefList = html.toLowerCase().includes("brief") || html.toLowerCase().includes("campagne") || html.toLowerCase().includes("campaign");
+    const hasBriefList =
+      html.toLowerCase().includes("brief") ||
+      html.toLowerCase().includes("campagne") ||
+      html.toLowerCase().includes("campaign");
     expect(hasBriefList, "La liste des briefs ne mentionne pas de brief ou campagne").toBe(true);
   });
 
   test("la page de suivi /annonceur/suivi/:id charge correctement", async ({ page }) => {
     await injectTestSession(page);
-    await page.goto("/annonceur/suivi/00000000-0000-0000-0000-000000000099", { waitUntil: "domcontentloaded" });
+    await page.goto("/annonceur/suivi/00000000-0000-0000-0000-000000000099", {
+      waitUntil: "domcontentloaded",
+    });
     await page.waitForTimeout(1000);
 
     const url = page.url();
     // Doit soit montrer une erreur propre, soit rediriger
     const bodyText = await page.evaluate(() => document.body?.innerText?.trim() ?? "");
-    const isOk = isRedirected(url) || url.includes("suivi") || url.includes("annonceur") || bodyText.length > 5;
+    const isOk =
+      isRedirected(url) ||
+      url.includes("suivi") ||
+      url.includes("annonceur") ||
+      bodyText.length > 5;
     expect(isOk, "Écran blanc ou crash sur /annonceur/suivi/:id").toBe(true);
   });
 
-  test("un bouton 'Payer avec mon portefeuille' ou 'essai gratuit' est référencé dans le code", async ({ page }) => {
+  test("un bouton 'Payer avec mon portefeuille' ou 'essai gratuit' est référencé dans le code", async ({
+    page,
+  }) => {
     // Ce test vérifie que les libellés du bouton de paiement existent bien dans l'app
     await injectTestSession(page);
     await page.goto("/annonceur", { waitUntil: "domcontentloaded" });
@@ -226,7 +274,9 @@ test.describe("Activation — boutons de paiement", () => {
     if (isRedirected(url)) return;
 
     // Cherche n'importe quelle mention de paiement par portefeuille dans le DOM rendu
-    const payBtn = page.getByRole("button", { name: /portefeuille|essai gratuit|activer|payer/i }).first();
+    const payBtn = page
+      .getByRole("button", { name: /portefeuille|essai gratuit|activer|payer/i })
+      .first();
     const hasBtn = await payBtn.isVisible().catch(() => false);
 
     // Acceptable si pas de campagne active — on vérifie juste que la page est fonctionnelle

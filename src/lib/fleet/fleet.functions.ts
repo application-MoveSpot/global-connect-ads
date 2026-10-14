@@ -59,9 +59,7 @@ export const createDriver = createServerFn({ method: "POST" })
 
 export const updateDriver = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    DriverInput.partial().extend({ id: z.string().uuid() }).parse(input),
-  )
+  .inputValidator((input) => DriverInput.partial().extend({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { id, ...patch } = data;
@@ -83,10 +81,12 @@ export const deleteDriver = createServerFn({ method: "POST" })
 export const assignDriverToVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      vehicleId: z.string().uuid(),
-      driverId: z.string().uuid().nullable(),
-    }).parse(input),
+    z
+      .object({
+        vehicleId: z.string().uuid(),
+        driverId: z.string().uuid().nullable(),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -114,10 +114,7 @@ export const getFleetOverview = createServerFn({ method: "GET" })
     const vehicleIds = (vehicles ?? []).map((v: any) => v.id);
 
     const [{ data: drivers }, { data: positions }, { data: campaigns }] = await Promise.all([
-      supabase
-        .from("drivers")
-        .select("id, full_name, phone, status")
-        .eq("owner_id", ownerId),
+      supabase.from("drivers").select("id, full_name, phone, status").eq("owner_id", ownerId),
       vehicleIds.length
         ? supabase
             .from("vehicle_positions")

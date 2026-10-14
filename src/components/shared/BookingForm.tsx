@@ -25,14 +25,26 @@ type DateConflict = {
   suggestion: { start: string; end: string } | null;
 };
 
-function checkDateOverlap(start: string, end: string, periods: BookedPeriod[]): BookedPeriod | null {
+function checkDateOverlap(
+  start: string,
+  end: string,
+  periods: BookedPeriod[],
+): BookedPeriod | null {
   return periods.find((p) => p.start_date <= end && p.end_date >= start) ?? null;
 }
 
-function nextAvailableSlot(days: number, periods: BookedPeriod[], earliest: Date): { start: string; end: string } {
+function nextAvailableSlot(
+  days: number,
+  periods: BookedPeriod[],
+  earliest: Date,
+): { start: string; end: string } {
   const sorted = [...periods].sort((a, b) => a.start_date.localeCompare(b.start_date));
   const toISO = (d: Date) => d.toISOString().slice(0, 10);
-  const addDays = (d: Date, n: number) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+  const addDays = (d: Date, n: number) => {
+    const r = new Date(d);
+    r.setDate(r.getDate() + n);
+    return r;
+  };
   let candidateStart = new Date(earliest);
   for (const p of sorted) {
     const pStart = new Date(p.start_date);
@@ -49,15 +61,28 @@ function fmtDate(iso: string): string {
   return iso.split("-").reverse().join("/");
 }
 
-function BookingDayButton({ modifiers, onClick, className, ...props }: React.ComponentProps<typeof CalendarDayButton>) {
+function BookingDayButton({
+  modifiers,
+  onClick,
+  className,
+  ...props
+}: React.ComponentProps<typeof CalendarDayButton>) {
   const isBooked = !!modifiers?.booked;
   return (
     <CalendarDayButton
       modifiers={modifiers}
-      onClick={isBooked ? (e) => { e.preventDefault(); e.stopPropagation(); } : onClick}
+      onClick={
+        isBooked
+          ? (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          : onClick
+      }
       className={cn(
         className,
-        isBooked && "!bg-red-100 dark:!bg-red-950/40 !text-red-600 dark:!text-red-400 line-through !cursor-not-allowed hover:!bg-red-100 dark:hover:!bg-red-950/40",
+        isBooked &&
+          "!bg-red-100 dark:!bg-red-950/40 !text-red-600 dark:!text-red-400 line-through !cursor-not-allowed hover:!bg-red-100 dark:hover:!bg-red-950/40",
       )}
       {...props}
     />
@@ -73,7 +98,11 @@ type AuthState =
   | { kind: "loading" }
   | { kind: "anon" }
   | { kind: "no-profile"; userId: string; email: string }
-  | { kind: "ready"; userId: string; profile: { full_name: string; company: string | null; email: string } };
+  | {
+      kind: "ready";
+      userId: string;
+      profile: { full_name: string; company: string | null; email: string };
+    };
 
 const SCREEN_VEHICLE_TYPES = ["camion_led", "sac_a_dos_lcd"];
 
@@ -84,7 +113,11 @@ export function BookingForm({ spot, onClose }: Props) {
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [message, setMessage] = useState("");
   const [itinerary, setItinerary] = useState<ItineraryData>({
-    waypoints: [], zones: [], pois: [], distanceKm: 0, impressionsPerDay: 0,
+    waypoints: [],
+    zones: [],
+    pois: [],
+    distanceKm: 0,
+    impressionsPerDay: 0,
   });
 
   const notifyFn = useServerFn(notifyCampaignSubmitted);
@@ -108,10 +141,13 @@ export function BookingForm({ spot, onClose }: Props) {
   const MIN_LEAD_DAYS = 3;
   const MAX_DURATION_DAYS = 30;
   const toISO = (d: Date) => d.toISOString().slice(0, 10);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const minStart = new Date(today); minStart.setDate(minStart.getDate() + MIN_LEAD_DAYS);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const minStart = new Date(today);
+  minStart.setDate(minStart.getDate() + MIN_LEAD_DAYS);
   const defaultStart = new Date(minStart);
-  const defaultEnd = new Date(minStart); defaultEnd.setDate(defaultEnd.getDate() + 6); // 7 jours
+  const defaultEnd = new Date(minStart);
+  defaultEnd.setDate(defaultEnd.getDate() + 6); // 7 jours
   const [startDate, setStartDate] = useState<string>(toISO(defaultStart));
   const [endDate, setEndDate] = useState<string>(toISO(defaultEnd));
 
@@ -131,7 +167,8 @@ export function BookingForm({ spot, onClose }: Props) {
 
   const daysCount = (() => {
     if (!startDate || !endDate) return 0;
-    const s = new Date(startDate); const e = new Date(endDate);
+    const s = new Date(startDate);
+    const e = new Date(endDate);
     const diff = Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
     return diff > 0 ? diff : 0;
   })();
@@ -155,23 +192,24 @@ export function BookingForm({ spot, onClose }: Props) {
   // Estimation impressions/jour = km/jour × 1000 × coef format × coef mobilité × coef plage horaire
   const formatMultiplier = (() => {
     const f = (spot?.format ?? "").toLowerCase();
-    if (f.includes("lcd") || f.includes("écran") || f.includes("ecran") || f.includes("digital")) return 1.4;
+    if (f.includes("lcd") || f.includes("écran") || f.includes("ecran") || f.includes("digital"))
+      return 1.4;
     if (f.includes("toit") || f.includes("totem")) return 1.2;
     if (f.includes("affiche") || f.includes("sticker") || f.includes("covering")) return 1.0;
     return 1.0;
   })();
   const mobilityMultiplier = (() => {
     const t = (spot?.vehicleType ?? "").toLowerCase();
-    if (t === "taxi" || t === "vtc") return 1.3;          // forte rotation urbaine
-    if (t === "food_truck") return 1.1;                    // stationne en lieux passants
-    if (t === "scooter") return 0.9;                       // visibilité plus courte
+    if (t === "taxi" || t === "vtc") return 1.3; // forte rotation urbaine
+    if (t === "food_truck") return 1.1; // stationne en lieux passants
+    if (t === "scooter") return 0.9; // visibilité plus courte
     if (t === "van" || t === "voiture") return 1.0;
     return 1.0;
   })();
   const hoursPerDay = (() => {
     const [sh, sm] = dailyStart.split(":").map(Number);
     const [eh, em] = dailyEnd.split(":").map(Number);
-    const h = (eh + em / 60) - (sh + sm / 60);
+    const h = eh + em / 60 - (sh + sm / 60);
     return Math.max(1, Math.min(24, h));
   })();
   const hoursMultiplier = hoursPerDay / 12; // référence : 12h/jour
@@ -179,15 +217,14 @@ export function BookingForm({ spot, onClose }: Props) {
     ? Math.round(spot.kmPerDay * 1000 * formatMultiplier * mobilityMultiplier * hoursMultiplier)
     : null;
 
-
-
-
-
   useEffect(() => {
     if (!spot) return;
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data.session) { setAuth({ kind: "anon" }); return; }
+      if (!data.session) {
+        setAuth({ kind: "anon" });
+        return;
+      }
       const userId = data.session.user.id;
       const email = data.session.user.email ?? "";
       const { data: prof } = await supabase
@@ -195,8 +232,15 @@ export function BookingForm({ spot, onClose }: Props) {
         .select("full_name, company")
         .eq("user_id", userId)
         .maybeSingle();
-      if (!prof) { setAuth({ kind: "no-profile", userId, email }); return; }
-      setAuth({ kind: "ready", userId, profile: { full_name: prof.full_name, company: prof.company, email } });
+      if (!prof) {
+        setAuth({ kind: "no-profile", userId, email });
+        return;
+      }
+      setAuth({
+        kind: "ready",
+        userId,
+        profile: { full_name: prof.full_name, company: prof.company, email },
+      });
     })();
   }, [spot]);
 
@@ -215,15 +259,20 @@ export function BookingForm({ spot, onClose }: Props) {
   // Load already-booked date ranges via the SECURITY DEFINER RPC (bypasses RLS,
   // returns only start_date/end_date — no sensitive data exposed).
   useEffect(() => {
-    if (!spot?.vehicleId) { setBookedPeriods([]); return; }
+    if (!spot?.vehicleId) {
+      setBookedPeriods([]);
+      return;
+    }
     setPeriodsLoading(true);
     setPeriodsError(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
       .then(({ data, error }: { data: BookedPeriod[] | null; error: unknown }) => {
-        if (error) { setPeriodsError(true); setBookedPeriods([]); }
-        else setBookedPeriods((data ?? []) as BookedPeriod[]);
+        if (error) {
+          setPeriodsError(true);
+          setBookedPeriods([]);
+        } else setBookedPeriods((data ?? []) as BookedPeriod[]);
       })
       .catch(() => setPeriodsError(true))
       .finally(() => setPeriodsLoading(false));
@@ -233,7 +282,10 @@ export function BookingForm({ spot, onClose }: Props) {
 
   const goSignIn = () => {
     onClose();
-    navigate({ to: "/advertiser/inscription", search: { redirect: window.location.pathname + "#spots" } });
+    navigate({
+      to: "/advertiser/inscription",
+      search: { redirect: window.location.pathname + "#spots" },
+    });
   };
 
   const handleRangeSelect = (range: DateRange | undefined) => {
@@ -377,7 +429,10 @@ export function BookingForm({ spot, onClose }: Props) {
       }
     }
 
-    const installerFees = await getInstallerFees().catch(() => ({ poseFee: 2000, deposeFee: 2000 }));
+    const installerFees = await getInstallerFees().catch(() => ({
+      poseFee: 2000,
+      deposeFee: 2000,
+    }));
 
     const { data: created, error } = await supabase
       .from("campaign_requests")
@@ -426,21 +481,23 @@ export function BookingForm({ spot, onClose }: Props) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (supabase as any)
           .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
-          .then(({ data: fresh, error: rpcErr }: { data: BookedPeriod[] | null; error: unknown }) => {
-            if (rpcErr || !fresh) {
-              setStatus("rejected");
-              setReason(t("booking.err_conflict_refresh"));
-              return;
-            }
-            const freshPeriods = fresh as BookedPeriod[];
-            setBookedPeriods(freshPeriods);
-            const conflict = checkDateOverlap(startDate, endDate, freshPeriods);
-            setDateConflict({
-              conflictStart: conflict?.start_date ?? startDate,
-              conflictEnd: conflict?.end_date ?? endDate,
-              suggestion: nextAvailableSlot(daysCount, freshPeriods, minStart),
-            });
-          })
+          .then(
+            ({ data: fresh, error: rpcErr }: { data: BookedPeriod[] | null; error: unknown }) => {
+              if (rpcErr || !fresh) {
+                setStatus("rejected");
+                setReason(t("booking.err_conflict_refresh"));
+                return;
+              }
+              const freshPeriods = fresh as BookedPeriod[];
+              setBookedPeriods(freshPeriods);
+              const conflict = checkDateOverlap(startDate, endDate, freshPeriods);
+              setDateConflict({
+                conflictStart: conflict?.start_date ?? startDate,
+                conflictEnd: conflict?.end_date ?? endDate,
+                suggestion: nextAvailableSlot(daysCount, freshPeriods, minStart),
+              });
+            },
+          )
           .catch(() => {
             setStatus("rejected");
             setReason(t("booking.err_conflict_choose"));
@@ -478,44 +535,74 @@ export function BookingForm({ spot, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-elevated max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {auth.kind === "loading" ? (
-          <div className="py-10 text-center text-muted-foreground text-sm">{t("booking.loading")}</div>
+          <div className="py-10 text-center text-muted-foreground text-sm">
+            {t("booking.loading")}
+          </div>
         ) : auth.kind === "anon" ? (
           <div className="text-center py-6">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t("booking.login_required")}</div>
-            <h3 className="font-display text-2xl font-bold mb-3">{t("booking.book_spot", { name: spot.name })}</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              {t("booking.anon_desc")}
-            </p>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+              {t("booking.login_required")}
+            </div>
+            <h3 className="font-display text-2xl font-bold mb-3">
+              {t("booking.book_spot", { name: spot.name })}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">{t("booking.anon_desc")}</p>
             <div className="flex flex-col gap-3">
-              <button onClick={goSignIn} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
+              <button
+                onClick={goSignIn}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition"
+              >
                 {t("booking.signin_btn")}
               </button>
-              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">{t("booking.cancel")}</button>
+              <button
+                onClick={onClose}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                {t("booking.cancel")}
+              </button>
             </div>
           </div>
         ) : auth.kind === "no-profile" ? (
           <div className="text-center py-6">
-            <h3 className="font-display text-2xl font-bold mb-3">{t("booking.incomplete_profile")}</h3>
-            <p className="text-sm text-muted-foreground mb-6">{t("booking.complete_profile_desc")}</p>
-            <button onClick={goSignIn} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition">
+            <h3 className="font-display text-2xl font-bold mb-3">
+              {t("booking.incomplete_profile")}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("booking.complete_profile_desc")}
+            </p>
+            <button
+              onClick={goSignIn}
+              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition"
+            >
               {t("booking.complete_profile_btn")}
             </button>
           </div>
         ) : status === "success" ? (
           <div className="text-center py-8">
             <div className="mx-auto h-16 w-16 rounded-full bg-signal/20 flex items-center justify-center mb-4">
-              <svg className="h-8 w-8 text-signal" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <svg
+                className="h-8 w-8 text-signal"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={3}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h3 className="font-display text-2xl font-bold mb-2">{t("booking.success_title")}</h3>
-            <p className="text-muted-foreground mb-4">{t("booking.success_desc", { name: spot.name })}</p>
+            <p className="text-muted-foreground mb-4">
+              {t("booking.success_desc", { name: spot.name })}
+            </p>
             <div className="rounded-lg bg-secondary/40 border border-border p-3 text-left text-xs text-muted-foreground mb-6 space-y-1.5">
               <div>{t("booking.success_step1")}</div>
               <div>{t("booking.success_step2")}</div>
@@ -523,22 +610,49 @@ export function BookingForm({ spot, onClose }: Props) {
             </div>
             <div className="flex flex-col gap-2">
               {campaignId ? (
-                <button onClick={() => navigate({ to: "/advertiser/suivi/$campaignId", params: { campaignId } })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.track_campaign")}</button>
+                <button
+                  onClick={() =>
+                    navigate({ to: "/advertiser/suivi/$campaignId", params: { campaignId } })
+                  }
+                  className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium"
+                >
+                  {t("booking.track_campaign")}
+                </button>
               ) : (
-                <button onClick={() => navigate({ to: "/advertiser" })} className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium">{t("booking.see_campaigns")}</button>
+                <button
+                  onClick={() => navigate({ to: "/advertiser" })}
+                  className="rounded-lg bg-primary text-primary-foreground px-6 py-2.5 font-medium"
+                >
+                  {t("booking.see_campaigns")}
+                </button>
               )}
-              <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">{t("booking.close")}</button>
+              <button
+                onClick={onClose}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                {t("booking.close")}
+              </button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="flex items-start justify-between mb-6">
               <div>
-                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t("booking.reservation_eyebrow")}</div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                  {t("booking.reservation_eyebrow")}
+                </div>
                 <h3 className="font-display text-2xl font-bold">{spot.name}</h3>
-                <p className="text-sm text-muted-foreground">{spot.location} · {fmtAmount(spot.price)}/jour</p>
+                <p className="text-sm text-muted-foreground">
+                  {spot.location} · {fmtAmount(spot.price)}/jour
+                </p>
               </div>
-              <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl leading-none">×</button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-muted-foreground hover:text-foreground text-2xl leading-none"
+              >
+                ×
+              </button>
             </div>
 
             <div className="rounded-lg bg-secondary/40 border border-border p-3 mb-4 text-xs text-muted-foreground">
@@ -549,9 +663,7 @@ export function BookingForm({ spot, onClose }: Props) {
             {hasUnpaidCampaign && (
               <div className="rounded-lg border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 px-4 py-3 mb-4 text-sm text-amber-800 dark:text-amber-300 flex gap-2">
                 <span className="shrink-0">⚠️</span>
-                <span>
-                  {t("booking.unpaid_warning")}
-                </span>
+                <span>{t("booking.unpaid_warning")}</span>
               </div>
             )}
 
@@ -560,7 +672,10 @@ export function BookingForm({ spot, onClose }: Props) {
                 <label className="block text-sm font-medium mb-1.5">{t("booking.msg_label")}</label>
                 <textarea
                   value={message}
-                  onChange={(e) => { setMessage(e.target.value); setStatus("idle"); }}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    setStatus("idle");
+                  }}
                   rows={4}
                   required
                   maxLength={500}
@@ -601,7 +716,13 @@ export function BookingForm({ spot, onClose }: Props) {
                       }}
                     />
                     {logoUrl && (
-                      <button type="button" onClick={() => setLogoUrl(null)} className="text-xs text-destructive">✕</button>
+                      <button
+                        type="button"
+                        onClick={() => setLogoUrl(null)}
+                        className="text-xs text-destructive"
+                      >
+                        ✕
+                      </button>
                     )}
                   </div>
                 </div>
@@ -610,7 +731,11 @@ export function BookingForm({ spot, onClose }: Props) {
                     vehicleId={spot.vehicleId}
                     brandColor={brandColor}
                     logoUrl={logoUrl}
-                    videoFile={SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? (files.find(f => f.type.startsWith("video/")) ?? null) : null}
+                    videoFile={
+                      SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "")
+                        ? (files.find((f) => f.type.startsWith("video/")) ?? null)
+                        : null
+                    }
                   />
                 ) : (
                   <div className="h-32 rounded-xl bg-secondary/40 flex items-center justify-center text-xs text-muted-foreground">
@@ -620,14 +745,18 @@ export function BookingForm({ spot, onClose }: Props) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5">{t("booking.country_label")}</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("booking.country_label")}
+                </label>
                 <select
                   value={countryKey}
                   onChange={(e) => setCountryKey(e.target.value)}
                   className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   {COUNTRY_OPTIONS.map((c) => (
-                    <option key={c.label} value={c.label}>{c.label}</option>
+                    <option key={c.label} value={c.label}>
+                      {c.label}
+                    </option>
                   ))}
                 </select>
                 <p className="text-[11px] text-muted-foreground mt-1">
@@ -639,10 +768,14 @@ export function BookingForm({ spot, onClose }: Props) {
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-semibold">{t("booking.period_title")}</div>
                   {periodsLoading && (
-                    <span className="text-[11px] text-muted-foreground animate-pulse">{t("booking.avail_loading")}</span>
+                    <span className="text-[11px] text-muted-foreground animate-pulse">
+                      {t("booking.avail_loading")}
+                    </span>
                   )}
                   {periodsError && (
-                    <span className="text-[11px] text-destructive font-medium">{t("booking.avail_error")}</span>
+                    <span className="text-[11px] text-destructive font-medium">
+                      {t("booking.avail_error")}
+                    </span>
                   )}
                 </div>
                 <div className="flex flex-col items-center gap-2">
@@ -674,38 +807,57 @@ export function BookingForm({ spot, onClose }: Props) {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-muted-foreground">{t("booking.daily_start_label")}</label>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">
+                      {t("booking.daily_start_label")}
+                    </label>
                     <input
                       type="time"
                       value={dailyStart}
                       min={DAILY_START_MIN}
                       max={DAILY_END_MAX}
-                      onChange={(e) => { setDailyStart(e.target.value); setStatus("idle"); }}
+                      onChange={(e) => {
+                        setDailyStart(e.target.value);
+                        setStatus("idle");
+                      }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1 text-muted-foreground">{t("booking.daily_end_label")}</label>
+                    <label className="block text-xs font-medium mb-1 text-muted-foreground">
+                      {t("booking.daily_end_label")}
+                    </label>
                     <input
                       type="time"
                       value={dailyEnd}
                       min={DAILY_START_MIN}
                       max={DAILY_END_MAX}
-                      onChange={(e) => { setDailyEnd(e.target.value); setStatus("idle"); }}
+                      onChange={(e) => {
+                        setDailyEnd(e.target.value);
+                        setStatus("idle");
+                      }}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
                   </div>
                 </div>
                 {daysCount > 0 && (
                   <div className="rounded-md bg-primary/10 text-primary px-3 py-2 text-xs flex flex-wrap items-baseline gap-x-3">
-                    <span><strong>{daysCount}</strong> {t("booking.days_label", { count: daysCount })} · <strong>{hoursPerDay.toFixed(1)}h</strong>{t("booking.per_day_label")}</span>
+                    <span>
+                      <strong>{daysCount}</strong> {t("booking.days_label", { count: daysCount })} ·{" "}
+                      <strong>{hoursPerDay.toFixed(1)}h</strong>
+                      {t("booking.per_day_label")}
+                    </span>
                     <span className="opacity-80">·</span>
-                    <span>{t("booking.total_label")} <strong>{fmtAmount(totalPrice)}</strong></span>
+                    <span>
+                      {t("booking.total_label")} <strong>{fmtAmount(totalPrice)}</strong>
+                    </span>
                   </div>
                 )}
                 {daysCount > 6 && (
                   <div className="rounded-md border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
-                    {t("booking.weekly_rest_warning", { weeks: Math.floor(daysCount / 7), s: Math.floor(daysCount / 7) > 1 ? "s" : "" })}
+                    {t("booking.weekly_rest_warning", {
+                      weeks: Math.floor(daysCount / 7),
+                      s: Math.floor(daysCount / 7) > 1 ? "s" : "",
+                    })}
                   </div>
                 )}
                 {/* Conflict banner */}
@@ -714,7 +866,10 @@ export function BookingForm({ spot, onClose }: Props) {
                     <div className="flex items-start gap-2">
                       <div>
                         <p className="text-sm font-semibold text-destructive">
-                          {t("booking.conflict_title", { start: fmtDate(dateConflict.conflictStart), end: fmtDate(dateConflict.conflictEnd) })}
+                          {t("booking.conflict_title", {
+                            start: fmtDate(dateConflict.conflictStart),
+                            end: fmtDate(dateConflict.conflictEnd),
+                          })}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           {t("booking.conflict_hint")}
@@ -742,13 +897,17 @@ export function BookingForm({ spot, onClose }: Props) {
                           className="flex w-full items-center justify-between rounded-lg border border-amber-400 bg-white dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                         >
                           <span>
-                            {fmtDate(dateConflict.suggestion.start)}{" "}→{" "}
+                            {fmtDate(dateConflict.suggestion.start)} →{" "}
                             {fmtDate(dateConflict.suggestion.end)}
                             {daysCount > 0 && (
-                              <span className="ml-1.5 text-xs opacity-70">({daysCount} jour{daysCount > 1 ? "s" : ""})</span>
+                              <span className="ml-1.5 text-xs opacity-70">
+                                ({daysCount} jour{daysCount > 1 ? "s" : ""})
+                              </span>
                             )}
                           </span>
-                          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">{t("booking.choose")}</span>
+                          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                            {t("booking.choose")}
+                          </span>
                         </button>
                       </div>
                     )}
@@ -759,10 +918,13 @@ export function BookingForm({ spot, onClose }: Props) {
                   {t("booking.booking_constraints", { min: MIN_LEAD_DAYS, max: MAX_DURATION_DAYS })}
                 </p>
                 <p className="text-[11px] text-amber-700 dark:text-amber-400">
-                  {t("booking.time_window", { start: DAILY_START_MIN, end: DAILY_END_MAX, hours: MAX_HOURS_PER_DAY })}
+                  {t("booking.time_window", {
+                    start: DAILY_START_MIN,
+                    end: DAILY_END_MAX,
+                    hours: MAX_HOURS_PER_DAY,
+                  })}
                 </p>
               </div>
-
 
               <ItineraryPlanner
                 multiplier={formatMultiplier * mobilityMultiplier * hoursMultiplier}
@@ -771,14 +933,17 @@ export function BookingForm({ spot, onClose }: Props) {
               <p className="text-[11px] text-muted-foreground">
                 {t("booking.itinerary_hint")}
                 {suggestedImpressions && itinerary.impressionsPerDay === 0
-                  ? t("booking.itinerary_fallback", { n: suggestedImpressions.toLocaleString(i18n.language) })
+                  ? t("booking.itinerary_fallback", {
+                      n: suggestedImpressions.toLocaleString(i18n.language),
+                    })
                   : ""}
               </p>
 
-
               {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") && (
                 <div className="rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-4 text-sm space-y-1">
-                  <div className="font-semibold text-indigo-300">{t("booking.screen_vehicle_title")}</div>
+                  <div className="font-semibold text-indigo-300">
+                    {t("booking.screen_vehicle_title")}
+                  </div>
                   <p className="text-xs text-indigo-200/80">{t("booking.screen_vehicle_desc")}</p>
                   <p className="text-xs text-indigo-200/60">{t("booking.screen_vehicle_format")}</p>
                 </div>
@@ -787,10 +952,18 @@ export function BookingForm({ spot, onClose }: Props) {
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="text-sm font-semibold">
-                    {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? t("booking.video_label") : t("booking.crea_label")}
-                    {" "}<span className="text-muted-foreground font-normal">{SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "") ? t("booking.video_required") : t("booking.crea_optional")}</span>
+                    {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "")
+                      ? t("booking.video_label")
+                      : t("booking.crea_label")}{" "}
+                    <span className="text-muted-foreground font-normal">
+                      {SCREEN_VEHICLE_TYPES.includes(spot.vehicleType ?? "")
+                        ? t("booking.video_required")
+                        : t("booking.crea_optional")}
+                    </span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground">{files.length}/{MAX_FILES}</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {files.length}/{MAX_FILES}
+                  </span>
                 </div>
                 <input
                   type="file"
@@ -803,17 +976,29 @@ export function BookingForm({ spot, onClose }: Props) {
                 {files.length > 0 && (
                   <ul className="space-y-1">
                     {files.map((f, i) => (
-                      <li key={i} className="flex items-center justify-between gap-2 text-xs bg-background rounded-md px-2 py-1.5 border border-border">
+                      <li
+                        key={i}
+                        className="flex items-center justify-between gap-2 text-xs bg-background rounded-md px-2 py-1.5 border border-border"
+                      >
                         <span className="truncate">
-                          {f.type.startsWith("video/") ? "🎬" : f.type === "application/pdf" ? "📄" : "🖼"} {f.name}
-                          <span className="text-muted-foreground ml-1">({(f.size / 1024 / 1024).toFixed(1)} Mo)</span>
+                          {f.type.startsWith("video/")
+                            ? "🎬"
+                            : f.type === "application/pdf"
+                              ? "📄"
+                              : "🖼"}{" "}
+                          {f.name}
+                          <span className="text-muted-foreground ml-1">
+                            ({(f.size / 1024 / 1024).toFixed(1)} Mo)
+                          </span>
                         </span>
                         <button
                           type="button"
                           onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
                           className="text-muted-foreground hover:text-destructive shrink-0"
                           aria-label={t("booking.remove_file")}
-                        >×</button>
+                        >
+                          ×
+                        </button>
                       </li>
                     ))}
                   </ul>
@@ -823,12 +1008,12 @@ export function BookingForm({ spot, onClose }: Props) {
                 </p>
               </div>
 
-
               <div className="rounded-lg bg-secondary/50 p-4 text-xs text-muted-foreground border border-border">
-                <div className="font-semibold text-foreground mb-2">{t("booking.forbidden_title")}</div>
+                <div className="font-semibold text-foreground mb-2">
+                  {t("booking.forbidden_title")}
+                </div>
                 <p>{t("booking.forbidden_desc")}</p>
               </div>
-
 
               {/* Lieu de pose : garage ou domicile */}
               <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3">
@@ -863,7 +1048,9 @@ export function BookingForm({ spot, onClose }: Props) {
                       maxLength={255}
                       className="w-full rounded-lg bg-input border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     />
-                    <p className="text-[11px] text-muted-foreground mt-1">{t("booking.installation_address_hint")}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {t("booking.installation_address_hint")}
+                    </p>
                   </div>
                 )}
               </div>
@@ -874,7 +1061,10 @@ export function BookingForm({ spot, onClose }: Props) {
                 <input
                   type="checkbox"
                   checked={accepted}
-                  onChange={(e) => { setAccepted(e.target.checked); setStatus("idle"); }}
+                  onChange={(e) => {
+                    setAccepted(e.target.checked);
+                    setStatus("idle");
+                  }}
                   className="mt-0.5 h-4 w-4 rounded accent-primary"
                 />
                 <span className="text-muted-foreground">{t("booking.accept_label")}</span>
@@ -890,7 +1080,17 @@ export function BookingForm({ spot, onClose }: Props) {
                 {t("booking.offplatform_warning")}
               </div>
 
-              <button type="submit" disabled={status === "loading" || !accepted || !!dateConflict || periodsLoading || periodsError} className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed">
+              <button
+                type="submit"
+                disabled={
+                  status === "loading" ||
+                  !accepted ||
+                  !!dateConflict ||
+                  periodsLoading ||
+                  periodsError
+                }
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 {status === "loading" ? t("booking.submitting") : t("booking.submit_btn")}
               </button>
             </div>
@@ -920,7 +1120,9 @@ function ValidationChecklist() {
         className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-left"
       >
         <span>{t("booking.checklist_title")}</span>
-        <span className="text-muted-foreground text-xs">{open ? t("booking.checklist_hide") : t("booking.checklist_show")}</span>
+        <span className="text-muted-foreground text-xs">
+          {open ? t("booking.checklist_hide") : t("booking.checklist_show")}
+        </span>
       </button>
       {open && (
         <ul className="px-4 pb-4 space-y-2">

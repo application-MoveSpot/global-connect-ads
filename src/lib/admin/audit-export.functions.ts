@@ -75,10 +75,12 @@ export type AuditCommissionRow = {
 export const adminExportAuditData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    }).parse(input),
+    z
+      .object({
+        dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -94,12 +96,14 @@ export const adminExportAuditData = createServerFn({ method: "POST" })
     // ── Campagnes ──
     const { data: campaigns } = await supabaseAdmin
       .from("campaign_requests")
-      .select(`
+      .select(
+        `
         id, created_at, status, payment_status, spot_name, start_date, end_date, total_price,
         advertiser_id, vehicle_id,
         advertiser_profiles!campaign_requests_advertiser_id_fkey(full_name, company, siret),
         vehicles(name, owner_id, owner_profiles!vehicles_owner_id_fkey(full_name))
-      `)
+      `,
+      )
       .gte("created_at", dateFrom)
       .lte("created_at", dateToInclusive)
       .order("created_at");
@@ -187,7 +191,9 @@ export const adminExportAuditData = createServerFn({ method: "POST" })
     // ── Commissions ──
     const { data: commissions } = await supabaseAdmin
       .from("campaign_metrics")
-      .select("id, created_at, campaign_request_id, owner_payout_cents, platform_commission_cents, driver_bonus_cents, provider_payout_cents")
+      .select(
+        "id, created_at, campaign_request_id, owner_payout_cents, platform_commission_cents, driver_bonus_cents, provider_payout_cents",
+      )
       .gte("created_at", dateFrom)
       .lte("created_at", dateToInclusive)
       .order("created_at");
@@ -205,7 +211,9 @@ export const adminExportAuditData = createServerFn({ method: "POST" })
     // ── Résumé ──
     const totalRevenue = campaignRows.reduce((s, c) => s + (c.totalPriceCents ?? 0), 0);
     const totalCommissions = commissionRows.reduce((s, c) => s + c.moveSpotAmountCents, 0);
-    const totalTransfers = transferRows.filter((t) => t.status === "confirmed").reduce((s, t) => s + t.amountCents, 0);
+    const totalTransfers = transferRows
+      .filter((t) => t.status === "confirmed")
+      .reduce((s, t) => s + t.amountCents, 0);
 
     const result: AuditExportResult = {
       generatedAt: new Date().toISOString(),
@@ -217,7 +225,8 @@ export const adminExportAuditData = createServerFn({ method: "POST" })
         totalCommissionsCents: totalCommissions,
         totalTransfersCents: totalTransfers,
         uniqueAdvertisers: new Set(campaigns?.map((c: any) => c.advertiser_id)).size,
-        uniqueOwners: new Set(campaigns?.map((c: any) => c.vehicles?.owner_id).filter(Boolean)).size,
+        uniqueOwners: new Set(campaigns?.map((c: any) => c.vehicles?.owner_id).filter(Boolean))
+          .size,
       },
       campaigns: campaignRows,
       walletTransactions: walletRows,
@@ -243,10 +252,12 @@ export type GpsFraudFlag = {
 export const adminDetectGpsFraud = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({
-      dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    }).parse(input),
+    z
+      .object({
+        dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -329,7 +340,10 @@ export const adminDetectGpsFraud = createServerFn({ method: "POST" })
 
       // ── Absence de mouvement sur une longue session (>4h, <0.5 km parcourus) ──
       if (pts.length >= 10) {
-        const sessionDuration = (new Date(pts[pts.length - 1].recorded_at).getTime() - new Date(pts[0].recorded_at).getTime()) / 3600000;
+        const sessionDuration =
+          (new Date(pts[pts.length - 1].recorded_at).getTime() -
+            new Date(pts[0].recorded_at).getTime()) /
+          3600000;
         if (sessionDuration > 4) {
           let totalDist = 0;
           for (let i = 1; i < pts.length; i++) {
@@ -417,10 +431,12 @@ export const adminDetectIdentityFraud = createServerFn({ method: "POST" })
 
     const userTotals: Record<string, number> = {};
     for (const tx of recentTxs ?? []) {
-      userTotals[(tx as any).user_id] = (userTotals[(tx as any).user_id] ?? 0) + ((tx as any).amount_cents ?? 0);
+      userTotals[(tx as any).user_id] =
+        (userTotals[(tx as any).user_id] ?? 0) + ((tx as any).amount_cents ?? 0);
     }
     for (const [userId, total] of Object.entries(userTotals)) {
-      if (total > 1000000) { // > 10 000 € en 7 jours (en centimes)
+      if (total > 1000000) {
+        // > 10 000 € en 7 jours (en centimes)
         flags.push({
           flagType: "suspicious_payment_pattern",
           severity: "medium",

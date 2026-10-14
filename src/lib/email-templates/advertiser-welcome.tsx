@@ -1,10 +1,25 @@
 import * as React from "react";
-import { Body, Button, Container, Head, Html, Preview, Section, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Preview,
+  Section,
+  Text,
+} from "@react-email/components";
 import type { TemplateEntry } from "./registry";
 import {
-  EmailHeader, EmailFooter,
-  bodyStyle, containerStyle, contentPadding,
-  h1Style, textStyle, mutedText, buttonStyle,
+  EmailHeader,
+  EmailFooter,
+  bodyStyle,
+  containerStyle,
+  contentPadding,
+  h1Style,
+  textStyle,
+  mutedText,
+  buttonStyle,
 } from "./_base";
 
 interface Props {
@@ -36,7 +51,8 @@ const Email = ({ firstName, dashboardUrl, unsubscribeUrl }: Props) => (
             </Text>
 
             <Text style={textStyle}>
-              Votre compte annonceur MoveSpot est activé. Vous pouvez dès maintenant lancer votre première campagne de publicité mobile sur véhicules.
+              Votre compte annonceur MoveSpot est activé. Vous pouvez dès maintenant lancer votre
+              première campagne de publicité mobile sur véhicules.
             </Text>
 
             <Section
@@ -48,17 +64,30 @@ const Email = ({ firstName, dashboardUrl, unsubscribeUrl }: Props) => (
                 margin: "20px 0",
               }}
             >
-              <Text style={{ ...mutedText, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.4px", marginBottom: "12px" }}>
+              <Text
+                style={{
+                  ...mutedText,
+                  fontWeight: 600,
+                  textTransform: "uppercase" as const,
+                  letterSpacing: "0.4px",
+                  marginBottom: "12px",
+                }}
+              >
                 Ce que vous pouvez faire
               </Text>
               <Text style={checkStyle}>✅ Créer un brief et cibler une zone géographique</Text>
               <Text style={checkStyle}>✅ Recevoir des propositions de flottes locales</Text>
-              <Text style={checkStyle}>✅ Suivre votre campagne en temps réel (km, couverture)</Text>
-              <Text style={{ ...checkStyle, margin: 0 }}>✅ Gérer votre portefeuille et vos factures</Text>
+              <Text style={checkStyle}>
+                ✅ Suivre votre campagne en temps réel (km, couverture)
+              </Text>
+              <Text style={{ ...checkStyle, margin: 0 }}>
+                ✅ Gérer votre portefeuille et vos factures
+              </Text>
             </Section>
 
             <Text style={mutedText}>
-              Besoin d'aide pour démarrer ? Notre FAQ répond aux questions les plus courantes — accessible depuis votre espace annonceur.
+              Besoin d'aide pour démarrer ? Notre FAQ répond aux questions les plus courantes —
+              accessible depuis votre espace annonceur.
             </Text>
 
             {dashboardUrl ? (

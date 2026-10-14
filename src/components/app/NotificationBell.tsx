@@ -104,7 +104,11 @@ export function NotificationBell({ userId = null }: Props) {
                 {notifications.map((n) => (
                   <li key={n.id} className="hover:bg-secondary/40 transition">
                     {n.href ? (
-                      <a href={n.href} onClick={() => setOpen(false)} className="block px-4 py-3 no-underline">
+                      <a
+                        href={n.href}
+                        onClick={() => setOpen(false)}
+                        className="block px-4 py-3 no-underline"
+                      >
                         <NotifContent n={n} />
                       </a>
                     ) : (
