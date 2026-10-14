@@ -700,6 +700,93 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminReAnalyzeVehicle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ vehicleId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: vehicle, error } = await supabaseAdmin
+      .from("vehicles")
+      .select("id, type, condition, surface_m2, km_per_day, price_per_day, photos, description")
+      .eq("id", data.vehicleId)
+      .single();
+    if (error || !vehicle) throw new Error("Véhicule introuvable");
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
+    const v = vehicle as any;
+    const photoUrls: string[] = ((v.photos ?? []) as string[])
+      .map((p: string) => p.startsWith("http") ? p : supabaseAdmin.storage.from("vehicle-photos").getPublicUrl(p).data.publicUrl)
+      .slice(0, 3);
+    if (photoUrls.length === 0) throw new Error("Aucune photo disponible pour l'analyse");
+    const content: Array<Record<string, unknown>> = [
+      {
+        type: "text",
+        text: `Tu es un expert en modération de photos de véhicules pour une plateforme de publicité mobile.
+
+Analyse ces photo(s) de véhicule et effectue DEUX tâches :
+
+1. CORRESPONDANCE : Vérifie que la/les photo(s) correspondent au type déclaré "${v.type}" et à l'état "${v.condition}".
+   - Type "taxi" accepte aussi les VTC (berlines propres sans lumineux).
+   - Type "voiture" : toute voiture particulière convient.
+   - photo_match: "ok" si cohérent, "doubtful" si douteux, "mismatch" si clairement incohérent.
+
+2. DÉTECTION IA : Détecte si la/les photo(s) ont été générées ou retouchées par une IA. Sois STRICT mais JUSTE.
+   Indices IA FORTS (si un seul est présent → ai_generated_detected: true) :
+   - Textes/inscriptions sur la carrosserie illisibles, garbled ou incohérents (ex: lettres mélangées, mots inventés comme "RENAULTARE.CORNGAS.G01GZ1P" — les IA de diffusion génèrent souvent du faux texte)
+   - Plaque d'immatriculation avec caractères illisibles, mélangés ou de format inexistant (plaques françaises: AA-000-AA ; DOM similaires)
+   - Artefacts de diffusion : textures anormalement lisses/plastiques, zones bizarrement floues hors bokeh naturel
+   - Reflets ou ombres physiquement impossibles
+   - Incohérences entre photos : nombre de rayons de roues différent, couleur qui change, badge déformé
+   - Watermarks ou signatures IA visibles
+   NE classe PAS comme IA une photo nette ou prise en studio sans indice fort.
+   Si ai_generated_detected: true → dans ai_generated_notes, explique PRÉCISÉMENT en français l'indice détecté.
+
+Données déclarées :
+- Type: ${v.type}
+- État: ${v.condition}
+- Prix/jour: ${v.price_per_day} €
+- Surface: ${v.surface_m2 ?? "n/a"} m²
+
+Réponds UNIQUEMENT en JSON strict :
+{
+  "photo_match": "ok" | "doubtful" | "mismatch" | "unverified",
+  "photo_notes": "commentaire court en français",
+  "condition_alert": "alerte si état réel pire que déclaré, sinon null",
+  "ai_generated_detected": boolean,
+  "ai_generated_notes": "explication précise en français si IA détectée, sinon vide",
+  "suggested_price_min": number,
+  "suggested_price_max": number,
+  "estimated_impressions_per_day": number
+}`,
+      },
+    ];
+    for (const url of photoUrls) content.push({ type: "image_url", image_url: { url } });
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ model: "google/gemini-2.5-flash", messages: [{ role: "user", content }], response_format: { type: "json_object" }, temperature: 0 }),
+    });
+    if (!res.ok) throw new Error(`AI gateway ${res.status}`);
+    const json = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+    let parsed: Record<string, unknown> = {};
+    try { parsed = JSON.parse(json.choices?.[0]?.message?.content ?? "{}"); } catch { /* ignore */ }
+    const aiVerification = {
+      photo_match: (parsed.photo_match as string) ?? "unverified",
+      photo_notes: String(parsed.photo_notes ?? ""),
+      condition_alert: parsed.condition_alert ? String(parsed.condition_alert) : null,
+      ai_generated_detected: Boolean(parsed.ai_generated_detected),
+      ai_generated_notes: String(parsed.ai_generated_notes ?? ""),
+      suggested_price_min: Number(parsed.suggested_price_min ?? 0),
+      suggested_price_max: Number(parsed.suggested_price_max ?? 0),
+      estimated_impressions_per_day: Number(parsed.estimated_impressions_per_day ?? 0),
+      checked_at: new Date().toISOString(),
+    };
+    await supabaseAdmin.from("vehicles").update({ ai_verification: aiVerification } as never).eq("id", data.vehicleId);
+    return aiVerification;
+  });
+
 // ============ Onglet Analytics ============
 export const adminAnalyticsData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

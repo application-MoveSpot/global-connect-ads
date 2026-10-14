@@ -2775,7 +2775,16 @@
       "severity_low": "Faible"
     },
     "photo_label": "Photo",
-    "ai_detected": "⚠ IA détectée",
+    "ai_detected": "Photo IA détectée",
+    "ai_not_detected": "Aucune IA détectée",
+    "ai_not_analyzed": "Non analysé — cliquez sur 🔍 Re-analyser pour lancer l'analyse IA.",
+    "ai_verification_label": "Vérification IA",
+    "ai_reanalyze_btn": "Re-analyser",
+    "ai_reanalyzed": "Analyse IA mise à jour.",
+    "ai_reanalyze_error": "Erreur lors de l'analyse IA.",
+    "photo_coherent": "Photo cohérente",
+    "photo_mismatch": "Type ne correspond pas",
+    "photo_doubtful": "Photo douteuse",
     "price_estimate": "Prix estimé : {{min}}–{{max}} €/j",
     "imp_per_day": "imp./j",
     "connexion": {
