@@ -4653,7 +4653,8 @@
         "wallet_topup_btn": "Top up",
         "zone_area_label": "Area",
         "zone_delete": "Delete",
-        "zone_list_title": "Drawn zones"
+        "zone_list_title": "Drawn zones",
+        "budget_prepare": "💳 Prepare {{amount}} €"
       },
       "index": {
         "empty_desc": "You have no briefs yet. Create one to launch your first campaign.",

@@ -36,6 +36,13 @@
       "when": 1791803500761,
       "tag": "0004_add_pose_location_and_impossible_install_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791937438592,
+      "tag": "0005_allow_impossible_installation_status",
+      "breakpoints": true
     }
   ]
 }

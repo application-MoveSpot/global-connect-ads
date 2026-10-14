@@ -4698,7 +4698,8 @@
         "wallet_topup_btn": "Recharger",
         "zone_area_label": "Surface",
         "zone_delete": "Supprimer",
-        "zone_list_title": "Zones dessinées"
+        "zone_list_title": "Zones dessinées",
+        "budget_prepare": "💳 Préparer {{amount}} €"
       },
       "index": {
         "empty_desc": "Vous n'avez pas encore de brief. Créez-en un pour lancer votre première campagne.",
