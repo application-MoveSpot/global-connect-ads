@@ -543,10 +543,15 @@ function NewVehiclePage() {
                     <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">⚠️ {estimate.condition_alert}</div>
                   )}
                   {estimate.ai_generated_detected && (
-                    <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-2.5 text-xs">
-                      {t("owner.vehicules.nouveau.estimate_ai_detected")}
-                      {estimate.ai_generated_notes && <span className="block mt-1">{estimate.ai_generated_notes}</span>}
-                      <span className="block mt-1">{t("owner.vehicules.nouveau.estimate_ai_upload")}</span>
+                    <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-3 text-xs space-y-2">
+                      <div className="font-semibold text-sm">🚫 {t("owner.vehicules.nouveau.estimate_ai_detected")}</div>
+                      {estimate.ai_generated_notes && (
+                        <div className="bg-destructive/10 rounded p-2 leading-relaxed">
+                          <strong>{t("owner.vehicules.nouveau.estimate_ai_reason_label")}</strong>{" "}
+                          {estimate.ai_generated_notes}
+                        </div>
+                      )}
+                      <div className="text-destructive/80">{t("owner.vehicules.nouveau.estimate_ai_upload")}</div>
                     </div>
                   )}
                   {estimate.suggested_price_max > 0 && (
