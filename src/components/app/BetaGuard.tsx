@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 // Emails autorisés pendant la phase beta. Vide = app ouverte à tous.
-const BETA_WHITELIST: string[] = ["rakounklub@gmail.com"];
+const BETA_WHITELIST: string[] = ["rakounklub@gmail.com", "palermegarry.gp@gmail.com"];
 
 export function BetaGuard({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"loading" | "allowed" | "waitlist">("loading");
