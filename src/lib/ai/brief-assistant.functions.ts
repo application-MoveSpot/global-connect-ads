@@ -150,11 +150,11 @@ Réponds UNIQUEMENT en JSON strict (les clés budget et durationDays sont option
         };
       } catch (err) {
         lastErr = err;
-        captureServerException(err, { category: "ai", model: modelId });
+        captureServerException(err, { category: "ai", extra: { model: modelId } });
       }
     }
 
-    captureServerException(lastErr, { category: "ai", note: "all models failed" });
+    captureServerException(lastErr, { category: "ai", extra: { note: "all models failed" } });
     return {
       ok: false,
       code: "AI_UNAVAILABLE",
