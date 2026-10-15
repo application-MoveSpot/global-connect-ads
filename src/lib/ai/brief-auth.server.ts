@@ -27,16 +27,18 @@ export async function checkBriefRequestAuth(): Promise<AuthCheckResult> {
     global: { headers: { Authorization: `Bearer ${token}` } },
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
-  const { data, error } = await supabase.auth.getClaims(token);
+  // Use getUser() for a simple server-side validation: one network call to Supabase
+  // that handles expiry, signature, and revocation without needing JWK fetches.
+  const { data, error } = await supabase.auth.getUser(token);
 
   if (error) {
     const msg = error.message?.toLowerCase() ?? "";
     const reason = msg.includes("expir") ? "token_expired" : "token_invalid";
     return { ok: false, reason };
   }
-  if (!data?.claims?.sub) return { ok: false, reason: "token_invalid" };
+  if (!data?.user?.id) return { ok: false, reason: "token_invalid" };
 
-  return { ok: true, userId: data.claims.sub };
+  return { ok: true, userId: data.user.id };
 }
 
 // Kept for backwards-compat with functions that haven't been migrated yet.

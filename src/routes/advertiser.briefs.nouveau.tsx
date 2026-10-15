@@ -388,6 +388,14 @@ function NewBriefPage() {
     setAiSessionExpired(false);
     setAiLoading(true);
     try {
+      // Ensure we have a valid session before hitting the server function.
+      // getOrRefreshSession() refreshes the access token if it is absent or
+      // expires within 30 s, covering mobile tabs that were suspended.
+      const session = await getOrRefreshSession();
+      if (!session) {
+        setAiSessionExpired(true);
+        return;
+      }
       const result = await generateBriefSuggestion({
         data: {
           businessContext: aiContext.trim(),
