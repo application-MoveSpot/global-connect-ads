@@ -66,7 +66,12 @@ function CommercialInscription() {
     setAiLoading(true);
     setAiSessionExpired(false);
     try {
-      const res = await callCommercialAi({ data: { commercialContext: aiContext } });
+      const session = await getOrRefreshSession();
+      if (!session) {
+        setAiSessionExpired(true);
+        return;
+      }
+      const res = await callCommercialAi({ data: { commercialContext: aiContext, _auth: session.access_token } });
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
           setAiSessionExpired(true);

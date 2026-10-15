@@ -81,7 +81,12 @@ function InscriptionPage() {
     setAiLoading(true);
     setAiSessionExpired(false);
     try {
-      const res = await callOwnerAi({ data: { ownerContext: aiContext } });
+      const session = await getOrRefreshSession();
+      if (!session) {
+        setAiSessionExpired(true);
+        return;
+      }
+      const res = await callOwnerAi({ data: { ownerContext: aiContext, _auth: session.access_token } });
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
           setAiSessionExpired(true);
