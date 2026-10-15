@@ -7,7 +7,7 @@ export type AuthCheckResult =
   | { ok: true; userId: string }
   | { ok: false; reason: "no_token" | "token_expired" | "token_invalid" | "config_missing" };
 
-export async function checkBriefRequestAuth(): Promise<AuthCheckResult> {
+export async function checkBriefRequestAuth(payloadToken?: string): Promise<AuthCheckResult> {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 
@@ -15,12 +15,15 @@ export async function checkBriefRequestAuth(): Promise<AuthCheckResult> {
     return { ok: false, reason: "config_missing" };
   }
 
+  // Prefer the Authorization header (attached by attachSupabaseAuth middleware).
+  // Fall back to the token the client included explicitly in the payload —
+  // this covers Cloudflare Workers deployments where the function middleware
+  // header is not forwarded.
   const authorization = getRequest().headers.get("authorization");
-  if (!authorization?.startsWith("Bearer ")) {
-    return { ok: false, reason: "no_token" };
-  }
-
-  const token = authorization.slice("Bearer ".length).trim();
+  const headerToken = authorization?.startsWith("Bearer ")
+    ? authorization.slice("Bearer ".length).trim()
+    : undefined;
+  const token = headerToken || payloadToken?.trim();
   if (!token) return { ok: false, reason: "no_token" };
 
   const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
