@@ -225,6 +225,30 @@ export type Database = {
           },
         ]
       }
+      beta_whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          email: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       brief_proposals: {
         Row: {
           brief_id: string
@@ -1819,6 +1843,7 @@ export type Database = {
         }
         Returns: string
       }
+      check_beta_access: { Args: never; Returns: boolean }
       check_is_admin: { Args: never; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
