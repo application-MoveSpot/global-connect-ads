@@ -55,7 +55,7 @@ export const generateOwnerInscriptionSuggestion = createServerFn({ method: "POST
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
-    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.0-flash"];
+    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 
     const prompt = `Tu es un assistant pour la plateforme MoveSpot (publicité mobile sur véhicules en France).
 Un propriétaire de véhicule s'inscrit sur la plateforme. À partir de sa description, déduis :
@@ -80,7 +80,7 @@ Réponds UNIQUEMENT en JSON strict (toutes les clés sont optionnelles, n'inclus
           model: provider(modelId),
           prompt,
           temperature: 0.35,
-          maxOutputTokens: 300,
+          maxOutputTokens: 1000,
         });
         const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
         const raw = fence ? fence[1] : text;
