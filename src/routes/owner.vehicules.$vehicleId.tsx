@@ -419,6 +419,8 @@ function EditVehiclePage() {
                 ? t("owner.vehicules.nouveau.submitting")
                 : t("owner.vehicules.modifier.submit")}
             </button>
+
+            <DeleteVehicleButton vehicleId={vehicleId} />
           </form>
         </div>
 
@@ -430,6 +432,64 @@ function EditVehiclePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function DeleteVehicleButton({ vehicleId }: { vehicleId: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    const { error } = await supabase.from("vehicles").delete().eq("id", vehicleId);
+    if (!error) {
+      navigate({ to: "/owner" });
+    } else {
+      setDeleting(false);
+      setConfirming(false);
+    }
+  };
+
+  if (confirming) {
+    return (
+      <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 space-y-3">
+        <p className="text-sm font-semibold text-destructive">
+          {t("owner.vehicules.modifier.delete_confirm")}
+        </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex-1 rounded-lg bg-destructive text-destructive-foreground py-2 text-sm font-semibold hover:bg-destructive/90 transition disabled:opacity-60"
+          >
+            {deleting
+              ? t("owner.vehicules.modifier.deleting")
+              : t("owner.vehicules.modifier.delete_confirm_yes")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirming(false)}
+            disabled={deleting}
+            className="flex-1 rounded-lg border border-border py-2 text-sm font-semibold hover:bg-muted transition disabled:opacity-60"
+          >
+            {t("owner.vehicules.modifier.delete_confirm_no")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setConfirming(true)}
+      className="w-full rounded-lg border border-destructive/40 text-destructive py-3 text-sm font-semibold hover:bg-destructive/10 transition"
+    >
+      {t("owner.vehicules.modifier.delete")}
+    </button>
   );
 }
 

@@ -4425,7 +4425,12 @@
         "photos_readonly_hint": "Photos cannot be changed after validation. Contact support if needed.",
         "ai_panel_title": "Update with AI — describe your vehicle",
         "ai_panel_desc": "Describe your vehicle in a few sentences and the AI will update the form for you.",
-        "ai_generate_error": "AI generation error. Please try again."
+        "ai_generate_error": "AI generation error. Please try again.",
+        "delete": "Delete this vehicle",
+        "delete_confirm": "Are you sure? This action cannot be undone.",
+        "delete_confirm_yes": "Yes, delete",
+        "delete_confirm_no": "Cancel",
+        "deleting": "Deleting…"
       }
     },
     "welcome": "Welcome",
