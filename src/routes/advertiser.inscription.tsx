@@ -199,7 +199,7 @@ function AnnonceurInscription() {
         return;
       }
       const res = await callAdvertiserAi({
-        data: { advertiserContext: aiContext.trim(), _auth: session.access_token },
+        data: { advertiserContext: aiContext.trim(), accountType, _auth: session.access_token },
       });
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
@@ -223,7 +223,11 @@ function AnnonceurInscription() {
         filled.push(t("advertiser.inscription.label_city"));
       }
       if (filled.length === 0) {
-        setAiError("L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez votre activité avec votre nom, votre société et votre ville.");
+        setAiError(
+          accountType === "individual"
+            ? "L'IA n'a pas trouvé de nom ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre nom et votre ville."
+            : "L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez votre activité avec votre nom, votre société et votre ville."
+        );
       } else {
         setAiFilled(filled);
         setAiPanelOpen(false);

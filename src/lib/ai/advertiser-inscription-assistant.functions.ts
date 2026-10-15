@@ -7,6 +7,7 @@ import { captureServerException } from "@/lib/sentry.server";
 
 const AdvertiserInscriptionInput = z.object({
   advertiserContext: z.string().min(10).max(600),
+  accountType: z.enum(["business", "individual"]).optional(),
   _auth: z.string().optional(),
 });
 
@@ -56,7 +57,21 @@ export const generateAdvertiserInscriptionSuggestion = createServerFn({ method: 
     const provider = createLovableAiGatewayProvider(apiKey);
     const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 
-    const prompt = `Tu es un assistant pour la plateforme MoveSpot (publicité mobile sur véhicules en France).
+    const isIndividual = data.accountType === "individual";
+    const prompt = isIndividual
+      ? `Tu es un assistant pour la plateforme MoveSpot (publicité mobile sur véhicules en France).
+Un particulier s'inscrit sur la plateforme pour diffuser de la publicité. À partir de sa description, déduis :
+1. Son nom complet (prénom et nom) — uniquement si clairement mentionné
+2. Sa ville principale (nom de ville uniquement, sans département ni pays)
+
+Contexte : ${data.advertiserContext}
+
+Réponds UNIQUEMENT en JSON strict (toutes les clés sont optionnelles, n'inclus que celles que tu peux déduire avec confiance) :
+{
+  "fullName": "Marie Dupont",
+  "city": "Lyon"
+}`
+      : `Tu es un assistant pour la plateforme MoveSpot (publicité mobile sur véhicules en France).
 Un annonceur s'inscrit sur la plateforme. À partir de sa description, déduis :
 1. Son nom complet (prénom et nom) — uniquement si clairement mentionné
 2. Le nom de son entreprise ou raison sociale — uniquement si clairement mentionné
