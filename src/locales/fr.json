@@ -4470,7 +4470,12 @@
         "photos_readonly_hint": "Les photos ne peuvent pas être modifiées après validation. Contactez le support si nécessaire.",
         "ai_panel_title": "Mettre à jour avec l'IA — décrivez votre véhicule",
         "ai_panel_desc": "Décrivez votre véhicule en quelques phrases et l'IA mettra à jour le formulaire pour vous.",
-        "ai_generate_error": "Erreur lors de la génération IA. Réessayez."
+        "ai_generate_error": "Erreur lors de la génération IA. Réessayez.",
+        "delete": "Supprimer ce véhicule",
+        "delete_confirm": "Êtes-vous sûr ? Cette action est irréversible.",
+        "delete_confirm_yes": "Oui, supprimer",
+        "delete_confirm_no": "Annuler",
+        "deleting": "Suppression…"
       }
     },
     "welcome": "Bienvenue",
