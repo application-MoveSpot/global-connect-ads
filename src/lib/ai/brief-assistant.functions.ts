@@ -9,6 +9,10 @@ const BriefGenerateInput = z.object({
   businessContext: z.string().min(10).max(600),
   vehicleTypes: z.array(z.string()).optional(),
   zone: z.string().max(200).optional(),
+  // Explicit token fallback: the client sends the access token in the
+  // payload so auth works even when the Authorization header middleware
+  // fails to attach (observed in some Cloudflare Workers deployments).
+  _auth: z.string().optional(),
 });
 
 export type BriefSuggestion = {
@@ -29,7 +33,7 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
   .validator((d: z.infer<typeof BriefGenerateInput>) => BriefGenerateInput.parse(d))
   .handler(async ({ data }): Promise<BriefSuggestionResult> => {
     assertRateLimit(`brief-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
-    const auth = await checkBriefRequestAuth();
+    const auth = await checkBriefRequestAuth(data._auth);
     if (!auth.ok) {
       const message =
         auth.reason === "token_expired"

@@ -401,6 +401,9 @@ function NewBriefPage() {
           businessContext: aiContext.trim(),
           vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
           zone: zones.trim() || undefined,
+          // Pass the token explicitly so the server can validate it even
+          // when the Authorization header middleware doesn't fire.
+          _auth: session.access_token,
         },
       });
       if (!result.ok) {
