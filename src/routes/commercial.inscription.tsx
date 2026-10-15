@@ -93,8 +93,12 @@ function CommercialInscription() {
         setCity(res.suggestion.city);
         filled.push(t("commercial.inscription.city_label"));
       }
-      setAiFilled(filled);
-      if (filled.length > 0) setAiPanelOpen(false);
+      if (filled.length === 0) {
+        setAiError("L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre société et votre ville.");
+      } else {
+        setAiFilled(filled);
+        setAiPanelOpen(false);
+      }
     } catch {
       setAiError(t("commercial.inscription.ai_generate_error"));
     } finally {
