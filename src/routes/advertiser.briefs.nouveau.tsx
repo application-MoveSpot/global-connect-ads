@@ -1272,7 +1272,7 @@ function NewBriefPage() {
                 <p className="text-muted-foreground">
                   {t("advertiser.briefs.nouveau.quality_loading")}
                 </p>
-              ) : qualityScore ? (
+              ) : qualityScore?.scores ? (
                 <>
                   <div className="flex items-center gap-3 flex-wrap mb-2">
                     <span className="font-semibold text-sm">
