@@ -34,6 +34,13 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<BriefSuggestionResult> => {
     assertRateLimit(`brief-suggest:${getRequestIp()}`, { maxRequests: 10, windowMs: 60_000 });
     const auth = await checkBriefRequestAuth(data._auth);
+    if (!auth.ok && auth.reason === "config_missing") {
+      return {
+        ok: false,
+        code: "AI_UNAVAILABLE",
+        message: "Le service IA est temporairement indisponible. Réessayez.",
+      };
+    }
     if (!auth.ok) {
       const message =
         auth.reason === "token_expired"

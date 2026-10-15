@@ -15,33 +15,41 @@ export async function checkBriefRequestAuth(payloadToken?: string): Promise<Auth
     return { ok: false, reason: "config_missing" };
   }
 
-  // Prefer the Authorization header (attached by attachSupabaseAuth middleware).
-  // Fall back to the token the client included explicitly in the payload —
-  // this covers Cloudflare Workers deployments where the function middleware
-  // header is not forwarded.
-  const authorization = getRequest().headers.get("authorization");
-  const headerToken = authorization?.startsWith("Bearer ")
-    ? authorization.slice("Bearer ".length).trim()
-    : undefined;
-  const token = headerToken || payloadToken?.trim();
-  if (!token) return { ok: false, reason: "no_token" };
+  let headerToken: string | undefined;
+  try {
+    const authorization = getRequest()?.headers.get("authorization");
+    headerToken = authorization?.startsWith("Bearer ")
+      ? authorization.slice("Bearer ".length).trim()
+      : undefined;
+  } catch {
+    headerToken = undefined;
+  }
+
+  // Try every candidate token: the payload token first (freshly refreshed by
+  // the client right before the call), then the header token. A stale or
+  // missing header must never block a valid payload token.
+  const candidates = [payloadToken?.trim(), headerToken].filter(
+    (t, i, arr): t is string => !!t && arr.indexOf(t) === i,
+  );
+  if (candidates.length === 0) return { ok: false, reason: "no_token" };
 
   const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
-  // Use getUser() for a simple server-side validation: one network call to Supabase
-  // that handles expiry, signature, and revocation without needing JWK fetches.
-  const { data, error } = await supabase.auth.getUser(token);
 
-  if (error) {
-    const msg = error.message?.toLowerCase() ?? "";
-    const reason = msg.includes("expir") ? "token_expired" : "token_invalid";
-    return { ok: false, reason };
+  let lastReason: "token_expired" | "token_invalid" = "token_invalid";
+  for (const token of candidates) {
+    try {
+      const { data, error } = await supabase.auth.getUser(token);
+      if (!error && data?.user?.id) return { ok: true, userId: data.user.id };
+      const msg = error?.message?.toLowerCase() ?? "";
+      lastReason = msg.includes("expir") ? "token_expired" : "token_invalid";
+      console.warn("[brief-auth] token rejected:", error?.status, error?.message);
+    } catch (err) {
+      console.warn("[brief-auth] getUser failed:", err instanceof Error ? err.message : err);
+    }
   }
-  if (!data?.user?.id) return { ok: false, reason: "token_invalid" };
-
-  return { ok: true, userId: data.user.id };
+  return { ok: false, reason: lastReason };
 }
 
 // Kept for backwards-compat with functions that haven't been migrated yet.
