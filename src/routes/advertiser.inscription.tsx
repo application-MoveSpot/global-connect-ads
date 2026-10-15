@@ -193,7 +193,14 @@ function AnnonceurInscription() {
     }
     setAiLoading(true);
     try {
-      const res = await callAdvertiserAi({ data: { advertiserContext: aiContext.trim() } });
+      const session = await getOrRefreshSession();
+      if (!session) {
+        setAiSessionExpired(true);
+        return;
+      }
+      const res = await callAdvertiserAi({
+        data: { advertiserContext: aiContext.trim(), _auth: session.access_token },
+      });
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
           setAiSessionExpired(true);
