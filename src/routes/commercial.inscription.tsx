@@ -8,6 +8,7 @@ import { createCommercialProfile } from "@/lib/commercial/commercial.functions";
 import { generateCommercialInscriptionSuggestion } from "@/lib/ai/commercial-inscription-assistant.functions";
 import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
 import { LogoLink } from "@/components/app/LogoLink";
+import { Eye, EyeOff } from "lucide-react";
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -323,17 +324,31 @@ function Field({
   required?: boolean;
   minLength?: number;
 }) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input
-        type={type}
-        required={required}
-        minLength={minLength}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-      />
+      <div className={isPassword ? "relative" : undefined}>
+        <input
+          type={isPassword ? (show ? "text" : "password") : type}
+          required={required}
+          minLength={minLength}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring${isPassword ? " pr-11" : ""}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+            aria-label={show ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          >
+            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

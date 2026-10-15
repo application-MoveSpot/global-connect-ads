@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { track } from "@/lib/analytics/track";
+import { Eye, EyeOff } from "lucide-react";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
@@ -649,16 +650,30 @@ function Input({
   placeholder?: string;
   hint?: string;
 }) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
   return (
     <Field label={label}>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2"
-      />
+      <div className={isPassword ? "relative" : undefined}>
+        <input
+          type={isPassword ? (show ? "text" : "password") : type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          placeholder={placeholder}
+          className={`w-full rounded-lg border border-border bg-background px-3 py-2${isPassword ? " pr-10" : ""}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+            aria-label={show ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          >
+            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </Field>
   );
