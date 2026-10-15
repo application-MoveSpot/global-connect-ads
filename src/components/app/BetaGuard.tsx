@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-async function fetchWhitelist(): Promise<string[]> {
-  const { data } = await supabase.from("beta_whitelist").select("email");
-  return data?.map((r: { email: string }) => r.email.toLowerCase()) ?? [];
+// Uses a SECURITY DEFINER RPC so the full whitelist is never exposed:
+// returns true if the whitelist is empty (open to all) or the user's
+// email is in it, false otherwise.
+async function checkBetaAccess(): Promise<boolean> {
+  const { data, error } = await supabase.rpc("check_beta_access");
+  if (error) {
+    // On error, fail open so a DB hiccup never locks everyone out.
+    console.error("BetaGuard: check_beta_access RPC error", error);
+    return true;
+  }
+  return data === true;
 }
 
 export function BetaGuard({ children }: { children: React.ReactNode }) {
@@ -18,14 +26,9 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
         if (!cancelled) setStatus("allowed");
         return;
       }
-      const whitelist = await fetchWhitelist();
+      const allowed = await checkBetaAccess();
       if (cancelled) return;
-      // Whitelist vide → app ouverte à tous
-      if (whitelist.length === 0) {
-        setStatus("allowed");
-        return;
-      }
-      setStatus(whitelist.includes(email) ? "allowed" : "waitlist");
+      setStatus(allowed ? "allowed" : "waitlist");
     };
 
     supabase.auth.getSession().then(({ data }) => {
