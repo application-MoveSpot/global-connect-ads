@@ -316,6 +316,12 @@ function AdminPage() {
             >
               🌐 Traductions
             </Link>
+            <Link
+              to="/admin/beta"
+              className="px-4 py-2 rounded-lg text-sm font-semibold border border-primary/40 text-primary hover:bg-primary/10"
+            >
+              Accès Beta
+            </Link>
           </div>
           <div className="flex gap-2">
             <a
