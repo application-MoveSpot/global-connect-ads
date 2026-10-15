@@ -11,7 +11,7 @@ export const getVehiclePhotoSignedUrls = createServerFn({ method: "POST" })
   .handler(async ({ data: paths }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const urls = await Promise.all(
-      paths.map(async (p) => {
+      paths.map(async (p: string) => {
         let path = p;
         if (p.includes("/storage/v1/object/public/vehicle-photos/")) {
           path = p.split("/storage/v1/object/public/vehicle-photos/")[1];
