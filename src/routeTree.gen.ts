@@ -39,6 +39,7 @@ import { Route as PublicPrevisionnelRouteImport } from './routes/_public.previsi
 import { Route as PublicRemboursementRouteImport } from './routes/_public.remboursement'
 import { Route as PublicTarifsRouteImport } from './routes/_public.tarifs'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminBetaRouteImport } from './routes/admin.beta'
 import { Route as AdminCommerciauxRouteImport } from './routes/admin.commerciaux'
 import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminConnexionRouteImport } from './routes/admin.connexion'
@@ -267,6 +268,11 @@ const PublicTarifsRoute = PublicTarifsRouteImport.update({
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBetaRoute = AdminBetaRouteImport.update({
+  id: '/beta',
+  path: '/beta',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCommerciauxRoute = AdminCommerciauxRouteImport.update({
@@ -697,6 +703,7 @@ export interface FileRoutesByFullPath {
   '/remboursement': typeof PublicRemboursementRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/beta': typeof AdminBetaRoute
   '/admin/commerciaux': typeof AdminCommerciauxRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
@@ -804,6 +811,7 @@ export interface FileRoutesByTo {
   '/remboursement': typeof PublicRemboursementRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/beta': typeof AdminBetaRoute
   '/admin/commerciaux': typeof AdminCommerciauxRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
@@ -914,6 +922,7 @@ export interface FileRoutesById {
   '/_public/remboursement': typeof PublicRemboursementRoute
   '/_public/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/beta': typeof AdminBetaRoute
   '/admin/commerciaux': typeof AdminCommerciauxRoute
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
@@ -1025,6 +1034,7 @@ export interface FileRouteTypes {
     | '/remboursement'
     | '/tarifs'
     | '/admin/audit'
+    | '/admin/beta'
     | '/admin/commerciaux'
     | '/admin/commissions'
     | '/admin/connexion'
@@ -1132,6 +1142,7 @@ export interface FileRouteTypes {
     | '/remboursement'
     | '/tarifs'
     | '/admin/audit'
+    | '/admin/beta'
     | '/admin/commerciaux'
     | '/admin/commissions'
     | '/admin/connexion'
@@ -1241,6 +1252,7 @@ export interface FileRouteTypes {
     | '/_public/remboursement'
     | '/_public/tarifs'
     | '/admin/audit'
+    | '/admin/beta'
     | '/admin/commerciaux'
     | '/admin/commissions'
     | '/admin/connexion'
@@ -1618,6 +1630,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/beta': {
+      id: '/admin/beta'
+      path: '/beta'
+      fullPath: '/admin/beta'
+      preLoaderRoute: typeof AdminBetaRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/commerciaux': {
@@ -2197,6 +2216,7 @@ const PublicRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminBetaRoute: typeof AdminBetaRoute
   AdminCommerciauxRoute: typeof AdminCommerciauxRoute
   AdminCommissionsRoute: typeof AdminCommissionsRoute
   AdminConnexionRoute: typeof AdminConnexionRoute
@@ -2209,6 +2229,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminBetaRoute: AdminBetaRoute,
   AdminCommerciauxRoute: AdminCommerciauxRoute,
   AdminCommissionsRoute: AdminCommissionsRoute,
   AdminConnexionRoute: AdminConnexionRoute,
