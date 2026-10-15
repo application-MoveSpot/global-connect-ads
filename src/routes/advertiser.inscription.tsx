@@ -222,8 +222,12 @@ function AnnonceurInscription() {
         setCity(res.suggestion.city);
         filled.push(t("advertiser.inscription.label_city"));
       }
-      setAiFilled(filled);
-      setAiPanelOpen(false);
+      if (filled.length === 0) {
+        setAiError("L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez votre activité avec votre nom, votre société et votre ville.");
+      } else {
+        setAiFilled(filled);
+        setAiPanelOpen(false);
+      }
     } catch {
       setAiError("Une erreur inattendue est survenue. Réessayez.");
     } finally {

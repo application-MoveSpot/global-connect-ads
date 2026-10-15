@@ -108,8 +108,12 @@ function InscriptionPage() {
         setBio(res.suggestion.bio);
         filled.push(t("owner.inscription.bio_label"));
       }
-      setAiFilled(filled);
-      if (filled.length > 0) setAiPanelOpen(false);
+      if (filled.length === 0) {
+        setAiError("L'IA n'a pas trouvé de nom ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre ville et votre activité de chauffeur.");
+      } else {
+        setAiFilled(filled);
+        setAiPanelOpen(false);
+      }
     } catch {
       setAiError(t("owner.inscription.ai_generate_error"));
     } finally {
