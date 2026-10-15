@@ -1,43 +1,47 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Emails autorisés pendant la phase beta. Vide = app ouverte à tous.
-const BETA_WHITELIST: string[] = ["rakounklub@gmail.com", "palermegarry.gp@gmail.com"];
+async function fetchWhitelist(): Promise<string[]> {
+  const { data } = await supabase.from("beta_whitelist").select("email");
+  return data?.map((r: { email: string }) => r.email.toLowerCase()) ?? [];
+}
 
 export function BetaGuard({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"loading" | "allowed" | "waitlist">("loading");
 
   useEffect(() => {
-    const whitelist = BETA_WHITELIST.map((e) => e.toLowerCase());
+    let cancelled = false;
 
-    // Whitelist vide → app ouverte à tous
-    if (whitelist.length === 0) {
-      setStatus("allowed");
-      return;
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
-      const email = data.session?.user?.email?.toLowerCase();
+    const check = async (email: string | undefined) => {
       if (!email) {
         // Non connecté → laisser passer (les routes protégées gèrent leur propre auth)
+        if (!cancelled) setStatus("allowed");
+        return;
+      }
+      const whitelist = await fetchWhitelist();
+      if (cancelled) return;
+      // Whitelist vide → app ouverte à tous
+      if (whitelist.length === 0) {
         setStatus("allowed");
         return;
       }
       setStatus(whitelist.includes(email) ? "allowed" : "waitlist");
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      check(data.session?.user?.email?.toLowerCase());
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      const email = session?.user?.email?.toLowerCase();
-      if (!email) {
-        setStatus("allowed");
-        return;
-      }
-      setStatus(whitelist.includes(email) ? "allowed" : "waitlist");
+      check(session?.user?.email?.toLowerCase());
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (status === "loading") return null;

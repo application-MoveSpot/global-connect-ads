@@ -867,8 +867,12 @@ function NewBriefPage() {
               }}
               className="group text-left rounded-2xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all"
             >
-              <div className="h-40 overflow-hidden rounded-t-2xl bg-secondary flex items-center justify-center">
-                <span className="text-6xl">🚐</span>
+              <div className="h-40 overflow-hidden rounded-t-2xl bg-secondary">
+                <img
+                  src="/van-traditionnel.jpg"
+                  alt="Van publicitaire traditionnel"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-2">
