@@ -10,6 +10,7 @@ import { generatePartnerSuggestion } from "@/lib/ai/partner-assistant.functions"
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
+import { Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/partner/inscription")({
   head: () => ({
@@ -377,17 +378,31 @@ function FormInput({
   required?: boolean;
   placeholder?: string;
 }) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
   return (
     <div>
       <label className="block text-sm font-medium mb-1.5">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-border bg-background px-3 py-2"
-      />
+      <div className={isPassword ? "relative" : undefined}>
+        <input
+          type={isPassword ? (show ? "text" : "password") : type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          placeholder={placeholder}
+          className={`w-full rounded-lg border border-border bg-background px-3 py-2${isPassword ? " pr-10" : ""}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShow((v) => !v)}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
+            aria-label={show ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          >
+            {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
