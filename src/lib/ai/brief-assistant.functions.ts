@@ -61,7 +61,8 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
-    const model = provider("google/gemini-2.5-flash");
+    // Models tried in order — first working one wins.
+    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.0-flash"];
 
     const vehicleLabel = data.vehicleTypes?.length
       ? `Véhicules envisagés : ${data.vehicleTypes.join(", ")}.`
@@ -96,59 +97,67 @@ Réponds UNIQUEMENT en JSON strict (les clés budget et durationDays sont option
   "durationDays": 14
 }`;
 
-    try {
-      const VALID_VEHICLE_TYPES = new Set([
-        "camion_led",
-        "food_truck",
-        "van",
-        "taxi",
-        "scooter",
-        "velo_cargo",
-        "velo_remorque",
-        "triporteur",
-        "tutuk",
-        "voiture",
-        "autre",
-      ]);
-      const { generateText } = await import("ai");
-      const { text } = await generateText({
-        model,
-        prompt,
-        temperature: 0.7,
-        maxOutputTokens: 800,
-      });
-      const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      const raw = fence ? fence[1] : text;
-      const parsed = JSON.parse(raw.trim()) as BriefSuggestion;
-      const vehicleTypes = Array.isArray(parsed.vehicleTypes)
-        ? parsed.vehicleTypes
-            .filter((v) => typeof v === "string" && VALID_VEHICLE_TYPES.has(v))
-            .slice(0, 3)
-        : undefined;
-      return {
-        ok: true,
-        suggestion: {
-          title: String(parsed.title ?? "").slice(0, 120),
-          description: String(parsed.description ?? "").slice(0, 2000),
-          audience: String(parsed.audience ?? "").slice(0, 200),
-          vehicleTypes: vehicleTypes?.length ? vehicleTypes : undefined,
-          zones: parsed.zones ? String(parsed.zones).slice(0, 300) : undefined,
-          budget:
-            typeof parsed.budget === "number" && parsed.budget > 0
-              ? Math.round(parsed.budget)
-              : undefined,
-          durationDays:
-            typeof parsed.durationDays === "number" && parsed.durationDays > 0
-              ? Math.round(parsed.durationDays)
-              : undefined,
-        },
-      };
-    } catch (err) {
-      captureServerException(err, { category: "ai" });
-      return {
-        ok: false,
-        code: "AI_UNAVAILABLE",
-        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
-      };
+    const VALID_VEHICLE_TYPES = new Set([
+      "camion_led",
+      "food_truck",
+      "van",
+      "taxi",
+      "scooter",
+      "velo_cargo",
+      "velo_remorque",
+      "triporteur",
+      "tutuk",
+      "voiture",
+      "autre",
+    ]);
+
+    const { generateText } = await import("ai");
+
+    let lastErr: unknown;
+    for (const modelId of FALLBACK_MODELS) {
+      try {
+        const { text } = await generateText({
+          model: provider(modelId),
+          prompt,
+          temperature: 0.7,
+          maxOutputTokens: 800,
+        });
+        const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        const raw = fence ? fence[1] : text;
+        const parsed = JSON.parse(raw.trim()) as BriefSuggestion;
+        const vehicleTypes = Array.isArray(parsed.vehicleTypes)
+          ? parsed.vehicleTypes
+              .filter((v) => typeof v === "string" && VALID_VEHICLE_TYPES.has(v))
+              .slice(0, 3)
+          : undefined;
+        return {
+          ok: true,
+          suggestion: {
+            title: String(parsed.title ?? "").slice(0, 120),
+            description: String(parsed.description ?? "").slice(0, 2000),
+            audience: String(parsed.audience ?? "").slice(0, 200),
+            vehicleTypes: vehicleTypes?.length ? vehicleTypes : undefined,
+            zones: parsed.zones ? String(parsed.zones).slice(0, 300) : undefined,
+            budget:
+              typeof parsed.budget === "number" && parsed.budget > 0
+                ? Math.round(parsed.budget)
+                : undefined,
+            durationDays:
+              typeof parsed.durationDays === "number" && parsed.durationDays > 0
+                ? Math.round(parsed.durationDays)
+                : undefined,
+          },
+        };
+      } catch (err) {
+        lastErr = err;
+        captureServerException(err, { category: "ai", model: modelId });
+      }
     }
+
+    captureServerException(lastErr, { category: "ai", note: "all models failed" });
+    return {
+      ok: false,
+      code: "AI_UNAVAILABLE",
+      message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+    };
   });
