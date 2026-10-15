@@ -62,7 +62,7 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
 
     const provider = createLovableAiGatewayProvider(apiKey);
     // Models tried in order — first working one wins.
-    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.0-flash"];
+    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 
     const vehicleLabel = data.vehicleTypes?.length
       ? `Véhicules envisagés : ${data.vehicleTypes.join(", ")}.`
