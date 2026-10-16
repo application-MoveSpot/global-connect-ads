@@ -112,7 +112,11 @@ function PartnerSignupPage() {
         password,
       });
       if (error) {
-        setError(error.message);
+        setError(
+          error.message === "Invalid login credentials"
+            ? t("partner.inscription.error_invalid_credentials")
+            : error.message,
+        );
         setLoading(false);
         return;
       }

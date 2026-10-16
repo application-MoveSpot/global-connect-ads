@@ -701,6 +701,7 @@
       "error_session": "Session expirée.",
       "error_duplicate": "Un compte existe déjà avec cet email. Connectez-vous.",
       "error_verify_email": "Vérifiez votre email pour confirmer votre compte, puis connectez-vous.",
+      "error_invalid_credentials": "Email ou mot de passe incorrect.",
       "cgu_accept": "J'accepte les",
       "cgu_link_label": "conditions générales d'utilisation",
       "cgu_strong": "CGU",
@@ -2986,7 +2987,8 @@
       "ai_placeholder": "Ex. : Agence de communication de 12 ans avec 200 clients PME en région PACA. Spécialisée en campagnes outdoor et événementiel. Souhait de proposer la pub mobile à nos clients.",
       "ai_generate": "Générer",
       "ai_generating": "Génération…",
-      "ai_filled": "✨ Description générée par l'IA — vérifiez et ajustez si besoin."
+      "ai_filled": "✨ Description générée par l'IA — vérifiez et ajustez si besoin.",
+      "error_invalid_credentials": "Email ou mot de passe incorrect."
     }
   },
   "refund": {
@@ -4061,7 +4063,8 @@
       "error_email_exists": "Un compte existe déjà avec cet email.",
       "error_confirm_email": "Vérifiez votre boîte mail pour confirmer votre compte.",
       "error_siret": "Numéro SIRET invalide.",
-      "error_session": "Session expirée. Veuillez vous reconnecter."
+      "error_session": "Session expirée. Veuillez vous reconnecter.",
+      "error_invalid_credentials": "Email ou mot de passe incorrect."
     },
     "add_vehicle": "Ajouter Véhicule",
     "ai_pricing_cta": "Estimer mon tarif →",
@@ -5324,6 +5327,7 @@
       "error_cgu": "Vous devez accepter les CGU pour continuer.",
       "error_confirm_email": "Vérifiez votre boîte mail pour confirmer votre compte.",
       "error_email_exists": "Un compte existe déjà avec cet email.",
+      "error_invalid_credentials": "Email ou mot de passe incorrect.",
       "error_session": "Session expirée. Veuillez vous reconnecter.",
       "error_siret": "Numéro SIRET invalide.",
       "forgot_password": "Mot de passe oublié ?",
