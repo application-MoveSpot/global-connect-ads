@@ -28,15 +28,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Build
         run: npm run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Set Cloudflare Worker runtime secrets
+        run: |
+          echo "${SUPABASE_URL}" | npx wrangler secret put SUPABASE_URL
+          echo "${SUPABASE_PUBLISHABLE_KEY}" | npx wrangler secret put SUPABASE_PUBLISHABLE_KEY
+          if [ -n "${LOVABLE_API_KEY}" ]; then
+            echo "${LOVABLE_API_KEY}" | npx wrangler secret put LOVABLE_API_KEY
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
 
       - name: Deploy to Cloudflare Workers
         run: npx wrangler deploy
