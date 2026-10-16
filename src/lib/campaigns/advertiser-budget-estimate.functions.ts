@@ -174,7 +174,7 @@ export const estimateAdvertiserBudget = createServerFn({ method: "POST" })
     // 6. AI recommendation
     let aiRecommendation = "";
     try {
-      const apiKey = process.env.LOVABLE_API_KEY;
+      const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
       if (apiKey) {
         const breakdownStr = lines.map((l) => `• ${l.label} : ${l.min}–${l.max} €`).join("\n");
 

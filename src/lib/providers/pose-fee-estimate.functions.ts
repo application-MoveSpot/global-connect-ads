@@ -64,7 +64,7 @@ export const estimatePoseFeeForCampaign = createServerFn({ method: "POST" })
 
     if (data.useAi) {
       try {
-        const apiKey = process.env.LOVABLE_API_KEY;
+        const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
         if (apiKey) {
           const zone = detectZone(location);
           const prompt = `Tu es expert en tarification de pose/dépose d'adhésifs publicitaires sur véhicules en France.

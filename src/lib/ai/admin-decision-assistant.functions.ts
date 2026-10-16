@@ -63,7 +63,7 @@ export const generateAdminDecisionNote = createServerFn({ method: "POST" })
     });
     if (!isAdmin) return { ok: false, message: "Accès réservé aux administrateurs." };
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) return { ok: false, message: "Service IA indisponible." };
 
     const prompt = PROMPTS[data.entityType](data);

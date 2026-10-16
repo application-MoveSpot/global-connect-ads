@@ -368,7 +368,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
             .gte("created_at", twoDaysAgoIso)
             .not("creative_files", "is", null);
 
-          const apiKey = process.env["LOVABLE_API_KEY"];
+          const apiKey = process.env["LOVABLE_API_KEY"] ?? process.env.GOOGLE_AI_API_KEY;
           const modStats = { analysed: 0, suspects: 0 };
 
           if (apiKey && briefsWithCreatives?.length) {

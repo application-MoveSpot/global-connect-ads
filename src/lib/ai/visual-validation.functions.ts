@@ -10,7 +10,7 @@ async function analyseImageBase64(
   mimeType: string,
   systemPrompt: string,
 ): Promise<string> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -194,7 +194,7 @@ export const moderateBriefVisual = createServerFn({ method: "POST" })
       .createSignedUrl(data.storagePath, 120);
     if (error) throw new Error(error.message);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const prompt = `Tu es modérateur publicitaire. Vérifie ce visuel soumis sur MoveSpot, plateforme française de publicité mobile.

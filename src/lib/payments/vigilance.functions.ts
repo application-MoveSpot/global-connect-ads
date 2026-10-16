@@ -218,7 +218,7 @@ export const adminAnalyseAttestation = createServerFn({ method: "POST" })
       .from("attestations-urssaf")
       .createSignedUrl(storagePath, 120);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const isPdf = storagePath.toLowerCase().endsWith(".pdf");

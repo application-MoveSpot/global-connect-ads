@@ -213,7 +213,7 @@ export const Route = createFileRoute("/api/faq-chat")({
           return new Response("Messages requis", { status: 400 });
         }
 
-        const key = process.env.LOVABLE_API_KEY;
+        const key = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
         if (!key) {
           log.error("faq_chat_missing_key", new Error("LOVABLE_API_KEY not set"));
           return new Response("Clé IA manquante", { status: 500 });

@@ -760,7 +760,7 @@ export const adminReAnalyzeVehicle = createServerFn({ method: "POST" })
       .eq("id", data.vehicleId)
       .single();
     if (error || !vehicle) throw new Error("Véhicule introuvable");
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
     const v = vehicle as any;
     const photoUrls: string[] = (

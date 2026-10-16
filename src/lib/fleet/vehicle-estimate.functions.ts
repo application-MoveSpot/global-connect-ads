@@ -136,7 +136,7 @@ export const estimateVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }): Promise<EstimateResult> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     if (data.condition === "mauvais") {
