@@ -171,7 +171,11 @@ function InscriptionPage() {
         password,
       });
       if (error) {
-        setError(error.message);
+        setError(
+          error.message === "Invalid login credentials"
+            ? t("owner.inscription.error_invalid_credentials")
+            : error.message,
+        );
         setLoading(false);
         return;
       }
