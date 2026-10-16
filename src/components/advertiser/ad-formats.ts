@@ -33,7 +33,7 @@ export const AD_FORMATS: { v: AdFormat; l: string; desc: string }[] = [
   { v: "demi_covering", l: "Demi-covering", desc: "Moitié inférieure" },
   { v: "stickers", l: "Stickers", desc: "Autocollants ciblés" },
   { v: "affiche", l: "Affiche", desc: "Panneau fixe" },
-  { v: "boxled", l: "Écran LED/Vidéo", desc: "Fourgon publicitaire numérique (3 faces LED)" },
+  { v: "boxled", l: "Écran LED/Vidéo", desc: "Camion LED publicitaire numérique (3 faces LED)" },
 ];
 
 export const BOXLED_INCOMPATIBLE: VehicleKey[] = [

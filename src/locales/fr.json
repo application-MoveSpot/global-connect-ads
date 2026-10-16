@@ -145,7 +145,7 @@
       "demi_covering": "Moitié inférieure",
       "stickers": "Autocollants ciblés",
       "affiche": "Panneau fixe",
-      "boxled": "Fourgon publicitaire numérique (3 faces LED)"
+      "boxled": "Camion LED publicitaire numérique (3 faces LED)"
     },
     "template": {
       "t0": {
@@ -962,7 +962,7 @@
         "display_type_title": "Quel type d'affichage ?",
         "display_type_subtitle": "Deux technologies différentes — choisissez celle qui correspond à votre besoin.",
         "digital_label": "Affichage numérique",
-        "digital_desc": "Fourgon équipé d'écrans LED intégrés. Diffusion de vidéos MP4, images dynamiques ou flux HTML5.",
+        "digital_desc": "Camion LED équipé d'écrans intégrés sur 3 faces. Diffusion de vidéos MP4, images dynamiques ou flux HTML5.",
         "digital_feature_1": "✅ Contenu vidéo & animé",
         "digital_feature_2": "✅ Visible jour et nuit",
         "digital_feature_3": "✅ Idéal pour événements",
@@ -985,7 +985,7 @@
         "change_event_type": "← Changer de type d'événement",
         "form_title": "Publier un brief",
         "form_subtitle": "Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.",
-        "digital_reminder": "Affichage numérique LED — les propriétaires de fourgons équipés d'écrans LED pourront répondre à ce brief.",
+        "digital_reminder": "Affichage numérique LED — les propriétaires de camions LED équipés d'écrans pourront répondre à ce brief.",
         "draft_restored": "📝 Brouillon restauré — vos données ont été conservées.",
         "draft_clear": "Effacer",
         "ai_panel_title": "Remplir avec l'IA",
@@ -1001,9 +1001,9 @@
         "field_vehicles": "Types de véhicules recherchés",
         "vehicles_available": "Véhicules disponibles",
         "vehicles_other": "Autres véhicules",
-        "vehicle_led_btn": "📺 Fourgon Écran LED numérique",
-        "boxled_warning": "⚠️ Le format Écran LED/Vidéo est réservé aux fourgons publicitaires numériques. Food truck, scooter, vélo cargo et triporteur sont incompatibles.",
-        "digital_selected_msg": "📺 Fourgon publicitaire numérique sélectionné — contenu vidéo/image diffusé sur écrans LED intégrés.",
+        "vehicle_led_btn": "📺 Camion LED numérique",
+        "boxled_warning": "⚠️ Le format Écran LED/Vidéo est réservé aux camions LED publicitaires numériques. Food truck, scooter, vélo cargo et triporteur sont incompatibles.",
+        "digital_selected_msg": "📺 Camion LED publicitaire numérique sélectionné — contenu vidéo/image diffusé sur écrans LED intégrés.",
         "preview_label": "🎨 Aperçu sur véhicule réel",
         "preview_color_label": "Couleur de marque",
         "preview_logo_label": "Logo (optionnel)",
@@ -1068,7 +1068,7 @@
         "budget_prepare": "💳 Préparer {{amount}} €",
         "budget_buy_pack": "Ou acheter un pack →",
         "boxled_incompatible_title": "Incompatible avec le format Écran LED/Vidéo (BoxLED)",
-        "boxled_vehicle_incompatible_title": "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux fourgons publicitaires"
+        "boxled_vehicle_incompatible_title": "Incompatible avec le(s) véhicule(s) sélectionné(s) — BoxLED réservé aux camions LED publicitaires"
       }
     },
     "suivi": {

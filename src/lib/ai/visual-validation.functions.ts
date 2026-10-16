@@ -3,19 +3,21 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertRateLimit } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
+import { getAiGatewayFetchConfig } from "./ai-gateway.server";
 
-// Shared helper: analyse an image (base64) via Lovable AI gateway vision
+// Shared helper: analyse an image (base64) via AI gateway vision
 async function analyseImageBase64(
   base64: string,
   mimeType: string,
   systemPrompt: string,
 ): Promise<string> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const { url, headers } = getAiGatewayFetchConfig(apiKey);
+  const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    headers,
     body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       messages: [
@@ -194,7 +196,7 @@ export const moderateBriefVisual = createServerFn({ method: "POST" })
       .createSignedUrl(data.storagePath, 120);
     if (error) throw new Error(error.message);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const prompt = `Tu es modérateur publicitaire. Vérifie ce visuel soumis sur MoveSpot, plateforme française de publicité mobile.
@@ -217,9 +219,10 @@ Réponds UNIQUEMENT en JSON strict :
 }`;
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const { url: fetchUrl, headers: fetchHeaders } = getAiGatewayFetchConfig(apiKey);
+      const res = await fetch(fetchUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        headers: fetchHeaders,
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [

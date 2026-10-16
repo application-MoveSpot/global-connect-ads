@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 // ============ Onglet Briefs & Campagnes ============
 export const adminListBriefsAndCampaigns = createServerFn({ method: "GET" })
@@ -760,7 +761,7 @@ export const adminReAnalyzeVehicle = createServerFn({ method: "POST" })
       .eq("id", data.vehicleId)
       .single();
     if (error || !vehicle) throw new Error("Véhicule introuvable");
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
     const v = vehicle as any;
     const photoUrls: string[] = (
@@ -823,9 +824,10 @@ Réponds UNIQUEMENT en JSON strict :
       },
     ];
     for (const url of photoUrls) content.push({ type: "image_url", image_url: { url } });
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const { url: gatewayUrl, headers: gatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+    const res = await fetch(gatewayUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      headers: gatewayHeaders,
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [{ role: "user", content }],

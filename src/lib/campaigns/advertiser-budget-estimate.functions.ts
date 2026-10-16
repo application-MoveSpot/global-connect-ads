@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { estimatePoseFee, inferFormatKey, detectZone } from "@/lib/providers/pose-fee-estimate";
+import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 const InputSchema = z.object({
   zones: z.string().max(300),
@@ -174,7 +175,7 @@ export const estimateAdvertiserBudget = createServerFn({ method: "POST" })
     // 6. AI recommendation
     let aiRecommendation = "";
     try {
-      const apiKey = process.env.LOVABLE_API_KEY;
+      const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
       if (apiKey) {
         const breakdownStr = lines.map((l) => `• ${l.label} : ${l.min}–${l.max} €`).join("\n");
 
@@ -202,9 +203,10 @@ En 2-3 phrases maximum, donne :
 
 Réponds en français, de façon concise et actionnable. Commence directement par ton conseil, sans "Votre budget" ou formule introductive.`;
 
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const { url: gatewayUrl, headers: gatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+        const res = await fetch(gatewayUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          headers: gatewayHeaders,
           body: JSON.stringify({
             model: "google/gemini-2.5-flash",
             messages: [{ role: "user", content: prompt }],

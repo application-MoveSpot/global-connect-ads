@@ -7,6 +7,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 export type VigilanceStatut = "EN_ATTENTE" | "VALIDE" | "BLOQUE";
 
@@ -218,7 +219,7 @@ export const adminAnalyseAttestation = createServerFn({ method: "POST" })
       .from("attestations-urssaf")
       .createSignedUrl(storagePath, 120);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const isPdf = storagePath.toLowerCase().endsWith(".pdf");
@@ -268,9 +269,10 @@ Réponds UNIQUEMENT en JSON strict :
     let parsed: Partial<AttestationAnalyse> = {};
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const { url: gatewayUrl, headers: gatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+      const res = await fetch(gatewayUrl, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        headers: gatewayHeaders,
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [{ role: "user", content: contentParts }],

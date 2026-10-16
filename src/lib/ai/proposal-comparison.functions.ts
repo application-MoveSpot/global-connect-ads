@@ -32,7 +32,7 @@ export const compareProposals = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof ProposalCompareInput>) => ProposalCompareInput.parse(d))
   .handler(async ({ data, context }): Promise<ProposalComparisonResult> => {
     assertRateLimit(`compare-proposals:${context.userId}`, { maxRequests: 20, windowMs: 60_000 });
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const provider = createLovableAiGatewayProvider(apiKey);

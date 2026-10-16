@@ -28,7 +28,7 @@ export const suggestBriefAdjustments = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof BriefReengagementInput>) => BriefReengagementInput.parse(d))
   .handler(async ({ data, context }): Promise<BriefReengagementResult> => {
     assertRateLimit(`brief-reengagement:${context.userId}`, { maxRequests: 10, windowMs: 60_000 });
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const provider = createLovableAiGatewayProvider(apiKey);

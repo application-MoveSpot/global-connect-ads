@@ -51,7 +51,7 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
       return { ok: false, code: "UNAUTHORIZED", message };
     }
 
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) {
       return {
         ok: false,

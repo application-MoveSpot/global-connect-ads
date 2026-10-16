@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 const InputSchema = z.object({
   services: z
@@ -71,7 +72,7 @@ export const estimateProviderPricing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => InputSchema.parse(data))
   .handler(async ({ data }): Promise<EstimateResult> => {
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const serviceLabels: Record<string, string> = {
@@ -116,9 +117,10 @@ Réponds UNIQUEMENT en JSON strict :
   "recommendation": "1-2 phrases de conseil de positionnement en français"
 }`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const { url: gatewayUrl, headers: gatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+    const res = await fetch(gatewayUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      headers: gatewayHeaders,
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [{ role: "user", content: prompt }],

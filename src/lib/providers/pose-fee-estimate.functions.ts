@@ -11,6 +11,7 @@ import {
   type FormatKey,
   type PoseFeeRange,
 } from "./pose-fee-estimate";
+import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 const EstimateInputSchema = z.object({
   vehicleId: z.string().uuid().optional(),
@@ -64,7 +65,7 @@ export const estimatePoseFeeForCampaign = createServerFn({ method: "POST" })
 
     if (data.useAi) {
       try {
-        const apiKey = process.env.LOVABLE_API_KEY;
+        const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
         if (apiKey) {
           const zone = detectZone(location);
           const prompt = `Tu es expert en tarification de pose/dépose d'adhésifs publicitaires sur véhicules en France.
@@ -78,9 +79,10 @@ Contexte de la mission :
 
 Donne en 1–2 phrases : une validation ou un ajustement de cette fourchette selon le marché actuel (2026), et un conseil de négociation pour l'annonceur. Réponds en français, de façon concise et professionnelle.`;
 
-          const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          const { url: gatewayUrl, headers: gatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+          const res = await fetch(gatewayUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+            headers: gatewayHeaders,
             body: JSON.stringify({
               model: "google/gemini-2.5-flash",
               messages: [{ role: "user", content: prompt }],

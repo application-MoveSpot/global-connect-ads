@@ -28,7 +28,7 @@ export const scoreBriefQuality = createServerFn({ method: "POST" })
   .inputValidator((d: z.infer<typeof BriefQualityInput>) => BriefQualityInput.parse(d))
   .handler(async ({ data, context }): Promise<BriefQualityResult> => {
     assertRateLimit(`brief-quality:${context.userId}`, { maxRequests: 30, windowMs: 60_000 });
-    const apiKey = process.env.LOVABLE_API_KEY;
+    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
     const provider = createLovableAiGatewayProvider(apiKey);
