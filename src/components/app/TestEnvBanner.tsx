@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const PROD_HOST = "move-spot.com";
+const PROD_HOSTS = ["move-spot.com", "www.move-spot.com"];
 
 function isProduction() {
   if (typeof window === "undefined") return true;
   const h = window.location.hostname;
-  return h === PROD_HOST || h === `www.${PROD_HOST}`;
+  return PROD_HOSTS.includes(h) || h.startsWith("movespot-global.");
 }
 
 export function TestEnvBanner() {
