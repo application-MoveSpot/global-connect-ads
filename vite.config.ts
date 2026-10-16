@@ -15,12 +15,24 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 const serverEnv = loadEnv(process.env["NODE_ENV"] ?? "development", process.cwd(), "");
 Object.assign(process.env, serverEnv);
 
+// Sanitize VITE_* env vars — trim trailing whitespace/newlines from CI secrets.
+// GitHub Actions secrets set via `echo "${VALUE}" | wrangler secret put KEY` can carry a
+// trailing newline. If that newline ends up in an HTTP header (e.g. Authorization: Bearer <jwt>\n)
+// Chrome throws "Failed to execute 'fetch' on 'Window': Invalid value".
+for (const key of Object.keys(process.env)) {
+  if (key.startsWith("VITE_") && typeof process.env[key] === "string") {
+    process.env[key] = (process.env[key] as string).trim();
+  }
+}
+
 // Valeurs PUBLIQUES (URL + clé publishable) : secours si .env est absent au build de publication.
-const PUBLIC_SUPABASE_URL =
-  process.env["VITE_SUPABASE_URL"] || "https://phononlhfyljhhhvlmrm.supabase.co";
-const PUBLIC_SUPABASE_KEY =
+const PUBLIC_SUPABASE_URL = (
+  process.env["VITE_SUPABASE_URL"] || "https://phononlhfyljhhhvlmrm.supabase.co"
+).trim();
+const PUBLIC_SUPABASE_KEY = (
   process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4"
+).trim();
 for (const [k, v] of [
   ["VITE_SUPABASE_URL", PUBLIC_SUPABASE_URL],
   ["SUPABASE_URL", PUBLIC_SUPABASE_URL],
