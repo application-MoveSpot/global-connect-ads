@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { captureError } from "@/lib/sentry";
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
+import type { Stripe } from "@stripe/stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createWalletTopupCheckout } from "@/lib/payments/payments.functions";
 import { getPaymentsConfig, getStripe } from "@/lib/payments/stripe";
@@ -39,6 +40,10 @@ export function WalletTopupCheckout({
   const [open, setOpen] = useState(false);
   const [checkoutKey, setCheckoutKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [btnLoading, setBtnLoading] = useState(false);
+  // Holds the resolved Stripe instance so the iframe never receives a pending Promise
+  const stripeRef = useRef<Stripe | null>(null);
+  const [stripeReady, setStripeReady] = useState(false);
 
   const fetchClientSecret = useCallback(async (): Promise<string> => {
     try {
@@ -65,11 +70,30 @@ export function WalletTopupCheckout({
 
   const showCheckout = async () => {
     setError(null);
-    const config = await getPaymentsConfig();
-    if (!config.publishableKey) {
-      setError(t("wallet_topup.err_not_configured"));
+    setBtnLoading(true);
+    try {
+      const config = await getPaymentsConfig();
+      if (!config.publishableKey) {
+        setError(t("wallet_topup.err_not_configured"));
+        setOpen(true);
+        return;
+      }
+      // Resolve Stripe fully before opening the dialog so the iframe never
+      // receives a pending Promise (which causes a blank/black render).
+      const stripe = await getStripe();
+      if (!stripe) {
+        setError(t("wallet_topup.err_not_configured"));
+        setOpen(true);
+        return;
+      }
+      stripeRef.current = stripe;
+      setStripeReady(true);
+    } catch {
+      setError(t("wallet_topup.err_stripe"));
       setOpen(true);
       return;
+    } finally {
+      setBtnLoading(false);
     }
     setCheckoutKey((key) => key + 1);
     setOpen(true);
@@ -77,8 +101,12 @@ export function WalletTopupCheckout({
 
   return (
     <>
-      <Button onClick={showCheckout} disabled={disabled || amountEuros < 10} className={className}>
-        {buttonLabel ?? t("wallet_topup.btn_default", { amount: amountEuros })}
+      <Button
+        onClick={showCheckout}
+        disabled={disabled || amountEuros < 10 || btnLoading}
+        className={className}
+      >
+        {btnLoading ? "..." : (buttonLabel ?? t("wallet_topup.btn_default", { amount: amountEuros }))}
       </Button>
 
       <Dialog
@@ -96,11 +124,15 @@ export function WalletTopupCheckout({
               <DialogDescription>{t("wallet_topup.dialog_desc")}</DialogDescription>
             </DialogHeader>
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            {!error ? (
-              <div key={checkoutKey} className="min-h-[560px]">
-                <EmbeddedCheckoutProvider stripe={getStripe()} options={checkoutOptions}>
+            {!error && stripeReady ? (
+              <div key={checkoutKey} className="min-h-[400px] rounded-lg bg-white">
+                <EmbeddedCheckoutProvider stripe={stripeRef.current} options={checkoutOptions}>
                   <EmbeddedCheckout />
                 </EmbeddedCheckoutProvider>
+              </div>
+            ) : !error ? (
+              <div className="flex min-h-[200px] items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
               </div>
             ) : null}
           </div>
