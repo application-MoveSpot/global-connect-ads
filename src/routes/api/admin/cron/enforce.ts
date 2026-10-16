@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 // POST /api/admin/cron/enforce
 // Secured with Authorization: Bearer <CRON_SECRET>
@@ -393,12 +394,10 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                   const base64 = Buffer.from(buf).toString("base64");
                   const mimeType = imgResp.headers.get("content-type") ?? "image/jpeg";
 
-                  const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+                  const { url: cronGatewayUrl, headers: cronGatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+                  const aiResp = await fetch(cronGatewayUrl, {
                     method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${apiKey}`,
-                    },
+                    headers: cronGatewayHeaders,
                     body: JSON.stringify({
                       model: "google/gemini-2.5-flash",
                       messages: [
