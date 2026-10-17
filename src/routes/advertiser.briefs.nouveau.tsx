@@ -214,6 +214,9 @@ function NewBriefPage() {
   const [aiError, setAiError] = useState("");
   const [aiSessionExpired, setAiSessionExpired] = useState(false);
   const [aiFilled, setAiFilled] = useState<string[]>([]);
+  const [userAiKey, setUserAiKey] = useState<string>(() => {
+    try { return localStorage.getItem("movespot_user_ai_key_v1") ?? ""; } catch { return ""; }
+  });
   const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
   const [qualityLoading, setQualityLoading] = useState(false);
   const [creativeValidation, setCreativeValidation] = useState<
@@ -404,6 +407,7 @@ function NewBriefPage() {
           // Pass the token explicitly so the server can validate it even
           // when the Authorization header middleware doesn't fire.
           _auth: session.access_token,
+          userApiKey: userAiKey || undefined,
         },
       });
       // Token may be stale — force-refresh and retry once before showing session error
@@ -417,6 +421,7 @@ function NewBriefPage() {
               vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
               zone: zones.trim() || undefined,
               _auth: session.access_token,
+              userApiKey: userAiKey || undefined,
             },
           });
         }
@@ -1150,6 +1155,14 @@ function NewBriefPage() {
                 : undefined
             }
             onDismissFilled={() => setAiFilled([])}
+            userApiKey={userAiKey}
+            onUserApiKeyChange={(k) => {
+              setUserAiKey(k);
+              try {
+                if (k) localStorage.setItem("movespot_user_ai_key_v1", k);
+                else localStorage.removeItem("movespot_user_ai_key_v1");
+              } catch { /* ignore */ }
+            }}
           />
 
           {/* ── Marché cible ───────────────────────────────────────────── */}

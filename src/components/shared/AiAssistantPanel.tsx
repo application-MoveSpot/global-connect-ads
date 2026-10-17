@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface AiAssistantPanelProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -21,6 +23,9 @@ interface AiAssistantPanelProps {
   generateLoadingLabel?: string;
   inputLabel?: string;
   disclaimer?: string;
+  /** Optional user-supplied API key (Google AI / Gemini). Stored by the caller. */
+  userApiKey?: string;
+  onUserApiKeyChange?: (key: string) => void;
 }
 
 export function AiAssistantPanel({
@@ -44,7 +49,11 @@ export function AiAssistantPanel({
   generateLoadingLabel = "Génération…",
   inputLabel,
   disclaimer,
+  userApiKey,
+  onUserApiKeyChange,
 }: AiAssistantPanelProps) {
+  const [keyInputOpen, setKeyInputOpen] = useState(false);
+  const [keyDraft, setKeyDraft] = useState("");
   if (variant === "card") {
     return (
       <>
@@ -118,6 +127,73 @@ export function AiAssistantPanel({
                 </span>
               </div>
               {disclaimer && <p className="text-xs text-muted-foreground">{disclaimer}</p>}
+
+              {/* Optional user API key connector */}
+              {onUserApiKeyChange && (
+                <div className="pt-2 border-t border-violet-500/10">
+                  {!keyInputOpen ? (
+                    <button
+                      type="button"
+                      onClick={() => { setKeyDraft(""); setKeyInputOpen(true); }}
+                      className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition"
+                    >
+                      <span>🔑</span>
+                      {userApiKey
+                        ? `Clé API connectée (${userApiKey.slice(0, 8)}…) — modifier`
+                        : "Connecter votre propre clé Google AI / Gemini"}
+                    </button>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-muted-foreground font-medium">
+                        🔑 Clé API Google AI (stockée dans votre navigateur)
+                      </p>
+                      <div className="flex gap-2">
+                        <input
+                          type="password"
+                          value={keyDraft}
+                          onChange={(e) => setKeyDraft(e.target.value)}
+                          placeholder="AIzaSy…"
+                          className="flex-1 min-w-0 rounded border border-border bg-background px-2 py-1 text-xs"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => { onUserApiKeyChange(keyDraft.trim()); setKeyInputOpen(false); }}
+                          className="rounded bg-violet-600 text-white px-2.5 py-1 text-xs font-medium hover:bg-violet-700"
+                        >
+                          OK
+                        </button>
+                        {userApiKey && (
+                          <button
+                            type="button"
+                            onClick={() => { onUserApiKeyChange(""); setKeyDraft(""); setKeyInputOpen(false); }}
+                            className="text-xs text-muted-foreground hover:text-destructive"
+                          >
+                            Supprimer
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setKeyInputOpen(false)}
+                          className="text-xs text-muted-foreground"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        Obtenez une clé gratuite sur{" "}
+                        <a
+                          href="https://aistudio.google.com/apikey"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          aistudio.google.com
+                        </a>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

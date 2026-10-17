@@ -13,6 +13,8 @@ const BriefGenerateInput = z.object({
   // payload so auth works even when the Authorization header middleware
   // fails to attach (observed in some Cloudflare Workers deployments).
   _auth: z.string().optional(),
+  // User-supplied Google AI key (BYOK). Used only when platform key is absent.
+  userApiKey: z.string().max(300).optional(),
 });
 
 export type BriefSuggestion = {
@@ -51,7 +53,8 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
       return { ok: false, code: "UNAUTHORIZED", message };
     }
 
-    const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
+    const apiKey =
+      process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY ?? data.userApiKey;
     if (!apiKey) {
       return {
         ok: false,
