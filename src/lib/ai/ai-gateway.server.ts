@@ -52,6 +52,7 @@ export function getUserKeyModel(apiKey: string): string {
   return "mistral-small-latest";
 }
 
+
 export function createLovableAiGatewayProvider(apiKey: string) {
   // When LOVABLE_API_KEY is absent, fall back to Google AI API directly
   if (useGoogleAi()) {
