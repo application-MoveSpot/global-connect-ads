@@ -1715,9 +1715,9 @@ function NewBriefPage() {
                         {r.score}/100
                       </span>
                     </div>
-                    {r.issues.length > 0 && (
+                    {(r.issues?.length ?? 0) > 0 && (
                       <ul className="mt-1 space-y-0.5 text-muted-foreground">
-                        {r.issues.map((issue, i) => (
+                        {r.issues?.map((issue, i) => (
                           <li key={i}>• {issue}</li>
                         ))}
                       </ul>
