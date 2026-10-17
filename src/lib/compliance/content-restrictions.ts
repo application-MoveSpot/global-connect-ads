@@ -37,6 +37,18 @@ export type ContentCategory = {
   euBlocked?: boolean;
   // Shown to the advertiser when EU restriction applies.
   euDisclaimer?: string;
+  // Africa: continent-level restriction (applies regardless of city).
+  afRestricted?: boolean;
+  // Africa: category not accepted at all in African markets.
+  afBlocked?: boolean;
+  // Shown to the advertiser for African markets.
+  afDisclaimer?: string;
+  // Asia: continent-level restriction (applies regardless of city).
+  asRestricted?: boolean;
+  // Asia: category not accepted at all in Asian markets.
+  asBlocked?: boolean;
+  // Shown to the advertiser for Asian markets.
+  asDisclaimer?: string;
 };
 
 export const CONTENT_CATEGORIES: ContentCategory[] = [
@@ -129,6 +141,17 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "Elle est interdite dans un rayon de 100 m des établissements scolaires, des équipements sportifs " +
       "et des lieux accueillant des mineurs. MoveSpot exclura automatiquement ces zones de l'itinéraire. " +
       "L'annonceur reste responsable du respect de la réglementation applicable à son secteur.",
+    afRestricted: true,
+    afDisclaimer:
+      "La publicité pour l'alcool est strictement encadrée dans de nombreux pays africains, en particulier " +
+      "au Maghreb, au Sahel et dans les pays à majorité musulmane. Dans certains marchés (Algérie), elle est totalement interdite. " +
+      "MoveSpot appliquera les règles locales de la flotte partenaire. Vérifiez la législation nationale avant lancement.",
+    asRestricted: true,
+    asDisclaimer:
+      "La publicité pour l'alcool est soumise à des restrictions importantes dans de nombreux pays asiatiques. " +
+      "Dans les marchés du Golfe (EAU, Arabie saoudite), elle est interdite au grand public et limitée aux établissements sous licence. " +
+      "En Thaïlande et Malaisie, elle ne peut pas cibler les mineurs ni être diffusée près de temples ou d'écoles. " +
+      "MoveSpot appliquera les règles locales. Vérifiez la loi nationale du marché ciblé avant lancement.",
     euRestricted: true,
     euDisclaimer:
       "La publicité pour les boissons alcoolisées est soumise aux lois nationales de chaque pays européen. " +
@@ -150,6 +173,17 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "La publicité pour les services financiers doit respecter la doctrine AMF et l'article L.533-12 du Code monétaire. " +
       "Toute allégation de performance doit être exacte, équilibrée et non trompeuse. " +
       "La publicité pour les actifs crypto doit inclure la mention obligatoire « Investir comporte des risques de perte en capital. »",
+    afRestricted: true,
+    afDisclaimer:
+      "La publicité pour les services financiers est encadrée par les régulateurs nationaux africains " +
+      "(CREPMF/UEMOA, COBAC/CEMAC, FSCA en Afrique du Sud, etc.). Toute allégation de performance doit être exacte. " +
+      "La publicité pour les crypto-actifs est soumise à approbation dans la plupart des pays africains — vérifiez auprès du régulateur local.",
+    asRestricted: true,
+    asDisclaimer:
+      "La publicité pour les services financiers est encadrée par les régulateurs nationaux asiatiques " +
+      "(MAS à Singapour, FSC en Corée, SEBI en Inde, NMC aux EAU, SAMR en Chine…). " +
+      "La publicité pour les crypto-actifs nécessite une approbation préalable dans la plupart des pays. " +
+      "Vérifiez les exigences du régulateur compétent du marché ciblé avant tout lancement.",
     euRestricted: true,
     euDisclaimer:
       "La publicité pour les services financiers est encadrée par MiFID II et les régulateurs nationaux (BaFin, FCA, CNMV, AFM…). " +
@@ -172,6 +206,16 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public en France " +
       "(art. L.5122-6 CSP). Seuls les médicaments sans ordonnance peuvent faire l'objet d'une communication publique, " +
       "sous réserve d'un visa publicitaire ANSM. MoveSpot ne peut pas accepter ce brief pour le marché français.",
+    afBlocked: true,
+    afDisclaimer:
+      "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public dans la quasi-totalité des pays africains. " +
+      "Seuls les médicaments sans ordonnance, autorisés par l'autorité nationale de santé compétente, peuvent faire l'objet d'une publicité. " +
+      "MoveSpot ne peut pas accepter ce brief pour les marchés africains.",
+    asBlocked: true,
+    asDisclaimer:
+      "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public dans la quasi-totalité des pays asiatiques. " +
+      "Les règles varient pour les dispositifs médicaux — vérifiez l'autorisation de l'agence nationale compétente (PMDA au Japon, CDSCO en Inde, HSA à Singapour…). " +
+      "MoveSpot ne peut pas accepter ce brief pour les marchés asiatiques.",
     euBlocked: true,
     euDisclaimer:
       "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public dans toute l'Union européenne " +
@@ -196,6 +240,79 @@ export function checkEuContentCompliance(categoryId: string): ContentComplianceR
   }
   if (cat.euRestricted && cat.euDisclaimer) {
     return { status: "restricted", disclaimer: cat.euDisclaimer };
+  }
+  return { status: "ok" };
+}
+
+/** Africa compliance — pass alcoholBlocked/alcoholRestricted from the city for alcohol override. */
+export function checkAfContentCompliance(
+  categoryId: string,
+  cityAlcohol?: { blocked?: boolean; restricted?: boolean },
+): ContentComplianceResult {
+  const cat = CONTENT_CATEGORIES.find((c) => c.id === categoryId);
+  if (!cat) return { status: "ok" };
+  if (cat.afBlocked) {
+    return {
+      status: "blocked",
+      reason: cat.afDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés africains.`,
+    };
+  }
+  // City-level alcohol override
+  if (cat.id === "beverage_alcohol" && cityAlcohol?.blocked) {
+    return {
+      status: "blocked",
+      reason:
+        "La publicité pour l'alcool est totalement interdite dans ce marché (loi nationale). " +
+        "MoveSpot ne peut pas accepter ce brief pour cette ville.",
+    };
+  }
+  if (cat.id === "beverage_alcohol" && cityAlcohol?.restricted) {
+    return {
+      status: "restricted",
+      disclaimer:
+        cat.afDisclaimer ??
+        "La publicité pour l'alcool est soumise à des restrictions locales dans ce marché. " +
+          "MoveSpot appliquera les règles de la flotte partenaire.",
+    };
+  }
+  if (cat.afRestricted && cat.afDisclaimer) {
+    return { status: "restricted", disclaimer: cat.afDisclaimer };
+  }
+  return { status: "ok" };
+}
+
+/** Asia compliance — pass alcoholBlocked/alcoholRestricted from the city for alcohol override. */
+export function checkAsContentCompliance(
+  categoryId: string,
+  cityAlcohol?: { blocked?: boolean; restricted?: boolean },
+): ContentComplianceResult {
+  const cat = CONTENT_CATEGORIES.find((c) => c.id === categoryId);
+  if (!cat) return { status: "ok" };
+  if (cat.asBlocked) {
+    return {
+      status: "blocked",
+      reason: cat.asDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés asiatiques.`,
+    };
+  }
+  if (cat.id === "beverage_alcohol" && cityAlcohol?.blocked) {
+    return {
+      status: "blocked",
+      reason:
+        "La publicité pour l'alcool est totalement interdite dans ce marché (loi nationale). " +
+        "MoveSpot ne peut pas accepter ce brief pour cette ville.",
+    };
+  }
+  if (cat.id === "beverage_alcohol" && cityAlcohol?.restricted) {
+    return {
+      status: "restricted",
+      disclaimer:
+        cat.asDisclaimer ??
+        "La publicité pour l'alcool est soumise à des restrictions importantes dans ce marché. " +
+          "MoveSpot appliquera les règles locales de la flotte partenaire.",
+    };
+  }
+  if (cat.asRestricted && cat.asDisclaimer) {
+    return { status: "restricted", disclaimer: cat.asDisclaimer };
   }
   return { status: "ok" };
 }
