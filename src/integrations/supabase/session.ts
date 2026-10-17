@@ -15,7 +15,8 @@ export async function getOrRefreshSession(): Promise<Session | null> {
 
   if (!session?.access_token || (expiresAt && expiresAt * 1000 < Date.now() + 30_000)) {
     const { data: refreshed } = await supabase.auth.refreshSession();
-    return refreshed.session ?? null;
+    // Fall back to the current session if refresh fails (server will validate)
+    return refreshed.session ?? session ?? null;
   }
 
   return session;

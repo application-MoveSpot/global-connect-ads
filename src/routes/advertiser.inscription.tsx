@@ -197,14 +197,24 @@ function AnnonceurInscription() {
     }
     setAiLoading(true);
     try {
-      const session = await getOrRefreshSession();
+      let session = await getOrRefreshSession();
       if (!session) {
         setAiSessionExpired(true);
         return;
       }
-      const res = await callAdvertiserAi({
+      let res = await callAdvertiserAi({
         data: { advertiserContext: aiContext.trim(), accountType, _auth: session.access_token },
       });
+      // Token may be stale — force-refresh and retry once before showing session error
+      if (!res.ok && res.code === "UNAUTHORIZED") {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (refreshed.session?.access_token) {
+          session = refreshed.session;
+          res = await callAdvertiserAi({
+            data: { advertiserContext: aiContext.trim(), accountType, _auth: session.access_token },
+          });
+        }
+      }
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
           setAiSessionExpired(true);
