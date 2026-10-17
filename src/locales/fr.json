@@ -4042,7 +4042,15 @@
     "eu_city_label": "Ville / marché européen",
     "eu_city_placeholder": "Sélectionnez une ville…",
     "eu_content_ok": "Catégorie autorisée pour le marché européen.",
-    "eu_legal_note": "MoveSpot applique les règles européennes : Directive 2001/83/CE (médicaments), MiFID II + MiCA (financier/crypto), ARPP et lois nationales de publicité extérieure. L'annonceur reste responsable du respect des réglementations locales du marché ciblé."
+    "eu_legal_note": "MoveSpot applique les règles européennes : Directive 2001/83/CE (médicaments), MiFID II + MiCA (financier/crypto), ARPP et lois nationales de publicité extérieure. L'annonceur reste responsable du respect des réglementations locales du marché ciblé.",
+    "af_city_label": "Ville / marché africain",
+    "af_city_placeholder": "Sélectionnez une ville…",
+    "af_content_ok": "Catégorie autorisée pour ce marché africain.",
+    "af_legal_note": "La réglementation publicitaire varie significativement selon les pays africains. MoveSpot applique les règles locales de la flotte partenaire et les lois nationales applicables. L'annonceur reste responsable du respect de la législation du marché ciblé.",
+    "as_city_label": "Ville / marché asiatique",
+    "as_city_placeholder": "Sélectionnez une ville…",
+    "as_content_ok": "Catégorie autorisée pour ce marché asiatique.",
+    "as_legal_note": "La réglementation publicitaire varie très fortement selon les pays asiatiques. MoveSpot applique les règles locales de la flotte partenaire et les lois nationales applicables. L'annonceur reste responsable du respect de la législation du marché ciblé."
   },
   "owner": {
     "inscription": {

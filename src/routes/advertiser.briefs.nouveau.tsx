@@ -11,7 +11,16 @@ import { detectContact } from "@/lib/moderation/contact-detection";
 import { US_CITIES, findUsCity } from "@/lib/compliance/us-markets";
 import { FR_CITIES, findFrCity } from "@/lib/compliance/fr-markets";
 import { EU_CITIES, findEuCity, getEuCitiesByCountry } from "@/lib/compliance/eu-markets";
-import { CONTENT_CATEGORIES, checkContentCompliance, checkFrContentCompliance, checkEuContentCompliance } from "@/lib/compliance/content-restrictions";
+import { AF_CITIES, findAfCity, getAfCitiesByCountry } from "@/lib/compliance/africa-markets";
+import { AS_CITIES, findAsCity, getAsCitiesByCountry } from "@/lib/compliance/asia-markets";
+import {
+  CONTENT_CATEGORIES,
+  checkContentCompliance,
+  checkFrContentCompliance,
+  checkEuContentCompliance,
+  checkAfContentCompliance,
+  checkAsContentCompliance,
+} from "@/lib/compliance/content-restrictions";
 import {
   ZoneSelector,
   polygonToEwkt,
@@ -200,8 +209,10 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
-  const [market, setMarket] = useState<"FR" | "US" | "EU">("FR");
+  const [market, setMarket] = useState<"FR" | "US" | "EU" | "AF" | "AS">("FR");
   const [euCity, setEuCity] = useState("");
+  const [afCity, setAfCity] = useState("");
+  const [asCity, setAsCity] = useState("");
   const [usCity, setUsCity] = useState("");
   const [frCity, setFrCity] = useState("");
   const [contentCategory, setContentCategory] = useState("");
@@ -256,10 +267,12 @@ function NewBriefPage() {
       if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
       if (d.brandColor) setBrandColor(d.brandColor as string);
       if (d.displayType) setDisplayType(d.displayType as "digital" | "traditionnel");
-      if (d.market) setMarket(d.market as "FR" | "US" | "EU");
+      if (d.market) setMarket(d.market as "FR" | "US" | "EU" | "AF" | "AS");
       if (d.usCity) setUsCity(d.usCity as string);
       if (d.frCity) setFrCity(d.frCity as string);
       if (d.euCity) setEuCity(d.euCity as string);
+      if (d.afCity) setAfCity(d.afCity as string);
+      if (d.asCity) setAsCity(d.asCity as string);
       if (d.contentCategory) setContentCategory(d.contentCategory as string);
       setDraftRestored(true);
       setWizardStep("form");
@@ -304,6 +317,8 @@ function NewBriefPage() {
           usCity,
           frCity,
           euCity,
+          afCity,
+          asCity,
           contentCategory,
         }),
       );
@@ -780,6 +795,46 @@ function NewBriefPage() {
       }
     }
 
+    if (market === "AF") {
+      if (!afCity) {
+        setError("Sélectionnez une ville africaine pour ce brief.");
+        return;
+      }
+      if (!contentCategory) {
+        setError("La catégorie de contenu est obligatoire.");
+        return;
+      }
+      const afCityData = AF_CITIES.find((c) => c.id === afCity);
+      const afCompliance = checkAfContentCompliance(contentCategory, {
+        blocked: afCityData?.alcoholBlocked,
+        restricted: afCityData?.alcoholRestricted,
+      });
+      if (afCompliance.status === "blocked") {
+        setError(afCompliance.reason);
+        return;
+      }
+    }
+
+    if (market === "AS") {
+      if (!asCity) {
+        setError("Sélectionnez une ville asiatique pour ce brief.");
+        return;
+      }
+      if (!contentCategory) {
+        setError("La catégorie de contenu est obligatoire.");
+        return;
+      }
+      const asCityData = AS_CITIES.find((c) => c.id === asCity);
+      const asCompliance = checkAsContentCompliance(contentCategory, {
+        blocked: asCityData?.alcoholBlocked,
+        restricted: asCityData?.alcoholRestricted,
+      });
+      if (asCompliance.status === "blocked") {
+        setError(asCompliance.reason);
+        return;
+      }
+    }
+
     if (!userId) {
       if (!showGuestSignup) {
         setShowGuestSignup(true);
@@ -1210,7 +1265,7 @@ function NewBriefPage() {
             <div>
               <p className="text-sm font-semibold mb-2">{t("compliance.market_label")}</p>
               <div className="flex gap-2">
-                {(["FR", "EU", "US"] as const).map((m) => (
+                {(["FR", "EU", "AF", "AS", "US"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
@@ -1219,6 +1274,8 @@ function NewBriefPage() {
                       setUsCity("");
                       setFrCity("");
                       setEuCity("");
+                      setAfCity("");
+                      setAsCity("");
                       setContentCategory("");
                     }}
                     className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
@@ -1227,7 +1284,7 @@ function NewBriefPage() {
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "FR" ? "🇫🇷 France" : m === "EU" ? "🇪🇺 Europe" : "🇺🇸 États-Unis"}
+                    {m === "FR" ? "🇫🇷 France" : m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "🌍 Afrique" : m === "AS" ? "🌏 Asie" : "🇺🇸 États-Unis"}
                   </button>
                 ))}
               </div>
@@ -1538,6 +1595,200 @@ function NewBriefPage() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">{t("compliance.eu_legal_note")}</p>
+              </>
+            )}
+
+            {market === "AF" && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.af_city_label")} <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={afCity}
+                    onChange={(e) => setAfCity(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.af_city_placeholder")}</option>
+                    {Array.from(getAfCitiesByCountry().entries()).map(([countryLabel, cities]) => (
+                      <optgroup key={countryLabel} label={countryLabel}>
+                        {cities.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                            {c.status === "restreint" ? " — Réglementé" : ""}
+                            {c.status === "zone_protegee" ? " — Zone protégée" : ""}
+                            {c.alcoholBlocked ? " ⛔ alcool interdit" : c.alcoholRestricted ? " ⚠ alcool restreint" : ""}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  {afCity &&
+                    (() => {
+                      const city = findAfCity(afCity);
+                      if (!city) return null;
+                      return (
+                        <div
+                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
+                            city.status === "zone_protegee"
+                              ? "bg-red-500/10 text-red-700 dark:text-red-400"
+                              : city.status === "restreint"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          }`}
+                        >
+                          {city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
+                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                        </div>
+                      );
+                    })()}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.content_category_label")}{" "}
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={contentCategory}
+                    onChange={(e) => setContentCategory(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.content_category_placeholder")}</option>
+                    {CONTENT_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelFr}
+                      </option>
+                    ))}
+                  </select>
+                  {contentCategory &&
+                    (() => {
+                      const city = findAfCity(afCity);
+                      const result = checkAfContentCompliance(contentCategory, {
+                        blocked: city?.alcoholBlocked,
+                        restricted: city?.alcoholRestricted,
+                      });
+                      if (result.status === "restricted") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
+                            ⚠ {result.disclaimer}
+                          </div>
+                        );
+                      }
+                      if (result.status === "blocked") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
+                            ⛔ {result.reason}
+                          </div>
+                        );
+                      }
+                      return (
+                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          ✓ {t("compliance.af_content_ok")}
+                        </p>
+                      );
+                    })()}
+                </div>
+
+                <p className="text-xs text-muted-foreground">{t("compliance.af_legal_note")}</p>
+              </>
+            )}
+
+            {market === "AS" && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.as_city_label")} <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={asCity}
+                    onChange={(e) => setAsCity(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.as_city_placeholder")}</option>
+                    {Array.from(getAsCitiesByCountry().entries()).map(([countryLabel, cities]) => (
+                      <optgroup key={countryLabel} label={countryLabel}>
+                        {cities.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                            {c.status === "restreint" ? " — Réglementé" : ""}
+                            {c.status === "zone_protegee" ? " — Zone protégée" : ""}
+                            {c.alcoholBlocked ? " ⛔ alcool interdit" : c.alcoholRestricted ? " ⚠ alcool restreint" : ""}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  {asCity &&
+                    (() => {
+                      const city = findAsCity(asCity);
+                      if (!city) return null;
+                      return (
+                        <div
+                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
+                            city.status === "zone_protegee"
+                              ? "bg-red-500/10 text-red-700 dark:text-red-400"
+                              : city.status === "restreint"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                          }`}
+                        >
+                          {city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
+                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                        </div>
+                      );
+                    })()}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.content_category_label")}{" "}
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={contentCategory}
+                    onChange={(e) => setContentCategory(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.content_category_placeholder")}</option>
+                    {CONTENT_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelFr}
+                      </option>
+                    ))}
+                  </select>
+                  {contentCategory &&
+                    (() => {
+                      const city = findAsCity(asCity);
+                      const result = checkAsContentCompliance(contentCategory, {
+                        blocked: city?.alcoholBlocked,
+                        restricted: city?.alcoholRestricted,
+                      });
+                      if (result.status === "restricted") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
+                            ⚠ {result.disclaimer}
+                          </div>
+                        );
+                      }
+                      if (result.status === "blocked") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
+                            ⛔ {result.reason}
+                          </div>
+                        );
+                      }
+                      return (
+                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          ✓ {t("compliance.as_content_ok")}
+                        </p>
+                      );
+                    })()}
+                </div>
+
+                <p className="text-xs text-muted-foreground">{t("compliance.as_legal_note")}</p>
               </>
             )}
           </div>
