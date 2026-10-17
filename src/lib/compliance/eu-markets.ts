@@ -473,6 +473,196 @@ export const EU_CITIES: EuCity[] = [
     status: "open",
     notes: "Hors UE (post-Brexit). Réglementation ASA applicable.",
   },
+  // ── Suède ─────────────────────────────────────────────────────────────────
+  {
+    id: "stockholm-se",
+    name: "Stockholm",
+    countryCode: "SE",
+    countryName: "Suède",
+    countryFlag: "🇸🇪",
+    status: "open",
+    notes: "Publicité mobile sur flotte autorisée. Loi suédoise sur le marketing (Marknadsföringslagen 2008:486) applicable.",
+  },
+  {
+    id: "gothenburg-se",
+    name: "Göteborg",
+    countryCode: "SE",
+    countryName: "Suède",
+    countryFlag: "🇸🇪",
+    status: "open",
+  },
+  {
+    id: "malmo-se",
+    name: "Malmö",
+    countryCode: "SE",
+    countryName: "Suède",
+    countryFlag: "🇸🇪",
+    status: "open",
+  },
+  // ── Danemark ──────────────────────────────────────────────────────────────
+  {
+    id: "copenhagen-dk",
+    name: "Copenhague",
+    countryCode: "DK",
+    countryName: "Danemark",
+    countryFlag: "🇩🇰",
+    status: "open",
+    notes: "Marché ouvert. Loi danoise sur le marketing (Markedsføringsloven) applicable. Pas de permis municipal spécifique pour les véhicules en covering.",
+  },
+  {
+    id: "aarhus-dk",
+    name: "Aarhus",
+    countryCode: "DK",
+    countryName: "Danemark",
+    countryFlag: "🇩🇰",
+    status: "open",
+  },
+  // ── Finlande ──────────────────────────────────────────────────────────────
+  {
+    id: "helsinki-fi",
+    name: "Helsinki",
+    countryCode: "FI",
+    countryName: "Finlande",
+    countryFlag: "🇫🇮",
+    status: "open",
+    notes: "Marché ouvert. Loi finlandaise sur la concurrence déloyale applicable. Pas de restriction spécifique pour la publicité mobile sur flotte.",
+  },
+  {
+    id: "tampere-fi",
+    name: "Tampere",
+    countryCode: "FI",
+    countryName: "Finlande",
+    countryFlag: "🇫🇮",
+    status: "open",
+  },
+  // ── Irlande ───────────────────────────────────────────────────────────────
+  {
+    id: "dublin-ie",
+    name: "Dublin",
+    countryCode: "IE",
+    countryName: "Irlande",
+    countryFlag: "🇮🇪",
+    status: "open",
+    notes: "Marché ouvert. Publicité mobile sur véhicule permise. Standards de l'ASAI (Advertising Standards Authority for Ireland) applicables.",
+  },
+  {
+    id: "cork-ie",
+    name: "Cork",
+    countryCode: "IE",
+    countryName: "Irlande",
+    countryFlag: "🇮🇪",
+    status: "open",
+  },
+  // ── Grèce ─────────────────────────────────────────────────────────────────
+  {
+    id: "athens-gr",
+    name: "Athènes",
+    countryCode: "GR",
+    countryName: "Grèce",
+    countryFlag: "🇬🇷",
+    status: "restreint",
+    notes:
+      "Zone de l'Acropole et du centre historique classée UNESCO — éviter le périmètre protégé. " +
+      "Loi grecque 2946/2001 sur la publicité extérieure applicable. Permis municipal recommandé.",
+  },
+  {
+    id: "thessaloniki-gr",
+    name: "Thessalonique",
+    countryCode: "GR",
+    countryName: "Grèce",
+    countryFlag: "🇬🇷",
+    status: "open",
+    notes: "Marché ouvert. Loi 2946/2001 sur la publicité extérieure applicable.",
+  },
+  // ── République tchèque ────────────────────────────────────────────────────
+  {
+    id: "prague-cz",
+    name: "Prague",
+    countryCode: "CZ",
+    countryName: "République tchèque",
+    countryFlag: "🇨🇿",
+    status: "restreint",
+    notes:
+      "Centre historique classé UNESCO (Staré Město, Josefov). " +
+      "Réglementation municipale renforcée dans les zones patrimoniales. " +
+      "Couverture de véhicule autorisée hors périmètre protégé.",
+  },
+  {
+    id: "brno-cz",
+    name: "Brno",
+    countryCode: "CZ",
+    countryName: "République tchèque",
+    countryFlag: "🇨🇿",
+    status: "open",
+  },
+  // ── Hongrie ───────────────────────────────────────────────────────────────
+  {
+    id: "budapest-hu",
+    name: "Budapest",
+    countryCode: "HU",
+    countryName: "Hongrie",
+    countryFlag: "🇭🇺",
+    status: "restreint",
+    notes:
+      "Rives du Danube et quartier du château classés UNESCO. " +
+      "Loi hongroise XLVIII/2008 sur la publicité commerciale applicable. " +
+      "Permis de la mairie requis pour les véhicules publicitaires dédiés.",
+  },
+  {
+    id: "debrecen-hu",
+    name: "Debrecen",
+    countryCode: "HU",
+    countryName: "Hongrie",
+    countryFlag: "🇭🇺",
+    status: "open",
+  },
+  // ── Roumanie ──────────────────────────────────────────────────────────────
+  {
+    id: "bucharest-ro",
+    name: "Bucarest",
+    countryCode: "RO",
+    countryName: "Roumanie",
+    countryFlag: "🇷🇴",
+    status: "open",
+    notes: "Marché ouvert. Loi roumaine 148/2000 sur la publicité applicable. Marché en forte croissance pour la publicité mobile.",
+  },
+  {
+    id: "cluj-napoca-ro",
+    name: "Cluj-Napoca",
+    countryCode: "RO",
+    countryName: "Roumanie",
+    countryFlag: "🇷🇴",
+    status: "open",
+  },
+  {
+    id: "timisoara-ro",
+    name: "Timișoara",
+    countryCode: "RO",
+    countryName: "Roumanie",
+    countryFlag: "🇷🇴",
+    status: "open",
+  },
+  // ── Norvège (hors UE — EEE) ───────────────────────────────────────────────
+  {
+    id: "oslo-no",
+    name: "Oslo",
+    countryCode: "NO",
+    countryName: "Norvège",
+    countryFlag: "🇳🇴",
+    status: "open",
+    notes:
+      "Hors UE (EEE). Loi norvégienne sur le marketing (Markedsføringsloven 2009) applicable. " +
+      "Pas de permis spécifique pour les véhicules en covering. Restrictions sévères sur la publicité destinée aux mineurs.",
+  },
+  {
+    id: "bergen-no",
+    name: "Bergen",
+    countryCode: "NO",
+    countryName: "Norvège",
+    countryFlag: "🇳🇴",
+    status: "open",
+    notes: "Hors UE (EEE). Réglementation norvégienne applicable.",
+  },
 ];
 
 export function findEuCity(id: string): EuCity | undefined {
