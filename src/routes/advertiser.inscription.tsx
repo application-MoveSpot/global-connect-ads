@@ -457,6 +457,10 @@ function AnnonceurInscription() {
               error={aiError}
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/advertiser/inscription?mode=signin"
+              onReconnectClick={async () => {
+                await supabase.auth.signOut();
+                window.location.href = "/advertiser/inscription?mode=signin";
+              }}
               title={t("advertiser.inscription.ai_panel_title")}
               description={t("advertiser.inscription.ai_panel_desc")}
               placeholder={t("advertiser.inscription.ai_placeholder")}
