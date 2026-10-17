@@ -8,6 +8,7 @@ interface AiAssistantPanelProps {
   error?: string;
   sessionExpired?: boolean;
   sessionExpiredHref?: string;
+  onReconnectClick?: () => void;
   placeholder: string;
   filledMessage?: string;
   onDismissFilled?: () => void;
@@ -32,6 +33,7 @@ export function AiAssistantPanel({
   error,
   sessionExpired,
   sessionExpiredHref = "/",
+  onReconnectClick,
   placeholder,
   filledMessage,
   onDismissFilled,
@@ -78,9 +80,19 @@ export function AiAssistantPanel({
               {sessionExpired && (
                 <p className="text-xs text-destructive">
                   Session expirée —{" "}
-                  <a href={sessionExpiredHref} className="underline hover:no-underline">
-                    reconnectez-vous
-                  </a>{" "}
+                  {onReconnectClick ? (
+                    <button
+                      type="button"
+                      onClick={onReconnectClick}
+                      className="underline hover:no-underline"
+                    >
+                      reconnectez-vous
+                    </button>
+                  ) : (
+                    <a href={sessionExpiredHref} className="underline hover:no-underline">
+                      reconnectez-vous
+                    </a>
+                  )}{" "}
                   puis réessayez.
                 </p>
               )}
@@ -154,9 +166,19 @@ export function AiAssistantPanel({
           {sessionExpired && (
             <p className="text-xs text-destructive">
               Session expirée —{" "}
-              <a href={sessionExpiredHref} className="underline">
-                reconnectez-vous
-              </a>{" "}
+              {onReconnectClick ? (
+                <button
+                  type="button"
+                  onClick={onReconnectClick}
+                  className="underline"
+                >
+                  reconnectez-vous
+                </button>
+              ) : (
+                <a href={sessionExpiredHref} className="underline">
+                  reconnectez-vous
+                </a>
+              )}{" "}
               puis réessayez.
             </p>
           )}
