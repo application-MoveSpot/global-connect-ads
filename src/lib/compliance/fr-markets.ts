@@ -3,6 +3,11 @@
 // "reglementation" — specific municipal RLP (Règlement Local de Publicité) in force with extra constraints.
 // "zone_protegee"  — protected zone (AVAP/ZPPAUP, site classé, secteur sauvegardé): very restrictive,
 //                    covering is legal but itineraries must avoid the perimeter.
+//
+// Outre-mer (DROM/COM):
+//   DROMs (Guadeloupe, Martinique, Guyane, La Réunion, Mayotte): French national law applies fully.
+//   COMs (Saint-Martin, Saint-Barthélemy, Nouvelle-Calédonie, Polynésie française): partial autonomy,
+//        local advertising rules may differ — "reglementation" status.
 
 export type FrMarketStatus = "open" | "reglementation" | "zone_protegee";
 
@@ -12,6 +17,8 @@ export type FrCity = {
   department: string;
   status: FrMarketStatus;
   notes?: string;
+  /** true for DROM/COM territories outside metropolitan France */
+  isOutreMer?: boolean;
 };
 
 export const FR_CITIES: FrCity[] = [
@@ -50,6 +57,93 @@ export const FR_CITIES: FrCity[] = [
     notes:
       "RLP métropolitain en vigueur. Publicité mobile sur véhicule utilitaire autorisée hors zones sensibles " +
       "(Vieux-Lyon, secteur sauvegardé 5e). Déclaration préalable conseillée auprès de la Métropole.",
+  },
+  // ── Outre-mer — DROM (droit français intégral) ───────────────────────────
+  {
+    id: "guadeloupe-971",
+    name: "Guadeloupe",
+    department: "Guadeloupe (971)",
+    status: "open",
+    isOutreMer: true,
+    notes:
+      "DROM — droit national français intégralement applicable (Loi Évin, décret 2012-118, ARPP). " +
+      "Flotte disponible à Pointe-à-Pitre et Basse-Terre.",
+  },
+  {
+    id: "martinique-972",
+    name: "Martinique",
+    department: "Martinique (972)",
+    status: "open",
+    isOutreMer: true,
+    notes:
+      "DROM — droit national français applicable. Marché actif à Fort-de-France et l'agglomération Centre.",
+  },
+  {
+    id: "guyane-973",
+    name: "Guyane",
+    department: "Guyane (973)",
+    status: "open",
+    isOutreMer: true,
+    notes:
+      "DROM — droit national français applicable. Flotte disponible principalement à Cayenne et Saint-Laurent-du-Maroni.",
+  },
+  {
+    id: "reunion-974",
+    name: "La Réunion",
+    department: "La Réunion (974)",
+    status: "open",
+    isOutreMer: true,
+    notes:
+      "DROM — droit national français applicable. Marché actif à Saint-Denis et Saint-Pierre.",
+  },
+  {
+    id: "mayotte-976",
+    name: "Mayotte",
+    department: "Mayotte (976)",
+    status: "open",
+    isOutreMer: true,
+    notes:
+      "DROM depuis 2011 — droit national français applicable. Flotte disponible à Mamoudzou.",
+  },
+  // ── Outre-mer — COM (autonomie partielle) ────────────────────────────────
+  {
+    id: "saint-martin-978",
+    name: "Saint-Martin",
+    department: "Saint-Martin (978)",
+    status: "reglementation",
+    isOutreMer: true,
+    notes:
+      "Collectivité d'outre-mer — droit civil français applicable mais fiscalité et règles locales autonomes. " +
+      "Contacter la Collectivité de Saint-Martin pour les dispositions locales en matière de publicité.",
+  },
+  {
+    id: "saint-barthelemy-977",
+    name: "Saint-Barthélemy",
+    department: "Saint-Barthélemy (977)",
+    status: "reglementation",
+    isOutreMer: true,
+    notes:
+      "Collectivité d'outre-mer à fiscalité propre. Règles publicitaires locales à vérifier auprès de la Collectivité avant déploiement.",
+  },
+  {
+    id: "nouvelle-caledonie",
+    name: "Nouvelle-Calédonie",
+    department: "Nouvelle-Calédonie",
+    status: "reglementation",
+    isOutreMer: true,
+    notes:
+      "Statut particulier (accord de Nouméa) — la publicité extérieure est régie par la législation locale du gouvernement calédonien. " +
+      "Consulter les autorités compétentes avant tout déploiement.",
+  },
+  {
+    id: "polynesie-francaise",
+    name: "Polynésie française",
+    department: "Polynésie française",
+    status: "reglementation",
+    isOutreMer: true,
+    notes:
+      "Collectivité d'outre-mer autonome — la publicité est régie par la législation polynésienne propre. " +
+      "Contacter les services compétents du Pays avant lancement.",
   },
   // ── Zones protégées ───────────────────────────────────────────────────────
   {

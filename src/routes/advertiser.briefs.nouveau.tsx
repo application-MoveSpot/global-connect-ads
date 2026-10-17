@@ -1322,16 +1322,38 @@ function NewBriefPage() {
                     className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
                   >
                     <option value="">{t("compliance.fr_city_placeholder")}</option>
-                    {FR_CITIES.filter((c) => c.status !== "zone_protegee").map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} — {c.department}
-                        {c.status === "reglementation" ? " — RLP renforcé" : ""}
-                      </option>
-                    ))}
-                    <optgroup label="Zones protégées">
-                      {FR_CITIES.filter((c) => c.status === "zone_protegee").map((c) => (
+                    <optgroup label="Métropole — marchés ouverts">
+                      {FR_CITIES.filter((c) => !c.isOutreMer && c.status === "open").map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.name} — {c.department} — Zone protégée
+                          {c.name} — {c.department}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Métropole — RLP renforcé">
+                      {FR_CITIES.filter((c) => !c.isOutreMer && c.status === "reglementation").map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — {c.department}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Métropole — Zones protégées">
+                      {FR_CITIES.filter((c) => !c.isOutreMer && c.status === "zone_protegee").map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — {c.department}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Outre-mer — DROM (droit français)">
+                      {FR_CITIES.filter((c) => c.isOutreMer && c.status === "open").map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — {c.department}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Outre-mer — COM (règles locales)">
+                      {FR_CITIES.filter((c) => c.isOutreMer && c.status === "reglementation").map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — {c.department}
                         </option>
                       ))}
                     </optgroup>
@@ -1350,8 +1372,10 @@ function NewBriefPage() {
                                 : "bg-red-500/10 text-red-700 dark:text-red-400"
                           }`}
                         >
-                          {city.status === "open" && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
-                          {city.status === "reglementation" && `⚠ RLP renforcé. ${city.notes ?? ""}`}
+                          {city.status === "open" && !city.isOutreMer && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
+                          {city.status === "open" && city.isOutreMer && `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
+                          {city.status === "reglementation" && !city.isOutreMer && `⚠ RLP renforcé. ${city.notes ?? ""}`}
+                          {city.status === "reglementation" && city.isOutreMer && `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
                           {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
                         </div>
                       );
