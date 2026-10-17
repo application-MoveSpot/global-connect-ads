@@ -391,12 +391,12 @@ function NewBriefPage() {
       // Ensure we have a valid session before hitting the server function.
       // getOrRefreshSession() refreshes the access token if it is absent or
       // expires within 30 s, covering mobile tabs that were suspended.
-      const session = await getOrRefreshSession();
+      let session = await getOrRefreshSession();
       if (!session) {
         setAiSessionExpired(true);
         return;
       }
-      const result = await generateBriefSuggestion({
+      let result = await generateBriefSuggestion({
         data: {
           businessContext: aiContext.trim(),
           vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
@@ -406,6 +406,21 @@ function NewBriefPage() {
           _auth: session.access_token,
         },
       });
+      // Token may be stale — force-refresh and retry once before showing session error
+      if (!result.ok && result.code === "UNAUTHORIZED") {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (refreshed.session?.access_token) {
+          session = refreshed.session;
+          result = await generateBriefSuggestion({
+            data: {
+              businessContext: aiContext.trim(),
+              vehicleTypes: vehicleTypes.length ? vehicleTypes : undefined,
+              zone: zones.trim() || undefined,
+              _auth: session.access_token,
+            },
+          });
+        }
+      }
       if (!result.ok) {
         if (result.code === "UNAUTHORIZED") setAiSessionExpired(true);
         else setAiError(result.message);
@@ -1113,6 +1128,15 @@ function NewBriefPage() {
             error={aiError}
             sessionExpired={aiSessionExpired}
             sessionExpiredHref="/advertiser/inscription?mode=signin"
+            onReconnectClick={async () => {
+              try { await supabase.auth.signOut(); } catch { /* ignore */ }
+              try {
+                Object.keys(localStorage)
+                  .filter((k) => k.startsWith("sb-"))
+                  .forEach((k) => localStorage.removeItem(k));
+              } catch { /* ignore */ }
+              window.location.href = "/advertiser/inscription?mode=signin";
+            }}
             title={t("advertiser.briefs.nouveau.ai_panel_title")}
             description={t("advertiser.briefs.nouveau.ai_panel_desc")}
             inputLabel={t("advertiser.briefs.nouveau.ai_label")}
