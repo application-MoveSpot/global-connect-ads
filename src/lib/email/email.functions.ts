@@ -41,7 +41,7 @@ export const sendAdvertiserWelcomeEmail = createServerFn({ method: "POST" })
       idempotencyKey: `advertiser-welcome-${userId}`,
       templateData: {
         firstName: displayName,
-        dashboardUrl: `${BASE_URL}/advertiser/inscription?mode=signin`,
+        dashboardUrl: `${BASE_URL}/advertiser`,
       },
     });
 

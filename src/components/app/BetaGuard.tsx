@@ -47,7 +47,7 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  if (status === "loading") return null;
+  if (status === "loading") return <>{children}</>;
   if (status === "waitlist") return <WaitlistPage />;
   return <>{children}</>;
 }
