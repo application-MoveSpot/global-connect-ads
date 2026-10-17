@@ -113,6 +113,13 @@ function AnnonceurInscription() {
     (async () => {
       const session = await getOrRefreshSession();
       if (session) {
+        // mode=signin means the user explicitly wants to sign in fresh
+        // (e.g. came from the "reconnectez-vous" AI panel link).
+        // Sign them out instead of auto-redirecting to the dashboard.
+        if (modeParam === "signin") {
+          await supabase.auth.signOut();
+          return;
+        }
         const { data: existing } = await supabase
           .from("advertiser_profiles")
           .select("id")
@@ -458,7 +465,14 @@ function AnnonceurInscription() {
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/advertiser/inscription?mode=signin"
               onReconnectClick={async () => {
-                await supabase.auth.signOut();
+                try { await supabase.auth.signOut(); } catch { /* ignore */ }
+                // Belt-and-suspenders: wipe all Supabase auth keys from localStorage
+                // so the page's useEffect can't auto-redirect back to the dashboard.
+                try {
+                  Object.keys(localStorage)
+                    .filter((k) => k.startsWith("sb-"))
+                    .forEach((k) => localStorage.removeItem(k));
+                } catch { /* ignore */ }
                 window.location.href = "/advertiser/inscription?mode=signin";
               }}
               title={t("advertiser.inscription.ai_panel_title")}
