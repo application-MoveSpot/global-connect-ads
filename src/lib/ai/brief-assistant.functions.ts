@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createLovableAiGatewayProvider, createGoogleAiDirectProvider } from "./ai-gateway.server";
+import { createLovableAiGatewayProvider, createUserKeyProvider, getUserKeyModel } from "./ai-gateway.server";
 import { checkBriefRequestAuth } from "./brief-auth.server";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
@@ -62,12 +62,15 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
       };
     }
 
-    // User-supplied key always routes to Google AI directly (never through Lovable gateway).
+    // User-supplied key routes directly to the detected provider (Google/OpenAI/Mistral).
+    const usingUserKey = !platformKey && !!data.userApiKey;
     const provider = platformKey
       ? createLovableAiGatewayProvider(platformKey)
-      : createGoogleAiDirectProvider(data.userApiKey!);
-    // Models tried in order — first working one wins.
-    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
+      : createUserKeyProvider(data.userApiKey!);
+    // When using a user key, use the best model for that provider; otherwise try Gemini models in order.
+    const FALLBACK_MODELS = usingUserKey
+      ? [getUserKeyModel(data.userApiKey!)]
+      : ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 
     const vehicleLabel = data.vehicleTypes?.length
       ? `Véhicules envisagés : ${data.vehicleTypes.join(", ")}.`
