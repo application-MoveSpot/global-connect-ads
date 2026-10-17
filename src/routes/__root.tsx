@@ -129,7 +129,16 @@ export const Route = (createRootRouteWithContext as any)()({
               },
               paymentAccepted: "Carte Bancaire, Visa, Mastercard, Stripe",
               currenciesAccepted: "EUR",
-              foundingDate: "2024",
+              foundingDate: "2026",
+              foundingLocation: {
+                "@type": "Place",
+                address: {
+                  "@type": "PostalAddress",
+                  addressLocality: "Baie-Mahault",
+                  addressRegion: "Guadeloupe",
+                  addressCountry: "FR",
+                },
+              },
               knowsAbout: [
                 "publicité mobile",
                 "vehicle wrap advertising",
