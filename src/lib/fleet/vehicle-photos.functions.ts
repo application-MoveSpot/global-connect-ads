@@ -15,6 +15,10 @@ export const getVehiclePhotoSignedUrls = createServerFn({ method: "POST" })
         let path = p;
         if (p.includes("/storage/v1/object/public/vehicle-photos/")) {
           path = p.split("/storage/v1/object/public/vehicle-photos/")[1];
+        } else if (p.includes("/storage/v1/object/sign/vehicle-photos/")) {
+          // Expired signed URL stored in DB — extract the path and re-sign it.
+          const match = p.match(/\/storage\/v1\/object\/sign\/vehicle-photos\/([^?]+)/);
+          path = match ? decodeURIComponent(match[1]) : p;
         } else if (p.startsWith("http")) {
           return p;
         }
