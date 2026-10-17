@@ -1286,19 +1286,26 @@ function NewBriefPage() {
                     className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
                   >
                     <option value="">{t("compliance.us_city_placeholder")}</option>
-                    {US_CITIES.filter((c) => c.status !== "restricted").map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}, {c.state}
-                        {c.status === "license_required" ? " — Licence requise" : ""}
-                      </option>
-                    ))}
-                    <optgroup label="Accès restreint">
-                      {US_CITIES.filter((c) => c.status === "restricted").map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}, {c.state} — Restreint
-                        </option>
-                      ))}
-                    </optgroup>
+                    {(["US", "CA", "MX"] as const).map((ctry) => {
+                      const label = ctry === "US" ? "🇺🇸 États-Unis" : ctry === "CA" ? "🇨🇦 Canada" : "🇲🇽 Mexique";
+                      const open = US_CITIES.filter((c) => c.country === ctry && c.status !== "restricted");
+                      const restricted = US_CITIES.filter((c) => c.country === ctry && c.status === "restricted");
+                      return (
+                        <optgroup key={ctry} label={label}>
+                          {open.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}, {c.state}
+                              {c.status === "license_required" ? " — Licence requise" : ""}
+                            </option>
+                          ))}
+                          {restricted.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}, {c.state} — Restreint
+                            </option>
+                          ))}
+                        </optgroup>
+                      );
+                    })}
                   </select>
                   {usCity &&
                     (() => {
