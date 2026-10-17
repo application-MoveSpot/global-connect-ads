@@ -31,6 +31,12 @@ export type ContentCategory = {
   frBlocked?: boolean;
   // Shown to the advertiser when French restriction applies.
   frDisclaimer?: string;
+  // EU: restriction applies across EU member states (+ CH/GB).
+  euRestricted?: boolean;
+  // EU: category not accepted at all in EU markets.
+  euBlocked?: boolean;
+  // Shown to the advertiser when EU restriction applies.
+  euDisclaimer?: string;
 };
 
 export const CONTENT_CATEGORIES: ContentCategory[] = [
@@ -123,6 +129,12 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "Elle est interdite dans un rayon de 100 m des établissements scolaires, des équipements sportifs " +
       "et des lieux accueillant des mineurs. MoveSpot exclura automatiquement ces zones de l'itinéraire. " +
       "L'annonceur reste responsable du respect de la réglementation applicable à son secteur.",
+    euRestricted: true,
+    euDisclaimer:
+      "La publicité pour les boissons alcoolisées est soumise aux lois nationales de chaque pays européen. " +
+      "Certains pays (Suède, Finlande, Norvège) ont des restrictions très strictes équivalentes à la Loi Évin française. " +
+      "En Allemagne, Espagne, Italie et Belgique, la publicité est autorisée mais ne doit pas cibler les mineurs (ARPP européen). " +
+      "L'annonceur est seul responsable du respect des lois nationales applicables dans le marché ciblé.",
   },
   {
     id: "financial_services",
@@ -138,6 +150,12 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "La publicité pour les services financiers doit respecter la doctrine AMF et l'article L.533-12 du Code monétaire. " +
       "Toute allégation de performance doit être exacte, équilibrée et non trompeuse. " +
       "La publicité pour les actifs crypto doit inclure la mention obligatoire « Investir comporte des risques de perte en capital. »",
+    euRestricted: true,
+    euDisclaimer:
+      "La publicité pour les services financiers est encadrée par MiFID II et les régulateurs nationaux (BaFin, FCA, CNMV, AFM…). " +
+      "Toute allégation de performance doit être exacte, équilibrée et non trompeuse. " +
+      "La publicité pour les crypto-actifs est soumise au règlement MiCA (UE 2023/1114) : mention obligatoire du risque de perte en capital. " +
+      "L'annonceur doit vérifier les exigences locales auprès du régulateur compétent du marché ciblé.",
   },
   {
     id: "pharma_medical",
@@ -154,6 +172,11 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public en France " +
       "(art. L.5122-6 CSP). Seuls les médicaments sans ordonnance peuvent faire l'objet d'une communication publique, " +
       "sous réserve d'un visa publicitaire ANSM. MoveSpot ne peut pas accepter ce brief pour le marché français.",
+    euBlocked: true,
+    euDisclaimer:
+      "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public dans toute l'Union européenne " +
+      "(Directive 2001/83/CE, art. 88). Seuls les médicaments sans ordonnance peuvent faire l'objet d'une publicité grand public, " +
+      "sous réserve d'une autorisation nationale. MoveSpot ne peut pas accepter ce brief pour les marchés européens.",
   },
 ];
 
@@ -161,6 +184,21 @@ export type ContentComplianceResult =
   | { status: "ok" }
   | { status: "restricted"; disclaimer: string }
   | { status: "blocked"; reason: string };
+
+export function checkEuContentCompliance(categoryId: string): ContentComplianceResult {
+  const cat = CONTENT_CATEGORIES.find((c) => c.id === categoryId);
+  if (!cat) return { status: "ok" };
+  if (cat.euBlocked) {
+    return {
+      status: "blocked",
+      reason: cat.euDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés européens.`,
+    };
+  }
+  if (cat.euRestricted && cat.euDisclaimer) {
+    return { status: "restricted", disclaimer: cat.euDisclaimer };
+  }
+  return { status: "ok" };
+}
 
 export function checkFrContentCompliance(categoryId: string): ContentComplianceResult {
   const cat = CONTENT_CATEGORIES.find((c) => c.id === categoryId);
