@@ -1341,9 +1341,9 @@ function NewBriefPage() {
                       </span>
                     </div>
                   </div>
-                  {qualityScore.tips.length > 0 && (
+                  {(qualityScore.tips?.length ?? 0) > 0 && (
                     <ul className="space-y-0.5">
-                      {qualityScore.tips.map((tip, i) => (
+                      {qualityScore.tips?.map((tip, i) => (
                         <li key={i} className="text-muted-foreground">
                           💡 {tip}
                         </li>

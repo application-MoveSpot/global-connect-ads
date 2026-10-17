@@ -163,7 +163,7 @@ export function AdvertiserBudgetEstimate({
 
           {/* Breakdown */}
           <div className="space-y-1.5">
-            {result.lines.map((line, i) => (
+            {(result.lines ?? []).map((line, i) => (
               <div key={i} className="flex items-start justify-between gap-3 text-sm">
                 <div>
                   <span className="font-medium">{line.label}</span>
