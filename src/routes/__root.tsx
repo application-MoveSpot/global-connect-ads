@@ -88,6 +88,7 @@ export const Route = (createRootRouteWithContext as any)()({
               "@type": "Organization",
               "@id": "https://move-spot.com/#organization",
               name: "MoveSpot",
+              legalName: "RAKOUN KLUB",
               taxID: "804671444",
               identifier: {
                 "@type": "PropertyValue",
