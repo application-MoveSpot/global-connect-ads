@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { createLovableAiGatewayProvider, createGoogleAiDirectProvider } from "./ai-gateway.server";
 import { checkBriefRequestAuth } from "./brief-auth.server";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
@@ -53,9 +53,8 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
       return { ok: false, code: "UNAUTHORIZED", message };
     }
 
-    const apiKey =
-      process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY ?? data.userApiKey;
-    if (!apiKey) {
+    const platformKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
+    if (!platformKey && !data.userApiKey) {
       return {
         ok: false,
         code: "AI_UNAVAILABLE",
@@ -63,7 +62,10 @@ export const generateBriefSuggestion = createServerFn({ method: "POST" })
       };
     }
 
-    const provider = createLovableAiGatewayProvider(apiKey);
+    // User-supplied key always routes to Google AI directly (never through Lovable gateway).
+    const provider = platformKey
+      ? createLovableAiGatewayProvider(platformKey)
+      : createGoogleAiDirectProvider(data.userApiKey!);
     // Models tried in order — first working one wins.
     const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 

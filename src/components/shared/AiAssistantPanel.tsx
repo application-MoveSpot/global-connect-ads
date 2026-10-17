@@ -139,8 +139,8 @@ export function AiAssistantPanel({
                     >
                       <span>🔑</span>
                       {userApiKey
-                        ? `Clé API connectée (${userApiKey.slice(0, 8)}…) — modifier`
-                        : "Connecter votre propre clé Google AI / Gemini"}
+                        ? `Clé API personnelle connectée (${userApiKey.slice(0, 8)}…) — modifier`
+                        : "Utiliser ma propre clé Google AI (si le service est indisponible)"}
                     </button>
                   ) : (
                     <div className="space-y-2">
