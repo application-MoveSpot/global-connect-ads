@@ -739,11 +739,11 @@ function NewBriefPage() {
 
     if (market === "US") {
       if (!usCity) {
-        setError("Sélectionnez une ville américaine pour ce brief.");
+        setError("Sélectionnez une ville pour le marché Amériques.");
         return;
       }
       if (!contentCategory) {
-        setError("La catégorie de contenu est obligatoire pour le marché US.");
+        setError("La catégorie de contenu est obligatoire pour le marché Amériques.");
         return;
       }
       const compliance = checkContentCompliance(contentCategory, usCity);
@@ -1268,7 +1268,7 @@ function NewBriefPage() {
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "Afrique" : m === "AS" ? "Asie" : "🇺🇸 États-Unis"}
+                    {m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "Afrique" : m === "AS" ? "Asie" : "Amérique"}
                   </button>
                 ))}
               </div>
