@@ -4034,7 +4034,11 @@
     "content_category_label": "Catégorie de contenu",
     "content_category_placeholder": "Sélectionnez une catégorie…",
     "content_ok": "Catégorie autorisée dans cette ville.",
-    "us_legal_note": "MoveSpot vérifie la conformité réglementaire pour chaque marché US. L'annonceur reste responsable du respect des lois locales applicables à son secteur d'activité."
+    "us_legal_note": "MoveSpot vérifie la conformité réglementaire pour chaque marché US. L'annonceur reste responsable du respect des lois locales applicables à son secteur d'activité.",
+    "fr_city_label": "Ville / marché français",
+    "fr_city_placeholder": "Sélectionnez une ville…",
+    "fr_content_ok": "Catégorie autorisée pour le marché français.",
+    "fr_legal_note": "MoveSpot applique les règles de la Loi Évin, de l'ARPP et du décret 2012-118 sur la publicité extérieure. L'annonceur reste responsable du respect des réglementations spécifiques à son secteur d'activité."
   },
   "owner": {
     "inscription": {

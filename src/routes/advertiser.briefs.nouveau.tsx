@@ -9,7 +9,8 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { US_CITIES, findUsCity } from "@/lib/compliance/us-markets";
-import { CONTENT_CATEGORIES, checkContentCompliance } from "@/lib/compliance/content-restrictions";
+import { FR_CITIES, findFrCity } from "@/lib/compliance/fr-markets";
+import { CONTENT_CATEGORIES, checkContentCompliance, checkFrContentCompliance } from "@/lib/compliance/content-restrictions";
 import {
   ZoneSelector,
   polygonToEwkt,
@@ -200,6 +201,7 @@ function NewBriefPage() {
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
   const [market, setMarket] = useState<"FR" | "US">("FR");
   const [usCity, setUsCity] = useState("");
+  const [frCity, setFrCity] = useState("");
   const [contentCategory, setContentCategory] = useState("");
   const [previewVehicleId, setPreviewVehicleId] = useState<string | null>(null);
   const [previewSearching, setPreviewSearching] = useState(false);
@@ -254,6 +256,7 @@ function NewBriefPage() {
       if (d.displayType) setDisplayType(d.displayType as "digital" | "traditionnel");
       if (d.market) setMarket(d.market as "FR" | "US");
       if (d.usCity) setUsCity(d.usCity as string);
+      if (d.frCity) setFrCity(d.frCity as string);
       if (d.contentCategory) setContentCategory(d.contentCategory as string);
       setDraftRestored(true);
       setWizardStep("form");
@@ -296,6 +299,7 @@ function NewBriefPage() {
           displayType,
           market,
           usCity,
+          frCity,
           contentCategory,
         }),
       );
@@ -740,6 +744,22 @@ function NewBriefPage() {
       }
     }
 
+    if (market === "FR") {
+      if (!frCity) {
+        setError("Sélectionnez une ville française pour ce brief.");
+        return;
+      }
+      if (!contentCategory) {
+        setError("La catégorie de contenu est obligatoire.");
+        return;
+      }
+      const frCompliance = checkFrContentCompliance(contentCategory);
+      if (frCompliance.status === "blocked") {
+        setError(frCompliance.reason);
+        return;
+      }
+    }
+
     if (!userId) {
       if (!showGuestSignup) {
         setShowGuestSignup(true);
@@ -1177,6 +1197,7 @@ function NewBriefPage() {
                     onClick={() => {
                       setMarket(m);
                       setUsCity("");
+                      setFrCity("");
                       setContentCategory("");
                     }}
                     className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
@@ -1286,6 +1307,100 @@ function NewBriefPage() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">{t("compliance.us_legal_note")}</p>
+              </>
+            )}
+
+            {market === "FR" && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.fr_city_label")} <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={frCity}
+                    onChange={(e) => setFrCity(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.fr_city_placeholder")}</option>
+                    {FR_CITIES.filter((c) => c.status !== "zone_protegee").map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} — {c.department}
+                        {c.status === "reglementation" ? " — RLP renforcé" : ""}
+                      </option>
+                    ))}
+                    <optgroup label="Zones protégées">
+                      {FR_CITIES.filter((c) => c.status === "zone_protegee").map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} — {c.department} — Zone protégée
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                  {frCity &&
+                    (() => {
+                      const city = findFrCity(frCity);
+                      if (!city) return null;
+                      return (
+                        <div
+                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
+                            city.status === "open"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                              : city.status === "reglementation"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                : "bg-red-500/10 text-red-700 dark:text-red-400"
+                          }`}
+                        >
+                          {city.status === "open" && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
+                          {city.status === "reglementation" && `⚠ RLP renforcé. ${city.notes ?? ""}`}
+                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                        </div>
+                      );
+                    })()}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.content_category_label")}{" "}
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={contentCategory}
+                    onChange={(e) => setContentCategory(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.content_category_placeholder")}</option>
+                    {CONTENT_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelFr}
+                      </option>
+                    ))}
+                  </select>
+                  {contentCategory &&
+                    (() => {
+                      const result = checkFrContentCompliance(contentCategory);
+                      if (result.status === "restricted") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
+                            ⚠ {result.disclaimer}
+                          </div>
+                        );
+                      }
+                      if (result.status === "blocked") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
+                            ⛔ {result.reason}
+                          </div>
+                        );
+                      }
+                      return (
+                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          ✓ {t("compliance.fr_content_ok")}
+                        </p>
+                      );
+                    })()}
+                </div>
+
+                <p className="text-xs text-muted-foreground">{t("compliance.fr_legal_note")}</p>
               </>
             )}
           </div>
