@@ -9,7 +9,6 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { US_CITIES, findUsCity } from "@/lib/compliance/us-markets";
-import { FR_CITIES, findFrCity } from "@/lib/compliance/fr-markets";
 import { EU_CITIES, findEuCity, getEuCitiesByCountry } from "@/lib/compliance/eu-markets";
 import { AF_CITIES, findAfCity, getAfCitiesByCountry } from "@/lib/compliance/africa-markets";
 import { AS_CITIES, findAsCity, getAsCitiesByCountry } from "@/lib/compliance/asia-markets";
@@ -209,12 +208,11 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
-  const [market, setMarket] = useState<"FR" | "US" | "EU" | "AF" | "AS">("FR");
+  const [market, setMarket] = useState<"EU" | "US" | "AF" | "AS">("EU");
   const [euCity, setEuCity] = useState("");
   const [afCity, setAfCity] = useState("");
   const [asCity, setAsCity] = useState("");
   const [usCity, setUsCity] = useState("");
-  const [frCity, setFrCity] = useState("");
   const [contentCategory, setContentCategory] = useState("");
   const [previewVehicleId, setPreviewVehicleId] = useState<string | null>(null);
   const [previewSearching, setPreviewSearching] = useState(false);
@@ -267,10 +265,11 @@ function NewBriefPage() {
       if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
       if (d.brandColor) setBrandColor(d.brandColor as string);
       if (d.displayType) setDisplayType(d.displayType as "digital" | "traditionnel");
-      if (d.market) setMarket(d.market as "FR" | "US" | "EU" | "AF" | "AS");
+      const savedMarket = d.market === "FR" ? "EU" : d.market;
+      if (savedMarket) setMarket(savedMarket as "EU" | "US" | "AF" | "AS");
       if (d.usCity) setUsCity(d.usCity as string);
-      if (d.frCity) setFrCity(d.frCity as string);
-      if (d.euCity) setEuCity(d.euCity as string);
+      if (d.frCity) setEuCity(d.frCity as string);
+      else if (d.euCity) setEuCity(d.euCity as string);
       if (d.afCity) setAfCity(d.afCity as string);
       if (d.asCity) setAsCity(d.asCity as string);
       if (d.contentCategory) setContentCategory(d.contentCategory as string);
@@ -315,7 +314,6 @@ function NewBriefPage() {
           displayType,
           market,
           usCity,
-          frCity,
           euCity,
           afCity,
           asCity,
@@ -763,22 +761,6 @@ function NewBriefPage() {
       }
     }
 
-    if (market === "FR") {
-      if (!frCity) {
-        setError("Sélectionnez une ville française pour ce brief.");
-        return;
-      }
-      if (!contentCategory) {
-        setError("La catégorie de contenu est obligatoire.");
-        return;
-      }
-      const frCompliance = checkFrContentCompliance(contentCategory);
-      if (frCompliance.status === "blocked") {
-        setError(frCompliance.reason);
-        return;
-      }
-    }
-
     if (market === "EU") {
       if (!euCity) {
         setError("Sélectionnez une ville européenne pour ce brief.");
@@ -788,7 +770,10 @@ function NewBriefPage() {
         setError("La catégorie de contenu est obligatoire.");
         return;
       }
-      const euCompliance = checkEuContentCompliance(contentCategory);
+      const euCityData = findEuCity(euCity);
+      const euCompliance = euCityData?.isFrance
+        ? checkFrContentCompliance(contentCategory)
+        : checkEuContentCompliance(contentCategory);
       if (euCompliance.status === "blocked") {
         setError(euCompliance.reason);
         return;
@@ -1265,14 +1250,13 @@ function NewBriefPage() {
             <div>
               <p className="text-sm font-semibold mb-2">{t("compliance.market_label")}</p>
               <div className="flex gap-2">
-                {(["FR", "EU", "AF", "AS", "US"] as const).map((m) => (
+                {(["EU", "AF", "AS", "US"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => {
                       setMarket(m);
                       setUsCity("");
-                      setFrCity("");
                       setEuCity("");
                       setAfCity("");
                       setAsCity("");
@@ -1284,7 +1268,7 @@ function NewBriefPage() {
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "FR" ? "🇫🇷 France" : m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "🌍 Afrique" : m === "AS" ? "🌏 Asie" : "🇺🇸 États-Unis"}
+                    {m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "🌍 Afrique" : m === "AS" ? "🌏 Asie" : "🇺🇸 États-Unis"}
                   </button>
                 ))}
               </div>
@@ -1388,124 +1372,6 @@ function NewBriefPage() {
               </>
             )}
 
-            {market === "FR" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.fr_city_label")} <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={frCity}
-                    onChange={(e) => setFrCity(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.fr_city_placeholder")}</option>
-                    <optgroup label="Métropole — marchés ouverts">
-                      {FR_CITIES.filter((c) => !c.isOutreMer && c.status === "open").map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} — {c.department}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Métropole — RLP renforcé">
-                      {FR_CITIES.filter((c) => !c.isOutreMer && c.status === "reglementation").map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} — {c.department}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Métropole — Zones protégées">
-                      {FR_CITIES.filter((c) => !c.isOutreMer && c.status === "zone_protegee").map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} — {c.department}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Outre-mer — DROM (droit français)">
-                      {FR_CITIES.filter((c) => c.isOutreMer && c.status === "open").map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} — {c.department}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Outre-mer — COM (règles locales)">
-                      {FR_CITIES.filter((c) => c.isOutreMer && c.status === "reglementation").map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} — {c.department}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
-                  {frCity &&
-                    (() => {
-                      const city = findFrCity(frCity);
-                      if (!city) return null;
-                      return (
-                        <div
-                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
-                            city.status === "open"
-                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                              : city.status === "reglementation"
-                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-red-500/10 text-red-700 dark:text-red-400"
-                          }`}
-                        >
-                          {city.status === "open" && !city.isOutreMer && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
-                          {city.status === "open" && city.isOutreMer && `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
-                          {city.status === "reglementation" && !city.isOutreMer && `⚠ RLP renforcé. ${city.notes ?? ""}`}
-                          {city.status === "reglementation" && city.isOutreMer && `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
-                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
-                        </div>
-                      );
-                    })()}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.content_category_label")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={contentCategory}
-                    onChange={(e) => setContentCategory(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.content_category_placeholder")}</option>
-                    {CONTENT_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.labelFr}
-                      </option>
-                    ))}
-                  </select>
-                  {contentCategory &&
-                    (() => {
-                      const result = checkFrContentCompliance(contentCategory);
-                      if (result.status === "restricted") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
-                            ⚠ {result.disclaimer}
-                          </div>
-                        );
-                      }
-                      if (result.status === "blocked") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
-                            ⛔ {result.reason}
-                          </div>
-                        );
-                      }
-                      return (
-                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓ {t("compliance.fr_content_ok")}
-                        </p>
-                      );
-                    })()}
-                </div>
-
-                <p className="text-xs text-muted-foreground">{t("compliance.fr_legal_note")}</p>
-              </>
-            )}
-
             {market === "EU" && (
               <>
                 <div>
@@ -1544,9 +1410,14 @@ function NewBriefPage() {
                                 : "bg-red-500/10 text-red-700 dark:text-red-400"
                           }`}
                         >
-                          {city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
-                          {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                          {city.isFrance && city.status === "open" && !city.isOutreMer && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
+                          {city.isFrance && city.status === "open" && city.isOutreMer && `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
+                          {city.isFrance && city.status === "restreint" && !city.isOutreMer && `⚠ RLP renforcé. ${city.notes ?? ""}`}
+                          {city.isFrance && city.status === "restreint" && city.isOutreMer && `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
+                          {city.isFrance && city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                          {!city.isFrance && city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {!city.isFrance && city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
+                          {!city.isFrance && city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
                         </div>
                       );
                     })()}
@@ -1571,7 +1442,10 @@ function NewBriefPage() {
                   </select>
                   {contentCategory &&
                     (() => {
-                      const result = checkEuContentCompliance(contentCategory);
+                      const selectedEuCity = findEuCity(euCity);
+                      const result = selectedEuCity?.isFrance
+                        ? checkFrContentCompliance(contentCategory)
+                        : checkEuContentCompliance(contentCategory);
                       if (result.status === "restricted") {
                         return (
                           <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
@@ -1588,13 +1462,15 @@ function NewBriefPage() {
                       }
                       return (
                         <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓ {t("compliance.eu_content_ok")}
+                          ✓ {selectedEuCity?.isFrance ? t("compliance.fr_content_ok") : t("compliance.eu_content_ok")}
                         </p>
                       );
                     })()}
                 </div>
 
-                <p className="text-xs text-muted-foreground">{t("compliance.eu_legal_note")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {findEuCity(euCity)?.isFrance ? t("compliance.fr_legal_note") : t("compliance.eu_legal_note")}
+                </p>
               </>
             )}
 

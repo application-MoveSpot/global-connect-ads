@@ -18,9 +18,186 @@ export type EuCity = {
   countryFlag: string;
   status: EuMarketStatus;
   notes?: string;
+  isFrance?: boolean;
+  isOutreMer?: boolean;
 };
 
 export const EU_CITIES: EuCity[] = [
+  // ── France — Métropole ────────────────────────────────────────────────────
+  { id: "bordeaux-33", name: "Bordeaux", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "toulouse-31", name: "Toulouse", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "nantes-44", name: "Nantes", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "rennes-35", name: "Rennes", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "lille-59", name: "Lille", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "montpellier-34", name: "Montpellier", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "strasbourg-67", name: "Strasbourg", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "grenoble-38", name: "Grenoble", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "nice-06", name: "Nice", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "marseille-13", name: "Marseille", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "tours-37", name: "Tours", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "dijon-21", name: "Dijon", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "reims-51", name: "Reims", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "le-havre-76", name: "Le Havre", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  { id: "caen-14", name: "Caen", countryCode: "FR", countryName: "France — Métropole", countryFlag: "🇫🇷", status: "open", isFrance: true },
+  {
+    id: "paris-75",
+    name: "Paris",
+    countryCode: "FR",
+    countryName: "France — Métropole",
+    countryFlag: "🇫🇷",
+    status: "restreint",
+    isFrance: true,
+    notes:
+      "Le RLP de Paris (2011, révisé 2024) interdit les véhicules publicitaires dédiés (camions-sandwichs) " +
+      "dans les zones résidentielles et à proximité des écoles. Les véhicules en covering circulant pour leur " +
+      "activité propre sont autorisés. Éviter le centre historique (Marais, Île de la Cité) lors du déploiement.",
+  },
+  {
+    id: "lyon-69",
+    name: "Lyon",
+    countryCode: "FR",
+    countryName: "France — Métropole",
+    countryFlag: "🇫🇷",
+    status: "restreint",
+    isFrance: true,
+    notes:
+      "RLP métropolitain en vigueur. Publicité mobile sur véhicule utilitaire autorisée hors zones sensibles " +
+      "(Vieux-Lyon, secteur sauvegardé 5e). Déclaration préalable conseillée auprès de la Métropole.",
+  },
+  {
+    id: "versailles-78",
+    name: "Versailles",
+    countryCode: "FR",
+    countryName: "France — Métropole",
+    countryFlag: "🇫🇷",
+    status: "zone_protegee",
+    isFrance: true,
+    notes:
+      "Site classé UNESCO (Château et parc de Versailles). Toute publicité mobile est fortement déconseillée " +
+      "dans le périmètre classé. Consultez l'ABF (Architecte des Bâtiments de France) avant lancement.",
+  },
+  {
+    id: "avignon-84",
+    name: "Avignon",
+    countryCode: "FR",
+    countryName: "France — Métropole",
+    countryFlag: "🇫🇷",
+    status: "zone_protegee",
+    isFrance: true,
+    notes:
+      "Centre historique classé UNESCO (remparts et palais des Papes). Couverture de véhicule autorisée " +
+      "hors du périmètre protégé. Vérifier les règles de l'AVAP avec la mairie avant déploiement.",
+  },
+  // ── France — Outre-mer (DROM) ─────────────────────────────────────────────
+  {
+    id: "guadeloupe-971",
+    name: "Guadeloupe",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (DROM)",
+    countryFlag: "🇫🇷",
+    status: "open",
+    isFrance: true,
+    isOutreMer: true,
+    notes:
+      "DROM — droit national français intégralement applicable (Loi Évin, décret 2012-118, ARPP). " +
+      "Flotte disponible à Pointe-à-Pitre et Basse-Terre.",
+  },
+  {
+    id: "martinique-972",
+    name: "Martinique",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (DROM)",
+    countryFlag: "🇫🇷",
+    status: "open",
+    isFrance: true,
+    isOutreMer: true,
+    notes: "DROM — droit national français applicable. Marché actif à Fort-de-France et l'agglomération Centre.",
+  },
+  {
+    id: "guyane-973",
+    name: "Guyane",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (DROM)",
+    countryFlag: "🇫🇷",
+    status: "open",
+    isFrance: true,
+    isOutreMer: true,
+    notes: "DROM — droit national français applicable. Flotte disponible principalement à Cayenne et Saint-Laurent-du-Maroni.",
+  },
+  {
+    id: "reunion-974",
+    name: "La Réunion",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (DROM)",
+    countryFlag: "🇫🇷",
+    status: "open",
+    isFrance: true,
+    isOutreMer: true,
+    notes: "DROM — droit national français applicable. Marché actif à Saint-Denis et Saint-Pierre.",
+  },
+  {
+    id: "mayotte-976",
+    name: "Mayotte",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (DROM)",
+    countryFlag: "🇫🇷",
+    status: "open",
+    isFrance: true,
+    isOutreMer: true,
+    notes: "DROM depuis 2011 — droit national français applicable. Flotte disponible à Mamoudzou.",
+  },
+  // ── France — Outre-mer (COM) ──────────────────────────────────────────────
+  {
+    id: "saint-martin-978",
+    name: "Saint-Martin",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (COM)",
+    countryFlag: "🇫🇷",
+    status: "restreint",
+    isFrance: true,
+    isOutreMer: true,
+    notes:
+      "Collectivité d'outre-mer — droit civil français applicable mais fiscalité et règles locales autonomes. " +
+      "Contacter la Collectivité de Saint-Martin pour les dispositions locales en matière de publicité.",
+  },
+  {
+    id: "saint-barthelemy-977",
+    name: "Saint-Barthélemy",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (COM)",
+    countryFlag: "🇫🇷",
+    status: "restreint",
+    isFrance: true,
+    isOutreMer: true,
+    notes:
+      "Collectivité d'outre-mer à fiscalité propre. Règles publicitaires locales à vérifier auprès de la Collectivité avant déploiement.",
+  },
+  {
+    id: "nouvelle-caledonie",
+    name: "Nouvelle-Calédonie",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (COM)",
+    countryFlag: "🇫🇷",
+    status: "restreint",
+    isFrance: true,
+    isOutreMer: true,
+    notes:
+      "Statut particulier (accord de Nouméa) — la publicité extérieure est régie par la législation locale du gouvernement calédonien. " +
+      "Consulter les autorités compétentes avant tout déploiement.",
+  },
+  {
+    id: "polynesie-francaise",
+    name: "Polynésie française",
+    countryCode: "FR",
+    countryName: "France — Outre-mer (COM)",
+    countryFlag: "🇫🇷",
+    status: "restreint",
+    isFrance: true,
+    isOutreMer: true,
+    notes:
+      "Collectivité d'outre-mer autonome — la publicité est régie par la législation polynésienne propre. " +
+      "Contacter les services compétents du Pays avant lancement.",
+  },
   // ── Allemagne ─────────────────────────────────────────────────────────────
   {
     id: "berlin-de",
