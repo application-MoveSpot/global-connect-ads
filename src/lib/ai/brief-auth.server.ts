@@ -3,17 +3,21 @@ import { getRequest } from "@tanstack/react-start/server";
 
 import type { Database } from "@/integrations/supabase/types";
 
+// Hardcoded fallback — immune to CI/Worker secret corruption. Anon key is public.
+const STATIC_SUPABASE_URL = "https://phononlhfyljhhhvlmrm.supabase.co";
+const STATIC_SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4";
+
+const sanitizeEnv = (s: string) => s.replace(/[\x00-\x1F\x7F]/g, "").trim();
+
 export type AuthCheckResult =
   | { ok: true; userId: string }
   | { ok: false; reason: "no_token" | "token_expired" | "token_invalid" | "config_missing" };
 
 export async function checkBriefRequestAuth(payloadToken?: string): Promise<AuthCheckResult> {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabasePublishableKey) {
-    return { ok: false, reason: "config_missing" };
-  }
+  const supabaseUrl = sanitizeEnv(process.env.SUPABASE_URL || "") || STATIC_SUPABASE_URL;
+  const supabasePublishableKey =
+    sanitizeEnv(process.env.SUPABASE_PUBLISHABLE_KEY || "") || STATIC_SUPABASE_KEY;
 
   let headerToken: string | undefined;
   try {
