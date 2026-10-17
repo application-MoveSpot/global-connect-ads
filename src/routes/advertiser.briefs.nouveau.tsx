@@ -1268,7 +1268,7 @@ function NewBriefPage() {
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "🌍 Afrique" : m === "AS" ? "🌏 Asie" : "🇺🇸 États-Unis"}
+                    {m === "EU" ? "🇪🇺 Europe" : m === "AF" ? "Afrique" : m === "AS" ? "Asie" : "🇺🇸 États-Unis"}
                   </button>
                 ))}
               </div>
