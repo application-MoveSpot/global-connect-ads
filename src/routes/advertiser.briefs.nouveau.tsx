@@ -10,7 +10,8 @@ import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbid
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { US_CITIES, findUsCity } from "@/lib/compliance/us-markets";
 import { FR_CITIES, findFrCity } from "@/lib/compliance/fr-markets";
-import { CONTENT_CATEGORIES, checkContentCompliance, checkFrContentCompliance } from "@/lib/compliance/content-restrictions";
+import { EU_CITIES, findEuCity, getEuCitiesByCountry } from "@/lib/compliance/eu-markets";
+import { CONTENT_CATEGORIES, checkContentCompliance, checkFrContentCompliance, checkEuContentCompliance } from "@/lib/compliance/content-restrictions";
 import {
   ZoneSelector,
   polygonToEwkt,
@@ -199,7 +200,8 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
-  const [market, setMarket] = useState<"FR" | "US">("FR");
+  const [market, setMarket] = useState<"FR" | "US" | "EU">("FR");
+  const [euCity, setEuCity] = useState("");
   const [usCity, setUsCity] = useState("");
   const [frCity, setFrCity] = useState("");
   const [contentCategory, setContentCategory] = useState("");
@@ -254,9 +256,10 @@ function NewBriefPage() {
       if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
       if (d.brandColor) setBrandColor(d.brandColor as string);
       if (d.displayType) setDisplayType(d.displayType as "digital" | "traditionnel");
-      if (d.market) setMarket(d.market as "FR" | "US");
+      if (d.market) setMarket(d.market as "FR" | "US" | "EU");
       if (d.usCity) setUsCity(d.usCity as string);
       if (d.frCity) setFrCity(d.frCity as string);
+      if (d.euCity) setEuCity(d.euCity as string);
       if (d.contentCategory) setContentCategory(d.contentCategory as string);
       setDraftRestored(true);
       setWizardStep("form");
@@ -300,6 +303,7 @@ function NewBriefPage() {
           market,
           usCity,
           frCity,
+          euCity,
           contentCategory,
         }),
       );
@@ -760,6 +764,22 @@ function NewBriefPage() {
       }
     }
 
+    if (market === "EU") {
+      if (!euCity) {
+        setError("Sélectionnez une ville européenne pour ce brief.");
+        return;
+      }
+      if (!contentCategory) {
+        setError("La catégorie de contenu est obligatoire.");
+        return;
+      }
+      const euCompliance = checkEuContentCompliance(contentCategory);
+      if (euCompliance.status === "blocked") {
+        setError(euCompliance.reason);
+        return;
+      }
+    }
+
     if (!userId) {
       if (!showGuestSignup) {
         setShowGuestSignup(true);
@@ -1190,7 +1210,7 @@ function NewBriefPage() {
             <div>
               <p className="text-sm font-semibold mb-2">{t("compliance.market_label")}</p>
               <div className="flex gap-2">
-                {(["FR", "US"] as const).map((m) => (
+                {(["FR", "EU", "US"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
@@ -1198,6 +1218,7 @@ function NewBriefPage() {
                       setMarket(m);
                       setUsCity("");
                       setFrCity("");
+                      setEuCity("");
                       setContentCategory("");
                     }}
                     className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
@@ -1206,7 +1227,7 @@ function NewBriefPage() {
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "FR" ? "🇫🇷 France" : "🇺🇸 États-Unis"}
+                    {m === "FR" ? "🇫🇷 France" : m === "EU" ? "🇪🇺 Europe" : "🇺🇸 États-Unis"}
                   </button>
                 ))}
               </div>
@@ -1425,6 +1446,98 @@ function NewBriefPage() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">{t("compliance.fr_legal_note")}</p>
+              </>
+            )}
+
+            {market === "EU" && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.eu_city_label")} <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={euCity}
+                    onChange={(e) => setEuCity(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.eu_city_placeholder")}</option>
+                    {Array.from(getEuCitiesByCountry().entries()).map(([countryLabel, cities]) => (
+                      <optgroup key={countryLabel} label={countryLabel}>
+                        {cities.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                            {c.status === "restreint" ? " — Réglementé" : ""}
+                            {c.status === "zone_protegee" ? " — Zone protégée" : ""}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  {euCity &&
+                    (() => {
+                      const city = findEuCity(euCity);
+                      if (!city) return null;
+                      return (
+                        <div
+                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
+                            city.status === "open"
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                              : city.status === "restreint"
+                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                                : "bg-red-500/10 text-red-700 dark:text-red-400"
+                          }`}
+                        >
+                          {city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
+                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                        </div>
+                      );
+                    })()}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("compliance.content_category_label")}{" "}
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    value={contentCategory}
+                    onChange={(e) => setContentCategory(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                  >
+                    <option value="">{t("compliance.content_category_placeholder")}</option>
+                    {CONTENT_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelFr}
+                      </option>
+                    ))}
+                  </select>
+                  {contentCategory &&
+                    (() => {
+                      const result = checkEuContentCompliance(contentCategory);
+                      if (result.status === "restricted") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
+                            ⚠ {result.disclaimer}
+                          </div>
+                        );
+                      }
+                      if (result.status === "blocked") {
+                        return (
+                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
+                            ⛔ {result.reason}
+                          </div>
+                        );
+                      }
+                      return (
+                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                          ✓ {t("compliance.eu_content_ok")}
+                        </p>
+                      );
+                    })()}
+                </div>
+
+                <p className="text-xs text-muted-foreground">{t("compliance.eu_legal_note")}</p>
               </>
             )}
           </div>

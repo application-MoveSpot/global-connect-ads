@@ -4038,7 +4038,11 @@
     "fr_city_label": "Ville / marché français",
     "fr_city_placeholder": "Sélectionnez une ville…",
     "fr_content_ok": "Catégorie autorisée pour le marché français.",
-    "fr_legal_note": "MoveSpot applique les règles de la Loi Évin, de l'ARPP et du décret 2012-118 sur la publicité extérieure. L'annonceur reste responsable du respect des réglementations spécifiques à son secteur d'activité."
+    "fr_legal_note": "MoveSpot applique les règles de la Loi Évin, de l'ARPP et du décret 2012-118 sur la publicité extérieure. L'annonceur reste responsable du respect des réglementations spécifiques à son secteur d'activité.",
+    "eu_city_label": "Ville / marché européen",
+    "eu_city_placeholder": "Sélectionnez une ville…",
+    "eu_content_ok": "Catégorie autorisée pour le marché européen.",
+    "eu_legal_note": "MoveSpot applique les règles européennes : Directive 2001/83/CE (médicaments), MiFID II + MiCA (financier/crypto), ARPP et lois nationales de publicité extérieure. L'annonceur reste responsable du respect des réglementations locales du marché ciblé."
   },
   "owner": {
     "inscription": {
