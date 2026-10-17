@@ -140,19 +140,19 @@ export function AiAssistantPanel({
                       <span>🔑</span>
                       {userApiKey
                         ? `Clé API personnelle connectée (${userApiKey.slice(0, 8)}…) — modifier`
-                        : "Utiliser ma propre clé Google AI (si le service est indisponible)"}
+                        : "Utiliser ma propre clé IA (Google · OpenAI · Mistral)"}
                     </button>
                   ) : (
                     <div className="space-y-2">
                       <p className="text-[11px] text-muted-foreground font-medium">
-                        🔑 Clé API Google AI (stockée dans votre navigateur)
+                        🔑 Clé API IA personnelle (stockée dans votre navigateur)
                       </p>
                       <div className="flex gap-2">
                         <input
                           type="password"
                           value={keyDraft}
                           onChange={(e) => setKeyDraft(e.target.value)}
-                          placeholder="AIzaSy…"
+                          placeholder="AIzaSy… (Google) · sk-… (OpenAI) · (Mistral)"
                           className="flex-1 min-w-0 rounded border border-border bg-background px-2 py-1 text-xs"
                         />
                         <button
@@ -180,15 +180,12 @@ export function AiAssistantPanel({
                         </button>
                       </div>
                       <p className="text-[10px] text-muted-foreground">
-                        Obtenez une clé gratuite sur{" "}
-                        <a
-                          href="https://aistudio.google.com/apikey"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          aistudio.google.com
-                        </a>
+                        Clés gratuites :{" "}
+                        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>
+                        {" · "}
+                        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">OpenAI</a>
+                        {" · "}
+                        <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener noreferrer" className="underline">Mistral</a>
                       </p>
                     </div>
                   )}
