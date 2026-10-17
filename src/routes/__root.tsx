@@ -89,6 +89,11 @@ export const Route = (createRootRouteWithContext as any)()({
               "@id": "https://move-spot.com/#organization",
               name: "MoveSpot",
               taxID: "804671444",
+              identifier: {
+                "@type": "PropertyValue",
+                name: "SIRET",
+                value: "80467144400052",
+              },
               url: "https://move-spot.com",
               email: "contact@move-spot.com",
               logo: {
