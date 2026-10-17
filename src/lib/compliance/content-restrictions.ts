@@ -1,25 +1,36 @@
-// Content categories and their US market restrictions for mobile fleet advertising.
+// Content categories and their market restrictions for mobile fleet advertising.
 // Used to gate brief submission and surface jurisdiction-specific warnings.
 //
 // NOT listed here (outside MoveSpot's scope entirely — not accepted, not shown):
 //   Cannabis / CBD, Tobacco / Vaping, Gambling / Sports Betting.
 //   These are handled as forbidden keywords in forbidden-keywords.ts.
 //
-// City-level restrictions for accepted categories:
+// US city-level restrictions:
 //   Alcohol:   FTC/TTB rules; state ABC laws; 500 ft buffer from schools/churches (most states).
 //   Pharma:    FDA 21 CFR Part 202; mandatory brief summary for Rx drugs.
 //   Financial: SEC/FINRA Rule 2210; state-level investment adviser restrictions.
+//
+// French restrictions (national law — apply to all cities equally):
+//   Alcohol:   Loi Évin (art. L.3323-2 CSP) — forbidden within 100 m of schools/sports/youth venues.
+//   Pharma:    ANSM + HAS rules; Rx drug advertising to general public is prohibited.
+//   Financial: AMF doctrine; claims must be accurate and not misleading (art. L.533-12 CMF).
 
 export type ContentCategory = {
   id: string;
   labelEn: string;
   labelFr: string;
-  // Cities where this category requires a disclaimer (shown as ⚠ warning).
+  // US cities where this category requires a disclaimer.
   restrictedIn: string[];
-  // Cities where this category is entirely blocked (blocks submission).
+  // US cities where this category is entirely blocked.
   blockedIn: string[];
-  // Shown to the advertiser when restriction applies (always in English for US market).
+  // Shown to the advertiser when US restriction applies.
   disclaimer?: string;
+  // France: national-level restriction applies regardless of city.
+  frRestricted?: boolean;
+  // France: category not accepted at all.
+  frBlocked?: boolean;
+  // Shown to the advertiser when French restriction applies.
+  frDisclaimer?: string;
 };
 
 export const CONTENT_CATEGORIES: ContentCategory[] = [
@@ -106,6 +117,12 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "Alcohol advertising near schools, places of worship, or parks is prohibited in most US cities " +
       "(typically within 500 ft). MoveSpot will automatically exclude sensitive zones from the route. " +
       "The advertiser remains solely responsible for verifying local ABC and municipal ordinance compliance before campaign launch.",
+    frRestricted: true,
+    frDisclaimer:
+      "La publicité pour l'alcool est encadrée par la Loi Évin (art. L.3323-2 CSP). " +
+      "Elle est interdite dans un rayon de 100 m des établissements scolaires, des équipements sportifs " +
+      "et des lieux accueillant des mineurs. MoveSpot exclura automatiquement ces zones de l'itinéraire. " +
+      "L'annonceur reste responsable du respect de la réglementation applicable à son secteur.",
   },
   {
     id: "financial_services",
@@ -116,6 +133,11 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
     disclaimer:
       "Financial advertising must comply with SEC, FINRA Rule 2210, and applicable state investment adviser regulations. " +
       "All performance claims must be accurate, balanced, and not misleading. Crypto assets may be subject to additional state disclosure requirements.",
+    frRestricted: true,
+    frDisclaimer:
+      "La publicité pour les services financiers doit respecter la doctrine AMF et l'article L.533-12 du Code monétaire. " +
+      "Toute allégation de performance doit être exacte, équilibrée et non trompeuse. " +
+      "La publicité pour les actifs crypto doit inclure la mention obligatoire « Investir comporte des risques de perte en capital. »",
   },
   {
     id: "pharma_medical",
@@ -127,6 +149,11 @@ export const CONTENT_CATEGORIES: ContentCategory[] = [
       "Prescription drug advertising must comply with FDA 21 CFR Part 202, including the mandatory brief summary " +
       "of side effects and contraindications. OTC drug and medical device claims must not be false or misleading (FTC Act §5). " +
       "A regulatory review by a qualified specialist is strongly recommended before launch.",
+    frBlocked: true,
+    frDisclaimer:
+      "La publicité pour les médicaments soumis à prescription est interdite auprès du grand public en France " +
+      "(art. L.5122-6 CSP). Seuls les médicaments sans ordonnance peuvent faire l'objet d'une communication publique, " +
+      "sous réserve d'un visa publicitaire ANSM. MoveSpot ne peut pas accepter ce brief pour le marché français.",
   },
 ];
 
@@ -134,6 +161,21 @@ export type ContentComplianceResult =
   | { status: "ok" }
   | { status: "restricted"; disclaimer: string }
   | { status: "blocked"; reason: string };
+
+export function checkFrContentCompliance(categoryId: string): ContentComplianceResult {
+  const cat = CONTENT_CATEGORIES.find((c) => c.id === categoryId);
+  if (!cat) return { status: "ok" };
+  if (cat.frBlocked) {
+    return {
+      status: "blocked",
+      reason: cat.frDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour le marché français.`,
+    };
+  }
+  if (cat.frRestricted && cat.frDisclaimer) {
+    return { status: "restricted", disclaimer: cat.frDisclaimer };
+  }
+  return { status: "ok" };
+}
 
 export function checkContentCompliance(
   categoryId: string,
