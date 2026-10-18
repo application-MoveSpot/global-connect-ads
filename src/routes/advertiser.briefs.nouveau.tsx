@@ -523,11 +523,12 @@ function NewBriefPage() {
         });
         setQualityScore(result);
       } catch {
-        // silencieux
+        // silencieux — timeout ou erreur AI ne bloque pas l'utilisateur
+        setQualityScore(null);
       } finally {
         setQualityLoading(false);
       }
-    }, 2000);
+    }, 3000);
     return () => {
       clearTimeout(timer);
       setQualityLoading(false);
@@ -535,7 +536,7 @@ function NewBriefPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, description, audience]);
 
-  // Validation IA des visuels publicitaires
+  // Validation IA des visuels publicitaires — traitement en parallèle
   const handleCreativeValidation = async (selectedFiles: File[]) => {
     if (!selectedFiles.length) {
       setCreativeValidation([]);
@@ -543,40 +544,40 @@ function NewBriefPage() {
     }
     setCreativeValidating(true);
     setCreativeValidation([]);
-    const results: Array<{ name: string; ok: boolean; score: number; issues: string[] }> = [];
-    for (const file of selectedFiles) {
-      if (!file.type.startsWith("image/")) {
-        results.push({ name: file.name, ok: true, score: 100, issues: [] });
-        continue;
-      }
-      try {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const dataUrl = reader.result as string;
-            resolve(dataUrl.split(",")[1] ?? "");
+    const results = await Promise.all(
+      selectedFiles.map(async (file) => {
+        if (!file.type.startsWith("image/")) {
+          return { name: file.name, ok: true, score: 100, issues: [] };
+        }
+        try {
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const dataUrl = reader.result as string;
+              resolve(dataUrl.split(",")[1] ?? "");
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          const res = await validateBriefCreative({ data: { base64, mimeType: file.type } });
+          return {
+            name: file.name,
+            ok: res.ok,
+            score: res.score,
+            issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)],
           };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        const res = await validateBriefCreative({ data: { base64, mimeType: file.type } });
-        results.push({
-          name: file.name,
-          ok: res.ok,
-          score: res.score,
-          issues: [...res.issues, ...res.tips.map((t: string) => `💡 ${t}`)],
-        });
-      } catch {
-        results.push({
-          name: file.name,
-          ok: false,
-          score: 0,
-          issues: [
-            "⚠️ Validation IA indisponible — ce visuel sera examiné manuellement par notre équipe.",
-          ],
-        });
-      }
-    }
+        } catch {
+          return {
+            name: file.name,
+            ok: false,
+            score: 0,
+            issues: [
+              "⚠️ Validation IA indisponible — ce visuel sera examiné manuellement par notre équipe.",
+            ],
+          };
+        }
+      }),
+    );
     setCreativeValidation(results);
     setCreativeValidating(false);
   };

@@ -10,29 +10,38 @@ async function analyseImageBase64(
   base64: string,
   mimeType: string,
   systemPrompt: string,
+  timeoutMs = 15_000,
 ): Promise<string> {
   const apiKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
   if (!apiKey) throw new Error("LOVABLE_API_KEY manquant");
 
   const { url, headers } = getAiGatewayFetchConfig(apiKey);
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: systemPrompt },
-            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
-          ],
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers,
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: systemPrompt },
+              { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
+            ],
+          },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0,
+      }),
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
   if (!res.ok) throw new Error(`Lovable gateway: ${res.status}`);
   const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
   return json.choices?.[0]?.message?.content ?? "{}";
