@@ -183,7 +183,6 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
             amountEuros={missingEur}
             disabled={loading}
             buttonLabel={t("campaign_payment.btn_topup_amount", { amount: missingEur })}
-            onClose={onTopupClose}
           />
         </div>
       )}

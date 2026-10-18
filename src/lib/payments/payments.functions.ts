@@ -13,7 +13,7 @@ const TopupInput = z.object({
   billingPostalCode: z.string().max(12).optional(),
 });
 
-type CheckoutSessionResult = { clientSecret: string; id: string } | { error: string };
+type CheckoutSessionResult = { url: string; id: string } | { error: string };
 
 export const createWalletTopupCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -94,12 +94,13 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         }
       }
 
-      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
+      const successUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}topup=success&session_id={CHECKOUT_SESSION_ID}`;
 
       const sessionParams = {
         mode: "payment",
-        ui_mode: "form",
-        return_url: returnUrl,
+        ui_mode: "hosted_page",
+        success_url: successUrl,
+        cancel_url: data.returnUrl,
         customer: customerId,
         line_items: [
           {
@@ -151,7 +152,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
         payment_method_options: { card: { request_three_d_secure: "any" } },
       } as never);
 
-      return { clientSecret: session.client_secret ?? "", id: session.id };
+      return { url: session.url ?? "", id: session.id };
     } catch (error) {
       captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
@@ -426,7 +427,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
         }
       }
 
-      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
+      const successUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
       const meta: Record<string, string> = {
         kind: "campaign_subscription",
         userId,
@@ -443,8 +444,9 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "form",
-        return_url: returnUrl,
+        ui_mode: "hosted_page",
+        success_url: successUrl,
+        cancel_url: data.returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: data.vehicleQuantity }],
         metadata: meta,
@@ -469,7 +471,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
         session = await stripe.checkout.sessions.create(baseParams as never);
       }
 
-      return { clientSecret: session.client_secret ?? "", id: session.id };
+      return { url: session.url ?? "", id: session.id };
     } catch (error) {
       captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
@@ -539,7 +541,7 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
         return { error: "Tarif prestataire introuvable (lookup key : provider_monthly)" };
       const price = prices.data[0];
 
-      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
+      const successUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
       const meta: Record<string, string> = {
         kind: "provider_subscription",
         userId,
@@ -548,8 +550,9 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "form",
-        return_url: returnUrl,
+        ui_mode: "hosted_page",
+        success_url: successUrl,
+        cancel_url: data.returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: 1 }],
         metadata: meta,
@@ -567,7 +570,7 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
         session = await stripe.checkout.sessions.create(baseParams as never);
       }
 
-      return { clientSecret: session.client_secret ?? "", id: session.id };
+      return { url: session.url ?? "", id: session.id };
     } catch (error) {
       captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
@@ -637,7 +640,7 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
         return { error: "Tarif partenaire introuvable (lookup key : partner_monthly)" };
       const price = prices.data[0];
 
-      const returnUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
+      const successUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
       const meta: Record<string, string> = {
         kind: "partner_subscription",
         userId,
@@ -646,8 +649,9 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "form",
-        return_url: returnUrl,
+        ui_mode: "hosted_page",
+        success_url: successUrl,
+        cancel_url: data.returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: 1 }],
         metadata: meta,
@@ -665,7 +669,7 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
         session = await stripe.checkout.sessions.create(baseParams as never);
       }
 
-      return { clientSecret: session.client_secret ?? "", id: session.id };
+      return { url: session.url ?? "", id: session.id };
     } catch (error) {
       captureServerException(error, { category: "payment", userId });
       return { error: getStripeErrorMessage(error) };
