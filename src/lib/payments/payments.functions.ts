@@ -98,7 +98,7 @@ export const createWalletTopupCheckout = createServerFn({ method: "POST" })
 
       const sessionParams = {
         mode: "payment",
-        ui_mode: "embedded",
+        ui_mode: "embedded_page",
         return_url: returnUrl,
         customer: customerId,
         line_items: [
@@ -443,7 +443,7 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "embedded",
+        ui_mode: "embedded_page",
         return_url: returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: data.vehicleQuantity }],
@@ -548,7 +548,7 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "embedded",
+        ui_mode: "embedded_page",
         return_url: returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: 1 }],
@@ -646,7 +646,7 @@ export const createPartnerSubscriptionCheckout = createServerFn({ method: "POST"
 
       const baseParams = {
         mode: "subscription",
-        ui_mode: "embedded",
+        ui_mode: "embedded_page",
         return_url: returnUrl,
         customer: customerId,
         line_items: [{ price: price.id, quantity: 1 }],
