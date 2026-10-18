@@ -2,8 +2,8 @@ import { useTranslation } from "react-i18next";
 import { getCurrencyFromLang, CURRENCY_CONFIGS } from "@/lib/currency";
 
 const LANGS = [
-  { code: "fr", label: "FR", flag: "🇫🇷" },
-  { code: "en", label: "EN", flag: "🇺🇸" },
+  { code: "fr", label: "FR" },
+  { code: "en", label: "EN" },
 ] as const;
 
 export function LanguageSwitcher({ className }: { className?: string }) {
@@ -25,13 +25,12 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             } catch {}
             i18n.changeLanguage(code);
           }}
-          className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-md transition ${
+          className={`text-xs font-semibold px-2 py-1 rounded-md transition ${
             activeLang === code
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <span aria-hidden="true">{flag}</span>
           {label}
         </button>
       ))}
