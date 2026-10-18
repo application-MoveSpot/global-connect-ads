@@ -57,11 +57,24 @@ Réponds UNIQUEMENT en JSON strict :
 }`;
 
     let text: string;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
     try {
-      ({ text } = await generateText({ model, prompt, temperature: 0.3, maxOutputTokens: 300 }));
+      ({ text } = await generateText({
+        model,
+        prompt,
+        temperature: 0.3,
+        maxOutputTokens: 300,
+        abortSignal: controller.signal,
+      }));
     } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        return { global: 5, scores: { message: 5, audience: 5, zone: 5 }, tips: [] };
+      }
       captureServerException(err, { category: "ai", userId: context.userId });
       throw err;
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     try {
