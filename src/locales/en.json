@@ -89,7 +89,7 @@
       "admin_adjustment": "Adjustment"
     },
     "topup_success": "Balance credited! Your wallet has been topped up.",
-    "back_to_dashboard": "← My space",
+    "back_to_dashboard": "My space",
     "subtitle_individual": "Top up the amount of your event pack — used automatically when an owner accepts your brief.",
     "subtitle_business": "Prepaid credits usable instantly for your campaigns.",
     "see_packs": "See event packs ($49 · $79 · $149) →",
@@ -581,7 +581,7 @@
     },
     "pack": {
       "loading": "Loading…",
-      "back": "← My space",
+      "back": "My space",
       "title_individual": "Event packs",
       "title_business": "Advertising pack",
       "desc_individual": "Choose the pack suited to your event. One-time payment, no subscription.",
@@ -614,7 +614,7 @@
     },
     "briefs_list": {
       "loading": "Loading…",
-      "back": "← My space",
+      "back": "My space",
       "title": "My briefs",
       "subtitle_individual": "Your events waiting for a vehicle.",
       "subtitle_business": "Your requests open to owners.",
@@ -640,7 +640,7 @@
     },
     "briefs_confirm": {
       "loading": "Loading…",
-      "back": "← My space",
+      "back": "My space",
       "ind_title": "Your listing is online!",
       "ind_desc": "Vehicle owners will be able to see it and send you proposals.",
       "urgent_days_zero": "less than 1 day",
@@ -754,7 +754,7 @@
       "footer": "Quote valid 30 days from {{date}} · Ref. {{ref}}"
     },
     "remboursement": {
-      "back": "← My space",
+      "back": "My space",
       "title": "My refunds",
       "desc": "View your requests or submit a new one.",
       "policy_link": "View refund policy →",
@@ -1532,7 +1532,7 @@
     "briefs": {
       "index": {
         "loading": "Loading…",
-        "back": "← My space",
+        "back": "My space",
         "title": "Open briefs",
         "desc_no_vehicles": "Get at least one vehicle approved to see matching briefs.",
         "desc_types": "Briefs matching your approved vehicles ({{types}}).",
@@ -1657,7 +1657,7 @@
       "toast_stopped": "GPS tracking stopped — last batch sent"
     },
     "carte": {
-      "back": "← My space",
+      "back": "My space",
       "print": "🖨 Print",
       "title": "Digital business card",
       "desc": "Share this card with advertisers. They scan the QR code to discover the platform and create their campaign.",
@@ -4038,7 +4038,7 @@
     "briefs": {
       "index": {
         "loading": "Loading…",
-        "back": "← My space",
+        "back": "My space",
         "title": "Open briefs",
         "desc_no_vehicles": "Get at least one vehicle approved to see matching briefs.",
         "desc_types": "Briefs matching your approved vehicles ({{types}}).",
