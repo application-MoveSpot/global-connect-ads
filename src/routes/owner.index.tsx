@@ -648,7 +648,7 @@ function OwnerVehicleOnboarding() {
                       : "border border-border text-foreground hover:bg-secondary"
                   }`}
                 >
-                  {step.cta.label} →
+                  {step.cta.label}
                 </Link>
               )}
             </div>
