@@ -275,6 +275,7 @@
     "error_mfa": "Erreur d'authentification multi-facteurs.",
     "forgot_password": "Mot de passe oublié ?",
     "back_to_home": "← Accueil",
+    "sign_in_with_google": "Se connecter avec Google",
     "have_account": "J'ai déjà un compte",
     "connected_as": "Connecté en tant que",
     "sign_out_lowercase": "se déconnecter",
