@@ -312,6 +312,7 @@ function AdminLoginPage() {
             </button>
           </form>
         ) : (
+          <>
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -395,6 +396,7 @@ function AdminLoginPage() {
               {loading ? "…" : t("admin.connexion.submit")}
             </button>
           </form>
+          </>
         )}
       </div>
     </div>
