@@ -180,6 +180,18 @@ function InscriptionPage() {
         return;
       }
       setSessionEmail(signInData.session?.user.email ?? null);
+      if (signInData.session) {
+        const { data: existing } = await supabase
+          .from("owner_profiles")
+          .select("id")
+          .eq("user_id", signInData.session.user.id)
+          .maybeSingle();
+        if (existing) {
+          navigate({ to: "/owner" });
+          setLoading(false);
+          return;
+        }
+      }
     }
     setStep("profile");
     setLoading(false);
