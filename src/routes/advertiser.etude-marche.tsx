@@ -179,18 +179,260 @@ const CATALOGUE: VehicleEntry[] = [
   },
 ];
 
-// ─── Données prévisionnel (réelles — issues du prévisionnel MoveSpot) ─────────
+// ─── Marché cible ─────────────────────────────────────────────────────────────
+
+type Region = "europe" | "afrique" | "asie" | "amerique";
+
+type RegionData = {
+  label: string;
+  flag: string;
+  marcheTaille: string;
+  marcheSegment: string;
+  marcheCroissance: string;
+  marcheDesc: [string, string];
+  kpis: { v: string; l: string; s: string }[];
+  gmv: number[];
+  comm: number[];
+  revers: number[];
+  charges: number[];
+  net: number[];
+  treso: number[];
+  vehicules: number[];
+  marge: number[];
+  structure: string[];
+  urssaf: number[];
+  vl: number[];
+  is: number[];
+  fiscalLabels: { urssaf: string; vl: string; is: string; note: string };
+  roadmap: { year: string; phase: string; gmv: string; items: string[] }[];
+};
+
+const REGION_DATA: Record<Region, RegionData> = {
+  europe: {
+    label: "Europe",
+    flag: "🇪🇺",
+    marcheTaille: "7 Mds €",
+    marcheSegment: "1,2 Md €",
+    marcheCroissance: "+18 %",
+    marcheDesc: [
+      "La publicité extérieure représente 7 milliards € en France (+6 %/an). Le Digital OOH constitue 35 % du marché et croît de +22 %/an. Le segment publicité mobile sur véhicules est estimé à 1,2 Md € avec +18 %/an — le rythme le plus rapide du secteur.",
+      "MoveSpot adresse ce segment avec une proposition unique : ciblage géographique précis par zone polygone, mesure GPS temps réel et activation sous 7 jours — avantages qu'aucun affichage statique ne peut offrir.",
+    ],
+    kpis: [
+      { v: "7 Mds €", l: "Marché OOH Europe", s: "+6 %/an" },
+      { v: "+18 %", l: "Croissance mobile OOH", s: "Segment le plus rapide" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "901 836 €", l: "CA An 5", s: "Marge nette 50 %" },
+      { v: "650", l: "Véhicules An 5", s: "Démarrage : 15" },
+      { v: "3 006 120 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
+    ],
+    gmv: [37620, 191880, 668736, 1600560, 3006120],
+    comm: [11286, 57564, 200621, 480168, 901836],
+    revers: [26334, 134316, 468115, 1120392, 2104284],
+    charges: [6137, 16054, 75637, 167610, 298510],
+    net: [2564, 28327, 93738, 234419, 452495],
+    treso: [2564, 30891, 124629, 359048, 811543],
+    vehicules: [15, 60, 180, 380, 650],
+    marge: [22.7, 49.2, 46.7, 48.8, 50.2],
+    structure: ["Micro-BIC", "Micro-BIC", "SASU (IS)", "SASU (IS)", "SASU (IS)"],
+    urssaf: [2393, 12204, 0, 0, 0],
+    vl: [192, 979, 0, 0, 0],
+    is: [0, 0, 31246, 78140, 150832],
+    fiscalLabels: {
+      urssaf: "URSSAF micro (21,2 % — An 1-2)",
+      vl: "Versement libératoire IR (1,7 %)",
+      is: "Impôt sur les sociétés (25 % — An 3-5)",
+      note: "Hypothèses : commission stable à 30 % du GMV. Moyenne 2 100 €/véhicule/mois facturé. Passage SASU à partir de l'An 3 (seuil micro-BIC dépassé). Apport initial nul.",
+    },
+    roadmap: [
+      {
+        year: "An 1", phase: "Lancement MVP", gmv: "37 620 €",
+        items: ["Île-de-France prioritaire", "15 véhicules partners", "10 advertisers pilotes", "Stripe Connect + GPS live", "Prestataires couvrant Paris"],
+      },
+      {
+        year: "An 2", phase: "Expansion régionale", gmv: "191 880 €",
+        items: ["Lyon, Marseille, Bordeaux", "60 véhicules partners", "Tutuk & vélo cargo actifs", "Brief en ligne v2", "Partenaires réseau apporteurs"],
+      },
+      {
+        year: "An 3", phase: "Croissance nationale", gmv: "668 736 €",
+        items: ["10+ villes, 180 véhicules", "Passage SASU (IS)", "Campagnes multi-villes", "API agences médias", "Dashboard analytics advertisers"],
+      },
+      {
+        year: "An 4–5", phase: "Scale & consolidation", gmv: "3 006 120 €",
+        items: ["30+ villes, 380–650 véhicules", "Offre grands comptes", "Mesure DOOH certifiée", "Intégrations agences", "Potentiel export Europe"],
+      },
+    ],
+  },
+  afrique: {
+    label: "Afrique",
+    flag: "🌍",
+    marcheTaille: "3,5 Mds $",
+    marcheSegment: "350 M€",
+    marcheCroissance: "+25 %",
+    marcheDesc: [
+      "La publicité extérieure en Afrique représente 3,5 milliards $ (+12 %/an). L'urbanisation rapide et la pénétration mobile créent une demande forte pour la publicité sur véhicules — segment estimé à 350 M€ avec +25 %/an, principalement en Afrique de l'Ouest et du Nord.",
+      "MoveSpot s'adapte aux spécificités africaines : moto-taxis (\"zems\"), minibus \"bush taxis\", tutuks et camions — véhicules omniprésents dans les grandes agglomérations comme Dakar, Abidjan, Casablanca ou Lagos.",
+    ],
+    kpis: [
+      { v: "3,5 Mds $", l: "Marché OOH Afrique", s: "+12 %/an" },
+      { v: "+25 %", l: "Croissance mobile OOH", s: "Marché émergent fort" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "585 000 €", l: "CA An 5", s: "Marge nette 49 %" },
+      { v: "480", l: "Véhicules An 5", s: "Démarrage : 10" },
+      { v: "1 950 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
+    ],
+    gmv: [22000, 95000, 310000, 820000, 1950000],
+    comm: [6600, 28500, 93000, 246000, 585000],
+    revers: [15400, 66500, 217000, 574000, 1365000],
+    charges: [4500, 11000, 52000, 118000, 205000],
+    net: [1200, 12800, 32000, 98000, 285000],
+    treso: [1200, 14000, 46000, 144000, 429000],
+    vehicules: [10, 35, 110, 250, 480],
+    marge: [18.2, 44.9, 34.4, 39.8, 48.7],
+    structure: ["Auto-entrepreneur", "Auto-entrepreneur", "SARL (IS)", "SARL (IS)", "SARL (IS)"],
+    urssaf: [760, 3900, 0, 0, 0],
+    vl: [140, 800, 0, 0, 0],
+    is: [0, 0, 9000, 30000, 95000],
+    fiscalLabels: {
+      urssaf: "Cotisations sociales micro (An 1-2)",
+      vl: "Taxe libératoire locale (An 1-2)",
+      is: "Impôt sur les sociétés (25 % — An 3-5)",
+      note: "Hypothèses : commission stable à 30 % du GMV. Moyenne 1 500 €/véhicule/mois. Passage SARL à partir de l'An 3. Apport initial nul.",
+    },
+    roadmap: [
+      {
+        year: "An 1", phase: "Pilot Dakar / Abidjan", gmv: "22 000 €",
+        items: ["Dakar & Abidjan pilotes", "10 moto-taxis + tutuks", "8 advertisers locaux", "Stripe + Mobile Money", "Partenaires locaux covering"],
+      },
+      {
+        year: "An 2", phase: "Expansion Afrique de l'Ouest", gmv: "95 000 €",
+        items: ["Lagos, Casablanca, Accra", "35 véhicules partners", "Minibus bush taxis actifs", "App mobile offline-first", "Régie publicitaire locale"],
+      },
+      {
+        year: "An 3", phase: "Déploiement régional", gmv: "310 000 €",
+        items: ["8+ métropoles, 110 véhicules", "Passage SARL (IS)", "Campagnes cross-pays", "Partenariat télécom OOH", "Analytics GPS adapté"],
+      },
+      {
+        year: "An 4–5", phase: "Leader mobile OOH Afrique", gmv: "1 950 000 €",
+        items: ["20+ villes, 250–480 véhicules", "Franchise locale partenaires", "Mesure DOOH certifiée", "Levée de fonds impact", "Expansion Afrique de l'Est"],
+      },
+    ],
+  },
+  asie: {
+    label: "Asie",
+    flag: "🌏",
+    marcheTaille: "8 Mds $",
+    marcheSegment: "720 M€",
+    marcheCroissance: "+30 %",
+    marcheDesc: [
+      "L'Asie du Sud-Est et du Sud représente le plus grand marché de publicité mobile sur véhicules — 8 milliards $ pour l'OOH total, +15 %/an. La densité urbaine exceptionnelle (Bangkok, Hô Chi Minh Ville, Mumbai, Jakarta) génère un potentiel d'impressions sans équivalent.",
+      "Tuks-tuks, mototaxis, rickshaws électriques et minibus sont les vecteurs idéaux de MoveSpot en Asie. Le segment mobile OOH est estimé à 720 M€ avec +30 %/an, porté par l'essor des marques FMCG et des startups tech locales.",
+    ],
+    kpis: [
+      { v: "8 Mds $", l: "Marché OOH Asie", s: "+15 %/an" },
+      { v: "+30 %", l: "Croissance mobile OOH", s: "Densité urbaine record" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "1 560 000 €", l: "CA An 5", s: "Marge nette 48 %" },
+      { v: "900", l: "Véhicules An 5", s: "Démarrage : 20" },
+      { v: "5 200 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
+    ],
+    gmv: [58000, 320000, 1100000, 2700000, 5200000],
+    comm: [17400, 96000, 330000, 810000, 1560000],
+    revers: [40600, 224000, 770000, 1890000, 3640000],
+    charges: [9800, 28000, 122000, 268000, 495000],
+    net: [3800, 44000, 152000, 388000, 755000],
+    treso: [3800, 47800, 199800, 587800, 1342800],
+    vehicules: [20, 80, 250, 520, 900],
+    marge: [21.8, 45.8, 46.1, 47.9, 48.4],
+    structure: ["LLC locale", "LLC locale", "Holding (IS)", "Holding (IS)", "Holding (IS)"],
+    urssaf: [3200, 19000, 0, 0, 0],
+    vl: [600, 5000, 0, 0, 0],
+    is: [0, 0, 56000, 154000, 310000],
+    fiscalLabels: {
+      urssaf: "Cotisations LLC locale (An 1-2)",
+      vl: "Taxe locale libératoire (An 1-2)",
+      is: "Impôt sur les sociétés (25 % — An 3-5)",
+      note: "Hypothèses : commission stable à 30 % du GMV. Moyenne 2 400 €/véhicule/mois. Passage Holding à partir de l'An 3. Apport initial nul.",
+    },
+    roadmap: [
+      {
+        year: "An 1", phase: "Pilot Bangkok / HCMV", gmv: "58 000 €",
+        items: ["Bangkok & Hô Chi Minh Ville", "20 tuks-tuks + mototaxis", "15 advertisers FMCG", "QR code + GPS tracking", "Partenaire tuk-tuk local"],
+      },
+      {
+        year: "An 2", phase: "Expansion SE Asie", gmv: "320 000 €",
+        items: ["Jakarta, Kuala Lumpur, Manila", "80 véhicules partners", "Rickshaws électriques actifs", "Brief multilingue (EN/TH/VI)", "API annonceurs nationaux"],
+      },
+      {
+        year: "An 3", phase: "Déploiement Inde & Chine", gmv: "1 100 000 €",
+        items: ["Mumbai, Chennai, Bangalore", "250 véhicules, 3 pays", "Passage structure holding", "Campagnes pan-asiatiques", "Partenariat OOH networks"],
+      },
+      {
+        year: "An 4–5", phase: "Leader OOH mobile Asie", gmv: "5 200 000 €",
+        items: ["15+ métropoles, 520–900 véhicules", "Offre grands groupes asiatiques", "DOOH mobile certifié", "Plateforme SaaS white-label", "Potentiel expansion mondiale"],
+      },
+    ],
+  },
+  amerique: {
+    label: "Amérique",
+    flag: "🌎",
+    marcheTaille: "12 Mds $",
+    marcheSegment: "850 M€",
+    marcheCroissance: "+22 %",
+    marcheDesc: [
+      "Le marché OOH américain pèse 12 milliards $ (Amérique du Nord + Latine). L'Amérique latine connaît une explosion de la publicité mobile urbaine (+28 %/an) tandis que l'Amérique du Nord affiche une forte demande pour les formats véhicules de livraison et food trucks.",
+      "MoveSpot adresse les grandes métropoles : Mexico, São Paulo, Buenos Aires, Miami. Le segment mobile OOH est estimé à 850 M€ avec +22 %/an, tiré par les marques consumer goods, la fintech et les plateformes digitales.",
+    ],
+    kpis: [
+      { v: "12 Mds $", l: "Marché OOH Amériques", s: "+10 %/an" },
+      { v: "+22 %", l: "Croissance mobile OOH", s: "LATAM en forte demande" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "1 230 000 €", l: "CA An 5", s: "Marge nette 49 %" },
+      { v: "760", l: "Véhicules An 5", s: "Démarrage : 18" },
+      { v: "4 100 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
+    ],
+    gmv: [48000, 245000, 880000, 2150000, 4100000],
+    comm: [14400, 73500, 264000, 645000, 1230000],
+    revers: [33600, 171500, 616000, 1505000, 2870000],
+    charges: [8200, 21000, 98000, 212000, 380000],
+    net: [3100, 35500, 120000, 305000, 605000],
+    treso: [3100, 38600, 158600, 463600, 1068600],
+    vehicules: [18, 72, 220, 455, 760],
+    marge: [21.5, 48.3, 45.5, 47.3, 49.2],
+    structure: ["LLC (US/MX)", "LLC (US/MX)", "Corp (IS)", "Corp (IS)", "Corp (IS)"],
+    urssaf: [2600, 13000, 0, 0, 0],
+    vl: [500, 4000, 0, 0, 0],
+    is: [0, 0, 46000, 128000, 245000],
+    fiscalLabels: {
+      urssaf: "Payroll taxes LLC (An 1-2)",
+      vl: "Taxe locale libératoire (An 1-2)",
+      is: "Corporate income tax (25 % — An 3-5)",
+      note: "Hypothèses : commission stable à 30 % du GMV. Moyenne 2 200 €/véhicule/mois. Passage Corp à partir de l'An 3. Apport initial nul.",
+    },
+    roadmap: [
+      {
+        year: "An 1", phase: "Pilot Mexico / Miami", gmv: "48 000 €",
+        items: ["Mexico City & Miami pilotes", "18 vans + food trucks", "12 advertisers consumer", "Stripe USD + MXN", "Partenaires covering locaux"],
+      },
+      {
+        year: "An 2", phase: "Expansion LATAM", gmv: "245 000 €",
+        items: ["São Paulo, Buenos Aires, Bogotá", "72 véhicules partners", "Mototaxis LATAM actifs", "App iOS/Android bilingue", "Régie pub locale intégrée"],
+      },
+      {
+        year: "An 3", phase: "Croissance continentale", gmv: "880 000 €",
+        items: ["12+ métropoles, 220 véhicules", "Passage Corp structure", "Campagnes multi-pays", "Partenariat marques FMCG", "GPS tracking temps réel"],
+      },
+      {
+        year: "An 4–5", phase: "Leader OOH mobile Amériques", gmv: "4 100 000 €",
+        items: ["25+ villes, 455–760 véhicules", "Offre grands groupes US", "DOOH mobile certifié Nielsen", "Marketplace panAméricaine", "Potentiel Series A"],
+      },
+    ],
+  },
+};
+
+// ─── Données prévisionnel ─────────────────────────────────────────────────────
 
 const YEARS = ["An 1", "An 2", "An 3", "An 4", "An 5"];
-const GMV = [37620, 191880, 668736, 1600560, 3006120];
-const COMM = [11286, 57564, 200621, 480168, 901836];
-const REVERS = [26334, 134316, 468115, 1120392, 2104284];
-const CHARGES = [6137, 16054, 75637, 167610, 298510];
-const NET = [2564, 28327, 93738, 234419, 452495];
-const TRESO = [2564, 30891, 124629, 359048, 811543];
-const VEHICULES = [15, 60, 180, 380, 650];
-const MARGE = [22.7, 49.2, 46.7, 48.8, 50.2];
-const STRUCTURE = ["Micro-BIC", "Micro-BIC", "SASU (IS)", "SASU (IS)", "SASU (IS)"];
 
 const fmt = (n: number | string, lang: string) =>
   new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(Number(n)) + " €";
@@ -203,6 +445,8 @@ function EtudeMarche() {
   const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<Tab>("marche");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleEntry | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<Region>("europe");
+  const d = REGION_DATA[selectedRegion];
 
   return (
     <div className="min-h-screen bg-background">
@@ -228,7 +472,7 @@ function EtudeMarche() {
 
       <main id="main-content" className="max-w-6xl mx-auto px-6 py-10">
         {/* En-tête */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="font-display text-4xl font-bold mb-2">
             {t("advertiser.etude_marche.title")}
           </h1>
@@ -237,20 +481,36 @@ function EtudeMarche() {
           </p>
         </div>
 
+        {/* Sélecteur Marché cible */}
+        <div className="mb-8">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Marché cible
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(REGION_DATA) as Region[]).map((r) => {
+              const rd = REGION_DATA[r];
+              return (
+                <button
+                  key={r}
+                  onClick={() => setSelectedRegion(r)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition",
+                    selectedRegion === r
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                      : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                  )}
+                >
+                  <span>{rd.flag}</span>
+                  <span>{rd.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* KPI top */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          {[
-            { v: "7 Mds €", l: t("advertiser.etude_marche.kpi_market"), s: "+6 %/an" },
-            { v: "+18 %", l: t("advertiser.etude_marche.kpi_growth"), s: "Segment le plus rapide" },
-            { v: "30 %", l: t("advertiser.etude_marche.kpi_commission"), s: "Sur GMV advertisers" },
-            { v: "901 836 €", l: t("advertiser.etude_marche.kpi_ca"), s: "Marge nette 50 %" },
-            { v: "650", l: t("advertiser.etude_marche.kpi_vehicles"), s: "Démarrage : 15" },
-            {
-              v: "3 006 120 €",
-              l: t("advertiser.etude_marche.kpi_gmv"),
-              s: "70 % reversé propriétaires",
-            },
-          ].map((k) => (
+          {d.kpis.map((k) => (
             <div key={k.l} className="rounded-xl border border-border bg-card p-4">
               <div className="font-display text-xl font-bold text-primary tabular-nums">{k.v}</div>
               <div className="text-xs font-medium mt-0.5 text-foreground">{k.l}</div>
@@ -258,7 +518,6 @@ function EtudeMarche() {
             </div>
           ))}
         </div>
-
         {/* Onglets */}
         <div className="flex gap-1 mb-6 border border-border rounded-xl p-1 bg-card/50 w-fit">
           {(["marche", "catalogue", "previsionnel"] as Tab[]).map((tabKey) => (
@@ -286,22 +545,23 @@ function EtudeMarche() {
           <div className="space-y-6">
             {/* Contexte marché */}
             <div className="grid md:grid-cols-2 gap-5">
-              <Card title="Le marché Out-of-Home">
-                <p className="text-sm text-muted-foreground">
-                  La publicité extérieure représente{" "}
-                  <strong className="text-foreground">7 milliards €</strong> en France (+6 %/an). Le
-                  Digital OOH constitue 35 % du marché et croît de +22 %/an. Le segment{" "}
-                  <strong className="text-foreground">publicité mobile sur véhicules</strong> est
-                  estimé à 1,2 Md € avec +18 %/an — le rythme le plus rapide du secteur.
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  MoveSpot adresse ce segment avec une proposition unique :{" "}
-                  <strong className="text-foreground">
-                    ciblage géographique précis par zone polygone
-                  </strong>
-                  , mesure GPS temps réel et activation sous 7 jours — avantages qu'aucun affichage
-                  statique ne peut offrir.
-                </p>
+              <Card title={`Le marché Out-of-Home — ${d.flag} ${d.label}`}>
+                <div className="flex flex-wrap gap-3 mb-4">
+                  <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full">
+                    Marché total : {d.marcheTaille}
+                  </span>
+                  <span className="text-xs font-semibold bg-green-500/10 text-green-700 dark:text-green-400 px-3 py-1 rounded-full">
+                    Segment mobile : {d.marcheSegment}
+                  </span>
+                  <span className="text-xs font-semibold bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full">
+                    Croissance : {d.marcheCroissance}
+                  </span>
+                </div>
+                {d.marcheDesc.map((para, i) => (
+                  <p key={i} className={`text-sm text-muted-foreground ${i > 0 ? "mt-2" : ""}`}>
+                    {para}
+                  </p>
+                ))}
               </Card>
               <Card title="Segments advertisers">
                 <div className="space-y-1.5">
@@ -900,15 +1160,15 @@ function EtudeMarche() {
                     <div className="flex-1 h-7 bg-secondary/40 rounded-lg overflow-hidden flex">
                       <div
                         className="h-full bg-primary rounded-l-lg"
-                        style={{ width: `${(COMM[i] / GMV[4]) * 100}%` }}
+                        style={{ width: `${(d.comm[i] / d.gmv[4]) * 100}%` }}
                       />
                       <div
                         className="h-full bg-border"
-                        style={{ width: `${(REVERS[i] / GMV[4]) * 100}%`, marginLeft: 2 }}
+                        style={{ width: `${(d.revers[i] / d.gmv[4]) * 100}%`, marginLeft: 2 }}
                       />
                     </div>
                     <div className="text-xs tabular-nums font-semibold text-foreground w-24 text-right shrink-0">
-                      {fmt(GMV[i], i18n.language)}
+                      {fmt(d.gmv[i], i18n.language)}
                     </div>
                   </div>
                 ))}
@@ -936,21 +1196,21 @@ function EtudeMarche() {
                     <div className="flex-1 h-6 bg-secondary/40 rounded-lg overflow-hidden">
                       <div
                         className="h-full bg-green-500 rounded-lg flex items-center justify-end pr-2"
-                        style={{ width: `${(NET[i] / NET[4]) * 100}%` }}
+                        style={{ width: `${(d.net[i] / d.net[4]) * 100}%` }}
                       >
-                        {NET[i] > 50000 && (
+                        {d.net[i] > 50000 && (
                           <span className="text-xs font-semibold text-white tabular-nums">
-                            {fmt(NET[i], i18n.language)}
+                            {fmt(d.net[i], i18n.language)}
                           </span>
                         )}
                       </div>
                     </div>
-                    {NET[i] <= 50000 && (
+                    {d.net[i] <= 50000 && (
                       <div className="text-xs tabular-nums font-semibold text-green-600 dark:text-green-400 w-24 text-right shrink-0">
-                        {fmt(NET[i], i18n.language)}
+                        {fmt(d.net[i], i18n.language)}
                       </div>
                     )}
-                    {NET[i] > 50000 && <div className="w-24 shrink-0" />}
+                    {d.net[i] > 50000 && <div className="w-24 shrink-0" />}
                   </div>
                 ))}
               </div>
@@ -977,57 +1237,57 @@ function EtudeMarche() {
                     <SectionRow label="Structure & volume" />
                     <DataRow
                       label="Régime juridique"
-                      values={STRUCTURE}
+                      values={d.structure}
                       format={(v) => String(v)}
                     />
                     <DataRow
                       label="Véhicules partners"
-                      values={VEHICULES}
+                      values={d.vehicules}
                       format={(v) => String(v)}
                     />
                     <SectionRow label="Flux financiers" />
                     <DataRow
                       label="GMV — facturé aux advertisers"
-                      values={GMV}
+                      values={d.gmv}
                       format={(v) => fmt(v, i18n.language)}
                     />
                     <DataRow
                       label="Reversé propriétaires (70 %)"
-                      values={REVERS}
+                      values={d.revers}
                       format={(v) => fmt(v, i18n.language)}
                     />
                     <DataRow
                       label="Commission MoveSpot = CA (30 %)"
-                      values={COMM}
+                      values={d.comm}
                       format={(v) => fmt(v, i18n.language)}
                       bold
                     />
                     <SectionRow label="Charges & fiscalité" />
                     <DataRow
                       label="Charges d'exploitation"
-                      values={CHARGES}
+                      values={d.charges}
                       format={(v) => fmt(v, i18n.language)}
                     />
                     <DataRow
-                      label="URSSAF micro (21,2 % — An 1-2)"
-                      values={[2393, 12204, 0, 0, 0]}
+                      label={d.fiscalLabels.urssaf}
+                      values={d.urssaf}
                       format={(v) => (v === 0 ? "—" : fmt(v, i18n.language))}
                     />
                     <DataRow
-                      label="Versement libératoire IR (1,7 %)"
-                      values={[192, 979, 0, 0, 0]}
+                      label={d.fiscalLabels.vl}
+                      values={d.vl}
                       format={(v) => (v === 0 ? "—" : fmt(v, i18n.language))}
                     />
                     <DataRow
-                      label="Impôt sur les sociétés (25 % — An 3-5)"
-                      values={[0, 0, 31246, 78140, 150832]}
+                      label={d.fiscalLabels.is}
+                      values={d.is}
                       format={(v) => (v === 0 ? "—" : fmt(v, i18n.language))}
                     />
                     <tr className="border-t-2 border-border bg-secondary/30">
                       <td className="py-2.5 px-3 font-bold text-foreground">
                         Résultat net (cash après impôts)
                       </td>
-                      {NET.map((v, i) => (
+                      {d.net.map((v, i) => (
                         <td
                           key={i}
                           className="py-2.5 px-3 text-right font-bold tabular-nums text-green-600 dark:text-green-400 whitespace-nowrap"
@@ -1040,7 +1300,7 @@ function EtudeMarche() {
                       <td className="py-2.5 px-3 font-semibold text-foreground">
                         Marge nette / CA
                       </td>
-                      {MARGE.map((v, i) => (
+                      {d.marge.map((v, i) => (
                         <td
                           key={i}
                           className="py-2.5 px-3 text-right font-semibold tabular-nums text-foreground"
@@ -1053,7 +1313,7 @@ function EtudeMarche() {
                       <td className="py-2.5 px-3 font-semibold text-foreground">
                         Trésorerie cumulée fin de période
                       </td>
-                      {TRESO.map((v, i) => (
+                      {d.treso.map((v, i) => (
                         <td
                           key={i}
                           className="py-2.5 px-3 text-right font-semibold tabular-nums text-foreground whitespace-nowrap"
@@ -1066,9 +1326,7 @@ function EtudeMarche() {
                 </table>
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                <strong>Hypothèses :</strong> commission stable à 30 % du GMV. Moyenne 2 100
-                €/véhicule/mois facturé. Passage SASU à partir de l'An 3 (seuil micro-BIC dépassé).
-                Apport initial nul.
+                <strong>Hypothèses :</strong> {d.fiscalLabels.note}
               </p>
             </Card>
 
@@ -1076,58 +1334,9 @@ function EtudeMarche() {
             <SimulateurROI />
 
             {/* Feuille de route */}
-            <Card title="Feuille de route — 4 phases">
+            <Card title={`Feuille de route — 4 phases (${d.flag} ${d.label})`}>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  {
-                    year: "An 1",
-                    phase: "Lancement MVP",
-                    gmv: "37 620 €",
-                    items: [
-                      "Île-de-France prioritaire",
-                      "15 véhicules partners",
-                      "10 advertisers pilotes",
-                      "Stripe Connect + GPS live",
-                      "Prestataires couvrant Paris",
-                    ],
-                  },
-                  {
-                    year: "An 2",
-                    phase: "Expansion régionale",
-                    gmv: "191 880 €",
-                    items: [
-                      "Lyon, Marseille, Bordeaux",
-                      "60 véhicules partners",
-                      "Tutuk & vélo cargo actifs",
-                      "Brief en ligne v2",
-                      "Partenaires réseau apporteurs",
-                    ],
-                  },
-                  {
-                    year: "An 3",
-                    phase: "Croissance nationale",
-                    gmv: "668 736 €",
-                    items: [
-                      "10+ villes, 180 véhicules",
-                      "Passage SASU (IS)",
-                      "Campagnes multi-villes",
-                      "API agences médias",
-                      "Dashboard analytics advertisers",
-                    ],
-                  },
-                  {
-                    year: "An 4–5",
-                    phase: "Scale & consolidation",
-                    gmv: "3 006 120 €",
-                    items: [
-                      "30+ villes, 380–650 véhicules",
-                      "Offre grands comptes",
-                      "Mesure DOOH certifiée",
-                      "Intégrations agences",
-                      "Potentiel export Europe",
-                    ],
-                  },
-                ].map((p) => (
+                {d.roadmap.map((p) => (
                   <div key={p.year} className="rounded-xl border border-border overflow-hidden">
                     <div className="bg-secondary/50 px-4 py-3 flex items-center gap-2">
                       <span className="text-xs font-bold text-primary-foreground bg-primary px-2.5 py-1 rounded-full shrink-0">
