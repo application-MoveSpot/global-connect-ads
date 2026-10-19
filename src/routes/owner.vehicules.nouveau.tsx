@@ -587,6 +587,7 @@ function NewVehiclePage() {
               value={zones}
               onChange={setZones}
               placeholder={t("owner.vehicules.nouveau.zones_placeholder")}
+              hint={t("owner.vehicules.nouveau.zones_hint")}
             />
             <div>
               <Field
