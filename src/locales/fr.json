@@ -87,7 +87,7 @@
       "admin_adjustment": "Ajustement"
     },
     "topup_success": "Solde crédité ! Votre portefeuille a été rechargé.",
-    "back_to_dashboard": "← Mon espace",
+    "back_to_dashboard": "Mon espace",
     "subtitle_individual": "Rechargez le montant de votre pack événement — utilisé automatiquement quand un propriétaire accepte votre brief.",
     "subtitle_business": "Crédits prépayés utilisables instantanément pour vos campagnes.",
     "see_packs": "Voir les packs événement (49 € · 79 € · 149 €) →",
@@ -577,7 +577,7 @@
     },
     "pack": {
       "loading": "Chargement…",
-      "back": "← Mon espace",
+      "back": "Mon espace",
       "title_individual": "Packs événement",
       "title_business": "Pack publicitaire",
       "desc_individual": "Choisissez le pack adapté à votre événement. Paiement unique, aucun abonnement.",
@@ -610,7 +610,7 @@
     },
     "briefs_list": {
       "loading": "Chargement…",
-      "back": "← Mon espace",
+      "back": "Mon espace",
       "title": "Mes briefs",
       "subtitle_individual": "Vos événements en attente de véhicule.",
       "subtitle_business": "Vos demandes ouvertes aux propriétaires.",
@@ -636,7 +636,7 @@
     },
     "briefs_confirm": {
       "loading": "Chargement…",
-      "back": "← Mon espace",
+      "back": "Mon espace",
       "ind_title": "Votre annonce est en ligne !",
       "ind_desc": "Les propriétaires de véhicules vont pouvoir la voir et vous envoyer des propositions.",
       "urgent_days_zero": "moins d'1 jour",
@@ -771,7 +771,7 @@
       "footer": "Devis valable 30 jours à compter du {{date}} · Réf. {{ref}}"
     },
     "remboursement": {
-      "back": "← Mon espace",
+      "back": "Mon espace",
       "title": "Mes remboursements",
       "desc": "Consultez vos demandes ou déposez-en une nouvelle.",
       "policy_link": "Voir la politique de remboursement →",
@@ -1556,7 +1556,7 @@
     "briefs": {
       "index": {
         "loading": "Chargement…",
-        "back": "← Mon espace",
+        "back": "Mon espace",
         "title": "Briefs ouverts",
         "desc_no_vehicles": "Faites approuver au moins un véhicule pour voir des briefs compatibles.",
         "desc_types": "Briefs compatibles avec vos véhicules approuvés ({{types}}).",
@@ -1681,7 +1681,7 @@
       "toast_stopped": "Suivi GPS arrêté — dernier lot envoyé"
     },
     "carte": {
-      "back": "← Mon espace",
+      "back": "Mon espace",
       "print": "🖨 Imprimer",
       "title": "Carte de visite numérique",
       "desc": "Partagez cette carte avec des annonceurs. Ils scannent le QR code pour découvrir la plateforme et créer leur campagne.",
@@ -4099,7 +4099,7 @@
     "briefs": {
       "index": {
         "loading": "Chargement…",
-        "back": "← Mon espace",
+        "back": "Mon espace",
         "title": "Briefs ouverts",
         "desc_no_vehicles": "Faites approuver au moins un véhicule pour voir des briefs compatibles.",
         "desc_types": "Briefs compatibles avec vos véhicules approuvés ({{types}}).",
