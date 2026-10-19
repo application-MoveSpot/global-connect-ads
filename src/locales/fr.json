@@ -2598,6 +2598,7 @@
       "campaigns_empty": "Aucune campagne pour ce filtre.",
       "briefs_budget_max": "budget max {{amount}} €",
       "briefs_meta": "Statut : {{status}} · {{visuals}} visuel(s) · {{zones}}",
+      "briefs_created_at": "Créé le {{date}}",
       "briefs_approved_badge": "Approuvé",
       "briefs_rejected_badge": "Refusé",
       "poseurs_meta": "Certification : {{cert}} · Statut : {{status}} · Virements Stripe : {{payouts}}",
