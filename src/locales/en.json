@@ -4020,7 +4020,14 @@
       "error_confirm_email": "Check your inbox to confirm your account.",
       "error_invalid_credentials": "Incorrect email or password.",
       "error_siret": "Invalid SIRET number.",
-      "error_session": "Session expired. Please sign in again."
+      "error_session": "Session expired. Please sign in again.",
+      "ai_panel_title": "Fill with AI — describe your activity",
+      "ai_panel_desc": "Describe your driver or fleet owner activity in a few words and the AI will pre-fill your profile.",
+      "ai_placeholder": "E.g.: I'm a VTC driver in Lyon, 5 years of experience, fleet of 3 vehicles...",
+      "ai_generate": "Generate",
+      "ai_generating": "Generating…",
+      "ai_generate_error": "Error during generation. Please try again.",
+      "ai_filled": "✨ AI filled in: {{fields}} — please review and adjust as needed."
     },
     "add_vehicle": "Add Vehicle",
     "ai_pricing_cta": "Estimate my price →",
