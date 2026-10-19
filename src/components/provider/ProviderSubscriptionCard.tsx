@@ -1,18 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
-import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
 import { useServerFn } from "@tanstack/react-start";
 import { createProviderSubscriptionCheckout } from "@/lib/payments/payments.functions";
-import { getPaymentsConfig, getStripe } from "@/lib/payments/stripe";
-import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 type SubscriptionStatus = string | null | undefined;
 
@@ -55,14 +45,13 @@ type Props = {
 export function ProviderSubscriptionCard({
   subscriptionStatus,
   subscriptionPeriodEnd,
-  onSuccess,
+  onSuccess: _onSuccess,
 }: Props) {
   const { t, i18n } = useTranslation();
   const { fmtAmount } = useCurrency();
   const createCheckout = useServerFn(createProviderSubscriptionCheckout);
-  const [open, setOpen] = useState(false);
-  const [checkoutKey, setCheckoutKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const STATUS_LABELS: Record<string, string> = {
     active: t("subscription.status_active"),
@@ -74,7 +63,9 @@ export function ProviderSubscriptionCard({
 
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
 
-  const fetchClientSecret = useCallback(async (): Promise<string> => {
+  const handleSubscribe = async () => {
+    setError(null);
+    setLoading(true);
     try {
       const result = await createCheckout({
         data: {
@@ -82,33 +73,20 @@ export function ProviderSubscriptionCard({
           returnUrl: `${window.location.origin}/prestataire`,
         },
       });
-      if ("error" in result) throw new Error(result.error);
-      if (!result.clientSecret) throw new Error(t("subscription.err_no_session"));
-      return result.clientSecret;
+      if ("error" in result) {
+        setError(result.error);
+        return;
+      }
+      if (!result.url) {
+        setError(t("subscription.err_not_configured"));
+        return;
+      }
+      window.location.href = result.url;
     } catch (e) {
-      const message = e instanceof Error ? e.message : t("subscription.err_stripe");
-      setError(message);
-      throw e;
+      setError(e instanceof Error ? e.message : t("subscription.err_stripe"));
+    } finally {
+      setLoading(false);
     }
-  }, [createCheckout, t]);
-
-  const checkoutOptions = useMemo(() => ({ fetchClientSecret }), [fetchClientSecret]);
-
-  const handleOpen = async () => {
-    setError(null);
-    const config = await getPaymentsConfig();
-    if (!config.publishableKey) {
-      setError(t("subscription.err_not_configured"));
-      setOpen(true);
-      return;
-    }
-    setCheckoutKey((k) => k + 1);
-    setOpen(true);
-  };
-
-  const handleClose = (v: boolean) => {
-    setOpen(v);
-    if (!v && onSuccess) onSuccess();
   };
 
   return (
@@ -158,36 +136,20 @@ export function ProviderSubscriptionCard({
               {t("provider_sub.inactive_msg")}
             </div>
           )}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
           <button
-            onClick={handleOpen}
-            className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors"
+            onClick={handleSubscribe}
+            disabled={loading}
+            className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
-            {subscriptionStatus === "past_due"
-              ? t("subscription.btn_regularize")
-              : t("provider_sub.btn_subscribe")}
+            {loading
+              ? "..."
+              : subscriptionStatus === "past_due"
+                ? t("subscription.btn_regularize")
+                : t("provider_sub.btn_subscribe")}
           </button>
         </div>
       )}
-
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto p-0">
-          <PaymentTestModeBanner />
-          <div className="space-y-4 p-6">
-            <DialogHeader>
-              <DialogTitle>{t("provider_sub.dialog_title")}</DialogTitle>
-              <DialogDescription>{t("subscription.dialog_desc")}</DialogDescription>
-            </DialogHeader>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            {!error ? (
-              <div key={checkoutKey} className="min-h-[560px]">
-                <EmbeddedCheckoutProvider stripe={getStripe()} options={checkoutOptions}>
-                  <EmbeddedCheckout />
-                </EmbeddedCheckoutProvider>
-              </div>
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }
