@@ -210,7 +210,7 @@ type RegionData = {
 const REGION_DATA: Record<Region, RegionData> = {
   europe: {
     label: "Europe",
-    flag: "🇪🇺",
+    flag: "",
     marcheTaille: "7 Mds €",
     marcheSegment: "1,2 Md €",
     marcheCroissance: "+18 %",
