@@ -494,18 +494,6 @@ function AnnonceurDashboard() {
                 </div>
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
-                  <span
-                    className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                    style={{
-                      background: "rgba(60,120,255,0.15)",
-                      color: "rgba(120,170,255,0.9)",
-                      border: "1px solid rgba(60,120,255,0.25)",
-                    }}
-                  >
-                    {t("advertiser.promo_led.badge")}
-                  </span>
-                </div>
                 <h2 className="text-lg font-bold text-white mb-1">
                   {t("advertiser.promo_led.title")}
                 </h2>
