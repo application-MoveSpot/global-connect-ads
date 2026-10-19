@@ -265,7 +265,7 @@ const REGION_DATA: Record<Region, RegionData> = {
   },
   afrique: {
     label: "Afrique",
-    flag: "🌍",
+    flag: "",
     marcheTaille: "3,5 Mds $",
     marcheSegment: "350 M€",
     marcheCroissance: "+25 %",
@@ -320,7 +320,7 @@ const REGION_DATA: Record<Region, RegionData> = {
   },
   asie: {
     label: "Asie",
-    flag: "🌏",
+    flag: "",
     marcheTaille: "8 Mds $",
     marcheSegment: "720 M€",
     marcheCroissance: "+30 %",
@@ -375,7 +375,7 @@ const REGION_DATA: Record<Region, RegionData> = {
   },
   amerique: {
     label: "Amérique",
-    flag: "🌎",
+    flag: "",
     marcheTaille: "12 Mds $",
     marcheSegment: "850 M€",
     marcheCroissance: "+22 %",
@@ -500,7 +500,7 @@ function EtudeMarche() {
                       : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
                   )}
                 >
-                  <span>{rd.flag}</span>
+                  {rd.flag && <span>{rd.flag}</span>}
                   <span>{rd.label}</span>
                 </button>
               );
