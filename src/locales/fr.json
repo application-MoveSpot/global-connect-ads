@@ -4061,7 +4061,14 @@
       "error_email_exists": "Un compte existe déjà avec cet email.",
       "error_confirm_email": "Vérifiez votre boîte mail pour confirmer votre compte.",
       "error_siret": "Numéro SIRET invalide.",
-      "error_session": "Session expirée. Veuillez vous reconnecter."
+      "error_session": "Session expirée. Veuillez vous reconnecter.",
+      "ai_panel_title": "Remplir avec l'IA — décrivez votre activité",
+      "ai_panel_desc": "Décrivez votre activité de chauffeur ou de propriétaire en quelques mots et l'IA pré-remplira votre profil.",
+      "ai_placeholder": "Ex : Je suis chauffeur VTC à Lyon, 5 ans d'expérience, flotte de 3 véhicules...",
+      "ai_generate": "Générer",
+      "ai_generating": "Génération…",
+      "ai_generate_error": "Erreur lors de la génération. Réessayez.",
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
     },
     "add_vehicle": "Ajouter Véhicule",
     "ai_pricing_cta": "Estimer mon tarif →",
