@@ -190,10 +190,7 @@ function NewBriefPage() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string | null>(null);
-  const [wizardStep, setWizardStep] = useState<"display-type" | "event-type" | "form">(
-    "display-type",
-  );
-  const [displayType, setDisplayType] = useState<"digital" | "traditionnel" | null>(null);
+  const [wizardStep, setWizardStep] = useState<"event-type" | "form">("form");
   const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -264,7 +261,6 @@ function NewBriefPage() {
       if (d.autreVehicleNote) setAutreVehicleNote(d.autreVehicleNote as string);
       if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
       if (d.brandColor) setBrandColor(d.brandColor as string);
-      if (d.displayType) setDisplayType(d.displayType as "digital" | "traditionnel");
       const savedMarket = d.market === "FR" ? "EU" : d.market;
       if (savedMarket) setMarket(savedMarket as "EU" | "US" | "AF" | "AS");
       if (d.usCity) setUsCity(d.usCity as string);
@@ -274,7 +270,6 @@ function NewBriefPage() {
       if (d.asCity) setAsCity(d.asCity as string);
       if (d.contentCategory) setContentCategory(d.contentCategory as string);
       setDraftRestored(true);
-      setWizardStep("form");
     } catch {
       /* localStorage inaccessible */
     }
@@ -292,8 +287,7 @@ function NewBriefPage() {
       vehicleTypes.length > 0 ||
       zones ||
       startDate ||
-      endDate ||
-      displayType,
+      endDate,
     );
     if (!isDirty) return;
     try {
@@ -311,7 +305,6 @@ function NewBriefPage() {
           autreVehicleNote,
           adFormat,
           brandColor,
-          displayType,
           market,
           usCity,
           euCity,
@@ -335,7 +328,6 @@ function NewBriefPage() {
     autreVehicleNote,
     adFormat,
     brandColor,
-    displayType,
     created,
   ]);
 
@@ -343,7 +335,6 @@ function NewBriefPage() {
     (async () => {
       const session = await getOrRefreshSession();
       if (!session) {
-        // Guest mode: let them choose display type first (display-type step)
         return;
       }
       const { data: prof } = await supabase
@@ -358,7 +349,6 @@ function NewBriefPage() {
       setUserId(session.user.id);
       const type = (prof as { account_type?: string }).account_type ?? "business";
       setAccountType(type);
-      // All users go through the display-type step — no skip needed
     })();
   }, [navigate]);
 
@@ -465,8 +455,7 @@ function NewBriefPage() {
         const hasLed = suggestion.vehicleTypes.includes("camion_led");
         if (hasLed) {
           setAdFormat("boxled");
-          setDisplayType("digital");
-        } else if (displayType !== "digital") setDisplayType("traditionnel");
+        }
         filled.push("véhicules");
       }
       if (suggestion.zones) {
@@ -881,144 +870,6 @@ function NewBriefPage() {
     await createBriefForUser(userId);
   };
 
-  if (wizardStep === "display-type") {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border">
-          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-            <LogoLink />
-            <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
-              {t("advertiser.briefs.nouveau.back")}
-            </Link>
-          </div>
-        </header>
-        <main className="max-w-3xl mx-auto px-4 py-10">
-          <div className="mb-8 text-center">
-            <h1 className="font-display text-3xl font-bold mb-2">
-              {t("advertiser.briefs.nouveau.display_type_title")}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("advertiser.briefs.nouveau.display_type_subtitle")}
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            {/* Numérique LED */}
-            <button
-              type="button"
-              onClick={() => {
-                setDisplayType("digital");
-                setVehicleTypes(["camion_led"]);
-                setAdFormat("boxled");
-                setWizardStep("form");
-              }}
-              className="group text-left rounded-2xl border-2 border-blue-500/30 overflow-hidden hover:border-blue-500 transition-all"
-              style={{ background: "linear-gradient(135deg, #080e28 0%, #050a1c 100%)" }}
-            >
-              <div className="h-40 overflow-hidden">
-                <img
-                  src="/camion-led.webp"
-                  alt="Camion LED publicitaire numérique boLED"
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">📺</span>
-                  <span className="font-bold text-white text-base">
-                    {t("advertiser.briefs.nouveau.digital_label")}
-                  </span>
-                  <span
-                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ml-auto"
-                    style={{
-                      background: "rgba(37,99,235,0.3)",
-                      color: "rgba(147,197,253,0.9)",
-                      border: "1px solid rgba(59,130,246,0.3)",
-                    }}
-                  >
-                    LED
-                  </span>
-                </div>
-                <p
-                  className="text-xs mb-3"
-                  style={{ color: "rgba(147,197,253,0.75)", lineHeight: 1.6 }}
-                >
-                  {t("advertiser.briefs.nouveau.digital_desc")}
-                </p>
-                <ul className="space-y-1">
-                  {[
-                    t("advertiser.briefs.nouveau.digital_feature_1"),
-                    t("advertiser.briefs.nouveau.digital_feature_2"),
-                    t("advertiser.briefs.nouveau.digital_feature_3"),
-                    t("advertiser.briefs.nouveau.digital_feature_4"),
-                  ].map((item) => (
-                    <li
-                      key={item}
-                      className="text-[11px]"
-                      style={{ color: "rgba(147,197,253,0.65)" }}
-                    >
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div
-                  className="mt-4 text-xs font-semibold"
-                  style={{ color: "rgba(96,165,250,0.9)" }}
-                >
-                  {t("advertiser.briefs.nouveau.digital_pricing", { min: MIN_EUR_PER_DAY })}
-                </div>
-              </div>
-            </button>
-
-            {/* Traditionnel covering */}
-            <button
-              type="button"
-              onClick={() => {
-                setDisplayType("traditionnel");
-                setWizardStep(accountType === "individual" ? "event-type" : "form");
-              }}
-              className="group text-left rounded-2xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all"
-            >
-              <div className="h-40 overflow-hidden rounded-t-2xl bg-secondary">
-                <img
-                  src="/van-traditionnel.jpg"
-                  alt="Van publicitaire traditionnel"
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">🎨</span>
-                  <span className="font-bold text-base">
-                    {t("advertiser.briefs.nouveau.traditional_label")}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
-                  {t("advertiser.briefs.nouveau.traditional_desc")}
-                </p>
-                <ul className="space-y-1">
-                  {[
-                    t("advertiser.briefs.nouveau.traditional_feature_1"),
-                    t("advertiser.briefs.nouveau.traditional_feature_2"),
-                    t("advertiser.briefs.nouveau.traditional_feature_3"),
-                    t("advertiser.briefs.nouveau.traditional_feature_4"),
-                  ].map((item) => (
-                    <li key={item} className="text-[11px] text-muted-foreground">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-4 text-xs font-semibold text-primary">
-                  {t("advertiser.briefs.nouveau.traditional_pricing", { min: MIN_EUR_PER_DAY })}
-                </div>
-              </div>
-            </button>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   if (wizardStep === "event-type" && accountType === "individual") {
     return (
       <div className="min-h-screen bg-background">
@@ -1154,16 +1005,6 @@ function NewBriefPage() {
           {t("advertiser.briefs.nouveau.form_subtitle")}
         </p>
 
-        {/* ── Rappel discret du type choisi (numérique) ── */}
-        {displayType === "digital" && (
-          <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/5 px-4 py-3 flex items-center gap-2 text-sm">
-            <span>📺</span>
-            <span className="text-blue-700 dark:text-blue-300 font-medium">
-              {t("advertiser.briefs.nouveau.digital_reminder")}
-            </span>
-          </div>
-        )}
-
         {draftRestored && !created && (
           <div className="mb-2 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-2.5 text-xs text-amber-700 dark:text-amber-400">
             <span>{t("advertiser.briefs.nouveau.draft_restored")}</span>
@@ -1186,8 +1027,6 @@ function NewBriefPage() {
                 setAutreVehicleNote("");
                 setAdFormat(null);
                 setBrandColor("#3B82F6");
-                setDisplayType(null);
-                setWizardStep("display-type");
                 setDraftRestored(false);
               }}
               className="ml-4 underline hover:no-underline shrink-0"
@@ -1756,83 +1595,53 @@ function NewBriefPage() {
           )}
 
           <Field label={t("advertiser.briefs.nouveau.field_vehicles")}>
-            {displayType && (
-              <button
-                type="button"
-                onClick={() => {
-                  setDisplayType(null);
-                  setVehicleTypes([]);
-                  setAdFormat(null);
-                  setWizardStep("display-type");
-                }}
-                className="mb-3 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-              >
-                {t("advertiser.briefs.nouveau.change_display_type")}
-              </button>
-            )}
-            {/* ── Fourgon LED numérique — puce simple (mode digital uniquement) */}
-            {displayType !== "traditionnel" && (
-              <button
-                type="button"
-                onClick={() => toggleType("camion_led")}
-                className={`px-3 py-1.5 rounded-full text-sm border transition-all mb-3 ${
-                  vehicleTypes.includes("camion_led")
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card border-border hover:bg-secondary"
-                }`}
-              >
-                {t("advertiser.briefs.nouveau.vehicle_led_btn")}
-              </button>
-            )}
-
-            {/* ── Autres véhicules (masqués en mode digital, déjà choisi) ─── */}
-            {displayType !== "digital" && (
-              <>
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-                  {displayType === "traditionnel"
-                    ? t("advertiser.briefs.nouveau.vehicles_available")
-                    : t("advertiser.briefs.nouveau.vehicles_other")}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {VEHICLE_TYPES.filter((vt) => vt.v !== "camion_led").map((vt) => {
-                    const blockedByBoxled =
-                      adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(vt.v as VehicleKey);
-                    const isSelected = vehicleTypes.includes(vt.v);
-                    return (
-                      <button
-                        type="button"
-                        key={vt.v}
-                        disabled={blockedByBoxled}
-                        title={
-                          blockedByBoxled
-                            ? t("advertiser.briefs.nouveau.boxled_incompatible_title")
-                            : vt.tip
-                        }
-                        onClick={() => toggleType(vt.v)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
-                          blockedByBoxled
-                            ? "opacity-40 cursor-not-allowed bg-card border-border"
-                            : isSelected
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-card border-border hover:bg-secondary"
-                        }`}
-                      >
-                        {vtLabel(vt.v)}
-                      </button>
-                    );
-                  })}
-                </div>
-                {adFormat === "boxled" && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                    {t("advertiser.briefs.nouveau.boxled_warning")}
-                  </p>
-                )}
-              </>
-            )}
-            {displayType === "digital" && (
-              <div className="mt-1 rounded-lg border border-blue-500/20 bg-blue-500/5 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
-                {t("advertiser.briefs.nouveau.digital_selected_msg")}
-              </div>
+            <button
+              type="button"
+              onClick={() => toggleType("camion_led")}
+              className={`px-3 py-1.5 rounded-full text-sm border transition-all mb-3 ${
+                vehicleTypes.includes("camion_led")
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card border-border hover:bg-secondary"
+              }`}
+            >
+              {t("advertiser.briefs.nouveau.vehicle_led_btn")}
+            </button>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+              {t("advertiser.briefs.nouveau.vehicles_available")}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VEHICLE_TYPES.filter((vt) => vt.v !== "camion_led").map((vt) => {
+                const blockedByBoxled =
+                  adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(vt.v as VehicleKey);
+                const isSelected = vehicleTypes.includes(vt.v);
+                return (
+                  <button
+                    type="button"
+                    key={vt.v}
+                    disabled={blockedByBoxled}
+                    title={
+                      blockedByBoxled
+                        ? t("advertiser.briefs.nouveau.boxled_incompatible_title")
+                        : vt.tip
+                    }
+                    onClick={() => toggleType(vt.v)}
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                      blockedByBoxled
+                        ? "opacity-40 cursor-not-allowed bg-card border-border"
+                        : isSelected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-card border-border hover:bg-secondary"
+                    }`}
+                  >
+                    {vtLabel(vt.v)}
+                  </button>
+                );
+              })}
+            </div>
+            {adFormat === "boxled" && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                {t("advertiser.briefs.nouveau.boxled_warning")}
+              </p>
             )}
           </Field>
 
