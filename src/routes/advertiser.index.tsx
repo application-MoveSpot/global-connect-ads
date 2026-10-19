@@ -672,14 +672,14 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
                   hash={step.cta.hash}
                   className="inline-block mt-2 rounded-full bg-primary text-primary-foreground px-4 py-1.5 text-xs font-semibold hover:bg-primary/90 transition"
                 >
-                  {step.cta.label} →
+                  {step.cta.label}
                 </Link>
               ) : step.cta ? (
                 <Link
                   to={step.cta.to}
                   className="inline-block mt-2 rounded-full border border-primary/40 text-primary px-4 py-1.5 text-xs font-semibold hover:bg-primary/10 transition"
                 >
-                  {step.cta.label} →
+                  {step.cta.label}
                 </Link>
               ) : null}
             </div>
