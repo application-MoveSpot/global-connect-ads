@@ -377,6 +377,8 @@ function EditVehiclePage() {
                 value={km}
                 onChange={setKm}
                 type="number"
+                placeholder={t("owner.vehicules.nouveau.km_placeholder")}
+                hint={t("owner.vehicules.nouveau.km_hint")}
               />
             </div>
 
@@ -571,6 +573,7 @@ function Field({
   type = "text",
   required,
   placeholder,
+  hint,
 }: {
   label: string;
   value: string;
@@ -578,6 +581,7 @@ function Field({
   type?: string;
   required?: boolean;
   placeholder?: string;
+  hint?: string;
 }) {
   return (
     <div>
@@ -590,6 +594,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       />
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
