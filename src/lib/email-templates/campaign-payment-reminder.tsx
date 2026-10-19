@@ -93,7 +93,7 @@ export const template = {
     spotName: "Taxi Basse-Terre",
     totalPrice: "240 €",
     daysLeft: 4,
-    payUrl: "https://move-spot.com/annonceur",
+    payUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;
 

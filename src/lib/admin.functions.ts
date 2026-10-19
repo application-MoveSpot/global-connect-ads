@@ -90,7 +90,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
                     currency: "EUR",
                   })
                 : undefined,
-            paymentUrl: "https://move-spot.com/annonceur",
+            paymentUrl: "https://move-spot.com/advertiser",
           },
         }).catch((e) => console.error("campaign-approved email failed", e));
       }
@@ -279,7 +279,7 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
                 briefTitle: (brief as { title?: string }).title ?? "votre brief",
                 approved: data.approve,
                 reason: data.approve ? undefined : data.notes?.trim() || undefined,
-                dashboardUrl: "https://move-spot.com/annonceur",
+                dashboardUrl: "https://move-spot.com/advertiser",
               },
             }).catch((e) => console.error("brief-decision email failed", e));
           }

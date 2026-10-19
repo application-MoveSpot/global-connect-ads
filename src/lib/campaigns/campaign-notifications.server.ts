@@ -58,7 +58,7 @@ export const respondToCampaignRequest = createServerFn({ method: "POST" })
           endDate: fmtDate(campaign.end_date as string | null),
           totalPrice: campaign.total_price ? `${campaign.total_price} €` : undefined,
           accepted,
-          dashboardUrl: "https://move-spot.com/annonceur",
+          dashboardUrl: "https://move-spot.com/advertiser",
         },
       });
     }
@@ -116,7 +116,7 @@ export const notifyBriefCreated = createServerFn({ method: "POST" })
         startDate: fmtDate(brief.start_date),
         endDate: fmtDate(brief.end_date),
         budgetMax: brief.budget_max ? `${brief.budget_max} €` : undefined,
-        dashboardUrl: `https://move-spot.com/annonceur/briefs/${data.briefId}`,
+        dashboardUrl: `https://move-spot.com/advertiser/briefs/${data.briefId}`,
       },
     });
     return { ok: true };
@@ -145,7 +145,7 @@ export const notifyCampaignSubmitted = createServerFn({ method: "POST" })
         spotName: campaign.spot_name,
         startDate: fmtDate(campaign.start_date),
         endDate: fmtDate(campaign.end_date),
-        dashboardUrl: "https://move-spot.com/annonceur",
+        dashboardUrl: "https://move-spot.com/advertiser",
       },
     });
     return { ok: true };

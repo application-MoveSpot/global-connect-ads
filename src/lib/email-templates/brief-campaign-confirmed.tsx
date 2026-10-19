@@ -114,6 +114,6 @@ export const template = {
     totalPrice: "390 €",
     startDate: "15/10/2026",
     endDate: "15/11/2026",
-    dashboardUrl: "https://move-spot.com/annonceur",
+    dashboardUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;

@@ -56,7 +56,7 @@ export async function settleCampaignFromWallet(params: {
           style: "currency",
           currency: "EUR",
         }),
-        trackingUrl: `https://move-spot.com/annonceur/suivi/${campaign.id}`,
+        trackingUrl: `https://move-spot.com/advertiser/suivi/${campaign.id}`,
       },
     });
   }

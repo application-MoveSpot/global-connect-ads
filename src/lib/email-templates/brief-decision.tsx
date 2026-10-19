@@ -77,7 +77,7 @@ export const template = {
   previewData: {
     briefTitle: "Campagne printemps Paris",
     approved: true,
-    dashboardUrl: "https://move-spot.com/annonceur",
+    dashboardUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;
 
