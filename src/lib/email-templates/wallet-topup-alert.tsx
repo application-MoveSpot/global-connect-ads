@@ -55,7 +55,7 @@ const Email = ({ amountEur = "0,00", date = "", time = "" }: Props) => (
             afin de bloquer votre compte.
           </Text>
         </Section>
-        <Button style={button} href="https://move-spot.com/annonceur/portefeuille">
+        <Button style={button} href="https://move-spot.com/advertiser/portefeuille">
           Voir mon portefeuille
         </Button>
         <Hr style={hr} />

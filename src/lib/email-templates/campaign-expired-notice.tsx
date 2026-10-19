@@ -68,7 +68,7 @@ export const template = {
   previewData: {
     fullName: "Marc Leblanc",
     spotName: "Taxi Pointe-à-Pitre",
-    dashboardUrl: "https://move-spot.com/annonceur",
+    dashboardUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;
 

@@ -114,6 +114,6 @@ export const template = {
     startDate: "15/10/2026",
     endDate: "15/11/2026",
     budgetMax: "500 €",
-    dashboardUrl: "https://move-spot.com/annonceur/briefs",
+    dashboardUrl: "https://move-spot.com/advertiser/briefs",
   },
 } satisfies TemplateEntry;

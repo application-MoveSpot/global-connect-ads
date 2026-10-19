@@ -115,6 +115,6 @@ export const template = {
   displayName: "Bienvenue annonceur",
   previewData: {
     firstName: "Sophie",
-    dashboardUrl: "https://move-spot.com/annonceur",
+    dashboardUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;

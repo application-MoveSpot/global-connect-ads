@@ -121,6 +121,6 @@ export const template = {
     amount: "1 250,00 €",
     vehicleCount: "4 véhicules",
     zone: "Centre-ville Pointe-à-Pitre",
-    trackingUrl: "https://move-spot.com/annonceur",
+    trackingUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;

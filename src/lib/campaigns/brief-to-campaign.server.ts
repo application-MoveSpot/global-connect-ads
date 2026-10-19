@@ -190,7 +190,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
             startDate: fmtDate(brief.start_date),
             endDate: fmtDate(brief.end_date),
             totalPrice: `${totalPrice.toFixed(2)} €`,
-            dashboardUrl: `https://move-spot.com/annonceur/briefs/${brief.id}`,
+            dashboardUrl: `https://move-spot.com/advertiser/briefs/${brief.id}`,
           },
         });
       } catch {

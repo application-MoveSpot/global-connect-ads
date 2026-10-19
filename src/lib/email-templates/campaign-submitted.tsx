@@ -129,6 +129,6 @@ export const template = {
     endDate: "20/09/2026",
     budget: "450 €",
     zone: "Centre-ville Pointe-à-Pitre",
-    dashboardUrl: "https://move-spot.com/annonceur",
+    dashboardUrl: "https://move-spot.com/advertiser",
   },
 } satisfies TemplateEntry;
