@@ -250,7 +250,7 @@ function NewBriefPage() {
       if (!raw) return;
       const d = JSON.parse(raw) as Record<string, unknown>;
       const hasMeaningfulContent = Boolean(
-        d.title || d.description || d.budget || d.audience || d.displayType,
+        d.title || d.description || d.budget || d.audience,
       );
       if (!hasMeaningfulContent) return;
       if (d.title) setTitle(d.title as string);
