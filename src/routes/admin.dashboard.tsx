@@ -1254,6 +1254,19 @@ function AdminDashboard() {
                               zones: (b.zones ?? []).join(", "),
                             })}
                           </p>
+                          {b.created_at && (
+                            <p className="mt-0.5 text-xs text-muted-foreground/70">
+                              {t("admin.dashboard.briefs_created_at", {
+                                date: new Date(b.created_at).toLocaleDateString(i18n.language, {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }),
+                              })}
+                            </p>
+                          )}
                         </div>
                         <div className="flex flex-col gap-2 items-end">
                           {b.status === "open" ? (
