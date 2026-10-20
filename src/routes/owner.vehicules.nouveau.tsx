@@ -64,7 +64,9 @@ function NewVehiclePage() {
   const filesRef = useRef<File[]>([]);
   filesRef.current = files;
   const [blurTarget, setBlurTarget] = useState<number | null>(null);
-  const [plateStatus, setPlateStatus] = useState<Map<number, "detecting" | "blurred" | "none" | "error">>(new Map());
+  const [plateStatus, setPlateStatus] = useState<
+    Map<number, "detecting" | "blurred" | "none" | "error">
+  >(new Map());
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [estimating, setEstimating] = useState(false);
@@ -89,6 +91,73 @@ function NewVehiclePage() {
   const [aiFilled, setAiFilled] = useState<string[]>([]);
   const callEstimate = useServerFn(estimateVehicle);
   const callVehicleAi = useServerFn(generateVehicleSuggestion);
+
+  const DRAFT_KEY = "vehicle_nouveau_draft";
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw) as Record<string, string>;
+      if (d.type) setType(d.type);
+      if (d.autreDescription) setAutreDescription(d.autreDescription);
+      if (d.condition) setCondition(d.condition as ConditionValue);
+      if (d.name) setName(d.name);
+      if (d.licensePlate) setLicensePlate(d.licensePlate);
+      if (d.brand) setBrand(d.brand);
+      if (d.vehicleModel) setVehicleModel(d.vehicleModel);
+      if (d.color) setColor(d.color);
+      if (d.description) setDescription(d.description);
+      if (d.surface) setSurface(d.surface);
+      if (d.km) setKm(d.km);
+      if (d.zones) setZones(d.zones);
+      if (d.price) setPrice(d.price);
+    } catch (_) {
+      /* sessionStorage unavailable (private mode) */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save draft on every field change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          type,
+          autreDescription,
+          condition,
+          name,
+          licensePlate,
+          brand,
+          vehicleModel,
+          color,
+          description,
+          surface,
+          km,
+          zones,
+          price,
+        }),
+      );
+    } catch (_) {
+      /* sessionStorage unavailable (private mode) */
+    }
+  }, [
+    type,
+    autreDescription,
+    condition,
+    name,
+    licensePlate,
+    brand,
+    vehicleModel,
+    color,
+    description,
+    surface,
+    km,
+    zones,
+    price,
+  ]);
 
   const MAX_PHOTOS = 5;
   const MAX_PHOTO_SIZE = 30 * 1024 * 1024; // 30 MB
@@ -140,21 +209,24 @@ function NewVehiclePage() {
         setPlateStatus((prev) => new Map(prev).set(idx, "error"));
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const addFiles = useCallback((incoming: File[]) => {
-    const currentCount = filesRef.current.length;
-    setFiles((prev) => {
-      const result = applyPhotos(incoming, prev);
-      return result;
-    });
-    setEstimate(null);
-    // Detect on the files that will actually be added (respects MAX_PHOTOS cap)
-    const toDetect = incoming.slice(0, Math.max(0, MAX_PHOTOS - currentCount));
-    if (toDetect.length > 0) void autoDetectPlates(toDetect, currentCount);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoDetectPlates]);
+  const addFiles = useCallback(
+    (incoming: File[]) => {
+      const currentCount = filesRef.current.length;
+      setFiles((prev) => {
+        const result = applyPhotos(incoming, prev);
+        return result;
+      });
+      setEstimate(null);
+      // Detect on the files that will actually be added (respects MAX_PHOTOS cap)
+      const toDetect = incoming.slice(0, Math.max(0, MAX_PHOTOS - currentCount));
+      if (toDetect.length > 0) void autoDetectPlates(toDetect, currentCount);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [autoDetectPlates],
+  );
 
   // Coller une image depuis le presse-papier (Ctrl+V) directement dans la zone photos
   useEffect(() => {
@@ -293,12 +365,10 @@ function NewVehiclePage() {
           setAiSessionExpired(true);
           return;
         }
-        const isGateway = /503|502|upstream|temporarily unavailable|gateway/i.test(res.message ?? "");
-        setAiError(
-          isGateway
-            ? t("owner.vehicules.nouveau.ai_error_gateway")
-            : res.message,
+        const isGateway = /503|502|upstream|temporarily unavailable|gateway/i.test(
+          res.message ?? "",
         );
+        setAiError(isGateway ? t("owner.vehicules.nouveau.ai_error_gateway") : res.message);
         return;
       }
       const { suggestion } = res;
@@ -433,6 +503,11 @@ function NewVehiclePage() {
         setLoading(false);
         return;
       }
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch (_) {
+        /* ignore */
+      }
       navigate({ to: "/owner" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
@@ -442,510 +517,520 @@ function NewVehiclePage() {
 
   return (
     <>
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-4">
-          <LogoLink />
-        </div>
-        <Link
-          to="/owner"
-          className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
-        >
-          {t("owner.vehicules.nouveau.back")}
-        </Link>
-        <div className="rounded-2xl border border-border bg-card p-8 mt-4">
-          <h1 className="font-display text-3xl font-bold mb-2">
-            {t("owner.vehicules.nouveau.title")}
-          </h1>
-          <p className="text-sm text-muted-foreground mb-6">{t("owner.vehicules.nouveau.desc")}</p>
-
-          {/* AI assistant panel */}
-          <div className="mb-6">
-            <AiAssistantPanel
-              open={aiPanelOpen}
-              onOpenChange={setAiPanelOpen}
-              context={aiContext}
-              onContextChange={setAiContext}
-              onGenerate={handleVehicleAiGenerate}
-              loading={aiLoading}
-              error={aiError}
-              sessionExpired={aiSessionExpired}
-              sessionExpiredHref="/owner/inscription"
-              title={t("owner.vehicules.nouveau.ai_panel_title")}
-              description={t("owner.vehicules.nouveau.ai_panel_desc")}
-              placeholder={t("owner.vehicules.nouveau.ai_placeholder")}
-              generateLabel={t("owner.vehicules.nouveau.ai_generate")}
-              generateLoadingLabel={t("owner.vehicules.nouveau.ai_generating")}
-              filledMessage={
-                aiFilled.length > 0
-                  ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") })
-                  : undefined
-              }
-              onDismissFilled={() => setAiFilled([])}
-            />
+      <div className="min-h-screen bg-background p-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-4">
+            <LogoLink />
           </div>
+          <Link
+            to="/owner"
+            className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+          >
+            {t("owner.vehicules.nouveau.back")}
+          </Link>
+          <div className="rounded-2xl border border-border bg-card p-8 mt-4">
+            <h1 className="font-display text-3xl font-bold mb-2">
+              {t("owner.vehicules.nouveau.title")}
+            </h1>
+            <p className="text-sm text-muted-foreground mb-6">
+              {t("owner.vehicules.nouveau.desc")}
+            </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1.5">
-                {t("owner.vehicules.nouveau.vehicle_type_label")}
-              </label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                required
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                <optgroup label={t("owner.vehicules.nouveau.group_vehicles")}>
-                  {VEHICLE_TYPE_VALUES.map((v) => (
-                    <option key={v} value={v}>
-                      {t(`vehicle_types.${v}`)}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label={t("owner.vehicules.nouveau.group_other")}>
-                  <option value="autre">{t("vehicle_types.autre")}</option>
-                </optgroup>
-              </select>
+            {/* AI assistant panel */}
+            <div className="mb-6">
+              <AiAssistantPanel
+                open={aiPanelOpen}
+                onOpenChange={setAiPanelOpen}
+                context={aiContext}
+                onContextChange={setAiContext}
+                onGenerate={handleVehicleAiGenerate}
+                loading={aiLoading}
+                error={aiError}
+                sessionExpired={aiSessionExpired}
+                sessionExpiredHref="/owner/inscription"
+                title={t("owner.vehicules.nouveau.ai_panel_title")}
+                description={t("owner.vehicules.nouveau.ai_panel_desc")}
+                placeholder={t("owner.vehicules.nouveau.ai_placeholder")}
+                generateLabel={t("owner.vehicules.nouveau.ai_generate")}
+                generateLoadingLabel={t("owner.vehicules.nouveau.ai_generating")}
+                filledMessage={
+                  aiFilled.length > 0
+                    ? t("owner.vehicules.nouveau.ai_filled", { fields: aiFilled.join(", ") })
+                    : undefined
+                }
+                onDismissFilled={() => setAiFilled([])}
+              />
             </div>
-            {type === "autre" && (
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">
-                  {t("owner.vehicules.nouveau.autre_type_label")}
+                  {t("owner.vehicules.nouveau.vehicle_type_label")}
                 </label>
-                <input
-                  type="text"
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
                   required
-                  maxLength={120}
-                  value={autreDescription}
-                  onChange={(e) => setAutreDescription(e.target.value)}
-                  placeholder={t("owner.vehicules.nouveau.autre_type_placeholder")}
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <optgroup label={t("owner.vehicules.nouveau.group_vehicles")}>
+                    {VEHICLE_TYPE_VALUES.map((v) => (
+                      <option key={v} value={v}>
+                        {t(`vehicle_types.${v}`)}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label={t("owner.vehicules.nouveau.group_other")}>
+                    <option value="autre">{t("vehicle_types.autre")}</option>
+                  </optgroup>
+                </select>
+              </div>
+              {type === "autre" && (
+                <div>
+                  <label className="block text-sm font-medium mb-1.5">
+                    {t("owner.vehicules.nouveau.autre_type_label")}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={120}
+                    value={autreDescription}
+                    onChange={(e) => setAutreDescription(e.target.value)}
+                    placeholder={t("owner.vehicules.nouveau.autre_type_placeholder")}
+                    className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    {t("owner.vehicules.nouveau.autre_type_hint")}
+                  </p>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("owner.vehicules.nouveau.condition_label")}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {CONDITION_VALUES.map((v) => (
+                    <button
+                      type="button"
+                      key={v}
+                      onClick={() => {
+                        setCondition(v);
+                        setEstimate(null);
+                      }}
+                      className={`rounded-lg border px-3 py-2.5 text-left transition ${
+                        condition === v
+                          ? v === "mauvais"
+                            ? "border-destructive bg-destructive/10"
+                            : "border-primary bg-primary/10"
+                          : "border-border bg-input hover:border-primary/40"
+                      }`}
+                    >
+                      <div className="text-sm font-semibold">
+                        {t(`owner.vehicules.nouveau.condition_${v}`)}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground mt-0.5">
+                        {t(`owner.vehicules.nouveau.condition_${v}_desc`)}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {t("owner.vehicules.nouveau.condition_warning")}
+                </p>
+              </div>
+
+              <Field
+                label={t("owner.vehicules.nouveau.name_label")}
+                value={name}
+                onChange={setName}
+                required
+                placeholder={t("owner.vehicules.nouveau.name_placeholder")}
+              />
+
+              <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    {t("owner.vehicules.nouveau.id_section_title")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("owner.vehicules.nouveau.id_section_desc")}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field
+                    label={t("owner.vehicules.nouveau.plate_label")}
+                    value={licensePlate}
+                    onChange={setLicensePlate}
+                    placeholder={t("owner.vehicules.nouveau.plate_placeholder")}
+                  />
+                  <Field
+                    label={t("owner.vehicules.nouveau.color_label")}
+                    value={color}
+                    onChange={setColor}
+                    placeholder={t("owner.vehicules.nouveau.color_placeholder")}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field
+                    label={t("owner.vehicules.nouveau.brand_label")}
+                    value={brand}
+                    onChange={setBrand}
+                    placeholder={t("owner.vehicules.nouveau.brand_placeholder")}
+                  />
+                  <Field
+                    label={t("owner.vehicules.nouveau.model_label")}
+                    value={vehicleModel}
+                    onChange={setVehicleModel}
+                    placeholder={t("owner.vehicules.nouveau.model_placeholder")}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("owner.vehicules.nouveau.description_label")}
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  maxLength={500}
+                  placeholder={t("owner.vehicules.nouveau.description_placeholder")}
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <p className="text-xs text-muted-foreground mt-1.5">
-                  {t("owner.vehicules.nouveau.autre_type_hint")}
+                  {t("owner.vehicules.nouveau.description_hint")}
                 </p>
               </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium mb-1.5">
-                {t("owner.vehicules.nouveau.condition_label")}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {CONDITION_VALUES.map((v) => (
+              <div className="grid grid-cols-2 gap-4">
+                <Field
+                  label={t("owner.vehicules.nouveau.surface_label")}
+                  value={surface}
+                  onChange={setSurface}
+                  type="number"
+                />
+                <Field
+                  label={t("owner.vehicules.nouveau.km_label")}
+                  value={km}
+                  onChange={setKm}
+                  type="number"
+                  placeholder={t("owner.vehicules.nouveau.km_placeholder")}
+                  hint={t("owner.vehicules.nouveau.km_hint")}
+                />
+              </div>
+              <Field
+                label={t("owner.vehicules.nouveau.zones_label")}
+                value={zones}
+                onChange={setZones}
+                placeholder={t("owner.vehicules.nouveau.zones_placeholder")}
+                hint={t("owner.vehicules.nouveau.zones_hint")}
+              />
+              <div>
+                <Field
+                  label={t("owner.vehicules.nouveau.price_label")}
+                  value={price}
+                  onChange={setPrice}
+                  type="number"
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {t("owner.vehicules.nouveau.price_hint")}
+                  {estimate && estimate.suggested_price_max > 0 && (
+                    <>
+                      {" "}
+                      {t("owner.vehicules.nouveau.price_range_hint", {
+                        min: Math.floor(estimate.suggested_price_min * 0.7),
+                        max: Math.floor(estimate.suggested_price_max * 0.7),
+                      })}
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("owner.vehicules.nouveau.photos_label")}
+                </label>
+                <div
+                  className="relative rounded-xl border-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/30 transition-colors"
+                  onPaste={(e) => {
+                    const items = Array.from(e.clipboardData?.items ?? []);
+                    const imageItems = items.filter((item) => item.type.startsWith("image/"));
+                    if (!imageItems.length) return;
+                    e.preventDefault();
+                    const newFiles = imageItems
+                      .map((i) => i.getAsFile())
+                      .filter((f): f is File => f !== null);
+                    addFiles(newFiles);
+                    setPastedHint(true);
+                    setTimeout(() => setPastedHint(false), 3000);
+                  }}
+                >
+                  <label className="flex flex-col items-center justify-center gap-2 py-5 cursor-pointer">
+                    <span className="text-2xl">📷</span>
+                    <span className="text-sm text-muted-foreground font-medium">
+                      {t("owner.vehicules.nouveau.photos_choose")}
+                    </span>
+                    <span className="text-xs text-muted-foreground/70">
+                      {t("owner.vehicules.nouveau.photos_drag")}
+                    </span>
+                    <div className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full bg-card border border-border">
+                      <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">
+                        Ctrl
+                      </kbd>
+                      <span className="text-[10px] text-muted-foreground">+</span>
+                      <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">
+                        V
+                      </kbd>
+                      <span className="text-[10px] text-muted-foreground ml-1">
+                        {t("owner.vehicules.nouveau.photos_paste")}
+                      </span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => {
+                        const picked = Array.from(e.target.files ?? []);
+                        addFiles(picked);
+                        e.currentTarget.value = "";
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {pastedHint && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-primary/10 border-2 border-primary rounded-xl pointer-events-none">
+                      <span className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-full shadow-lg animate-pulse">
+                        {t("owner.vehicules.nouveau.photos_pasted")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {files.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {files.map((f, i) => (
+                      <div
+                        key={i}
+                        className="flex flex-col gap-1 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>🖼</span>
+                          <span className="font-medium truncate max-w-[140px]">
+                            {f.name || `Image collée ${i + 1}`}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFiles((prev) => prev.filter((_, j) => j !== i));
+                              setPlateStatus((prev) => {
+                                const next = new Map<
+                                  number,
+                                  "detecting" | "blurred" | "none" | "error"
+                                >();
+                                prev.forEach((v, k) => {
+                                  if (k < i) next.set(k, v);
+                                  else if (k > i) next.set(k - 1, v);
+                                });
+                                return next;
+                              });
+                              setEstimate(null);
+                            }}
+                            className="text-muted-foreground hover:text-destructive ml-1 transition"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        {plateStatus.get(i) === "detecting" && (
+                          <span className="text-[10px] text-muted-foreground animate-pulse">
+                            {t("owner.vehicules.nouveau.plate_detecting")}
+                          </span>
+                        )}
+                        {plateStatus.get(i) === "blurred" && (
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                            ✓ {t("owner.vehicules.nouveau.plate_blurred")}
+                          </span>
+                        )}
+                        {(plateStatus.get(i) === "none" ||
+                          plateStatus.get(i) === "error" ||
+                          !plateStatus.has(i)) && (
+                          <button
+                            type="button"
+                            onClick={() => setBlurTarget(i)}
+                            className="text-[10px] text-amber-700 dark:text-amber-400 hover:underline text-left"
+                          >
+                            {t("owner.vehicules.nouveau.photos_blur_btn")}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {t("owner.vehicules.nouveau.photos_hint")}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {t("owner.vehicules.nouveau.photos_3d_hint")}
+                </p>
+                <div className="mt-2 rounded-lg border border-amber-400/40 bg-amber-50/60 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+                  {t("owner.vehicules.nouveau.photos_plate_warning")}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-secondary/30 p-4">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div>
+                    <div className="text-sm font-semibold">
+                      {t("owner.vehicules.nouveau.estimate_title")}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t("owner.vehicules.nouveau.estimate_desc")}
+                    </div>
+                  </div>
                   <button
                     type="button"
-                    key={v}
-                    onClick={() => {
-                      setCondition(v);
-                      setEstimate(null);
-                    }}
-                    className={`rounded-lg border px-3 py-2.5 text-left transition ${
-                      condition === v
-                        ? v === "mauvais"
-                          ? "border-destructive bg-destructive/10"
-                          : "border-primary bg-primary/10"
-                        : "border-border bg-input hover:border-primary/40"
-                    }`}
+                    onClick={runEstimate}
+                    disabled={estimating || condition === "mauvais"}
+                    className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap"
                   >
-                    <div className="text-sm font-semibold">
-                      {t(`owner.vehicules.nouveau.condition_${v}`)}
-                    </div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">
-                      {t(`owner.vehicules.nouveau.condition_${v}_desc`)}
-                    </div>
+                    {estimating
+                      ? t("owner.vehicules.nouveau.estimating")
+                      : t("owner.vehicules.nouveau.estimate_btn")}
                   </button>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1.5">
-                {t("owner.vehicules.nouveau.condition_warning")}
-              </p>
-            </div>
+                </div>
+                {estimate && (
+                  <div className="space-y-2 text-sm mt-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-lg bg-card p-2.5">
+                        <div className="text-[11px] text-muted-foreground uppercase">
+                          {t("owner.vehicules.nouveau.estimate_market_price")}
+                        </div>
+                        <div className="font-semibold">
+                          {estimate.suggested_price_min}–{estimate.suggested_price_max} €/j
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-card p-2.5">
+                        <div className="text-[11px] text-muted-foreground uppercase">
+                          {t("owner.vehicules.nouveau.estimate_impressions")}
+                        </div>
+                        <div className="font-semibold">
+                          {estimate.estimated_impressions_per_day.toLocaleString(i18n.language)} /j
+                        </div>
+                      </div>
+                    </div>
 
-            <Field
-              label={t("owner.vehicules.nouveau.name_label")}
-              value={name}
-              onChange={setName}
-              required
-              placeholder={t("owner.vehicules.nouveau.name_placeholder")}
-            />
-
-            <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                  {t("owner.vehicules.nouveau.id_section_title")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("owner.vehicules.nouveau.id_section_desc")}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Field
-                  label={t("owner.vehicules.nouveau.plate_label")}
-                  value={licensePlate}
-                  onChange={setLicensePlate}
-                  placeholder={t("owner.vehicules.nouveau.plate_placeholder")}
-                />
-                <Field
-                  label={t("owner.vehicules.nouveau.color_label")}
-                  value={color}
-                  onChange={setColor}
-                  placeholder={t("owner.vehicules.nouveau.color_placeholder")}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Field
-                  label={t("owner.vehicules.nouveau.brand_label")}
-                  value={brand}
-                  onChange={setBrand}
-                  placeholder={t("owner.vehicules.nouveau.brand_placeholder")}
-                />
-                <Field
-                  label={t("owner.vehicules.nouveau.model_label")}
-                  value={vehicleModel}
-                  onChange={setVehicleModel}
-                  placeholder={t("owner.vehicules.nouveau.model_placeholder")}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1.5">
-                {t("owner.vehicules.nouveau.description_label")}
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                maxLength={500}
-                placeholder={t("owner.vehicules.nouveau.description_placeholder")}
-                className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <p className="text-xs text-muted-foreground mt-1.5">
-                {t("owner.vehicules.nouveau.description_hint")}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <Field
-                label={t("owner.vehicules.nouveau.surface_label")}
-                value={surface}
-                onChange={setSurface}
-                type="number"
-              />
-              <Field
-                label={t("owner.vehicules.nouveau.km_label")}
-                value={km}
-                onChange={setKm}
-                type="number"
-                placeholder={t("owner.vehicules.nouveau.km_placeholder")}
-                hint={t("owner.vehicules.nouveau.km_hint")}
-              />
-            </div>
-            <Field
-              label={t("owner.vehicules.nouveau.zones_label")}
-              value={zones}
-              onChange={setZones}
-              placeholder={t("owner.vehicules.nouveau.zones_placeholder")}
-              hint={t("owner.vehicules.nouveau.zones_hint")}
-            />
-            <div>
-              <Field
-                label={t("owner.vehicules.nouveau.price_label")}
-                value={price}
-                onChange={setPrice}
-                type="number"
-                required
-              />
-              <p className="text-xs text-muted-foreground mt-1.5">
-                {t("owner.vehicules.nouveau.price_hint")}
-                {estimate && estimate.suggested_price_max > 0 && (
-                  <>
-                    {" "}
-                    {t("owner.vehicules.nouveau.price_range_hint", {
-                      min: Math.floor(estimate.suggested_price_min * 0.7),
-                      max: Math.floor(estimate.suggested_price_max * 0.7),
-                    })}
-                  </>
-                )}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1.5">
-                {t("owner.vehicules.nouveau.photos_label")}
-              </label>
-              <div
-                className="relative rounded-xl border-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/30 transition-colors"
-                onPaste={(e) => {
-                  const items = Array.from(e.clipboardData?.items ?? []);
-                  const imageItems = items.filter((item) => item.type.startsWith("image/"));
-                  if (!imageItems.length) return;
-                  e.preventDefault();
-                  const newFiles = imageItems
-                    .map((i) => i.getAsFile())
-                    .filter((f): f is File => f !== null);
-                  addFiles(newFiles);
-                  setPastedHint(true);
-                  setTimeout(() => setPastedHint(false), 3000);
-                }}
-              >
-                <label className="flex flex-col items-center justify-center gap-2 py-5 cursor-pointer">
-                  <span className="text-2xl">📷</span>
-                  <span className="text-sm text-muted-foreground font-medium">
-                    {t("owner.vehicules.nouveau.photos_choose")}
-                  </span>
-                  <span className="text-xs text-muted-foreground/70">
-                    {t("owner.vehicules.nouveau.photos_drag")}
-                  </span>
-                  <div className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full bg-card border border-border">
-                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">
-                      Ctrl
-                    </kbd>
-                    <span className="text-[10px] text-muted-foreground">+</span>
-                    <kbd className="text-[10px] font-mono font-bold text-foreground/70 bg-muted px-1.5 py-0.5 rounded">
-                      V
-                    </kbd>
-                    <span className="text-[10px] text-muted-foreground ml-1">
-                      {t("owner.vehicules.nouveau.photos_paste")}
-                    </span>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => {
-                      const picked = Array.from(e.target.files ?? []);
-                      addFiles(picked);
-                      e.currentTarget.value = "";
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                {pastedHint && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-primary/10 border-2 border-primary rounded-xl pointer-events-none">
-                    <span className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-full shadow-lg animate-pulse">
-                      {t("owner.vehicules.nouveau.photos_pasted")}
-                    </span>
-                  </div>
-                )}
-              </div>
-              {files.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {files.map((f, i) => (
                     <div
-                      key={i}
-                      className="flex flex-col gap-1 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
+                      className={`rounded-lg p-2.5 text-xs ${
+                        estimate.photo_match === "ok"
+                          ? "bg-signal/10 text-signal"
+                          : estimate.photo_match === "doubtful"
+                            ? "bg-yellow-500/10 text-yellow-600"
+                            : estimate.photo_match === "mismatch"
+                              ? "bg-destructive/10 text-destructive"
+                              : "bg-muted text-muted-foreground"
+                      }`}
                     >
-                      <div className="flex items-center gap-1.5">
-                        <span>🖼</span>
-                        <span className="font-medium truncate max-w-[140px]">
-                          {f.name || `Image collée ${i + 1}`}
-                        </span>
+                      <strong>{t("owner.vehicules.nouveau.estimate_photo_label")} </strong>
+                      {estimate.photo_match === "ok" &&
+                        t("owner.vehicules.nouveau.estimate_photo_ok")}
+                      {estimate.photo_match === "doubtful" &&
+                        t("owner.vehicules.nouveau.estimate_photo_doubtful")}
+                      {estimate.photo_match === "mismatch" &&
+                        t("owner.vehicules.nouveau.estimate_photo_mismatch")}
+                      {estimate.photo_match === "unverified" &&
+                        t("owner.vehicules.nouveau.estimate_photo_unverified")}
+                      {estimate.photo_notes && (
+                        <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>
+                      )}
+                    </div>
+                    {estimate.condition_alert && (
+                      <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">
+                        ⚠️ {estimate.condition_alert}
+                      </div>
+                    )}
+                    {estimate.ai_generated_detected && (
+                      <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-3 text-xs space-y-2">
+                        <div className="font-semibold text-sm">
+                          🚫 {t("owner.vehicules.nouveau.estimate_ai_detected")}
+                        </div>
+                        {estimate.ai_generated_notes && (
+                          <div className="bg-destructive/10 rounded p-2 leading-relaxed">
+                            <strong>{t("owner.vehicules.nouveau.estimate_ai_reason_label")}</strong>{" "}
+                            {estimate.ai_generated_notes}
+                          </div>
+                        )}
+                        <div className="text-destructive/80">
+                          {t("owner.vehicules.nouveau.estimate_ai_upload")}
+                        </div>
+                      </div>
+                    )}
+                    {estimate.suggested_price_max > 0 && (
+                      <div className="rounded-lg border border-primary/30 bg-primary/5 p-2.5 text-xs">
+                        <div>
+                          <strong>{t("owner.vehicules.nouveau.estimate_owner_remun")}</strong>{" "}
+                          {Math.floor(estimate.suggested_price_min * 0.7)}–
+                          {Math.floor(estimate.suggested_price_max * 0.7)} €/j
+                        </div>
+                        <div className="mt-1 text-muted-foreground">
+                          {t("owner.vehicules.nouveau.estimate_commission")}
+                        </div>
                         <button
                           type="button"
                           onClick={() => {
-                            setFiles((prev) => prev.filter((_, j) => j !== i));
-                            setPlateStatus((prev) => {
-                              const next = new Map<number, "detecting" | "blurred" | "none" | "error">();
-                              prev.forEach((v, k) => { if (k < i) next.set(k, v); else if (k > i) next.set(k - 1, v); });
-                              return next;
-                            });
-                            setEstimate(null);
+                            setPrice(String(Math.floor(estimate.suggested_price_max * 0.7)));
+                            setError("");
                           }}
-                          className="text-muted-foreground hover:text-destructive ml-1 transition"
+                          className="mt-2 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 font-medium hover:bg-primary/90 transition"
                         >
-                          ×
+                          {t("owner.vehicules.nouveau.estimate_use_price", {
+                            price: Math.floor(estimate.suggested_price_max * 0.7),
+                          })}
                         </button>
                       </div>
-                      {plateStatus.get(i) === "detecting" && (
-                        <span className="text-[10px] text-muted-foreground animate-pulse">
-                          {t("owner.vehicules.nouveau.plate_detecting")}
-                        </span>
-                      )}
-                      {plateStatus.get(i) === "blurred" && (
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
-                          ✓ {t("owner.vehicules.nouveau.plate_blurred")}
-                        </span>
-                      )}
-                      {(plateStatus.get(i) === "none" || plateStatus.get(i) === "error" || !plateStatus.has(i)) && (
-                        <button
-                          type="button"
-                          onClick={() => setBlurTarget(i)}
-                          className="text-[10px] text-amber-700 dark:text-amber-400 hover:underline text-left"
-                        >
-                          {t("owner.vehicules.nouveau.photos_blur_btn")}
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground mt-1.5">
-                {t("owner.vehicules.nouveau.photos_hint")}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1.5">
-                {t("owner.vehicules.nouveau.photos_3d_hint")}
-              </p>
-              <div className="mt-2 rounded-lg border border-amber-400/40 bg-amber-50/60 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
-                {t("owner.vehicules.nouveau.photos_plate_warning")}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border bg-secondary/30 p-4">
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <div>
-                  <div className="text-sm font-semibold">
-                    {t("owner.vehicules.nouveau.estimate_title")}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {t("owner.vehicules.nouveau.estimate_desc")}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={runEstimate}
-                  disabled={estimating || condition === "mauvais"}
-                  className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition disabled:opacity-60 whitespace-nowrap"
-                >
-                  {estimating
-                    ? t("owner.vehicules.nouveau.estimating")
-                    : t("owner.vehicules.nouveau.estimate_btn")}
-                </button>
-              </div>
-              {estimate && (
-                <div className="space-y-2 text-sm mt-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">
-                        {t("owner.vehicules.nouveau.estimate_market_price")}
+                    )}
+                    {estimate.recommendation && (
+                      <div className="text-xs text-muted-foreground italic">
+                        💡 {estimate.recommendation}
                       </div>
-                      <div className="font-semibold">
-                        {estimate.suggested_price_min}–{estimate.suggested_price_max} €/j
-                      </div>
-                    </div>
-                    <div className="rounded-lg bg-card p-2.5">
-                      <div className="text-[11px] text-muted-foreground uppercase">
-                        {t("owner.vehicules.nouveau.estimate_impressions")}
-                      </div>
-                      <div className="font-semibold">
-                        {estimate.estimated_impressions_per_day.toLocaleString(i18n.language)} /j
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`rounded-lg p-2.5 text-xs ${
-                      estimate.photo_match === "ok"
-                        ? "bg-signal/10 text-signal"
-                        : estimate.photo_match === "doubtful"
-                          ? "bg-yellow-500/10 text-yellow-600"
-                          : estimate.photo_match === "mismatch"
-                            ? "bg-destructive/10 text-destructive"
-                            : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    <strong>{t("owner.vehicules.nouveau.estimate_photo_label")} </strong>
-                    {estimate.photo_match === "ok" &&
-                      t("owner.vehicules.nouveau.estimate_photo_ok")}
-                    {estimate.photo_match === "doubtful" &&
-                      t("owner.vehicules.nouveau.estimate_photo_doubtful")}
-                    {estimate.photo_match === "mismatch" &&
-                      t("owner.vehicules.nouveau.estimate_photo_mismatch")}
-                    {estimate.photo_match === "unverified" &&
-                      t("owner.vehicules.nouveau.estimate_photo_unverified")}
-                    {estimate.photo_notes && (
-                      <span className="block mt-1 opacity-80">{estimate.photo_notes}</span>
                     )}
                   </div>
-                  {estimate.condition_alert && (
-                    <div className="rounded-lg bg-destructive/10 text-destructive p-2.5 text-xs">
-                      ⚠️ {estimate.condition_alert}
-                    </div>
-                  )}
-                  {estimate.ai_generated_detected && (
-                    <div className="rounded-lg bg-destructive/15 border border-destructive/40 text-destructive p-3 text-xs space-y-2">
-                      <div className="font-semibold text-sm">
-                        🚫 {t("owner.vehicules.nouveau.estimate_ai_detected")}
-                      </div>
-                      {estimate.ai_generated_notes && (
-                        <div className="bg-destructive/10 rounded p-2 leading-relaxed">
-                          <strong>{t("owner.vehicules.nouveau.estimate_ai_reason_label")}</strong>{" "}
-                          {estimate.ai_generated_notes}
-                        </div>
-                      )}
-                      <div className="text-destructive/80">
-                        {t("owner.vehicules.nouveau.estimate_ai_upload")}
-                      </div>
-                    </div>
-                  )}
-                  {estimate.suggested_price_max > 0 && (
-                    <div className="rounded-lg border border-primary/30 bg-primary/5 p-2.5 text-xs">
-                      <div>
-                        <strong>{t("owner.vehicules.nouveau.estimate_owner_remun")}</strong>{" "}
-                        {Math.floor(estimate.suggested_price_min * 0.7)}–
-                        {Math.floor(estimate.suggested_price_max * 0.7)} €/j
-                      </div>
-                      <div className="mt-1 text-muted-foreground">
-                        {t("owner.vehicules.nouveau.estimate_commission")}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPrice(String(Math.floor(estimate.suggested_price_max * 0.7)));
-                          setError("");
-                        }}
-                        className="mt-2 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 font-medium hover:bg-primary/90 transition"
-                      >
-                        {t("owner.vehicules.nouveau.estimate_use_price", {
-                          price: Math.floor(estimate.suggested_price_max * 0.7),
-                        })}
-                      </button>
-                    </div>
-                  )}
-                  {estimate.recommendation && (
-                    <div className="text-xs text-muted-foreground italic">
-                      💡 {estimate.recommendation}
-                    </div>
-                  )}
+                )}
+              </div>
+
+              {error && (
+                <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
+                  {error}
                 </div>
               )}
-            </div>
 
-            {error && (
-              <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
-                {error}
+              <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
+                {t("owner.vehicules.nouveau.ip_notice")}
               </div>
-            )}
 
-            <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
-              {t("owner.vehicules.nouveau.ip_notice")}
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
-            >
-              {loading
-                ? t("owner.vehicules.nouveau.submitting")
-                : t("owner.vehicules.nouveau.submit")}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+              >
+                {loading
+                  ? t("owner.vehicules.nouveau.submitting")
+                  : t("owner.vehicules.nouveau.submit")}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
 
-    {blurTarget !== null && files[blurTarget] && (
-      <PlateBlurEditor
-        file={files[blurTarget]}
-        onDone={(blurred) => {
-          setFiles((prev) => prev.map((f, i) => (i === blurTarget ? blurred : f)));
-          setEstimate(null);
-          setBlurTarget(null);
-        }}
-        onCancel={() => setBlurTarget(null)}
-      />
-    )}
+      {blurTarget !== null && files[blurTarget] && (
+        <PlateBlurEditor
+          file={files[blurTarget]}
+          onDone={(blurred) => {
+            setFiles((prev) => prev.map((f, i) => (i === blurTarget ? blurred : f)));
+            setEstimate(null);
+            setBlurTarget(null);
+          }}
+          onCancel={() => setBlurTarget(null)}
+        />
+      )}
     </>
   );
 }
