@@ -115,7 +115,8 @@ export const AS_CITIES: AsCity[] = [
     countryName: "Chine",
     countryFlag: "🇨🇳",
     status: "restreint",
-    notes: "3e pôle économique. Mêmes règles SAMR qu'à Shanghai. Zone frontière avec Hong Kong — marché transfrontalier actif.",
+    notes:
+      "3e pôle économique. Mêmes règles SAMR qu'à Shanghai. Zone frontière avec Hong Kong — marché transfrontalier actif.",
   },
   // ── Inde ──────────────────────────────────────────────────────────────────
   {
@@ -184,7 +185,8 @@ export const AS_CITIES: AsCity[] = [
     countryName: "Vietnam",
     countryFlag: "🇻🇳",
     status: "restreint",
-    notes: "Capitale politique — réglementation publicitaire plus stricte qu'à Hô Chi Minh-Ville. Approbation du DOIT de Hanoï requise.",
+    notes:
+      "Capitale politique — réglementation publicitaire plus stricte qu'à Hô Chi Minh-Ville. Approbation du DOIT de Hanoï requise.",
   },
   // ── Malaisie ──────────────────────────────────────────────────────────────
   {

@@ -13,7 +13,10 @@ type BetaEntry = {
 
 export const Route = createFileRoute("/admin/beta")({
   head: () => ({
-    meta: [{ title: "Accès Beta — Admin MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
+    meta: [
+      { title: "Accès Beta — Admin MoveSpot" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
   }),
   component: AdminBetaPage,
 });
@@ -84,8 +87,8 @@ function AdminBetaPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-8">
         <p className="text-sm text-muted-foreground mb-6">
-          <strong className="text-foreground">Liste vide = app ouverte à tous.</strong> Ajoutez
-          des emails pour restreindre l'accès lors du lancement privé.
+          <strong className="text-foreground">Liste vide = app ouverte à tous.</strong> Ajoutez des
+          emails pour restreindre l'accès lors du lancement privé.
         </p>
 
         {/* Formulaire d'ajout */}
@@ -142,9 +145,7 @@ function AdminBetaPage() {
               >
                 <div className="min-w-0">
                   <div className="font-medium text-sm truncate">{entry.email}</div>
-                  {entry.note && (
-                    <div className="text-xs text-muted-foreground">{entry.note}</div>
-                  )}
+                  {entry.note && <div className="text-xs text-muted-foreground">{entry.note}</div>}
                   <div className="text-xs text-muted-foreground">
                     {new Date(entry.created_at).toLocaleDateString("fr-FR")}
                   </div>

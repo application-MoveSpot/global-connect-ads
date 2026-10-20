@@ -373,7 +373,6 @@ function AnnonceurDashboard() {
           </div>
         </div>
 
-
         {requests.length === 0 ? (
           <AdvertiserOnboarding isIndividual={isIndividual} />
         ) : (
@@ -596,7 +595,10 @@ function AdvertiserOnboarding({ isIndividual }: { isIndividual: boolean }) {
       title: t("advertiser.onboarding.step_b2_title"),
       desc: t("advertiser.onboarding.step_b2_desc"),
       done: false,
-      cta: { label: t("advertiser.onboarding.step_b2_cta"), to: "/advertiser/briefs/nouveau" } as const,
+      cta: {
+        label: t("advertiser.onboarding.step_b2_cta"),
+        to: "/advertiser/briefs/nouveau",
+      } as const,
     },
     {
       icon: "📋",

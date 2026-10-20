@@ -247,7 +247,7 @@ function AnnonceurInscription() {
         setAiError(
           accountType === "individual"
             ? "L'IA n'a pas trouvé de nom ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre nom et votre ville."
-            : "L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez votre activité avec votre nom, votre société et votre ville."
+            : "L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez votre activité avec votre nom, votre société et votre ville.",
         );
       } else {
         setAiFilled(filled);
@@ -465,14 +465,20 @@ function AnnonceurInscription() {
               sessionExpired={aiSessionExpired}
               sessionExpiredHref="/advertiser/inscription?mode=signin"
               onReconnectClick={async () => {
-                try { await supabase.auth.signOut(); } catch { /* ignore */ }
+                try {
+                  await supabase.auth.signOut();
+                } catch {
+                  /* ignore */
+                }
                 // Belt-and-suspenders: wipe all Supabase auth keys from localStorage
                 // so the page's useEffect can't auto-redirect back to the dashboard.
                 try {
                   Object.keys(localStorage)
                     .filter((k) => k.startsWith("sb-"))
                     .forEach((k) => localStorage.removeItem(k));
-                } catch { /* ignore */ }
+                } catch {
+                  /* ignore */
+                }
                 window.location.href = "/advertiser/inscription?mode=signin";
               }}
               title={t("advertiser.inscription.ai_panel_title")}

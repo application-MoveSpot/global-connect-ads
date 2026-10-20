@@ -71,7 +71,9 @@ function CommercialInscription() {
         setAiSessionExpired(true);
         return;
       }
-      const res = await callCommercialAi({ data: { commercialContext: aiContext, _auth: session.access_token } });
+      const res = await callCommercialAi({
+        data: { commercialContext: aiContext, _auth: session.access_token },
+      });
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
           setAiSessionExpired(true);
@@ -94,7 +96,9 @@ function CommercialInscription() {
         filled.push(t("commercial.inscription.city_label"));
       }
       if (filled.length === 0) {
-        setAiError("L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre société et votre ville.");
+        setAiError(
+          "L'IA n'a pas trouvé de nom, d'entreprise ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre société et votre ville.",
+        );
       } else {
         setAiFilled(filled);
         setAiPanelOpen(false);

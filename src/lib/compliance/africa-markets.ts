@@ -48,7 +48,8 @@ export const AF_CITIES: AfCity[] = [
     countryFlag: "🇲🇦",
     status: "open",
     alcoholRestricted: true,
-    notes: "Capitale administrative. Mêmes règles qu'à Casablanca. Présence institutionnelle — éviter les zones gouvernementales.",
+    notes:
+      "Capitale administrative. Mêmes règles qu'à Casablanca. Présence institutionnelle — éviter les zones gouvernementales.",
   },
   {
     id: "marrakech-ma",
@@ -70,7 +71,8 @@ export const AF_CITIES: AfCity[] = [
     countryFlag: "🇲🇦",
     status: "open",
     alcoholRestricted: true,
-    notes: "Zone franche économique TFZ. Marché dynamique, bonne tolérance publicitaire en Ville Nouvelle.",
+    notes:
+      "Zone franche économique TFZ. Marché dynamique, bonne tolérance publicitaire en Ville Nouvelle.",
   },
   // ── Algérie ───────────────────────────────────────────────────────────────
   {

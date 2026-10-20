@@ -86,7 +86,9 @@ function InscriptionPage() {
         setAiSessionExpired(true);
         return;
       }
-      const res = await callOwnerAi({ data: { ownerContext: aiContext, _auth: session.access_token } });
+      const res = await callOwnerAi({
+        data: { ownerContext: aiContext, _auth: session.access_token },
+      });
       if (!res.ok) {
         if (res.code === "UNAUTHORIZED") {
           setAiSessionExpired(true);
@@ -109,7 +111,9 @@ function InscriptionPage() {
         filled.push(t("owner.inscription.bio_label"));
       }
       if (filled.length === 0) {
-        setAiError("L'IA n'a pas trouvé de nom ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre ville et votre activité de chauffeur.");
+        setAiError(
+          "L'IA n'a pas trouvé de nom ni de ville dans votre texte. Décrivez-vous avec votre prénom, votre ville et votre activité de chauffeur.",
+        );
       } else {
         setAiFilled(filled);
         setAiPanelOpen(false);

@@ -93,8 +93,7 @@ export const FR_CITIES: FrCity[] = [
     department: "La Réunion (974)",
     status: "open",
     isOutreMer: true,
-    notes:
-      "DROM — droit national français applicable. Marché actif à Saint-Denis et Saint-Pierre.",
+    notes: "DROM — droit national français applicable. Marché actif à Saint-Denis et Saint-Pierre.",
   },
   {
     id: "mayotte-976",
@@ -102,8 +101,7 @@ export const FR_CITIES: FrCity[] = [
     department: "Mayotte (976)",
     status: "open",
     isOutreMer: true,
-    notes:
-      "DROM depuis 2011 — droit national français applicable. Flotte disponible à Mamoudzou.",
+    notes: "DROM depuis 2011 — droit national français applicable. Flotte disponible à Mamoudzou.",
   },
   // ── Outre-mer — COM (autonomie partielle) ────────────────────────────────
   {

@@ -235,7 +235,9 @@ export function checkEuContentCompliance(categoryId: string): ContentComplianceR
   if (cat.euBlocked) {
     return {
       status: "blocked",
-      reason: cat.euDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés européens.`,
+      reason:
+        cat.euDisclaimer ??
+        `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés européens.`,
     };
   }
   if (cat.euRestricted && cat.euDisclaimer) {
@@ -254,7 +256,9 @@ export function checkAfContentCompliance(
   if (cat.afBlocked) {
     return {
       status: "blocked",
-      reason: cat.afDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés africains.`,
+      reason:
+        cat.afDisclaimer ??
+        `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés africains.`,
     };
   }
   // City-level alcohol override
@@ -291,7 +295,9 @@ export function checkAsContentCompliance(
   if (cat.asBlocked) {
     return {
       status: "blocked",
-      reason: cat.asDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés asiatiques.`,
+      reason:
+        cat.asDisclaimer ??
+        `La catégorie « ${cat.labelFr} » n'est pas acceptée pour les marchés asiatiques.`,
     };
   }
   if (cat.id === "beverage_alcohol" && cityAlcohol?.blocked) {
@@ -323,7 +329,9 @@ export function checkFrContentCompliance(categoryId: string): ContentComplianceR
   if (cat.frBlocked) {
     return {
       status: "blocked",
-      reason: cat.frDisclaimer ?? `La catégorie « ${cat.labelFr} » n'est pas acceptée pour le marché français.`,
+      reason:
+        cat.frDisclaimer ??
+        `La catégorie « ${cat.labelFr} » n'est pas acceptée pour le marché français.`,
     };
   }
   if (cat.frRestricted && cat.frDisclaimer) {
