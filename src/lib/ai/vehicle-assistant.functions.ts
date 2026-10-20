@@ -81,7 +81,11 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
         maxOutputTokens: 600,
       });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      const raw = fence ? fence[1] : text;
+      let raw = fence ? fence[1] : text;
+      if (!fence) {
+        const jsonObj = raw.match(/\{[\s\S]*\}/);
+        if (jsonObj) raw = jsonObj[0];
+      }
       const parsed = JSON.parse(raw.trim()) as VehicleSuggestion;
       return {
         ok: true,
