@@ -1368,6 +1368,7 @@
         "photos_pasted": "✓ Image pasted!",
         "photos_hint": "Photos must reflect the vehicle's actual condition — the real state is automatically verified.",
         "photos_3d_hint": "💡 Advertisers use a 3D simulator to preview their advertising wrap on your vehicle from your photos. The clearer and more representative they are, the better their preview — and the more likely your vehicle is to be selected.",
+        "photos_plate_warning": "🔒 GDPR — Before uploading your photos, blur your licence plate. It is personal data: unnecessary exposure breaches the European regulation.",
         "max_photo_size": "max 30 MB",
         "error_photos_ignored": "Photo(s) ignored: {{files}}",
         "estimate_title": "AI Estimate",

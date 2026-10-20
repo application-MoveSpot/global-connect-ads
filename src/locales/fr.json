@@ -1392,6 +1392,7 @@
         "photos_pasted": "✓ Image collée !",
         "photos_hint": "Les photos doivent refléter la réalité du véhicule — l'état réel est vérifié automatiquement.",
         "photos_3d_hint": "💡 Les annonceurs utilisent un simulateur 3D pour visualiser leur habillage publicitaire sur votre véhicule à partir de vos photos. Plus elles sont nettes et représentatives, meilleure sera leur prévisualisation — et plus votre véhicule a de chances d'être sélectionné.",
+        "photos_plate_warning": "🔒 RGPD — Avant d'uploader vos photos, floutez votre plaque d'immatriculation. Il s'agit d'une donnée personnelle : son exposition inutile est contraire au règlement européen.",
         "max_photo_size": "max 30 Mo",
         "error_photos_ignored": "Photo(s) ignorée(s) : {{files}}",
         "estimate_title": "Estimation IA",

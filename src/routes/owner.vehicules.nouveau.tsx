@@ -714,6 +714,9 @@ function NewVehiclePage() {
               <p className="text-xs text-muted-foreground mt-1.5">
                 {t("owner.vehicules.nouveau.photos_3d_hint")}
               </p>
+              <div className="mt-2 rounded-lg border border-amber-400/40 bg-amber-50/60 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+                {t("owner.vehicules.nouveau.photos_plate_warning")}
+              </div>
             </div>
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4">
