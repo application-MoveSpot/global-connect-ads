@@ -45,6 +45,9 @@ function EditVehiclePage() {
   const [zones, setZones] = useState("");
   const [price, setPrice] = useState("");
 
+  const [adminNotes, setAdminNotes] = useState<string | null>(null);
+  const [vehicleStatus, setVehicleStatus] = useState<string>("pending");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -79,7 +82,7 @@ function EditVehiclePage() {
       const { data: vehicle, error: vErr } = await supabase
         .from("vehicles")
         .select(
-          "id, type, condition, name, license_plate, brand, model, color, description, surface_m2, km_per_day, zones, price_per_day",
+          "id, type, condition, name, license_plate, brand, model, color, description, surface_m2, km_per_day, zones, price_per_day, status, admin_notes",
         )
         .eq("id", vehicleId)
         .eq("owner_id", prof.id)
@@ -103,6 +106,8 @@ function EditVehiclePage() {
       setKm(vehicle.km_per_day != null ? String(vehicle.km_per_day) : "");
       setZones(Array.isArray(vehicle.zones) ? (vehicle.zones as string[]).join(", ") : "");
       setPrice(vehicle.price_per_day != null ? String(vehicle.price_per_day) : "");
+      setVehicleStatus((vehicle.status as string) ?? "pending");
+      setAdminNotes((vehicle.admin_notes as string) ?? null);
       setPageLoading(false);
     })();
   }, [navigate, vehicleId]);
@@ -245,6 +250,29 @@ function EditVehiclePage() {
             {t("owner.vehicules.modifier.title")}
           </h1>
           <p className="text-sm text-muted-foreground mb-6">{t("owner.vehicules.modifier.desc")}</p>
+
+          {/* Admin recommendations banner */}
+          {adminNotes && (
+            <div
+              className={`mb-6 rounded-xl border px-4 py-3 text-sm flex gap-3 items-start ${
+                vehicleStatus === "rejected"
+                  ? "border-destructive/40 bg-destructive/5 text-destructive"
+                  : "border-amber-400/50 bg-amber-50/70 dark:bg-amber-900/20 text-amber-900 dark:text-amber-200"
+              }`}
+            >
+              <span className="text-lg shrink-0 mt-0.5">
+                {vehicleStatus === "rejected" ? "❌" : "💡"}
+              </span>
+              <div className="space-y-1">
+                <p className="font-semibold text-xs uppercase tracking-wide">
+                  {vehicleStatus === "rejected"
+                    ? t("owner.vehicules.modifier.admin_note_rejected")
+                    : t("owner.vehicules.modifier.admin_note_tip")}
+                </p>
+                <p className="leading-relaxed">{adminNotes}</p>
+              </div>
+            </div>
+          )}
 
           <div className="mb-6">
             <AiAssistantPanel
