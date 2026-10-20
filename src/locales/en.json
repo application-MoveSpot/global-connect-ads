@@ -4444,7 +4444,8 @@
         "photos_plate_warning": "🔒 GDPR — Blur your plate before submitting. Click \"Blur plate\" under each thumbnail to select the zone.",
         "photos_blur_btn": "Blur plate",
         "plate_detecting": "Detecting plate…",
-        "plate_blurred": "Plate blurred automatically"
+        "plate_blurred": "Plate blurred automatically",
+        "plate_none": "No plate visible"
       },
       "blur_editor": {
         "title": "Blur licence plate",

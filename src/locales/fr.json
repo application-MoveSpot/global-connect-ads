@@ -4505,7 +4505,8 @@
         "photos_plate_warning": "🔒 RGPD — Floutez votre plaque avant de soumettre. Cliquez sur « Flouter la plaque » sous chaque miniature pour sélectionner la zone.",
         "photos_blur_btn": "Flouter la plaque",
         "plate_detecting": "Détection de la plaque…",
-        "plate_blurred": "Plaque floutée automatiquement"
+        "plate_blurred": "Plaque floutée automatiquement",
+        "plate_none": "Aucune plaque visible"
       },
       "blur_editor": {
         "title": "Flouter la plaque d'immatriculation",

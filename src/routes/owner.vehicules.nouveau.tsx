@@ -814,9 +814,11 @@ function NewVehiclePage() {
                         className={`flex flex-col gap-1 text-xs rounded-lg px-2.5 py-1.5 border-2 transition-colors ${
                           plateStatus.get(i) === "blurred"
                             ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-600"
-                            : plateStatus.get(i) === "detecting"
+                            : plateStatus.get(i) === "none"
                               ? "bg-secondary border-transparent"
-                              : "bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-500 animate-pulse"
+                              : plateStatus.get(i) === "detecting"
+                                ? "bg-secondary border-transparent"
+                                : "bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-500 animate-pulse"
                         }`}
                       >
                         <div className="flex items-center gap-1.5">
@@ -856,9 +858,12 @@ function NewVehiclePage() {
                             ✓ {t("owner.vehicules.nouveau.plate_blurred")}
                           </span>
                         )}
-                        {(plateStatus.get(i) === "none" ||
-                          plateStatus.get(i) === "error" ||
-                          !plateStatus.has(i)) && (
+                        {plateStatus.get(i) === "none" && (
+                          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground px-1 py-0.5">
+                            ✓ {t("owner.vehicules.nouveau.plate_none")}
+                          </span>
+                        )}
+                        {(plateStatus.get(i) === "error" || !plateStatus.has(i)) && (
                           <button
                             type="button"
                             onClick={() => setBlurTarget(i)}
