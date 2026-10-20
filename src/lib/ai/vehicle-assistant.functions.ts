@@ -45,7 +45,8 @@ export const generateVehicleSuggestion = createServerFn({ method: "POST" })
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
-    const model = provider("google/gemini-2.5-flash");
+    // Use the lite variant: no thinking mode, faster response, fits CF Workers time limits
+    const model = provider("google/gemini-2.5-flash-lite");
 
     const typeLabel = data.vehicleType ? `Type de véhicule : ${data.vehicleType}.` : "";
 
@@ -72,8 +73,9 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
   "price_per_day": 25
 }`;
 
-    try {
-      const { generateText } = await import("ai");
+    const { generateText } = await import("ai");
+
+    const runOnce = async () => {
       const { text } = await generateText({
         model,
         prompt,
@@ -86,7 +88,18 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
         const jsonObj = raw.match(/\{[\s\S]*\}/);
         if (jsonObj) raw = jsonObj[0];
       }
-      const parsed = JSON.parse(raw.trim()) as VehicleSuggestion;
+      return JSON.parse(raw.trim()) as VehicleSuggestion;
+    };
+
+    try {
+      // Retry once on transient failures (network hiccup, 503, etc.)
+      let parsed: VehicleSuggestion;
+      try {
+        parsed = await runOnce();
+      } catch {
+        await new Promise((r) => setTimeout(r, 1500));
+        parsed = await runOnce();
+      }
       return {
         ok: true,
         suggestion: {
