@@ -1370,6 +1370,8 @@
         "photos_3d_hint": "💡 Advertisers use a 3D simulator to preview their advertising wrap on your vehicle from your photos. The clearer and more representative they are, the better their preview — and the more likely your vehicle is to be selected.",
         "photos_plate_warning": "🔒 GDPR — Blur your plate before submitting. Click \"Blur plate\" under each thumbnail to select the zone.",
         "photos_blur_btn": "Blur plate",
+        "plate_detecting": "Detecting plate…",
+        "plate_blurred": "Plate blurred automatically",
         "max_photo_size": "max 30 MB",
         "error_photos_ignored": "Photo(s) ignored: {{files}}",
         "estimate_title": "AI Estimate",

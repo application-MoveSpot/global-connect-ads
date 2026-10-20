@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { pixelateFileRegion } from "@/lib/images/pixelate";
 
 type Rect = { x: number; y: number; w: number; h: number };
 
@@ -89,41 +90,18 @@ export function PlateBlurEditor({ file, onDone, onCancel }: Props) {
     setDrawing(false);
   };
 
-  const applyBlur = useCallback(() => {
+  const applyBlur = useCallback(async () => {
     const canvas = canvasRef.current;
-    const img = imgRef.current;
-    if (!canvas || !img || !rect || rect.w < 4 || rect.h < 4) return;
-    const ctx = canvas.getContext("2d")!;
-
-    // Pixelate the selected region
-    const PIXEL = Math.max(8, Math.min(rect.w, rect.h) / 6);
-    const x = Math.round(rect.x);
-    const y = Math.round(rect.y);
-    const w = Math.round(rect.w);
-    const h = Math.round(rect.h);
-
-    // Draw image fresh, then pixelate zone
-    ctx.drawImage(img, 0, 0);
-    for (let px = x; px < x + w; px += PIXEL) {
-      for (let py = y; py < y + h; py += PIXEL) {
-        const data = ctx.getImageData(px, py, 1, 1).data;
-        ctx.fillStyle = `rgb(${data[0]},${data[1]},${data[2]})`;
-        ctx.fillRect(
-          px,
-          py,
-          Math.min(PIXEL, x + w - px),
-          Math.min(PIXEL, y + h - py),
-        );
-      }
-    }
-
-    // Export to File
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const name = file.name.replace(/(\.[^.]+)?$/, "_flou$1") || "photo_flou.jpg";
-      onDone(new File([blob], name, { type: blob.type }));
-    }, "image/jpeg", 0.92);
-  }, [rect, file, onDone]);
+    if (!canvas || !rect || rect.w < 4 || rect.h < 4) return;
+    const bbox = {
+      x: (rect.x / canvas.width) * 100,
+      y: (rect.y / canvas.height) * 100,
+      width: (rect.w / canvas.width) * 100,
+      height: (rect.h / canvas.height) * 100,
+    };
+    const blurred = await pixelateFileRegion(file, bbox);
+    onDone(blurred);
+  }, [rect, file, onDone, canvasRef]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black/80 backdrop-blur">
