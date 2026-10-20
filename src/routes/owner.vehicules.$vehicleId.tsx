@@ -105,7 +105,7 @@ function EditVehiclePage() {
       setPrice(vehicle.price_per_day != null ? String(vehicle.price_per_day) : "");
       setPageLoading(false);
     })();
-  }, [navigate, vehicleId, t]);
+  }, [navigate, vehicleId]);
 
   const handleAiGenerate = async () => {
     setAiError("");
