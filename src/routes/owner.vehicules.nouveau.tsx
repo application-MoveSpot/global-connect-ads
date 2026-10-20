@@ -1030,7 +1030,9 @@ function NewVehiclePage() {
         <PlateBlurEditor
           file={files[blurTarget]}
           onDone={(blurred) => {
-            setFiles((prev) => prev.map((f, i) => (i === blurTarget ? blurred : f)));
+            const idx = blurTarget;
+            setFiles((prev) => prev.map((f, i) => (i === idx ? blurred : f)));
+            setPlateStatus((prev) => new Map(prev).set(idx, "blurred"));
             setEstimate(null);
             setBlurTarget(null);
           }}
