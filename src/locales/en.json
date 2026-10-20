@@ -4398,7 +4398,7 @@
         "estimate_photo_ok": "Photo verified ✓",
         "estimate_photo_unverified": "Photo not verified.",
         "estimate_title": "Price Estimate",
-        "estimate_use_price": "Use this rate",
+        "estimate_use_price": "Use {{price}} €/day",
         "estimating": "Estimating…",
         "group_other": "Other",
         "group_vehicles": "Vehicles",

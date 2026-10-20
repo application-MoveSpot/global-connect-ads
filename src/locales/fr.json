@@ -4459,7 +4459,7 @@
         "estimate_photo_ok": "Photo vérifiée ✓",
         "estimate_photo_unverified": "Photo non vérifiée.",
         "estimate_title": "Estimation du tarif",
-        "estimate_use_price": "Utiliser ce tarif",
+        "estimate_use_price": "Utiliser {{price}} €/j",
         "estimating": "Estimation en cours…",
         "group_other": "Autre",
         "group_vehicles": "Véhicules",
