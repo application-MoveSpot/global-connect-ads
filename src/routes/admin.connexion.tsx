@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { isAdmin } from "@/lib/admin/isAdmin";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
@@ -148,15 +149,16 @@ function AdminLoginPage() {
     }
     setError("");
     setLoading(true);
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + "/admin/connexion" },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/admin/connexion",
     });
-    if (oauthError) {
-      setError(oauthError.message);
+    if (result.error) {
+      setError(result.error.message);
       setLoading(false);
+      return;
     }
-    // If no error, browser will redirect — loading stays true
+    if (result.redirected) return; // browser redirects — loading stays true
+    goAdmin();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

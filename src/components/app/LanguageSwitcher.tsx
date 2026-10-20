@@ -14,7 +14,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
 
   return (
     <div className={`flex items-center gap-1 ${className ?? ""}`}>
-      {LANGS.map(({ code, label, flag }) => (
+      {LANGS.map(({ code, label }) => (
         <button
           key={code}
           type="button"
