@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
@@ -11,6 +11,9 @@ import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { captureError } from "@/lib/sentry";
+import { PlateBlurEditor } from "@/components/owner/PlateBlurEditor";
+import { detectLicensePlate } from "@/lib/ai/plate-detection.functions";
+import { pixelateFileRegion, fileToDataUrl } from "@/lib/images/pixelate";
 
 export const Route = createFileRoute("/owner/vehicules/nouveau")({
   head: () => ({
@@ -58,6 +61,10 @@ function NewVehiclePage() {
   const [zones, setZones] = useState("");
   const [price, setPrice] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const filesRef = useRef<File[]>([]);
+  filesRef.current = files;
+  const [blurTarget, setBlurTarget] = useState<number | null>(null);
+  const [plateStatus, setPlateStatus] = useState<Map<number, "detecting" | "blurred" | "none" | "error">>(new Map());
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [estimating, setEstimating] = useState(false);
@@ -108,6 +115,47 @@ function NewVehiclePage() {
     return final;
   };
 
+  const autoDetectPlates = useCallback(async (newFiles: File[], startIndex: number) => {
+    for (let i = 0; i < newFiles.length; i++) {
+      const idx = startIndex + i;
+      const file = newFiles[i];
+      setPlateStatus((prev) => new Map(prev).set(idx, "detecting"));
+      try {
+        const small = await resizeImageFile(file, 512);
+        const dataUrl = await fileToDataUrl(small);
+        const result = await detectLicensePlate({ data: { imageDataUrl: dataUrl } });
+        if (!result.ok || !result.bbox) {
+          setPlateStatus((prev) => new Map(prev).set(idx, result.ok ? "none" : "error"));
+          continue;
+        }
+        const blurred = await pixelateFileRegion(file, result.bbox);
+        setFiles((prev) => {
+          const next = [...prev];
+          next[idx] = blurred;
+          return next;
+        });
+        setEstimate(null);
+        setPlateStatus((prev) => new Map(prev).set(idx, "blurred"));
+      } catch {
+        setPlateStatus((prev) => new Map(prev).set(idx, "error"));
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const addFiles = useCallback((incoming: File[]) => {
+    const currentCount = filesRef.current.length;
+    setFiles((prev) => {
+      const result = applyPhotos(incoming, prev);
+      return result;
+    });
+    setEstimate(null);
+    // Detect on the files that will actually be added (respects MAX_PHOTOS cap)
+    const toDetect = incoming.slice(0, Math.max(0, MAX_PHOTOS - currentCount));
+    if (toDetect.length > 0) void autoDetectPlates(toDetect, currentCount);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoDetectPlates]);
+
   // Coller une image depuis le presse-papier (Ctrl+V) directement dans la zone photos
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
@@ -125,8 +173,7 @@ function NewVehiclePage() {
         .map((item) => item.getAsFile())
         .filter((f): f is File => f !== null);
       if (!newFiles.length) return;
-      setFiles((prev) => applyPhotos(newFiles, prev));
-      setEstimate(null);
+      addFiles(newFiles);
       setPastedHint(true);
       setTimeout(() => setPastedHint(false), 3000);
     };
@@ -394,6 +441,7 @@ function NewVehiclePage() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-4">
@@ -636,8 +684,7 @@ function NewVehiclePage() {
                   const newFiles = imageItems
                     .map((i) => i.getAsFile())
                     .filter((f): f is File => f !== null);
-                  setFiles((prev) => applyPhotos(newFiles, prev));
-                  setEstimate(null);
+                  addFiles(newFiles);
                   setPastedHint(true);
                   setTimeout(() => setPastedHint(false), 3000);
                 }}
@@ -668,8 +715,7 @@ function NewVehiclePage() {
                     multiple
                     onChange={(e) => {
                       const picked = Array.from(e.target.files ?? []);
-                      setFiles((prev) => applyPhotos(picked, prev));
-                      setEstimate(null);
+                      addFiles(picked);
                       e.currentTarget.value = "";
                     }}
                     className="hidden"
@@ -688,22 +734,48 @@ function NewVehiclePage() {
                   {files.map((f, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-1.5 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
+                      className="flex flex-col gap-1 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
                     >
-                      <span>🖼</span>
-                      <span className="font-medium truncate max-w-[140px]">
-                        {f.name || `Image collée ${i + 1}`}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFiles((prev) => prev.filter((_, j) => j !== i));
-                          setEstimate(null);
-                        }}
-                        className="text-muted-foreground hover:text-destructive ml-1 transition"
-                      >
-                        ×
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <span>🖼</span>
+                        <span className="font-medium truncate max-w-[140px]">
+                          {f.name || `Image collée ${i + 1}`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFiles((prev) => prev.filter((_, j) => j !== i));
+                            setPlateStatus((prev) => {
+                              const next = new Map<number, "detecting" | "blurred" | "none" | "error">();
+                              prev.forEach((v, k) => { if (k < i) next.set(k, v); else if (k > i) next.set(k - 1, v); });
+                              return next;
+                            });
+                            setEstimate(null);
+                          }}
+                          className="text-muted-foreground hover:text-destructive ml-1 transition"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      {plateStatus.get(i) === "detecting" && (
+                        <span className="text-[10px] text-muted-foreground animate-pulse">
+                          {t("owner.vehicules.nouveau.plate_detecting")}
+                        </span>
+                      )}
+                      {plateStatus.get(i) === "blurred" && (
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                          ✓ {t("owner.vehicules.nouveau.plate_blurred")}
+                        </span>
+                      )}
+                      {(plateStatus.get(i) === "none" || plateStatus.get(i) === "error" || !plateStatus.has(i)) && (
+                        <button
+                          type="button"
+                          onClick={() => setBlurTarget(i)}
+                          className="text-[10px] text-amber-700 dark:text-amber-400 hover:underline text-left"
+                        >
+                          {t("owner.vehicules.nouveau.photos_blur_btn")}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -714,6 +786,9 @@ function NewVehiclePage() {
               <p className="text-xs text-muted-foreground mt-1.5">
                 {t("owner.vehicules.nouveau.photos_3d_hint")}
               </p>
+              <div className="mt-2 rounded-lg border border-amber-400/40 bg-amber-50/60 dark:bg-amber-900/20 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+                {t("owner.vehicules.nouveau.photos_plate_warning")}
+              </div>
             </div>
 
             <div className="rounded-xl border border-border bg-secondary/30 p-4">
@@ -859,6 +934,19 @@ function NewVehiclePage() {
         </div>
       </div>
     </div>
+
+    {blurTarget !== null && files[blurTarget] && (
+      <PlateBlurEditor
+        file={files[blurTarget]}
+        onDone={(blurred) => {
+          setFiles((prev) => prev.map((f, i) => (i === blurTarget ? blurred : f)));
+          setEstimate(null);
+          setBlurTarget(null);
+        }}
+        onCancel={() => setBlurTarget(null)}
+      />
+    )}
+    </>
   );
 }
 
