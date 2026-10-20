@@ -108,7 +108,9 @@ export function PlateBlurEditor({ file, onDone, onCancel }: Props) {
       <div className="flex items-center justify-between px-4 py-3 bg-card border-b border-border">
         <div>
           <p className="font-semibold text-sm">{t("owner.vehicules.blur_editor.title")}</p>
-          <p className="text-xs text-muted-foreground">{t("owner.vehicules.blur_editor.instruction")}</p>
+          <p className="text-xs text-muted-foreground">
+            {t("owner.vehicules.blur_editor.instruction")}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button

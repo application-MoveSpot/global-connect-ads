@@ -134,7 +134,10 @@ export function AiAssistantPanel({
                   {!keyInputOpen ? (
                     <button
                       type="button"
-                      onClick={() => { setKeyDraft(""); setKeyInputOpen(true); }}
+                      onClick={() => {
+                        setKeyDraft("");
+                        setKeyInputOpen(true);
+                      }}
                       className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition"
                     >
                       <span>🔑</span>
@@ -157,7 +160,10 @@ export function AiAssistantPanel({
                         />
                         <button
                           type="button"
-                          onClick={() => { onUserApiKeyChange(keyDraft.trim()); setKeyInputOpen(false); }}
+                          onClick={() => {
+                            onUserApiKeyChange(keyDraft.trim());
+                            setKeyInputOpen(false);
+                          }}
                           className="rounded bg-violet-600 text-white px-2.5 py-1 text-xs font-medium hover:bg-violet-700"
                         >
                           OK
@@ -165,7 +171,11 @@ export function AiAssistantPanel({
                         {userApiKey && (
                           <button
                             type="button"
-                            onClick={() => { onUserApiKeyChange(""); setKeyDraft(""); setKeyInputOpen(false); }}
+                            onClick={() => {
+                              onUserApiKeyChange("");
+                              setKeyDraft("");
+                              setKeyInputOpen(false);
+                            }}
                             className="text-xs text-muted-foreground hover:text-destructive"
                           >
                             Supprimer
@@ -181,11 +191,32 @@ export function AiAssistantPanel({
                       </div>
                       <p className="text-[10px] text-muted-foreground">
                         Clés gratuites :{" "}
-                        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>
+                        <a
+                          href="https://aistudio.google.com/apikey"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          Google AI Studio
+                        </a>
                         {" · "}
-                        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">OpenAI</a>
+                        <a
+                          href="https://platform.openai.com/api-keys"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          OpenAI
+                        </a>
                         {" · "}
-                        <a href="https://console.mistral.ai/api-keys" target="_blank" rel="noopener noreferrer" className="underline">Mistral</a>
+                        <a
+                          href="https://console.mistral.ai/api-keys"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          Mistral
+                        </a>
                       </p>
                     </div>
                   )}
@@ -240,11 +271,7 @@ export function AiAssistantPanel({
             <p className="text-xs text-destructive">
               Session expirée —{" "}
               {onReconnectClick ? (
-                <button
-                  type="button"
-                  onClick={onReconnectClick}
-                  className="underline"
-                >
+                <button type="button" onClick={onReconnectClick} className="underline">
                   reconnectez-vous
                 </button>
               ) : (

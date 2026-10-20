@@ -30,14 +30,20 @@ export async function pixelateFileRegion(
 
       canvas.toBlob(
         (blob) => {
-          if (!blob) { resolve(file); return; }
+          if (!blob) {
+            resolve(file);
+            return;
+          }
           resolve(new File([blob], file.name, { type: blob.type }));
         },
         "image/jpeg",
         0.92,
       );
     };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
     img.src = url;
   });
 }

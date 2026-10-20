@@ -28,11 +28,15 @@ for (const key of Object.keys(process.env)) {
 // Valeurs PUBLIQUES (URL + clé publishable) : secours si .env est absent au build de publication.
 const PUBLIC_SUPABASE_URL = (
   process.env["VITE_SUPABASE_URL"] || "https://phononlhfyljhhhvlmrm.supabase.co"
-).replace(/[\x00-\x1F\x7F]/g, "").trim();
+)
+  .replace(/[\x00-\x1F\x7F]/g, "")
+  .trim();
 const PUBLIC_SUPABASE_KEY = (
   process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4"
-).replace(/[\x00-\x1F\x7F]/g, "").trim();
+)
+  .replace(/[\x00-\x1F\x7F]/g, "")
+  .trim();
 for (const [k, v] of [
   ["VITE_SUPABASE_URL", PUBLIC_SUPABASE_URL],
   ["SUPABASE_URL", PUBLIC_SUPABASE_URL],

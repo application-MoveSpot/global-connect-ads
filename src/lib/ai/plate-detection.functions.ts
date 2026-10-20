@@ -12,8 +12,7 @@ const Input = z.object({
 export type PlateBox = { x: number; y: number; width: number; height: number };
 
 export type PlateDetectionResult =
-  | { ok: true; bbox: PlateBox | null }
-  | { ok: false; message: string };
+  { ok: true; bbox: PlateBox | null } | { ok: false; message: string };
 
 export const detectLicensePlate = createServerFn({ method: "POST" })
   .validator((d: z.infer<typeof Input>) => Input.parse(d))
@@ -52,7 +51,10 @@ Return ONLY the JSON object or the word null — no explanation, no markdown fen
         maxOutputTokens: 120,
       });
 
-      const trimmed = text.trim().replace(/```(?:json)?|```/g, "").trim();
+      const trimmed = text
+        .trim()
+        .replace(/```(?:json)?|```/g, "")
+        .trim();
       if (!trimmed || trimmed === "null") return { ok: true, bbox: null };
 
       const parsed = JSON.parse(trimmed) as PlateBox;

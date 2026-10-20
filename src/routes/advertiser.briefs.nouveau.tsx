@@ -225,7 +225,11 @@ function NewBriefPage() {
   const [aiSessionExpired, setAiSessionExpired] = useState(false);
   const [aiFilled, setAiFilled] = useState<string[]>([]);
   const [userAiKey, setUserAiKey] = useState<string>(() => {
-    try { return localStorage.getItem("movespot_user_ai_key_v1") ?? ""; } catch { return ""; }
+    try {
+      return localStorage.getItem("movespot_user_ai_key_v1") ?? "";
+    } catch {
+      return "";
+    }
   });
   const [qualityScore, setQualityScore] = useState<BriefQualityResult | null>(null);
   const [qualityLoading, setQualityLoading] = useState(false);
@@ -246,9 +250,7 @@ function NewBriefPage() {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
       const d = JSON.parse(raw) as Record<string, unknown>;
-      const hasMeaningfulContent = Boolean(
-        d.title || d.description || d.budget || d.audience,
-      );
+      const hasMeaningfulContent = Boolean(d.title || d.description || d.budget || d.audience);
       if (!hasMeaningfulContent) return;
       if (d.title) setTitle(d.title as string);
       if (d.description) setDescription(d.description as string);
@@ -1054,12 +1056,18 @@ function NewBriefPage() {
             sessionExpired={aiSessionExpired}
             sessionExpiredHref="/advertiser/inscription?mode=signin"
             onReconnectClick={async () => {
-              try { await supabase.auth.signOut(); } catch { /* ignore */ }
+              try {
+                await supabase.auth.signOut();
+              } catch {
+                /* ignore */
+              }
               try {
                 Object.keys(localStorage)
                   .filter((k) => k.startsWith("sb-"))
                   .forEach((k) => localStorage.removeItem(k));
-              } catch { /* ignore */ }
+              } catch {
+                /* ignore */
+              }
               window.location.href = "/advertiser/inscription?mode=signin";
             }}
             title={t("advertiser.briefs.nouveau.ai_panel_title")}
@@ -1081,7 +1089,9 @@ function NewBriefPage() {
               try {
                 if (k) localStorage.setItem("movespot_user_ai_key_v1", k);
                 else localStorage.removeItem("movespot_user_ai_key_v1");
-              } catch { /* ignore */ }
+              } catch {
+                /* ignore */
+              }
             }}
           />
 
@@ -1108,7 +1118,13 @@ function NewBriefPage() {
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "EU" ? "Europe" : m === "AF" ? "Afrique" : m === "AS" ? "Asie" : "Amérique"}
+                    {m === "EU"
+                      ? "Europe"
+                      : m === "AF"
+                        ? "Afrique"
+                        : m === "AS"
+                          ? "Asie"
+                          : "Amérique"}
                   </button>
                 ))}
               </div>
@@ -1127,9 +1143,18 @@ function NewBriefPage() {
                   >
                     <option value="">{t("compliance.us_city_placeholder")}</option>
                     {(["US", "CA", "MX"] as const).map((ctry) => {
-                      const label = ctry === "US" ? "🇺🇸 États-Unis" : ctry === "CA" ? "🇨🇦 Canada" : "🇲🇽 Mexique";
-                      const open = US_CITIES.filter((c) => c.country === ctry && c.status !== "restricted");
-                      const restricted = US_CITIES.filter((c) => c.country === ctry && c.status === "restricted");
+                      const label =
+                        ctry === "US"
+                          ? "🇺🇸 États-Unis"
+                          : ctry === "CA"
+                            ? "🇨🇦 Canada"
+                            : "🇲🇽 Mexique";
+                      const open = US_CITIES.filter(
+                        (c) => c.country === ctry && c.status !== "restricted",
+                      );
+                      const restricted = US_CITIES.filter(
+                        (c) => c.country === ctry && c.status === "restricted",
+                      );
                       return (
                         <optgroup key={ctry} label={label}>
                           {open.map((c) => (
@@ -1257,14 +1282,34 @@ function NewBriefPage() {
                                 : "bg-red-500/10 text-red-700 dark:text-red-400"
                           }`}
                         >
-                          {city.isFrance && city.status === "open" && !city.isOutreMer && "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
-                          {city.isFrance && city.status === "open" && city.isOutreMer && `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
-                          {city.isFrance && city.status === "restreint" && !city.isOutreMer && `⚠ RLP renforcé. ${city.notes ?? ""}`}
-                          {city.isFrance && city.status === "restreint" && city.isOutreMer && `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
-                          {city.isFrance && city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
-                          {!city.isFrance && city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
-                          {!city.isFrance && city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {!city.isFrance && city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                          {city.isFrance &&
+                            city.status === "open" &&
+                            !city.isOutreMer &&
+                            "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
+                          {city.isFrance &&
+                            city.status === "open" &&
+                            city.isOutreMer &&
+                            `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
+                          {city.isFrance &&
+                            city.status === "restreint" &&
+                            !city.isOutreMer &&
+                            `⚠ RLP renforcé. ${city.notes ?? ""}`}
+                          {city.isFrance &&
+                            city.status === "restreint" &&
+                            city.isOutreMer &&
+                            `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
+                          {city.isFrance &&
+                            city.status === "zone_protegee" &&
+                            `⛔ Zone protégée. ${city.notes ?? ""}`}
+                          {!city.isFrance &&
+                            city.status === "open" &&
+                            `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {!city.isFrance &&
+                            city.status === "restreint" &&
+                            `⚠ Réglementé. ${city.notes ?? ""}`}
+                          {!city.isFrance &&
+                            city.status === "zone_protegee" &&
+                            `⛔ Zone protégée. ${city.notes ?? ""}`}
                         </div>
                       );
                     })()}
@@ -1309,14 +1354,19 @@ function NewBriefPage() {
                       }
                       return (
                         <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓ {selectedEuCity?.isFrance ? t("compliance.fr_content_ok") : t("compliance.eu_content_ok")}
+                          ✓{" "}
+                          {selectedEuCity?.isFrance
+                            ? t("compliance.fr_content_ok")
+                            : t("compliance.eu_content_ok")}
                         </p>
                       );
                     })()}
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                  {findEuCity(euCity)?.isFrance ? t("compliance.fr_legal_note") : t("compliance.eu_legal_note")}
+                  {findEuCity(euCity)?.isFrance
+                    ? t("compliance.fr_legal_note")
+                    : t("compliance.eu_legal_note")}
                 </p>
               </>
             )}
@@ -1340,7 +1390,11 @@ function NewBriefPage() {
                             {c.name}
                             {c.status === "restreint" ? " — Réglementé" : ""}
                             {c.status === "zone_protegee" ? " — Zone protégée" : ""}
-                            {c.alcoholBlocked ? " ⛔ alcool interdit" : c.alcoholRestricted ? " ⚠ alcool restreint" : ""}
+                            {c.alcoholBlocked
+                              ? " ⛔ alcool interdit"
+                              : c.alcoholRestricted
+                                ? " ⚠ alcool restreint"
+                                : ""}
                           </option>
                         ))}
                       </optgroup>
@@ -1360,9 +1414,11 @@ function NewBriefPage() {
                                 : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                           }`}
                         >
-                          {city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {city.status === "open" &&
+                            `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
                           {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                          {city.status === "zone_protegee" &&
+                            `⛔ Zone protégée. ${city.notes ?? ""}`}
                         </div>
                       );
                     })()}
@@ -1437,7 +1493,11 @@ function NewBriefPage() {
                             {c.name}
                             {c.status === "restreint" ? " — Réglementé" : ""}
                             {c.status === "zone_protegee" ? " — Zone protégée" : ""}
-                            {c.alcoholBlocked ? " ⛔ alcool interdit" : c.alcoholRestricted ? " ⚠ alcool restreint" : ""}
+                            {c.alcoholBlocked
+                              ? " ⛔ alcool interdit"
+                              : c.alcoholRestricted
+                                ? " ⚠ alcool restreint"
+                                : ""}
                           </option>
                         ))}
                       </optgroup>
@@ -1457,9 +1517,11 @@ function NewBriefPage() {
                                 : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                           }`}
                         >
-                          {city.status === "open" && `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                          {city.status === "open" &&
+                            `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
                           {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {city.status === "zone_protegee" && `⛔ Zone protégée. ${city.notes ?? ""}`}
+                          {city.status === "zone_protegee" &&
+                            `⛔ Zone protégée. ${city.notes ?? ""}`}
                         </div>
                       );
                     })()}

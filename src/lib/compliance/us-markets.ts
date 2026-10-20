@@ -112,7 +112,8 @@ export const US_CITIES: UsCity[] = [
     state: "ON",
     country: "CA",
     status: "open",
-    notes: "Fleet wrapping permitted under Ontario Highway Traffic Act. No specific advertising-vehicle permit required.",
+    notes:
+      "Fleet wrapping permitted under Ontario Highway Traffic Act. No specific advertising-vehicle permit required.",
   },
   {
     id: "montreal-qc",
@@ -120,7 +121,8 @@ export const US_CITIES: UsCity[] = [
     state: "QC",
     country: "CA",
     status: "open",
-    notes: "Fleet wrapping allowed. Content must comply with Quebec's Charter of the French Language for French-language requirements.",
+    notes:
+      "Fleet wrapping allowed. Content must comply with Quebec's Charter of the French Language for French-language requirements.",
   },
   {
     id: "vancouver-bc",
@@ -128,7 +130,8 @@ export const US_CITIES: UsCity[] = [
     state: "BC",
     country: "CA",
     status: "open",
-    notes: "Permitted under BC Motor Vehicle Act. No municipal advertising-vehicle permit required.",
+    notes:
+      "Permitted under BC Motor Vehicle Act. No municipal advertising-vehicle permit required.",
   },
   {
     id: "calgary-ab",
@@ -144,7 +147,8 @@ export const US_CITIES: UsCity[] = [
     state: "ON",
     country: "CA",
     status: "open",
-    notes: "Fleet wrapping permitted. Bilingual content (FR/EN) recommended for the National Capital Region.",
+    notes:
+      "Fleet wrapping permitted. Bilingual content (FR/EN) recommended for the National Capital Region.",
   },
   // ── Mexique — Open ────────────────────────────────────────────────────────
   {
@@ -153,7 +157,8 @@ export const US_CITIES: UsCity[] = [
     state: "CDMX",
     country: "MX",
     status: "open",
-    notes: "Permitted under Reglamento de Tránsito CDMX. Historic Centre (Centro Histórico) has additional restrictions.",
+    notes:
+      "Permitted under Reglamento de Tránsito CDMX. Historic Centre (Centro Histórico) has additional restrictions.",
   },
   {
     id: "guadalajara-jal",
@@ -169,7 +174,8 @@ export const US_CITIES: UsCity[] = [
     state: "NL",
     country: "MX",
     status: "open",
-    notes: "Open market. Strong commercial advertising culture; no fleet advertising permit required.",
+    notes:
+      "Open market. Strong commercial advertising culture; no fleet advertising permit required.",
   },
   {
     id: "cancun-qroo",
@@ -185,7 +191,8 @@ export const US_CITIES: UsCity[] = [
     state: "BC",
     country: "MX",
     status: "open",
-    notes: "Border city with active commercial fleet. No specific advertising-vehicle permit required.",
+    notes:
+      "Border city with active commercial fleet. No specific advertising-vehicle permit required.",
   },
 ];
 

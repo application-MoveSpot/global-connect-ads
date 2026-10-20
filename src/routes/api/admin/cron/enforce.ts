@@ -394,7 +394,8 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
                   const base64 = Buffer.from(buf).toString("base64");
                   const mimeType = imgResp.headers.get("content-type") ?? "image/jpeg";
 
-                  const { url: cronGatewayUrl, headers: cronGatewayHeaders } = getAiGatewayFetchConfig(apiKey);
+                  const { url: cronGatewayUrl, headers: cronGatewayHeaders } =
+                    getAiGatewayFetchConfig(apiKey);
                   const aiResp = await fetch(cronGatewayUrl, {
                     method: "POST",
                     headers: cronGatewayHeaders,
