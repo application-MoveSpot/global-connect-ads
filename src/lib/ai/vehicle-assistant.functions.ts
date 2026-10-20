@@ -45,8 +45,7 @@ export const generateVehicleSuggestion = createServerFn({ method: "POST" })
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
-    // Use the lite variant: no thinking mode, faster response, fits CF Workers time limits
-    const model = provider("google/gemini-2.5-flash-lite");
+    const model = provider("google/gemini-2.5-flash");
 
     const typeLabel = data.vehicleType ? `Type de véhicule : ${data.vehicleType}.` : "";
 
