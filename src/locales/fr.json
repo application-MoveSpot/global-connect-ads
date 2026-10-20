@@ -4501,7 +4501,17 @@
         "ai_placeholder": "Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²).",
         "ai_generate": "Générer",
         "ai_generating": "Génération…",
-        "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
+        "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
+        "photos_plate_warning": "🔒 RGPD — Floutez votre plaque avant de soumettre. Cliquez sur « Flouter la plaque » sous chaque miniature pour sélectionner la zone.",
+        "photos_blur_btn": "Flouter la plaque",
+        "plate_detecting": "Détection de la plaque…",
+        "plate_blurred": "Plaque floutée automatiquement"
+      },
+      "blur_editor": {
+        "title": "Flouter la plaque d'immatriculation",
+        "instruction": "Tracez un rectangle sur la plaque avec la souris, puis cliquez sur « Appliquer ».",
+        "cancel": "Annuler",
+        "apply": "Appliquer le floutage"
       },
       "modifier": {
         "title": "Modifier le véhicule",
