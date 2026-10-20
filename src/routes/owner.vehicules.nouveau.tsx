@@ -246,7 +246,12 @@ function NewVehiclePage() {
           setAiSessionExpired(true);
           return;
         }
-        setAiError(res.message);
+        const isGateway = /503|502|upstream|temporarily unavailable|gateway/i.test(res.message ?? "");
+        setAiError(
+          isGateway
+            ? t("owner.vehicules.nouveau.ai_error_gateway")
+            : res.message,
+        );
         return;
       }
       const { suggestion } = res;
@@ -277,8 +282,14 @@ function NewVehiclePage() {
       }
       setAiFilled(filled);
       setAiPanelOpen(false);
-    } catch {
-      setAiError("Une erreur inattendue est survenue. Réessayez.");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      const isGateway = /503|502|upstream|temporarily unavailable|gateway/i.test(msg);
+      setAiError(
+        isGateway
+          ? t("owner.vehicules.nouveau.ai_error_gateway")
+          : t("owner.vehicules.nouveau.ai_error_generic"),
+      );
     } finally {
       setAiLoading(false);
     }
