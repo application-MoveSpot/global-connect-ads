@@ -811,7 +811,13 @@ function NewVehiclePage() {
                     {files.map((f, i) => (
                       <div
                         key={i}
-                        className="flex flex-col gap-1 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
+                        className={`flex flex-col gap-1 text-xs rounded-lg px-2.5 py-1.5 border-2 transition-colors ${
+                          plateStatus.get(i) === "blurred"
+                            ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-600"
+                            : plateStatus.get(i) === "detecting"
+                              ? "bg-secondary border-transparent"
+                              : "bg-amber-50 dark:bg-amber-950/30 border-amber-400 dark:border-amber-500 animate-pulse"
+                        }`}
                       >
                         <div className="flex items-center gap-1.5">
                           <span>🖼</span>
@@ -846,7 +852,7 @@ function NewVehiclePage() {
                           </span>
                         )}
                         {plateStatus.get(i) === "blurred" && (
-                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full">
                             ✓ {t("owner.vehicules.nouveau.plate_blurred")}
                           </span>
                         )}
@@ -856,9 +862,9 @@ function NewVehiclePage() {
                           <button
                             type="button"
                             onClick={() => setBlurTarget(i)}
-                            className="text-[10px] text-amber-700 dark:text-amber-400 hover:underline text-left"
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-200 dark:bg-amber-800/50 hover:bg-amber-300 dark:hover:bg-amber-700/50 px-2 py-0.5 rounded-full transition-colors text-left"
                           >
-                            {t("owner.vehicules.nouveau.photos_blur_btn")}
+                            🔒 {t("owner.vehicules.nouveau.photos_blur_btn")}
                           </button>
                         )}
                       </div>
