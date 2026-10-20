@@ -4440,7 +4440,17 @@
         "ai_placeholder": "e.g. I have a van I use daily for deliveries in the 10th–11th–20th arrondissements of Paris. I drive about 80 km a day, mostly on weekdays. I want to monetise the side panels (approx. 4 m²).",
         "ai_generate": "Generate",
         "ai_generating": "Generating…",
-        "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
+        "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed.",
+        "photos_plate_warning": "🔒 GDPR — Blur your plate before submitting. Click \"Blur plate\" under each thumbnail to select the zone.",
+        "photos_blur_btn": "Blur plate",
+        "plate_detecting": "Detecting plate…",
+        "plate_blurred": "Plate blurred automatically"
+      },
+      "blur_editor": {
+        "title": "Blur licence plate",
+        "instruction": "Draw a rectangle over the plate with your mouse, then click \"Apply\".",
+        "cancel": "Cancel",
+        "apply": "Apply blur"
       },
       "modifier": {
         "title": "Edit vehicle",
