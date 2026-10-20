@@ -4484,6 +4484,8 @@
         "zones_label": "Zones de circulation",
         "zones_placeholder": "Ex : Paris 10e, 11e, 20e",
         "zones_hint": "Quartiers, arrondissements ou villes séparés par des virgules.",
+        "ai_error_gateway": "Le service IA est temporairement indisponible. Réessayez dans quelques instants.",
+        "ai_error_generic": "Une erreur inattendue est survenue. Réessayez.",
         "ai_panel_title": "Remplir avec l'IA — décrivez votre véhicule",
         "ai_panel_desc": "Décrivez votre véhicule en quelques phrases (type, zones de circulation, kilométrage quotidien, disponibilité, etc.) et l'IA pré-remplira le formulaire pour vous.",
         "ai_placeholder": "Ex. : J'ai un van aménagé que j'utilise quotidiennement pour des livraisons dans Paris 10e–11e–20e. Je fais environ 80 km par jour, surtout en semaine. Je cherche à valoriser les flancs latéraux (env. 4 m²).",
