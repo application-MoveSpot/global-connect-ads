@@ -11,6 +11,7 @@ import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { captureError } from "@/lib/sentry";
+import { PlateBlurEditor } from "@/components/owner/PlateBlurEditor";
 
 export const Route = createFileRoute("/owner/vehicules/nouveau")({
   head: () => ({
@@ -58,6 +59,7 @@ function NewVehiclePage() {
   const [zones, setZones] = useState("");
   const [price, setPrice] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [blurTarget, setBlurTarget] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [estimating, setEstimating] = useState(false);
@@ -394,6 +396,7 @@ function NewVehiclePage() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-4">
@@ -688,21 +691,30 @@ function NewVehiclePage() {
                   {files.map((f, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-1.5 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
+                      className="flex flex-col gap-1 text-xs bg-secondary rounded-lg px-2.5 py-1.5"
                     >
-                      <span>🖼</span>
-                      <span className="font-medium truncate max-w-[140px]">
-                        {f.name || `Image collée ${i + 1}`}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span>🖼</span>
+                        <span className="font-medium truncate max-w-[140px]">
+                          {f.name || `Image collée ${i + 1}`}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFiles((prev) => prev.filter((_, j) => j !== i));
+                            setEstimate(null);
+                          }}
+                          className="text-muted-foreground hover:text-destructive ml-1 transition"
+                        >
+                          ×
+                        </button>
+                      </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          setFiles((prev) => prev.filter((_, j) => j !== i));
-                          setEstimate(null);
-                        }}
-                        className="text-muted-foreground hover:text-destructive ml-1 transition"
+                        onClick={() => setBlurTarget(i)}
+                        className="text-[10px] text-amber-700 dark:text-amber-400 hover:underline text-left"
                       >
-                        ×
+                        {t("owner.vehicules.nouveau.photos_blur_btn")}
                       </button>
                     </div>
                   ))}
@@ -862,6 +874,19 @@ function NewVehiclePage() {
         </div>
       </div>
     </div>
+
+    {blurTarget !== null && files[blurTarget] && (
+      <PlateBlurEditor
+        file={files[blurTarget]}
+        onDone={(blurred) => {
+          setFiles((prev) => prev.map((f, i) => (i === blurTarget ? blurred : f)));
+          setEstimate(null);
+          setBlurTarget(null);
+        }}
+        onCancel={() => setBlurTarget(null)}
+      />
+    )}
+    </>
   );
 }
 
