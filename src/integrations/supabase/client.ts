@@ -6,9 +6,9 @@ import { brokeredPreviewStorage } from "./previewAuthStorage";
 // Anon (publishable) key is a public credential — safe to hardcode.
 // This avoids "Invalid API key" errors caused by CI secrets that contain
 // embedded control characters (\n) which corrupt the key after stripping.
-const STATIC_SUPABASE_URL = "https://phononlhfyljhhhvlmrm.supabase.co";
+const STATIC_SUPABASE_URL = "https://kbloaebbwgzudtkrvulp.supabase.co";
 const STATIC_SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtibG9hZWJid2d6dWR0a3J2dWxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDA0NzUsImV4cCI6MjEwMjAxNjQ3NX0.nS02NyGDSj-EwwF53Gs6bieUYdx2_GtDF4yIUBaRLyE";
 
 const sanitizeEnv = (s: string) => s.replace(/[\x00-\x1F\x7F]/g, "").trim();
 
