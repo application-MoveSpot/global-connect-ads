@@ -36,7 +36,18 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   };
 
   useEffect(() => {
-    refreshBalance();
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("topup_pending") === "1") {
+        // User returned from Stripe — clean the URL then wait for the webhook credit.
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("topup_pending");
+        window.history.replaceState({}, "", cleanUrl.toString());
+        await onTopupClose();
+      } else {
+        await refreshBalance();
+      }
+    })();
     return () => {
       if (realtimeChannelRef.current) {
         void supabase.removeChannel(realtimeChannelRef.current);
@@ -183,6 +194,11 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
             amountEuros={missingEur}
             disabled={loading}
             buttonLabel={t("campaign_payment.btn_topup_amount", { amount: missingEur })}
+            returnUrl={(() => {
+              const u = new URL(window.location.href);
+              u.searchParams.set("topup_pending", "1");
+              return u.toString();
+            })()}
           />
         </div>
       )}
