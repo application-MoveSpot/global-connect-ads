@@ -1,2 +1,2 @@
 - [x] Créer la vidéo du raton avec le script commerciaux expérimentés et une voix masculine posée.
-- [ ] Corriger les liens de photos refusés par l’IA et vérifier l’analyse d’un véhicule.
+- [x] Corriger les liens de photos refusés par l’IA et vérifier l’analyse d’un véhicule.
