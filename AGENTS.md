@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- AI image analysis must inline trusted Cloud Storage image bytes with their actual MIME type, rather than sending signed URLs to providers, because crawler restrictions can reject otherwise accessible photos.
+
 - AI brief actions return typed error results for expired sessions or provider failures, because thrown HTTP responses can escape TanStack server functions and blank the page.
 
 ## Règle absolue — témoignages et avis utilisateurs
