@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Advertiser can review own campaign" ON public.owner_reviews; COMMENT ON POLICY "Advertiser can submit reviews" ON public.owner_reviews IS 'INSERT: annonceur peut évaluer uniquement ses propres campagnes (campaign_requests.user_id = auth.uid())';

@@ -57,6 +57,13 @@
       "when": 1792001189311,
       "tag": "0007_drop_vehicle_photos_public_read",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792552559332,
+      "tag": "0008_drop_weak_owner_reviews_insert_policy",
+      "breakpoints": true
     }
   ]
 }
