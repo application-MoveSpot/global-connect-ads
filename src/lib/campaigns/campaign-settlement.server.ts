@@ -61,5 +61,11 @@ export async function settleCampaignFromWallet(params: {
     });
   }
 
+  // Virement automatique de la part propriétaire via Stripe Connect.
+  // Non-bloquant : si l'owner n'a pas encore connecté son compte, on skippe
+  // silencieusement — l'admin peut déclencher le virement manuellement.
+  const { triggerOwnerTransfer } = await import("@/lib/payments/transfer-to-owner.server");
+  await triggerOwnerTransfer(params.campaignRequestId);
+
   return { ok: true, amountCents };
 }
