@@ -256,7 +256,9 @@ Réponds UNIQUEMENT en JSON strict :
     const contentParts: Array<Record<string, unknown>> = [{ type: "text", text: systemPrompt }];
 
     if (!isPdf && signed?.signedUrl) {
-      contentParts.push({ type: "image_url", image_url: { url: signed.signedUrl } });
+      const { inlineStorageImage } = await import("@/lib/ai/storage-image.server");
+      const image = await inlineStorageImage(signed.signedUrl, process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "");
+      contentParts.push({ type: "image_url", image_url: { url: image } });
     } else {
       contentParts.push({
         type: "text",

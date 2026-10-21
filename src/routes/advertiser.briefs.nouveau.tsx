@@ -835,7 +835,10 @@ function NewBriefPage() {
       const { data: authData, error: authErr } = await supabase.auth.signUp({
         email: guestEmail.trim().toLowerCase(),
         password: guestPassword,
-        options: { data: { role: "advertiser" } },
+        options: {
+          emailRedirectTo: `${window.location.origin}/advertiser/briefs/nouveau`,
+          data: { role: "advertiser" },
+        },
       });
       if (authErr) {
         const alreadyExists =

@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- AI image analysis must inline trusted Cloud Storage image bytes with their actual MIME type, rather than sending signed URLs to providers, because crawler restrictions can reject otherwise accessible photos.
+
 - AI brief actions return typed error results for expired sessions or provider failures, because thrown HTTP responses can escape TanStack server functions and blank the page.
 
 ## Règle absolue — témoignages et avis utilisateurs
@@ -31,3 +33,5 @@ Si une section témoignages est vide, utiliser systématiquement le composant pl
   </a>
 </div>
 ```
+
+- The browser Supabase client must read the Lovable Cloud backend from env (VITE_SUPABASE_*), never a hard-coded other project, because browser and server must share one auth/database or sign-ups and server functions break.

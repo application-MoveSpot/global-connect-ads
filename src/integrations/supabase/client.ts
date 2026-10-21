@@ -3,25 +3,21 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 import { brokeredPreviewStorage } from "./previewAuthStorage";
 
-// Anon (publishable) key is a public credential — safe to hardcode.
-// This avoids "Invalid API key" errors caused by CI secrets that contain
-// embedded control characters (\n) which corrupt the key after stripping.
-const STATIC_SUPABASE_URL = "https://kbloaebbwgzudtkrvulp.supabase.co";
-const STATIC_SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtibG9hZWJid2d6dWR0a3J2dWxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDA0NzUsImV4cCI6MjEwMjAxNjQ3NX0.nS02NyGDSj-EwwF53Gs6bieUYdx2_GtDF4yIUBaRLyE";
-
-const sanitizeEnv = (s: string) => s.replace(/[\x00-\x1F\x7F]/g, "").trim();
-
 function createSupabaseClient() {
-  // Browser: always use hardcoded values — immune to CI secret corruption.
-  // SSR/Worker: allow process.env override but sanitize and fall back if empty.
-  const isServer = typeof window === "undefined";
-  const SUPABASE_URL = isServer
-    ? sanitizeEnv(process.env.SUPABASE_URL || "") || STATIC_SUPABASE_URL
-    : STATIC_SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = isServer
-    ? sanitizeEnv(process.env.SUPABASE_PUBLISHABLE_KEY || "") || STATIC_SUPABASE_KEY
-    : STATIC_SUPABASE_KEY;
+  // Use import.meta.env for client-side (Vite build-time replacement)
+  // Fall back to process.env for SSR (server-side rendering)
+  const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "").replace(/[\x00-\x1F\x7F]/g, "").trim();
+  const SUPABASE_PUBLISHABLE_KEY = (
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    ""
+  ).replace(/[\x00-\x1F\x7F]/g, "").trim();
+
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    throw new Error(
+      "Missing Supabase environment variables. Ensure SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY (or VITE_ prefixed versions) are set in your .env file.",
+    );
+  }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
