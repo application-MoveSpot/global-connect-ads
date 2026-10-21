@@ -91,19 +91,43 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           />
         ) : (
           <>
-            {/* Fond de la pub (semi-transparent, ne cascade pas sur le logo) */}
+            {/* Couche 1 : couleur de marque en multiply — s'imprime sur la carrosserie */}
             <div
               style={{
                 position: "absolute",
-                inset: "20% 8%",
+                inset: "8% 4%",
                 background: brandColor,
-                opacity: 0.65,
-                borderRadius: 8,
+                opacity: 0.82,
+                borderRadius: 6,
+                mixBlendMode: "multiply",
                 pointerEvents: "none",
               }}
             />
 
-            {/* Logo au-dessus du fond — opacité pleine */}
+            {/* Couche 2 : dégradé de lumière simulant la courbure du véhicule */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "8% 4%",
+                borderRadius: 6,
+                background:
+                  "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, rgba(0,0,0,0.12) 100%)",
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Couche 3 : ombre interne sur les bords (effet de relief) */}
+            <div
+              style={{
+                position: "absolute",
+                inset: "8% 4%",
+                borderRadius: 6,
+                boxShadow: "inset 0 0 18px rgba(0,0,0,0.28)",
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Logo posé sur le covering — ombre portée réaliste */}
             {logoUrl && (
               <img
                 src={logoUrl}
@@ -113,14 +137,33 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  maxHeight: "52%",
-                  maxWidth: "66%",
+                  maxHeight: "48%",
+                  maxWidth: "62%",
                   objectFit: "contain",
                   pointerEvents: "none",
-                  filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.45))",
+                  filter:
+                    "drop-shadow(0 3px 10px rgba(0,0,0,0.55)) drop-shadow(0 1px 3px rgba(0,0,0,0.35))",
                 }}
               />
             )}
+
+            {/* Badge "Aperçu simulé" */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 8,
+                left: 8,
+                background: "rgba(0,0,0,0.55)",
+                color: "#fff",
+                fontSize: 10,
+                padding: "2px 8px",
+                borderRadius: 99,
+                pointerEvents: "none",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Aperçu simulé
+            </div>
           </>
         )}
 
