@@ -1,2 +1,3 @@
 - [x] Créer la vidéo du raton avec le script commerciaux expérimentés et une voix masculine posée.
 - [x] Corriger les liens de photos refusés par l’IA et vérifier l’analyse d’un véhicule.
+- [ ] Rétablir la lecture sécurisée des disponibilités et proposer les créneaux avant/après en cas de conflit, puis vérifier le calendrier connecté.
