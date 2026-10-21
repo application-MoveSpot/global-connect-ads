@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { extractJsonObject } from "./extract-json";
 import { hasAuthenticatedBriefRequest } from "./brief-auth.server";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
@@ -90,13 +91,7 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
           // 600 left too little visible output and truncated the JSON.
           maxOutputTokens: 2000,
         });
-        const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-        let raw = fence ? fence[1] : text;
-        if (!fence) {
-          const jsonObj = raw.match(/\{[\s\S]*\}/);
-          if (jsonObj) raw = jsonObj[0];
-        }
-        parsed = JSON.parse(raw.trim()) as VehicleSuggestion;
+        parsed = JSON.parse(extractJsonObject(text)) as VehicleSuggestion;
         break;
       } catch (err) {
         lastErr = err;
