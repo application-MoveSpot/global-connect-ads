@@ -165,7 +165,7 @@ function AdminProvidersPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            ← {t("admin.back")}
+            {t("admin.back")}
           </Link>
         </div>
       </header>

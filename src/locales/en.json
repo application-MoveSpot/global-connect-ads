@@ -55,7 +55,7 @@
     "manager": "Manager",
     "contact_label": "Contact:",
     "reason_label": "Reason:",
-    "back_home": "← Home",
+    "back_home": "Home",
     "verify": "Verify",
     "siret_label": "SIRET:",
     "pricing": "Pricing",
@@ -98,7 +98,7 @@
     "topup_btn": "Top up ${{amount}}",
     "history_title": "Wallet history",
     "export_csv_btn": "↓ Export CSV",
-    "prev": "← Previous",
+    "prev": "Previous",
     "next": "Next →",
     "page_info": "Page {{current}} / {{total}} · {{count}} transactions",
     "col_date": "Date",
@@ -276,7 +276,7 @@
     "loading": "Signing in…",
     "error_mfa": "Multi-factor authentication error.",
     "forgot_password": "Forgot password?",
-    "back_to_home": "← Home",
+    "back_to_home": "Home",
     "have_account": "Already have an account",
     "connected_as": "Connected as",
     "sign_out_lowercase": "sign out",
@@ -319,7 +319,7 @@
     "page_title": "Account settings — MoveSpot",
     "title": "Account settings",
     "subtitle": "Manage your preferences and GDPR rights.",
-    "back": "← Back",
+    "back": "Back",
     "rgpd_title": "Your GDPR rights",
     "rgpd_access": "Access your data",
     "rgpd_access_desc": "Contact contact@move-spot.com to receive a copy of your data.",
@@ -353,7 +353,7 @@
     "page_title": "Security — How MoveSpot protects your data",
     "title": "Two-factor authentication",
     "subtitle": "Protect your account with a second layer of security.",
-    "back": "← Back",
+    "back": "Back",
     "no_mfa": "No active MFA factor.",
     "add_mfa": "Add an authenticator",
     "active_factors": "Active factors",
@@ -465,7 +465,7 @@
       "broadcast_window": "Broadcast from {{start}} to {{end}} · {{company}}"
     },
     "inscription": {
-      "back": "← Back",
+      "back": "Back",
       "title_signup": "Become a driver / installer",
       "title_signin": "Service provider sign-in",
       "desc_signup": "Drive with a campaign or install coverings — and receive your payouts directly to your IBAN.",
@@ -596,7 +596,7 @@
       "sub_link": "Create a brief and start the trial →"
     },
     "essai_active": {
-      "back": "← My dashboard",
+      "back": "My dashboard",
       "checking": "Verifying your subscription with Stripe…",
       "error_missing_id": "Missing subscription reference.",
       "error_verify": "Unable to verify your subscription.",
@@ -671,7 +671,7 @@
       "biz_cta_home": "Dashboard"
     },
     "inscription": {
-      "back": "← Back",
+      "back": "Back",
       "auth_signup_title": "Create an advertiser account",
       "auth_signin_title": "Advertiser login",
       "auth_signup_desc": "Business, association or individual — create your account to book ad spaces.",
@@ -711,7 +711,7 @@
     "contrat": {
       "loading": "Generating quote…",
       "error_not_found": "Quote not found.",
-      "back": "← Back to brief",
+      "back": "Back to brief",
       "print_btn": "🖨 Print / Save as PDF",
       "tagline": "Mobile advertising on vehicles",
       "doc_type": "Quote",
@@ -784,7 +784,7 @@
     "facture": {
       "loading": "Loading invoice…",
       "error_not_found": "Invoice not found.",
-      "back": "← Back to dashboard",
+      "back": "Back to dashboard",
       "print_btn": "🖨 Print / Save as PDF",
       "tagline": "Mobile advertising on vehicles",
       "doc_type": "INVOICE",
@@ -810,7 +810,7 @@
     "rapport": {
       "loading": "Loading report…",
       "error_not_found": "Report not found or campaign not accessible.",
-      "back": "← Back to tracking",
+      "back": "Back to tracking",
       "print_btn": "🖨 Print / Save as PDF",
       "tagline": "Mobile advertising on vehicles",
       "doc_type": "CAMPAIGN REPORT",
@@ -854,7 +854,7 @@
     "briefs": {
       "detail": {
         "loading": "Loading…",
-        "back": "← My briefs",
+        "back": "My briefs",
         "countdown_urgent_one": "Your event is in {{count}} day — please accept a proposal quickly.",
         "countdown_urgent_other": "Your event is in {{count}} days — please accept a proposal quickly.",
         "countdown_j_minus": "T-{{count}} before your event",
@@ -942,7 +942,7 @@
         "comparison_error": "Could not compare proposals. Please try again."
       },
       "nouveau": {
-        "back": "← Back",
+        "back": "Back",
         "display_type_title": "What type of display?",
         "display_type_subtitle": "Two different technologies — choose the one that fits your needs.",
         "digital_label": "Digital display",
@@ -965,8 +965,8 @@
         "event_type_days_other": "{{count}} days",
         "event_type_starting_at": "From {{amount}} € for 1 vehicle",
         "event_type_manual": "Fill manually without a template →",
-        "change_display_type": "← Change display type",
-        "change_event_type": "← Change event type",
+        "change_display_type": "Change display type",
+        "change_event_type": "Change event type",
         "form_title": "Publish a brief",
         "form_subtitle": "Describe your need. Eligible vehicle owners will be able to submit proposals.",
         "digital_reminder": "Digital LED display — owners of LED trucks fitted with screens will be able to respond to this brief.",
@@ -1056,7 +1056,7 @@
       }
     },
     "suivi": {
-      "back": "← Back",
+      "back": "Back",
       "live_individual": "Your vehicle is on its way 🚗",
       "live_business": "Live",
       "waiting_individual": "Waiting to start",
@@ -1119,7 +1119,7 @@
       "toast_rating_error": "Unable to save rating."
     },
     "etude_marche": {
-      "back": "← Dashboard",
+      "back": "Dashboard",
       "new_brief_btn": "+ New brief",
       "title": "Market Study & Financial Forecast",
       "subtitle": "Complete OOH mobile market analysis, vehicle catalogue, business model and 5-year financial projections.",
@@ -1284,7 +1284,7 @@
     "vehicle_rejected_notif": "Vehicle rejected",
     "reason_label": "Reason:",
     "inscription": {
-      "back": "← Back",
+      "back": "Back",
       "step_account": "Account",
       "step_profile": "Profile",
       "step_vehicle": "Vehicle",
@@ -1320,7 +1320,7 @@
     },
     "vehicules": {
       "nouveau": {
-        "back": "← Back to dashboard",
+        "back": "Back to dashboard",
         "title": "Add a vehicle",
         "desc": "Your vehicle will be verified by MoveSpot before appearing on the marketplace.",
         "vehicle_type_label": "Vehicle type *",
@@ -1408,7 +1408,7 @@
         "apply": "Apply blur"
       },
       "modifier": {
-        "back": "← Back to dashboard",
+        "back": "Back to dashboard",
         "title": "Edit vehicle",
         "desc": "Update your vehicle's information. Photos cannot be changed here.",
         "loading": "Loading…",
@@ -1430,7 +1430,7 @@
     },
     "flotte": {
       "title": "My fleet",
-      "back": "← Dashboard",
+      "back": "Dashboard",
       "error": "Error: {{message}}",
       "kpi_approved": "Approved vehicles",
       "kpi_active": "Active (last 30 min)",
@@ -1485,7 +1485,7 @@
       "status_rejected": "Rejected",
       "status_paused": "Paused",
       "qr": {
-        "back": "← Back to fleet",
+        "back": "Back to fleet",
         "print_btn": "Print",
         "title": "Vehicle QR codes",
         "description": "Print and stick the QR in each vehicle's cabin. The driver scans it with their phone to start GPS tracking — no installation required. QR codes are <strong>cryptographically signed</strong> (HMAC-SHA256): impossible to forge.",
@@ -1518,7 +1518,7 @@
         "toast_copied": "Link copied"
       },
       "import": {
-        "back": "← Back to fleet",
+        "back": "Back to fleet",
         "title": "Import a fleet from CSV",
         "desc": "Ideal for quickly adding 10, 50 or 200 vehicles. All imported vehicles are set to status",
         "desc_status": "\"Pending validation\"",
@@ -1553,7 +1553,7 @@
         "budget_max": "Max budget {{amount}}€",
         "proposal_sent": "Proposal sent",
         "proposal_status": "Proposal {{status}}",
-        "prev": "← Previous",
+        "prev": "Previous",
         "pagination": "Page {{page}} / {{total_pages}} · {{count}} brief(s)",
         "next": "Next →",
         "notif_new_brief": "New brief published",
@@ -1569,7 +1569,7 @@
       },
       "detail": {
         "loading": "Loading…",
-        "back": "← Open briefs",
+        "back": "Open briefs",
         "dates": "From {{from}} to {{to}} ({{days}} day(s))",
         "types_label": "Required types:",
         "zones_label": "Zones:",
@@ -1631,7 +1631,7 @@
     },
     "tracking": {
       "error": "Error: {{message}}",
-      "back": "← Back",
+      "back": "Back",
       "offline": "Offline",
       "online": "Online",
       "title": "Vehicle GPS tracking",
@@ -1868,7 +1868,7 @@
     },
     "detail": {
       "not_found": "Provider not found.",
-      "back": "← Directory",
+      "back": "Directory",
       "about": "About",
       "coverage_areas": "Coverage areas",
       "pricing": "Pricing information",
@@ -1947,7 +1947,7 @@
     }
   },
   "reset_password": {
-    "back_to_login": "← Sign in",
+    "back_to_login": "Sign in",
     "title_request": "Forgot password",
     "title_update": "New password",
     "subtitle_request": "Enter your email and we will send you a secure link.",
@@ -1987,7 +1987,7 @@
       "city_label": "City",
       "cgu_text": "I accept MoveSpot's commercial conduct rules: I commit to presenting MoveSpot honestly (a matchmaking platform), without promising guaranteed income, without aggressive practices, and without assimilating this partnership to a pyramid scheme (MLM). Any breach may result in account deactivation.",
       "submit_btn": "Create my commercial account",
-      "back": "← Back",
+      "back": "Back",
       "ai_panel_title": "Fill with AI",
       "ai_panel_desc": "Describe yourself in a few words and the AI will fill in your profile automatically.",
       "ai_placeholder": "E.g. I'm Julien Martin, an independent consultant based in Bordeaux…",
@@ -2047,7 +2047,7 @@
       "success_msg": "A confirmation email has been sent to you.",
       "placeholder": "Your message… (Enter to send)",
       "send_label": "Send",
-      "back_home": "← Back to home",
+      "back_home": "Back to home",
       "prefer_form": "Do you prefer a classic form?",
       "click_here": "Click here",
       "or_email": "— or email us at"
@@ -2180,7 +2180,7 @@
       "status_pending": "Pending",
       "status_rejected": "Rejected"
     },
-    "back": "← Admin",
+    "back": "Admin",
     "prestataires": {
       "title": "Providers",
       "impossible_title": "⚠ Impossible installations to verify ({{count}})",
@@ -2218,7 +2218,7 @@
     "access_denied": "Access denied.",
     "refunds": {
       "title": "Refunds",
-      "back": "← Dashboard",
+      "back": "Dashboard",
       "empty": "No requests in this category.",
       "loading_error": "Loading error",
       "updated": "Request updated.",
@@ -2245,7 +2245,7 @@
       "checking": "Checking...",
       "denied": "Access denied — admin account required.",
       "title": "Commissions & margins",
-      "back": "← Admin dashboard",
+      "back": "Admin dashboard",
       "rates_section": "Current rates",
       "floor": "Floor: {{amount}} / campaign",
       "since": "Since {{date}}",
@@ -2346,7 +2346,7 @@
       "payout_transfer_btn": "Transfer to owner",
       "payout_transferring": "Transferring…",
       "payout_waiting": "Waiting for campaign end",
-      "back": "← Admin Dashboard",
+      "back": "Admin Dashboard",
       "error_msg": "Error: {{message}}",
       "tab_briefs": "Briefs & Campaigns",
       "tab_vehicules": "Vehicles",
@@ -2959,7 +2959,7 @@
     }
   },
   "refund": {
-    "back": "← Home",
+    "back": "Home",
     "title": "Refund Policy",
     "last_updated": "Last updated: September 2026",
     "general_title": "General principle",
@@ -3004,7 +3004,7 @@
     "contact_text": "For any question relating to a refund:"
   },
   "legal": {
-    "back_home": "← Back to home",
+    "back_home": "Back to home",
     "updated_at": "Last updated: {{date}}",
     "copyright": "© {{year}} MoveSpot. All rights reserved.",
     "link_cgu": "Terms of Use",
@@ -4059,7 +4059,7 @@
         "budget_max": "Max budget {{amount}}€",
         "proposal_sent": "Proposal sent",
         "proposal_status": "Proposal {{status}}",
-        "prev": "← Previous",
+        "prev": "Previous",
         "pagination": "Page {{page}} / {{total_pages}} · {{count}} brief(s)",
         "next": "Next →",
         "notif_new_brief": "New brief published",
@@ -4076,7 +4076,7 @@
       },
       "detail": {
         "loading": "Loading…",
-        "back": "← Open briefs",
+        "back": "Open briefs",
         "dates": "From {{from}} to {{to}} ({{days}} day(s))",
         "types_label": "Required types:",
         "zones_label": "Zones:",
@@ -4741,7 +4741,7 @@
     "briefs_confirm": {
       "back": "Back",
       "biz_cta_brief": "Create another brief →",
-      "biz_cta_home": "← Home",
+      "biz_cta_home": "Home",
       "biz_desc": "Summary of your business brief.",
       "biz_row_end": "Biz Row End",
       "biz_row_name": "Biz Row Name",
@@ -4749,7 +4749,7 @@
       "biz_row_zone": "Zone",
       "biz_title": "Business Brief Submitted",
       "cta_brief": "Create another brief →",
-      "cta_home": "← Home",
+      "cta_home": "Home",
       "ind_desc": "Summary of your individual brief.",
       "ind_title": "Individual Brief Submitted",
       "loading": "Loading…",
@@ -4836,7 +4836,7 @@
       "row_period_value_other": "{{from}} → {{to}} ({{count}} days)"
     },
     "essai_active": {
-      "back": "← My dashboard",
+      "back": "My dashboard",
       "checking": "Verifying your subscription with Stripe…",
       "cta_briefs": "My briefs",
       "cta_campaign": "Track my campaign",
@@ -5535,7 +5535,7 @@
     "title": "Providers"
   },
   "profile": {
-    "back": "← Back to dashboard",
+    "back": "Back to dashboard",
     "title": "My profile",
     "desc": "Update your personal and professional information.",
     "full_name": "Full name",
