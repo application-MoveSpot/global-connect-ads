@@ -73,7 +73,7 @@ function TranslationIssuesPage() {
           </div>
           <div className="flex items-center gap-3">
             <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-              ← Admin
+              Admin
             </Link>
             <button
               onClick={() => refetch()}
