@@ -55,7 +55,7 @@
     "manager": "Responsable",
     "contact_label": "Contact :",
     "reason_label": "Motif :",
-    "back_home": "← Accueil",
+    "back_home": "Accueil",
     "verify": "Vérifier",
     "siret_label": "SIRET :",
     "pricing": "Tarifs",
@@ -96,7 +96,7 @@
     "topup_btn": "Recharger {{amount}} €",
     "history_title": "Historique du portefeuille",
     "export_csv_btn": "↓ Exporter CSV",
-    "prev": "← Précédent",
+    "prev": "Précédent",
     "next": "Suivant →",
     "page_info": "Page {{current}} / {{total}} · {{count}} transactions",
     "col_date": "Date",
@@ -274,7 +274,7 @@
     "loading": "Connexion en cours…",
     "error_mfa": "Erreur d'authentification multi-facteurs.",
     "forgot_password": "Mot de passe oublié ?",
-    "back_to_home": "← Accueil",
+    "back_to_home": "Accueil",
     "sign_in_with_google": "Se connecter avec Google",
     "have_account": "J'ai déjà un compte",
     "connected_as": "Connecté en tant que",
@@ -318,7 +318,7 @@
     "page_title": "Paramètres du compte — MoveSpot",
     "title": "Paramètres du compte",
     "subtitle": "Gérez vos préférences et vos droits RGPD.",
-    "back": "← Retour",
+    "back": "Retour",
     "rgpd_title": "Vos droits RGPD",
     "rgpd_access": "Accéder à vos données",
     "rgpd_access_desc": "Contactez contact@move-spot.com pour recevoir une copie de vos données.",
@@ -352,7 +352,7 @@
     "page_title": "Sécurité — Comment MoveSpot protège vos données",
     "title": "Authentification à deux facteurs",
     "subtitle": "Protégez votre compte avec une deuxième couche de sécurité.",
-    "back": "← Retour",
+    "back": "Retour",
     "no_mfa": "Aucun facteur MFA actif.",
     "add_mfa": "Ajouter un authenticator",
     "active_factors": "Facteurs actifs",
@@ -592,7 +592,7 @@
       "sub_link": "Créer un brief et activer l'essai →"
     },
     "essai_active": {
-      "back": "← Mon tableau de bord",
+      "back": "Mon tableau de bord",
       "checking": "Vérification de votre abonnement auprès de Stripe…",
       "error_missing_id": "Référence de souscription manquante.",
       "error_verify": "Impossible de vérifier votre abonnement.",
@@ -728,7 +728,7 @@
     "contrat": {
       "loading": "Génération du devis…",
       "error_not_found": "Devis introuvable.",
-      "back": "← Retour au brief",
+      "back": "Retour au brief",
       "print_btn": "🖨 Imprimer / Enregistrer en PDF",
       "tagline": "Publicité mobile sur véhicules",
       "doc_type": "Devis",
@@ -801,7 +801,7 @@
     "facture": {
       "loading": "Chargement de la facture…",
       "error_not_found": "Facture introuvable.",
-      "back": "← Retour au tableau de bord",
+      "back": "Retour au tableau de bord",
       "print_btn": "🖨 Imprimer / Enregistrer en PDF",
       "tagline": "Publicité mobile sur véhicules",
       "doc_type": "FACTURE",
@@ -827,7 +827,7 @@
     "rapport": {
       "loading": "Chargement du rapport…",
       "error_not_found": "Rapport introuvable ou campagne non accessible.",
-      "back": "← Retour au suivi",
+      "back": "Retour au suivi",
       "print_btn": "🖨 Imprimer / Enregistrer en PDF",
       "tagline": "Publicité mobile sur véhicules",
       "doc_type": "RAPPORT DE CAMPAGNE",
@@ -871,7 +871,7 @@
     "briefs": {
       "detail": {
         "loading": "Chargement…",
-        "back": "← Mes briefs",
+        "back": "Mes briefs",
         "countdown_urgent_one": "Votre événement est dans {{count}} jour — acceptez une proposition rapidement.",
         "countdown_urgent_other": "Votre événement est dans {{count}} jours — acceptez une proposition rapidement.",
         "countdown_j_minus": "J-{{count}} avant votre événement",
@@ -959,7 +959,7 @@
         "comparison_error": "Impossible de comparer les propositions. Réessayez."
       },
       "nouveau": {
-        "back": "← Retour",
+        "back": "Retour",
         "display_type_title": "Quel type d'affichage ?",
         "display_type_subtitle": "Deux technologies différentes — choisissez celle qui correspond à votre besoin.",
         "digital_label": "Affichage numérique",
@@ -982,8 +982,8 @@
         "event_type_days_other": "{{count}} jours",
         "event_type_starting_at": "À partir de {{amount}} € pour 1 véhicule",
         "event_type_manual": "Remplir manuellement sans modèle →",
-        "change_display_type": "← Changer de type d'affichage",
-        "change_event_type": "← Changer de type d'événement",
+        "change_display_type": "Changer de type d'affichage",
+        "change_event_type": "Changer de type d'événement",
         "form_title": "Publier un brief",
         "form_subtitle": "Décrivez votre besoin. Les propriétaires éligibles pourront vous proposer leurs véhicules.",
         "digital_reminder": "Affichage numérique LED — les propriétaires de camions LED équipés d'écrans pourront répondre à ce brief.",
@@ -1073,7 +1073,7 @@
       }
     },
     "suivi": {
-      "back": "← Retour",
+      "back": "Retour",
       "live_individual": "Votre véhicule est en route 🚗",
       "live_business": "Live",
       "waiting_individual": "En attente du démarrage",
@@ -1136,7 +1136,7 @@
       "toast_rating_error": "Impossible d'enregistrer l'évaluation."
     },
     "etude_marche": {
-      "back": "← Dashboard",
+      "back": "Dashboard",
       "new_brief_btn": "+ Nouveau brief",
       "title": "Étude de marché & Prévisionnel",
       "subtitle": "Analyse complète du marché OOH mobile, catalogue des supports, modèle économique et projections financières 5 ans.",
@@ -1344,7 +1344,7 @@
     },
     "vehicules": {
       "nouveau": {
-        "back": "← Retour au tableau de bord",
+        "back": "Retour au tableau de bord",
         "title": "Ajouter un véhicule",
         "desc": "Votre véhicule sera vérifié par MoveSpot avant d'apparaître sur la marketplace.",
         "vehicle_type_label": "Type de véhicule *",
@@ -1432,7 +1432,7 @@
         "apply": "Appliquer le floutage"
       },
       "modifier": {
-        "back": "← Retour au tableau de bord",
+        "back": "Retour au tableau de bord",
         "title": "Modifier le véhicule",
         "desc": "Mettez à jour les informations de votre véhicule. Les photos ne peuvent pas être modifiées ici.",
         "loading": "Chargement…",
@@ -1454,7 +1454,7 @@
     },
     "flotte": {
       "title": "Ma flotte",
-      "back": "← Tableau de bord",
+      "back": "Tableau de bord",
       "error": "Erreur : {{message}}",
       "kpi_approved": "Véhicules approuvés",
       "kpi_active": "Actifs (30 dernières min)",
@@ -1509,7 +1509,7 @@
       "status_rejected": "Refusé",
       "status_paused": "Pause",
       "qr": {
-        "back": "← Retour flotte",
+        "back": "Retour flotte",
         "print_btn": "Imprimer",
         "title": "QR codes véhicules",
         "description": "Imprimez et collez le QR dans la cabine de chaque véhicule. Le chauffeur le scanne avec son téléphone pour démarrer le suivi GPS — aucune installation requise. Les QR sont <strong>signés cryptographiquement</strong> (HMAC-SHA256) : impossible à falsifier.",
@@ -1542,7 +1542,7 @@
         "toast_copied": "Lien copié"
       },
       "import": {
-        "back": "← Retour flotte",
+        "back": "Retour flotte",
         "title": "Importer une flotte en CSV",
         "desc": "Idéal pour ajouter rapidement 10, 50 ou 200 véhicules. Tous les véhicules importés sont en statut",
         "desc_status": "« En attente validation »",
@@ -1577,7 +1577,7 @@
         "budget_max": "Budget max {{amount}}€",
         "proposal_sent": "Proposition envoyée",
         "proposal_status": "Proposition {{status}}",
-        "prev": "← Précédent",
+        "prev": "Précédent",
         "pagination": "Page {{page}} / {{total_pages}} · {{count}} brief(s)",
         "next": "Suivant →",
         "notif_new_brief": "Nouveau brief publié",
@@ -1593,7 +1593,7 @@
       },
       "detail": {
         "loading": "Chargement…",
-        "back": "← Briefs ouverts",
+        "back": "Briefs ouverts",
         "dates": "Du {{from}} au {{to}} ({{days}} jour(s))",
         "types_label": "Types recherchés :",
         "zones_label": "Zones :",
@@ -1655,7 +1655,7 @@
     },
     "tracking": {
       "error": "Erreur : {{message}}",
-      "back": "← Retour",
+      "back": "Retour",
       "offline": "Hors ligne",
       "online": "En ligne",
       "title": "Suivi GPS du véhicule",
@@ -1909,7 +1909,7 @@
     },
     "detail": {
       "not_found": "Prestataire introuvable.",
-      "back": "← Annuaire",
+      "back": "Annuaire",
       "about": "À propos",
       "coverage_areas": "Zones d'intervention",
       "pricing": "Indications tarifaires",
@@ -1988,7 +1988,7 @@
     }
   },
   "reset_password": {
-    "back_to_login": "← Connexion",
+    "back_to_login": "Connexion",
     "title_request": "Mot de passe oublié",
     "title_update": "Nouveau mot de passe",
     "subtitle_request": "Saisissez votre email, nous vous enverrons un lien sécurisé.",
@@ -2092,7 +2092,7 @@
       "success_msg": "Un email de confirmation vient de vous être envoyé.",
       "placeholder": "Votre message… (Entrée pour envoyer)",
       "send_label": "Envoyer",
-      "back_home": "← Retour à l'accueil",
+      "back_home": "Retour à l'accueil",
       "prefer_form": "Préférez-vous un formulaire classique ?",
       "click_here": "Cliquez ici",
       "or_email": "— ou écrivez-nous à"
@@ -2225,7 +2225,7 @@
       "status_pending": "En attente",
       "status_rejected": "Refusé"
     },
-    "back": "← Admin",
+    "back": "Admin",
     "prestataires": {
       "title": "Prestataires",
       "impossible_title": "⚠ Poses impossibles à vérifier ({{count}})",
@@ -2263,7 +2263,7 @@
     "access_denied": "Accès refusé.",
     "refunds": {
       "title": "Remboursements",
-      "back": "← Dashboard",
+      "back": "Dashboard",
       "empty": "Aucune demande dans cette catégorie.",
       "loading_error": "Erreur de chargement",
       "updated": "Demande mise à jour.",
@@ -2290,7 +2290,7 @@
       "checking": "Vérification...",
       "denied": "Accès refusé — compte admin requis.",
       "title": "Commissions & marges",
-      "back": "← Dashboard admin",
+      "back": "Dashboard admin",
       "rates_section": "Taux en vigueur",
       "floor": "Plancher : {{amount}} / campagne",
       "since": "Depuis le {{date}}",
@@ -2391,7 +2391,7 @@
       "payout_transfer_btn": "Reverser au propriétaire",
       "payout_transferring": "Transfert…",
       "payout_waiting": "En attente fin de campagne",
-      "back": "← Dashboard admin",
+      "back": "Dashboard admin",
       "error_msg": "Erreur : {{message}}",
       "tab_briefs": "Briefs & Campagnes",
       "tab_vehicules": "Véhicules",
@@ -3004,7 +3004,7 @@
     }
   },
   "refund": {
-    "back": "← Accueil",
+    "back": "Accueil",
     "title": "Politique de remboursement",
     "last_updated": "Dernière mise à jour : septembre 2026",
     "general_title": "Principe général",
@@ -3049,7 +3049,7 @@
     "contact_text": "Pour toute question relative à un remboursement :"
   },
   "legal": {
-    "back_home": "← Retour à l'accueil",
+    "back_home": "Retour à l'accueil",
     "updated_at": "Dernière mise à jour : {{date}}",
     "copyright": "© {{year}} MoveSpot. Tous droits réservés.",
     "link_cgu": "CGU",
@@ -4120,7 +4120,7 @@
         "budget_max": "Budget max {{amount}}€",
         "proposal_sent": "Proposition envoyée",
         "proposal_status": "Proposition {{status}}",
-        "prev": "← Précédent",
+        "prev": "Précédent",
         "pagination": "Page {{page}} / {{total_pages}} · {{count}} brief(s)",
         "next": "Suivant →",
         "notif_new_brief": "Nouveau brief publié",
@@ -4137,7 +4137,7 @@
       },
       "detail": {
         "loading": "Chargement…",
-        "back": "← Briefs ouverts",
+        "back": "Briefs ouverts",
         "dates": "Du {{from}} au {{to}} ({{days}} jour(s))",
         "types_label": "Types recherchés :",
         "zones_label": "Zones :",
@@ -4802,7 +4802,7 @@
     "briefs_confirm": {
       "back": "Retour",
       "biz_cta_brief": "Créer un autre brief →",
-      "biz_cta_home": "← Accueil",
+      "biz_cta_home": "Accueil",
       "biz_desc": "Récapitulatif de votre brief professionnel.",
       "biz_row_end": "Fin",
       "biz_row_name": "Nom",
@@ -4810,7 +4810,7 @@
       "biz_row_zone": "Zone",
       "biz_title": "Brief professionnel soumis",
       "cta_brief": "Créer un autre brief →",
-      "cta_home": "← Accueil",
+      "cta_home": "Accueil",
       "ind_desc": "Récapitulatif de votre brief individuel.",
       "ind_title": "Brief individuel soumis",
       "loading": "Chargement…",
@@ -4897,7 +4897,7 @@
       "row_period_value_other": "{{from}} → {{to}} ({{count}} jours)"
     },
     "essai_active": {
-      "back": "← Mon tableau de bord",
+      "back": "Mon tableau de bord",
       "checking": "Vérification de votre abonnement auprès de Stripe…",
       "cta_briefs": "Mes briefs",
       "cta_campaign": "Suivre ma campagne",
@@ -5597,7 +5597,7 @@
     "title": "Prestataires"
   },
   "profile": {
-    "back": "← Retour au tableau de bord",
+    "back": "Retour au tableau de bord",
     "title": "Mon profil",
     "desc": "Mettez à jour vos informations personnelles et professionnelles.",
     "full_name": "Nom complet",
