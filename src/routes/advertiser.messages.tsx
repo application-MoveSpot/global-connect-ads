@@ -177,7 +177,7 @@ function AdvertiserMessagesPage() {
             to="/advertiser"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4" /> {t("advertiser.messages.back")}
+            {t("advertiser.messages.back")}
           </Link>
         </div>
       </header>
