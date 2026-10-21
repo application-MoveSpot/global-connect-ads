@@ -45,7 +45,11 @@ export const generateVehicleSuggestion = createServerFn({ method: "POST" })
     }
 
     const provider = createLovableAiGatewayProvider(apiKey);
-    const model = provider("google/gemini-2.5-flash");
+    // gemini-2.5-flash is served by a reasoning model that burns most of the
+    // output budget on reasoning tokens; flash-lite answers directly and is
+    // the reliable fallback for short JSON (same pattern as the inscription
+    // assistants).
+    const FALLBACK_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 
     const typeLabel = data.vehicleType ? `Type de véhicule : ${data.vehicleType}.` : "";
 
@@ -74,31 +78,33 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
 
     const { generateText } = await import("ai");
 
-    const runOnce = async () => {
-      const { text } = await generateText({
-        model,
-        prompt,
-        temperature: 0.7,
-        maxOutputTokens: 600,
-      });
-      const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      let raw = fence ? fence[1] : text;
-      if (!fence) {
-        const jsonObj = raw.match(/\{[\s\S]*\}/);
-        if (jsonObj) raw = jsonObj[0];
-      }
-      return JSON.parse(raw.trim()) as VehicleSuggestion;
-    };
-
-    try {
-      // Retry once on transient failures (network hiccup, 503, etc.)
-      let parsed: VehicleSuggestion;
+    let parsed: VehicleSuggestion | undefined;
+    let lastErr: unknown;
+    for (const modelId of FALLBACK_MODELS) {
       try {
-        parsed = await runOnce();
-      } catch {
-        await new Promise((r) => setTimeout(r, 1500));
-        parsed = await runOnce();
+        const { text } = await generateText({
+          model: provider(modelId),
+          prompt,
+          temperature: 0.7,
+          // Reasoning models count reasoning tokens against this budget;
+          // 600 left too little visible output and truncated the JSON.
+          maxOutputTokens: 2000,
+        });
+        const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        let raw = fence ? fence[1] : text;
+        if (!fence) {
+          const jsonObj = raw.match(/\{[\s\S]*\}/);
+          if (jsonObj) raw = jsonObj[0];
+        }
+        parsed = JSON.parse(raw.trim()) as VehicleSuggestion;
+        break;
+      } catch (err) {
+        lastErr = err;
+        captureServerException(err, { category: "ai", extra: { model: modelId } });
       }
+    }
+
+    if (parsed) {
       return {
         ok: true,
         suggestion: {
@@ -119,12 +125,12 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
               : undefined,
         },
       };
-    } catch (err) {
-      captureServerException(err, { category: "ai" });
-      return {
-        ok: false,
-        code: "AI_UNAVAILABLE",
-        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
-      };
     }
+
+    captureServerException(lastErr, { category: "ai", extra: { note: "all models failed" } });
+    return {
+      ok: false,
+      code: "AI_UNAVAILABLE",
+      message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+    };
   });
