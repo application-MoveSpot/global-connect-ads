@@ -73,7 +73,7 @@ Return ONLY the JSON object or the word null — no explanation, no markdown fen
       }
       return { ok: true, bbox: null };
     } catch (e) {
-      captureServerException(e, "plate-detection");
+      captureServerException(e, { category: "ai", extra: { model: "plate-detection" } });
       return { ok: false, message: "Détection échouée." };
     }
   });
