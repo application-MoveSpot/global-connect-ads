@@ -31,3 +31,5 @@ Si une section témoignages est vide, utiliser systématiquement le composant pl
   </a>
 </div>
 ```
+
+- The browser Supabase client must read the Lovable Cloud backend from env (VITE_SUPABASE_*), never a hard-coded other project, because browser and server must share one auth/database or sign-ups and server functions break.
