@@ -83,7 +83,7 @@ function AdminBankTransfers() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <LogoLink />
           <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            ← {t("admin.back")}
+            {t("admin.back")}
           </Link>
         </div>
       </header>
