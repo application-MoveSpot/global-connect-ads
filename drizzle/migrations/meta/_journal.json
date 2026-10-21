@@ -64,6 +64,13 @@
       "when": 1792552559332,
       "tag": "0008_drop_weak_owner_reviews_insert_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792625606191,
+      "tag": "0009_restore_vehicle_availability_access",
+      "breakpoints": true
     }
   ]
 }
