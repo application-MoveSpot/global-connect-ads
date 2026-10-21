@@ -181,7 +181,7 @@ const CATALOGUE: VehicleEntry[] = [
 
 // ─── Marché cible ─────────────────────────────────────────────────────────────
 
-type Region = "europe" | "afrique" | "asie" | "amerique";
+type Region = "europe" | "afrique" | "asie" | "amerique" | "moyen_orient";
 
 type RegionData = {
   label: string;
@@ -552,6 +552,99 @@ const REGION_DATA: Record<Region, RegionData> = {
           "DOOH mobile certifié Nielsen",
           "Marketplace panAméricaine",
           "Potentiel Series A",
+        ],
+      },
+    ],
+  },
+  moyen_orient: {
+    label: "Moyen-Orient",
+    flag: "",
+    marcheTaille: "2,5 Mds $",
+    marcheSegment: "280 M€",
+    marcheCroissance: "+28 %",
+    marcheDesc: [
+      "Le marché OOH au Moyen-Orient représente 2,5 milliards $ (+14 %/an). Les métropoles ultra-connectées comme Dubaï, Riyad, Doha et Abu Dhabi concentrent une densité de flux publicitaire parmi les plus élevées au monde, avec une audience premium et à fort pouvoir d'achat.",
+      "MoveSpot adresse ce marché via les flottes de taxis haut de gamme, VTC Careem/Uber, navettes hôtelières et camions LED événementiels. Le segment publicité mobile est estimé à 280 M€ avec +28 %/an, porté par les grandes marques luxe, FMCG et tech — un marché à forte densité avec peu de concurrence directe sur le mobile OOH.",
+    ],
+    kpis: [
+      { v: "2,5 Mds $", l: "Marché OOH Moyen-Orient", s: "+14 %/an" },
+      { v: "+28 %", l: "Croissance mobile OOH", s: "Métropoles premium" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "1 020 000 €", l: "CA An 5", s: "Marge nette 47 %" },
+      { v: "620", l: "Véhicules An 5", s: "Démarrage : 12" },
+      { v: "3 400 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
+    ],
+    gmv: [32000, 180000, 720000, 1800000, 3400000],
+    comm: [9600, 54000, 216000, 540000, 1020000],
+    revers: [22400, 126000, 504000, 1260000, 2380000],
+    charges: [5200, 14500, 88000, 215000, 390000],
+    net: [2550, 29700, 103000, 257000, 481500],
+    treso: [2550, 32250, 135250, 392250, 873750],
+    vehicules: [12, 50, 160, 340, 620],
+    marge: [26.6, 55.0, 47.7, 47.6, 47.2],
+    structure: [
+      "LLC (Free Zone)",
+      "LLC (Free Zone)",
+      "Holding (IS)",
+      "Holding (IS)",
+      "Holding (IS)",
+    ],
+    urssaf: [1600, 8000, 0, 0, 0],
+    vl: [250, 1800, 0, 0, 0],
+    is: [0, 0, 25000, 68000, 148500],
+    fiscalLabels: {
+      urssaf: "Cotisations sociales LLC Free Zone (An 1-2)",
+      vl: "Taxe locale libératoire (An 1-2)",
+      is: "Corporate tax UAE/KSA (9–20 % — An 3-5)",
+      note: "Hypothèses : commission stable à 30 % du GMV. Moyenne 2 300 €/véhicule/mois. Structure LLC Free Zone dès An 1 (Dubaï). Passage Holding à partir de l'An 3. Apport initial nul.",
+    },
+    roadmap: [
+      {
+        year: "An 1",
+        phase: "Pilot Dubaï / Riyad",
+        gmv: "32 000 €",
+        items: [
+          "Dubaï & Riyad pilotes",
+          "12 taxis premium + VTC",
+          "10 advertisers luxe & FMCG",
+          "Stripe + Apple Pay UAE",
+          "Partenaires covering locaux",
+        ],
+      },
+      {
+        year: "An 2",
+        phase: "Expansion Golfe",
+        gmv: "180 000 €",
+        items: [
+          "Doha, Abu Dhabi, Kuwait City",
+          "50 véhicules partners",
+          "Camions LED événementiels",
+          "App multilingue (AR/EN/FR)",
+          "API annonceurs grands groupes",
+        ],
+      },
+      {
+        year: "An 3",
+        phase: "Déploiement régional",
+        gmv: "720 000 €",
+        items: [
+          "8+ métropoles, 160 véhicules",
+          "Passage Holding (IS)",
+          "Campagnes cross-pays Golfe",
+          "Partenariat réseaux OOH locaux",
+          "Analytics GPS adapté région",
+        ],
+      },
+      {
+        year: "An 4–5",
+        phase: "Leader mobile OOH Golfe",
+        gmv: "3 400 000 €",
+        items: [
+          "15+ villes, 340–620 véhicules",
+          "Offre grands comptes (NEOM, Expo)",
+          "DOOH mobile certifié",
+          "Plateforme SaaS white-label",
+          "Expansion Levant & Maghreb",
         ],
       },
     ],
