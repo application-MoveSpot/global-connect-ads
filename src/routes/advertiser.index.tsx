@@ -242,12 +242,6 @@ function AnnonceurDashboard() {
               <Instagram className="h-4 w-4" />
             </a>
             <Link
-              to="/"
-              className="text-sm text-muted-foreground hover:text-foreground transition"
-            >
-              {t("common.back_home", "Accueil")}
-            </Link>
-            <Link
               to="/advertiser/profil"
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
             >
