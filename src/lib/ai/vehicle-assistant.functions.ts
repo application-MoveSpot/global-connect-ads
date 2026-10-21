@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { extractJsonObject } from "./extract-json";
 import { hasAuthenticatedBriefRequest } from "./brief-auth.server";
 import { assertRateLimit, getRequestIp } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
