@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { extractJsonObject } from "../vehicle-assistant.functions";
+import { extractJsonObject } from "../vehicle-assistant.functions.ts";
 
 const PAYLOAD = '{"name":"Van","description":"Desc","km_per_day":80}';
 
