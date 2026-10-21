@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
+import { inlineStorageImage } from "@/lib/ai/storage-image.server";
 
 type TrafficTier = "urban_dense" | "urban" | "suburban" | "rural";
 
@@ -214,7 +215,8 @@ Réponds UNIQUEMENT en JSON strict :
       },
     ];
     for (const url of data.photo_urls.slice(0, 3)) {
-      content.push({ type: "image_url", image_url: { url } });
+      const image = await inlineStorageImage(url, process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "");
+      content.push({ type: "image_url", image_url: { url: image } });
     }
     if (data.photo_urls.length === 0) {
       content.push({

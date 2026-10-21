@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertRateLimit } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
 import { getAiGatewayFetchConfig } from "./ai-gateway.server";
+import { inlineStorageImage } from "./storage-image.server";
 
 // Shared helper: analyse an image (base64) via AI gateway vision
 async function analyseImageBase64(
@@ -228,6 +229,7 @@ Réponds UNIQUEMENT en JSON strict :
 }`;
 
     try {
+      const image = await inlineStorageImage(signed.signedUrl, process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "");
       const { url: fetchUrl, headers: fetchHeaders } = getAiGatewayFetchConfig(apiKey);
       const res = await fetch(fetchUrl, {
         method: "POST",
@@ -239,7 +241,7 @@ Réponds UNIQUEMENT en JSON strict :
               role: "user",
               content: [
                 { type: "text", text: prompt },
-                { type: "image_url", image_url: { url: signed.signedUrl } },
+                { type: "image_url", image_url: { url: image } },
               ],
             },
           ],
