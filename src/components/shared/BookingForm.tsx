@@ -17,44 +17,23 @@ import { cn } from "@/lib/utils";
 import { fr } from "date-fns/locale";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
 import { resizeImageFile } from "@/lib/images/resize";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { checkDateOverlap, nearestAvailableSlots, type BookedPeriod } from "@/lib/campaigns/availability";
 
-type BookedPeriod = { start_date: string; end_date: string };
 type DateConflict = {
   conflictStart: string;
   conflictEnd: string;
-  suggestion: { start: string; end: string } | null;
+  suggestions: ReturnType<typeof nearestAvailableSlots>;
 };
 
-function checkDateOverlap(
-  start: string,
-  end: string,
-  periods: BookedPeriod[],
-): BookedPeriod | null {
-  return periods.find((p) => p.start_date <= end && p.end_date >= start) ?? null;
-}
-
-function nextAvailableSlot(
-  days: number,
-  periods: BookedPeriod[],
-  earliest: Date,
-): { start: string; end: string } {
-  const sorted = [...periods].sort((a, b) => a.start_date.localeCompare(b.start_date));
-  const toISO = (d: Date) => d.toISOString().slice(0, 10);
-  const addDays = (d: Date, n: number) => {
-    const r = new Date(d);
-    r.setDate(r.getDate() + n);
-    return r;
-  };
-  let candidateStart = new Date(earliest);
-  for (const p of sorted) {
-    const pStart = new Date(p.start_date);
-    const candidateEnd = addDays(candidateStart, days - 1);
-    if (candidateEnd < pStart) break;
-    const after = new Date(p.end_date);
-    after.setDate(after.getDate() + 1);
-    if (after > candidateStart) candidateStart = after;
-  }
-  return { start: toISO(candidateStart), end: toISO(addDays(candidateStart, days - 1)) };
+async function loadBookedPeriods(vehicleId: string): Promise<BookedPeriod[]> {
+  // Only dates leave the database; no campaign rows or sensitive fields are read.
+  const { data, error } = await supabase.rpc("get_vehicle_booked_periods", {
+    p_vehicle_id: vehicleId,
+  });
+  if (error) throw error;
+  return data ?? [];
 }
 
 function fmtDate(iso: string): string {
@@ -140,7 +119,7 @@ export function BookingForm({ spot, onClose }: Props) {
   // Calendrier de réservation : min 3 jours d'avance, durée 1 à 30 jours
   const MIN_LEAD_DAYS = 3;
   const MAX_DURATION_DAYS = 30;
-  const toISO = (d: Date) => d.toISOString().slice(0, 10);
+  const toISO = (d: Date) => format(d, "yyyy-MM-dd");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const minStart = new Date(today);
@@ -259,23 +238,28 @@ export function BookingForm({ spot, onClose }: Props) {
   // Load already-booked date ranges via the SECURITY DEFINER RPC (bypasses RLS,
   // returns only start_date/end_date — no sensitive data exposed).
   useEffect(() => {
+    let active = true;
     if (!spot?.vehicleId) {
       setBookedPeriods([]);
+      setPeriodsLoading(false);
+      setPeriodsError(false);
       return;
     }
     setPeriodsLoading(true);
     setPeriodsError(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
-      .then(({ data, error }: { data: BookedPeriod[] | null; error: unknown }) => {
-        if (error) {
+    setBookedPeriods([]);
+    loadBookedPeriods(spot.vehicleId)
+      .then((periods) => {
+        if (active) setBookedPeriods(periods);
+      })
+      .catch(() => {
+        if (active) {
           setPeriodsError(true);
           setBookedPeriods([]);
-        } else setBookedPeriods((data ?? []) as BookedPeriod[]);
+        }
       })
-      .catch(() => setPeriodsError(true))
-      .finally(() => setPeriodsLoading(false));
+      .finally(() => { if (active) setPeriodsLoading(false); });
+    return () => { active = false; };
   }, [spot?.vehicleId]);
 
   if (!spot) return null;
@@ -298,13 +282,12 @@ export function BookingForm({ spot, onClose }: Props) {
     if (!range?.from || !range?.to) return;
     const fromISO = toISO(range.from);
     const endISO = toISO(range.to);
-    const days = Math.round((range.to.getTime() - range.from.getTime()) / 86400000) + 1;
     const conflict = checkDateOverlap(fromISO, endISO, bookedPeriods);
     if (conflict) {
       setDateConflict({
         conflictStart: conflict.start_date,
         conflictEnd: conflict.end_date,
-        suggestion: nextAvailableSlot(days, bookedPeriods, minStart),
+        suggestions: nearestAvailableSlots(fromISO, endISO, bookedPeriods, toISO(minStart)),
       });
       return;
     }
@@ -401,7 +384,7 @@ export function BookingForm({ spot, onClose }: Props) {
         setDateConflict({
           conflictStart: conflict.start_date,
           conflictEnd: conflict.end_date,
-          suggestion: nextAvailableSlot(daysCount, bookedPeriods, minStart),
+          suggestions: nearestAvailableSlots(startDate, endDate, bookedPeriods, toISO(minStart)),
         });
         return;
       }
@@ -477,31 +460,23 @@ export function BookingForm({ spot, onClose }: Props) {
     if (created?.status === "rejected" && created.admin_notes?.includes("réservé")) {
       setStatus("idle");
       if (spot.vehicleId) {
-        // Refresh booked periods via RPC so the calendar immediately shows the new blocker
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any)
-          .rpc("get_vehicle_booked_periods", { p_vehicle_id: spot.vehicleId })
-          .then(
-            ({ data: fresh, error: rpcErr }: { data: BookedPeriod[] | null; error: unknown }) => {
-              if (rpcErr || !fresh) {
-                setStatus("rejected");
-                setReason(t("booking.err_conflict_refresh"));
-                return;
-              }
-              const freshPeriods = fresh as BookedPeriod[];
+        setPeriodsLoading(true);
+        loadBookedPeriods(spot.vehicleId)
+          .then((freshPeriods) => {
               setBookedPeriods(freshPeriods);
               const conflict = checkDateOverlap(startDate, endDate, freshPeriods);
               setDateConflict({
                 conflictStart: conflict?.start_date ?? startDate,
                 conflictEnd: conflict?.end_date ?? endDate,
-                suggestion: nextAvailableSlot(daysCount, freshPeriods, minStart),
+                suggestions: nearestAvailableSlots(startDate, endDate, freshPeriods, toISO(minStart)),
               });
-            },
-          )
+            })
           .catch(() => {
+            setPeriodsError(true);
             setStatus("rejected");
-            setReason(t("booking.err_conflict_choose"));
-          });
+            setReason(t("booking.err_conflict_refresh"));
+          })
+          .finally(() => setPeriodsLoading(false));
       } else {
         setStatus("rejected");
         setReason(t("booking.err_conflict_choose"));
@@ -784,7 +759,7 @@ export function BookingForm({ spot, onClose }: Props) {
                     locale={fr}
                     selected={calRange}
                     onSelect={handleRangeSelect}
-                    disabled={{ before: minStart }}
+                    disabled={periodsLoading || periodsError ? true : [{ before: minStart }, ...bookedModifiers]}
                     modifiers={{ booked: bookedModifiers }}
                     components={{ DayButton: BookingDayButton }}
                     numberOfMonths={1}
@@ -876,41 +851,30 @@ export function BookingForm({ spot, onClose }: Props) {
                         </p>
                       </div>
                     </div>
-                    {dateConflict.suggestion && (
-                      <div>
-                        <p className="text-xs font-medium text-amber-800 dark:text-amber-300 mb-1.5">
-                          {t("booking.first_slot")}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const s = dateConflict.suggestion!.start;
-                            const e = dateConflict.suggestion!.end;
-                            setStartDate(s);
-                            setEndDate(e);
-                            setCalRange({
-                              from: new Date(s + "T00:00:00"),
-                              to: new Date(e + "T00:00:00"),
-                            });
-                            setDateConflict(null);
-                          }}
-                          className="flex w-full items-center justify-between rounded-lg border border-amber-400 bg-white dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-                        >
-                          <span>
-                            {fmtDate(dateConflict.suggestion.start)} →{" "}
-                            {fmtDate(dateConflict.suggestion.end)}
-                            {daysCount > 0 && (
-                              <span className="ml-1.5 text-xs opacity-70">
-                                ({daysCount} jour{daysCount > 1 ? "s" : ""})
-                              </span>
-                            )}
-                          </span>
-                          <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-                            {t("booking.choose")}
-                          </span>
-                        </button>
-                      </div>
-                    )}
+                    {(["before", "after"] as const).map((direction) => {
+                      const slot = dateConflict.suggestions[direction];
+                      if (!slot) return <p key={direction} className="text-xs text-muted-foreground">{t("booking.no_slot_before")}</p>;
+                      return (
+                        <div key={direction}>
+                          <p className="text-xs font-medium mb-1.5">{t(`booking.slot_${direction}`)}</p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-auto w-full justify-between gap-2 whitespace-normal py-2 text-left"
+                            onClick={() => {
+                              setStartDate(slot.start);
+                              setEndDate(slot.end);
+                              setCalRange({ from: new Date(slot.start + "T00:00:00"), to: new Date(slot.end + "T00:00:00") });
+                              setDateConflict(null);
+                              setStatus("idle");
+                            }}
+                          >
+                            <span>{fmtDate(slot.start)} → {fmtDate(slot.end)}</span>
+                            <span className="text-xs font-semibold">{t("booking.choose")}</span>
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 
