@@ -125,12 +125,12 @@ Réponds UNIQUEMENT en JSON strict (surface_m2, km_per_day, zones et price_per_d
               : undefined,
         },
       };
-    } catch (err) {
-      captureServerException(err, { category: "ai" });
-      return {
-        ok: false,
-        code: "AI_UNAVAILABLE",
-        message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
-      };
     }
+
+    captureServerException(lastErr, { category: "ai", extra: { note: "all models failed" } });
+    return {
+      ok: false,
+      code: "AI_UNAVAILABLE",
+      message: "L'IA n'a pas pu générer de suggestion. Réessayez.",
+    };
   });
