@@ -91,36 +91,34 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           />
         ) : (
           <>
-            {/* Covering : image publicitaire ou couleur de marque — zone portes uniquement */}
-            {logoUrl ? (
+            {/* Covering : couleur de marque en base, logo par-dessus */}
+            <div
+              style={{
+                position: "absolute",
+                top: "35%",
+                right: "40%",
+                bottom: "25%",
+                left: "12%",
+                background: brandColor,
+                opacity: 0.78,
+                borderRadius: 6,
+                mixBlendMode: "multiply",
+                pointerEvents: "none",
+              }}
+            />
+            {logoUrl && (
               <img
                 src={logoUrl}
                 alt="covering"
                 style={{
                   position: "absolute",
-                  top: "35%",
-                  right: "40%",
-                  bottom: "25%",
-                  left: "12%",
-                  objectFit: "fill",
-                  borderRadius: 6,
-                  mixBlendMode: "multiply",
-                  opacity: 0.9,
-                  pointerEvents: "none",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "35%",
-                  right: "40%",
-                  bottom: "25%",
-                  left: "12%",
-                  background: brandColor,
-                  opacity: 0.82,
-                  borderRadius: 6,
-                  mixBlendMode: "multiply",
+                  top: "37%",
+                  right: "42%",
+                  bottom: "27%",
+                  left: "14%",
+                  objectFit: "contain",
+                  borderRadius: 4,
+                  opacity: 0.92,
                   pointerEvents: "none",
                 }}
               />
