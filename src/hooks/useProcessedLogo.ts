@@ -50,7 +50,10 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
         cache.set(logoUrl, data.processedUrl);
         setProcessedUrl(data.processedUrl);
       } catch {
-        if (!controller.signal.aborted) setError("Le détourage du logo a échoué. Réessayez avec une autre image.");
+        if (!controller.signal.aborted) {
+          setProcessedUrl(logoUrl);
+          setError("Le détourage du logo a échoué. Le logo original est affiché.");
+        }
       } finally {
         if (!controller.signal.aborted) setIsProcessing(false);
       }
