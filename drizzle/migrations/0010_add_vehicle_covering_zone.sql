@@ -1,0 +1,2 @@
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS covering_zone jsonb;
+COMMENT ON COLUMN public.vehicles.covering_zone IS 'Per-photo covering quadrilaterals keyed by photo index, with normalized 0..1 points ordered top-left, top-right, bottom-right, bottom-left in the shared 16:9 object-cover photo frame.';

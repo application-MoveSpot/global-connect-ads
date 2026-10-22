@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { useCoveringZone, CoveringPoint, CoveringQuad } from "@/hooks/useCoveringZone";
+import { isCoveringQuad, zoneForPhoto } from "@/lib/fleet/covering-geometry";
 
 type Props = {
   vehicleId: string;
@@ -15,7 +16,7 @@ const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444"];
 export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
   const { t } = useTranslation();
   const photos = useVehiclePhotoUrls(rawPhotos);
-  const { zone, saving, saveZone, clearZone } = useCoveringZone(vehicleId);
+  const { zone, loading, saving, error, saveZone, clearZone } = useCoveringZone(vehicleId);
 
   const [photoIndex, setPhotoIndex] = useState(0);
   const [points, setPoints] = useState<CoveringPoint[]>(
@@ -24,22 +25,27 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
   const [saved, setSaved] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!loading) setPoints([...(zoneForPhoto(zone, photoIndex, rawPhotos[photoIndex])?.points ?? [])]);
+  }, [loading, zone, photoIndex, rawPhotos]);
+
   const handlePhotoChange = (idx: number) => {
     setPhotoIndex(idx);
-    setPoints(zone?.[idx]?.points ? [...zone[idx].points] : []);
+    setPoints([...(zoneForPhoto(zone, idx, rawPhotos[idx])?.points ?? [])]);
     setSaved(false);
   };
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (points.length >= 4) return;
-      const rect = imgRef.current!.getBoundingClientRect();
+      if (loading || saving || points.length >= 4 || !imgRef.current) return;
+      const rect = imgRef.current.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
       setPoints((prev) => [...prev, { x, y }]);
       setSaved(false);
     },
-    [points.length],
+    [points.length, loading, saving],
   );
 
   const handleReset = () => {
@@ -48,15 +54,12 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
   };
 
   const handleSave = async () => {
-    if (points.length !== 4) return;
-    await saveZone(photoIndex, points as CoveringQuad);
-    setSaved(true);
+    if (!isCoveringQuad(points)) return;
+    setSaved(await saveZone(photoIndex, points, rawPhotos[photoIndex]));
   };
 
   const handleClear = async () => {
-    await clearZone(photoIndex);
-    setPoints([]);
-    setSaved(false);
+    if (await clearZone(photoIndex)) { setPoints([]); setSaved(false); }
   };
 
   const currentPhoto = photos[photoIndex];
@@ -218,7 +221,7 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
             <button
               type="button"
               onClick={handleSave}
-              disabled={points.length !== 4 || saving}
+              disabled={!isCoveringQuad(points) || saving || loading}
               className="ml-auto px-4 py-1.5 text-sm rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition disabled:opacity-50"
             >
               {saving ? "Enregistrement…" : saved ? "✓ Enregistré" : "Confirmer la zone"}
@@ -229,6 +232,10 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
             <p className="text-xs text-green-600 dark:text-green-400">
               Zone enregistrée — les annonceurs verront le covering précisément sur cette zone.
             </p>
+          )}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+          {points.length === 4 && !isCoveringQuad(points) && (
+            <p role="alert" className="text-sm text-destructive">Zone croisée ou trop petite : repositionnez les quatre coins.</p>
           )}
         </div>
       </div>

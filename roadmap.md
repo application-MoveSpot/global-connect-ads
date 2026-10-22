@@ -2,3 +2,7 @@
 - [x] Corriger les liens de photos refusés par l’IA et vérifier l’analyse d’un véhicule.
 - [x] Rétablir la lecture sécurisée des disponibilités et proposer les créneaux avant/après en cas de conflit, puis vérifier le calendrier connecté (requête réelle 200 ; blocage et suggestions vérifiés avec dates simulées ; 5 tests réussis).
 - [x] Analyser la photo réelle de réservation et ajuster les quatre couches du covering aux portes, puis vérifier le rendu couleur/image connecté sur ordinateur et téléphone.
+- [x] Fiabiliser covering_zone, projeter couleur et logo par homographie CSS, conserver le relief photo et vérifier en session réelle l’enregistrement puis la lecture annonceur (5 tests ; logo transparent visible ; données de test restaurées).
+- [x] Vérifier le branchement useProcessedLogo → CoveringOverlay, rendre le blend du logo explicitement normal et conserver le logo original en cas d’erreur (test connecté avec logo opaque ; 5 tests de perspective réussis).
+- [x] Remplacer l’appel de détourage par un fetch public dédié vers l’adresse externe indiquée, sans session ni cookies ; test connecté : fonction atteinte, repli original visible, aucun écran blanc.
+- [ ] Vérifier le détourage réel et le cache serveur : bloqués par la réponse 500 de la fonction externe, causée par Replicate 401 « invalid authentication token » ; corriger REPLICATE_API_TOKEN sur ce service externe.
