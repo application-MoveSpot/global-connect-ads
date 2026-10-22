@@ -44,6 +44,15 @@ export function parseCoveringZone(value: unknown): CoveringZone | null {
   return Object.keys(parsed).length ? parsed : null;
 }
 
+// Accept either winding while preserving the selected first corner. Never sort
+// corners by angle: that would silently repair a genuinely crossed selection.
+export function normalizeCoveringQuad(points: CoveringPoint[]): CoveringQuad | null {
+  if (isCoveringQuad(points)) return points;
+  if (points.length !== 4) return null;
+  const reversed = [points[0], points[3], points[2], points[1]];
+  return isCoveringQuad(reversed) ? reversed : null;
+}
+
 export function zoneForPhoto(zone: CoveringZone | null, index: number, photoPath?: string): CoveringEntry | null {
   const entry = zone?.[index];
   if (!entry || (entry.photoPath && entry.photoPath !== photoPath)) return null;
