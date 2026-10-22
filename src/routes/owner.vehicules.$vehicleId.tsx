@@ -8,6 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { generateVehicleSuggestion } from "@/lib/ai/vehicle-assistant.functions";
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
+import { CoveringZoneEditor } from "@/components/owner/CoveringZoneEditor";
 
 export const Route = createFileRoute("/owner/vehicules/$vehicleId")({
   head: () => ({
@@ -51,6 +52,9 @@ function EditVehiclePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [rawPhotos, setRawPhotos] = useState<string[]>([]);
+  const [showZoneEditor, setShowZoneEditor] = useState(false);
+
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const [aiContext, setAiContext] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -82,7 +86,7 @@ function EditVehiclePage() {
       const { data: vehicle, error: vErr } = await supabase
         .from("vehicles")
         .select(
-          "id, type, condition, name, license_plate, brand, model, color, description, surface_m2, km_per_day, zones, price_per_day, status, admin_notes",
+          "id, type, condition, name, license_plate, brand, model, color, description, surface_m2, km_per_day, zones, price_per_day, status, admin_notes, photos",
         )
         .eq("id", vehicleId)
         .eq("owner_id", prof.id)
@@ -94,6 +98,7 @@ function EditVehiclePage() {
         return;
       }
 
+      setRawPhotos(Array.isArray(vehicle.photos) ? (vehicle.photos as string[]) : []);
       setVehicleType(vehicle.type as string);
       setCondition((vehicle.condition as ConditionValue) ?? "bon");
       setName((vehicle.name as string) ?? "");
@@ -435,6 +440,17 @@ function EditVehiclePage() {
               {t("owner.vehicules.modifier.photos_readonly_hint")}
             </div>
 
+            {rawPhotos.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowZoneEditor(true)}
+                className="w-full rounded-lg border border-primary/40 text-primary text-sm py-2.5 font-medium hover:bg-primary/5 transition flex items-center justify-center gap-2"
+              >
+                <span>🎯</span>
+                Définir la zone publicitaire (covering)
+              </button>
+            )}
+
             {error && (
               <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
                 {error}
@@ -462,6 +478,14 @@ function EditVehiclePage() {
           <VehicleCalendar vehicleId={vehicleId} />
         </div>
       </div>
+
+      {showZoneEditor && (
+        <CoveringZoneEditor
+          vehicleId={vehicleId}
+          rawPhotos={rawPhotos}
+          onClose={() => setShowZoneEditor(false)}
+        />
+      )}
     </div>
   );
 }
