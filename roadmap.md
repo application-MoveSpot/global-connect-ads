@@ -3,4 +3,5 @@
 - [x] Rétablir la lecture sécurisée des disponibilités et proposer les créneaux avant/après en cas de conflit, puis vérifier le calendrier connecté (requête réelle 200 ; blocage et suggestions vérifiés avec dates simulées ; 5 tests réussis).
 - [x] Analyser la photo réelle de réservation et ajuster les quatre couches du covering aux portes, puis vérifier le rendu couleur/image connecté sur ordinateur et téléphone.
 - [x] Fiabiliser covering_zone, projeter couleur et logo par homographie CSS, conserver le relief photo et vérifier en session réelle l’enregistrement puis la lecture annonceur (5 tests ; logo transparent visible ; données de test restaurées).
-- [ ] Vérifier le service remove-logo-bg redéployé avec un logo opaque, son cache et l’affichage annonceur ; conserver le logo original en cas d’erreur.
+- [x] Vérifier le branchement useProcessedLogo → CoveringOverlay, rendre le blend du logo explicitement normal et conserver le logo original en cas d’erreur (test connecté avec logo opaque ; 5 tests de perspective réussis).
+- [ ] Vérifier le détourage réel et le cache serveur : bloqués car OPTIONS remove-logo-bg répond 404 NOT_FOUND sur le backend configuré de l’application ; fonction à redéployer sur ce backend avec REPLICATE_API_TOKEN.
