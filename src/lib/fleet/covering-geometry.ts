@@ -1,4 +1,4 @@
-import PerspectiveTransform from "perspective-transform";
+import { Matrix, solve } from "ml-matrix";
 
 export type CoveringPoint = { x: number; y: number };
 export type CoveringQuad = [CoveringPoint, CoveringPoint, CoveringPoint, CoveringPoint];
@@ -56,10 +56,19 @@ export function coveringProjection(points: CoveringQuad, width: number, height: 
   const distance = (a: CoveringPoint, b: CoveringPoint) => Math.hypot(b.x - a.x, b.y - a.y);
   const planeWidth = (distance(tl, tr) + distance(bl, br)) / 2;
   const planeHeight = (distance(tl, bl) + distance(tr, br)) / 2;
-  const projection = PerspectiveTransform(
-    [0, 0, planeWidth, 0, planeWidth, planeHeight, 0, planeHeight], destination,
-  );
-  const [a, b, c, d, e, f, g, h] = projection.coeffs;
+  const source = [[0, 0], [planeWidth, 0], [planeWidth, planeHeight], [0, planeHeight]];
+  const rows: number[][] = [];
+  const targets: number[][] = [];
+  source.forEach(([x = 0, y = 0], i) => {
+    const u = destination[i * 2] ?? 0;
+    const v = destination[i * 2 + 1] ?? 0;
+    rows.push([x, y, 1, 0, 0, 0, -u * x, -u * y], [0, 0, 0, x, y, 1, -v * x, -v * y]);
+    targets.push([u], [v]);
+  });
+  let coeffs: number[];
+  try { coeffs = solve(new Matrix(rows), new Matrix(targets)).to1DArray(); }
+  catch { return null; }
+  const [a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0] = coeffs;
   if ([a, b, c, d, e, f, g, h].some((n) => n === undefined || !Number.isFinite(n))) return null;
   // CSS is column-major. W = g*x+h*y+1 gives an actual projective divide,
   // not an affine skew or a decorative displacement filter.
@@ -67,6 +76,11 @@ export function coveringProjection(points: CoveringQuad, width: number, height: 
     width: planeWidth,
     height: planeHeight,
     transform: `matrix3d(${a},${d},0,${g},${b},${e},0,${h},0,0,1,0,${c},${f},0,1)`,
-    projection,
+    projection: {
+      transform(x: number, y: number): [number, number] {
+        const w = g * x + h * y + 1;
+        return [(a * x + b * y + c) / w, (d * x + e * y + f) / w];
+      },
+    },
   };
 }
