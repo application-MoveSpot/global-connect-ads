@@ -91,20 +91,38 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           />
         ) : (
           <>
-            {/* Couche 1 : couleur de marque en multiply — s'imprime sur la carrosserie */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "8% 4%",
-                background: brandColor,
-                opacity: 0.82,
-                borderRadius: 6,
-                mixBlendMode: "multiply",
-                pointerEvents: "none",
-              }}
-            />
+            {/* Covering : image publicitaire ou couleur de marque — collé en multiply sur la carrosserie */}
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="covering"
+                style={{
+                  position: "absolute",
+                  inset: "8% 4%",
+                  width: "92%",
+                  height: "84%",
+                  objectFit: "cover",
+                  borderRadius: 6,
+                  mixBlendMode: "multiply",
+                  opacity: 0.9,
+                  pointerEvents: "none",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: "8% 4%",
+                  background: brandColor,
+                  opacity: 0.82,
+                  borderRadius: 6,
+                  mixBlendMode: "multiply",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
 
-            {/* Couche 2 : dégradé de lumière simulant la courbure du véhicule */}
+            {/* Dégradé de lumière simulant la courbure du véhicule */}
             <div
               style={{
                 position: "absolute",
@@ -116,7 +134,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
               }}
             />
 
-            {/* Couche 3 : ombre interne sur les bords (effet de relief) */}
+            {/* Ombre interne sur les bords (effet de relief) */}
             <div
               style={{
                 position: "absolute",
@@ -126,26 +144,6 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                 pointerEvents: "none",
               }}
             />
-
-            {/* Logo posé sur le covering — ombre portée réaliste */}
-            {logoUrl && (
-              <img
-                src={logoUrl}
-                alt="logo"
-                style={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  transform: "translate(-50%, -50%)",
-                  maxHeight: "48%",
-                  maxWidth: "62%",
-                  objectFit: "contain",
-                  pointerEvents: "none",
-                  filter:
-                    "drop-shadow(0 3px 10px rgba(0,0,0,0.55)) drop-shadow(0 1px 3px rgba(0,0,0,0.35))",
-                }}
-              />
-            )}
 
             {/* Badge "Aperçu simulé" */}
             <div
