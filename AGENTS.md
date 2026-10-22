@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- Booking availability uses the dates-only `get_vehicle_booked_periods` RPC with explicit execution grants; never broaden campaign row read policies for availability, because those rows contain private contact and financial data.
+
 - AI image analysis must inline trusted Cloud Storage image bytes with their actual MIME type, rather than sending signed URLs to providers, because crawler restrictions can reject otherwise accessible photos.
 
 - AI brief actions return typed error results for expired sessions or provider failures, because thrown HTTP responses can escape TanStack server functions and blank the page.
