@@ -99,10 +99,10 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                 style={{
                   position: "absolute",
                   top: "38%",
-                  right: "28%",
+                  right: "40%",
                   bottom: "38%",
                   left: "30%",
-                  width: "42%",
+                  width: "30%",
                   height: "24%",
                   objectFit: "fill",
                   borderRadius: 6,
@@ -116,7 +116,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                 style={{
                   position: "absolute",
                   top: "38%",
-                  right: "28%",
+                  right: "40%",
                   bottom: "38%",
                   left: "30%",
                   background: brandColor,
@@ -133,7 +133,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
               style={{
                 position: "absolute",
                 top: "38%",
-                right: "28%",
+                right: "40%",
                 bottom: "38%",
                 left: "30%",
                 borderRadius: 6,
@@ -148,7 +148,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
               style={{
                 position: "absolute",
                 top: "38%",
-                right: "28%",
+                right: "40%",
                 bottom: "38%",
                 left: "30%",
                 borderRadius: 6,
