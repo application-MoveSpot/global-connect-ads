@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { coveringProjection, isCoveringQuad, parseCoveringZone, zoneForPhoto, type CoveringQuad } from "../covering-geometry.ts";
+import { coveringProjection, isCoveringQuad, normalizeCoveringQuad, parseCoveringZone, zoneForPhoto, type CoveringQuad } from "../covering-geometry.ts";
 
 const quad: CoveringQuad = [
   { x: 0.2, y: 0.35 }, { x: 0.7, y: 0.42 },
@@ -49,4 +49,12 @@ test("a zone is not applied to a different photo after reordering", () => {
   assert.equal(zoneForPhoto(zone, 0, "owner/front.jpg"), null);
   assert.deepEqual(zoneForPhoto(zone, 0, "owner/side.jpg"), zone[0]);
   assert.deepEqual(zoneForPhoto({ 0: { points: quad } }, 0, "legacy.jpg"), { points: quad });
+});
+
+test("door corners selected counterclockwise save in clockwise order", () => {
+  assert.deepEqual(normalizeCoveringQuad([quad[0], quad[3], quad[2], quad[1]]), quad);
+});
+
+test("normalizing winding still rejects crossed door corners", () => {
+  assert.equal(normalizeCoveringQuad([quad[0], quad[2], quad[1], quad[3]]), null);
 });

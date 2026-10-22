@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { useCoveringZone, CoveringPoint, CoveringQuad } from "@/hooks/useCoveringZone";
-import { isCoveringQuad, zoneForPhoto } from "@/lib/fleet/covering-geometry";
+import { normalizeCoveringQuad, zoneForPhoto } from "@/lib/fleet/covering-geometry";
 
 type Props = {
   vehicleId: string;
@@ -14,7 +14,6 @@ const LABELS = ["↖ Haut-gauche", "↗ Haut-droit", "↘ Bas-droit", "↙ Bas-g
 const COLORS = ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444"];
 
 export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
-  const { t } = useTranslation();
   const photos = useVehiclePhotoUrls(rawPhotos);
   const { zone, loading, saving, error, saveZone, clearZone } = useCoveringZone(vehicleId);
 
@@ -24,6 +23,8 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
   );
   const [saved, setSaved] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef<number | null>(null);
+  const validQuad = normalizeCoveringQuad(points);
 
   useEffect(() => {
     if (!loading) setPoints([...(zoneForPhoto(zone, photoIndex, rawPhotos[photoIndex])?.points ?? [])]);
@@ -53,9 +54,18 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
     setSaved(false);
   };
 
+  const moveCorner = (index: number, clientX: number, clientY: number) => {
+    const rect = imgRef.current?.getBoundingClientRect();
+    if (!rect?.width || !rect.height || loading || saving) return;
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+    setPoints((current) => current.map((point, i) => i === index ? { x, y } : point));
+    setSaved(false);
+  };
+
   const handleSave = async () => {
-    if (!isCoveringQuad(points)) return;
-    setSaved(await saveZone(photoIndex, points, rawPhotos[photoIndex]));
+    if (!validQuad) return;
+    setSaved(await saveZone(photoIndex, validQuad, rawPhotos[photoIndex]));
   };
 
   const handleClear = async () => {
@@ -134,6 +144,7 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
           {currentPhoto ? (
             <div
               ref={imgRef}
+              data-covering-editor-photo
               className="relative rounded-xl overflow-hidden cursor-crosshair select-none"
               style={{ aspectRatio: "16/9" }}
               onClick={handleClick}
@@ -165,23 +176,46 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
 
               {/* Point markers */}
               {points.map((p, i) => (
-                <div
+                <Button
                   key={i}
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={`Coin ${i + 1}`}
+                  title={`Coin ${i + 1}`}
+                  disabled={loading || saving}
+                  className="absolute z-10 size-7 min-w-0 touch-none rounded-full border-2 border-background bg-primary text-primary-foreground p-0 text-xs font-bold shadow cursor-grab active:cursor-grabbing"
+                  onClick={(event) => event.stopPropagation()}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                    draggingRef.current = i;
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                  }}
+                  onPointerMove={(event) => {
+                    if (draggingRef.current === i) moveCorner(i, event.clientX, event.clientY);
+                  }}
+                  onPointerUp={(event) => {
+                    draggingRef.current = null;
+                    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+                  }}
+                  onPointerCancel={() => { draggingRef.current = null; }}
+                  onLostPointerCapture={() => { draggingRef.current = null; }}
+                  onKeyDown={(event) => {
+                    const direction = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
+                    const rect = imgRef.current?.getBoundingClientRect();
+                    if (!direction || !rect) return;
+                    event.preventDefault();
+                    const step = event.shiftKey ? 5 : 1;
+                    moveCorner(i, rect.left + p.x * rect.width + (direction[0] ?? 0) * step, rect.top + p.y * rect.height + (direction[1] ?? 0) * step);
+                  }}
                   style={{
-                    position: "absolute",
                     left: `${p.x * 100}%`,
                     top: `${p.y * 100}%`,
                     transform: "translate(-50%, -50%)",
-                    pointerEvents: "none",
                   }}
                 >
-                  <div
-                    className="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-white text-[9px] font-bold shadow-lg"
-                    style={{ background: COLORS[i] }}
-                  >
-                    {i + 1}
-                  </div>
-                </div>
+                  {i + 1}
+                </Button>
               ))}
 
               {/* Click hint overlay */}
@@ -221,7 +255,7 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
             <button
               type="button"
               onClick={handleSave}
-              disabled={!isCoveringQuad(points) || saving || loading}
+              disabled={!validQuad || saving || loading}
               className="ml-auto px-4 py-1.5 text-sm rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition disabled:opacity-50"
             >
               {saving ? "Enregistrement…" : saved ? "✓ Enregistré" : "Confirmer la zone"}
@@ -234,7 +268,7 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
             </p>
           )}
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          {points.length === 4 && !isCoveringQuad(points) && (
+          {points.length === 4 && !validQuad && (
             <p role="alert" className="text-sm text-destructive">Zone croisée ou trop petite : repositionnez les quatre coins.</p>
           )}
         </div>
