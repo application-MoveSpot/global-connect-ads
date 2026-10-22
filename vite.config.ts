@@ -65,6 +65,14 @@ export default defineConfig({
         telemetry: false,
       }),
     ],
+    build: {
+      rollupOptions: {
+        external: [
+          "onnxruntime-web/webgpu",
+          "onnxruntime-web",
+        ],
+      },
+    },
     resolve: {
       alias: {
         "entities/lib/decode.js": path.resolve(
