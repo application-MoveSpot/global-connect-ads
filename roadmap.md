@@ -6,4 +6,5 @@
 - [x] Vérifier le branchement useProcessedLogo → CoveringOverlay, rendre le blend du logo explicitement normal et conserver le logo original en cas d’erreur (test connecté avec logo opaque ; 5 tests de perspective réussis).
 - [x] Remplacer l’appel de détourage par un fetch public dédié vers l’adresse externe indiquée, sans session ni cookies ; test connecté : fonction atteinte, repli original visible, aucun écran blanc.
 - [x] Vérifier que useProcessedLogo appelle bien l’adresse directe du détourage par fetch public (aucun supabase.functions.invoke) et que le token Replicate n’est plus refusé (401 disparu).
-- [ ] Faire corriger la version de modèle Replicate codée dans remove-logo-bg : elle renvoie 422 « Invalid version or not permitted » ; utiliser la version actuelle de cjwbw/rembg fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003 (ou le simple identifiant « cjwbw/rembg »), puis vérifier détourage réel et cache serveur.
+- [x] Confirmer que le hash du modèle Replicate corrigé dans remove-logo-bg v4 est accepté (422 disparu).
+- [ ] Recharger le crédit du compte Replicate (replicate.com/account/billing) : remove-logo-bg renvoie désormais 402 « Insufficient credit » ; après rechargement, vérifier détourage réel et cache serveur.
