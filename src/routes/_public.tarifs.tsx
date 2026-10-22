@@ -96,7 +96,7 @@ const CONTENT = {
     own_card1_badge: "Particulier · 1 à 3 véhicules",
     own_card1_price: "Gratuit",
     own_card1_price_sub: "à vie",
-    own_card1_commission: "Vous reversez 30 % à MoveSpot par campagne encaissée",
+    own_card1_commission: "MoveSpot retient 30 % de commission par campagne encaissée",
     own_card1_features: [
       "Inscription et modération incluses",
       "Paiement automatique par campagne",
