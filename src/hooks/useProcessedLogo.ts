@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 const cache = new Map<string, string>();
+
+const EDGE_FN_URL =
+  "https://kbloaebbwgzudtkrvulp.supabase.co/functions/v1/remove-logo-bg";
 
 export function useProcessedLogo(logoUrl: string | null | undefined) {
   const [processedUrl, setProcessedUrl] = useState<string | null>(null);
@@ -26,17 +28,24 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
     setIsProcessing(true);
     setProcessedUrl(null);
 
-    supabase.functions
-      .invoke("remove-logo-bg", { body: { logoUrl } })
-      .then(({ data, error }) => {
+    fetch(EDGE_FN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ logoUrl }),
+      signal: controller.signal,
+    })
+      .then((res) => res.json())
+      .then((data) => {
         if (controller.signal.aborted) return;
-        if (error || !data?.processedUrl) {
-          // Fallback: use original logo
-          setProcessedUrl(logoUrl);
-        } else {
+        if (data?.processedUrl) {
           cache.set(logoUrl, data.processedUrl);
           setProcessedUrl(data.processedUrl);
+        } else {
+          setProcessedUrl(logoUrl);
         }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setProcessedUrl(logoUrl);
       })
       .finally(() => {
         if (!controller.signal.aborted) setIsProcessing(false);
