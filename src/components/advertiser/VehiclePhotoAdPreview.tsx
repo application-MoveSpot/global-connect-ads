@@ -91,18 +91,18 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           />
         ) : (
           <>
-            {/* Covering : image publicitaire ou couleur de marque — collé en multiply sur les flancs */}
+            {/* Covering : image publicitaire ou couleur de marque — zone portes uniquement */}
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt="covering"
                 style={{
                   position: "absolute",
-                  top: "30%",
-                  right: "5%",
-                  bottom: "22%",
-                  left: "5%",
-                  objectFit: "cover",
+                  top: "35%",
+                  right: "40%",
+                  bottom: "25%",
+                  left: "12%",
+                  objectFit: "fill",
                   borderRadius: 6,
                   mixBlendMode: "multiply",
                   opacity: 0.9,
@@ -113,10 +113,10 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
               <div
                 style={{
                   position: "absolute",
-                  top: "30%",
-                  right: "5%",
-                  bottom: "22%",
-                  left: "5%",
+                  top: "35%",
+                  right: "40%",
+                  bottom: "25%",
+                  left: "12%",
                   background: brandColor,
                   opacity: 0.82,
                   borderRadius: 6,
@@ -130,10 +130,10 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             <div
               style={{
                 position: "absolute",
-                top: "30%",
-                right: "5%",
-                bottom: "22%",
-                left: "5%",
+                top: "35%",
+                right: "40%",
+                bottom: "25%",
+                left: "12%",
                 borderRadius: 6,
                 background:
                   "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, rgba(0,0,0,0.12) 100%)",
@@ -145,10 +145,10 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             <div
               style={{
                 position: "absolute",
-                top: "30%",
-                right: "5%",
-                bottom: "22%",
-                left: "5%",
+                top: "35%",
+                right: "40%",
+                bottom: "25%",
+                left: "12%",
                 borderRadius: 6,
                 boxShadow: "inset 0 0 18px rgba(0,0,0,0.28)",
                 pointerEvents: "none",
