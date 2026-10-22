@@ -34,8 +34,10 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
           <div className="covering-plane" data-covering-plane style={{
             width: projection.width, height: projection.height, transform: projection.transform,
           }}>
-            {/* Both pigment and transparent artwork are on the same projective plane. */}
-            <div className="covering-ink" style={{ background: brandColor }} />
+            {/* Show color backing only when no detoured logo is ready — a transparent logo renders directly on the bodywork */}
+            {(!processedLogoUrl || isProcessingLogo) && (
+              <div className="covering-ink" style={{ background: brandColor }} />
+            )}
             {processedLogoUrl && !isProcessingLogo && (
               <img className="covering-logo" src={processedLogoUrl} alt="Logo publicitaire" draggable={false} />
             )}
