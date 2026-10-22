@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- Logo background removal uses an isolated public fetch to the externally deployed remove-logo-bg endpoint without session tokens or cookies; never repoint the app auth/database client for this integration.
+
 - Covering geometry uses validated clockwise quadrilaterals in a shared centered 16:9 object-cover frame and CSS matrix3d homography solved with ml-matrix; all artwork shares one projected plane so logos and colors follow the same perspective. Newly saved zones include the raw photo path to prevent reuse after photo reordering; preserve legacy index-only zones.
 
 - Booking availability uses the dates-only `get_vehicle_booked_periods` RPC with explicit execution grants; never broaden campaign row read policies for availability, because those rows contain private contact and financial data.
