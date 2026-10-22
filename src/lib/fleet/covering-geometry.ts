@@ -7,8 +7,8 @@ export type CoveringZone = Record<number, CoveringEntry>;
 
 // Coordinates use the same centered, object-cover 16:9 frame in both views.
 export const FALLBACK_COVERING_QUAD: CoveringQuad = [
-  { x: 0.12, y: 0.35 }, { x: 0.6, y: 0.35 },
-  { x: 0.6, y: 0.75 }, { x: 0.12, y: 0.75 },
+  { x: 0.3, y: 0.38 }, { x: 0.6, y: 0.38 },
+  { x: 0.6, y: 0.62 }, { x: 0.3, y: 0.62 },
 ];
 
 export function isCoveringQuad(value: unknown): value is CoveringQuad {

@@ -20,7 +20,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
-  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo } = useProcessedLogo(logoUrl);
+  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo, error: logoError } = useProcessedLogo(logoUrl);
 
   useEffect(() => {
     if (!videoFile) {
@@ -165,6 +165,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           ? t("vehicle_photo_preview.caption_video")
           : t("vehicle_photo_preview.caption_image")}
       </p>
+      {logoError && !videoObjectUrl && <p role="alert" className="text-xs text-destructive">{logoError}</p>}
     </div>
   );
 }
