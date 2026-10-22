@@ -1,10 +1,13 @@
-import Replicate from "npm:replicate@^0.32.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// HuggingFace RMBG-1.4 — free, state-of-the-art background removal
+const HF_MODEL_URL =
+  "https://router.huggingface.co/hf-inference/models/briaai/RMBG-1.4";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -25,44 +28,63 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Check cache in storage
-    const cacheKey = btoa(logoUrl).replace(/[^a-z0-9]/gi, "").slice(0, 48) + ".png";
+    // Cache key based on logo URL
+    const cacheKey =
+      btoa(logoUrl).replace(/[^a-z0-9]/gi, "").slice(0, 48) + ".png";
     const cachePath = `covering-processed/${cacheKey}`;
 
-    const { data: existingFile } = await supabase.storage
+    // Return cached result if available
+    const { data: existing } = supabase.storage
       .from("logos")
       .getPublicUrl(cachePath);
-
-    // Try to fetch the cached file to verify it exists
-    const headRes = await fetch(existingFile.publicUrl, { method: "HEAD" });
+    const headRes = await fetch(existing.publicUrl, { method: "HEAD" });
     if (headRes.ok) {
       return new Response(
-        JSON.stringify({ processedUrl: existingFile.publicUrl, cached: true }),
+        JSON.stringify({ processedUrl: existing.publicUrl, cached: true }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Call Replicate remove-bg
-    const replicate = new Replicate({
-      auth: Deno.env.get("REPLICATE_API_TOKEN")!,
+    // Download the source logo
+    const logoRes = await fetch(logoUrl);
+    if (!logoRes.ok) {
+      throw new Error(`Failed to fetch logo: ${logoRes.status}`);
+    }
+    const logoBuffer = await logoRes.arrayBuffer();
+
+    const hfToken = Deno.env.get("HUGGINGFACE_API_TOKEN");
+    if (!hfToken) {
+      return new Response(
+        JSON.stringify({ error: "HUGGINGFACE_API_TOKEN not configured" }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // Call HuggingFace RMBG-1.4 (free inference API)
+    const hfRes = await fetch(HF_MODEL_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${hfToken}`,
+        "Content-Type": "application/octet-stream",
+      },
+      body: logoBuffer,
     });
 
-    const output = await replicate.run(
-      "cjwbw/rembg:fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
-      { input: { image: logoUrl } },
-    ) as string;
+    if (!hfRes.ok) {
+      const errText = await hfRes.text();
+      throw new Error(`HuggingFace error ${hfRes.status}: ${errText}`);
+    }
 
-    // Download the processed PNG
-    const imgResponse = await fetch(output);
-    const imgBuffer = await imgResponse.arrayBuffer();
+    const processedBuffer = await hfRes.arrayBuffer();
 
-    // Store in Supabase storage for cache
-    await supabase.storage
-      .from("logos")
-      .upload(cachePath, imgBuffer, {
-        contentType: "image/png",
-        upsert: true,
-      });
+    // Store in Supabase Storage for caching
+    await supabase.storage.from("logos").upload(cachePath, processedBuffer, {
+      contentType: "image/png",
+      upsert: true,
+    });
 
     const { data: publicData } = supabase.storage
       .from("logos")
