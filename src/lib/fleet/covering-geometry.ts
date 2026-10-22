@@ -6,9 +6,11 @@ export type CoveringEntry = { points: CoveringQuad; photoPath?: string };
 export type CoveringZone = Record<number, CoveringEntry>;
 
 // Coordinates use the same centered, object-cover 16:9 frame in both views.
+// Represents a single rear-door panel on a typical sedan/hatchback side view.
+// Slight rightward taper simulates the camera angle perspective.
 export const FALLBACK_COVERING_QUAD: CoveringQuad = [
-  { x: 0.3, y: 0.38 }, { x: 0.6, y: 0.38 },
-  { x: 0.6, y: 0.62 }, { x: 0.3, y: 0.62 },
+  { x: 0.38, y: 0.36 }, { x: 0.62, y: 0.37 },
+  { x: 0.63, y: 0.64 }, { x: 0.37, y: 0.63 },
 ];
 
 export function isCoveringQuad(value: unknown): value is CoveringQuad {
