@@ -45,7 +45,7 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
               <div className="covering-ink" style={{ background: brandColor }} />
             )}
             {processedLogoUrl && !isProcessingLogo && (
-              <img className="covering-logo" src={processedLogoUrl} alt="Logo publicitaire" draggable={false} />
+              <img className="covering-logo" src={processedLogoUrl} alt="Logo publicitaire" draggable={false} style={!isLogoDetoured ? { mixBlendMode: "multiply" } : undefined} />
             )}
             {isProcessingLogo && (
               <div className="absolute inset-0 flex items-center justify-center text-primary-foreground" role="status" aria-label="Préparation du logo">
