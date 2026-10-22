@@ -8,4 +8,4 @@
 - [x] Vérifier que useProcessedLogo appelle bien l’adresse directe du détourage par fetch public (aucun supabase.functions.invoke) et que le token Replicate n’est plus refusé (401 disparu).
 - [x] Confirmer que le hash du modèle Replicate corrigé dans remove-logo-bg v4 est accepté (422 disparu).
 - [ ] Recharger le crédit du compte Replicate (replicate.com/account/billing) : remove-logo-bg renvoie désormais 402 « Insufficient credit » ; après rechargement, vérifier détourage réel et cache serveur.
-- [ ] Permettre d’ajuster les coins sur le rebord de la portière, accepter l’ordre inversé non croisé et vérifier le déplacement dans l’éditeur connecté.
+- [x] Permettre d’ajuster les coins sur le rebord de la portière et accepter l’ordre inversé non croisé : déplacement souris et ajustement au pixel vérifiés sur la photo réelle en session connectée, sans modifier la zone enregistrée ; 7 tests réussis.
