@@ -46,8 +46,11 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
         throw new Error("Replicate unavailable");
       } catch {
         // Fallback: @imgly/background-removal (client-side, free, no API)
+        // publicPath loads ONNX/WASM models from CDN, avoiding bundling issues with onnxruntime-web
         try {
-          const blob = await removeBackground(logoUrl);
+          const blob = await removeBackground(logoUrl, {
+            publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+          });
           if (cancelled) return;
           const url = URL.createObjectURL(blob);
           cache.set(logoUrl, url);
