@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import { useProcessedLogo } from "@/hooks/useProcessedLogo";
-import type { CoveringZone } from "@/hooks/useCoveringZone";
+import { parseCoveringZone, zoneForPhoto, type CoveringZone } from "@/lib/fleet/covering-geometry";
+import { CoveringOverlay } from "./CoveringOverlay";
 
 type Props = {
   vehicleId: string;
@@ -19,7 +20,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
-  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo } = useProcessedLogo(logoUrl);
+  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo, error: logoError } = useProcessedLogo(logoUrl);
 
   useEffect(() => {
     if (!videoFile) {
@@ -34,15 +35,19 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   useEffect(() => {
     setIndex(0);
     setRawPhotos(null);
+    setCoveringZone(null);
+    let cancelled = false;
     supabase
       .from("vehicles")
       .select("photos, covering_zone")
       .eq("id", vehicleId)
       .single()
       .then(({ data }) => {
+        if (cancelled) return;
         setRawPhotos(data?.photos ?? []);
-        setCoveringZone((data?.covering_zone as CoveringZone) ?? null);
+        setCoveringZone(parseCoveringZone(data?.covering_zone));
       });
+    return () => { cancelled = true; };
   }, [vehicleId]);
 
   if (rawPhotos === null) {
@@ -70,12 +75,12 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
 
   return (
     <div className="space-y-2">
-      <div className="relative rounded-xl overflow-hidden bg-black" style={{ aspectRatio: "16/9" }}>
+      <div className="covering-frame rounded-xl overflow-hidden bg-background">
         <img
           src={photos[index]}
           alt={t("ad_spots.vehicle_fallback")}
           draggable={false}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          className="covering-photo"
         />
 
         {videoObjectUrl ? (
@@ -101,7 +106,8 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             brandColor={brandColor}
             processedLogoUrl={processedLogoUrl}
             isProcessingLogo={isProcessingLogo}
-            zone={coveringZone?.[index] ?? null}
+            zone={zoneForPhoto(coveringZone, index, rawPhotos[index])}
+            photoUrl={photos[index] ?? ""}
           />
         )}
 
@@ -159,142 +165,8 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           ? t("vehicle_photo_preview.caption_video")
           : t("vehicle_photo_preview.caption_image")}
       </p>
+      {logoError && !videoObjectUrl && <p role="alert" className="text-xs text-destructive">{logoError}</p>}
     </div>
   );
 }
 
-// ─── Sub-component: covering overlay ─────────────────────────────────────────
-
-type ZoneEntry = { points: [{ x: number; y: number }, { x: number; y: number }, { x: number; y: number }, { x: number; y: number }] };
-
-function CoveringOverlay({
-  brandColor,
-  processedLogoUrl,
-  isProcessingLogo,
-  zone,
-}: {
-  brandColor: string;
-  processedLogoUrl: string | null;
-  isProcessingLogo: boolean;
-  zone: ZoneEntry | null;
-}) {
-  // If the owner defined a zone, use clip-path polygon (precise geometry)
-  // Otherwise fall back to approximate CSS percentages
-  const hasZone = !!zone;
-
-  const clipPath = hasZone
-    ? `polygon(${zone.points.map((p) => `${p.x * 100}% ${p.y * 100}%`).join(", ")})`
-    : undefined;
-
-  // Bounding box of the zone for logo positioning (keeps logo inside the quad)
-  const logoBounds = hasZone
-    ? {
-        top: `${Math.min(...zone.points.map((p) => p.y)) * 100}%`,
-        left: `${Math.min(...zone.points.map((p) => p.x)) * 100}%`,
-        right: `${(1 - Math.max(...zone.points.map((p) => p.x))) * 100}%`,
-        bottom: `${(1 - Math.max(...zone.points.map((p) => p.y))) * 100}%`,
-      }
-    : { top: "37%", right: "42%", bottom: "27%", left: "14%" };
-
-  // Shared style for all covering layers
-  const layerStyle: React.CSSProperties = hasZone
-    ? { position: "absolute", inset: 0, clipPath, pointerEvents: "none" }
-    : {
-        position: "absolute",
-        top: "35%",
-        right: "40%",
-        bottom: "25%",
-        left: "12%",
-        borderRadius: 6,
-        pointerEvents: "none",
-      };
-
-  return (
-    <>
-      {/* Brand color base */}
-      <div
-        style={{
-          ...layerStyle,
-          background: brandColor,
-          opacity: 0.78,
-          mixBlendMode: "multiply",
-        }}
-      />
-
-      {/* Logo without background */}
-      {isProcessingLogo && (
-        <div
-          style={{
-            position: "absolute",
-            ...logoBounds,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              width: 20,
-              height: 20,
-              border: "2px solid rgba(255,255,255,0.4)",
-              borderTopColor: "#fff",
-              borderRadius: "50%",
-              animation: "spin 0.8s linear infinite",
-            }}
-          />
-        </div>
-      )}
-      {processedLogoUrl && !isProcessingLogo && (
-        <img
-          src={processedLogoUrl}
-          alt="covering"
-          style={{
-            position: "absolute",
-            ...logoBounds,
-            objectFit: "contain",
-            opacity: 0.95,
-            pointerEvents: "none",
-            mixBlendMode: "multiply",
-          }}
-        />
-      )}
-
-      {/* Light gradient (surface curvature effect) */}
-      <div
-        style={{
-          ...layerStyle,
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, rgba(0,0,0,0.12) 100%)",
-        }}
-      />
-
-      {/* Inner shadow (relief effect) — gradient-based for clip-path compat */}
-      <div
-        style={{
-          ...layerStyle,
-          background:
-            "radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.22) 100%)",
-        }}
-      />
-
-      {/* Badge */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 8,
-          left: 8,
-          background: "rgba(0,0,0,0.55)",
-          color: "#fff",
-          fontSize: 10,
-          padding: "2px 8px",
-          borderRadius: 99,
-          pointerEvents: "none",
-          letterSpacing: "0.04em",
-        }}
-      >
-        {hasZone ? "Aperçu précis" : "Aperçu simulé"}
-      </div>
-    </>
-  );
-}

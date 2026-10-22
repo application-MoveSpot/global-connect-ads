@@ -48,7 +48,15 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/nouveau")({
   head: () => ({
-    meta: [{ title: "Nouveau brief — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
+    meta: [
+      { title: "Nouveau brief — MoveSpot" },
+      { name: "description", content: "Préparez votre campagne de publicité sur véhicules avec MoveSpot." },
+      { property: "og:title", content: "Créer un brief publicitaire — MoveSpot" },
+      { property: "og:description", content: "Choisissez vos véhicules et prévisualisez votre covering pour votre campagne MoveSpot." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
   }),
   component: NewBriefPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
