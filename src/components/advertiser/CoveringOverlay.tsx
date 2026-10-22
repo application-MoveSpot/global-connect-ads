@@ -6,11 +6,12 @@ type Props = {
   brandColor: string;
   processedLogoUrl: string | null;
   isProcessingLogo: boolean;
+  isLogoDetoured: boolean;
   zone: CoveringEntry | null;
   photoUrl: string;
 };
 
-export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo, zone, photoUrl }: Props) {
+export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo, isLogoDetoured, zone, photoUrl }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   useEffect(() => {
@@ -28,8 +29,10 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
   const clipPath = `polygon(${points.map((p) => `${p.x * 100}% ${p.y * 100}%`).join(",")})`;
 
   // Vinyl simulation layers are only relevant when a solid colour backing is shown.
-  // Once the logo is detoured the car bodywork shows through unchanged.
-  const vinylVisible = !processedLogoUrl || isProcessingLogo;
+  // Hide vinyl only when the logo was actually background-removed (transparent PNG).
+  // If detourage failed and processedLogoUrl is the original image, keep the vinyl
+  // so the logo renders on top of the colour backing instead of over bare bodywork.
+  const vinylVisible = !processedLogoUrl || isProcessingLogo || !isLogoDetoured;
 
   return (
     <>

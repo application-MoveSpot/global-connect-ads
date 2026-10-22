@@ -20,7 +20,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
-  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo, error: logoError } = useProcessedLogo(logoUrl);
+  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo, isDetoured: isLogoDetoured, error: logoError } = useProcessedLogo(logoUrl);
 
   useEffect(() => {
     if (!videoFile) {
@@ -106,6 +106,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             brandColor={brandColor}
             processedLogoUrl={processedLogoUrl}
             isProcessingLogo={isProcessingLogo}
+            isLogoDetoured={isLogoDetoured}
             zone={zoneForPhoto(coveringZone, index, rawPhotos[index])}
             photoUrl={photos[index] ?? ""}
           />
