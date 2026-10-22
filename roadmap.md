@@ -5,4 +5,6 @@
 - [x] Fiabiliser covering_zone, projeter couleur et logo par homographie CSS, conserver le relief photo et vérifier en session réelle l’enregistrement puis la lecture annonceur (5 tests ; logo transparent visible ; données de test restaurées).
 - [x] Vérifier le branchement useProcessedLogo → CoveringOverlay, rendre le blend du logo explicitement normal et conserver le logo original en cas d’erreur (test connecté avec logo opaque ; 5 tests de perspective réussis).
 - [x] Remplacer l’appel de détourage par un fetch public dédié vers l’adresse externe indiquée, sans session ni cookies ; test connecté : fonction atteinte, repli original visible, aucun écran blanc.
-- [ ] Vérifier le détourage réel et le cache serveur : bloqués par la réponse 500 de la fonction externe, causée par Replicate 401 « invalid authentication token » ; corriger REPLICATE_API_TOKEN sur ce service externe.
+- [x] Vérifier que useProcessedLogo appelle bien l’adresse directe du détourage par fetch public (aucun supabase.functions.invoke) et que le token Replicate n’est plus refusé (401 disparu).
+- [x] Confirmer que le hash du modèle Replicate corrigé dans remove-logo-bg v4 est accepté (422 disparu).
+- [ ] Recharger le crédit du compte Replicate (replicate.com/account/billing) : remove-logo-bg renvoie désormais 402 « Insufficient credit » ; après rechargement, vérifier détourage réel et cache serveur.
