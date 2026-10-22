@@ -162,7 +162,7 @@
 .covering-frame { position: relative; isolation: isolate; aspect-ratio: 16 / 9; }
 .covering-photo { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .covering-clip { position: absolute; inset: 0; pointer-events: none; }
-.covering-plane { position: absolute; top: 0; left: 0; transform-origin: 0 0; backface-visibility: hidden; overflow: hidden; }
+.covering-plane { position: absolute; top: 0; left: 0; transform-origin: 0 0; backface-visibility: hidden; overflow: hidden; background: transparent; }
 .covering-ink { position: absolute; inset: 0; }
 .covering-logo { position: absolute; inset: 17% 13%; width: 74%; height: 66%; object-fit: contain; opacity: 0.98; mix-blend-mode: normal; }
 .covering-sheen { position: absolute; inset: 0; background: var(--covering-sheen); box-shadow: var(--covering-edge); }
