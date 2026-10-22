@@ -27,6 +27,10 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
   const projection = coveringProjection(points, size.width, size.height);
   const clipPath = `polygon(${points.map((p) => `${p.x * 100}% ${p.y * 100}%`).join(",")})`;
 
+  // Vinyl simulation layers are only relevant when a solid colour backing is shown.
+  // Once the logo is detoured the car bodywork shows through unchanged.
+  const vinylVisible = !processedLogoUrl || isProcessingLogo;
+
   return (
     <>
       <div ref={ref} className="covering-clip" style={{ clipPath }} data-covering-zone={zone ? "defined" : "approximate"}>
@@ -34,8 +38,7 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
           <div className="covering-plane" data-covering-plane style={{
             width: projection.width, height: projection.height, transform: projection.transform,
           }}>
-            {/* Show color backing only when no detoured logo is ready — a transparent logo renders directly on the bodywork */}
-            {(!processedLogoUrl || isProcessingLogo) && (
+            {vinylVisible && (
               <div className="covering-ink" style={{ background: brandColor }} />
             )}
             {processedLogoUrl && !isProcessingLogo && (
@@ -46,13 +49,13 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
                 <LoaderCircle className="size-5 motion-safe:animate-spin" />
               </div>
             )}
-            <div className="covering-sheen" />
+            {vinylVisible && <div className="covering-sheen" />}
           </div>
         )}
         {/* Reuse real luminance, handles and panel seams at their original photo
             coordinates. Never warp this texture with the artwork. No canvas/CORS
             readback or generated relief is needed for private signed photos. */}
-        {projection && <>
+        {projection && vinylVisible && <>
           <img className="covering-texture" src={photoUrl} alt="" aria-hidden="true" draggable={false} />
           <img className="covering-reflections" src={photoUrl} alt="" aria-hidden="true" draggable={false} />
         </>}
