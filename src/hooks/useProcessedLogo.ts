@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
+const EDGE_FN_URL = "https://kbloaebbwgzudtkrvulp.supabase.co/functions/v1/remove-logo-bg";
 const cache = new Map<string, string>();
 
 export function useProcessedLogo(logoUrl: string | null | undefined) {
@@ -44,9 +44,17 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
           } else throw new Error("Image illisible");
         }
         if (controller.signal.aborted) return;
-        const { data, error: processingError } = await supabase.functions.invoke("remove-logo-bg", { body: { logoUrl: image } });
+        const response = await fetch(EDGE_FN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ logoUrl: image }),
+          signal: controller.signal,
+          credentials: "omit",
+        });
+        if (!response.ok) throw new Error("Le service de détourage est indisponible.");
+        const data: { processedUrl?: unknown } = await response.json();
         if (controller.signal.aborted) return;
-        if (processingError || !data?.processedUrl) throw new Error("Le détourage du logo a échoué. Réessayez avec une autre image.");
+        if (typeof data?.processedUrl !== "string" || !data.processedUrl) throw new Error("Le détourage du logo a échoué. Réessayez avec une autre image.");
         cache.set(logoUrl, data.processedUrl);
         setProcessedUrl(data.processedUrl);
       } catch {
