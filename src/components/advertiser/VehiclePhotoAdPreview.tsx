@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+import { useProcessedLogo } from "@/hooks/useProcessedLogo";
 
 type Props = {
   vehicleId: string;
@@ -16,6 +17,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
+  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo } = useProcessedLogo(logoUrl);
 
   useEffect(() => {
     if (!videoFile) {
@@ -91,7 +93,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           />
         ) : (
           <>
-            {/* Covering : couleur de marque en base, logo par-dessus */}
+            {/* Covering : couleur de marque en base */}
             <div
               style={{
                 position: "absolute",
@@ -106,9 +108,37 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                 pointerEvents: "none",
               }}
             />
-            {logoUrl && (
+
+            {/* Logo sans fond (Replicate remove-bg) par-dessus la couleur */}
+            {isProcessingLogo && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "37%",
+                  right: "42%",
+                  bottom: "27%",
+                  left: "14%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    border: "2px solid rgba(255,255,255,0.4)",
+                    borderTopColor: "#fff",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                  }}
+                />
+              </div>
+            )}
+            {processedLogoUrl && !isProcessingLogo && (
               <img
-                src={logoUrl}
+                src={processedLogoUrl}
                 alt="covering"
                 style={{
                   position: "absolute",
@@ -118,8 +148,9 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                   left: "14%",
                   objectFit: "contain",
                   borderRadius: 4,
-                  opacity: 0.92,
+                  opacity: 0.95,
                   pointerEvents: "none",
+                  mixBlendMode: "multiply",
                 }}
               />
             )}
