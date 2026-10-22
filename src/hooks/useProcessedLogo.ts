@@ -22,17 +22,16 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
         let image = logoUrl;
         // A blob URL only exists in this browser, so rembg cannot fetch it.
         if (logoUrl.startsWith("blob:")) {
-          const response = await fetch(logoUrl, { signal: controller.signal });
-          const blob = await response.blob();
-          const bitmap = await createImageBitmap(blob);
+          const bitmap = new Image();
+          bitmap.src = logoUrl;
+          await bitmap.decode();
           const canvas = document.createElement("canvas");
-          canvas.width = bitmap.width;
-          canvas.height = bitmap.height;
+          canvas.width = bitmap.naturalWidth;
+          canvas.height = bitmap.naturalHeight;
           const ctx = canvas.getContext("2d");
           if (ctx) {
             ctx.drawImage(bitmap, 0, 0);
             const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-            bitmap.close();
             let transparent = false;
             for (let i = 3; i < pixels.length; i += 4) {
               if ((pixels[i] ?? 255) < 250) { transparent = true; break; }
@@ -41,13 +40,8 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
               if (!controller.signal.aborted) { cache.set(logoUrl, logoUrl); setProcessedUrl(logoUrl); }
               return;
             }
-          } else bitmap.close();
-          image = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Image invalide"));
-            reader.onerror = () => reject(new Error("Image illisible"));
-            reader.readAsDataURL(blob);
-          });
+            image = canvas.toDataURL("image/png");
+          } else throw new Error("Image illisible");
         }
         if (controller.signal.aborted) return;
         const { data, error: processingError } = await supabase.functions.invoke("remove-logo-bg", { body: { logoUrl: image } });
