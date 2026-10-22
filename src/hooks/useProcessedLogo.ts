@@ -4,18 +4,23 @@ import { removeBackground } from "@imgly/background-removal";
 const EDGE_FN_URL = "https://kbloaebbwgzudtkrvulp.supabase.co/functions/v1/remove-logo-bg";
 const cache = new Map<string, string>();
 
+const detouredCache = new Map<string, boolean>();
+
 export function useProcessedLogo(logoUrl: string | null | undefined) {
   const [processedUrl, setProcessedUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDetoured, setIsDetoured] = useState(false);
 
   useEffect(() => {
     setProcessedUrl(null);
     setIsProcessing(false);
+    setIsDetoured(false);
     if (!logoUrl) return;
 
     const cached = cache.get(logoUrl);
     if (cached) {
       setProcessedUrl(cached);
+      setIsDetoured(detouredCache.get(logoUrl) ?? false);
       return;
     }
 
@@ -40,7 +45,9 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
           if (data?.processedUrl) {
             if (!cancelled) {
               cache.set(logoUrl, data.processedUrl);
+              detouredCache.set(logoUrl, true);
               setProcessedUrl(data.processedUrl);
+              setIsDetoured(true);
             }
             return;
           }
@@ -58,10 +65,18 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
         if (cancelled) return;
         const url = URL.createObjectURL(blob);
         cache.set(logoUrl, url);
+        detouredCache.set(logoUrl, true);
         setProcessedUrl(url);
+        setIsDetoured(true);
       } catch {
-        // Step 3: silently show original logo — no error message shown to user
-        if (!cancelled) setProcessedUrl(logoUrl);
+        // Step 3: detourage failed — show original logo on top of vinyl backing
+        // Do NOT hide vinyl layers: the logo still has its original background
+        if (!cancelled) {
+          cache.set(logoUrl, logoUrl);
+          detouredCache.set(logoUrl, false);
+          setProcessedUrl(logoUrl);
+          setIsDetoured(false);
+        }
       } finally {
         if (!cancelled) setIsProcessing(false);
       }
@@ -72,5 +87,5 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
     };
   }, [logoUrl]);
 
-  return { processedUrl, isProcessing, error: null };
+  return { processedUrl, isProcessing, isDetoured, error: null };
 }
