@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
+import { useProcessedLogo } from "@/hooks/useProcessedLogo";
 
 type Props = {
   vehicleId: string;
@@ -16,6 +17,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
+  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo } = useProcessedLogo(logoUrl);
 
   useEffect(() => {
     if (!videoFile) {
@@ -91,37 +93,64 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           />
         ) : (
           <>
-            {/* Covering : image publicitaire ou couleur de marque — zone portes uniquement */}
-            {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt="covering"
-                style={{
-                  position: "absolute",
-                  top: "35%",
-                  right: "40%",
-                  bottom: "25%",
-                  left: "12%",
-                  objectFit: "fill",
-                  borderRadius: 6,
-                  mixBlendMode: "multiply",
-                  opacity: 0.9,
-                  pointerEvents: "none",
-                }}
-              />
-            ) : (
+            {/* Covering : couleur de marque en base */}
+            <div
+              style={{
+                position: "absolute",
+                top: "35%",
+                right: "40%",
+                bottom: "25%",
+                left: "12%",
+                background: brandColor,
+                opacity: 0.78,
+                borderRadius: 6,
+                mixBlendMode: "multiply",
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Logo sans fond (Replicate remove-bg) par-dessus la couleur */}
+            {isProcessingLogo && (
               <div
                 style={{
                   position: "absolute",
-                  top: "35%",
-                  right: "40%",
-                  bottom: "25%",
-                  left: "12%",
-                  background: brandColor,
-                  opacity: 0.82,
-                  borderRadius: 6,
-                  mixBlendMode: "multiply",
+                  top: "37%",
+                  right: "42%",
+                  bottom: "27%",
+                  left: "14%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    border: "2px solid rgba(255,255,255,0.4)",
+                    borderTopColor: "#fff",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite",
+                  }}
+                />
+              </div>
+            )}
+            {processedLogoUrl && !isProcessingLogo && (
+              <img
+                src={processedLogoUrl}
+                alt="covering"
+                style={{
+                  position: "absolute",
+                  top: "37%",
+                  right: "42%",
+                  bottom: "27%",
+                  left: "14%",
+                  objectFit: "contain",
+                  borderRadius: 4,
+                  opacity: 0.95,
+                  pointerEvents: "none",
+                  mixBlendMode: "multiply",
                 }}
               />
             )}
