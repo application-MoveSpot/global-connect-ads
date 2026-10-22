@@ -24,7 +24,8 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
 
     (async () => {
       try {
-        // Step 1: try server-side cache (edge function) — free if already cached, skip if unavailable
+        // Step 1: try server-side cache (edge function) — skip for blob: URLs (browser-only)
+        if (logoUrl.startsWith("blob:")) throw new Error("blob URL");
         const res = await Promise.race([
           fetch(EDGE_FN_URL, {
             method: "POST",
