@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const cache = new Map<string, string>();
@@ -24,6 +24,24 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
         if (logoUrl.startsWith("blob:")) {
           const response = await fetch(logoUrl, { signal: controller.signal });
           const blob = await response.blob();
+          const bitmap = await createImageBitmap(blob);
+          const canvas = document.createElement("canvas");
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(bitmap, 0, 0);
+            const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            bitmap.close();
+            let transparent = false;
+            for (let i = 3; i < pixels.length; i += 4) {
+              if ((pixels[i] ?? 255) < 250) { transparent = true; break; }
+            }
+            if (transparent) {
+              if (!controller.signal.aborted) { cache.set(logoUrl, logoUrl); setProcessedUrl(logoUrl); }
+              return;
+            }
+          } else bitmap.close();
           image = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Image invalide"));
