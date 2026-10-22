@@ -7,11 +7,9 @@ const cache = new Map<string, string>();
 export function useProcessedLogo(logoUrl: string | null | undefined) {
   const [processedUrl, setProcessedUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setProcessedUrl(null);
-    setError(null);
     setIsProcessing(false);
     if (!logoUrl) return;
 
@@ -26,15 +24,18 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
 
     (async () => {
       try {
-        // Primary: Replicate via edge function (server-side, high quality)
-        const res = await fetch(EDGE_FN_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ logoUrl }),
-          credentials: "omit",
-        });
+        // Step 1: try server-side cache (edge function) — free if already cached, skip if unavailable
+        const res = await Promise.race([
+          fetch(EDGE_FN_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ logoUrl }),
+            credentials: "omit",
+          }),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 8000)),
+        ]);
         if (res.ok) {
-          const data: { processedUrl?: string } = await res.json();
+          const data: { processedUrl?: string; cached?: boolean } = await res.json();
           if (data?.processedUrl) {
             if (!cancelled) {
               cache.set(logoUrl, data.processedUrl);
@@ -43,24 +44,23 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
             return;
           }
         }
-        throw new Error("Replicate unavailable");
       } catch {
-        // Fallback: @imgly/background-removal (client-side, free, no API)
-        // publicPath loads ONNX/WASM models from CDN, avoiding bundling issues with onnxruntime-web
-        try {
-          const blob = await removeBackground(logoUrl, {
-            publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
-          });
-          if (cancelled) return;
-          const url = URL.createObjectURL(blob);
-          cache.set(logoUrl, url);
-          setProcessedUrl(url);
-        } catch {
-          if (!cancelled) {
-            setProcessedUrl(logoUrl);
-            setError("Détourage impossible, logo original affiché.");
-          }
-        }
+        // edge function unavailable or timed out — fall through
+      }
+
+      // Step 2: @imgly/background-removal — free, runs in browser via WebAssembly
+      // publicPath loads ONNX models from CDN so they don't need to be bundled
+      try {
+        const blob = await removeBackground(logoUrl, {
+          publicPath: "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+        });
+        if (cancelled) return;
+        const url = URL.createObjectURL(blob);
+        cache.set(logoUrl, url);
+        setProcessedUrl(url);
+      } catch {
+        // Step 3: silently show original logo — no error message shown to user
+        if (!cancelled) setProcessedUrl(logoUrl);
       } finally {
         if (!cancelled) setIsProcessing(false);
       }
@@ -71,5 +71,5 @@ export function useProcessedLogo(logoUrl: string | null | undefined) {
     };
   }, [logoUrl]);
 
-  return { processedUrl, isProcessing, error };
+  return { processedUrl, isProcessing, error: null };
 }
