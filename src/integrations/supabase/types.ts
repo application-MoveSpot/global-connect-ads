@@ -1610,6 +1610,7 @@ export type Database = {
           brand: string | null
           color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
+          covering_zone: Json | null
           created_at: string
           description: string | null
           driver_id: string | null
@@ -1634,6 +1635,7 @@ export type Database = {
           brand?: string | null
           color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
+          covering_zone?: Json | null
           created_at?: string
           description?: string | null
           driver_id?: string | null
@@ -1658,6 +1660,7 @@ export type Database = {
           brand?: string | null
           color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
+          covering_zone?: Json | null
           created_at?: string
           description?: string | null
           driver_id?: string | null
