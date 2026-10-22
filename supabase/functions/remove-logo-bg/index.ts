@@ -23,6 +23,13 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (logoUrl.startsWith("blob:")) {
+      return new Response(JSON.stringify({ error: "blob URLs not supported server-side" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
