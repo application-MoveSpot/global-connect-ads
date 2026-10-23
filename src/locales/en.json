@@ -1099,18 +1099,6 @@
       "map_title_individual": "Where is your vehicle right now?",
       "map_title_business": "Campaign GPS tracking",
       "heatmap_note": "The heatmap shows the areas most frequently visited by the vehicle.",
-      "install_step_search": "Finding installer",
-      "install_step_claimed": "Installer assigned",
-      "install_step_photos": "Photos submitted",
-      "install_step_validated": "Installation validated",
-      "install_waiting_provider": "We are looking for an available installer for your ad. You will be notified once one is assigned.",
-      "install_claimed_desc": "An installer has accepted your job. Installation will be carried out shortly.",
-      "install_pending_desc": "The installer has submitted their photos. Our team is reviewing them before validation.",
-      "install_approved_date": "Installation validated on {{date}}",
-      "map_empty_unpaid": "Complete payment to activate GPS tracking",
-      "map_empty_paid_future": "Campaign paid · starts on {{date}}",
-      "map_empty_waiting": "Waiting for first GPS data",
-      "map_empty_waiting_sub": "The vehicle will appear here as soon as it is on the road",
       "stat_update": "Updated",
       "stat_waiting": "Waiting",
       "stat_speed_current": "Current speed",
@@ -3523,7 +3511,8 @@
     "btn_flat": "Flat view",
     "btn_immersive": "Immersive 3D view",
     "btn_stop_orbit": "Stop rotation",
-    "btn_orbit": "360° rotation"
+    "btn_orbit": "360° rotation",
+    "recovering": "Reconnecting…"
   },
   "onboarding": {
     "welcome": "Welcome to MoveSpot",
@@ -4266,7 +4255,8 @@
       "kpi_total": "Total earned",
       "loading": "Loading…",
       "received_at": "Received {{date}}",
-      "title": "Payment History"
+      "title": "Payment History",
+      "chart_title": "Revenue by campaign"
     },
     "map_desc": "View the coverage area of your fleet on the map.",
     "map_title": "My Fleet Map",
@@ -4488,6 +4478,11 @@
         "delete_confirm_yes": "Yes, delete",
         "delete_confirm_no": "Cancel",
         "deleting": "Deleting…"
+      },
+      "calendar": {
+        "title": "Availability calendar",
+        "days": "days",
+        "empty": "No period selected"
       }
     },
     "welcome": "Welcome",
@@ -4592,7 +4587,17 @@
         "wallet_desc": "Add funds to your wallet to activate the campaign.",
         "wallet_pack_btn": "Buy a pack",
         "wallet_title": "Wallet",
-        "zones_label": "Broadcast zones"
+        "zones_label": "Broadcast zones",
+        "comparison_title": "Proposal comparison",
+        "comparison_cta": "Compare",
+        "comparison_cta_sub": "Compare owner offers side by side.",
+        "comparison_error": "Error loading comparison.",
+        "comparison_loading": "Loading…",
+        "notif_new_proposal": "New proposal",
+        "notif_new_proposal_body": "An owner has submitted a new proposal for your brief.",
+        "reengagement_edit_btn": "Edit brief",
+        "reengagement_loading": "Loading…",
+        "reengagement_title": "Re-engage owners"
       },
       "nouveau": {
         "ai_btn": "Generate with AI",
@@ -4806,7 +4811,8 @@
       "subtitle_business": "Subtitle Business",
       "subtitle_individual": "Subtitle Individual",
       "title": "My Campaigns",
-      "types_label": "Types"
+      "types_label": "Types",
+      "pending_proposals": "Pending proposals"
     },
     "campaign": {
       "installation_approved": "Installation Approved",
@@ -4816,7 +4822,8 @@
       "status_history_label": "Status history",
       "status_pending": "Pending",
       "status_rejected": "Rejected",
-      "track": "Track"
+      "track": "Track",
+      "leave_review": "Leave a review"
     },
     "campaigns_subtitle": "Campaigns Subtitle",
     "contrat": {
@@ -4857,7 +4864,8 @@
       "vat": "Vat",
       "vat_exempt": "Exempt (Art. 294 CGI)",
       "row_period_value_one": "{{from}} → {{to}} ({{count}} day)",
-      "row_period_value_other": "{{from}} → {{to}} ({{count}} days)"
+      "row_period_value_other": "{{from}} → {{to}} ({{count}} days)",
+      "row_period_value": "{{start}} → {{end}}"
     },
     "essai_active": {
       "back": "My dashboard",
@@ -5228,7 +5236,19 @@
       "toast_rating_error": "Error submitting rating.",
       "toast_rating_success": "Thank you for your feedback!",
       "waiting_business": "Waiting to start (business)",
-      "waiting_individual": "Waiting to start (individual)"
+      "waiting_individual": "Waiting to start (individual)",
+      "install_step_search": "Finding installer",
+      "install_step_claimed": "Installer assigned",
+      "install_step_photos": "Photos submitted",
+      "install_step_validated": "Installation validated",
+      "install_waiting_provider": "We are looking for an available installer for your ad. You will be notified once one is assigned.",
+      "install_claimed_desc": "An installer has accepted your job. Installation will be carried out shortly.",
+      "install_pending_desc": "The installer has submitted their photos. Our team is reviewing them before validation.",
+      "install_approved_date": "Installation validated on {{date}}",
+      "map_empty_unpaid": "Complete payment to activate GPS tracking",
+      "map_empty_paid_future": "Campaign paid · starts on {{date}}",
+      "map_empty_waiting": "Waiting for first GPS data",
+      "map_empty_waiting_sub": "The vehicle will appear here as soon as it is on the road"
     },
     "dashboard": {
       "active_campaigns": "Active campaigns",
@@ -5322,7 +5342,9 @@
       "checklist_step_4": "The visual is correctly positioned per the work order",
       "checklist_step_5": "Confirmation photo submitted through the app",
       "checklist_all_done": "✓ Installation confirmed — thank you!",
-      "checklist_incomplete": "Check each step after verifying the installation."
+      "checklist_incomplete": "Check each step after verifying the installation.",
+      "gps_status_active": "GPS active",
+      "gps_status_inactive": "GPS inactive"
     },
     "geoloc_unsupported": "Geolocation is not available on this device.",
     "gps_started": "GPS tracking started.",
@@ -5460,7 +5482,12 @@
       "kpi_total": "Quotes received",
       "kpi_pending": "Pending",
       "kpi_quoted": "Quotes sent",
-      "kpi_accepted": "Accepted"
+      "kpi_accepted": "Accepted",
+      "ai_quote_btn": "Generate AI quote",
+      "ai_quote_error": "Error generating quote.",
+      "ai_quote_generating": "Generating…",
+      "profile_pose_types": "Installation types",
+      "profile_pose_types_hint": "Select the installation types you offer."
     },
     "inscription": {
       "ai_estimate_subtitle": "Ai Estimate Subtitle",
@@ -5500,7 +5527,8 @@
       "ai_placeholder": "e.g. I've been a vehicle wrapping installer for 8 years, specialising in full and partial wraps on vans and sedans. I mainly work in Île-de-France and Hauts-de-France. I have a large-format printer and can deliver within 5 working days.",
       "ai_generate": "Generate",
       "ai_generating": "Generating…",
-      "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
+      "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed.",
+      "coverage_hint": "Indicate the geographic areas where you operate."
     },
     "portfolio": {
       "add_btn": "Add a project",
