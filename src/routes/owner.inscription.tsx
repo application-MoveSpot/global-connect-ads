@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { withAuthRetry } from "@/lib/auth/auth-retry";
 import { generateOwnerInscriptionSuggestion } from "@/lib/ai/owner-inscription-assistant.functions";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
@@ -142,13 +143,15 @@ function InscriptionPage() {
       return;
     }
     if (mode === "signup") {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/owner/inscription` },
-      });
+      const { data: signUpData, error, wasServiceError } = await withAuthRetry(() =>
+        supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/owner/inscription` },
+        })
+      );
       if (error) {
-        setError(error.message);
+        setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
         setLoading(false);
         return;
       }
@@ -170,21 +173,22 @@ function InscriptionPage() {
       }
       setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { data: signInData, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data: signInData, error, wasServiceError } = await withAuthRetry(() =>
+        supabase.auth.signInWithPassword({ email, password })
+      );
       if (error) {
         setError(
-          error.message === "Invalid login credentials"
-            ? t("owner.inscription.error_invalid_credentials")
-            : error.message,
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : error.message === "Invalid login credentials"
+              ? t("owner.inscription.error_invalid_credentials")
+              : (error.message ?? t("auth.error_network")),
         );
         setLoading(false);
         return;
       }
-      setSessionEmail(signInData.session?.user.email ?? null);
-      if (signInData.session) {
+      setSessionEmail(signInData?.session?.user.email ?? null);
+      if (signInData?.session) {
         const { data: existing } = await supabase
           .from("owner_profiles")
           .select("id")

@@ -7,6 +7,7 @@ import { lovable } from "@/integrations/lovable";
 import { isAdmin } from "@/lib/admin/isAdmin";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
+import { withAuthRetry, isServiceUnavailable } from "@/lib/auth/auth-retry";
 
 export const Route = createFileRoute("/admin/connexion")({
   head: () => ({
@@ -176,9 +177,17 @@ function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError, wasServiceError } = await withAuthRetry(
+      () => supabase.auth.signInWithPassword({ email, password })
+    );
 
     if (signInError) {
+      if (wasServiceError) {
+        // Service down: never count as a failed credential attempt
+        setError(t("auth.error_service_unavailable"));
+        setLoading(false);
+        return;
+      }
       const updated = recordFailure();
       if (updated.lockedUntil) {
         setLockoutUntil(updated.lockedUntil);

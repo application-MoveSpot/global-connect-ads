@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { withAuthRetry } from "@/lib/auth/auth-retry";
 import { track } from "@/lib/analytics/track";
 import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
@@ -83,13 +84,15 @@ function PartnerSignupPage() {
       return;
     }
     if (mode === "signup") {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/partner/inscription` },
-      });
+      const { data: signUpData, error, wasServiceError } = await withAuthRetry(() =>
+        supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/partner/inscription` },
+        })
+      );
       if (error) {
-        setError(error.message);
+        setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
         setLoading(false);
         return;
       }
@@ -107,20 +110,21 @@ function PartnerSignupPage() {
       }
       setSessionEmail(signUpData.session.user.email ?? null);
     } else {
-      const { data: signInData, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data: signInData, error, wasServiceError } = await withAuthRetry(() =>
+        supabase.auth.signInWithPassword({ email, password })
+      );
       if (error) {
         setError(
-          error.message === "Invalid login credentials"
-            ? t("partner.inscription.error_invalid_credentials")
-            : error.message,
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : error.message === "Invalid login credentials"
+              ? t("partner.inscription.error_invalid_credentials")
+              : (error.message ?? t("auth.error_network")),
         );
         setLoading(false);
         return;
       }
-      setSessionEmail(signInData.session?.user.email ?? null);
+      setSessionEmail(signInData?.session?.user.email ?? null);
     }
     setStep("profile");
     setLoading(false);

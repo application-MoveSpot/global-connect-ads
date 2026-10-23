@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { withAuthRetry } from "@/lib/auth/auth-retry";
 import { createCommercialProfile } from "@/lib/commercial/commercial.functions";
 import { generateCommercialInscriptionSuggestion } from "@/lib/ai/commercial-inscription-assistant.functions";
 import { isValidFrenchPhone, normalizePhone } from "@/lib/phone";
@@ -115,13 +116,15 @@ function CommercialInscription() {
     setError("");
     setLoading(true);
     if (mode === "signup") {
-      const { data: signUpData, error: authErr } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/commercial/inscription` },
-      });
+      const { data: signUpData, error: authErr, wasServiceError: signUpServiceErr } = await withAuthRetry(() =>
+        supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/commercial/inscription` },
+        })
+      );
       if (authErr) {
-        setError(authErr.message);
+        setError(signUpServiceErr ? t("auth.error_service_unavailable") : authErr.message ?? t("auth.error_network"));
         setLoading(false);
         return;
       }
@@ -138,9 +141,11 @@ function CommercialInscription() {
         return;
       }
     } else {
-      const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: authErr, wasServiceError: signInServiceErr } = await withAuthRetry(() =>
+        supabase.auth.signInWithPassword({ email, password })
+      );
       if (authErr) {
-        setError(authErr.message);
+        setError(signInServiceErr ? t("auth.error_service_unavailable") : authErr.message ?? t("auth.error_network"));
         setLoading(false);
         return;
       }

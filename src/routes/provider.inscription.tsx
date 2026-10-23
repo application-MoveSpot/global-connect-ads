@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { withAuthRetry } from "@/lib/auth/auth-retry";
 import { track } from "@/lib/analytics/track";
 import { Eye, EyeOff } from "lucide-react";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -121,13 +122,15 @@ function ProviderSignupPage() {
       setLoading(false);
       return;
     }
-    const { data: signUpData, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: `${window.location.origin}/provider/inscription` },
-    });
+    const { data: signUpData, error, wasServiceError } = await withAuthRetry(() =>
+      supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/provider/inscription` },
+      })
+    );
     if (error) {
-      setError(error.message);
+      setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
       setLoading(false);
       return;
     }

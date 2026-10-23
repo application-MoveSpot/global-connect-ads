@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { withAuthRetry } from "@/lib/auth/auth-retry";
 import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
@@ -101,13 +102,15 @@ function ChauffeurInscription() {
       return;
     }
     if (mode === "signup") {
-      const { data: signUpData, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/driver/inscription` },
-      });
+      const { data: signUpData, error, wasServiceError } = await withAuthRetry(() =>
+        supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/driver/inscription` },
+        })
+      );
       if (error) {
-        setError(error.message);
+        setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
         setLoading(false);
         return;
       }
@@ -128,12 +131,16 @@ function ChauffeurInscription() {
         return;
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, wasServiceError } = await withAuthRetry(() =>
+        supabase.auth.signInWithPassword({ email, password })
+      );
       if (error) {
         setError(
-          error.message === "Invalid login credentials"
-            ? t("driver.inscription.error_invalid_credentials")
-            : error.message,
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : error.message === "Invalid login credentials"
+              ? t("driver.inscription.error_invalid_credentials")
+              : (error.message ?? t("auth.error_network")),
         );
         setLoading(false);
         return;

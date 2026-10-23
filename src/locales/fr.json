@@ -311,6 +311,8 @@
     "sign_up": "Créer un compte",
     "error_invalid": "Email ou mot de passe incorrect.",
     "error_network": "Erreur réseau. Veuillez réessayer.",
+    "error_service_unavailable": "Service momentanément indisponible. Votre mot de passe est correct — réessayez dans quelques secondes.",
+    "retrying": "Reconnexion automatique…",
     "confirm_email": "Vérifiez votre boîte mail pour confirmer votre compte.",
     "reset_sent": "Un lien de réinitialisation vous a été envoyé."
   },

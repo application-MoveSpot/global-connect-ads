@@ -312,6 +312,8 @@
     "sign_up": "Create account",
     "error_invalid": "Incorrect email or password.",
     "error_network": "Network error. Please try again.",
+    "error_service_unavailable": "Service temporarily unavailable. Your password is correct — please retry in a few seconds.",
+    "retrying": "Auto-reconnecting…",
     "confirm_email": "Check your inbox to confirm your account.",
     "reset_sent": "A reset link has been sent."
   },
