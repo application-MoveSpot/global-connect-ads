@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 
 // Uses a SECURITY DEFINER RPC so the full whitelist is never exposed:
 // returns true if the whitelist is empty (open to all) or the user's
@@ -38,8 +39,8 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
       setStatus(allowed ? "allowed" : "waitlist");
     };
 
-    supabase.auth.getSession().then(({ data }) => {
-      check(data.session?.user?.email?.toLowerCase());
+    getOrRefreshSession().then((session) => {
+      check(session?.user?.email?.toLowerCase());
     });
 
     const {
