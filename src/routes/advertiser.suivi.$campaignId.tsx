@@ -486,6 +486,7 @@ function SuiviPage() {
         {installData && (
           <InstallationPhotosCard
             photos={parseInstallationPhotos(installData.photos)}
+            hasClaimed={installData.hasClaimed}
             status={installData.status}
             notes={installData.notes}
             reviewedAt={installData.reviewedAt}
@@ -760,33 +761,50 @@ function SuiviPage() {
 
 function InstallationPhotosCard({
   photos,
+  hasClaimed,
   status,
   notes,
   reviewedAt,
   dateLocale,
 }: {
   photos: ReturnType<typeof parseInstallationPhotos>;
+  hasClaimed: boolean;
   status: string | null;
   notes: string | null;
   reviewedAt: string | null;
   dateLocale: string;
 }) {
   const { t } = useTranslation();
-  const statusConfig: Record<string, { label: string; cls: string }> = {
-    pending_approval: {
-      label: t("advertiser.suivi.install_status_pending_approval"),
-      cls: "bg-amber-500/10 text-amber-700 border-amber-500/30",
+
+  type Step = { key: string; label: string; done: boolean; active: boolean };
+  const steps: Step[] = [
+    {
+      key: "search",
+      label: t("advertiser.suivi.install_step_search"),
+      done: hasClaimed || !!status,
+      active: !hasClaimed && !status,
     },
-    approved: {
-      label: t("advertiser.suivi.install_status_approved"),
-      cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30",
+    {
+      key: "claimed",
+      label: t("advertiser.suivi.install_step_claimed"),
+      done: status === "pending_approval" || status === "approved" || status === "rejected",
+      active: hasClaimed && !status,
     },
-    rejected: {
-      label: t("advertiser.suivi.install_status_rejected"),
-      cls: "bg-destructive/10 text-destructive border-destructive/30",
+    {
+      key: "photos",
+      label: t("advertiser.suivi.install_step_photos"),
+      done: status === "approved" || status === "rejected",
+      active: status === "pending_approval",
     },
-  };
-  const s = status ? (statusConfig[status] ?? null) : null;
+    {
+      key: "validated",
+      label: t("advertiser.suivi.install_step_validated"),
+      done: status === "approved",
+      active: false,
+    },
+  ];
+
+  const currentStep = steps.find((s) => s.active) ?? steps.find((s) => s.done) ?? steps[0];
 
   return (
     <Card>
@@ -796,17 +814,60 @@ function InstallationPhotosCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {s && (
-          <div
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${s.cls}`}
-          >
-            {s.label}
-            {reviewedAt && (
-              <span className="opacity-70">
-                · {new Date(reviewedAt).toLocaleDateString(dateLocale)}
-              </span>
-            )}
-          </div>
+        {/* Progression */}
+        <div className="flex items-center gap-0">
+          {steps.map((step, i) => (
+            <div key={step.key} className="flex items-center flex-1 min-w-0">
+              <div className="flex flex-col items-center gap-1 flex-1">
+                <div
+                  className={`h-7 w-7 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors ${
+                    step.done
+                      ? "bg-emerald-500 border-emerald-500 text-white"
+                      : step.active
+                        ? "bg-primary border-primary text-primary-foreground"
+                        : "bg-muted border-border text-muted-foreground"
+                  }`}
+                >
+                  {step.done ? "✓" : i + 1}
+                </div>
+                <span
+                  className={`text-[10px] text-center leading-tight px-1 ${
+                    step.done
+                      ? "text-emerald-700"
+                      : step.active
+                        ? "text-foreground font-semibold"
+                        : "text-muted-foreground"
+                  }`}
+                >
+                  {step.label}
+                </span>
+              </div>
+              {i < steps.length - 1 && (
+                <div
+                  className={`h-0.5 w-4 shrink-0 -mt-5 transition-colors ${
+                    steps[i + 1].done || steps[i + 1].active ? "bg-emerald-400" : "bg-border"
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Message contextuel */}
+        {!hasClaimed && !status && (
+          <p className="text-sm text-muted-foreground">
+            {t("advertiser.suivi.install_waiting_provider")}
+          </p>
+        )}
+        {hasClaimed && !status && (
+          <p className="text-sm text-amber-700 dark:text-amber-400">
+            {t("advertiser.suivi.install_claimed_desc")}
+          </p>
+        )}
+        {status === "pending_approval" && (
+          <p className="text-sm text-muted-foreground">
+            {t("advertiser.suivi.install_pending_desc")}
+          </p>
         )}
         {status === "rejected" && notes && (
           <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
@@ -814,10 +875,19 @@ function InstallationPhotosCard({
             {notes}
           </div>
         )}
-        <InstallationPhotoGrid photos={photos} />
-        {!photos && (
-          <p className="text-xs text-muted-foreground">{t("advertiser.suivi.install_no_photos")}</p>
+        {status === "approved" && reviewedAt && (
+          <p className="text-xs text-emerald-700">
+            {t("advertiser.suivi.install_approved_date", {
+              date: new Date(reviewedAt).toLocaleDateString(dateLocale, {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }),
+            })}
+          </p>
         )}
+
+        {photos && <InstallationPhotoGrid photos={photos} />}
       </CardContent>
     </Card>
   );
