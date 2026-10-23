@@ -21,6 +21,8 @@ type Props = {
   /** Coefficient appliqué à l'estimation (format × mobilité × plage horaire) */
   multiplier?: number;
   className?: string;
+  /** Étapes pré-remplies (ex : générées par l'IA). Écrase les étapes initiales vides. */
+  initialWaypoints?: string[];
 };
 
 /** Piétons / automobilistes croisés par km parcouru (hypothèse urbaine). */
@@ -30,12 +32,18 @@ const GEO = "https://api.mapbox.com/geocoding/v5/mapbox.places";
 const DIR = "https://api.mapbox.com/directions/v5/mapbox/driving";
 const TILEQ = "https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/tilequery";
 
-export function ItineraryPlanner({ onChange, multiplier = 1, className }: Props) {
+export function ItineraryPlanner({ onChange, multiplier = 1, className, initialWaypoints }: Props) {
   const { t, i18n } = useTranslation();
   const consent = useCookieConsent();
   const [token, setToken] = useState("");
-  const [steps, setSteps] = useState<string[]>([""]);
-  const [coords, setCoords] = useState<([number, number] | null)[]>([null]);
+  const [steps, setSteps] = useState<string[]>(
+    initialWaypoints && initialWaypoints.length > 0 ? initialWaypoints : [""],
+  );
+  const [coords, setCoords] = useState<([number, number] | null)[]>(
+    initialWaypoints && initialWaypoints.length > 0
+      ? initialWaypoints.map(() => null)
+      : [null],
+  );
   const [zones, setZones] = useState<string[]>([]);
   const [pois, setPois] = useState<string[]>([]);
   const [distanceKm, setDistanceKm] = useState(0);

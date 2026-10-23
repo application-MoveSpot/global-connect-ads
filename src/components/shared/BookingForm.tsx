@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useNavigate } from "@tanstack/react-router";
@@ -11,6 +11,7 @@ import { COUNTRY_OPTIONS } from "@/lib/fleet/driving-rules";
 import { ItineraryPlanner, type ItineraryData } from "./ItineraryPlanner";
 import { notifyCampaignSubmitted } from "@/lib/campaigns/campaign-notifications.server";
 import { getInstallerFeeConfig } from "@/lib/campaigns/installer-fees.functions";
+import { generateBookingDraft } from "@/lib/ai/booking-brief.functions";
 import type { DateRange } from "react-day-picker";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -94,6 +95,16 @@ export function BookingForm({ spot, onClose }: Props) {
   const { fmtAmount } = useCurrency();
   const navigate = useNavigate();
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
+
+  // Step 0 — AI brief
+  const [step, setStep] = useState<"brief" | "form">("brief");
+  const [briefText, setBriefText] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiWaypoints, setAiWaypoints] = useState<string[]>([]);
+  const itineraryKey = useRef(0);
+  const generateDraft = useServerFn(generateBookingDraft);
+
   const [message, setMessage] = useState("");
   const [itinerary, setItinerary] = useState<ItineraryData>({
     waypoints: [],
@@ -301,6 +312,48 @@ export function BookingForm({ spot, onClose }: Props) {
     }
     setStartDate(fromISO);
     setEndDate(endISO);
+  };
+
+  const handleGenerateBrief = async () => {
+    if (!briefText.trim() || aiLoading) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session.session?.access_token;
+      const result = await generateDraft({
+        data: {
+          briefText: briefText.trim(),
+          vehicleType: spot?.vehicleType,
+          vehicleLocation: spot?.location,
+          _auth: token,
+        },
+      });
+      if (!result.ok) {
+        setAiError(result.message);
+        return;
+      }
+      const { draft } = result;
+      setMessage(draft.message);
+      setBrandColor(draft.brandColor);
+      setDailyStart(draft.dailyStart);
+      setDailyEnd(draft.dailyEnd);
+      // Move end date forward by durationDays from the default start
+      const newEnd = new Date(defaultStart);
+      newEnd.setDate(newEnd.getDate() + draft.durationDays - 1);
+      const newEndISO = toISO(newEnd);
+      setEndDate(newEndISO);
+      setCalRange({ from: new Date(toISO(defaultStart) + "T00:00:00"), to: new Date(newEndISO + "T00:00:00") });
+      if (draft.waypoints.length > 0) {
+        setAiWaypoints(draft.waypoints);
+        itineraryKey.current += 1;
+      }
+      setStep("form");
+    } catch {
+      setAiError("Erreur de connexion à l'IA. Réessayez.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -617,6 +670,78 @@ export function BookingForm({ spot, onClose }: Props) {
               </button>
             </div>
           </div>
+        ) : step === "brief" ? (
+          <div>
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                  {t("booking.reservation_eyebrow")}
+                </div>
+                <h3 className="font-display text-2xl font-bold">{spot.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {spot.location} · {fmtAmount(spot.price)}/jour
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-muted-foreground hover:text-foreground text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 mb-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg">✨</span>
+                <span className="font-semibold text-foreground">Préparer ma campagne avec l'IA</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">
+                Décrivez votre marque en quelques mots — l'IA pré-remplira le message, les horaires,
+                les zones et la couleur de marque pour vous.
+              </p>
+              <textarea
+                value={briefText}
+                onChange={(e) => setBriefText(e.target.value)}
+                placeholder="Ex : Jean.T, denim recyclé, Paris 13e, 1 semaine, cible jeunes actifs, code promo MOVE15 (-15 %)"
+                rows={3}
+                maxLength={600}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
+              />
+              <div className="flex justify-between items-center mt-1 mb-3">
+                <span className="text-xs text-muted-foreground">{briefText.length}/600</span>
+              </div>
+              {aiError && (
+                <p className="text-xs text-destructive mb-3">{aiError}</p>
+              )}
+              <button
+                type="button"
+                disabled={aiLoading || briefText.trim().length < 5}
+                onClick={handleGenerateBrief}
+                className="w-full rounded-lg bg-primary text-primary-foreground py-2.5 font-semibold text-sm hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {aiLoading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Génération en cours…
+                  </>
+                ) : (
+                  "✨ Générer ma campagne"
+                )}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setStep("form")}
+              className="w-full text-sm text-muted-foreground hover:text-foreground py-2 transition"
+            >
+              Remplir moi-même →
+            </button>
+          </div>
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="flex items-start justify-between mb-6">
@@ -915,8 +1040,10 @@ export function BookingForm({ spot, onClose }: Props) {
               </div>
 
               <ItineraryPlanner
+                key={itineraryKey.current}
                 multiplier={formatMultiplier * mobilityMultiplier * hoursMultiplier}
                 onChange={setItinerary}
+                initialWaypoints={aiWaypoints.length > 0 ? aiWaypoints : undefined}
               />
               <p className="text-[11px] text-muted-foreground">
                 {t("booking.itinerary_hint")}
