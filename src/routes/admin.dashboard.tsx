@@ -1124,6 +1124,19 @@ function AdminDashboard() {
                                 visuals: c.creative_files?.length ?? 0,
                               })}
                             </p>
+                            {c.created_at && (
+                              <p className="mt-0.5 text-xs text-muted-foreground/70">
+                                {t("admin.dashboard.briefs_created_at", {
+                                  date: new Date(c.created_at).toLocaleDateString(i18n.language, {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }),
+                                })}
+                              </p>
+                            )}
                             <div className="mt-2">
                               <StatusHistory
                                 entityType="campaign_status"
