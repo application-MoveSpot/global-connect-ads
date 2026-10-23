@@ -108,7 +108,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
               pointerEvents: "none",
             }}
           />
-        ) : (
+        ) : zoneForPhoto(coveringZone, index, rawPhotos[index]) ? (
           <CoveringOverlay
             brandColor={brandColor}
             processedLogoUrl={processedLogoUrl}
@@ -117,7 +117,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
             zone={zoneForPhoto(coveringZone, index, rawPhotos[index])}
             photoUrl={photos[index] ?? ""}
           />
-        )}
+        ) : null}
 
         {/* Navigation */}
         {photos.length > 1 && (
