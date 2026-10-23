@@ -69,7 +69,7 @@ Réponds UNIQUEMENT en JSON strict :
         model,
         prompt,
         temperature: 0.7,
-        maxOutputTokens: 700,
+        maxOutputTokens: 1500,
       });
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
       const raw = fence ? fence[1] : text;
