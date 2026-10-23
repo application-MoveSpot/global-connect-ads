@@ -5018,7 +5018,9 @@
       "ai_generating": "Generating…",
       "ai_panel_desc": "Describe your activity in a few words and AI will pre-fill your profile.",
       "ai_panel_title": "Fill with AI — describe your activity",
-      "ai_placeholder": "E.g.: I run a communication agency in Paris, I want to promote my services…"
+      "ai_placeholder": "E.g.: I run a communication agency in Paris, I want to promote my services…",
+      "account_type_business": "Business",
+      "account_type_individual": "Individual"
     },
     "insufficient_balance": "Insufficient Balance",
     "ip_notice": "Ip Notice",
