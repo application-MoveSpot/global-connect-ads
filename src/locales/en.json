@@ -4536,6 +4536,13 @@
     }
   },
   "advertiser": {
+    "analytics": {
+      "title": "Campaign statistics",
+      "campaigns_count": "Active campaigns",
+      "total_impressions": "Total impressions",
+      "cpm": "Average CPM",
+      "top_zones": "Top broadcast zones"
+    },
     "briefs": {
       "detail": {
         "accept_business": "Accept (business)",

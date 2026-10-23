@@ -4597,6 +4597,13 @@
     }
   },
   "advertiser": {
+    "analytics": {
+      "title": "Statistiques de vos campagnes",
+      "campaigns_count": "Campagnes actives",
+      "total_impressions": "Impressions totales",
+      "cpm": "CPM moyen",
+      "top_zones": "Zones les plus diffusées"
+    },
     "briefs": {
       "detail": {
         "accept_business": "Accepter (professionnel)",
