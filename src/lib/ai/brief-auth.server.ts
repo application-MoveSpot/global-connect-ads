@@ -8,6 +8,7 @@ const STATIC_SUPABASE_URL = "https://phononlhfyljhhhvlmrm.supabase.co";
 const STATIC_SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBob25vbmxoZnlsamhoaHZsbXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczMjE0NTYsImV4cCI6MjA5Mjg5NzQ1Nn0.egR2cPj_5DoQtZv7Hs-OKt6gwotTDqWjxdG7sgmIBO4";
 
+// eslint-disable-next-line no-control-regex
 const sanitizeEnv = (s: string) => s.replace(/[\x00-\x1F\x7F]/g, "").trim();
 
 export type AuthCheckResult =

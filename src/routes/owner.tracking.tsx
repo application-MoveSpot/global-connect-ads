@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { useTranslation } from "react-i18next";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/owner/tracking")({
   head: () => ({
@@ -30,14 +31,7 @@ export const Route = createFileRoute("/owner/tracking")({
     links: [{ rel: "manifest", href: "/manifest.webmanifest" }],
   }),
   component: TrackingPage,
-  errorComponent: ({ error }: { error: Error }) => {
-    const { t } = useTranslation();
-    return (
-      <div className="p-8 text-center text-destructive">
-        {t("owner.tracking.error", { message: error.message })}
-      </div>
-    );
-  },
+  errorComponent: RouteError,
 });
 
 function TrackingPage() {

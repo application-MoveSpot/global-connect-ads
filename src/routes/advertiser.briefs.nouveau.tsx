@@ -50,9 +50,16 @@ export const Route = createFileRoute("/advertiser/briefs/nouveau")({
   head: () => ({
     meta: [
       { title: "Nouveau brief — MoveSpot" },
-      { name: "description", content: "Préparez votre campagne de publicité sur véhicules avec MoveSpot." },
+      {
+        name: "description",
+        content: "Préparez votre campagne de publicité sur véhicules avec MoveSpot.",
+      },
       { property: "og:title", content: "Créer un brief publicitaire — MoveSpot" },
-      { property: "og:description", content: "Choisissez vos véhicules et prévisualisez votre covering pour votre campagne MoveSpot." },
+      {
+        property: "og:description",
+        content:
+          "Choisissez vos véhicules et prévisualisez votre covering pour votre campagne MoveSpot.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },
@@ -283,7 +290,6 @@ function NewBriefPage() {
     } catch {
       /* localStorage inaccessible */
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-save draft only after the user has started filling in the form

@@ -91,7 +91,7 @@ function ScreenPage() {
         setPhase("ready");
         try {
           localStorage.setItem("movespot_driver_token", tok);
-        } catch {}
+        } catch { /* unavailable in private mode or blocked storage */ }
         loadCampaign(tok);
       })
       .catch(() => {

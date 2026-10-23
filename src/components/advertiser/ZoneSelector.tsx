@@ -219,7 +219,7 @@ export function ZoneSelector({
   useEffect(() => {
     if (!containerRef.current) return;
     let dead = false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     if (!document.getElementById("leaflet-css")) {
       const link = document.createElement("link");
       link.id = "leaflet-css";
@@ -371,7 +371,6 @@ export function ZoneSelector({
     const coords = circleToPolygon(clng, clat, radiusKm);
     const areaKm2 = Number((Math.PI * radiusKm * radiusKm).toFixed(4));
     onChangeRef.current({ coordinates: coords, areaKm2, detectedZones: simpleZonesRef.current });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, radiusKm, clng, clat]);
 
   // ── Simple mode: address search ─────────────────────────────────────────────
@@ -638,7 +637,7 @@ export function ZoneSelector({
     setMode(newMode);
     try {
       sessionStorage.setItem("ms_zone_mode", newMode);
-    } catch {}
+    } catch { /* unavailable in private mode or blocked storage */ }
   };
 
   const clearAdvanced = () => {
@@ -709,7 +708,7 @@ export function ZoneSelector({
                   setFromAddr(e.target.value);
                   try {
                     sessionStorage.setItem("ms_zone_from", e.target.value);
-                  } catch {}
+                  } catch { /* unavailable in private mode or blocked storage */ }
                 }}
                 placeholder={t("zone.from_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"
@@ -727,7 +726,7 @@ export function ZoneSelector({
                   setToAddr(e.target.value);
                   try {
                     sessionStorage.setItem("ms_zone_to", e.target.value);
-                  } catch {}
+                  } catch { /* unavailable in private mode or blocked storage */ }
                 }}
                 placeholder={t("zone.to_placeholder")}
                 className="w-full rounded-lg border border-border bg-card pl-8 pr-4 py-2.5 text-sm"

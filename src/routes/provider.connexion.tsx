@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { withAuthRetry } from "@/lib/auth/auth-retry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { Eye, EyeOff } from "lucide-react";
@@ -52,12 +53,16 @@ function ProviderLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error, wasServiceError } = await withAuthRetry(() =>
+      supabase.auth.signInWithPassword({ email, password }),
+    );
     if (error) {
       setError(
-        error.message === "Invalid login credentials"
-          ? t("provider.connexion.invalid_credentials")
-          : error.message,
+        wasServiceError
+          ? t("auth.error_service_unavailable")
+          : error.message === "Invalid login credentials"
+            ? t("provider.connexion.invalid_credentials")
+            : (error.message ?? t("auth.error_network")),
       );
       setLoading(false);
       return;
@@ -65,7 +70,7 @@ function ProviderLoginPage() {
     const { data: profile } = await supabase
       .from("provider_profiles")
       .select("user_id")
-      .eq("user_id", data.session!.user.id)
+      .eq("user_id", data!.session!.user.id)
       .maybeSingle();
     if (profile) {
       navigate({ to: "/provider" });

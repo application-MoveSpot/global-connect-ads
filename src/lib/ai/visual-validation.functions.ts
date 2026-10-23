@@ -229,7 +229,10 @@ Réponds UNIQUEMENT en JSON strict :
 }`;
 
     try {
-      const image = await inlineStorageImage(signed.signedUrl, process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "");
+      const image = await inlineStorageImage(
+        signed.signedUrl,
+        process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "",
+      );
       const { url: fetchUrl, headers: fetchHeaders } = getAiGatewayFetchConfig(apiKey);
       const res = await fetch(fetchUrl, {
         method: "POST",

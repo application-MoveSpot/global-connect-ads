@@ -1,6 +1,6 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
-function useGoogleAi(): boolean {
+function isGoogleAiEnabled(): boolean {
   return !process.env.LOVABLE_API_KEY && !!process.env.GOOGLE_AI_API_KEY;
 }
 
@@ -54,7 +54,7 @@ export function getUserKeyModel(apiKey: string): string {
 
 export function createLovableAiGatewayProvider(apiKey: string) {
   // When LOVABLE_API_KEY is absent, fall back to Google AI API directly
-  if (useGoogleAi()) {
+  if (isGoogleAiEnabled()) {
     return createOpenAICompatible({
       name: "google",
       baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -75,7 +75,7 @@ export function getAiGatewayFetchConfig(apiKey: string): {
   url: string;
   headers: Record<string, string>;
 } {
-  if (useGoogleAi()) {
+  if (isGoogleAiEnabled()) {
     return {
       url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },

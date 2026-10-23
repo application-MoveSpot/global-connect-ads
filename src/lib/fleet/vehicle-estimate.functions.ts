@@ -215,7 +215,10 @@ Réponds UNIQUEMENT en JSON strict :
       },
     ];
     for (const url of data.photo_urls.slice(0, 3)) {
-      const image = await inlineStorageImage(url, process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "");
+      const image = await inlineStorageImage(
+        url,
+        process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "",
+      );
       content.push({ type: "image_url", image_url: { url: image } });
     }
     if (data.photo_urls.length === 0) {

@@ -35,9 +35,10 @@ export function nearestAvailableSlots(
     afterStart = Math.max(...overlaps.map((p) => day(p.end_date))) + DAY_MS;
   }
   return {
-    before: beforeEnd - duration < day(earliest)
-      ? null
-      : { start: iso(beforeEnd - duration), end: iso(beforeEnd) },
+    before:
+      beforeEnd - duration < day(earliest)
+        ? null
+        : { start: iso(beforeEnd - duration), end: iso(beforeEnd) },
     after: { start: iso(afterStart), end: iso(afterStart + duration) },
   };
 }

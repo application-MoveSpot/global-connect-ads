@@ -7,6 +7,7 @@ import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { lovable } from "@/integrations/lovable";
 import { getStoredUtm } from "@/lib/analytics/utm";
 import { LogoLink } from "@/components/app/LogoLink";
+import { withAuthRetry, isServiceUnavailable } from "@/lib/auth/auth-retry";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
@@ -28,6 +29,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
@@ -74,22 +76,42 @@ function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setRetrying(false);
     setLoading(true);
     if (mode === "signup") {
       const utm = getStoredUtm();
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}${next ?? "/admin"}`,
-          ...(utm ? { data: { utm } } : {}),
-        },
-      });
-      if (error) setError(error.message);
+      const { error, wasServiceError } = await withAuthRetry(
+        () =>
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}${next ?? "/admin"}`,
+              ...(utm ? { data: { utm } } : {}),
+            },
+          }),
+        { onRetry: () => setRetrying(true) },
+      );
+      setRetrying(false);
+      if (error)
+        setError(
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : (error.message ?? t("auth.error_network")),
+        );
       else goNext();
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setError(error.message);
+      const { error, wasServiceError } = await withAuthRetry(
+        () => supabase.auth.signInWithPassword({ email, password }),
+        { onRetry: () => setRetrying(true) },
+      );
+      setRetrying(false);
+      if (error)
+        setError(
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : (error.message ?? t("auth.error_network")),
+        );
       else await checkMfaThenGo();
     }
     setLoading(false);
@@ -248,11 +270,13 @@ function AuthPage() {
                 disabled={loading}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
-                {loading
-                  ? "…"
-                  : mode === "signin"
-                    ? t("auth.submit_signin")
-                    : t("auth.submit_signup")}
+                {retrying
+                  ? t("auth.retrying")
+                  : loading
+                    ? t("auth.loading")
+                    : mode === "signin"
+                      ? t("auth.submit_signin")
+                      : t("auth.submit_signup")}
               </button>
             </form>
 

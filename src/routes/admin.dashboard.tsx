@@ -87,7 +87,7 @@ export const Route = createFileRoute("/admin/dashboard")({
     ],
   }),
   component: AdminDashboard,
-  errorComponent: ({ error }: { error: Error }) => {
+  errorComponent: function ErrorBoundary({ error }: { error: Error }) {
     const { t } = useTranslation();
     return (
       <div className="p-8 text-center text-destructive">

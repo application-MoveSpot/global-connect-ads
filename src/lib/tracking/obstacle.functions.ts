@@ -172,7 +172,7 @@ export const adminListObstacleReports = createServerFn({ method: "GET" })
     const vehicleIds = [
       ...new Set((data ?? []).map((r) => r.vehicle_id).filter(Boolean)),
     ] as string[];
-    let vehicleNames: Record<string, string> = {};
+    const vehicleNames: Record<string, string> = {};
     if (vehicleIds.length > 0) {
       const { data: vv } = await supabaseAdmin
         .from("vehicles")

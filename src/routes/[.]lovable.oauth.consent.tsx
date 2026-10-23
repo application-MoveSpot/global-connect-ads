@@ -44,7 +44,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     return data;
   },
   component: Consent,
-  errorComponent: ({ error }: { error: Error }) => {
+  errorComponent: function ErrorBoundary({ error }: { error: Error }) {
     const { t } = useTranslation();
     return (
       <main className="min-h-screen flex items-center justify-center p-6 text-center">

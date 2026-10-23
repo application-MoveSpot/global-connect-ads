@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
-import { coveringProjection, FALLBACK_COVERING_QUAD, type CoveringEntry } from "@/lib/fleet/covering-geometry";
+import {
+  coveringProjection,
+  FALLBACK_COVERING_QUAD,
+  type CoveringEntry,
+} from "@/lib/fleet/covering-geometry";
 
 type Props = {
   brandColor: string;
@@ -11,7 +15,14 @@ type Props = {
   photoUrl: string;
 };
 
-export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo, isLogoDetoured, zone, photoUrl }: Props) {
+export function CoveringOverlay({
+  brandColor,
+  processedLogoUrl,
+  isProcessingLogo,
+  isLogoDetoured,
+  zone,
+  photoUrl,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   useEffect(() => {
@@ -36,14 +47,23 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
 
   return (
     <>
-      <div ref={ref} className="covering-clip" style={{ clipPath }} data-covering-zone={zone ? "defined" : "approximate"}>
+      <div
+        ref={ref}
+        className="covering-clip"
+        style={{ clipPath }}
+        data-covering-zone={zone ? "defined" : "approximate"}
+      >
         {projection && (
-          <div className="covering-plane" data-covering-plane style={{
-            width: projection.width, height: projection.height, transform: projection.transform,
-          }}>
-            {vinylVisible && (
-              <div className="covering-ink" style={{ background: brandColor }} />
-            )}
+          <div
+            className="covering-plane"
+            data-covering-plane
+            style={{
+              width: projection.width,
+              height: projection.height,
+              transform: projection.transform,
+            }}
+          >
+            {vinylVisible && <div className="covering-ink" style={{ background: brandColor }} />}
             {processedLogoUrl && !isProcessingLogo && (
               <img
                 className="covering-logo"
@@ -54,7 +74,11 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
               />
             )}
             {isProcessingLogo && (
-              <div className="absolute inset-0 flex items-center justify-center text-primary-foreground" role="status" aria-label="Préparation du logo">
+              <div
+                className="absolute inset-0 flex items-center justify-center text-primary-foreground"
+                role="status"
+                aria-label="Préparation du logo"
+              >
                 <LoaderCircle className="size-5 motion-safe:animate-spin" />
               </div>
             )}
@@ -64,10 +88,24 @@ export function CoveringOverlay({ brandColor, processedLogoUrl, isProcessingLogo
         {/* Reuse real luminance, handles and panel seams at their original photo
             coordinates. Never warp this texture with the artwork. No canvas/CORS
             readback or generated relief is needed for private signed photos. */}
-        {projection && vinylVisible && <>
-          <img className="covering-texture" src={photoUrl} alt="" aria-hidden="true" draggable={false} />
-          <img className="covering-reflections" src={photoUrl} alt="" aria-hidden="true" draggable={false} />
-        </>}
+        {projection && vinylVisible && (
+          <>
+            <img
+              className="covering-texture"
+              src={photoUrl}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+            <img
+              className="covering-reflections"
+              src={photoUrl}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          </>
+        )}
       </div>
       <div className="absolute bottom-2 left-2 rounded-full bg-background/80 text-foreground text-[10px] px-2 py-0.5 pointer-events-none">
         Aperçu simulé

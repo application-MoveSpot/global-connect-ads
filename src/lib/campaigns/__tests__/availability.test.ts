@@ -10,24 +10,38 @@ test("occupied start and end dates are inclusive", () => {
 });
 
 test("offers nearest slots before and after with the same three-day duration", () => {
-  assert.deepEqual(nearestAvailableSlots("2026-11-12", "2026-11-14", [
-    { start_date: "2026-11-10", end_date: "2026-11-15" },
-  ], "2026-10-24"), {
-    before: { start: "2026-11-07", end: "2026-11-09" },
-    after: { start: "2026-11-16", end: "2026-11-18" },
-  });
+  assert.deepEqual(
+    nearestAvailableSlots(
+      "2026-11-12",
+      "2026-11-14",
+      [{ start_date: "2026-11-10", end_date: "2026-11-15" }],
+      "2026-10-24",
+    ),
+    {
+      before: { start: "2026-11-07", end: "2026-11-09" },
+      after: { start: "2026-11-16", end: "2026-11-18" },
+    },
+  );
 });
 
 test("skips overlapping, nested and adjacent occupied periods in both directions", () => {
-  assert.deepEqual(nearestAvailableSlots("2026-11-12", "2026-11-14", [
-    { start_date: "2026-11-16", end_date: "2026-11-18" },
-    { start_date: "2026-11-11", end_date: "2026-11-12" },
-    { start_date: "2026-11-07", end_date: "2026-11-11" },
-    { start_date: "2026-11-10", end_date: "2026-11-15" },
-  ], "2026-10-24"), {
-    before: { start: "2026-11-04", end: "2026-11-06" },
-    after: { start: "2026-11-19", end: "2026-11-21" },
-  });
+  assert.deepEqual(
+    nearestAvailableSlots(
+      "2026-11-12",
+      "2026-11-14",
+      [
+        { start_date: "2026-11-16", end_date: "2026-11-18" },
+        { start_date: "2026-11-11", end_date: "2026-11-12" },
+        { start_date: "2026-11-07", end_date: "2026-11-11" },
+        { start_date: "2026-11-10", end_date: "2026-11-15" },
+      ],
+      "2026-10-24",
+    ),
+    {
+      before: { start: "2026-11-04", end: "2026-11-06" },
+      after: { start: "2026-11-19", end: "2026-11-21" },
+    },
+  );
 });
 
 test("does not offer a slot before the earliest reservable date", () => {

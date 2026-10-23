@@ -116,7 +116,6 @@ function NewVehiclePage() {
     } catch (_) {
       /* sessionStorage unavailable (private mode) */
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-save draft on every field change
@@ -209,7 +208,6 @@ function NewVehiclePage() {
         setPlateStatus((prev) => new Map(prev).set(idx, "error"));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addFiles = useCallback(
@@ -223,7 +221,6 @@ function NewVehiclePage() {
       // Detect on the files that will actually be added (respects MAX_PHOTOS cap)
       const toDetect = incoming.slice(0, Math.max(0, MAX_PHOTOS - currentCount));
       if (toDetect.length > 0) void autoDetectPlates(toDetect, currentCount);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [autoDetectPlates],
   );
