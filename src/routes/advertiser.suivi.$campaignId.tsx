@@ -27,6 +27,7 @@ import {
   Clock,
   Star,
   TrendingUp,
+  Locate,
 } from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 import { submitCampaignRating, getCampaignRating } from "@/lib/campaigns/rating.functions";
@@ -591,7 +592,33 @@ function SuiviPage() {
           </CardHeader>
           <CardContent>
             <MapConsentGate className="h-[500px]">
-              <div ref={mapContainer} className="h-[500px] w-full rounded-md border" />
+              <div className="relative h-[500px] w-full rounded-md border overflow-hidden">
+                <div ref={mapContainer} className="h-full w-full" />
+                {positions.length === 0 && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-muted/85 backdrop-blur-sm">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-md">
+                      <Locate className="h-7 w-7 text-muted-foreground" />
+                    </div>
+                    <div className="text-center px-6">
+                      <p className="font-semibold text-foreground text-sm">
+                        {campaign?.payment_status !== "paid"
+                          ? t("advertiser.suivi.map_empty_unpaid")
+                          : campaign.start_date && new Date(campaign.start_date) > new Date()
+                            ? t("advertiser.suivi.map_empty_paid_future", {
+                                date: new Date(campaign.start_date).toLocaleDateString(dateLocale, {
+                                  day: "numeric",
+                                  month: "long",
+                                }),
+                              })
+                            : t("advertiser.suivi.map_empty_waiting")}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t("advertiser.suivi.map_empty_waiting_sub")}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </MapConsentGate>
             {positions.length >= 5 && (
               <p className="mt-2 text-xs text-muted-foreground">
