@@ -26,7 +26,14 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
         if (!cancelled) setStatus("allowed");
         return;
       }
-      const allowed = await checkBetaAccess();
+      let allowed = await checkBetaAccess();
+      // JWT can be stale after a redeploy or Supabase resume — the RPC gets a
+      // null email from auth.jwt() and returns false even for whitelisted users.
+      // Refresh once and retry before concluding the user is on the waitlist.
+      if (!allowed) {
+        const { data } = await supabase.auth.refreshSession();
+        if (data.session) allowed = await checkBetaAccess();
+      }
       if (cancelled) return;
       setStatus(allowed ? "allowed" : "waitlist");
     };
