@@ -198,9 +198,11 @@ export const getInstallationPhotosForAdvertiser = createServerFn({ method: "GET"
 
     if (error || !campaign) throw new Error("Campagne introuvable ou accès non autorisé");
 
+    const raw = campaign.installation_photos as Record<string, string> | null;
     return {
       spotName: campaign.spot_name as string,
-      photos: campaign.installation_photos as Record<string, string> | null,
+      photos: raw,
+      hasClaimed: Boolean(raw?.["claimed_by"]),
       status: campaign.installation_status as string | null,
       notes: campaign.installation_notes as string | null,
       reviewedAt: campaign.installation_reviewed_at as string | null,

@@ -3556,7 +3556,8 @@
     "btn_flat": "Vue plane",
     "btn_immersive": "Vue immersive 3D",
     "btn_stop_orbit": "Stopper la rotation",
-    "btn_orbit": "Rotation 360°"
+    "btn_orbit": "Rotation 360°",
+    "recovering": "Reconnexion en cours…"
   },
   "onboarding": {
     "welcome": "Bienvenue sur MoveSpot",
@@ -4315,7 +4316,8 @@
       "kpi_total": "Total perçu",
       "loading": "Chargement…",
       "received_at": "Reçue le {{date}}",
-      "title": "Historique des reversements"
+      "title": "Historique des reversements",
+      "chart_title": "Revenus par campagne"
     },
     "map_desc": "Visualisez la zone de couverture de votre flotte sur la carte.",
     "map_title": "Carte de ma flotte",
@@ -4537,6 +4539,11 @@
         "delete_confirm_yes": "Oui, supprimer",
         "delete_confirm_no": "Annuler",
         "deleting": "Suppression…"
+      },
+      "calendar": {
+        "title": "Calendrier de disponibilité",
+        "days": "jours",
+        "empty": "Aucune période sélectionnée"
       }
     },
     "welcome": "Bienvenue",
@@ -4585,6 +4592,13 @@
     }
   },
   "advertiser": {
+    "analytics": {
+      "title": "Statistiques de vos campagnes",
+      "campaigns_count": "Campagnes actives",
+      "total_impressions": "Impressions totales",
+      "cpm": "CPM moyen",
+      "top_zones": "Zones les plus diffusées"
+    },
     "briefs": {
       "detail": {
         "accept_business": "Accepter (professionnel)",
@@ -4634,7 +4648,17 @@
         "wallet_desc": "Créditez votre portefeuille pour activer la campagne.",
         "wallet_pack_btn": "Acheter un pack",
         "wallet_title": "Portefeuille",
-        "zones_label": "Zones de diffusion"
+        "zones_label": "Zones de diffusion",
+        "comparison_title": "Comparaison des propositions",
+        "comparison_cta": "Comparer",
+        "comparison_cta_sub": "Comparez les offres des propriétaires côte à côte.",
+        "comparison_error": "Erreur lors du chargement de la comparaison.",
+        "comparison_loading": "Chargement…",
+        "notif_new_proposal": "Nouvelle proposition",
+        "notif_new_proposal_body": "Un propriétaire a soumis une nouvelle proposition pour votre brief.",
+        "reengagement_edit_btn": "Modifier le brief",
+        "reengagement_loading": "Chargement…",
+        "reengagement_title": "Relancer les propriétaires"
       },
       "nouveau": {
         "ai_btn": "Générer avec l'IA",
@@ -4848,7 +4872,8 @@
       "subtitle_business": "Gérez vos campagnes et briefs publicitaires.",
       "subtitle_individual": "Gérez vos campagnes et briefs publicitaires.",
       "title": "Mes campagnes",
-      "types_label": "Types"
+      "types_label": "Types",
+      "pending_proposals": "Propositions en attente"
     },
     "campaign": {
       "installation_approved": "Installation Approuvé",
@@ -4858,7 +4883,8 @@
       "status_history_label": "Historique du statut",
       "status_pending": "En attente",
       "status_rejected": "Rejetée",
-      "track": "Track"
+      "track": "Track",
+      "leave_review": "Laisser un avis"
     },
     "campaigns_subtitle": "Retrouvez toutes vos campagnes en cours et passées.",
     "contrat": {
@@ -4899,7 +4925,8 @@
       "vat": "Vat",
       "vat_exempt": "Exonéré (Art. 294 CGI)",
       "row_period_value_one": "{{from}} → {{to}} ({{count}} jour)",
-      "row_period_value_other": "{{from}} → {{to}} ({{count}} jours)"
+      "row_period_value_other": "{{from}} → {{to}} ({{count}} jours)",
+      "row_period_value": "{{start}} → {{end}}"
     },
     "essai_active": {
       "back": "Mon tableau de bord",
@@ -5053,7 +5080,9 @@
       "ai_panel_desc": "Décrivez votre activité en quelques mots et l'IA pré-remplit votre profil.",
       "ai_panel_title": "Remplir avec l'IA — décrivez votre activité",
       "ai_placeholder": "Ex. : Je dirige une agence de communication à Paris, je souhaite promouvoir mes services…",
-      "error_invalid_credentials": "Email ou mot de passe incorrect."
+      "error_invalid_credentials": "Email ou mot de passe incorrect.",
+      "account_type_business": "Professionnel",
+      "account_type_individual": "Particulier"
     },
     "insufficient_balance": "Solde insuffisant",
     "ip_notice": "Les visuels fournis doivent être libres de droits.",
@@ -5271,7 +5300,19 @@
       "toast_rating_error": "Erreur lors de l'envoi de la note.",
       "toast_rating_success": "Merci pour votre avis !",
       "waiting_business": "En attente de démarrage (pro)",
-      "waiting_individual": "En attente de démarrage (particulier)"
+      "waiting_individual": "En attente de démarrage (particulier)",
+      "install_step_search": "Recherche prestataire",
+      "install_step_claimed": "Prestataire assigné",
+      "install_step_photos": "Photos soumises",
+      "install_step_validated": "Installation validée",
+      "install_waiting_provider": "Nous recherchons un prestataire disponible pour poser votre publicité. Vous serez notifié dès qu'un poseur est assigné.",
+      "install_claimed_desc": "Un prestataire a accepté votre mission. L'installation sera effectuée prochainement.",
+      "install_pending_desc": "Le prestataire a soumis ses photos. Notre équipe les vérifie avant validation.",
+      "install_approved_date": "Installation validée le {{date}}",
+      "map_empty_unpaid": "Finalisez le paiement pour activer le suivi GPS",
+      "map_empty_paid_future": "Campagne payée · démarre le {{date}}",
+      "map_empty_waiting": "En attente des premières données GPS",
+      "map_empty_waiting_sub": "Le véhicule apparaîtra ici dès qu'il sera en route"
     },
     "dashboard": {
       "active_campaigns": "Campagnes actives",
@@ -5365,7 +5406,9 @@
       "checklist_step_4": "Le visuel est bien positionné selon le bon de commande",
       "checklist_step_5": "Photo de confirmation transmise via l'application",
       "checklist_all_done": "✓ Installation confirmée — merci !",
-      "checklist_incomplete": "Cochez chaque étape après avoir vérifié l'installation."
+      "checklist_incomplete": "Cochez chaque étape après avoir vérifié l'installation.",
+      "gps_status_active": "GPS actif",
+      "gps_status_inactive": "GPS inactif"
     },
     "geoloc_unsupported": "La géolocalisation n'est pas disponible sur cet appareil.",
     "gps_started": "Suivi GPS démarré.",
@@ -5503,7 +5546,12 @@
       "kpi_total": "Devis reçus",
       "kpi_pending": "En attente",
       "kpi_quoted": "Devis envoyés",
-      "kpi_accepted": "Acceptés"
+      "kpi_accepted": "Acceptés",
+      "ai_quote_btn": "Générer un devis IA",
+      "ai_quote_error": "Erreur lors de la génération du devis.",
+      "ai_quote_generating": "Génération en cours…",
+      "profile_pose_types": "Types de pose",
+      "profile_pose_types_hint": "Sélectionnez les types de pose que vous proposez."
     },
     "inscription": {
       "ai_estimate_subtitle": "Estimation IA de vos tarifs basée sur votre zone et votre expérience.",
@@ -5543,7 +5591,8 @@
       "ai_placeholder": "Ex. : Je suis poseur de covering depuis 8 ans, spécialisé en flocage total et partiel sur utilitaires et berlines. J'interviens principalement en Île-de-France et dans les Hauts-de-France. J'ai une imprimante grand format et je peux livrer en 5 jours ouvrés.",
       "ai_generate": "Générer",
       "ai_generating": "Génération…",
-      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
+      "coverage_hint": "Indiquez les zones géographiques où vous intervenez."
     },
     "portfolio": {
       "add_btn": "Ajouter une réalisation",
