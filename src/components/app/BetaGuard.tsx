@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 
 // Uses a SECURITY DEFINER RPC so the full whitelist is never exposed:
 // returns true if the whitelist is empty (open to all) or the user's
@@ -26,13 +27,20 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
         if (!cancelled) setStatus("allowed");
         return;
       }
-      const allowed = await checkBetaAccess();
+      let allowed = await checkBetaAccess();
+      // JWT can be stale after a redeploy or Supabase resume — the RPC gets a
+      // null email from auth.jwt() and returns false even for whitelisted users.
+      // Refresh once and retry before concluding the user is on the waitlist.
+      if (!allowed) {
+        const { data } = await supabase.auth.refreshSession();
+        if (data.session) allowed = await checkBetaAccess();
+      }
       if (cancelled) return;
       setStatus(allowed ? "allowed" : "waitlist");
     };
 
-    supabase.auth.getSession().then(({ data }) => {
-      check(data.session?.user?.email?.toLowerCase());
+    getOrRefreshSession().then((session) => {
+      check(session?.user?.email?.toLowerCase());
     });
 
     const {

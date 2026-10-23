@@ -166,5 +166,5 @@
 .covering-ink { position: absolute; inset: 0; }
 .covering-logo { position: absolute; inset: 17% 13%; width: 74%; height: 66%; object-fit: contain; opacity: 0.98; mix-blend-mode: normal; }
 .covering-sheen { position: absolute; inset: 0; background: var(--covering-sheen); box-shadow: var(--covering-edge); }
-.covering-texture { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) brightness(1.5); mix-blend-mode: multiply; opacity: 0.45; }
-.covering-reflections { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) contrast(1.7); mix-blend-mode: screen; opacity: 0.1; }
+.covering-texture { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) brightness(1.5); mix-blend-mode: multiply; opacity: 0.45; clip-path: inherit; }
+.covering-reflections { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) contrast(1.7); mix-blend-mode: screen; opacity: 0.1; clip-path: inherit; }
