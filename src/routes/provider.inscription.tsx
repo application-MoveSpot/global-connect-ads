@@ -561,8 +561,12 @@ function ProviderSignupPage() {
                             company: company.trim() || undefined,
                           },
                         });
-                        setPricingEstimate(res);
-                        if (res.pricing_text) setPricingInfo(res.pricing_text);
+                        if (res && Array.isArray(res.breakdown)) {
+                          setPricingEstimate(res);
+                          if (res.pricing_text) setPricingInfo(res.pricing_text);
+                        } else {
+                          throw new Error(t("provider.inscription.error.pricing_estimate"));
+                        }
                       } catch (e) {
                         const msg = e instanceof Error ? e.message : "";
                         const isTechnical =
@@ -590,7 +594,7 @@ function ProviderSignupPage() {
                     {t("provider.inscription.select_service_hint")}
                   </p>
                 )}
-                {pricingEstimate && (
+                {pricingEstimate && Array.isArray(pricingEstimate.breakdown) && (
                   <div className="space-y-2 mt-3">
                     <div className="grid gap-2">
                       {pricingEstimate.breakdown.map((b) => (
