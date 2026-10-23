@@ -73,7 +73,7 @@ function ResetPasswordPage() {
     if (error) setError(error.message);
     else {
       setInfo(t("reset_password.updated"));
-      setTimeout(() => navigate({ to: "/admin" }), 1200);
+      setTimeout(() => navigate({ to: "/" }), 1500);
     }
     setLoading(false);
   };
