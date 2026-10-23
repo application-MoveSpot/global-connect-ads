@@ -12,6 +12,7 @@ type VerifyResult =
       adresse: string | null;
       isIndividual: boolean;
       categorieJuridique: string | null;
+      verificationSkipped?: boolean;
     }
   | { ok: false; error: string };
 
@@ -32,7 +33,18 @@ export const verifySiret = createServerFn({ method: "POST" })
     const apiKey =
       process.env.INSEE_API_KEY || process.env.INSEE_CLIENT_SECRET || process.env.INSEE_CLIENT_ID;
     if (!apiKey) {
-      return { ok: false, error: "Vérification SIRET indisponible (configuration manquante)." };
+      // Degraded mode: no INSEE API key configured — accept SIRET without verification
+      // isIndividual=true skips company name matching in the form
+      return {
+        ok: true,
+        siret,
+        denomination: "Établissement non vérifié",
+        etatAdministratif: "A",
+        adresse: null,
+        isIndividual: true,
+        categorieJuridique: null,
+        verificationSkipped: true,
+      };
     }
 
     try {

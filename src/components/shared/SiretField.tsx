@@ -10,6 +10,7 @@ export type SiretCheck = {
   verified: boolean;
   isIndividual?: boolean;
   address?: string | null;
+  verificationSkipped?: boolean;
 };
 
 export function SiretField({
@@ -47,6 +48,7 @@ export function SiretField({
           verified: true,
           isIndividual: res.isIndividual,
           address: res.adresse ?? null,
+          verificationSkipped: res.verificationSkipped ?? false,
         });
       } else {
         onChange({ siret: cleaned, denomination: null, verified: false });
@@ -106,12 +108,20 @@ export function SiretField({
 
       {/* Success */}
       {value.verified && value.denomination && (
-        <div className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 space-y-0.5">
-          <p>
-            ✓ {value.denomination}
-            {value.isIndividual && ` ${t("siret.individual_note")}`}
-          </p>
-          {value.address && <p className="text-muted-foreground">{value.address}</p>}
+        <div className="mt-1.5 text-xs space-y-0.5">
+          {value.verificationSkipped ? (
+            <p className="text-amber-600 dark:text-amber-400">
+              ⚠ {t("siret.skipped_note", "SIRET accepté sans vérification INSEE (mode test)")}
+            </p>
+          ) : (
+            <p className="text-emerald-600 dark:text-emerald-400">
+              ✓ {value.denomination}
+              {value.isIndividual && ` ${t("siret.individual_note")}`}
+            </p>
+          )}
+          {!value.verificationSkipped && value.address && (
+            <p className="text-muted-foreground">{value.address}</p>
+          )}
         </div>
       )}
 
