@@ -102,15 +102,23 @@ function ChauffeurInscription() {
       return;
     }
     if (mode === "signup") {
-      const { data: signUpData, error, wasServiceError } = await withAuthRetry(() =>
+      const {
+        data: signUpData,
+        error,
+        wasServiceError,
+      } = await withAuthRetry(() =>
         supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: `${window.location.origin}/driver/inscription` },
-        })
+        }),
       );
       if (error) {
-        setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
+        setError(
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : (error.message ?? t("auth.error_network")),
+        );
         setLoading(false);
         return;
       }
@@ -132,7 +140,7 @@ function ChauffeurInscription() {
       }
     } else {
       const { error, wasServiceError } = await withAuthRetry(() =>
-        supabase.auth.signInWithPassword({ email, password })
+        supabase.auth.signInWithPassword({ email, password }),
       );
       if (error) {
         setError(

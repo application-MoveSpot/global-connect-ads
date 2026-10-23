@@ -49,5 +49,5 @@ export function clearConsent(): void {
   try {
     localStorage.removeItem(CONSENT_KEY);
     window.dispatchEvent(new CustomEvent("ms-consent-change", { detail: null }));
-  } catch {}
+  } catch { /* unavailable in private mode or blocked storage */ }
 }

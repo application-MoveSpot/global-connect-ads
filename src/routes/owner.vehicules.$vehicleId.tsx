@@ -14,9 +14,15 @@ export const Route = createFileRoute("/owner/vehicules/$vehicleId")({
   head: () => ({
     meta: [
       { title: "Modifier le véhicule — MoveSpot" },
-      { name: "description", content: "Gérez votre véhicule et sa zone de covering publicitaire sur MoveSpot." },
+      {
+        name: "description",
+        content: "Gérez votre véhicule et sa zone de covering publicitaire sur MoveSpot.",
+      },
       { property: "og:title", content: "Votre véhicule et son covering — MoveSpot" },
-      { property: "og:description", content: "Photos, caractéristiques et zones publicitaires de votre véhicule MoveSpot." },
+      {
+        property: "og:description",
+        content: "Photos, caractéristiques et zones publicitaires de votre véhicule MoveSpot.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },

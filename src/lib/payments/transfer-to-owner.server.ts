@@ -26,7 +26,8 @@ export async function triggerOwnerTransfer(campaignRequestId: string): Promise<T
       .single();
 
     if (!campaign) return { status: "skipped", reason: "campagne introuvable" };
-    if (campaign.payment_status !== "paid") return { status: "skipped", reason: "campagne non payée" };
+    if (campaign.payment_status !== "paid")
+      return { status: "skipped", reason: "campagne non payée" };
     if (campaign.payout_status === "transferred" || campaign.stripe_transfer_id) {
       return { status: "skipped", reason: "déjà viré" };
     }

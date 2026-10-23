@@ -48,7 +48,7 @@ export function OnboardingModal({ isIndividual = false }: Props) {
   const dismiss = () => {
     try {
       localStorage.setItem(STORAGE_KEY, "1");
-    } catch {}
+    } catch { /* unavailable in private mode or blocked storage */ }
     setOpen(false);
   };
 

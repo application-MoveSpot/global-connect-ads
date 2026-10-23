@@ -1,16 +1,29 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { coveringProjection, isCoveringQuad, parseCoveringZone, zoneForPhoto, type CoveringQuad } from "../covering-geometry.ts";
+import {
+  coveringProjection,
+  isCoveringQuad,
+  parseCoveringZone,
+  zoneForPhoto,
+  type CoveringQuad,
+} from "../covering-geometry.ts";
 
 const quad: CoveringQuad = [
-  { x: 0.2, y: 0.35 }, { x: 0.7, y: 0.42 },
-  { x: 0.65, y: 0.65 }, { x: 0.22, y: 0.7 },
+  { x: 0.2, y: 0.35 },
+  { x: 0.7, y: 0.42 },
+  { x: 0.65, y: 0.65 },
+  { x: 0.22, y: 0.7 },
 ];
 
 test("normalized four corners project exactly onto the owner-defined polygon", () => {
   const result = coveringProjection(quad, 800, 450);
   assert.ok(result);
-  const source = [[0, 0], [result.width, 0], [result.width, result.height], [0, result.height]];
+  const source = [
+    [0, 0],
+    [result.width, 0],
+    [result.width, result.height],
+    [0, result.height],
+  ];
   source.forEach(([x, y], i) => {
     assert.ok(x !== undefined && y !== undefined);
     const point = quad[i];
@@ -40,7 +53,9 @@ test("rejects crossed, degenerate, nonfinite and out-of-range zones", () => {
 });
 
 test("JSON parsing tolerates corrupt entries without losing valid photo zones", () => {
-  assert.deepEqual(parseCoveringZone({ 0: { points: quad }, 1: { points: [] } }), { 0: { points: quad } });
+  assert.deepEqual(parseCoveringZone({ 0: { points: quad }, 1: { points: [] } }), {
+    0: { points: quad },
+  });
   assert.equal(parseCoveringZone({ 0: { points: "invalid" } }), null);
 });
 

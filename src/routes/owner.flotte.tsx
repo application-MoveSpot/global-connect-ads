@@ -43,18 +43,12 @@ import {
 import { Truck, Users, Activity, Euro, Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { LogoLink } from "@/components/app/LogoLink";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/owner/flotte")({
   head: () => ({ meta: [{ title: "Ma flotte — MoveSpot" }] }),
   component: FleetPage,
-  errorComponent: ({ error }: { error: Error }) => {
-    const { t } = useTranslation();
-    return (
-      <div className="p-8 text-center text-destructive">
-        {t("errors.prefix")} : {error.message}
-      </div>
-    );
-  },
+  errorComponent: RouteError,
 });
 
 type Vehicle = {

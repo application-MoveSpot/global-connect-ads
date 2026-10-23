@@ -12,9 +12,7 @@ const SERVICE_PATTERNS = [
   "timeout",
 ];
 
-export function isServiceUnavailable(
-  error: { message?: string; status?: number } | null
-): boolean {
+export function isServiceUnavailable(error: { message?: string; status?: number } | null): boolean {
   if (!error) return false;
   const msg = (error.message ?? "").toLowerCase();
   return (
@@ -36,7 +34,7 @@ export async function withAuthRetry<TResult extends SupabaseResult>(
   opts: {
     maxAttempts?: number;
     onRetry?: (attempt: number) => void;
-  } = {}
+  } = {},
 ): Promise<TResult & { wasServiceError: boolean }> {
   const { maxAttempts = 4, onRetry } = opts;
 

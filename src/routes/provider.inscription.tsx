@@ -122,15 +122,23 @@ function ProviderSignupPage() {
       setLoading(false);
       return;
     }
-    const { data: signUpData, error, wasServiceError } = await withAuthRetry(() =>
+    const {
+      data: signUpData,
+      error,
+      wasServiceError,
+    } = await withAuthRetry(() =>
       supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: `${window.location.origin}/provider/inscription` },
-      })
+      }),
     );
     if (error) {
-      setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
+      setError(
+        wasServiceError
+          ? t("auth.error_service_unavailable")
+          : (error.message ?? t("auth.error_network")),
+      );
       setLoading(false);
       return;
     }

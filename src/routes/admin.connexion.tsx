@@ -177,8 +177,8 @@ function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    const { error: signInError, wasServiceError } = await withAuthRetry(
-      () => supabase.auth.signInWithPassword({ email, password })
+    const { error: signInError, wasServiceError } = await withAuthRetry(() =>
+      supabase.auth.signInWithPassword({ email, password }),
     );
 
     if (signInError) {
@@ -405,7 +405,9 @@ function AdminLoginPage() {
                     onClick={() => setShowPassword((v) => !v)}
                     className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground"
                     tabIndex={-1}
-                    aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    aria-label={
+                      showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"
+                    }
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>

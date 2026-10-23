@@ -825,7 +825,10 @@ Réponds UNIQUEMENT en JSON strict :
     ];
     const { inlineStorageImage } = await import("@/lib/ai/storage-image.server");
     for (const url of photoUrls) {
-      const image = await inlineStorageImage(url, process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "");
+      const image = await inlineStorageImage(
+        url,
+        process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "",
+      );
       content.push({ type: "image_url", image_url: { url: image } });
     }
     const { url: gatewayUrl, headers: gatewayHeaders } = getAiGatewayFetchConfig(apiKey);

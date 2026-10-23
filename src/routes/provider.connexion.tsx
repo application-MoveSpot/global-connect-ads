@@ -54,7 +54,7 @@ function ProviderLoginPage() {
     setError("");
     setLoading(true);
     const { data, error, wasServiceError } = await withAuthRetry(() =>
-      supabase.auth.signInWithPassword({ email, password })
+      supabase.auth.signInWithPassword({ email, password }),
     );
     if (error) {
       setError(

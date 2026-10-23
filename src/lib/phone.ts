@@ -3,7 +3,7 @@ import { z } from "zod";
 // ─── French ───────────────────────────────────────────────────────────────────
 // Covers mainland (01-09), +33, and 0033 variants.
 const FR_VALID_RE =
-  /^(?:\+33|0033|0)[1-9](?:[\s.\-]?\d{2}){4}$|^\+33[\s.\-]?[1-9](?:[\s.\-]?\d{2}){4}$/;
+  /^(?:\+33|0033|0)[1-9](?:[\s.-]?\d{2}){4}$|^\+33[\s.-]?[1-9](?:[\s.-]?\d{2}){4}$/;
 
 export function isValidFrenchPhone(raw: string): boolean {
   return FR_VALID_RE.test(raw.trim());
@@ -29,7 +29,7 @@ export function formatPhone(e164: string): string {
 
 // ─── US ───────────────────────────────────────────────────────────────────────
 // Covers: (555) 123-4567 | 555-123-4567 | 555.123.4567 | +1 555 123 4567 | 5551234567
-const US_VALID_RE = /^(?:\+1[\s.\-]?)?(?:\(\d{3}\)|\d{3})[\s.\-]?\d{3}[\s.\-]?\d{4}$/;
+const US_VALID_RE = /^(?:\+1[\s.-]?)?(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/;
 
 export function isValidUsPhone(raw: string): boolean {
   return US_VALID_RE.test(raw.trim());

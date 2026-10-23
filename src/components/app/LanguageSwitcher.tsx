@@ -22,7 +22,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           onClick={() => {
             try {
               localStorage.setItem("movespot_lang", code);
-            } catch {}
+            } catch { /* unavailable in private mode or blocked storage */ }
             i18n.changeLanguage(code);
           }}
           className={`text-xs font-semibold px-2 py-1 rounded-md transition ${

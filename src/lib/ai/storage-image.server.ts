@@ -9,7 +9,8 @@ export async function inlineStorageImage(url: string, storageOrigin: string): Pr
   if (
     imageUrl.origin !== new URL(storageOrigin).origin ||
     imageUrl.protocol !== "https:" ||
-    imageUrl.username || imageUrl.password ||
+    imageUrl.username ||
+    imageUrl.password ||
     !/^\/storage\/v1\/object\/(sign|public)\//.test(imageUrl.pathname)
   ) {
     throw new Error("Cette photo ne provient pas du stockage MoveSpot.");

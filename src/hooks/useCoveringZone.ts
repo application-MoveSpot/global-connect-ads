@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { isCoveringQuad, parseCoveringZone, type CoveringQuad, type CoveringZone } from "@/lib/fleet/covering-geometry";
+import {
+  isCoveringQuad,
+  parseCoveringZone,
+  type CoveringQuad,
+  type CoveringZone,
+} from "@/lib/fleet/covering-geometry";
 import type { Json } from "@/integrations/supabase/types";
 export type { CoveringPoint, CoveringQuad, CoveringZone } from "@/lib/fleet/covering-geometry";
 
@@ -26,7 +31,9 @@ export function useCoveringZone(vehicleId: string) {
         setError(readError ? "Impossible de charger la zone publicitaire." : null);
         setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [vehicleId]);
 
   const saveZone = useCallback(
@@ -37,13 +44,21 @@ export function useCoveringZone(vehicleId: string) {
       }
       setSaving(true);
       setError(null);
-      const updated: CoveringZone = { ...(zone ?? {}), [photoIndex]: { points, ...(photoPath ? { photoPath } : {}) } };
+      const updated: CoveringZone = {
+        ...(zone ?? {}),
+        [photoIndex]: { points, ...(photoPath ? { photoPath } : {}) },
+      };
       const { data, error: writeError } = await supabase
         .from("vehicles")
         .update({ covering_zone: updated as unknown as Json })
-        .eq("id", vehicleId).select("covering_zone").single();
+        .eq("id", vehicleId)
+        .select("covering_zone")
+        .single();
       setSaving(false);
-      if (writeError) { setError("La zone n’a pas été enregistrée. Réessayez."); return false; }
+      if (writeError) {
+        setError("La zone n’a pas été enregistrée. Réessayez.");
+        return false;
+      }
       setZone(parseCoveringZone(data.covering_zone));
       return true;
     },
@@ -60,9 +75,14 @@ export function useCoveringZone(vehicleId: string) {
       const { data, error: writeError } = await supabase
         .from("vehicles")
         .update({ covering_zone: newZone as unknown as Json })
-        .eq("id", vehicleId).select("covering_zone").single();
+        .eq("id", vehicleId)
+        .select("covering_zone")
+        .single();
       setSaving(false);
-      if (writeError) { setError("La zone n’a pas été effacée. Réessayez."); return false; }
+      if (writeError) {
+        setError("La zone n’a pas été effacée. Réessayez.");
+        return false;
+      }
       setZone(parseCoveringZone(data.covering_zone));
       return true;
     },

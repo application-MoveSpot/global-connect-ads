@@ -20,7 +20,12 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
   const [index, setIndex] = useState(0);
   const photos = useVehiclePhotoUrls(rawPhotos);
   const [videoObjectUrl, setVideoObjectUrl] = useState<string | null>(null);
-  const { processedUrl: processedLogoUrl, isProcessing: isProcessingLogo, isDetoured: isLogoDetoured, error: logoError } = useProcessedLogo(logoUrl);
+  const {
+    processedUrl: processedLogoUrl,
+    isProcessing: isProcessingLogo,
+    isDetoured: isLogoDetoured,
+    error: logoError,
+  } = useProcessedLogo(logoUrl);
 
   useEffect(() => {
     if (!videoFile) {
@@ -47,7 +52,9 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
         setRawPhotos(data?.photos ?? []);
         setCoveringZone(parseCoveringZone(data?.covering_zone));
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [vehicleId]);
 
   if (rawPhotos === null) {
@@ -166,8 +173,11 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
           ? t("vehicle_photo_preview.caption_video")
           : t("vehicle_photo_preview.caption_image")}
       </p>
-      {logoError && !videoObjectUrl && <p role="alert" className="text-xs text-destructive">{logoError}</p>}
+      {logoError && !videoObjectUrl && (
+        <p role="alert" className="text-xs text-destructive">
+          {logoError}
+        </p>
+      )}
     </div>
   );
 }
-

@@ -116,15 +116,23 @@ function CommercialInscription() {
     setError("");
     setLoading(true);
     if (mode === "signup") {
-      const { data: signUpData, error: authErr, wasServiceError: signUpServiceErr } = await withAuthRetry(() =>
+      const {
+        data: signUpData,
+        error: authErr,
+        wasServiceError: signUpServiceErr,
+      } = await withAuthRetry(() =>
         supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: `${window.location.origin}/commercial/inscription` },
-        })
+        }),
       );
       if (authErr) {
-        setError(signUpServiceErr ? t("auth.error_service_unavailable") : authErr.message ?? t("auth.error_network"));
+        setError(
+          signUpServiceErr
+            ? t("auth.error_service_unavailable")
+            : (authErr.message ?? t("auth.error_network")),
+        );
         setLoading(false);
         return;
       }
@@ -142,10 +150,14 @@ function CommercialInscription() {
       }
     } else {
       const { error: authErr, wasServiceError: signInServiceErr } = await withAuthRetry(() =>
-        supabase.auth.signInWithPassword({ email, password })
+        supabase.auth.signInWithPassword({ email, password }),
       );
       if (authErr) {
-        setError(signInServiceErr ? t("auth.error_service_unavailable") : authErr.message ?? t("auth.error_network"));
+        setError(
+          signInServiceErr
+            ? t("auth.error_service_unavailable")
+            : (authErr.message ?? t("auth.error_network")),
+        );
         setLoading(false);
         return;
       }

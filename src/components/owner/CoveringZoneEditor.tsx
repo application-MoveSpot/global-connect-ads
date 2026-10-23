@@ -19,14 +19,15 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
   const { zone, loading, saving, error, saveZone, clearZone } = useCoveringZone(vehicleId);
 
   const [photoIndex, setPhotoIndex] = useState(0);
-  const [points, setPoints] = useState<CoveringPoint[]>(
-    () => (zone?.[0]?.points ? [...zone[0].points] : []),
+  const [points, setPoints] = useState<CoveringPoint[]>(() =>
+    zone?.[0]?.points ? [...zone[0].points] : [],
   );
   const [saved, setSaved] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!loading) setPoints([...(zoneForPhoto(zone, photoIndex, rawPhotos[photoIndex])?.points ?? [])]);
+    if (!loading)
+      setPoints([...(zoneForPhoto(zone, photoIndex, rawPhotos[photoIndex])?.points ?? [])]);
   }, [loading, zone, photoIndex, rawPhotos]);
 
   const handlePhotoChange = (idx: number) => {
@@ -59,7 +60,10 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
   };
 
   const handleClear = async () => {
-    if (await clearZone(photoIndex)) { setPoints([]); setSaved(false); }
+    if (await clearZone(photoIndex)) {
+      setPoints([]);
+      setSaved(false);
+    }
   };
 
   const currentPhoto = photos[photoIndex];
@@ -121,10 +125,7 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
                       : "border-border text-muted-foreground/50"
                 }`}
               >
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ background: COLORS[i] }}
-                />
+                <span className="w-2 h-2 rounded-full" style={{ background: COLORS[i] }} />
                 {i + 1}. {label}
               </div>
             ))}
@@ -153,9 +154,7 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
                   preserveAspectRatio="none"
                 >
                   <polygon
-                    points={points
-                      .map((p) => `${p.x * 100},${p.y * 100}`)
-                      .join(" ")}
+                    points={points.map((p) => `${p.x * 100},${p.y * 100}`).join(" ")}
                     fill="rgba(56,130,246,0.35)"
                     stroke="#3b82f6"
                     strokeWidth="0.5"
@@ -233,9 +232,15 @@ export function CoveringZoneEditor({ vehicleId, rawPhotos, onClose }: Props) {
               Zone enregistrée — les annonceurs verront le covering précisément sur cette zone.
             </p>
           )}
-          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
           {points.length === 4 && !isCoveringQuad(points) && (
-            <p role="alert" className="text-sm text-destructive">Zone croisée ou trop petite : repositionnez les quatre coins.</p>
+            <p role="alert" className="text-sm text-destructive">
+              Zone croisée ou trop petite : repositionnez les quatre coins.
+            </p>
           )}
         </div>
       </div>

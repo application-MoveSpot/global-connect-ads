@@ -90,20 +90,28 @@ function AuthPage() {
               ...(utm ? { data: { utm } } : {}),
             },
           }),
-        { onRetry: () => setRetrying(true) }
+        { onRetry: () => setRetrying(true) },
       );
       setRetrying(false);
       if (error)
-        setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
+        setError(
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : (error.message ?? t("auth.error_network")),
+        );
       else goNext();
     } else {
       const { error, wasServiceError } = await withAuthRetry(
         () => supabase.auth.signInWithPassword({ email, password }),
-        { onRetry: () => setRetrying(true) }
+        { onRetry: () => setRetrying(true) },
       );
       setRetrying(false);
       if (error)
-        setError(wasServiceError ? t("auth.error_service_unavailable") : error.message ?? t("auth.error_network"));
+        setError(
+          wasServiceError
+            ? t("auth.error_service_unavailable")
+            : (error.message ?? t("auth.error_network")),
+        );
       else await checkMfaThenGo();
     }
     setLoading(false);

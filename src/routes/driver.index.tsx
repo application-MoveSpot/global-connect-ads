@@ -68,7 +68,7 @@ function DriverPage() {
           setState("confirming");
           try {
             localStorage.setItem("movespot_driver_token", tok);
-          } catch {}
+          } catch { /* unavailable in private mode or blocked storage */ }
         } else {
           setState("invalid");
           setError(r.error);
@@ -88,7 +88,7 @@ function DriverPage() {
   const rejectVehicle = () => {
     try {
       localStorage.removeItem("movespot_driver_token");
-    } catch {}
+    } catch { /* unavailable in private mode or blocked storage */ }
     setState("invalid");
     setError(t("driver.invalid_vehicle"));
   };
@@ -99,9 +99,8 @@ function DriverPage() {
       return;
     }
     try {
-      // @ts-ignore
       if (navigator.wakeLock) wakeLockRef.current = await navigator.wakeLock.request("screen");
-    } catch {}
+    } catch { /* unavailable in private mode or blocked storage */ }
 
     const buffer = new GpsBatchBuffer(
       async (points) => {
@@ -148,7 +147,7 @@ function DriverPage() {
     if (wakeLockRef.current) {
       try {
         wakeLockRef.current.release();
-      } catch {}
+      } catch { /* unavailable in private mode or blocked storage */ }
     }
     wakeLockRef.current = null;
     void bufferRef.current?.stop().then(() => setPending(bufferRef.current?.pending ?? 0));

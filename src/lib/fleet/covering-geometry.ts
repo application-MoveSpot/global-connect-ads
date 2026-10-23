@@ -9,16 +9,30 @@ export type CoveringZone = Record<number, CoveringEntry>;
 // Represents a single rear-door panel on a typical sedan/hatchback side view.
 // Slight rightward taper simulates the camera angle perspective.
 export const FALLBACK_COVERING_QUAD: CoveringQuad = [
-  { x: 0.38, y: 0.36 }, { x: 0.62, y: 0.37 },
-  { x: 0.63, y: 0.64 }, { x: 0.37, y: 0.63 },
+  { x: 0.38, y: 0.36 },
+  { x: 0.62, y: 0.37 },
+  { x: 0.63, y: 0.64 },
+  { x: 0.37, y: 0.63 },
 ];
 
 export function isCoveringQuad(value: unknown): value is CoveringQuad {
   if (!Array.isArray(value) || value.length !== 4) return false;
-  if (!value.every((p) => p && typeof p === "object" &&
-    typeof p.x === "number" && typeof p.y === "number" &&
-    Number.isFinite(p.x) && Number.isFinite(p.y) &&
-    p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1)) return false;
+  if (
+    !value.every(
+      (p) =>
+        p &&
+        typeof p === "object" &&
+        typeof p.x === "number" &&
+        typeof p.y === "number" &&
+        Number.isFinite(p.x) &&
+        Number.isFinite(p.y) &&
+        p.x >= 0 &&
+        p.x <= 1 &&
+        p.y >= 0 &&
+        p.y <= 1,
+    )
+  )
+    return false;
   // A clockwise convex polygon in screen coordinates: reject crossed, repeated
   // and collinear points before the homography solver can become singular.
   for (let i = 0; i < 4; i++) {
@@ -38,13 +52,19 @@ export function parseCoveringZone(value: unknown): CoveringZone | null {
     if (!isCoveringQuad(entry.points)) continue;
     parsed[Number(key)] = {
       points: entry.points,
-      ...("photoPath" in entry && typeof entry.photoPath === "string" ? { photoPath: entry.photoPath } : {}),
+      ...("photoPath" in entry && typeof entry.photoPath === "string"
+        ? { photoPath: entry.photoPath }
+        : {}),
     };
   }
   return Object.keys(parsed).length ? parsed : null;
 }
 
-export function zoneForPhoto(zone: CoveringZone | null, index: number, photoPath?: string): CoveringEntry | null {
+export function zoneForPhoto(
+  zone: CoveringZone | null,
+  index: number,
+  photoPath?: string,
+): CoveringEntry | null {
   const entry = zone?.[index];
   if (!entry || (entry.photoPath && entry.photoPath !== photoPath)) return null;
   return entry;
@@ -58,7 +78,12 @@ export function coveringProjection(points: CoveringQuad, width: number, height: 
   const distance = (a: CoveringPoint, b: CoveringPoint) => Math.hypot(b.x - a.x, b.y - a.y);
   const planeWidth = (distance(tl, tr) + distance(bl, br)) / 2;
   const planeHeight = (distance(tl, bl) + distance(tr, br)) / 2;
-  const source = [[0, 0], [planeWidth, 0], [planeWidth, planeHeight], [0, planeHeight]];
+  const source = [
+    [0, 0],
+    [planeWidth, 0],
+    [planeWidth, planeHeight],
+    [0, planeHeight],
+  ];
   const rows: number[][] = [];
   const targets: number[][] = [];
   source.forEach(([x = 0, y = 0], i) => {
@@ -68,8 +93,11 @@ export function coveringProjection(points: CoveringQuad, width: number, height: 
     targets.push([u], [v]);
   });
   let coeffs: number[];
-  try { coeffs = solve(new Matrix(rows), new Matrix(targets)).to1DArray(); }
-  catch { return null; }
+  try {
+    coeffs = solve(new Matrix(rows), new Matrix(targets)).to1DArray();
+  } catch {
+    return null;
+  }
   const [a = 0, b = 0, c = 0, d = 0, e = 0, f = 0, g = 0, h = 0] = coeffs;
   if ([a, b, c, d, e, f, g, h].some((n) => n === undefined || !Number.isFinite(n))) return null;
   // CSS is column-major. W = g*x+h*y+1 gives an actual projective divide,

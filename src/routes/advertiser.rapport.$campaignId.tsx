@@ -5,18 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getCampaignMetrics } from "@/lib/tracking/tracking.functions";
 import { getInvoiceData } from "@/lib/campaigns/invoice.functions";
 import { useTranslation } from "react-i18next";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/advertiser/rapport/$campaignId")({
   head: () => ({ meta: [{ title: "Rapport de diffusion GPS certifié — MoveSpot" }] }),
   component: RapportPage,
-  errorComponent: ({ error }: { error: Error }) => {
-    const { t } = useTranslation();
-    return (
-      <div className="p-8 text-center text-destructive">
-        {t("errors.prefix")} : {error.message}
-      </div>
-    );
-  },
+  errorComponent: RouteError,
 });
 
 function RapportPage() {

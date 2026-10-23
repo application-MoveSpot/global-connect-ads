@@ -4,18 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getInvoiceData } from "@/lib/campaigns/invoice.functions";
 import { useTranslation } from "react-i18next";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/advertiser/facture/$campaignId")({
   head: () => ({ meta: [{ title: "Facture — MoveSpot" }] }),
   component: FacturePage,
-  errorComponent: ({ error }: { error: Error }) => {
-    const { t } = useTranslation();
-    return (
-      <div className="p-8 text-center text-destructive">
-        {t("errors.prefix")} : {error.message}
-      </div>
-    );
-  },
+  errorComponent: RouteError,
 });
 
 function FacturePage() {

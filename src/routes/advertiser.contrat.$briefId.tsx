@@ -4,18 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getContractData } from "@/lib/campaigns/contract.functions";
 import { useTranslation } from "react-i18next";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/advertiser/contrat/$briefId")({
   head: () => ({ meta: [{ title: "Devis — MoveSpot" }] }),
   component: ContratPage,
-  errorComponent: ({ error }: { error: Error }) => {
-    const { t } = useTranslation();
-    return (
-      <div className="p-8 text-center text-destructive">
-        {t("errors.prefix")} : {error.message}
-      </div>
-    );
-  },
+  errorComponent: RouteError,
 });
 
 function ContratPage() {

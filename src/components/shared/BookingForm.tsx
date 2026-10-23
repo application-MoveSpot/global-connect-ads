@@ -19,7 +19,11 @@ import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPre
 import { resizeImageFile } from "@/lib/images/resize";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { checkDateOverlap, nearestAvailableSlots, type BookedPeriod } from "@/lib/campaigns/availability";
+import {
+  checkDateOverlap,
+  nearestAvailableSlots,
+  type BookedPeriod,
+} from "@/lib/campaigns/availability";
 
 type DateConflict = {
   conflictStart: string;
@@ -258,8 +262,12 @@ export function BookingForm({ spot, onClose }: Props) {
           setBookedPeriods([]);
         }
       })
-      .finally(() => { if (active) setPeriodsLoading(false); });
-    return () => { active = false; };
+      .finally(() => {
+        if (active) setPeriodsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [spot?.vehicleId]);
 
   if (!spot) return null;
@@ -463,14 +471,14 @@ export function BookingForm({ spot, onClose }: Props) {
         setPeriodsLoading(true);
         loadBookedPeriods(spot.vehicleId)
           .then((freshPeriods) => {
-              setBookedPeriods(freshPeriods);
-              const conflict = checkDateOverlap(startDate, endDate, freshPeriods);
-              setDateConflict({
-                conflictStart: conflict?.start_date ?? startDate,
-                conflictEnd: conflict?.end_date ?? endDate,
-                suggestions: nearestAvailableSlots(startDate, endDate, freshPeriods, toISO(minStart)),
-              });
-            })
+            setBookedPeriods(freshPeriods);
+            const conflict = checkDateOverlap(startDate, endDate, freshPeriods);
+            setDateConflict({
+              conflictStart: conflict?.start_date ?? startDate,
+              conflictEnd: conflict?.end_date ?? endDate,
+              suggestions: nearestAvailableSlots(startDate, endDate, freshPeriods, toISO(minStart)),
+            });
+          })
           .catch(() => {
             setPeriodsError(true);
             setStatus("rejected");
@@ -759,7 +767,11 @@ export function BookingForm({ spot, onClose }: Props) {
                     locale={fr}
                     selected={calRange}
                     onSelect={handleRangeSelect}
-                    disabled={periodsLoading || periodsError ? true : [{ before: minStart }, ...bookedModifiers]}
+                    disabled={
+                      periodsLoading || periodsError
+                        ? true
+                        : [{ before: minStart }, ...bookedModifiers]
+                    }
                     modifiers={{ booked: bookedModifiers }}
                     components={{ DayButton: BookingDayButton }}
                     numberOfMonths={1}
@@ -853,10 +865,17 @@ export function BookingForm({ spot, onClose }: Props) {
                     </div>
                     {(["before", "after"] as const).map((direction) => {
                       const slot = dateConflict.suggestions[direction];
-                      if (!slot) return <p key={direction} className="text-xs text-muted-foreground">{t("booking.no_slot_before")}</p>;
+                      if (!slot)
+                        return (
+                          <p key={direction} className="text-xs text-muted-foreground">
+                            {t("booking.no_slot_before")}
+                          </p>
+                        );
                       return (
                         <div key={direction}>
-                          <p className="text-xs font-medium mb-1.5">{t(`booking.slot_${direction}`)}</p>
+                          <p className="text-xs font-medium mb-1.5">
+                            {t(`booking.slot_${direction}`)}
+                          </p>
                           <Button
                             type="button"
                             variant="outline"
@@ -864,12 +883,17 @@ export function BookingForm({ spot, onClose }: Props) {
                             onClick={() => {
                               setStartDate(slot.start);
                               setEndDate(slot.end);
-                              setCalRange({ from: new Date(slot.start + "T00:00:00"), to: new Date(slot.end + "T00:00:00") });
+                              setCalRange({
+                                from: new Date(slot.start + "T00:00:00"),
+                                to: new Date(slot.end + "T00:00:00"),
+                              });
                               setDateConflict(null);
                               setStatus("idle");
                             }}
                           >
-                            <span>{fmtDate(slot.start)} → {fmtDate(slot.end)}</span>
+                            <span>
+                              {fmtDate(slot.start)} → {fmtDate(slot.end)}
+                            </span>
                             <span className="text-xs font-semibold">{t("booking.choose")}</span>
                           </Button>
                         </div>

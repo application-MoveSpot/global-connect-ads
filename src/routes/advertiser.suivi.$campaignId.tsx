@@ -33,18 +33,12 @@ import { submitCampaignRating, getCampaignRating } from "@/lib/campaigns/rating.
 import { toast } from "sonner";
 import { MapConsentGate } from "@/components/app/MapConsentGate";
 import { useTranslation } from "react-i18next";
+import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/advertiser/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
   component: SuiviPage,
-  errorComponent: ({ error }: { error: Error }) => {
-    const { t } = useTranslation();
-    return (
-      <div className="p-8 text-center text-destructive">
-        {t("errors.prefix")} : {error.message}
-      </div>
-    );
-  },
+  errorComponent: RouteError,
 });
 
 type Position = {
