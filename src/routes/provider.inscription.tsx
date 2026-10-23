@@ -255,7 +255,7 @@ function ProviderSignupPage() {
       return;
     }
     const phoneTrim = phone.trim();
-    if (!/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
+    if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
       setError(t("auth.error.invalid_phone"));
       return;
     }
@@ -434,11 +434,10 @@ function ProviderSignupPage() {
               hint={t("provider.inscription.fullname_hint")}
             />
             <Input
-              label={t("common.phone")}
+              label={`${t("common.phone")} (${t("common.optional", "optionnel")})`}
               type="tel"
               value={phone}
               onChange={setPhone}
-              required
               placeholder="Ex. +33 6 12 34 56 78"
             />
             <Field label={t("common.website_optional")}>
