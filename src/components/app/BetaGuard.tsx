@@ -45,7 +45,10 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // TOKEN_REFRESHED is fired by our own refreshSession() call inside check().
+      // Listening to it would re-trigger check() → refreshSession() → TOKEN_REFRESHED → ∞
+      if (event === "TOKEN_REFRESHED") return;
       check(session?.user?.email?.toLowerCase());
     });
 
