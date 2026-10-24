@@ -493,7 +493,7 @@ function SuiviPage() {
             dateLocale={dateLocale}
           />
         )}
-        {metrics && metrics.totals.pointsTotal > 0 && (
+        {metrics && metrics.totals?.pointsTotal > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -512,22 +512,22 @@ function SuiviPage() {
                 />
                 <Stat
                   label={t("advertiser.suivi.stat_distance_zone")}
-                  value={`${(metrics.totals.distanceInZoneM / 1000).toFixed(1)} km`}
+                  value={`${((metrics.totals?.distanceInZoneM ?? 0) / 1000).toFixed(1)} km`}
                 />
                 <Stat
                   label={t("advertiser.suivi.stat_distance_total")}
-                  value={`${(metrics.totals.distanceM / 1000).toFixed(1)} km`}
+                  value={`${((metrics.totals?.distanceM ?? 0) / 1000).toFixed(1)} km`}
                 />
                 <Stat
                   label={t("advertiser.suivi.stat_minutes_active")}
-                  value={`${metrics.totals.activeMinutes} min`}
+                  value={`${metrics.totals?.activeMinutes ?? 0} min`}
                 />
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
                 {t("advertiser.suivi.gps_points_text", {
-                  inZone: metrics.totals.pointsInZone,
-                  total: metrics.totals.pointsTotal,
-                  days: metrics.days.length,
+                  inZone: metrics.totals?.pointsInZone ?? 0,
+                  total: metrics.totals?.pointsTotal ?? 0,
+                  days: metrics.days?.length ?? 0,
                 })}
               </p>
             </CardContent>
