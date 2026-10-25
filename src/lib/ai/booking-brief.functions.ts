@@ -86,7 +86,7 @@ Réponds UNIQUEMENT en JSON strict, sans markdown ni commentaires.`;
         model: provider("google/gemini-2.5-flash"),
         prompt,
         temperature: 0.4,
-        maxOutputTokens: 600,
+        maxOutputTokens: 1200,
       });
 
       const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
