@@ -536,7 +536,7 @@ function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () =
                     : "border-border text-muted-foreground hover:bg-secondary"
                 } disabled:opacity-60`}
               >
-                {type === "garage" ? "🏪" : "🏠"} {t(`provider.dashboard.pose_type_${type}`)}
+                {type === "garage" ? "🏪" : "🏠"} {t(`prestataire.dashboard.pose_type_${type}`)}
                 {checked && <span className="text-primary">✓</span>}
               </button>
             );

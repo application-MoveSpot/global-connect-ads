@@ -188,7 +188,7 @@ function AdminProvidersPage() {
                       {r.pose_location_type && (
                         <div className="text-xs text-muted-foreground">
                           {r.pose_location_type === "garage" ? "🏪" : "🏠"}{" "}
-                          {t(`provider.dashboard.pose_type_${r.pose_location_type}`)}
+                          {t(`prestataire.dashboard.pose_type_${r.pose_location_type}`)}
                           {r.installation_address && ` — ${r.installation_address}`}
                         </div>
                       )}

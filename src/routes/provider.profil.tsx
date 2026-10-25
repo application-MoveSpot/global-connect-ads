@@ -253,7 +253,7 @@ function ProviderProfilPage() {
                         : "border-border bg-input hover:border-primary/40"
                     }`}
                   >
-                    {pt === "garage" ? "🏪" : "🏠"} {t(`provider.dashboard.pose_type_${pt}`)}
+                    {pt === "garage" ? "🏪" : "🏠"} {t(`prestataire.dashboard.pose_type_${pt}`)}
                   </button>
                 ))}
               </div>
