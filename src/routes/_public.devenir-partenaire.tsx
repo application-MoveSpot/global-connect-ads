@@ -93,8 +93,8 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
       },
     ],
     links: [
-      { rel: "canonical", href: "https://move-spot.com/devenir-partner" },
-      ...hreflangLinks("/devenir-partner"),
+      { rel: "canonical", href: "https://move-spot.com/devenir-partenaire" },
+      ...hreflangLinks("/devenir-partenaire"),
     ],
   }),
   component: DevenirPartenaire,
