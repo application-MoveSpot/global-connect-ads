@@ -307,7 +307,7 @@ function Index() {
               {tx("hero.cta_primary", "Lancer ma campagne →")}
             </Link>
             <Link
-              to="/devenir-partner"
+              to="/devenir-partenaire"
               className="rounded-full border border-border bg-card/50 backdrop-blur px-6 py-3 font-semibold hover:bg-card transition"
             >
               {tx("hero.cta_secondary", "Je suis propriétaire →")}
