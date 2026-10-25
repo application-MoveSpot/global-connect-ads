@@ -47,6 +47,8 @@ import {
   transferToPoseInstaller,
   transferToDeposeInstaller,
 } from "@/lib/campaigns/installer-payout.functions";
+import { getProviderPositionsAdmin } from "@/lib/tracking/provider-tracking.functions";
+import { ProviderPositionMap } from "@/components/provider/ProviderPositionMap";
 import type { AdminUserRow } from "@/lib/admin.functions";
 import {
   InstallationPhotoGrid,
@@ -397,6 +399,14 @@ function AdminDashboard() {
     queryFn: () => getReferrals(),
     enabled: ready && tab === "referral",
     staleTime: 2 * 60 * 1000,
+    retry: false,
+  });
+  const fetchProviderPositions = useServerFn(getProviderPositionsAdmin);
+  const providerPositionsQuery = useQuery({
+    queryKey: ["admin-provider-positions"],
+    queryFn: () => fetchProviderPositions(),
+    enabled: ready && tab === "prestataires",
+    staleTime: 60 * 1000,
     retry: false,
   });
 
@@ -2006,7 +2016,7 @@ function AdminDashboard() {
         ) : null}
 
         {tab === "prestataires" ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="font-display text-lg font-bold">
                 {t("admin.dashboard.prestataires_heading")}
@@ -2018,12 +2028,8 @@ function AdminDashboard() {
                 {t("admin.dashboard.prestataires_full_page")}
               </a>
             </div>
-            <p className="text-sm text-muted-foreground">
-              {t("admin.dashboard.prestataires_desc")}
-            </p>
-            {(pendingCountsQuery.data?.prestataires ?? 0) === 0 ? (
-              <Empty>{t("admin.dashboard.prestataires_none_pending")}</Empty>
-            ) : (
+
+            {(pendingCountsQuery.data?.prestataires ?? 0) > 0 && (
               <div className="rounded-xl border border-amber-400/30 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-center justify-between gap-3">
                 <div>
                   <div className="font-semibold text-amber-800 dark:text-amber-300">
@@ -2043,6 +2049,26 @@ function AdminDashboard() {
                 </a>
               </div>
             )}
+
+            <div>
+              <h3 className="font-semibold mb-1">{t("admin.dashboard.prestataires_map_title")}</h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                {t("admin.dashboard.prestataires_map_desc")}
+              </p>
+              {providerPositionsQuery.isLoading ? (
+                <Skeleton />
+              ) : (providerPositionsQuery.data?.positions ?? []).length === 0 ? (
+                <Empty>{t("admin.dashboard.prestataires_map_empty")}</Empty>
+              ) : (
+                <ClientOnly fallback={<Skeleton />}>
+                  {() => (
+                    <ProviderPositionMap
+                      positions={providerPositionsQuery.data!.positions as any}
+                    />
+                  )}
+                </ClientOnly>
+              )}
+            </div>
           </div>
         ) : null}
 

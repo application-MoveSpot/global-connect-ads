@@ -2746,6 +2746,9 @@
       "prestataires_none_pending": "Aucun prestataire en attente de validation.",
       "prestataires_full_page": "Voir tous les prestataires →",
       "prestataires_validate_btn": "Valider les dossiers",
+      "prestataires_map_title": "Déplacements en temps réel (24h)",
+      "prestataires_map_desc": "Tournées GPS des prestataires actifs sur les dernières 24 heures. Chaque couleur correspond à un prestataire.",
+      "prestataires_map_empty": "Aucun déplacement enregistré dans les 24 dernières heures.",
       "afaire_stripe_title": "Comptes Stripe incomplets",
       "afaire_stripe_desc": "{{count}} compte(s) Stripe à relancer",
       "btn_ai_generate": "Générer une note IA",
@@ -5482,6 +5485,25 @@
     "verifying": "Vérification en cours..."
   },
   "provider": {
+    "tracking": {
+      "nav_btn": "Ma tournée",
+      "title": "Suivi de tournée",
+      "desc": "Activez le GPS pour que vos déplacements soient visibles par l'administrateur. Cela permet de valider vos interventions à domicile.",
+      "back": "Retour au dashboard",
+      "start": "Démarrer ma tournée",
+      "stop": "Arrêter la tournée",
+      "active": "Tournée en cours",
+      "position": "Position :",
+      "last_sync": "Dernier envoi :",
+      "pending_points": "{{count}} point(s) en attente d'envoi",
+      "errors": "erreur(s)",
+      "toast_started": "Tournée démarrée — GPS actif",
+      "toast_stopped": "Tournée arrêtée",
+      "toast_no_gps": "GPS non disponible sur cet appareil.",
+      "toast_gps_error": "Erreur GPS : {{message}}",
+      "privacy_title": "Confidentialité",
+      "privacy_desc": "Seul l'administrateur MoveSpot peut voir vos déplacements. Les données sont supprimées automatiquement après 30 jours."
+    },
     "connexion": {
       "create_account": "Créer Compte",
       "forgot_password": "Mot de passe oublié ?",
