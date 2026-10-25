@@ -18,6 +18,10 @@ import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functi
 import { generateProviderSuggestion } from "@/lib/ai/provider-assistant.functions";
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
+import {
+  ProviderDocUpload,
+  type DocUploadState,
+} from "@/components/provider/ProviderDocUpload";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
 
@@ -52,6 +56,11 @@ function ProviderSignupPage() {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [phone, setPhone] = useState("");
   const [services, setServices] = useState<ProviderServiceKey[]>(["covering_vehicule"]);
+  const [docKbis, setDocKbis] = useState<DocUploadState>(null);
+  const [docRcPro, setDocRcPro] = useState<DocUploadState>(null);
+  const [rcProExpiry, setRcProExpiry] = useState("");
+  const [docRib, setDocRib] = useState<DocUploadState>(null);
+  const [docIdDoc, setDocIdDoc] = useState<DocUploadState>(null);
   const toggleService = (k: ProviderServiceKey) =>
     setServices((prev) => (prev.includes(k) ? prev.filter((s) => s !== k) : [...prev, k]));
   const [website, setWebsite] = useState("");
@@ -254,6 +263,26 @@ function ProviderSignupPage() {
       setError(t("provider.inscription.error.short_description"));
       return;
     }
+    if (!docKbis) {
+      setError(t("provider.inscription.error.missing_kbis"));
+      return;
+    }
+    if (!docRcPro) {
+      setError(t("provider.inscription.error.missing_rc_pro"));
+      return;
+    }
+    if (!rcProExpiry) {
+      setError(t("provider.inscription.error.missing_rc_pro_expiry"));
+      return;
+    }
+    if (new Date(rcProExpiry) < new Date()) {
+      setError(t("provider.inscription.error.rc_pro_expired"));
+      return;
+    }
+    if (!docRib) {
+      setError(t("provider.inscription.error.missing_rib"));
+      return;
+    }
     const phoneTrim = phone.trim();
     if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
       setError(t("auth.error.invalid_phone"));
@@ -299,6 +328,11 @@ function ProviderSignupPage() {
       coverage_areas: coverageList.slice(0, 30),
       portfolio_urls: portfolioPaths,
       pricing_info: pricingInfo || null,
+      kbis_url: docKbis?.path ?? null,
+      rc_pro_url: docRcPro?.path ?? null,
+      rc_pro_expiry: rcProExpiry || null,
+      rib_url: docRib?.path ?? null,
+      id_doc_url: docIdDoc?.path ?? null,
     });
     setLoading(false);
     if (error) {
@@ -633,6 +667,72 @@ function ProviderSignupPage() {
             <Field label={t("provider.inscription.portfolio_label")}>
               <ProviderPortfolioUploader value={portfolio} onChange={setPortfolio} />
             </Field>
+
+            {/* Documents justificatifs */}
+            {sessionEmail && (
+              <div className="space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {t("provider.inscription.docs_title")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("provider.inscription.docs_subtitle")}
+                  </p>
+                </div>
+                <ProviderDocUpload
+                  label={t("provider.inscription.doc_kbis_label")}
+                  hint={t("provider.inscription.doc_kbis_hint")}
+                  required
+                  docType="kbis"
+                  userId={sessionEmail}
+                  value={docKbis}
+                  onChange={setDocKbis}
+                />
+                <ProviderDocUpload
+                  label={t("provider.inscription.doc_rc_pro_label")}
+                  hint={t("provider.inscription.doc_rc_pro_hint")}
+                  required
+                  docType="rc-pro"
+                  userId={sessionEmail}
+                  value={docRcPro}
+                  onChange={setDocRcPro}
+                />
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">
+                    {t("provider.inscription.doc_rc_pro_expiry_label")}{" "}
+                    <span className="text-destructive text-xs">*</span>
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    {t("provider.inscription.doc_rc_pro_expiry_hint")}
+                  </p>
+                  <input
+                    type="date"
+                    value={rcProExpiry}
+                    onChange={(e) => setRcProExpiry(e.target.value)}
+                    min={new Date().toISOString().slice(0, 10)}
+                    className="rounded-lg border border-border bg-background px-3 py-2 text-sm w-full"
+                  />
+                </div>
+                <ProviderDocUpload
+                  label={t("provider.inscription.doc_rib_label")}
+                  hint={t("provider.inscription.doc_rib_hint")}
+                  required
+                  docType="rib"
+                  userId={sessionEmail}
+                  value={docRib}
+                  onChange={setDocRib}
+                />
+                <ProviderDocUpload
+                  label={t("provider.inscription.doc_id_label")}
+                  hint={t("provider.inscription.doc_id_hint")}
+                  docType="id-doc"
+                  userId={sessionEmail}
+                  value={docIdDoc}
+                  onChange={setDocIdDoc}
+                />
+              </div>
+            )}
+
             {error && <ErrorBox>{error}</ErrorBox>}
             <button
               disabled={loading}
