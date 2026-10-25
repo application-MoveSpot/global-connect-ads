@@ -221,6 +221,12 @@ function ProviderDashboard() {
               <Instagram className="h-4 w-4" />
             </a>
             <Link
+              to="/provider/tracking"
+              className="text-sm rounded-full border border-primary/30 bg-primary/5 text-primary px-4 py-2 hover:bg-primary/10 transition flex items-center gap-1.5"
+            >
+              📍 {t("provider.tracking.nav_btn")}
+            </Link>
+            <Link
               to="/provider/profil"
               className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary"
             >

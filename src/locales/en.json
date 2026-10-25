@@ -2701,6 +2701,9 @@
       "prestataires_none_pending": "No providers pending validation.",
       "prestataires_full_page": "View all providers →",
       "prestataires_validate_btn": "Validate applications",
+      "prestataires_map_title": "Real-time movements (24h)",
+      "prestataires_map_desc": "GPS tours of active providers over the last 24 hours. Each color represents a provider.",
+      "prestataires_map_empty": "No movements recorded in the last 24 hours.",
       "afaire_stripe_title": "Incomplete Stripe accounts",
       "afaire_stripe_desc": "{{count}} Stripe account(s) to follow up",
       "btn_ai_generate": "Generate AI note",
@@ -5420,6 +5423,25 @@
     "verifying": "Verifying..."
   },
   "provider": {
+    "tracking": {
+      "nav_btn": "My tour",
+      "title": "Tour tracking",
+      "desc": "Enable GPS so your movements are visible to the administrator. This allows validation of your home visits.",
+      "back": "Back to dashboard",
+      "start": "Start my tour",
+      "stop": "Stop tour",
+      "active": "Tour in progress",
+      "position": "Position:",
+      "last_sync": "Last sync:",
+      "pending_points": "{{count}} point(s) pending upload",
+      "errors": "error(s)",
+      "toast_started": "Tour started — GPS active",
+      "toast_stopped": "Tour stopped",
+      "toast_no_gps": "GPS not available on this device.",
+      "toast_gps_error": "GPS error: {{message}}",
+      "privacy_title": "Privacy",
+      "privacy_desc": "Only the MoveSpot administrator can see your movements. Data is automatically deleted after 30 days."
+    },
     "connexion": {
       "create_account": "Create Account",
       "forgot_password": "Forgot password?",
