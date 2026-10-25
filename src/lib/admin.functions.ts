@@ -1188,8 +1188,8 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes] = await Promise.all(
-      [
+    const [vehiclesRes, briefsRes, posesRes, deposesRes, poseursRes, stripeRes, prestatairesRes] =
+      await Promise.all([
         supabaseAdmin
           .from("vehicles")
           .select("id", { count: "exact", head: true })
@@ -1214,8 +1214,11 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
           .from("payee_profiles")
           .select("stripe_account_id, stripe_charges_enabled")
           .eq("kind" as never, "installer"),
-      ],
-    );
+        supabaseAdmin
+          .from("provider_profiles")
+          .select("user_id", { count: "exact", head: true })
+          .eq("status", "pending"),
+      ]);
 
     const stripeIncomplete = (stripeRes.data ?? []).filter(
       (p: { stripe_account_id: string | null; stripe_charges_enabled: boolean | null }) =>
@@ -1232,5 +1235,6 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
       deposes: deposesRes.count ?? 0,
       poseurs: poseursRes.count ?? 0,
       stripe: stripeIncomplete + stripeNeverStarted,
+      prestataires: prestatairesRes.count ?? 0,
     };
   });

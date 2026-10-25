@@ -104,6 +104,7 @@ type Tab =
   | "poses"
   | "deposes"
   | "poseurs"
+  | "prestataires"
   | "fleet"
   | "stripe"
   | "analytics"
@@ -127,6 +128,7 @@ function AdminDashboard() {
     "poses",
     "deposes",
     "poseurs",
+    "prestataires",
     "fleet",
     "stripe",
     "analytics",
@@ -555,7 +557,7 @@ function AdminDashboard() {
             {(() => {
               const d = pendingCountsQuery.data;
               const total = d
-                ? d.vehicles + d.briefs + d.poses + d.deposes + d.poseurs + d.stripe
+                ? d.vehicles + d.briefs + d.poses + d.deposes + d.poseurs + d.stripe + d.prestataires
                 : 0;
               return total > 0 ? (
                 <span className="ml-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] text-destructive-foreground">
@@ -601,6 +603,14 @@ function AdminDashboard() {
             {(pendingCountsQuery.data?.poseurs ?? 0) > 0 && (
               <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">
                 {pendingCountsQuery.data!.poseurs}
+              </span>
+            )}
+          </TabBtn>
+          <TabBtn active={tab === "prestataires"} onClick={() => switchTab("prestataires")}>
+            {t("admin.dashboard.tab_prestataires")}
+            {(pendingCountsQuery.data?.prestataires ?? 0) > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">
+                {pendingCountsQuery.data!.prestataires}
               </span>
             )}
           </TabBtn>
@@ -659,7 +669,8 @@ function AdminDashboard() {
                   pendingCountsQuery.data.poses +
                   pendingCountsQuery.data.deposes +
                   pendingCountsQuery.data.poseurs +
-                  pendingCountsQuery.data.stripe ===
+                  pendingCountsQuery.data.stripe +
+                  pendingCountsQuery.data.prestataires ===
                   0 ? (
                   <Empty>{t("admin.dashboard.afaire_empty")}</Empty>
                 ) : (
@@ -761,6 +772,26 @@ function AdminDashboard() {
                         </div>
                         <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">
                           {pendingCountsQuery.data!.poseurs}
+                        </span>
+                      </button>
+                    )}
+                    {(pendingCountsQuery.data?.prestataires ?? 0) > 0 && (
+                      <button
+                        onClick={() => switchTab("prestataires")}
+                        className="w-full rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4 text-left hover:bg-amber-100 dark:hover:bg-amber-950/40 transition flex items-center justify-between gap-3"
+                      >
+                        <div>
+                          <div className="font-semibold text-amber-800 dark:text-amber-300">
+                            {t("admin.dashboard.afaire_prestataires_title")}
+                          </div>
+                          <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                            {t("admin.dashboard.afaire_prestataires_desc", {
+                              count: pendingCountsQuery.data!.prestataires,
+                            })}
+                          </div>
+                        </div>
+                        <span className="rounded-full bg-amber-500 px-3 py-1 text-sm font-bold text-white">
+                          {pendingCountsQuery.data!.prestataires}
                         </span>
                       </button>
                     )}
@@ -1972,6 +2003,47 @@ function AdminDashboard() {
               }}
             />
           )
+        ) : null}
+
+        {tab === "prestataires" ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-display text-lg font-bold">
+                {t("admin.dashboard.prestataires_heading")}
+              </h2>
+              <a
+                href="/admin/prestataires"
+                className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent transition"
+              >
+                {t("admin.dashboard.prestataires_full_page")}
+              </a>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("admin.dashboard.prestataires_desc")}
+            </p>
+            {(pendingCountsQuery.data?.prestataires ?? 0) === 0 ? (
+              <Empty>{t("admin.dashboard.prestataires_none_pending")}</Empty>
+            ) : (
+              <div className="rounded-xl border border-amber-400/30 bg-amber-50 dark:bg-amber-950/20 p-4 flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-semibold text-amber-800 dark:text-amber-300">
+                    {t("admin.dashboard.afaire_prestataires_title")}
+                  </div>
+                  <div className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+                    {t("admin.dashboard.afaire_prestataires_desc", {
+                      count: pendingCountsQuery.data!.prestataires,
+                    })}
+                  </div>
+                </div>
+                <a
+                  href="/admin/prestataires"
+                  className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-white hover:bg-amber-600 transition"
+                >
+                  {t("admin.dashboard.prestataires_validate_btn")}
+                </a>
+              </div>
+            )}
+          </div>
         ) : null}
 
         {tab === "analytics" ? (
