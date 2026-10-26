@@ -34,7 +34,7 @@ export class GpsBatchBuffer {
 
   constructor(
     private readonly send: (points: GpsPoint[]) => Promise<void>,
-    private readonly onResult?: (r: { sent: number; failed: boolean; pending: number }) => void,
+    private readonly onResult?: (r: { sent: number; failed: boolean; pending: number; error?: string }) => void,
     private readonly storageKey?: string,
   ) {
     if (storageKey && typeof localStorage !== "undefined") {
@@ -76,11 +76,12 @@ export class GpsBatchBuffer {
     try {
       await this.send(dataToSend);
       this.onResult?.({ sent: dataToSend.length, failed: false, pending: this.buffer.length });
-    } catch {
+    } catch (err) {
       // Zone blanche : on remet le lot en tête de file pour le prochain cycle
       this.buffer = [...dataToSend, ...this.buffer];
       this.persist();
-      this.onResult?.({ sent: 0, failed: true, pending: this.buffer.length });
+      const error = err instanceof Error ? err.message : String(err);
+      this.onResult?.({ sent: 0, failed: true, pending: this.buffer.length, error });
     } finally {
       this.sending = false;
     }

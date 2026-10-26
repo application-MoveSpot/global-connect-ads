@@ -23,10 +23,13 @@ export const pushProviderPositionBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => BatchSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
 
-    // Vérifie que l'appelant est bien un prestataire enregistré
-    const { data: profile } = await supabase
+    // Use supabaseAdmin to bypass RLS for the profile check — the user's RLS
+    // client may not have SELECT on provider_profiles in all policy configurations.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: profile } = await supabaseAdmin
       .from("provider_profiles")
       .select("user_id")
       .eq("user_id", userId)
@@ -44,7 +47,7 @@ export const pushProviderPositionBatch = createServerFn({ method: "POST" })
       recorded_at: p.recordedAt,
     }));
 
-    const { error } = await supabase.from("provider_positions").insert(rows);
+    const { error } = await supabaseAdmin.from("provider_positions").insert(rows);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

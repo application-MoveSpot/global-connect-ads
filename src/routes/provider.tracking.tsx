@@ -35,6 +35,7 @@ function ProviderTrackingPage() {
   const [lastCoords, setLastCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
   const [gpsErrorCount, setGpsErrorCount] = useState(0);
   const [sendErrorCount, setSendErrorCount] = useState(0);
+  const [lastSendError, setLastSendError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [online, setOnline] = useState(true);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
@@ -112,8 +113,10 @@ function ProviderTrackingPage() {
         setPending(r.pending);
         if (r.failed) {
           setSendErrorCount((c) => c + 1);
+          setLastSendError(r.error ?? null);
         } else {
           setLastSent(new Date());
+          setLastSendError(null);
         }
       },
       `movespot_provider_gps_${providerIdRef.current ?? "me"}`,
@@ -256,7 +259,12 @@ function ProviderTrackingPage() {
             {(gpsErrorCount > 0 || sendErrorCount > 0) && (
               <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-xs text-destructive space-y-1">
                 {gpsErrorCount > 0 && <p>GPS : {gpsErrorCount} {t("provider.tracking.errors")}</p>}
-                {sendErrorCount > 0 && <p>Envoi : {sendErrorCount} {t("provider.tracking.errors")}</p>}
+                {sendErrorCount > 0 && (
+                  <>
+                    <p>Envoi : {sendErrorCount} {t("provider.tracking.errors")}</p>
+                    {lastSendError && <p className="opacity-75 break-all">{lastSendError}</p>}
+                  </>
+                )}
               </div>
             )}
 
