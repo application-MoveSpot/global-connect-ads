@@ -78,6 +78,7 @@ type Vehicle = {
   type: string;
   photos: string[] | null;
   format_publicitaire: string | null;
+  zones: string[];
 };
 
 type CampaignRequest = {
@@ -163,7 +164,7 @@ function BriefDetailPage() {
     if (vehicleIds.length > 0) {
       const { data: vs } = await supabase
         .from("vehicles")
-        .select("id, name, type, photos, format_publicitaire")
+        .select("id, name, type, photos, format_publicitaire, zones")
         .in("id", vehicleIds);
       const map: Record<string, Vehicle> = {};
       for (const v of (vs as Vehicle[]) ?? []) map[v.id] = v;
@@ -811,8 +812,20 @@ function BriefDetailPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <div className="font-semibold">
-                            {v?.name ?? t("advertiser.briefs.detail.vehicle_fallback")}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div className="font-semibold">
+                              {v?.name ?? t("advertiser.briefs.detail.vehicle_fallback")}
+                            </div>
+                            {v && brief.zones.length > 0 && !v.zones?.some((z) =>
+                              brief.zones.some((bz) =>
+                                bz.toLowerCase().includes(z.toLowerCase()) ||
+                                z.toLowerCase().includes(bz.toLowerCase())
+                              )
+                            ) && (
+                              <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/60 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">
+                                ⚠️ {t("advertiser.briefs.detail.zone_mismatch_badge")}
+                              </span>
+                            )}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {v?.type} {v?.format_publicitaire && `· ${v.format_publicitaire}`}

@@ -4689,6 +4689,7 @@
         "trial_title": "Essai gratuit",
         "vehicle_default": "Véhicule Par défaut",
         "vehicle_fallback": "Véhicule Valeur par défaut",
+        "zone_mismatch_badge": "Hors zone",
         "vehicle_types_label": "Types de véhicules",
         "wallet_btn": "Recharger mon portefeuille",
         "wallet_desc": "Créditez votre portefeuille pour activer la campagne.",
