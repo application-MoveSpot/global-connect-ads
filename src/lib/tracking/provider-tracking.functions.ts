@@ -19,9 +19,11 @@ const BatchSchema = z.object({
   serviceQuoteId: z.string().uuid().nullable().optional(),
 });
 
+type BatchInput = z.infer<typeof BatchSchema>;
+
 export const pushProviderPositionBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => BatchSchema.parse(input))
+  .inputValidator((input): BatchInput => BatchSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { userId } = context;
 
