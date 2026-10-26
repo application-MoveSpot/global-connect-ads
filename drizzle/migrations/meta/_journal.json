@@ -78,6 +78,13 @@
       "when": 1792638857068,
       "tag": "0010_add_vehicle_covering_zone",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793021128909,
+      "tag": "0011_create_provider_positions",
+      "breakpoints": true
     }
   ]
 }

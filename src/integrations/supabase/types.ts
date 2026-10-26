@@ -1233,6 +1233,60 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_positions: {
+        Row: {
+          accuracy: number | null
+          created_at: string
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          provider_id: string
+          recorded_at: string
+          service_quote_id: string | null
+          speed: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          provider_id: string
+          recorded_at?: string
+          service_quote_id?: string | null
+          speed?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          provider_id?: string
+          recorded_at?: string
+          service_quote_id?: string | null
+          speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_positions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "provider_positions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "public_provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       provider_profiles: {
         Row: {
           admin_notes: string | null
