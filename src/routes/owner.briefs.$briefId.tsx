@@ -40,7 +40,7 @@ type Brief = {
   status: string;
 };
 
-type Vehicle = { id: string; name: string; type: string; price_per_day: number };
+type Vehicle = { id: string; name: string; type: string; price_per_day: number; zones: string[] };
 
 type MyProposal = {
   id: string;
@@ -106,7 +106,7 @@ function BriefDetailPage() {
     const eligibleTypes = briefTypes.includes("autre") ? briefTypes : [...briefTypes, "autre"];
     const { data: vs } = await supabase
       .from("vehicles")
-      .select("id, name, type, price_per_day")
+      .select("id, name, type, price_per_day, zones")
       .eq("owner_id", prof.id)
       .eq("status", "approved")
       .in("type", eligibleTypes as never);
@@ -409,6 +409,20 @@ function BriefDetailPage() {
                     </option>
                   ))}
                 </select>
+                {vehicleId && brief.zones.length > 0 && (() => {
+                  const sel = availableVehicles.find((v) => v.id === vehicleId);
+                  const overlap = sel?.zones?.some((z) =>
+                    brief.zones.some((bz) => bz.toLowerCase().includes(z.toLowerCase()) || z.toLowerCase().includes(bz.toLowerCase()))
+                  );
+                  if (!overlap) {
+                    return (
+                      <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
+                        ⚠️ {t("owner.briefs.detail.zone_mismatch_warning")}
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
