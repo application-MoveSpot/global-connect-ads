@@ -2022,7 +2022,7 @@ function AdminDashboard() {
                 {t("admin.dashboard.prestataires_heading")}
               </h2>
               <a
-                href="/admin/prestataires"
+                href="/admin/providers"
                 className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent transition"
               >
                 {t("admin.dashboard.prestataires_full_page")}
@@ -2042,7 +2042,7 @@ function AdminDashboard() {
                   </div>
                 </div>
                 <a
-                  href="/admin/prestataires"
+                  href="/admin/providers"
                   className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-white hover:bg-amber-600 transition"
                 >
                   {t("admin.dashboard.prestataires_validate_btn")}
