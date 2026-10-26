@@ -11,7 +11,6 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/admin/commerciaux")({
   head: () => ({
@@ -49,7 +48,7 @@ function AdminCommerciauxPage() {
           </div>
           <Link
             to="/admin"
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
           >
             {t("admin.back")}
           </Link>
