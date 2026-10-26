@@ -435,6 +435,12 @@ function BriefDetailPage() {
                 count: brief.days_count ?? 0,
               })}
             </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {t("advertiser.briefs.detail.submitted_at", {
+                date: new Date(brief.created_at).toLocaleDateString(dateLocale),
+                time: new Date(brief.created_at).toLocaleTimeString(dateLocale, { hour: "2-digit", minute: "2-digit" }),
+              })}
+            </p>
           </div>
           <StatusBadge status={brief.status} />
         </div>
