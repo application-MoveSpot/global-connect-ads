@@ -67,6 +67,7 @@ function BriefDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [aiFilledPrice, setAiFilledPrice] = useState(false);
   const callBriefAi = useServerFn(generateOwnerBriefProposal);
   const doSendProposalEmail = useServerFn(sendBriefProposalReceivedEmail);
 
@@ -172,8 +173,10 @@ function BriefDetailPage() {
           briefDescription: brief.description,
           briefZones: brief.zones.length > 0 ? brief.zones : undefined,
           briefDays: brief.days_count ?? undefined,
+          briefBudgetMax: brief.budget_max ?? undefined,
           vehicleName: selectedVehicle?.name ?? vehicleId,
           vehicleType: selectedVehicle?.type ?? "",
+          vehiclePricePerDay: selectedVehicle?.price_per_day ?? undefined,
         },
       });
       if (!res.ok) {
@@ -181,6 +184,10 @@ function BriefDetailPage() {
         return;
       }
       setMessage(res.message);
+      if (res.suggestedPrice && !price) {
+        setPrice(String(res.suggestedPrice));
+        setAiFilledPrice(true);
+      }
     } catch {
       setAiError(t("owner.briefs.detail.ai_proposal_error"));
     } finally {
@@ -222,6 +229,7 @@ function BriefDetailPage() {
     setVehicleId("");
     setPrice("");
     setMessage("");
+    setAiFilledPrice(false);
     setSubmitting(true);
 
     const { data: newProposal, error: insErr } = await supabase
@@ -394,17 +402,24 @@ function BriefDetailPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">
-                  {t("owner.briefs.detail.price_label")}
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium">
+                    {t("owner.briefs.detail.price_label")}
+                  </label>
+                  {aiFilledPrice && (
+                    <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
+                      ✨ {t("owner.briefs.detail.ai_price_filled", "Suggéré par l'IA")}
+                    </span>
+                  )}
+                </div>
                 <input
                   type="number"
                   min={1}
                   step="0.01"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => { setPrice(e.target.value); setAiFilledPrice(false); }}
                   required
-                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+                  className={`w-full rounded-lg border bg-card px-4 py-2.5 transition ${aiFilledPrice ? "border-primary/60 ring-1 ring-primary/30" : "border-border"}`}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   {t("owner.briefs.detail.price_hint")}
