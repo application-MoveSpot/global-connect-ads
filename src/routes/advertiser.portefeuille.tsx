@@ -8,9 +8,14 @@ import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
+import {
+  BankTransferCheckout,
+  isStripeUnsupportedRegion,
+} from "@/components/shared/BankTransferCheckout";
 import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
 import { RouteError } from "@/components/app/RouteError";
 import { useCurrency } from "@/hooks/useCurrency";
+import { useRegion } from "@/lib/region-context";
 
 export const Route = createFileRoute("/advertiser/portefeuille")({
   head: () => ({
@@ -33,6 +38,8 @@ function WalletPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { fmt, locale, fromEurCents } = useCurrency();
+  const { region } = useRegion();
+  const showBankTransfer = isStripeUnsupportedRegion(region);
   const fetchWallet = useServerFn(getMyWallet);
   const fetchTransactions = useServerFn(getWalletTransactions);
 
@@ -249,10 +256,14 @@ function WalletPage() {
               className="w-28 px-3 py-1.5 rounded-lg border border-border bg-background text-sm"
             />
           </div>
-          <WalletTopupCheckout
-            amountEuros={amount}
-            buttonLabel={t("wallet.topup_btn", { amount })}
-          />
+          {showBankTransfer ? (
+            <BankTransferCheckout amountEur={amount} />
+          ) : (
+            <WalletTopupCheckout
+              amountEuros={amount}
+              buttonLabel={t("wallet.topup_btn", { amount })}
+            />
+          )}
         </section>
 
         <section>

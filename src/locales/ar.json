@@ -1,0 +1,148 @@
+{
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "next": "التالي",
+    "back": "رجوع",
+    "loading": "جارٍ التحميل…",
+    "error": "حدث خطأ.",
+    "retry": "إعادة المحاولة",
+    "confirm": "تأكيد",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "close": "إغلاق",
+    "submit": "إرسال",
+    "search": "بحث",
+    "filter": "تصفية",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "pending": "قيد الانتظار",
+      "completed": "مكتمل",
+      "draft": "مسودة",
+      "cancelled": "ملغى"
+    },
+    "date": "التاريخ",
+    "amount": "المبلغ",
+    "description": "الوصف",
+    "title": "العنوان",
+    "home": "الرئيسية",
+    "reload": "إعادة التحميل",
+    "or": "أو",
+    "yes": "نعم",
+    "no": "لا",
+    "optional": "اختياري",
+    "required": "مطلوب",
+    "copied": "تم النسخ!",
+    "copy": "نسخ",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "done": "تم",
+    "accept": "قبول",
+    "reject": "رفض",
+    "name": "الاسم",
+    "type": "النوع",
+    "all": "الكل",
+    "phone": "الهاتف",
+    "website": "الموقع الإلكتروني",
+    "company": "الشركة",
+    "sign_in": "تسجيل الدخول",
+    "create_account": "إنشاء حساب",
+    "unknown": "غير معروف"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "dashboard": "لوحة التحكم",
+    "campaigns": "الحملات",
+    "wallet": "المحفظة",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "login_title": "تسجيل الدخول",
+    "register_title": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "login_btn": "تسجيل الدخول",
+    "register_btn": "إنشاء حساب",
+    "no_account": "ليس لديك حساب؟",
+    "have_account": "لديك حساب بالفعل؟"
+  },
+  "wallet": {
+    "title": "محفظتي",
+    "balance": "الرصيد المتاح",
+    "topup": "إعادة الشحن",
+    "transactions": "المعاملات",
+    "no_transactions": "لا توجد معاملات حتى الآن",
+    "topup_card_title": "الشحن ببطاقة بنكية",
+    "topup_card_subtitle": "دفع آمن عبر Stripe. يُضاف الرصيد فوراً.",
+    "bank_transfer_title": "التحويل البنكي",
+    "bank_transfer_subtitle": "للأسواق التي لا تدعم Stripe. يُعالج خلال 2-3 أيام عمل."
+  },
+  "advertiser": {
+    "dashboard": {
+      "title": "لوحة تحكم المعلن",
+      "welcome": "مرحباً",
+      "my_campaigns": "حملاتي",
+      "new_campaign": "حملة جديدة",
+      "wallet": "المحفظة"
+    },
+    "etude_marche": {
+      "title": "دراسة السوق",
+      "subtitle": "حجم السوق، التوقعات المالية وكتالوج المركبات",
+      "back": "العودة",
+      "new_brief_btn": "إنشاء إعلان",
+      "tab_marche": "السوق",
+      "tab_catalogue": "الكتالوج",
+      "tab_previsionnel": "التوقعات",
+      "detail_prix_jour": "السعر / يوم",
+      "detail_impressions_jour": "مشاهدات / يوم",
+      "detail_demande": "الطلب",
+      "detail_demande_available": "متاح",
+      "detail_zones": "المناطق",
+      "detail_formats_title": "الأشكال",
+      "detail_zones_title": "مناطق الانتشار",
+      "detail_create_brief": "إنشاء إعلان — {{label}}",
+      "detail_close": "إغلاق",
+      "col_support": "الوسيلة",
+      "col_formats": "الأشكال",
+      "col_prix_j": "السعر/يوم",
+      "col_impressions_j": "مشاهدات/يوم",
+      "col_cpm_est": "CPM تقديري",
+      "col_zones": "المناطق"
+    }
+  },
+  "commercial": {
+    "dashboard": {
+      "title": "لوحة تحكم الوكيل التجاري",
+      "referral_code": "رمز الإحالة",
+      "commission_rate": "نسبة العمولة",
+      "clients_title": "العملاء المُحالون",
+      "campaigns_title": "الحملات المرتبطة",
+      "total_commission": "إجمالي العمولات",
+      "paid_commission": "العمولات المدفوعة",
+      "pending_commission": "العمولات المعلقة"
+    }
+  },
+  "payment": {
+    "bank_transfer": {
+      "title": "التحويل البنكي",
+      "subtitle": "خيار الدفع للأسواق غير المدعومة من Stripe",
+      "beneficiary": "المستفيد",
+      "iban": "رقم الحساب الدولي (IBAN)",
+      "bic": "رمز BIC/SWIFT",
+      "reference": "المرجع",
+      "reference_hint": "يُرجى ذكر هذا الرمز في تحويلك البنكي",
+      "processing_time": "مدة المعالجة: 2 إلى 3 أيام عمل",
+      "confirm_btn": "تأكيد طلب التحويل",
+      "success": "تم تسجيل طلب التحويل. سيُضاف رصيدك عند استلام التحويل.",
+      "not_available": "التحويل البنكي غير متاح حالياً. يرجى التواصل معنا."
+    }
+  },
+  "legal": {
+    "rgpd_title": "حماية البيانات الشخصية",
+    "cgu_title": "الشروط العامة للاستخدام"
+  }
+}

@@ -4,6 +4,7 @@ import { getCurrencyFromLang, CURRENCY_CONFIGS } from "@/lib/currency";
 const LANGS = [
   { code: "fr", label: "FR" },
   { code: "en", label: "EN" },
+  { code: "ar", label: "ع" },
 ] as const;
 
 export function LanguageSwitcher({ className }: { className?: string }) {
@@ -22,7 +23,9 @@ export function LanguageSwitcher({ className }: { className?: string }) {
           onClick={() => {
             try {
               localStorage.setItem("movespot_lang", code);
-            } catch { /* unavailable in private mode or blocked storage */ }
+            } catch {
+              /* unavailable in private mode or blocked storage */
+            }
             i18n.changeLanguage(code);
           }}
           className={`text-xs font-semibold px-2 py-1 rounded-md transition ${

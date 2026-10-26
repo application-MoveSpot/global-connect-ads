@@ -5727,5 +5727,20 @@
     "saved": "Profile saved successfully.",
     "saving": "Saving…",
     "submit": "Save changes"
+  },
+  "payment": {
+    "bank_transfer": {
+      "title": "Bank Transfer",
+      "subtitle": "For markets not covered by Stripe. Processed within 2–3 business days.",
+      "beneficiary": "Beneficiary",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "reference": "Reference",
+      "reference_hint": "Please include this reference in your bank transfer.",
+      "processing_time": "Processing time: 2 to 3 business days",
+      "confirm_btn": "Confirm bank transfer request",
+      "success": "Bank transfer request registered. Your balance will be credited upon receipt.",
+      "not_available": "Bank transfer is not available at the moment. Please contact us."
+    }
   }
 }

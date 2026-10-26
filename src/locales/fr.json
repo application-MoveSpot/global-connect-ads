@@ -5789,5 +5789,20 @@
     "saved": "Profil enregistré avec succès.",
     "saving": "Enregistrement…",
     "submit": "Enregistrer les modifications"
+  },
+  "payment": {
+    "bank_transfer": {
+      "title": "Virement bancaire",
+      "subtitle": "Pour les marchés non couverts par Stripe. Traitement sous 2–3 jours ouvrés.",
+      "beneficiary": "Bénéficiaire",
+      "iban": "IBAN",
+      "bic": "BIC / SWIFT",
+      "reference": "Référence",
+      "reference_hint": "Mentionnez cette référence dans votre virement bancaire.",
+      "processing_time": "Délai de traitement : 2 à 3 jours ouvrés",
+      "confirm_btn": "Confirmer la demande de virement",
+      "success": "Demande de virement enregistrée. Votre solde sera crédité à réception.",
+      "not_available": "Le virement bancaire n'est pas disponible pour le moment. Contactez-nous."
+    }
   }
 }

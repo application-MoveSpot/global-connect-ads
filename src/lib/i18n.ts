@@ -2,21 +2,17 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import fr from "../locales/fr.json";
 import en from "../locales/en.json";
+import ar from "../locales/ar.json";
 
-const supportedLanguages = ["fr", "en"] as const;
+export const SUPPORTED_LANGS = ["fr", "en", "ar"] as const;
+export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 
-function getInitialLanguage() {
+function getInitialLanguage(): SupportedLang {
   if (typeof window === "undefined") return "fr";
-
   try {
-    const stored = window.localStorage.getItem("movespot_lang");
-    if (stored === "fr" || stored === "en") {
-      return stored;
-    }
-  } catch {
-    // localStorage can be unavailable in private browsing or strict privacy modes.
-  }
-
+    const stored = localStorage.getItem("movespot_lang");
+    if (stored === "fr" || stored === "en" || stored === "ar") return stored;
+  } catch {}
   return "fr";
 }
 
@@ -24,23 +20,33 @@ i18n.use(initReactI18next).init({
   resources: {
     fr: { translation: fr },
     en: { translation: en },
+    ar: { translation: ar },
   },
   lng: getInitialLanguage(),
   fallbackLng: "fr",
-  supportedLngs: [...supportedLanguages],
+  supportedLngs: [...SUPPORTED_LANGS],
   returnNull: false,
   returnEmptyString: false,
   interpolation: { escapeValue: false },
   initAsync: false,
 });
 
-// Apply stored language preference on the client only.
-// i18next-browser-languagedetector is browser-only and crashes on Cloudflare Workers SSR.
 if (typeof window !== "undefined") {
-  const stored = localStorage.getItem("movespot_lang");
-  if (stored === "fr" || stored === "en") {
-    i18n.changeLanguage(stored);
-  }
+  try {
+    const stored = localStorage.getItem("movespot_lang");
+    if (stored && SUPPORTED_LANGS.includes(stored as SupportedLang)) {
+      i18n.changeLanguage(stored);
+    }
+  } catch {}
+  // Apply RTL when Arabic
+  i18n.on("languageChanged", (lng) => {
+    document.documentElement.dir = lng === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = lng;
+  });
+  // Initial apply
+  const current = i18n.language;
+  document.documentElement.dir = current === "ar" ? "rtl" : "ltr";
+  document.documentElement.lang = current;
 }
 
 export default i18n;
