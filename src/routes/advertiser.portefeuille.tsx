@@ -185,7 +185,10 @@ function WalletPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/advertiser"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+          >
             {t("wallet.back_to_dashboard")}
           </Link>
         </div>

@@ -69,7 +69,7 @@ export const getCommercialDashboard = createServerFn({ method: "POST" })
 
     const { data: profile, error: pErr } = await (supabase as any)
       .from("commercial_profiles")
-      .select("id, full_name, referral_code, commission_rate, active, created_at")
+      .select("id, full_name, referral_code, commission_rate, active, created_at, siret, legal_status, legal_address, cgu_accepted_at")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -151,11 +151,85 @@ export const listCommercialsForAdmin = createServerFn({ method: "POST" })
 
     const { data, error } = await (supabaseAdmin as any)
       .from("commercial_profiles")
-      .select("id, full_name, company, city, referral_code, commission_rate, active, created_at")
+      .select("id, full_name, company, city, referral_code, commission_rate, active, created_at, siret, legal_status, legal_address")
       .order("created_at", { ascending: false });
 
     if (error) return { ok: false as const, commercials: [] };
     return { ok: true as const, commercials: (data ?? []) as CommercialProfile[] };
+  });
+
+// ── Mise à jour des informations légales ─────────────────────────────────────
+
+export const updateCommercialLegalInfo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        siret: z.string().max(14).optional().nullable(),
+        legal_status: z
+          .enum(["auto_entrepreneur", "sas", "sarl", "eurl", "ei", "other"])
+          .optional()
+          .nullable(),
+        legal_address: z.string().max(300).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await (supabase as any)
+      .from("commercial_profiles")
+      .update({
+        siret: data.siret ?? null,
+        legal_status: data.legal_status ?? null,
+        legal_address: data.legal_address ?? null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+    if (error) return { ok: false as const, error: (error as { message: string }).message };
+    return { ok: true as const };
+  });
+
+// ── Relevé mensuel de commissions ────────────────────────────────────────────
+
+export const getCommercialMonthlyStatement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ year: z.number().int().min(2024).max(2099), month: z.number().int().min(1).max(12) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: profile } = await (supabase as any)
+      .from("commercial_profiles")
+      .select("id, full_name, company, referral_code, commission_rate, siret, legal_status, legal_address")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!profile) return { ok: false as const, error: "Profil introuvable." };
+
+    const from = new Date(data.year, data.month - 1, 1).toISOString();
+    const to = new Date(data.year, data.month, 1).toISOString();
+
+    const { data: campaigns } = await (supabase as any)
+      .from("campaign_requests")
+      .select("id, company, spot_name, total_price, commission_amount_cents, commission_paid_at, status, created_at")
+      .eq("commercial_id", profile.id)
+      .gte("created_at", from)
+      .lt("created_at", to)
+      .order("created_at", { ascending: true });
+
+    const rows = (campaigns ?? []) as CommercialCampaign[];
+    const totalCents = rows.reduce((s, c) => s + (c.commission_amount_cents ?? 0), 0);
+    const paidCents = rows.filter((c) => c.commission_paid_at).reduce((s, c) => s + (c.commission_amount_cents ?? 0), 0);
+
+    return {
+      ok: true as const,
+      profile: profile as CommercialProfile,
+      campaigns: rows,
+      totalCents,
+      paidCents,
+      year: data.year,
+      month: data.month,
+    };
   });
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -169,6 +243,10 @@ export type CommercialProfile = {
   commission_rate: number;
   active: boolean;
   created_at: string;
+  siret: string | null;
+  legal_status: string | null;
+  legal_address: string | null;
+  cgu_accepted_at: string | null;
 };
 
 export type CommercialClient = {
