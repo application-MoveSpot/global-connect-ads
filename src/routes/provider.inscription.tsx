@@ -263,26 +263,7 @@ function ProviderSignupPage() {
       setError(t("provider.inscription.error.short_description"));
       return;
     }
-    if (!docKbis) {
-      setError(t("provider.inscription.error.missing_kbis"));
-      return;
-    }
-    if (!docRcPro) {
-      setError(t("provider.inscription.error.missing_rc_pro"));
-      return;
-    }
-    if (!rcProExpiry) {
-      setError(t("provider.inscription.error.missing_rc_pro_expiry"));
-      return;
-    }
-    if (new Date(rcProExpiry) < new Date()) {
-      setError(t("provider.inscription.error.rc_pro_expired"));
-      return;
-    }
-    if (!docRib) {
-      setError(t("provider.inscription.error.missing_rib"));
-      return;
-    }
+    // Documents are optional at inscription — admin reviews and requests them if needed.
     const phoneTrim = phone.trim();
     if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
       setError(t("auth.error.invalid_phone"));
@@ -682,7 +663,6 @@ function ProviderSignupPage() {
                 <ProviderDocUpload
                   label={t("provider.inscription.doc_kbis_label")}
                   hint={t("provider.inscription.doc_kbis_hint")}
-                  required
                   docType="kbis"
                   userId={sessionEmail}
                   value={docKbis}
@@ -691,7 +671,6 @@ function ProviderSignupPage() {
                 <ProviderDocUpload
                   label={t("provider.inscription.doc_rc_pro_label")}
                   hint={t("provider.inscription.doc_rc_pro_hint")}
-                  required
                   docType="rc-pro"
                   userId={sessionEmail}
                   value={docRcPro}
@@ -699,8 +678,7 @@ function ProviderSignupPage() {
                 />
                 <div className="space-y-1">
                   <label className="text-sm font-medium">
-                    {t("provider.inscription.doc_rc_pro_expiry_label")}{" "}
-                    <span className="text-destructive text-xs">*</span>
+                    {t("provider.inscription.doc_rc_pro_expiry_label")}
                   </label>
                   <p className="text-xs text-muted-foreground">
                     {t("provider.inscription.doc_rc_pro_expiry_hint")}
@@ -716,7 +694,6 @@ function ProviderSignupPage() {
                 <ProviderDocUpload
                   label={t("provider.inscription.doc_rib_label")}
                   hint={t("provider.inscription.doc_rib_hint")}
-                  required
                   docType="rib"
                   userId={sessionEmail}
                   value={docRib}
