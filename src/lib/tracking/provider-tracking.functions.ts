@@ -38,7 +38,7 @@ export const pushProviderPositionBatch = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!profile) throw new Error("Accès réservé aux prestataires.");
 
-    const rows = data.points.map((p) => ({
+    const rows = data.points.map((p: BatchInput["points"][number]) => ({
       provider_id: userId,
       service_quote_id: data.serviceQuoteId ?? null,
       lat: p.lat,
