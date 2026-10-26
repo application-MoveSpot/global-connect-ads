@@ -46,6 +46,9 @@ export const Route = createFileRoute("/_public/")({
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { name: "twitter:image", content: "https://move-spot.com/og-image.png" },
+      // Arabic SEO
+      { name: "description", lang: "ar", content: "MoveSpot يربط المعلنين وأصحاب المركبات — شاحنات الطعام، التاكسي، دراجات التوصيل. ارسم منطقتك، والميزانية تُحسب تلقائيًا، وكل كيلومتر بث مُثبت بـ GPS." },
+      { name: "keywords", lang: "ar", content: "إعلانات متنقلة، سوق إعلانات المركبات، إعلانات سيارات الأجرة، شاحنة طعام إعلان، DOOH متنقل" },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/" },
