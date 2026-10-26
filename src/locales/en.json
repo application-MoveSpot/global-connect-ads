@@ -65,7 +65,8 @@
     "phone_invalid_us": "Invalid US phone number (e.g. (555) 123-4567)",
     "ein_label": "EIN",
     "siret_label_us": "Business ID (EIN):",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "saving": "Saving…"
   },
   "wallet": {
     "page_title": "My wallet — MoveSpot",
@@ -2770,7 +2771,13 @@
       "afaire_stripe_title": "Incomplete Stripe accounts",
       "afaire_stripe_desc": "{{count}} Stripe account(s) to follow up",
       "btn_ai_generate": "Generate AI note",
-      "ai_note_error": "The AI could not generate a note. Please try again."
+      "ai_note_error": "The AI could not generate a note. Please try again.",
+      "tab_regions": "🌍 Regions",
+      "regions_title": "GMV by target market",
+      "regions_col_region": "Region",
+      "regions_col_advertisers": "Advertisers",
+      "regions_col_campaigns": "Campaigns",
+      "regions_col_gmv": "GMV (€)"
     },
     "audit": {
       "title": "Audit & Compliance",
@@ -5368,7 +5375,11 @@
       "empty_hint": "Conversations with fleet owners will appear here.",
       "select_thread": "Select a conversation",
       "placeholder": "Your message…"
-    }
+    },
+    "target_region_label": "Target market:",
+    "region_none": "— Choose a region —",
+    "region_saved": "Target market updated.",
+    "region_save_error": "Failed to save."
   },
   "driver": {
     "confirm_no": "That's not my vehicle",
@@ -5742,5 +5753,12 @@
       "success": "Bank transfer request registered. Your balance will be credited upon receipt.",
       "not_available": "Bank transfer is not available at the moment. Please contact us."
     }
+  },
+  "region": {
+    "europe": "Europe",
+    "moyen_orient": "Middle East",
+    "afrique": "Africa",
+    "asie": "Asia-Pacific",
+    "amerique": "Americas"
   }
 }

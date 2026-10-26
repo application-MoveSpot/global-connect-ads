@@ -1238,3 +1238,51 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
       prestataires: prestatairesRes.count ?? 0,
     };
   });
+
+// ── Stats GMV par région ──────────────────────────────────────────────────────
+
+export type AdminRegionStat = {
+  region: string;
+  advertiser_count: number;
+  campaign_count: number;
+  gmv_cents: number;
+};
+
+export const getAdminRegionStats = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({}).parse(input))
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role" as never, {
+      _user_id: userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Admin requis");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [{ data: advertisers }, { data: campaigns }] = await Promise.all([
+      (supabaseAdmin as any)
+        .from("advertiser_profiles")
+        .select("target_region"),
+      (supabaseAdmin as any)
+        .from("campaign_requests")
+        .select("target_region, total_price"),
+    ]);
+
+    const REGIONS = ["europe", "moyen_orient", "afrique", "asie", "amerique"];
+    const stats: AdminRegionStat[] = REGIONS.map((region) => {
+      const ads = (advertisers ?? []).filter(
+        (a: { target_region: string | null }) => a.target_region === region,
+      );
+      const camps = (campaigns ?? []).filter(
+        (c: { target_region: string | null }) => c.target_region === region,
+      );
+      const gmv_cents = camps.reduce(
+        (s: number, c: { total_price: number | null }) => s + Math.round((c.total_price ?? 0) * 100),
+        0,
+      );
+      return { region, advertiser_count: ads.length, campaign_count: camps.length, gmv_cents };
+    });
+
+    return { ok: true as const, stats };
+  });
