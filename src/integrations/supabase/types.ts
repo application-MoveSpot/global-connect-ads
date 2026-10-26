@@ -1296,11 +1296,16 @@ export type Database = {
           description: string
           email: string
           full_name: string
+          id_doc_url: string | null
+          kbis_url: string | null
           logo_url: string | null
           phone: string | null
           portfolio_urls: string[]
           pose_location_types: string[]
           pricing_info: string | null
+          rc_pro_expiry: string | null
+          rc_pro_url: string | null
+          rib_url: string | null
           services: string[]
           siret: string | null
           status: string
@@ -1320,11 +1325,16 @@ export type Database = {
           description: string
           email: string
           full_name: string
+          id_doc_url?: string | null
+          kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
           pose_location_types?: string[]
           pricing_info?: string | null
+          rc_pro_expiry?: string | null
+          rc_pro_url?: string | null
+          rib_url?: string | null
           services?: string[]
           siret?: string | null
           status?: string
@@ -1344,11 +1354,16 @@ export type Database = {
           description?: string
           email?: string
           full_name?: string
+          id_doc_url?: string | null
+          kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
           pose_location_types?: string[]
           pricing_info?: string | null
+          rc_pro_expiry?: string | null
+          rc_pro_url?: string | null
+          rib_url?: string | null
           services?: string[]
           siret?: string | null
           status?: string
