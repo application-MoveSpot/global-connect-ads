@@ -41,6 +41,8 @@ type Provider = {
   rc_pro_expiry: string | null;
   rib_url: string | null;
   id_doc_url: string | null;
+  docs_ai_status: string | null;
+  docs_ai_report: Record<string, { ok: boolean; reason: string }> | null;
 };
 
 type ImpossibleReport = {
@@ -408,21 +410,39 @@ function AdminProvidersPage() {
                 {/* Documents justificatifs */}
                 {(p.kbis_url || p.rc_pro_url || p.rib_url || p.id_doc_url) && (
                   <div className="rounded-lg border border-border bg-secondary/30 p-3 mb-2 space-y-2">
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                      {t("admin.providers.docs_title")}
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        {t("admin.providers.docs_title")}
+                      </div>
+                      {p.docs_ai_status && (
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          p.docs_ai_status === "verified"
+                            ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                            : p.docs_ai_status === "rejected"
+                              ? "bg-destructive/15 text-destructive"
+                              : p.docs_ai_status === "verifying"
+                                ? "bg-blue-500/20 text-blue-700 dark:text-blue-300"
+                                : "bg-secondary text-muted-foreground"
+                        }`}>
+                          {p.docs_ai_status === "verified" ? "✓ IA vérifié" :
+                           p.docs_ai_status === "rejected" ? "✗ IA rejeté" :
+                           p.docs_ai_status === "verifying" ? "⏳ Vérification…" :
+                           "⏳ En attente IA"}
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {p.kbis_url && (
-                        <DocLink path={p.kbis_url} label={t("admin.providers.doc_kbis")} />
+                        <DocLink path={p.kbis_url} label={t("admin.providers.doc_kbis")} aiResult={p.docs_ai_report?.kbis} />
                       )}
                       {p.rc_pro_url && (
-                        <DocLink path={p.rc_pro_url} label={t("admin.providers.doc_rc_pro")} expiry={p.rc_pro_expiry} />
+                        <DocLink path={p.rc_pro_url} label={t("admin.providers.doc_rc_pro")} expiry={p.rc_pro_expiry} aiResult={p.docs_ai_report?.rc_pro} />
                       )}
                       {p.rib_url && (
-                        <DocLink path={p.rib_url} label={t("admin.providers.doc_rib")} />
+                        <DocLink path={p.rib_url} label={t("admin.providers.doc_rib")} aiResult={p.docs_ai_report?.rib} />
                       )}
                       {p.id_doc_url && (
-                        <DocLink path={p.id_doc_url} label={t("admin.providers.doc_id")} />
+                        <DocLink path={p.id_doc_url} label={t("admin.providers.doc_id")} aiResult={p.docs_ai_report?.id_doc} />
                       )}
                     </div>
                   </div>
@@ -450,14 +470,20 @@ function AdminProvidersPage() {
                   />
                 </div>
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {p.status !== "approved" && (
-                    <button
-                      onClick={() => setStatus(p.user_id, "approved")}
-                      className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-3 py-1.5 text-sm font-semibold hover:bg-signal/30"
-                    >
-                      {t("admin.providers.approve")}
-                    </button>
-                  )}
+                  {p.status !== "approved" && (() => {
+                    const isProduction = import.meta.env.VITE_APP_MODE === "production";
+                    const needsAi = isProduction && p.docs_ai_status !== "verified";
+                    return (
+                      <button
+                        onClick={() => !needsAi && setStatus(p.user_id, "approved")}
+                        disabled={needsAi}
+                        title={needsAi ? "En mode production, l'approbation nécessite que l'IA ait vérifié les documents." : undefined}
+                        className="rounded-lg bg-signal/20 text-signal border border-signal/40 px-3 py-1.5 text-sm font-semibold hover:bg-signal/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {t("admin.providers.approve")}
+                      </button>
+                    );
+                  })()}
                   {p.status !== "rejected" && (
                     <button
                       onClick={() => setStatus(p.user_id, "rejected")}
@@ -484,7 +510,17 @@ function AdminProvidersPage() {
   );
 }
 
-function DocLink({ path, label, expiry }: { path: string; label: string; expiry?: string | null }) {
+function DocLink({
+  path,
+  label,
+  expiry,
+  aiResult,
+}: {
+  path: string;
+  label: string;
+  expiry?: string | null;
+  aiResult?: { ok: boolean; reason: string };
+}) {
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -495,31 +531,47 @@ function DocLink({ path, label, expiry }: { path: string; label: string; expiry?
   const daysLeft = expDate ? Math.ceil((expDate.getTime() - Date.now()) / 86400000) : null;
   const expired = daysLeft !== null && daysLeft <= 0;
   const expiringSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 30;
+  const aiRejected = aiResult && !aiResult.ok;
 
   return (
-    <a
-      href={url ?? "#"}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition hover:bg-secondary ${
-        expired
-          ? "border-destructive/40 text-destructive bg-destructive/5"
-          : expiringSoon
-            ? "border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/5"
-            : "border-border text-foreground"
-      }`}
-    >
-      {expired || expiringSoon ? (
-        <AlertTriangle className="h-3 w-3" />
-      ) : (
-        <FileText className="h-3 w-3" />
-      )}
-      {label}
-      {expiry && (
-        <span className="text-[10px] text-muted-foreground">
-          {expired ? "(expirée)" : expiringSoon ? `(J-${daysLeft})` : `(${new Date(expiry).toLocaleDateString("fr-FR")})`}
+    <div className="flex flex-col gap-0.5">
+      <a
+        href={url ?? "#"}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={aiResult?.reason}
+        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition hover:bg-secondary ${
+          aiRejected
+            ? "border-destructive/40 text-destructive bg-destructive/5"
+            : expired
+              ? "border-destructive/40 text-destructive bg-destructive/5"
+              : expiringSoon
+                ? "border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/5"
+                : aiResult?.ok
+                  ? "border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-500/5"
+                  : "border-border text-foreground"
+        }`}
+      >
+        {aiRejected || expired || expiringSoon ? (
+          <AlertTriangle className="h-3 w-3" />
+        ) : (
+          <FileText className="h-3 w-3" />
+        )}
+        {label}
+        {expiry && (
+          <span className="text-[10px] text-muted-foreground">
+            {expired ? "(expirée)" : expiringSoon ? `(J-${daysLeft})` : `(${new Date(expiry).toLocaleDateString("fr-FR")})`}
+          </span>
+        )}
+        {aiResult && (
+          <span className="text-[10px]">{aiResult.ok ? "✓" : "✗"}</span>
+        )}
+      </a>
+      {aiResult && (
+        <span className={`text-[10px] px-1 ${aiResult.ok ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
+          {aiResult.reason}
         </span>
       )}
-    </a>
+    </div>
   );
 }
