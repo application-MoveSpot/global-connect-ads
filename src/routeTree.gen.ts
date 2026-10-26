@@ -44,7 +44,7 @@ import { Route as AdminCommerciauxRouteImport } from './routes/admin.commerciaux
 import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminConnexionRouteImport } from './routes/admin.connexion'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
-import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
+import { Route as AdminProvidersRouteImport } from './routes/admin.providers'
 import { Route as AdminRemboursementsRouteImport } from './routes/admin.remboursements'
 import { Route as AdminTranslationIssuesRouteImport } from './routes/admin.translation-issues'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
@@ -296,9 +296,9 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
-  id: '/prestataires',
-  path: '/prestataires',
+const AdminProvidersRoute = AdminProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRemboursementsRoute = AdminRemboursementsRouteImport.update({
@@ -714,7 +714,7 @@ export interface FileRoutesByFullPath {
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/providers': typeof AdminProvidersRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -823,7 +823,7 @@ export interface FileRoutesByTo {
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/providers': typeof AdminProvidersRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -935,7 +935,7 @@ export interface FileRoutesById {
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/providers': typeof AdminProvidersRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -1048,7 +1048,7 @@ export interface FileRouteTypes {
     | '/admin/commissions'
     | '/admin/connexion'
     | '/admin/dashboard'
-    | '/admin/prestataires'
+    | '/admin/providers'
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
@@ -1157,7 +1157,7 @@ export interface FileRouteTypes {
     | '/admin/commissions'
     | '/admin/connexion'
     | '/admin/dashboard'
-    | '/admin/prestataires'
+    | '/admin/providers'
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
@@ -1268,7 +1268,7 @@ export interface FileRouteTypes {
     | '/admin/commissions'
     | '/admin/connexion'
     | '/admin/dashboard'
-    | '/admin/prestataires'
+    | '/admin/providers'
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
@@ -1680,11 +1680,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/prestataires': {
-      id: '/admin/prestataires'
-      path: '/prestataires'
-      fullPath: '/admin/prestataires'
-      preLoaderRoute: typeof AdminPrestatairesRouteImport
+    '/admin/providers': {
+      id: '/admin/providers'
+      path: '/providers'
+      fullPath: '/admin/providers'
+      preLoaderRoute: typeof AdminProvidersRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/remboursements': {
@@ -2241,7 +2241,7 @@ interface AdminRouteChildren {
   AdminCommissionsRoute: typeof AdminCommissionsRoute
   AdminConnexionRoute: typeof AdminConnexionRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+  AdminProvidersRoute: typeof AdminProvidersRoute
   AdminRemboursementsRoute: typeof AdminRemboursementsRoute
   AdminTranslationIssuesRoute: typeof AdminTranslationIssuesRoute
   AdminVirementsRoute: typeof AdminVirementsRoute
@@ -2254,7 +2254,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommissionsRoute: AdminCommissionsRoute,
   AdminConnexionRoute: AdminConnexionRoute,
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminPrestatairesRoute: AdminPrestatairesRoute,
+  AdminProvidersRoute: AdminProvidersRoute,
   AdminRemboursementsRoute: AdminRemboursementsRoute,
   AdminTranslationIssuesRoute: AdminTranslationIssuesRoute,
   AdminVirementsRoute: AdminVirementsRoute,

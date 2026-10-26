@@ -9,7 +9,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { RouteError } from "@/components/app/RouteError";
 import { FileText, AlertTriangle } from "lucide-react";
 
-export const Route = createFileRoute("/admin/prestataires")({
+export const Route = createFileRoute("/admin/providers")({
   head: () => ({
     meta: [
       { title: "Admin · Prestataires — MoveSpot" },
