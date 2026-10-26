@@ -99,6 +99,13 @@
       "when": 1793021376390,
       "tag": "0013_provider_documents_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793057154178,
+      "tag": "0014_restore_brief_fee_and_provider_ai_fields",
+      "breakpoints": true
     }
   ]
 }
