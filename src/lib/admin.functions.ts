@@ -495,7 +495,7 @@ export const adminListInstallations = createServerFn({ method: "GET" })
       .select(
         "id, spot_name, company, email, start_date, end_date, status, payment_status, installation_photos, installation_status, installation_notes, installation_reviewed_at, pose_fee_cents, pose_payout_status, pose_stripe_transfer_id, pose_installer_user_id, installation_impossible_reason, installation_impossible_photos, installation_impossible_at, created_at",
       )
-      .or("installation_photos.not.is.null,installation_status.eq.impossible")
+      .or("installation_photos.not.is.null,installation_status.eq.impossible,installation_status.eq.pending_approval")
       .order("created_at", { ascending: false })
       .limit(200);
     return { installations: data ?? [] };
