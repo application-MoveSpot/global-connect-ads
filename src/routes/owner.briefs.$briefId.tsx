@@ -34,6 +34,7 @@ type Brief = {
   end_date: string;
   days_count: number | null;
   budget_max: number | null;
+  poseur_fee: number | null;
   audience_target: string | null;
   creative_files: string[] | null;
   status: string;
@@ -327,7 +328,12 @@ function BriefDetailPage() {
           )}
           {brief.budget_max && (
             <div className="text-xs text-muted-foreground">
-              <strong>{t("owner.briefs.detail.budget_max")}</strong> {brief.budget_max}€
+              <strong>{t("owner.briefs.detail.budget_max")}</strong> {brief.budget_max}€/jour
+            </div>
+          )}
+          {brief.poseur_fee && (
+            <div className="text-xs text-muted-foreground">
+              <strong>{t("owner.briefs.detail.poseur_fee")}</strong> {brief.poseur_fee}€ {t("owner.briefs.detail.poseur_fee_suffix")}
             </div>
           )}
           {brief.audience_target && (

@@ -241,6 +241,7 @@ export const AdvertiserBriefRowSchema = z.object({
   end_date: z.string(),
   days_count: z.number().int().nullable(),
   budget_max: z.number().nullable(),
+  poseur_fee: z.number().nullable(),
   ad_format: z.string().nullable(),
   audience_target: z.string().nullable(),
   zones: z.array(z.string()),
