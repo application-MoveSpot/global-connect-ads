@@ -1233,6 +1233,60 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_positions: {
+        Row: {
+          accuracy: number | null
+          created_at: string
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          provider_id: string
+          recorded_at: string
+          service_quote_id: string | null
+          speed: number | null
+        }
+        Insert: {
+          accuracy?: number | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          provider_id: string
+          recorded_at?: string
+          service_quote_id?: string | null
+          speed?: number | null
+        }
+        Update: {
+          accuracy?: number | null
+          created_at?: string
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          provider_id?: string
+          recorded_at?: string
+          service_quote_id?: string | null
+          speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_positions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "provider_positions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "public_provider_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       provider_profiles: {
         Row: {
           admin_notes: string | null
@@ -1242,11 +1296,16 @@ export type Database = {
           description: string
           email: string
           full_name: string
+          id_doc_url: string | null
+          kbis_url: string | null
           logo_url: string | null
           phone: string | null
           portfolio_urls: string[]
           pose_location_types: string[]
           pricing_info: string | null
+          rc_pro_expiry: string | null
+          rc_pro_url: string | null
+          rib_url: string | null
           services: string[]
           siret: string | null
           status: string
@@ -1266,11 +1325,16 @@ export type Database = {
           description: string
           email: string
           full_name: string
+          id_doc_url?: string | null
+          kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
           pose_location_types?: string[]
           pricing_info?: string | null
+          rc_pro_expiry?: string | null
+          rc_pro_url?: string | null
+          rib_url?: string | null
           services?: string[]
           siret?: string | null
           status?: string
@@ -1290,11 +1354,16 @@ export type Database = {
           description?: string
           email?: string
           full_name?: string
+          id_doc_url?: string | null
+          kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
           pose_location_types?: string[]
           pricing_info?: string | null
+          rc_pro_expiry?: string | null
+          rc_pro_url?: string | null
+          rib_url?: string | null
           services?: string[]
           siret?: string | null
           status?: string

@@ -19,9 +19,11 @@ const BatchSchema = z.object({
   serviceQuoteId: z.string().uuid().nullable().optional(),
 });
 
+type BatchInput = z.infer<typeof BatchSchema>;
+
 export const pushProviderPositionBatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => BatchSchema.parse(input))
+  .inputValidator((input): BatchInput => BatchSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { userId } = context;
 
@@ -36,7 +38,7 @@ export const pushProviderPositionBatch = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!profile) throw new Error("Accès réservé aux prestataires.");
 
-    const rows = data.points.map((p) => ({
+    const rows = data.points.map((p: BatchInput["points"][number]) => ({
       provider_id: userId,
       service_quote_id: data.serviceQuoteId ?? null,
       lat: p.lat,

@@ -44,7 +44,7 @@ import { Route as AdminCommerciauxRouteImport } from './routes/admin.commerciaux
 import { Route as AdminCommissionsRouteImport } from './routes/admin.commissions'
 import { Route as AdminConnexionRouteImport } from './routes/admin.connexion'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
-import { Route as AdminPrestatairesRouteImport } from './routes/admin.prestataires'
+import { Route as AdminProvidersRouteImport } from './routes/admin.providers'
 import { Route as AdminRemboursementsRouteImport } from './routes/admin.remboursements'
 import { Route as AdminTranslationIssuesRouteImport } from './routes/admin.translation-issues'
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
@@ -85,6 +85,7 @@ import { Route as ProviderIndexRouteImport } from './routes/provider.index'
 import { Route as ProviderConnexionRouteImport } from './routes/provider.connexion'
 import { Route as ProviderInscriptionRouteImport } from './routes/provider.inscription'
 import { Route as ProviderProfilRouteImport } from './routes/provider.profil'
+import { Route as ProviderTrackingRouteImport } from './routes/provider.tracking'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as ProvidersProviderIdRouteImport } from './routes/providers.$providerId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -295,9 +296,9 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminPrestatairesRoute = AdminPrestatairesRouteImport.update({
-  id: '/prestataires',
-  path: '/prestataires',
+const AdminProvidersRoute = AdminProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminRemboursementsRoute = AdminRemboursementsRouteImport.update({
@@ -498,6 +499,11 @@ const ProviderInscriptionRoute = ProviderInscriptionRouteImport.update({
 const ProviderProfilRoute = ProviderProfilRouteImport.update({
   id: '/provider/profil',
   path: '/provider/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderTrackingRoute = ProviderTrackingRouteImport.update({
+  id: '/provider/tracking',
+  path: '/provider/tracking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
@@ -708,7 +714,7 @@ export interface FileRoutesByFullPath {
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/providers': typeof AdminProvidersRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -743,6 +749,7 @@ export interface FileRoutesByFullPath {
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
   '/provider/profil': typeof ProviderProfilRoute
+  '/provider/tracking': typeof ProviderTrackingRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/advertiser/': typeof AdvertiserIndexRoute
   '/commercial/': typeof CommercialIndexRoute
@@ -816,7 +823,7 @@ export interface FileRoutesByTo {
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/providers': typeof AdminProvidersRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -851,6 +858,7 @@ export interface FileRoutesByTo {
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
   '/provider/profil': typeof ProviderProfilRoute
+  '/provider/tracking': typeof ProviderTrackingRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/': typeof PublicIndexRoute
   '/advertiser': typeof AdvertiserIndexRoute
@@ -927,7 +935,7 @@ export interface FileRoutesById {
   '/admin/commissions': typeof AdminCommissionsRoute
   '/admin/connexion': typeof AdminConnexionRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/prestataires': typeof AdminPrestatairesRoute
+  '/admin/providers': typeof AdminProvidersRoute
   '/admin/remboursements': typeof AdminRemboursementsRoute
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
@@ -962,6 +970,7 @@ export interface FileRoutesById {
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
   '/provider/profil': typeof ProviderProfilRoute
+  '/provider/tracking': typeof ProviderTrackingRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/_public/': typeof PublicIndexRoute
   '/advertiser/': typeof AdvertiserIndexRoute
@@ -1039,7 +1048,7 @@ export interface FileRouteTypes {
     | '/admin/commissions'
     | '/admin/connexion'
     | '/admin/dashboard'
-    | '/admin/prestataires'
+    | '/admin/providers'
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
@@ -1074,6 +1083,7 @@ export interface FileRouteTypes {
     | '/provider/connexion'
     | '/provider/inscription'
     | '/provider/profil'
+    | '/provider/tracking'
     | '/providers/$providerId'
     | '/advertiser/'
     | '/commercial/'
@@ -1147,7 +1157,7 @@ export interface FileRouteTypes {
     | '/admin/commissions'
     | '/admin/connexion'
     | '/admin/dashboard'
-    | '/admin/prestataires'
+    | '/admin/providers'
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
@@ -1182,6 +1192,7 @@ export interface FileRouteTypes {
     | '/provider/connexion'
     | '/provider/inscription'
     | '/provider/profil'
+    | '/provider/tracking'
     | '/providers/$providerId'
     | '/'
     | '/advertiser'
@@ -1257,7 +1268,7 @@ export interface FileRouteTypes {
     | '/admin/commissions'
     | '/admin/connexion'
     | '/admin/dashboard'
-    | '/admin/prestataires'
+    | '/admin/providers'
     | '/admin/remboursements'
     | '/admin/translation-issues'
     | '/admin/virements'
@@ -1292,6 +1303,7 @@ export interface FileRouteTypes {
     | '/provider/connexion'
     | '/provider/inscription'
     | '/provider/profil'
+    | '/provider/tracking'
     | '/providers/$providerId'
     | '/_public/'
     | '/advertiser/'
@@ -1383,6 +1395,7 @@ export interface RootRouteChildren {
   ProviderConnexionRoute: typeof ProviderConnexionRoute
   ProviderInscriptionRoute: typeof ProviderInscriptionRoute
   ProviderProfilRoute: typeof ProviderProfilRoute
+  ProviderTrackingRoute: typeof ProviderTrackingRoute
   ProvidersProviderIdRoute: typeof ProvidersProviderIdRoute
   AdvertiserIndexRoute: typeof AdvertiserIndexRoute
   CommercialIndexRoute: typeof CommercialIndexRoute
@@ -1667,11 +1680,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/prestataires': {
-      id: '/admin/prestataires'
-      path: '/prestataires'
-      fullPath: '/admin/prestataires'
-      preLoaderRoute: typeof AdminPrestatairesRouteImport
+    '/admin/providers': {
+      id: '/admin/providers'
+      path: '/providers'
+      fullPath: '/admin/providers'
+      preLoaderRoute: typeof AdminProvidersRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/remboursements': {
@@ -1954,6 +1967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProviderProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provider/tracking': {
+      id: '/provider/tracking'
+      path: '/provider/tracking'
+      fullPath: '/provider/tracking'
+      preLoaderRoute: typeof ProviderTrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/providers/': {
       id: '/providers/'
       path: '/providers'
@@ -2221,7 +2241,7 @@ interface AdminRouteChildren {
   AdminCommissionsRoute: typeof AdminCommissionsRoute
   AdminConnexionRoute: typeof AdminConnexionRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminPrestatairesRoute: typeof AdminPrestatairesRoute
+  AdminProvidersRoute: typeof AdminProvidersRoute
   AdminRemboursementsRoute: typeof AdminRemboursementsRoute
   AdminTranslationIssuesRoute: typeof AdminTranslationIssuesRoute
   AdminVirementsRoute: typeof AdminVirementsRoute
@@ -2234,7 +2254,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommissionsRoute: AdminCommissionsRoute,
   AdminConnexionRoute: AdminConnexionRoute,
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminPrestatairesRoute: AdminPrestatairesRoute,
+  AdminProvidersRoute: AdminProvidersRoute,
   AdminRemboursementsRoute: AdminRemboursementsRoute,
   AdminTranslationIssuesRoute: AdminTranslationIssuesRoute,
   AdminVirementsRoute: AdminVirementsRoute,
@@ -2307,6 +2327,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProviderConnexionRoute: ProviderConnexionRoute,
   ProviderInscriptionRoute: ProviderInscriptionRoute,
   ProviderProfilRoute: ProviderProfilRoute,
+  ProviderTrackingRoute: ProviderTrackingRoute,
   ProvidersProviderIdRoute: ProvidersProviderIdRoute,
   AdvertiserIndexRoute: AdvertiserIndexRoute,
   CommercialIndexRoute: CommercialIndexRoute,

@@ -118,6 +118,7 @@ declare module "leaflet" {
     const map: _Any;
     const marker: _Any;
     const polygon: _Any;
+    const polyline: _Any;
     const tileLayer: _Any;
     const latLng: _Any;
     const latLngBounds: _Any;

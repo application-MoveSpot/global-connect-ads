@@ -27,7 +27,7 @@ export function ProviderPositionMap({ positions }: { positions: ProviderPosition
     }
 
     import("leaflet").then((mod) => {
-      const L = mod.default ?? mod;
+      const L = (mod.default ?? mod) as typeof import("leaflet");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
