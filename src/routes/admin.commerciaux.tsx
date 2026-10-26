@@ -84,7 +84,14 @@ function AdminCommerciauxPage() {
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Code : <strong className="font-mono text-foreground">{r.referral_code}</strong>
                     {r.city && <> · {r.city}</>}
+                    {r.siret && <> · SIRET : {r.siret}</>}
                   </p>
+                  {r.legal_status && (
+                    <p className="text-xs text-muted-foreground">
+                      {t(`commercial.dashboard.legal_status_${r.legal_status}` as Parameters<typeof t>[0])}
+                      {r.legal_address && <> · {r.legal_address}</>}
+                    </p>
+                  )}
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold">

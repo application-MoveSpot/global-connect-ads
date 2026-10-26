@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import {
   getCommercialDashboard,
+  updateCommercialLegalInfo,
+  getCommercialMonthlyStatement,
   type CommercialProfile,
   type CommercialClient,
   type CommercialCampaign,
@@ -18,12 +20,15 @@ import {
   Check,
   TrendingUp,
   Users,
-  RefreshCw,
   ChevronDown,
   ChevronUp,
   MessageSquare,
   Mail,
   Lightbulb,
+  Shield,
+  FileText,
+  Download,
+  ScrollText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/commercial/")({
@@ -87,10 +92,15 @@ function KitMessage({
   );
 }
 
+const LEGAL_STATUSES = ["auto_entrepreneur", "sas", "sarl", "eurl", "ei", "other"] as const;
+
 function CommercialDashboard() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const dashFn = useServerFn(getCommercialDashboard);
+  const updateLegalFn = useServerFn(updateCommercialLegalInfo);
+  const statementFn = useServerFn(getCommercialMonthlyStatement);
+
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +112,20 @@ function CommercialDashboard() {
   const [copied, setCopied] = useState(false);
   const [kitOpen, setKitOpen] = useState(false);
   const [copiedKit, setCopiedKit] = useState<string | null>(null);
+
+  // Legal info state
+  const [siret, setSiret] = useState("");
+  const [legalStatus, setLegalStatus] = useState("");
+  const [legalAddress, setLegalAddress] = useState("");
+  const [legalSaving, setLegalSaving] = useState(false);
+  const [legalSaved, setLegalSaved] = useState(false);
+  const [legalError, setLegalError] = useState<string | null>(null);
+
+  // Commission statement state
+  const now = new Date();
+  const [stmtYear, setStmtYear] = useState(now.getFullYear());
+  const [stmtMonth, setStmtMonth] = useState(now.getMonth() + 1);
+  const [stmtGenerating, setStmtGenerating] = useState(false);
 
   const load = useCallback(
     async (isRetry = false) => {
@@ -126,6 +150,9 @@ function CommercialDashboard() {
           setCampaigns(res.campaigns);
           setTotalCents(res.totalCommissionCents);
           setPaidCents(res.paidCommissionCents);
+          setSiret(res.profile.siret ?? "");
+          setLegalStatus(res.profile.legal_status ?? "");
+          setLegalAddress(res.profile.legal_address ?? "");
         }
       } catch {
         setError(t("commercial.dashboard.load_error"));
@@ -140,6 +167,106 @@ function CommercialDashboard() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const saveLegalInfo = async () => {
+    setLegalSaving(true);
+    setLegalError(null);
+    try {
+      const res = await updateLegalFn({
+        data: {
+          siret: siret.trim() || null,
+          legal_status: (legalStatus as CommercialProfile["legal_status"]) || null,
+          legal_address: legalAddress.trim() || null,
+        },
+      });
+      if (!res.ok) setLegalError(res.error ?? t("commercial.dashboard.legal_save_error"));
+      else {
+        setLegalSaved(true);
+        setTimeout(() => setLegalSaved(false), 2500);
+      }
+    } catch {
+      setLegalError(t("commercial.dashboard.legal_save_error"));
+    } finally {
+      setLegalSaving(false);
+    }
+  };
+
+  const downloadStatement = async () => {
+    setStmtGenerating(true);
+    try {
+      const res = await statementFn({ data: { year: stmtYear, month: stmtMonth } });
+      if (!res.ok) return;
+      const { profile: p, campaigns: camps, totalCents: tot, paidCents: paid, year, month } = res;
+      const monthName = new Date(year, month - 1, 1).toLocaleString(i18n.language, { month: "long", year: "numeric" });
+      const fmt = (cents: number) => (cents / 100).toLocaleString(i18n.language, { style: "currency", currency: "EUR" });
+
+      const rows = camps
+        .map(
+          (c) => `<tr>
+          <td>${new Date(c.created_at).toLocaleDateString(i18n.language)}</td>
+          <td>${c.company ?? "—"}</td>
+          <td>${c.spot_name ?? "—"}</td>
+          <td style="text-align:right">${c.total_price != null ? fmt(c.total_price * 100) : "—"}</td>
+          <td style="text-align:right">${c.commission_amount_cents != null ? fmt(c.commission_amount_cents) : "—"}</td>
+          <td style="text-align:center">${c.commission_paid_at ? "✓" : "—"}</td>
+        </tr>`,
+        )
+        .join("");
+
+      const html = `<!DOCTYPE html><html lang="${i18n.language}"><head><meta charset="UTF-8">
+<title>Relevé commissions — ${monthName}</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:12px;color:#111;margin:32px}
+  h1{font-size:18px;margin-bottom:4px}
+  .meta{color:#555;margin-bottom:24px;font-size:11px}
+  table{width:100%;border-collapse:collapse;margin-top:16px}
+  th{background:#f3f4f6;text-align:left;padding:8px 6px;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  td{padding:6px;border-bottom:1px solid #e5e7eb}
+  .totals{margin-top:16px;text-align:right;font-size:13px}
+  .totals strong{font-size:15px}
+  .footer{margin-top:40px;font-size:10px;color:#888;border-top:1px solid #e5e7eb;padding-top:12px}
+  @media print{body{margin:20px}}
+</style></head><body>
+<h1>Relevé de commissions — ${monthName}</h1>
+<div class="meta">
+  ${p.full_name}${p.company ? ` · ${p.company}` : ""}${p.siret ? ` · SIRET : ${p.siret}` : ""}${p.legal_address ? `<br>${p.legal_address}` : ""}<br>
+  Code parrainage : <strong>${p.referral_code}</strong><br>
+  Taux de commission : ${Math.round(p.commission_rate * 100)} %
+</div>
+${
+  camps.length === 0
+    ? `<p style="color:#888;margin-top:24px">${t("commercial.dashboard.statement_empty")}</p>`
+    : `<table>
+  <thead><tr>
+    <th>Date</th><th>Annonceur</th><th>Campagne</th>
+    <th style="text-align:right">Montant camp.</th>
+    <th style="text-align:right">Commission</th>
+    <th style="text-align:center">Versée</th>
+  </tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+<div class="totals">
+  ${t("commercial.dashboard.statement_total")} <strong>${fmt(tot)}</strong><br>
+  ${t("commercial.dashboard.statement_paid")} <span style="color:#059669">${fmt(paid)}</span><br>
+  ${t("commercial.dashboard.statement_pending")} <span style="color:#d97706">${fmt(tot - paid)}</span>
+</div>`
+}
+<div class="footer">
+  Document généré le ${new Date().toLocaleDateString(i18n.language)} — MoveSpot · contact@move-spot.com<br>
+  Ce relevé est fourni à titre informatif. Les commissions sont versées par virement bancaire selon les conditions contractuelles.
+</div>
+</body></html>`;
+
+      const win = window.open("", "_blank");
+      if (win) {
+        win.document.write(html);
+        win.document.close();
+        win.print();
+      }
+    } finally {
+      setStmtGenerating(false);
+    }
+  };
 
   const referralLink = profile
     ? `${typeof window !== "undefined" ? window.location.origin : "https://movespot.fr"}/advertiser/inscription?ref=${profile.referral_code}`
@@ -446,6 +573,179 @@ function CommercialDashboard() {
           </a>{" "}
           {t("commercial.dashboard.payment_note_suffix")}
         </div>
+
+        {/* ── Relevés de commissions ─────────────────────────────────────── */}
+        <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <Download className="w-4 h-4 text-muted-foreground" />
+            <h2 className="font-display text-xl font-semibold">
+              {t("commercial.dashboard.statement_section_title")}
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t("commercial.dashboard.statement_section_subtitle")}
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground uppercase tracking-widest">
+                {t("commercial.dashboard.statement_month_label")}
+              </label>
+              <select
+                value={stmtMonth}
+                onChange={(e) => setStmtMonth(Number(e.target.value))}
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>
+                    {new Date(stmtYear, m - 1, 1).toLocaleString(i18n.language, { month: "long" })}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground uppercase tracking-widest">
+                {t("commercial.dashboard.statement_year_label")}
+              </label>
+              <select
+                value={stmtYear}
+                onChange={(e) => setStmtYear(Number(e.target.value))}
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              >
+                {[now.getFullYear() - 1, now.getFullYear()].map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={downloadStatement}
+              disabled={stmtGenerating}
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition"
+            >
+              <FileText className="w-4 h-4" />
+              {stmtGenerating
+                ? t("commercial.dashboard.statement_generating")
+                : t("commercial.dashboard.statement_download_btn")}
+            </button>
+          </div>
+        </section>
+
+        {/* ── Informations légales ───────────────────────────────────────── */}
+        <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <ScrollText className="w-4 h-4 text-muted-foreground" />
+            <h2 className="font-display text-xl font-semibold">
+              {t("commercial.dashboard.legal_section_title")}
+            </h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t("commercial.dashboard.legal_section_subtitle")}
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground uppercase tracking-widest">
+                {t("commercial.dashboard.legal_siret_label")}
+              </label>
+              <input
+                type="text"
+                maxLength={14}
+                value={siret}
+                onChange={(e) => setSiret(e.target.value.replace(/\D/g, ""))}
+                placeholder={t("commercial.dashboard.legal_siret_placeholder")}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground uppercase tracking-widest">
+                {t("commercial.dashboard.legal_status_label")}
+              </label>
+              <select
+                value={legalStatus}
+                onChange={(e) => setLegalStatus(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+              >
+                <option value="">{t("commercial.dashboard.legal_status_placeholder")}</option>
+                {LEGAL_STATUSES.map((s) => (
+                  <option key={s} value={s}>
+                    {t(`commercial.dashboard.legal_status_${s}` as Parameters<typeof t>[0])}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-2 space-y-1">
+              <label className="text-xs text-muted-foreground uppercase tracking-widest">
+                {t("commercial.dashboard.legal_address_label")}
+              </label>
+              <textarea
+                rows={2}
+                value={legalAddress}
+                onChange={(e) => setLegalAddress(e.target.value)}
+                placeholder={t("commercial.dashboard.legal_address_placeholder")}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none"
+              />
+            </div>
+          </div>
+          {legalError && <p className="text-xs text-destructive">{legalError}</p>}
+          <button
+            onClick={saveLegalInfo}
+            disabled={legalSaving}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+              legalSaved
+                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
+                : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+            }`}
+          >
+            {legalSaved ? (
+              <>
+                <Check className="w-4 h-4" />
+                {t("commercial.dashboard.legal_saved")}
+              </>
+            ) : (
+              legalSaving
+                ? t("commercial.dashboard.legal_saving")
+                : t("commercial.dashboard.legal_save_btn")
+            )}
+          </button>
+        </section>
+
+        {/* ── CGU & Contrat ─────────────────────────────────────────────── */}
+        <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-muted-foreground" />
+            <h2 className="font-display text-xl font-semibold">
+              {t("commercial.dashboard.cgu_section_title")}
+            </h2>
+          </div>
+          {profile && (
+            <p className="text-sm text-muted-foreground">
+              {t("commercial.dashboard.cgu_accepted_on", {
+                date: new Date(profile.cgu_accepted_at ?? profile.created_at).toLocaleDateString(i18n.language),
+              })}
+            </p>
+          )}
+          <div className="rounded-xl bg-secondary/50 border border-border p-4 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              {t("commercial.dashboard.cgu_conduct_title")}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {t("commercial.dashboard.cgu_conduct_body")}
+            </p>
+          </div>
+        </section>
+
+        {/* ── RGPD ─────────────────────────────────────────────────────── */}
+        <section className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5 space-y-2">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-blue-500" />
+            <h2 className="font-semibold text-sm">{t("commercial.dashboard.rgpd_title")}</h2>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {t("commercial.dashboard.rgpd_body")}{" "}
+            <a href="mailto:contact@move-spot.com" className="underline text-foreground">
+              contact@move-spot.com
+            </a>
+            . {t("commercial.dashboard.rgpd_suffix")}
+          </p>
+        </section>
       </main>
     </div>
   );
