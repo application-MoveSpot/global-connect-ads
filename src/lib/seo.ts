@@ -7,6 +7,7 @@ export function hreflangLinks(path: string): LinkTag[] {
   return [
     { rel: "alternate", hrefLang: "fr", href: url },
     { rel: "alternate", hrefLang: "en", href: url },
+    { rel: "alternate", hrefLang: "ar", href: url },
     { rel: "alternate", hrefLang: "x-default", href: url },
   ];
 }
