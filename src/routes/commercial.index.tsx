@@ -202,7 +202,7 @@ function CommercialDashboard() {
 
       const rows = camps
         .map(
-          (c) => `<tr>
+          (c: CommercialCampaign) => `<tr>
           <td>${new Date(c.created_at).toLocaleDateString(i18n.language)}</td>
           <td>${c.company ?? "—"}</td>
           <td>${c.spot_name ?? "—"}</td>

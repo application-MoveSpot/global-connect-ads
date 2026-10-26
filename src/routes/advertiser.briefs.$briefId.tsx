@@ -60,6 +60,7 @@ type Brief = {
   audience_target: string | null;
   creative_files: string[] | null;
   status: string;
+  created_at: string;
 };
 
 type Proposal = {

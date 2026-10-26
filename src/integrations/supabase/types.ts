@@ -44,13 +44,13 @@ export type Database = {
           advertiser_id: string
           audience_target: string | null
           budget_max: number | null
-          poseur_fee: number | null
           created_at: string
           creative_files: string[]
           days_count: number | null
           description: string
           end_date: string
           id: string
+          poseur_fee: number | null
           start_date: string
           status: Database["public"]["Enums"]["brief_status"]
           title: string
@@ -66,13 +66,13 @@ export type Database = {
           advertiser_id: string
           audience_target?: string | null
           budget_max?: number | null
-          poseur_fee?: number | null
           created_at?: string
           creative_files?: string[]
           days_count?: number | null
           description: string
           end_date: string
           id?: string
+          poseur_fee?: number | null
           start_date: string
           status?: Database["public"]["Enums"]["brief_status"]
           title: string
@@ -88,13 +88,13 @@ export type Database = {
           advertiser_id?: string
           audience_target?: string | null
           budget_max?: number | null
-          poseur_fee?: number | null
           created_at?: string
           creative_files?: string[]
           days_count?: number | null
           description?: string
           end_date?: string
           id?: string
+          poseur_fee?: number | null
           start_date?: string
           status?: Database["public"]["Enums"]["brief_status"]
           title?: string
@@ -1297,6 +1297,8 @@ export type Database = {
           coverage_areas: string[]
           created_at: string
           description: string
+          docs_ai_report: Json | null
+          docs_ai_status: string | null
           email: string
           full_name: string
           id_doc_url: string | null
@@ -1326,6 +1328,8 @@ export type Database = {
           coverage_areas?: string[]
           created_at?: string
           description: string
+          docs_ai_report?: Json | null
+          docs_ai_status?: string | null
           email: string
           full_name: string
           id_doc_url?: string | null
@@ -1355,6 +1359,8 @@ export type Database = {
           coverage_areas?: string[]
           created_at?: string
           description?: string
+          docs_ai_report?: Json | null
+          docs_ai_status?: string | null
           email?: string
           full_name?: string
           id_doc_url?: string | null
