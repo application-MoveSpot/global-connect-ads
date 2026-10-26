@@ -179,9 +179,68 @@ const CATALOGUE: VehicleEntry[] = [
   },
 ];
 
-// ─── Marché cible ─────────────────────────────────────────────────────────────
+// ─── Zones par région ─────────────────────────────────────────────────────────
 
 type Region = "europe" | "afrique" | "asie" | "amerique" | "moyen_orient";
+
+const REGION_ZONES: Partial<Record<Region, Partial<Record<string, string[]>>>> = {
+  moyen_orient: {
+    camion_led: [
+      "Downtown Dubaï",
+      "Sheikh Zayed Road",
+      "Événements GITEX / Expo",
+      "Mall of Emirates",
+    ],
+    taxi: ["Downtown Dubaï / Riyad", "Aéroports internationaux", "Business Bay"],
+    van: ["Deira / Bur Dubai", "Zones commerciales", "Abu Dhabi / Doha"],
+    food_truck: ["Événements Golfe", "Business Districts", "Zones touristiques"],
+    tutuk: ["Zones touristiques", "Souks historiques", "Zones festives"],
+    scooter: ["Downtown", "Quartiers denses", "Livraison last mile"],
+    velo_cargo: ["Zones piétonnes", "Community areas", "Marchés"],
+    triporteur: ["Centres commerciaux", "Souks", "Marchés locaux"],
+    velo_remorque: ["Événements", "Parcs / Corniche", "Zones touristiques"],
+    voiture: ["Résidentiel premium", "Al Quoz / Jumeirah", "Axes périurbains"],
+  },
+  afrique: {
+    camion_led: ["Centre-ville", "Événementiel", "Axes principaux", "Zones à fort trafic"],
+    taxi: ["Centre-ville Dakar/Abidjan", "Aéroports", "Gares routières"],
+    van: ["Artères principales", "Zones commerciales", "Périphérie"],
+    food_truck: ["Événementiel", "Marchés locaux", "Quartiers d'affaires"],
+    tutuk: ["Touristique", "Centre historique", "Zones festives"],
+    scooter: ["Centre-ville", "Quartiers denses", "Livraison last mile"],
+    velo_cargo: ["Zones piétonnes", "Marchés", "Pistes cyclables"],
+    triporteur: ["Marchés", "Rues commerçantes", "Centres commerciaux"],
+    voiture: ["Résidentiel", "Banlieue", "Axes périurbains"],
+  },
+  asie: {
+    camion_led: [
+      "Centre-ville Bangkok/HCMV",
+      "Événements",
+      "Artères principales",
+      "Zones à fort trafic",
+    ],
+    taxi: ["Centre-ville Bangkok/HCMV", "Aéroports", "Zones touristiques"],
+    van: ["Artères urbaines", "Zones commerciales", "Périphérie"],
+    food_truck: ["Événementiel", "Marchés locaux", "Quartiers d'affaires"],
+    tutuk: ["Touristique", "Temple / Centre historique", "Zones festives"],
+    scooter: ["Centre-ville", "Quartiers denses", "Livraison last mile"],
+  },
+  amerique: {
+    camion_led: ["Centro Histórico", "Événements", "Avenidas principales", "Zones à fort trafic"],
+    taxi: ["Centro Histórico Mexico/SP", "Aéroports", "Zones touristiques"],
+    van: ["Artères urbaines", "Zones commerciales", "Périphérie"],
+    food_truck: ["Événementiel", "Food markets", "Quartiers d'affaires"],
+    scooter: ["Centre-ville", "Quartiers denses", "Livraison last mile"],
+  },
+};
+
+function getZones(vehicleKey: string, region: Region): string[] {
+  return (
+    REGION_ZONES[region]?.[vehicleKey] ?? CATALOGUE.find((v) => v.key === vehicleKey)?.zones ?? []
+  );
+}
+
+// ─── Marché cible ─────────────────────────────────────────────────────────────
 
 type RegionData = {
   label: string;
@@ -1201,7 +1260,7 @@ function EtudeMarche() {
                     },
                     {
                       l: t("advertiser.etude_marche.detail_zones"),
-                      v: selectedVehicle.zones.slice(0, 2).join(", "),
+                      v: getZones(selectedVehicle.key, selectedRegion).slice(0, 2).join(", "),
                     },
                   ].map((s) => (
                     <div key={s.l} className="bg-secondary/40 rounded-xl p-3">
@@ -1232,7 +1291,7 @@ function EtudeMarche() {
                       {t("advertiser.etude_marche.detail_zones_title")}
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedVehicle.zones.map((z) => (
+                      {getZones(selectedVehicle.key, selectedRegion).map((z) => (
                         <span key={z} className="text-xs bg-secondary px-2.5 py-1 rounded-full">
                           {z}
                         </span>
@@ -1315,7 +1374,7 @@ function EtudeMarche() {
                           </td>
                           <td className="py-2.5 px-3 font-mono text-xs tabular-nums">{cpm} €</td>
                           <td className="py-2.5 px-3 text-xs text-muted-foreground">
-                            {v.zones[0]}
+                            {getZones(v.key, selectedRegion)[0]}
                           </td>
                         </tr>
                       );
