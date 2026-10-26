@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useRegion } from "@/lib/region-context";
 import { formatAmountFromEur, getCurrencyFromRegion } from "@/lib/currency";
 import { toast } from "sonner";
+import { FlutterwaveCheckout, isFlutterwaveRegion } from "./FlutterwaveCheckout";
 
-// Régions où Stripe ne fonctionne pas bien → fallback virement
+// Régions où Stripe ne fonctionne pas bien → fallback virement ou Flutterwave
 const STRIPE_UNSUPPORTED_REGIONS = ["afrique"] as const;
 
 export function isStripeUnsupportedRegion(region: string): boolean {
@@ -20,13 +21,28 @@ const BANK_DETAILS = {
 
 type Props = {
   amountEur: number;
+  userEmail?: string;
+  userName?: string;
   onConfirm?: (reference: string) => void;
 };
 
-export function BankTransferCheckout({ amountEur, onConfirm }: Props) {
+export function BankTransferCheckout({ amountEur, userEmail, userName, onConfirm }: Props) {
   const { t } = useTranslation();
   const { region } = useRegion();
   const currency = getCurrencyFromRegion(region);
+
+  // Prefer Flutterwave for Africa when API key is configured
+  if (isFlutterwaveRegion(region) && userEmail) {
+    return (
+      <FlutterwaveCheckout
+        amountEur={amountEur}
+        region={region}
+        userEmail={userEmail}
+        userName={userName}
+        onSuccess={(txRef) => onConfirm?.(txRef)}
+      />
+    );
+  }
   const [confirmed, setConfirmed] = useState(false);
   const reference = `MS-${Date.now().toString(36).toUpperCase()}`;
 
