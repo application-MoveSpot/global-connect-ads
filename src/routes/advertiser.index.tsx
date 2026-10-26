@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { Instagram, Globe } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
@@ -393,7 +393,7 @@ function AnnonceurDashboard() {
         {/* Region selector */}
         <div className="mb-6 flex items-center gap-3 flex-wrap">
           <label className="text-sm text-muted-foreground shrink-0 flex items-center gap-1.5">
-            <Globe className="w-4 h-4" />
+            <span>🌍</span>
             {t("advertiser.target_region_label")}
           </label>
           <select
