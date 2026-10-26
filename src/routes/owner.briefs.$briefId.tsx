@@ -301,7 +301,10 @@ function BriefDetailPage() {
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/owner/briefs" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link
+            to="/owner/briefs"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+          >
             {t("owner.briefs.detail.back")}
           </Link>
         </div>
