@@ -49,7 +49,8 @@
     "company": "الشركة",
     "sign_in": "تسجيل الدخول",
     "create_account": "إنشاء حساب",
-    "unknown": "غير معروف"
+    "unknown": "غير معروف",
+    "saving": "جارٍ الحفظ…"
   },
   "nav": {
     "home": "الرئيسية",
@@ -112,7 +113,11 @@
       "col_impressions_j": "مشاهدات/يوم",
       "col_cpm_est": "CPM تقديري",
       "col_zones": "المناطق"
-    }
+    },
+    "target_region_label": "السوق المستهدف:",
+    "region_none": "— اختر منطقة —",
+    "region_saved": "تم تحديث السوق المستهدف.",
+    "region_save_error": "فشل الحفظ."
   },
   "commercial": {
     "dashboard": {
@@ -144,5 +149,22 @@
   "legal": {
     "rgpd_title": "حماية البيانات الشخصية",
     "cgu_title": "الشروط العامة للاستخدام"
+  },
+  "region": {
+    "europe": "أوروبا",
+    "moyen_orient": "الشرق الأوسط",
+    "afrique": "أفريقيا",
+    "asie": "آسيا والمحيط الهادئ",
+    "amerique": "الأمريكتان"
+  },
+  "admin": {
+    "dashboard": {
+      "tab_regions": "🌍 المناطق",
+      "regions_title": "الإيرادات حسب السوق المستهدف",
+      "regions_col_region": "المنطقة",
+      "regions_col_advertisers": "المعلنون",
+      "regions_col_campaigns": "الحملات",
+      "regions_col_gmv": "الإيرادات (€)"
+    }
   }
 }

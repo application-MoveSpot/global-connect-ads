@@ -41,7 +41,9 @@ import {
   adminSendStripeReminder,
   adminListReferrals,
   adminCreditReferral,
+  getAdminRegionStats,
   type AdminReferralRow,
+  type AdminRegionStat,
 } from "@/lib/admin.functions";
 import {
   transferToPoseInstaller,
@@ -115,7 +117,8 @@ type Tab =
   | "vigilance"
   | "moderation"
   | "alertes"
-  | "referral";
+  | "referral"
+  | "regions";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -140,6 +143,7 @@ function AdminDashboard() {
     "moderation",
     "alertes",
     "referral",
+    "regions",
   ];
   const hashTab = (typeof window !== "undefined" ? window.location.hash.slice(1) : "") as Tab;
   const [tab, setTab] = useState<Tab>(validTabs.includes(hashTab) ? hashTab : "afaire");
@@ -372,6 +376,7 @@ function AdminDashboard() {
   const getUsers = useServerFn(adminListUsers);
   const getReferrals = useServerFn(adminListReferrals);
   const creditReferralFn = useServerFn(adminCreditReferral);
+  const getRegionStats = useServerFn(getAdminRegionStats);
 
   const analyticsQuery = useQuery({
     queryKey: ["admin-analytics"],
@@ -399,6 +404,13 @@ function AdminDashboard() {
     queryFn: () => getReferrals(),
     enabled: ready && tab === "referral",
     staleTime: 2 * 60 * 1000,
+    retry: false,
+  });
+  const regionStatsQuery = useQuery({
+    queryKey: ["admin-region-stats"],
+    queryFn: () => getRegionStats({ data: {} }),
+    enabled: ready && tab === "regions",
+    staleTime: 5 * 60 * 1000,
     retry: false,
   });
   const fetchProviderPositions = useServerFn(getProviderPositionsAdmin);
@@ -655,6 +667,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "referral"} onClick={() => switchTab("referral")}>
             {t("admin.dashboard.tab_referral")}
+          </TabBtn>
+          <TabBtn active={tab === "regions"} onClick={() => switchTab("regions")}>
+            {t("admin.dashboard.tab_regions")}
           </TabBtn>
         </div>
 
@@ -2070,6 +2085,48 @@ function AdminDashboard() {
               )}
             </div>
           </div>
+        ) : null}
+
+        {tab === "regions" ? (
+          regionStatsQuery.isLoading ? (
+            <Skeleton />
+          ) : (
+            <div className="space-y-4">
+              <h2 className="font-display text-lg font-bold">
+                {t("admin.dashboard.regions_title")}
+              </h2>
+              <div className="rounded-2xl border border-border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                      <th className="px-4 py-3 text-left">{t("admin.dashboard.regions_col_region")}</th>
+                      <th className="px-4 py-3 text-right">{t("admin.dashboard.regions_col_advertisers")}</th>
+                      <th className="px-4 py-3 text-right">{t("admin.dashboard.regions_col_campaigns")}</th>
+                      <th className="px-4 py-3 text-right">{t("admin.dashboard.regions_col_gmv")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(regionStatsQuery.data?.stats ?? []).map((s: AdminRegionStat) => (
+                      <tr key={s.region} className="border-b border-border last:border-0 hover:bg-muted/20">
+                        <td className="px-4 py-3 font-medium">
+                          {t(`region.${s.region}` as Parameters<typeof t>[0])}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums">{s.advertiser_count}</td>
+                        <td className="px-4 py-3 text-right tabular-nums">{s.campaign_count}</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-semibold">
+                          {(s.gmv_cents / 100).toLocaleString(i18n.language, {
+                            style: "currency",
+                            currency: "EUR",
+                            maximumFractionDigits: 0,
+                          })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )
         ) : null}
 
         {tab === "analytics" ? (

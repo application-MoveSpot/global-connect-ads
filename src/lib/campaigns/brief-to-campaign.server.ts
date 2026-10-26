@@ -36,7 +36,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         .maybeSingle(),
       supabase
         .from("advertiser_profiles")
-        .select("full_name, account_type")
+        .select("full_name, account_type, target_region")
         .eq("user_id", userId)
         .maybeSingle(),
     ]);
@@ -56,7 +56,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
       status: string;
       owner_id: string;
     } | null;
-    const profile = profileRes.data as { full_name?: string; account_type?: string } | null;
+    const profile = profileRes.data as { full_name?: string; account_type?: string; target_region?: string | null } | null;
 
     if (!brief) throw new Error("Brief introuvable.");
     if (!proposal) throw new Error("Proposition introuvable.");
@@ -129,6 +129,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         user_id: userId,
         pose_fee_cents: fallbackPoseFee,
         depose_fee_cents: fallbackDeposeFee,
+        target_region: (profile?.target_region ?? null) as never,
       })
       .select("id")
       .maybeSingle();

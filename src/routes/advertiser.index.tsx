@@ -23,6 +23,7 @@ import { RouteError } from "@/components/app/RouteError";
 import { OnboardingModal } from "@/components/advertiser/OnboardingModal";
 import { getMyReferralStats } from "@/lib/referral/advertiser-referral.functions";
 import { firePixelEvent } from "@/lib/analytics/pixels";
+import { updateAdvertiserRegion } from "@/lib/advertiser/advertiser.functions";
 
 type Req = {
   id: string;
@@ -46,7 +47,7 @@ type Req = {
   subscription_status: string | null;
 };
 
-type Profile = { full_name: string; company: string | null; account_type: string | null };
+type Profile = { full_name: string; company: string | null; account_type: string | null; target_region: string | null };
 
 type Step = {
   icon: string;
@@ -78,9 +79,11 @@ function AnnonceurDashboard() {
   const [requests, setRequests] = useState<Req[]>([]);
   const [balanceCents, setBalanceCents] = useState<number>(0);
   const [paying, setPaying] = useState<string | null>(null);
+  const [savingRegion, setSavingRegion] = useState(false);
   const isIndividual = profile?.account_type === "individual";
   const payFn = useServerFn(payCampaignWithWallet);
   const walletFn = useServerFn(getMyWallet);
+  const updateRegionFn = useServerFn(updateAdvertiserRegion);
 
   const reload = useCallback(
     async (userId: string) => {
@@ -109,7 +112,7 @@ function AnnonceurDashboard() {
     }
     const { data: prof, error: profErr } = await supabase
       .from("advertiser_profiles")
-      .select("full_name, company, account_type")
+      .select("full_name, company, account_type, target_region")
       .eq("user_id", session.user.id)
       .maybeSingle();
     if (profErr) throw new Error(profErr.message);
@@ -117,7 +120,7 @@ function AnnonceurDashboard() {
       navigate({ to: "/advertiser/inscription" });
       return;
     }
-    setProfile(prof);
+    setProfile(prof as unknown as Profile);
     setUserId(session.user.id);
     await reload(session.user.id);
     setLoading(false);
@@ -164,6 +167,20 @@ function AnnonceurDashboard() {
       supabase.removeChannel(channel);
     };
   }, [userId, reload]);
+
+  const handleRegionChange = async (region: string) => {
+    setSavingRegion(true);
+    try {
+      const val = region === "" ? null : region;
+      await updateRegionFn({ data: { target_region: val as any } });
+      setProfile((p) => p ? { ...p, target_region: val } : p);
+      toast.success(t("advertiser.region_saved"));
+    } catch {
+      toast.error(t("advertiser.region_save_error"));
+    } finally {
+      setSavingRegion(false);
+    }
+  };
 
   const exportCsv = () => {
     const rows = requests.map((r) => ({
@@ -371,6 +388,29 @@ function AnnonceurDashboard() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Region selector */}
+        <div className="mb-6 flex items-center gap-3 flex-wrap">
+          <label className="text-sm text-muted-foreground shrink-0">
+            {t("advertiser.target_region_label")}
+          </label>
+          <select
+            value={profile?.target_region ?? ""}
+            onChange={(e) => handleRegionChange(e.target.value)}
+            disabled={savingRegion}
+            className="rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">{t("advertiser.region_none")}</option>
+            <option value="europe">{t("region.europe")}</option>
+            <option value="moyen_orient">{t("region.moyen_orient")}</option>
+            <option value="afrique">{t("region.afrique")}</option>
+            <option value="asie">{t("region.asie")}</option>
+            <option value="amerique">{t("region.amerique")}</option>
+          </select>
+          {savingRegion && (
+            <span className="text-xs text-muted-foreground">{t("common.saving")}</span>
+          )}
         </div>
 
         {requests.length === 0 ? (

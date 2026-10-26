@@ -63,7 +63,8 @@
     "create_account": "Créer mon compte",
     "phone_invalid": "Numéro de téléphone français invalide (ex : 06 12 34 56 78)",
     "ein_label": "EIN",
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "saving": "Enregistrement…"
   },
   "wallet": {
     "page_title": "Mon portefeuille — MoveSpot",
@@ -2815,7 +2816,13 @@
       "afaire_stripe_title": "Comptes Stripe incomplets",
       "afaire_stripe_desc": "{{count}} compte(s) Stripe à relancer",
       "btn_ai_generate": "Générer une note IA",
-      "ai_note_error": "L'IA n'a pas pu générer de note. Réessayez."
+      "ai_note_error": "L'IA n'a pas pu générer de note. Réessayez.",
+      "tab_regions": "🌍 Régions",
+      "regions_title": "GMV par marché cible",
+      "regions_col_region": "Région",
+      "regions_col_advertisers": "Annonceurs",
+      "regions_col_campaigns": "Campagnes",
+      "regions_col_gmv": "GMV (€)"
     },
     "audit": {
       "title": "Audit & Conformité",
@@ -5430,7 +5437,11 @@
       "empty_hint": "Les échanges avec les propriétaires apparaîtront ici.",
       "select_thread": "Sélectionnez une conversation",
       "placeholder": "Votre message…"
-    }
+    },
+    "target_region_label": "Marché cible :",
+    "region_none": "— Choisir une région —",
+    "region_saved": "Marché cible mis à jour.",
+    "region_save_error": "Erreur lors de la sauvegarde."
   },
   "driver": {
     "confirm_no": "Ce n'est pas mon véhicule",
@@ -5804,5 +5815,12 @@
       "success": "Demande de virement enregistrée. Votre solde sera crédité à réception.",
       "not_available": "Le virement bancaire n'est pas disponible pour le moment. Contactez-nous."
     }
+  },
+  "region": {
+    "europe": "Europe",
+    "moyen_orient": "Moyen-Orient",
+    "afrique": "Afrique",
+    "asie": "Asie-Pacifique",
+    "amerique": "Amériques"
   }
 }
