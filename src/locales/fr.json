@@ -4660,7 +4660,7 @@
         "countdown_j_minus": "Compte à rebours J Minus",
         "countdown_proposals": "Compte à rebours Propositions",
         "countdown_urgent": "Compte à rebours Urgent",
-        "date_period": "Période",
+        "date_period": "Du {{from}} au {{to}} ({{count}} jour(s))",
         "devis_avg_price": "Prix moyen par véhicule",
         "devis_config_ok": "Configuration validée",
         "devis_duration": "Durée",

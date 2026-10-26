@@ -4599,7 +4599,7 @@
         "countdown_j_minus": "Countdown J Minus",
         "countdown_proposals": "Countdown Proposals",
         "countdown_urgent": "Countdown Urgent",
-        "date_period": "Period",
+        "date_period": "From {{from}} to {{to}} ({{count}} day(s))",
         "devis_avg_price": "Average price per vehicle",
         "devis_config_ok": "Configuration validated",
         "devis_duration": "Duration",
