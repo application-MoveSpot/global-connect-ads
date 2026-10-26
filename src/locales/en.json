@@ -4628,6 +4628,7 @@
         "trial_title": "Free trial",
         "vehicle_default": "Vehicle Default",
         "vehicle_fallback": "Vehicle Default",
+        "zone_mismatch_badge": "Out of zone",
         "vehicle_types_label": "Vehicle types",
         "wallet_btn": "Top up my wallet",
         "wallet_desc": "Add funds to your wallet to activate the campaign.",
