@@ -880,6 +880,7 @@
         "countdown_proposals_one": "{{count}} proposition en attente de votre réponse",
         "countdown_proposals_other": "{{count}} propositions en attente de votre réponse",
         "date_period": "Du {{from}} au {{to}} ({{count}} jour(s))",
+        "submitted_at": "Soumis le {{date}} à {{time}}",
         "vehicle_types_label": "Types recherchés :",
         "zones_label": "Zones :",
         "budget_label": "Budget max :",
