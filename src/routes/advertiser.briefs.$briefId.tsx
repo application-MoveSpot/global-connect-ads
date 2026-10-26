@@ -592,7 +592,7 @@ function BriefDetailPage() {
                       to="/advertiser/portefeuille"
                       className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
                     >
-                      {t("advertiser.briefs.detail.wallet_btn")} →
+                      {t("advertiser.briefs.detail.wallet_btn")}
                     </Link>
                   </div>
                 </div>
