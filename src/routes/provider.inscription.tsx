@@ -16,6 +16,7 @@ import {
 import { verifyWebsite } from "@/lib/providers/website-verify.functions";
 import { estimateProviderPricing } from "@/lib/providers/pricing-estimate.functions";
 import { generateProviderSuggestion } from "@/lib/ai/provider-assistant.functions";
+import { verifyProviderDocs } from "@/lib/ai/provider-doc-verify.functions";
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { PROVIDER_SERVICES, type ProviderServiceKey } from "@/lib/providers/provider-services";
 import {
@@ -92,8 +93,10 @@ function ProviderSignupPage() {
   const [aiSessionExpired, setAiSessionExpired] = useState(false);
   const [aiFilled, setAiFilled] = useState<string[]>([]);
   const callProviderAi = useServerFn(generateProviderSuggestion);
+  const callVerifyDocs = useServerFn(verifyProviderDocs);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiVerifying, setAiVerifying] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState("");
 
@@ -263,7 +266,14 @@ function ProviderSignupPage() {
       setError(t("provider.inscription.error.short_description"));
       return;
     }
-    // Documents are optional at inscription — admin reviews and requests them if needed.
+    const isProduction = import.meta.env.VITE_APP_MODE === "production";
+    if (isProduction) {
+      if (!docKbis) { setError(t("provider.inscription.error.missing_kbis")); return; }
+      if (!docRcPro) { setError(t("provider.inscription.error.missing_rc_pro")); return; }
+      if (!rcProExpiry) { setError(t("provider.inscription.error.missing_rc_pro_expiry")); return; }
+      if (new Date(rcProExpiry) < new Date()) { setError(t("provider.inscription.error.rc_pro_expired")); return; }
+      if (!docRib) { setError(t("provider.inscription.error.missing_rib")); return; }
+    }
     const phoneTrim = phone.trim();
     if (phoneTrim && !/^[+\d][\d\s().-]{7,19}$/.test(phoneTrim)) {
       setError(t("auth.error.invalid_phone"));
@@ -319,6 +329,23 @@ function ProviderSignupPage() {
     if (error) {
       setError(error.message);
       return;
+    }
+    if (isProduction && (docKbis || docRcPro || docRib || docIdDoc)) {
+      setAiVerifying(true);
+      try {
+        await callVerifyDocs({
+          data: {
+            kbisPath: docKbis?.path ?? null,
+            rcProPath: docRcPro?.path ?? null,
+            ribPath: docRib?.path ?? null,
+            idDocPath: docIdDoc?.path ?? null,
+          },
+        });
+      } catch {
+        // AI failure is non-blocking — admin will review manually
+      } finally {
+        setAiVerifying(false);
+      }
     }
     void track("signup_completed", { role: "provider" });
     navigate({ to: "/provider" });
@@ -651,13 +678,18 @@ function ProviderSignupPage() {
 
             {/* Documents justificatifs */}
             {sessionEmail && (
-              <div className="space-y-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className={`space-y-4 rounded-xl border p-4 ${import.meta.env.VITE_APP_MODE === "production" ? "border-primary/30 bg-primary/5" : "border-amber-500/30 bg-amber-500/5"}`}>
                 <div>
                   <h3 className="text-sm font-semibold text-foreground">
                     {t("provider.inscription.docs_title")}
+                    {import.meta.env.VITE_APP_MODE === "production" && (
+                      <span className="ml-2 text-xs font-normal text-destructive">*requis</span>
+                    )}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {t("provider.inscription.docs_subtitle")}
+                    {import.meta.env.VITE_APP_MODE === "production"
+                      ? t("provider.inscription.docs_subtitle_production", "Kbis, RC Pro et RIB obligatoires. L'IA vérifiera l'authenticité avant soumission.")
+                      : t("provider.inscription.docs_subtitle")}
                   </p>
                 </div>
                 <ProviderDocUpload
@@ -711,11 +743,16 @@ function ProviderSignupPage() {
             )}
 
             {error && <ErrorBox>{error}</ErrorBox>}
+            {aiVerifying && (
+              <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm text-primary text-center">
+                Vérification de vos documents en cours…
+              </div>
+            )}
             <button
-              disabled={loading}
+              disabled={loading || aiVerifying}
               className="w-full rounded-full bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? t("common.sending") : t("provider.inscription.submit_btn")}
+              {aiVerifying ? "Vérification IA en cours…" : loading ? t("common.sending") : t("provider.inscription.submit_btn")}
             </button>
           </form>
         )}
