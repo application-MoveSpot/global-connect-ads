@@ -88,7 +88,12 @@ Réponds UNIQUEMENT en JSON strict :
       let message = raw;
       let suggestedPrice: number | null = null;
       try {
-        const parsed = JSON.parse(raw) as { message?: string; suggestedPrice?: number };
+        // Strip markdown code fences (```json ... ``` or ``` ... ```)
+        const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+        // Extract first JSON object even if AI added preamble text
+        const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+        const jsonStr = jsonMatch ? jsonMatch[0] : stripped;
+        const parsed = JSON.parse(jsonStr) as { message?: string; suggestedPrice?: number };
         if (parsed.message) message = parsed.message;
         if (typeof parsed.suggestedPrice === "number" && parsed.suggestedPrice > 0) {
           suggestedPrice = Math.round(parsed.suggestedPrice);
