@@ -7,6 +7,7 @@ import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { RouteError } from "@/components/app/RouteError";
+import { FileText, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/admin/prestataires")({
   head: () => ({
@@ -35,6 +36,11 @@ type Provider = {
   admin_notes: string | null;
   services: string[];
   created_at: string;
+  kbis_url: string | null;
+  rc_pro_url: string | null;
+  rc_pro_expiry: string | null;
+  rib_url: string | null;
+  id_doc_url: string | null;
 };
 
 type ImpossibleReport = {
@@ -57,6 +63,13 @@ type ImpossibleInstall = {
   installation_address: string | null;
   created_at: string;
 };
+
+async function signDoc(path: string): Promise<string> {
+  const { data } = await supabase.storage
+    .from("provider-documents")
+    .createSignedUrl(path, 3600);
+  return data?.signedUrl ?? "#";
+}
 
 function AdminProvidersPage() {
   const { t, i18n } = useTranslation();
@@ -392,6 +405,33 @@ function AdminProvidersPage() {
                     ))}
                   </div>
                 )}
+                {/* Documents justificatifs */}
+                {(p.kbis_url || p.rc_pro_url || p.rib_url || p.id_doc_url) && (
+                  <div className="rounded-lg border border-border bg-secondary/30 p-3 mb-2 space-y-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      {t("admin.providers.docs_title")}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {p.kbis_url && (
+                        <DocLink path={p.kbis_url} label={t("admin.providers.doc_kbis")} />
+                      )}
+                      {p.rc_pro_url && (
+                        <DocLink path={p.rc_pro_url} label={t("admin.providers.doc_rc_pro")} expiry={p.rc_pro_expiry} />
+                      )}
+                      {p.rib_url && (
+                        <DocLink path={p.rib_url} label={t("admin.providers.doc_rib")} />
+                      )}
+                      {p.id_doc_url && (
+                        <DocLink path={p.id_doc_url} label={t("admin.providers.doc_id")} />
+                      )}
+                    </div>
+                  </div>
+                )}
+                {!p.kbis_url && !p.rc_pro_url && !p.rib_url && (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300 mb-2">
+                    ⚠ {t("admin.providers.docs_missing")}
+                  </div>
+                )}
                 {p.admin_notes && (
                   <div className="rounded-lg bg-secondary p-2 text-xs mb-2">
                     <strong>{t("admin.providers.note")}</strong> {p.admin_notes}
@@ -441,5 +481,45 @@ function AdminProvidersPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function DocLink({ path, label, expiry }: { path: string; label: string; expiry?: string | null }) {
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    signDoc(path).then(setUrl);
+  }, [path]);
+
+  const expDate = expiry ? new Date(expiry) : null;
+  const daysLeft = expDate ? Math.ceil((expDate.getTime() - Date.now()) / 86400000) : null;
+  const expired = daysLeft !== null && daysLeft <= 0;
+  const expiringSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 30;
+
+  return (
+    <a
+      href={url ?? "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition hover:bg-secondary ${
+        expired
+          ? "border-destructive/40 text-destructive bg-destructive/5"
+          : expiringSoon
+            ? "border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/5"
+            : "border-border text-foreground"
+      }`}
+    >
+      {expired || expiringSoon ? (
+        <AlertTriangle className="h-3 w-3" />
+      ) : (
+        <FileText className="h-3 w-3" />
+      )}
+      {label}
+      {expiry && (
+        <span className="text-[10px] text-muted-foreground">
+          {expired ? "(expirée)" : expiringSoon ? `(J-${daysLeft})` : `(${new Date(expiry).toLocaleDateString("fr-FR")})`}
+        </span>
+      )}
+    </a>
   );
 }
