@@ -11,4 +11,5 @@
 - [x] Permettre d’ajuster les coins sur le rebord de la portière et accepter l’ordre inversé non croisé : déplacement souris et ajustement au pixel vérifiés sur la photo réelle en session connectée, sans modifier la zone enregistrée ; 7 tests réussis.
 - [x] Renommer la page admin des prestataires en /admin/providers (fichier + chemin + liens du menu et du tableau de bord) ; vérifié en session connectée, l’ancien chemin renvoie 404.
 - [x] Rétablir les changements de base de données manquants des PR #248/#249 : table des positions GPS créée et vérifiée (envoi d’une tournée de test lue côté admin, fichier de test supprimé), colonnes documents du prestataire ajoutées, espace de stockage privé des documents créé et testé (envoi, lecture, suppression : 200).
+- [ ] Corriger les erreurs de compilation liées aux briefs, aux documents prestataires et au relevé commercial ; vérifier l’aperçu.
 
