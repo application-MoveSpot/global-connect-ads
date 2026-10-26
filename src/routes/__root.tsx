@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import i18n from "@/lib/i18n";
+import { RegionProvider } from "@/lib/region-context";
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { BetaGuard } from "@/components/app/BetaGuard";
 import { SessionKeeper } from "@/components/app/SessionKeeper";
@@ -292,16 +293,18 @@ function RootComponent() {
   return (
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <QueryClientProvider client={queryClient}>
-        <OfflineBanner />
-        <TestEnvBanner />
-        <SessionKeeper />
-        <AppUpdateGuard />
-        <LanguageAuditGuard />
-        <StatusBanner />
-        <BetaGuard>
-          <Outlet />
-        </BetaGuard>
-        <CookieBanner />
+        <RegionProvider>
+          <OfflineBanner />
+          <TestEnvBanner />
+          <SessionKeeper />
+          <AppUpdateGuard />
+          <LanguageAuditGuard />
+          <StatusBanner />
+          <BetaGuard>
+            <Outlet />
+          </BetaGuard>
+          <CookieBanner />
+        </RegionProvider>
       </QueryClientProvider>
     </Sentry.ErrorBoundary>
   );

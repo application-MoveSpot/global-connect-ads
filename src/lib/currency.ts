@@ -1,43 +1,63 @@
-// Utilitaire devise — EUR pour le marché France, USD pour le marché US.
+export type Currency = "EUR" | "USD" | "AED" | "XOF";
 
-export type Currency = "EUR" | "USD";
+export type Region = "europe" | "afrique" | "asie" | "amerique" | "moyen_orient";
 
-/** Détermine la devise à partir de la locale i18n ou d'un code pays explicite. */
-export function currencyForLocale(locale: string): Currency {
-  return locale.startsWith("en") ? "USD" : "EUR";
+export const CURRENCY_CONFIGS: Record<
+  Currency,
+  { symbol: string; decimals: number; locale: string; name: string }
+> = {
+  EUR: { symbol: "€", decimals: 2, locale: "fr-FR", name: "Euro" },
+  USD: { symbol: "$", decimals: 2, locale: "en-US", name: "US Dollar" },
+  AED: { symbol: "د.إ", decimals: 2, locale: "ar-AE", name: "Dirham (AED)" },
+  XOF: { symbol: "CFA", decimals: 0, locale: "fr-SN", name: "Franc CFA (XOF)" },
+};
+
+export const REGION_CURRENCY: Record<Region, Currency> = {
+  europe: "EUR",
+  moyen_orient: "AED",
+  afrique: "XOF",
+  asie: "USD",
+  amerique: "USD",
+};
+
+// Taux d'affichage approx (pas de vrai FX live)
+const FX: Record<Currency, number> = { EUR: 1, USD: 1.08, AED: 3.97, XOF: 655.96 };
+
+export function getCurrencyFromRegion(region: Region): Currency {
+  return REGION_CURRENCY[region];
 }
 
-/** Formate un montant en centimes dans la devise et la locale données. */
+export function getCurrencyFromLang(lang: string): Currency {
+  return lang.startsWith("ar") ? "AED" : lang.startsWith("en") ? "USD" : "EUR";
+}
+
+export function currencyForLocale(locale: string): Currency {
+  return getCurrencyFromLang(locale);
+}
+
+export function convertFromEur(eurAmount: number, currency: Currency): number {
+  return eurAmount * FX[currency];
+}
+
+export function formatAmount(amount: number, currency: Currency): string {
+  const { locale, decimals } = CURRENCY_CONFIGS[currency];
+  return amount.toLocaleString(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  });
+}
+
+export function formatAmountFromEur(eurAmount: number, currency: Currency): string {
+  return formatAmount(convertFromEur(eurAmount, currency), currency);
+}
+
 export function formatCurrency(cents: number, locale: string): string {
   const currency = currencyForLocale(locale);
   return (cents / 100).toLocaleString(locale, { style: "currency", currency });
 }
 
-/** Symbole court (`$` ou `€`). */
-export function currencySymbol(locale: string): string {
-  return currencyForLocale(locale) === "USD" ? "$" : "€";
-}
-
-/** Code ISO de la devise. */
-export function currencyCode(locale: string): Currency {
-  return currencyForLocale(locale);
-}
-
-/** Config par devise (symbole, décimales, locale BCP 47). */
-export const CURRENCY_CONFIGS: Record<
-  Currency,
-  { symbol: string; decimals: number; locale: string }
-> = {
-  EUR: { symbol: "€", decimals: 2, locale: "fr-FR" },
-  USD: { symbol: "$", decimals: 2, locale: "en-US" },
-};
-
-/** Détermine la devise à partir d'un code de langue i18n ("fr", "en", …). */
-export function getCurrencyFromLang(lang: string): Currency {
-  return lang.startsWith("en") ? "USD" : "EUR";
-}
-
-/** Formate un montant en centimes avec décimales : 12050 → "120,50 €". */
 export function formatCurrencyExact(cents: number, currency: Currency): string {
   const { locale } = CURRENCY_CONFIGS[currency];
   return (cents / 100).toLocaleString(locale, {
@@ -48,19 +68,14 @@ export function formatCurrencyExact(cents: number, currency: Currency): string {
   });
 }
 
-/** Formate un montant entier (unités, pas centimes) : 375 → "375 €". */
-export function formatAmount(amount: number, currency: Currency): string {
-  const { locale } = CURRENCY_CONFIGS[currency];
-  return amount.toLocaleString(locale, {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
+export function currencySymbol(locale: string): string {
+  return CURRENCY_CONFIGS[getCurrencyFromLang(locale)].symbol;
 }
 
-/** Convertit des centimes EUR vers la devise cible (taux d'affichage approximatif, pas de vrai FX). */
+export function currencyCode(locale: string): Currency {
+  return getCurrencyFromLang(locale);
+}
+
 export function convertCents(eurCents: number, currency: Currency): number {
-  if (currency === "USD") return Math.round(eurCents * 1.08);
-  return eurCents;
+  return Math.round(eurCents * FX[currency]);
 }
