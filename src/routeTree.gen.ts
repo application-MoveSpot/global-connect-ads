@@ -85,6 +85,7 @@ import { Route as ProviderIndexRouteImport } from './routes/provider.index'
 import { Route as ProviderConnexionRouteImport } from './routes/provider.connexion'
 import { Route as ProviderInscriptionRouteImport } from './routes/provider.inscription'
 import { Route as ProviderProfilRouteImport } from './routes/provider.profil'
+import { Route as ProviderTrackingRouteImport } from './routes/provider.tracking'
 import { Route as ProvidersIndexRouteImport } from './routes/providers.index'
 import { Route as ProvidersProviderIdRouteImport } from './routes/providers.$providerId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -500,6 +501,11 @@ const ProviderProfilRoute = ProviderProfilRouteImport.update({
   path: '/provider/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProviderTrackingRoute = ProviderTrackingRouteImport.update({
+  id: '/provider/tracking',
+  path: '/provider/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProvidersIndexRoute = ProvidersIndexRouteImport.update({
   id: '/providers/',
   path: '/providers/',
@@ -743,6 +749,7 @@ export interface FileRoutesByFullPath {
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
   '/provider/profil': typeof ProviderProfilRoute
+  '/provider/tracking': typeof ProviderTrackingRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/advertiser/': typeof AdvertiserIndexRoute
   '/commercial/': typeof CommercialIndexRoute
@@ -851,6 +858,7 @@ export interface FileRoutesByTo {
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
   '/provider/profil': typeof ProviderProfilRoute
+  '/provider/tracking': typeof ProviderTrackingRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/': typeof PublicIndexRoute
   '/advertiser': typeof AdvertiserIndexRoute
@@ -962,6 +970,7 @@ export interface FileRoutesById {
   '/provider/connexion': typeof ProviderConnexionRoute
   '/provider/inscription': typeof ProviderInscriptionRoute
   '/provider/profil': typeof ProviderProfilRoute
+  '/provider/tracking': typeof ProviderTrackingRoute
   '/providers/$providerId': typeof ProvidersProviderIdRoute
   '/_public/': typeof PublicIndexRoute
   '/advertiser/': typeof AdvertiserIndexRoute
@@ -1074,6 +1083,7 @@ export interface FileRouteTypes {
     | '/provider/connexion'
     | '/provider/inscription'
     | '/provider/profil'
+    | '/provider/tracking'
     | '/providers/$providerId'
     | '/advertiser/'
     | '/commercial/'
@@ -1182,6 +1192,7 @@ export interface FileRouteTypes {
     | '/provider/connexion'
     | '/provider/inscription'
     | '/provider/profil'
+    | '/provider/tracking'
     | '/providers/$providerId'
     | '/'
     | '/advertiser'
@@ -1292,6 +1303,7 @@ export interface FileRouteTypes {
     | '/provider/connexion'
     | '/provider/inscription'
     | '/provider/profil'
+    | '/provider/tracking'
     | '/providers/$providerId'
     | '/_public/'
     | '/advertiser/'
@@ -1383,6 +1395,7 @@ export interface RootRouteChildren {
   ProviderConnexionRoute: typeof ProviderConnexionRoute
   ProviderInscriptionRoute: typeof ProviderInscriptionRoute
   ProviderProfilRoute: typeof ProviderProfilRoute
+  ProviderTrackingRoute: typeof ProviderTrackingRoute
   ProvidersProviderIdRoute: typeof ProvidersProviderIdRoute
   AdvertiserIndexRoute: typeof AdvertiserIndexRoute
   CommercialIndexRoute: typeof CommercialIndexRoute
@@ -1954,6 +1967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProviderProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/provider/tracking': {
+      id: '/provider/tracking'
+      path: '/provider/tracking'
+      fullPath: '/provider/tracking'
+      preLoaderRoute: typeof ProviderTrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/providers/': {
       id: '/providers/'
       path: '/providers'
@@ -2307,6 +2327,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProviderConnexionRoute: ProviderConnexionRoute,
   ProviderInscriptionRoute: ProviderInscriptionRoute,
   ProviderProfilRoute: ProviderProfilRoute,
+  ProviderTrackingRoute: ProviderTrackingRoute,
   ProvidersProviderIdRoute: ProvidersProviderIdRoute,
   AdvertiserIndexRoute: AdvertiserIndexRoute,
   CommercialIndexRoute: CommercialIndexRoute,
