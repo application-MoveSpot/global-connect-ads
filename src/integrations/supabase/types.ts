@@ -44,6 +44,7 @@ export type Database = {
           advertiser_id: string
           audience_target: string | null
           budget_max: number | null
+          poseur_fee: number | null
           created_at: string
           creative_files: string[]
           days_count: number | null
@@ -65,6 +66,7 @@ export type Database = {
           advertiser_id: string
           audience_target?: string | null
           budget_max?: number | null
+          poseur_fee?: number | null
           created_at?: string
           creative_files?: string[]
           days_count?: number | null
@@ -86,6 +88,7 @@ export type Database = {
           advertiser_id?: string
           audience_target?: string | null
           budget_max?: number | null
+          poseur_fee?: number | null
           created_at?: string
           creative_files?: string[]
           days_count?: number | null

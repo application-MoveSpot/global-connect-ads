@@ -39,6 +39,7 @@ import { RouteError } from "@/components/app/RouteError";
 import { resizeImageFile } from "@/lib/images/resize";
 import { VehiclePhotoAdPreview } from "@/components/advertiser/VehiclePhotoAdPreview";
 import { generateBriefSuggestion } from "@/lib/ai/brief-assistant.functions";
+import { suggestBriefPoseurFee } from "@/lib/ai/brief-poseur-fee.functions";
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quality.functions";
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
@@ -216,6 +217,8 @@ function NewBriefPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [budget, setBudget] = useState("");
+  const [poseurFee, setPoseurFee] = useState("");
+  const [aiPoseurFeeLoading, setAiPoseurFeeLoading] = useState(false);
   const [audience, setAudience] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
@@ -541,6 +544,38 @@ function NewBriefPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title, description, audience]);
 
+  const handleSuggestPoseurFee = async () => {
+    if (!vehicleTypes.length) return;
+    setAiPoseurFeeLoading(true);
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const days =
+        startDate && endDate
+          ? Math.round((end.getTime() - start.getTime()) / 86400000) + 1
+          : undefined;
+      const zonesArr = zones
+        .split(/\r?\n|,/)
+        .map((z) => z.trim())
+        .filter(Boolean);
+      const res = await suggestBriefPoseurFee({
+        data: {
+          vehicleTypes,
+          daysCount: days,
+          zonesCount: zonesArr.length || undefined,
+          description: description.trim() || undefined,
+        },
+      });
+      if (res.ok && !poseurFee) {
+        setPoseurFee(String(res.suggestedFee));
+      }
+    } catch {
+      /* non-blocking */
+    } finally {
+      setAiPoseurFeeLoading(false);
+    }
+  };
+
   // Validation IA des visuels publicitaires — traitement en parallèle
   const handleCreativeValidation = async (selectedFiles: File[]) => {
     if (!selectedFiles.length) {
@@ -650,6 +685,7 @@ function NewBriefPage() {
           end_date: endDate,
           days_count: days,
           budget_max: budget ? Number(budget) : null,
+          poseur_fee: poseurFee ? Number(poseurFee) : null,
           audience_target: audience || null,
           creative_files: uploadedPaths,
           zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
@@ -1962,6 +1998,40 @@ function NewBriefPage() {
                 placeholder="Ex. 25-40 ans urbains"
               />
             </Field>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium">
+                {t("advertiser.briefs.nouveau.field_poseur_fee")}
+              </label>
+              <button
+                type="button"
+                disabled={aiPoseurFeeLoading || !vehicleTypes.length}
+                onClick={() => void handleSuggestPoseurFee()}
+                className="flex items-center gap-1 text-xs text-violet-500 hover:text-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {aiPoseurFeeLoading ? (
+                  <>
+                    <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+                    {t("advertiser.briefs.nouveau.poseur_fee_estimating")}
+                  </>
+                ) : (
+                  <>✨ {t("advertiser.briefs.nouveau.poseur_fee_estimate_cta")}</>
+                )}
+              </button>
+            </div>
+            <input
+              type="number"
+              min={0}
+              value={poseurFee}
+              onChange={(e) => setPoseurFee(e.target.value)}
+              placeholder="Ex. 180"
+              className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {t("advertiser.briefs.nouveau.poseur_fee_hint")}
+            </p>
           </div>
 
           <Field label={t("advertiser.briefs.nouveau.field_creatives")}>
