@@ -101,6 +101,10 @@ import { Route as AdvertiserRapportCampaignIdRouteImport } from './routes/advert
 import { Route as AdvertiserSuiviCampaignIdRouteImport } from './routes/advertiser.suivi.$campaignId'
 import { Route as ApiAdminIntrusionAlertRouteImport } from './routes/api/admin/intrusion-alert'
 import { Route as ApiAdminSetupStripeProductsRouteImport } from './routes/api/admin/setup-stripe-products'
+import { Route as ApiV1BriefsRouteImport } from './routes/api/v1/briefs'
+import { Route as ApiV1KeysRouteImport } from './routes/api/v1/keys'
+import { Route as ApiV1OpenapiRouteImport } from './routes/api/v1/openapi'
+import { Route as ApiV1WalletRouteImport } from './routes/api/v1/wallet'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 import { Route as ApiWebhooksSupabasePushRouteImport } from './routes/api/webhooks/supabase-push'
 import { Route as LovableCronEnforceRouteImport } from './routes/lovable/cron/enforce'
@@ -113,11 +117,14 @@ import { Route as OwnerVehiculesVehicleIdRouteImport } from './routes/owner.vehi
 import { Route as OwnerVehiculesNouveauRouteImport } from './routes/owner.vehicules.nouveau'
 import { Route as AdvertiserBriefsConfirmationBriefIdRouteImport } from './routes/advertiser.briefs.confirmation.$briefId'
 import { Route as ApiAdminCronEnforceRouteImport } from './routes/api/admin/cron/enforce'
+import { Route as ApiPublicCinetpayWebhookRouteImport } from './routes/api/public/cinetpay/webhook'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as ApiV1BriefsBriefIdProposalsRouteImport } from './routes/api/v1/briefs.$briefId.proposals'
+import { Route as ApiV1ProposalsProposalIdAcceptRouteImport } from './routes/api/v1/proposals.$proposalId.accept'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -588,6 +595,26 @@ const ApiAdminSetupStripeProductsRoute =
     path: '/api/admin/setup-stripe-products',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiV1BriefsRoute = ApiV1BriefsRouteImport.update({
+  id: '/api/v1/briefs',
+  path: '/api/v1/briefs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1KeysRoute = ApiV1KeysRouteImport.update({
+  id: '/api/v1/keys',
+  path: '/api/v1/keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1OpenapiRoute = ApiV1OpenapiRouteImport.update({
+  id: '/api/v1/openapi',
+  path: '/api/v1/openapi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1WalletRoute = ApiV1WalletRouteImport.update({
+  id: '/api/v1/wallet',
+  path: '/api/v1/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
   id: '/api/webhooks/stripe',
   path: '/api/webhooks/stripe',
@@ -649,6 +676,12 @@ const ApiAdminCronEnforceRoute = ApiAdminCronEnforceRouteImport.update({
   path: '/api/admin/cron/enforce',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCinetpayWebhookRoute =
+  ApiPublicCinetpayWebhookRouteImport.update({
+    id: '/api/public/cinetpay/webhook',
+    path: '/api/public/cinetpay/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -676,6 +709,18 @@ const LovableEmailTransactionalSendRoute =
   LovableEmailTransactionalSendRouteImport.update({
     id: '/lovable/email/transactional/send',
     path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiV1BriefsBriefIdProposalsRoute =
+  ApiV1BriefsBriefIdProposalsRouteImport.update({
+    id: '/$briefId/proposals',
+    path: '/$briefId/proposals',
+    getParentRoute: () => ApiV1BriefsRoute,
+  } as any)
+const ApiV1ProposalsProposalIdAcceptRoute =
+  ApiV1ProposalsProposalIdAcceptRouteImport.update({
+    id: '/api/v1/proposals/$proposalId/accept',
+    path: '/api/v1/proposals/$proposalId/accept',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -770,6 +815,10 @@ export interface FileRoutesByFullPath {
   '/advertiser/suivi/$campaignId': typeof AdvertiserSuiviCampaignIdRoute
   '/api/admin/intrusion-alert': typeof ApiAdminIntrusionAlertRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
+  '/api/v1/briefs': typeof ApiV1BriefsRouteWithChildren
+  '/api/v1/keys': typeof ApiV1KeysRoute
+  '/api/v1/openapi': typeof ApiV1OpenapiRoute
+  '/api/v1/wallet': typeof ApiV1WalletRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
   '/lovable/cron/enforce': typeof LovableCronEnforceRoute
@@ -783,11 +832,14 @@ export interface FileRoutesByFullPath {
   '/owner/briefs/': typeof OwnerBriefsIndexRoute
   '/advertiser/briefs/confirmation/$briefId': typeof AdvertiserBriefsConfirmationBriefIdRoute
   '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
+  '/api/public/cinetpay/webhook': typeof ApiPublicCinetpayWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/v1/briefs/$briefId/proposals': typeof ApiV1BriefsBriefIdProposalsRoute
+  '/api/v1/proposals/$proposalId/accept': typeof ApiV1ProposalsProposalIdAcceptRoute
 }
 export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
@@ -880,6 +932,10 @@ export interface FileRoutesByTo {
   '/advertiser/suivi/$campaignId': typeof AdvertiserSuiviCampaignIdRoute
   '/api/admin/intrusion-alert': typeof ApiAdminIntrusionAlertRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
+  '/api/v1/briefs': typeof ApiV1BriefsRouteWithChildren
+  '/api/v1/keys': typeof ApiV1KeysRoute
+  '/api/v1/openapi': typeof ApiV1OpenapiRoute
+  '/api/v1/wallet': typeof ApiV1WalletRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
   '/lovable/cron/enforce': typeof LovableCronEnforceRoute
@@ -893,11 +949,14 @@ export interface FileRoutesByTo {
   '/owner/briefs': typeof OwnerBriefsIndexRoute
   '/advertiser/briefs/confirmation/$briefId': typeof AdvertiserBriefsConfirmationBriefIdRoute
   '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
+  '/api/public/cinetpay/webhook': typeof ApiPublicCinetpayWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/v1/briefs/$briefId/proposals': typeof ApiV1BriefsBriefIdProposalsRoute
+  '/api/v1/proposals/$proposalId/accept': typeof ApiV1ProposalsProposalIdAcceptRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -992,6 +1051,10 @@ export interface FileRoutesById {
   '/advertiser/suivi/$campaignId': typeof AdvertiserSuiviCampaignIdRoute
   '/api/admin/intrusion-alert': typeof ApiAdminIntrusionAlertRoute
   '/api/admin/setup-stripe-products': typeof ApiAdminSetupStripeProductsRoute
+  '/api/v1/briefs': typeof ApiV1BriefsRouteWithChildren
+  '/api/v1/keys': typeof ApiV1KeysRoute
+  '/api/v1/openapi': typeof ApiV1OpenapiRoute
+  '/api/v1/wallet': typeof ApiV1WalletRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/api/webhooks/supabase-push': typeof ApiWebhooksSupabasePushRoute
   '/lovable/cron/enforce': typeof LovableCronEnforceRoute
@@ -1005,11 +1068,14 @@ export interface FileRoutesById {
   '/owner/briefs/': typeof OwnerBriefsIndexRoute
   '/advertiser/briefs/confirmation/$briefId': typeof AdvertiserBriefsConfirmationBriefIdRoute
   '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
+  '/api/public/cinetpay/webhook': typeof ApiPublicCinetpayWebhookRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
+  '/api/v1/briefs/$briefId/proposals': typeof ApiV1BriefsBriefIdProposalsRoute
+  '/api/v1/proposals/$proposalId/accept': typeof ApiV1ProposalsProposalIdAcceptRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1104,6 +1170,10 @@ export interface FileRouteTypes {
     | '/advertiser/suivi/$campaignId'
     | '/api/admin/intrusion-alert'
     | '/api/admin/setup-stripe-products'
+    | '/api/v1/briefs'
+    | '/api/v1/keys'
+    | '/api/v1/openapi'
+    | '/api/v1/wallet'
     | '/api/webhooks/stripe'
     | '/api/webhooks/supabase-push'
     | '/lovable/cron/enforce'
@@ -1117,11 +1187,14 @@ export interface FileRouteTypes {
     | '/owner/briefs/'
     | '/advertiser/briefs/confirmation/$briefId'
     | '/api/admin/cron/enforce'
+    | '/api/public/cinetpay/webhook'
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/v1/briefs/$briefId/proposals'
+    | '/api/v1/proposals/$proposalId/accept'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin'
@@ -1214,6 +1287,10 @@ export interface FileRouteTypes {
     | '/advertiser/suivi/$campaignId'
     | '/api/admin/intrusion-alert'
     | '/api/admin/setup-stripe-products'
+    | '/api/v1/briefs'
+    | '/api/v1/keys'
+    | '/api/v1/openapi'
+    | '/api/v1/wallet'
     | '/api/webhooks/stripe'
     | '/api/webhooks/supabase-push'
     | '/lovable/cron/enforce'
@@ -1227,11 +1304,14 @@ export interface FileRouteTypes {
     | '/owner/briefs'
     | '/advertiser/briefs/confirmation/$briefId'
     | '/api/admin/cron/enforce'
+    | '/api/public/cinetpay/webhook'
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/v1/briefs/$briefId/proposals'
+    | '/api/v1/proposals/$proposalId/accept'
   id:
     | '__root__'
     | '/_public'
@@ -1325,6 +1405,10 @@ export interface FileRouteTypes {
     | '/advertiser/suivi/$campaignId'
     | '/api/admin/intrusion-alert'
     | '/api/admin/setup-stripe-products'
+    | '/api/v1/briefs'
+    | '/api/v1/keys'
+    | '/api/v1/openapi'
+    | '/api/v1/wallet'
     | '/api/webhooks/stripe'
     | '/api/webhooks/supabase-push'
     | '/lovable/cron/enforce'
@@ -1338,11 +1422,14 @@ export interface FileRouteTypes {
     | '/owner/briefs/'
     | '/advertiser/briefs/confirmation/$briefId'
     | '/api/admin/cron/enforce'
+    | '/api/public/cinetpay/webhook'
     | '/api/public/payments/webhook'
     | '/api/public/stripe/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
+    | '/api/v1/briefs/$briefId/proposals'
+    | '/api/v1/proposals/$proposalId/accept'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1415,6 +1502,10 @@ export interface RootRouteChildren {
   AdvertiserSuiviCampaignIdRoute: typeof AdvertiserSuiviCampaignIdRoute
   ApiAdminIntrusionAlertRoute: typeof ApiAdminIntrusionAlertRoute
   ApiAdminSetupStripeProductsRoute: typeof ApiAdminSetupStripeProductsRoute
+  ApiV1BriefsRoute: typeof ApiV1BriefsRouteWithChildren
+  ApiV1KeysRoute: typeof ApiV1KeysRoute
+  ApiV1OpenapiRoute: typeof ApiV1OpenapiRoute
+  ApiV1WalletRoute: typeof ApiV1WalletRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
   ApiWebhooksSupabasePushRoute: typeof ApiWebhooksSupabasePushRoute
   LovableCronEnforceRoute: typeof LovableCronEnforceRoute
@@ -1426,11 +1517,13 @@ export interface RootRouteChildren {
   OwnerBriefsIndexRoute: typeof OwnerBriefsIndexRoute
   AdvertiserBriefsConfirmationBriefIdRoute: typeof AdvertiserBriefsConfirmationBriefIdRoute
   ApiAdminCronEnforceRoute: typeof ApiAdminCronEnforceRoute
+  ApiPublicCinetpayWebhookRoute: typeof ApiPublicCinetpayWebhookRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
+  ApiV1ProposalsProposalIdAcceptRoute: typeof ApiV1ProposalsProposalIdAcceptRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2079,6 +2172,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminSetupStripeProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/briefs': {
+      id: '/api/v1/briefs'
+      path: '/api/v1/briefs'
+      fullPath: '/api/v1/briefs'
+      preLoaderRoute: typeof ApiV1BriefsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/keys': {
+      id: '/api/v1/keys'
+      path: '/api/v1/keys'
+      fullPath: '/api/v1/keys'
+      preLoaderRoute: typeof ApiV1KeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/openapi': {
+      id: '/api/v1/openapi'
+      path: '/api/v1/openapi'
+      fullPath: '/api/v1/openapi'
+      preLoaderRoute: typeof ApiV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/wallet': {
+      id: '/api/v1/wallet'
+      path: '/api/v1/wallet'
+      fullPath: '/api/v1/wallet'
+      preLoaderRoute: typeof ApiV1WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/stripe': {
       id: '/api/webhooks/stripe'
       path: '/api/webhooks/stripe'
@@ -2163,6 +2284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminCronEnforceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cinetpay/webhook': {
+      id: '/api/public/cinetpay/webhook'
+      path: '/api/public/cinetpay/webhook'
+      fullPath: '/api/public/cinetpay/webhook'
+      preLoaderRoute: typeof ApiPublicCinetpayWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -2196,6 +2324,20 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/transactional/send'
       fullPath: '/lovable/email/transactional/send'
       preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/briefs/$briefId/proposals': {
+      id: '/api/v1/briefs/$briefId/proposals'
+      path: '/$briefId/proposals'
+      fullPath: '/api/v1/briefs/$briefId/proposals'
+      preLoaderRoute: typeof ApiV1BriefsBriefIdProposalsRouteImport
+      parentRoute: typeof ApiV1BriefsRoute
+    }
+    '/api/v1/proposals/$proposalId/accept': {
+      id: '/api/v1/proposals/$proposalId/accept'
+      path: '/api/v1/proposals/$proposalId/accept'
+      fullPath: '/api/v1/proposals/$proposalId/accept'
+      preLoaderRoute: typeof ApiV1ProposalsProposalIdAcceptRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -2276,6 +2418,18 @@ const OwnerFlotteRouteWithChildren = OwnerFlotteRoute._addFileChildren(
   OwnerFlotteRouteChildren,
 )
 
+interface ApiV1BriefsRouteChildren {
+  ApiV1BriefsBriefIdProposalsRoute: typeof ApiV1BriefsBriefIdProposalsRoute
+}
+
+const ApiV1BriefsRouteChildren: ApiV1BriefsRouteChildren = {
+  ApiV1BriefsBriefIdProposalsRoute: ApiV1BriefsBriefIdProposalsRoute,
+}
+
+const ApiV1BriefsRouteWithChildren = ApiV1BriefsRoute._addFileChildren(
+  ApiV1BriefsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
@@ -2347,6 +2501,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdvertiserSuiviCampaignIdRoute: AdvertiserSuiviCampaignIdRoute,
   ApiAdminIntrusionAlertRoute: ApiAdminIntrusionAlertRoute,
   ApiAdminSetupStripeProductsRoute: ApiAdminSetupStripeProductsRoute,
+  ApiV1BriefsRoute: ApiV1BriefsRouteWithChildren,
+  ApiV1KeysRoute: ApiV1KeysRoute,
+  ApiV1OpenapiRoute: ApiV1OpenapiRoute,
+  ApiV1WalletRoute: ApiV1WalletRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
   ApiWebhooksSupabasePushRoute: ApiWebhooksSupabasePushRoute,
   LovableCronEnforceRoute: LovableCronEnforceRoute,
@@ -2359,11 +2517,13 @@ const rootRouteChildren: RootRouteChildren = {
   AdvertiserBriefsConfirmationBriefIdRoute:
     AdvertiserBriefsConfirmationBriefIdRoute,
   ApiAdminCronEnforceRoute: ApiAdminCronEnforceRoute,
+  ApiPublicCinetpayWebhookRoute: ApiPublicCinetpayWebhookRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
+  ApiV1ProposalsProposalIdAcceptRoute: ApiV1ProposalsProposalIdAcceptRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
