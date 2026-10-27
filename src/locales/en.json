@@ -895,6 +895,7 @@
         "prepaid_btn": "Manage my wallet →",
         "cancel_confirm": "Cancel this brief?",
         "cancel_btn": "Cancel this brief",
+        "cancel_blocked_active": "This brief has ongoing campaigns (approved or active). Contact the administrator to cancel.",
         "campaigns_title": "Your campaigns ({{count}})",
         "vehicle_default": "Vehicle",
         "proposals_title_individual": "Vehicles available for your event ({{count}})",
@@ -4567,7 +4568,8 @@
         "delete_confirm": "Are you sure? This action cannot be undone.",
         "delete_confirm_yes": "Yes, delete",
         "delete_confirm_no": "Cancel",
-        "deleting": "Deleting…"
+        "deleting": "Deleting…",
+        "delete_blocked_active": "This vehicle is currently in use in an active campaign. Contact the administrator to request its deletion."
       },
       "calendar": {
         "title": "Availability calendar",
