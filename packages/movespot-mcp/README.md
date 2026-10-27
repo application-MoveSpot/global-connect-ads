@@ -11,6 +11,19 @@ Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — 
 | Le Chat (Mistral) | Agents via API | ⚠️ Pas d'import OpenAPI pour les utilisateurs finaux |
 | ChatGPT | Actions / Plugins | ⚠️ Non supporté (pas de MCP) |
 | Perplexity | Aucun système de plugins | ❌ Pas possible côté utilisateur |
+| DeepSeek | Aucun plugin MCP natif | ⚠️ Accessible via proxy MCP ou script wrapper |
+| Qwen (Alibaba) | Aucun plugin MCP natif | ⚠️ Accessible via proxy MCP ou script wrapper |
+| Kimi (Moonshot AI) | Aucun plugin MCP natif | ⚠️ Accessible via proxy MCP ou script wrapper |
+| GLM / Z.ai (Zhipu AI) | Aucun plugin MCP natif | ⚠️ Accessible via proxy MCP ou script wrapper |
+| Manus (Butterfly Effect) | Aucun plugin MCP natif | ⚠️ Accessible via proxy MCP ou script wrapper |
+
+### Solutions de contournement (pour les assistants sans support natif)
+
+| Approche | Difficulté | Pour qui |
+|---|---|---|
+| **Client intermédiaire** (ex: open-webui, LibreChat) | Facile | Tous les utilisateurs |
+| **Passerelle / Proxy MCP** (ex: mcp-proxy, mcpx) | Intermédiaire | Accès via API |
+| **Script wrapper** avec librairie MCP | Avancé | Développeurs |
 
 ## Outils disponibles
 
