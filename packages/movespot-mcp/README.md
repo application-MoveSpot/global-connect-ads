@@ -8,6 +8,7 @@ Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — 
 |---|---|---|
 | Claude Desktop / Claude Code | MCP natif | ✅ |
 | Gemini (Google) | Function calling via API | ⚠️ Pas de plugin OpenAPI pour les utilisateurs Gemini Advanced |
+| Le Chat (Mistral) | Agents via API | ⚠️ Pas d'import OpenAPI pour les utilisateurs finaux |
 | ChatGPT | Actions / Plugins | ⚠️ Non supporté (pas de MCP) |
 
 ## Outils disponibles
