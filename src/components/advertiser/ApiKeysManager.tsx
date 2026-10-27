@@ -56,7 +56,7 @@ export function ApiKeysManager() {
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
   });
 
-  const keys = data?.keys ?? [];
+  const keys = (data?.keys ?? []) as ApiKeyItem[];
   const activeCount = keys.filter((k) => !k.revoked_at).length;
 
   async function copyKey() {
