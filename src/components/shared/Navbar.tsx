@@ -169,7 +169,7 @@ export function Navbar() {
             >
               {tx("nav.owner", "Espace propriétaire")}
             </Link>
-            <LanguageSwitcher className="py-2 [&>button]:text-header-muted [&>button:hover]:text-header-foreground" />
+            <LanguageSwitcher className="py-2 lg:hidden [&>button]:text-header-muted [&>button:hover]:text-header-foreground" />
             <Link
               to="/commencer"
               onClick={() => setMobileMenuOpen(false)}
