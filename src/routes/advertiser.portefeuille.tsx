@@ -8,6 +8,7 @@ import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { getMyWallet, getWalletTransactions } from "@/lib/payments/wallet.functions";
 import { WalletTopupCheckout } from "@/components/advertiser/WalletTopupCheckout";
+import { CinetPayTopupCheckout } from "@/components/advertiser/CinetPayTopupCheckout";
 import {
   BankTransferCheckout,
   isStripeUnsupportedRegion,
@@ -257,7 +258,10 @@ function WalletPage() {
             />
           </div>
           {showBankTransfer ? (
-            <BankTransferCheckout amountEur={amount} />
+            <div className="space-y-4">
+              <CinetPayTopupCheckout amountEuros={amount} />
+              <BankTransferCheckout amountEur={amount} />
+            </div>
           ) : (
             <WalletTopupCheckout
               amountEuros={amount}

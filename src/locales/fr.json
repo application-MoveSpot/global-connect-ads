@@ -3787,6 +3787,14 @@
     "err_stripe": "Erreur Stripe",
     "err_not_configured": "Le paiement par carte n'est pas encore configuré. Ajoutez vos clés Stripe pour l'activer."
   },
+  "cinetpay_topup": {
+    "title": "Payer par Mobile Money",
+    "subtitle": "Wave, MTN Money, Moov Money, Orange Money et plus — via CinetPay",
+    "amount_xof": "{{amount}} CFA",
+    "pay_btn": "Payer maintenant",
+    "powered_by": "Propulsé par CinetPay — paiement sécurisé",
+    "err_generic": "Erreur lors de l'initialisation du paiement."
+  },
   "depose_photos": {
     "panel_title": "📸 Validation du retrait du support publicitaire",
     "status_pending": "Dépose non transmise",
