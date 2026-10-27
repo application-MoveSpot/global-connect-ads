@@ -2,7 +2,7 @@
 
 Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — connecte **Claude** à votre compte annonceur.
 
-## Compatibilité
+## Compatibilité — Assistants IA conversationnels
 
 | Assistant IA | Méthode | Support |
 |---|---|---|
@@ -24,6 +24,20 @@ Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — 
 | **Client intermédiaire** (ex: open-webui, LibreChat) | Facile | Tous les utilisateurs |
 | **Passerelle / Proxy MCP** (ex: mcp-proxy, mcpx) | Intermédiaire | Accès via API |
 | **Script wrapper** avec librairie MCP | Avancé | Développeurs |
+
+## Compatibilité — Outils de génération vidéo IA
+
+Ces outils sont spécialisés dans la création vidéo et ne disposent pas de système de plugins MCP.
+
+| Outil | Éditeur | Point fort | Support MCP |
+|---|---|---|---|
+| Google Veo 3.1 | Google DeepMind | Cinéma et réalisme 4K | ❌ Outil vidéo, pas de plugin MCP |
+| Kling AI 3.0 | Kuaishou | Mouvements humains et réalisme | ❌ Outil vidéo, pas de plugin MCP |
+| Runway Gen-4.5 | Runway | Création cinématographique et édition | ❌ Outil vidéo, pas de plugin MCP |
+| Seedance 2.5 | ByteDance | Génération professionnelle rapide en 4K | ❌ Outil vidéo, pas de plugin MCP |
+| HeyGen | HeyGen | Avatars virtuels et marketing | ❌ Outil vidéo, pas de plugin MCP |
+| Synthesia | Synthesia | Présentations d'entreprise et formation | ❌ Outil vidéo, pas de plugin MCP |
+| DomoAI | DomoAI | Transformation de style vidéo et animation | ❌ Outil vidéo, pas de plugin MCP |
 
 ## Outils disponibles
 

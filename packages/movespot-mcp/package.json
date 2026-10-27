@@ -1,6 +1,6 @@
 {
   "name": "@movespot/mcp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "MCP server for MoveSpot — create ad briefs, review proposals and check wallet balance directly from Claude",
   "type": "module",
   "bin": {
