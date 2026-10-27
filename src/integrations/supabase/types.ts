@@ -124,6 +124,7 @@ export type Database = {
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
+          target_region: string | null
           updated_at: string
           user_id: string
         }
@@ -143,6 +144,7 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
+          target_region?: string | null
           updated_at?: string
           user_id: string
         }
@@ -162,6 +164,7 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
+          target_region?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -418,6 +421,7 @@ export type Database = {
           stripe_subscription_id: string | null
           stripe_transfer_id: string | null
           subscription_status: string | null
+          target_region: string | null
           timezone: string | null
           total_price: number | null
           trial_end: string | null
@@ -487,6 +491,7 @@ export type Database = {
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
           subscription_status?: string | null
+          target_region?: string | null
           timezone?: string | null
           total_price?: number | null
           trial_end?: string | null
@@ -556,6 +561,7 @@ export type Database = {
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
           subscription_status?: string | null
+          target_region?: string | null
           timezone?: string | null
           total_price?: number | null
           trial_end?: string | null
