@@ -44,6 +44,22 @@ Ces outils sont spécialisés dans la création vidéo et ne disposent pas de sy
 | Wan AI | Alibaba | Open-Source | GitHub / Hugging Face (Gratuit) | ❌ Outil vidéo, pas de plugin MCP |
 | CogVideoX | Zhipu AI | Open-Source | GitHub / Hugging Face (Gratuit) | ❌ Outil vidéo, pas de plugin MCP |
 
+## Compatibilité — Outils de génération d'images IA
+
+Ces outils sont spécialisés dans la création d'images et ne disposent pas de système de plugins MCP.
+
+| Outil | Éditeur | Force majeure | Accès | Support MCP |
+|---|---|---|---|---|
+| Midjourney v6 | Midjourney | Esthétique artistique et rendu cinématographique | Application Discord / Web | ❌ Outil image, pas de plugin MCP |
+| Flux.1 | Black Forest Labs | Photoréalisme extrême et intégration de texte | Open-Source / Replicate / ComfyUI | ❌ Outil image, pas de plugin MCP |
+| DALL-E 3 | OpenAI | Compréhension des consignes et logos/illustrations | ChatGPT Plus / API OpenAI | ❌ Outil image, pas de plugin MCP |
+| Google Imagen 3 | Google DeepMind | Rapidité et détails nets au quotidien | Google AI Studio / Vertex AI | ❌ Outil image, pas de plugin MCP |
+| Qwen-Image | Alibaba | Écriture de texte, affiches, graphisme | Plateforme Web / Écosystème Qwen | ❌ Outil image, pas de plugin MCP |
+| Seedream 5.0 | ByteDance | Cohérence des visages et objets de marque | Intégré à Dreamina / CapCut | ❌ Outil image, pas de plugin MCP |
+| Kolors | Kuaishou | Photoréalisme des portraits et des textures | Application Kling AI / Open-Source | ❌ Outil image, pas de plugin MCP |
+| HunyuanImage 3.0 | Tencent | Compréhension de scènes denses et complexes | Modèle ouvert / Applications Tencent | ❌ Outil image, pas de plugin MCP |
+| Z-Image | Alibaba | Vitesse ultra-rapide (sub-seconde) | Prototypage rapide / API | ❌ Outil image, pas de plugin MCP |
+
 ## Outils disponibles
 
 | Outil | Description |
