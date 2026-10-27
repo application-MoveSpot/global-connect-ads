@@ -29,15 +29,20 @@ Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — 
 
 Ces outils sont spécialisés dans la création vidéo et ne disposent pas de système de plugins MCP.
 
-| Outil | Éditeur | Point fort | Support MCP |
-|---|---|---|---|
-| Google Veo 3.1 | Google DeepMind | Cinéma et réalisme 4K | ❌ Outil vidéo, pas de plugin MCP |
-| Kling AI 3.0 | Kuaishou | Mouvements humains et réalisme | ❌ Outil vidéo, pas de plugin MCP |
-| Runway Gen-4.5 | Runway | Création cinématographique et édition | ❌ Outil vidéo, pas de plugin MCP |
-| Seedance 2.5 | ByteDance | Génération professionnelle rapide en 4K | ❌ Outil vidéo, pas de plugin MCP |
-| HeyGen | HeyGen | Avatars virtuels et marketing | ❌ Outil vidéo, pas de plugin MCP |
-| Synthesia | Synthesia | Présentations d'entreprise et formation | ❌ Outil vidéo, pas de plugin MCP |
-| DomoAI | DomoAI | Transformation de style vidéo et animation | ❌ Outil vidéo, pas de plugin MCP |
+| Outil | Éditeur | Type | Accès | Support MCP |
+|---|---|---|---|---|
+| Google Veo 3.1 | Google DeepMind | Commercial | Application Web | ❌ Outil vidéo, pas de plugin MCP |
+| Kling AI 3.0 | Kuaishou | Commercial | Application Web (Gratuit / Payant) | ❌ Outil vidéo, pas de plugin MCP |
+| Runway Gen-4.5 | Runway | Commercial | Application Web | ❌ Outil vidéo, pas de plugin MCP |
+| Seedance 2.5 | ByteDance | Commercial | Application Web | ❌ Outil vidéo, pas de plugin MCP |
+| HeyGen | HeyGen | Commercial | Application Web | ❌ Outil vidéo, pas de plugin MCP |
+| Synthesia | Synthesia | Commercial | Application Web | ❌ Outil vidéo, pas de plugin MCP |
+| DomoAI | DomoAI | Commercial | Application Web | ❌ Outil vidéo, pas de plugin MCP |
+| Hailuo AI | MiniMax | Commercial | Application Web (Crédits gratuits) | ❌ Outil vidéo, pas de plugin MCP |
+| Dreamina | ByteDance | Commercial | Plateforme Créative Web | ❌ Outil vidéo, pas de plugin MCP |
+| Vidu | ShengShu AI | Commercial | Application Web (Version d'essai) | ❌ Outil vidéo, pas de plugin MCP |
+| Wan AI | Alibaba | Open-Source | GitHub / Hugging Face (Gratuit) | ❌ Outil vidéo, pas de plugin MCP |
+| CogVideoX | Zhipu AI | Open-Source | GitHub / Hugging Face (Gratuit) | ❌ Outil vidéo, pas de plugin MCP |
 
 ## Outils disponibles
 
