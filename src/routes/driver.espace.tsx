@@ -271,9 +271,9 @@ function ChauffeurEspace() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto w-full max-w-3xl space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      <div className="border-t-2 border-t-blue-400 border-b border-border bg-card/50 backdrop-blur px-6 py-4 mb-6">
+        <div className="mx-auto w-full max-w-3xl flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-3">
             <NotificationBell userId={authUserId} />
@@ -286,7 +286,9 @@ function ChauffeurEspace() {
             </Link>
           </div>
         </div>
+      </div>
 
+      <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
         <div>
           <h1 className="font-display text-3xl font-bold">
             {t("driver.espace.hello", { name: profile?.full_name })}

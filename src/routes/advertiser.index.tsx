@@ -241,7 +241,7 @@ function AnnonceurDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <OnboardingModal isIndividual={isIndividual} />
-      <header className="border-b border-border bg-card/50 backdrop-blur">
+      <header className="border-t-2 border-t-primary border-b border-border bg-card/50 backdrop-blur">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-3">
@@ -420,7 +420,7 @@ function AnnonceurDashboard() {
             {requests.map((r) => (
               <div
                 key={r.id}
-                className="rounded-xl border border-border bg-card p-5 flex flex-col gap-3"
+                className="rounded-xl border border-primary/20 bg-card p-5 flex flex-col gap-3"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
@@ -916,11 +916,11 @@ function AnalyticsDashboard({ requests }: { requests: Req[] }) {
   return (
     <div className="space-y-4">
       <div className="grid sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-1">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">
             {t("advertiser.analytics.campaigns_count")}
           </p>
-          <p className="font-display text-3xl font-bold">{done.length}</p>
+          <p className="font-display text-3xl font-bold text-primary">{done.length}</p>
         </div>
         <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-1">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -930,7 +930,7 @@ function AnalyticsDashboard({ requests }: { requests: Req[] }) {
             {totalImpressions.toLocaleString(locale)}
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-1">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-1">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">
             {t("advertiser.analytics.cpm")}
           </p>
@@ -946,7 +946,7 @@ function AnalyticsDashboard({ requests }: { requests: Req[] }) {
         </div>
       </div>
       {topZones.length > 0 && (
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-2xl border border-primary/20 bg-card p-5">
           <h3 className="font-semibold mb-4">{t("advertiser.analytics.top_zones")}</h3>
           <div className="space-y-2.5">
             {topZones.map(([zone, count]) => (
