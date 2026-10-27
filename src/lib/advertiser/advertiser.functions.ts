@@ -15,7 +15,7 @@ export const updateAdvertiserRegion = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from("advertiser_profiles")
       .update({ target_region: data.target_region })
       .eq("user_id", userId);

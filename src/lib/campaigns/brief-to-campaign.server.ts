@@ -56,7 +56,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
       status: string;
       owner_id: string;
     } | null;
-    const profile = profileRes.data as { full_name?: string; account_type?: string; target_region?: string | null } | null;
+    const profile = profileRes.data;
 
     if (!brief) throw new Error("Brief introuvable.");
     if (!proposal) throw new Error("Proposition introuvable.");
@@ -129,7 +129,7 @@ export const acceptBriefProposal = createServerFn({ method: "POST" })
         user_id: userId,
         pose_fee_cents: fallbackPoseFee,
         depose_fee_cents: fallbackDeposeFee,
-        target_region: (profile?.target_region ?? null) as never,
+        target_region: profile?.target_region ?? null,
       })
       .select("id")
       .maybeSingle();
