@@ -81,8 +81,8 @@ const ROLES = {
       desc: "Intégrez l'écosystème MoveSpot en tant que partner réseau et développez votre activité.",
       cta: "Rejoindre le réseau",
       href: "/partner/inscription",
-      accent: "border-violet-500/40 hover:border-violet-500 bg-violet-500/5 hover:bg-violet-500/10",
-      iconColor: "text-violet-500",
+      accent: "border-primary/30 hover:border-primary bg-primary/10 hover:bg-primary/10",
+      iconColor: "text-primary",
       badge: null,
     },
     {
@@ -156,8 +156,8 @@ const ROLES = {
       desc: "Join the MoveSpot ecosystem as a network partner and grow your business.",
       cta: "Join the network",
       href: "/partner/inscription",
-      accent: "border-violet-500/40 hover:border-violet-500 bg-violet-500/5 hover:bg-violet-500/10",
-      iconColor: "text-violet-500",
+      accent: "border-primary/30 hover:border-primary bg-primary/10 hover:bg-primary/10",
+      iconColor: "text-primary",
       badge: null,
     },
     {

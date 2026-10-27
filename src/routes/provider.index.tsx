@@ -13,6 +13,7 @@ import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscrip
 import { RouteError } from "@/components/app/RouteError";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/provider/")({
   head: () => ({
@@ -136,7 +137,7 @@ function ProviderDashboard() {
   const respondQuote = async (id: string, priceEur: string, msg: string) => {
     const cents = Math.round(Number(priceEur) * 100);
     if (!cents || cents < 0) {
-      alert(t("provider.dashboard.error_invalid_price"));
+      toast.error(t("provider.dashboard.error_invalid_price"));
       return;
     }
     await supabase
@@ -971,7 +972,7 @@ function ImpossibleModal({
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
-      alert(t("provider.dashboard.error_reason_required"));
+      toast.error(t("provider.dashboard.error_reason_required"));
       return;
     }
     setUploading(true);

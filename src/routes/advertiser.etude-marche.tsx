@@ -974,7 +974,7 @@ function EtudeMarche() {
                     role: "Prestataire",
                     desc: "Artisan du covering et de l'habillage véhicule. Gère son portfolio et ses abonnements sur MoveSpot.",
                     tag: "Abonnement mensuel",
-                    tagCls: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+                    tagCls: "bg-primary/10 text-primary dark:text-primary",
                   },
                   {
                     icon: "🤝",

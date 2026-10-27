@@ -278,7 +278,7 @@ function OpenBriefsPage() {
                           </span>
                         )}
                         {!hasDirectMatch && !hasAutreExplicit && hasNoTypeConstraint && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-400 font-medium flex-shrink-0">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary font-medium flex-shrink-0">
                             ✓ {t("owner.briefs.index.badge_open")}
                           </span>
                         )}

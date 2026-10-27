@@ -440,7 +440,7 @@ function AnnonceurInscription() {
               />
             )}
             {inviterName && (
-              <div className="mt-3 rounded-lg border border-violet-500/30 bg-violet-500/5 px-4 py-2.5 text-xs text-violet-700 dark:text-violet-400">
+              <div className="mt-3 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs text-primary dark:text-primary">
                 🎁 {t("advertiser.inscription.invite_banner", { name: inviterName })}
               </div>
             )}

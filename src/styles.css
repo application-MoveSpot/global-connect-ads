@@ -5,8 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Space Grotesk", system-ui, sans-serif;
+  /* MoveSpot brand: Syne (impact/advertising) + Inter (UI) + JetBrains Mono (data) */
+  --font-display: "Syne", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -43,17 +45,21 @@
   --color-header-border: var(--header-border);
   --color-header-card: var(--header-card);
 
+  /* Orange urban advertising hero gradient */
   --gradient-hero: linear-gradient(
     135deg,
-    oklch(0.22 0.08 260) 0%,
-    oklch(0.15 0.05 250) 50%,
-    oklch(0.18 0.12 200) 100%
+    oklch(0.10 0.025 264) 0%,
+    oklch(0.06 0.015 264) 50%,
+    oklch(0.09 0.04 40) 100%
   );
-  --gradient-signal: linear-gradient(135deg, oklch(0.82 0.22 150) 0%, oklch(0.72 0.2 170) 100%);
-  --gradient-card: linear-gradient(180deg, oklch(0.22 0.03 255) 0%, oklch(0.18 0.03 255) 100%);
+  /* Signal/active green gradient */
+  --gradient-signal: linear-gradient(135deg, oklch(0.70 0.19 165) 0%, oklch(0.60 0.16 165) 100%);
+  /* Card gradient - dark surface */
+  --gradient-card: linear-gradient(180deg, oklch(0.11 0.025 264) 0%, oklch(0.08 0.020 264) 100%);
 
-  --shadow-glow: 0 0 60px -10px oklch(0.72 0.2 160 / 0.4);
-  --shadow-elevated: 0 20px 50px -20px oklch(0.1 0.05 260 / 0.6);
+  /* Orange glow for CTA/primary elements */
+  --shadow-glow: 0 0 60px -10px oklch(0.65 0.22 40 / 0.5);
+  --shadow-elevated: 0 20px 50px -20px oklch(0.04 0.01 264 / 0.8);
 }
 
 :root {
@@ -62,42 +68,57 @@
   --covering-sheen: linear-gradient(175deg, var(--covering-highlight), transparent 42%, var(--covering-shade));
   --covering-edge: inset 0 0 1px var(--covering-shade);
   --radius: 0.75rem;
-  --background: oklch(0.14 0.03 255);
-  --foreground: oklch(0.97 0.01 250);
-  --card: oklch(0.2 0.03 255);
-  --card-foreground: oklch(0.97 0.01 250);
-  --popover: oklch(0.2 0.03 255);
-  --popover-foreground: oklch(0.97 0.01 250);
-  --primary: oklch(0.78 0.2 160);
-  --primary-foreground: oklch(0.15 0.05 250);
-  --secondary: oklch(0.28 0.04 255);
-  --secondary-foreground: oklch(0.97 0.01 250);
-  --muted: oklch(0.24 0.03 255);
-  --muted-foreground: oklch(0.68 0.03 255);
-  --accent: oklch(0.72 0.18 50);
-  --accent-foreground: oklch(0.15 0.05 250);
-  --destructive: oklch(0.65 0.24 25);
+
+  /* MoveSpot dark-first palette — urban night / asphalte */
+  --background: oklch(0.06 0.015 264);       /* #08090F — urban night */
+  --foreground: oklch(0.98 0.003 250);        /* #F8F9FA */
+  --card: oklch(0.10 0.025 264);             /* #12141E */
+  --card-foreground: oklch(0.98 0.003 250);
+  --popover: oklch(0.14 0.030 264);          /* #1C1F2E */
+  --popover-foreground: oklch(0.98 0.003 250);
+
+  /* Orange #FF5C00 — CTA, energy, visibility (taxi/billboard) */
+  --primary: oklch(0.65 0.22 40);
+  --primary-foreground: oklch(0.98 0 0);
+
+  --secondary: oklch(0.15 0.028 264);        /* slightly lighter than card */
+  --secondary-foreground: oklch(0.98 0.003 250);
+  --muted: oklch(0.12 0.022 264);
+  --muted-foreground: oklch(0.68 0.015 250); /* #9CA3AF */
+
+  /* Amber #FFB800 — revenue, premium, taxi yellow */
+  --accent: oklch(0.83 0.18 72);
+  --accent-foreground: oklch(0.10 0.03 264);
+
+  --destructive: oklch(0.63 0.22 25);        /* #EF4444 */
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.3 0.03 255);
-  --input: oklch(0.25 0.03 255);
-  --ring: oklch(0.78 0.2 160);
-  --signal: oklch(0.78 0.2 160);
-  --header: oklch(1 0 0);
-  --header-foreground: oklch(0.2 0.03 255);
-  --header-muted: oklch(0.5 0.02 255);
-  --header-border: oklch(0.92 0.004 255);
-  --header-card: oklch(0.96 0.004 255);
-  --signal-foreground: oklch(0.15 0.05 250);
-  --warning: oklch(0.75 0.18 70);
-  --warning-foreground: oklch(0.15 0.05 250);
-  /* role accent colors */
-  --role-advertiser: oklch(0.78 0.2 160);
-  --role-owner: oklch(0.72 0.2 195);
-  --role-driver: oklch(0.72 0.2 235);
-  --role-provider: oklch(0.75 0.18 50);
-  --role-partner: oklch(0.72 0.2 300);
-  --role-commercial: oklch(0.72 0.22 350);
-  --role-admin: oklch(0.85 0.18 70);
+  --border: oklch(0.22 0.028 264);           /* #2A2D3E */
+  --input: oklch(0.15 0.025 264);
+  --ring: oklch(0.65 0.22 40);               /* orange ring */
+
+  /* Signal = active/success green #10B981 */
+  --signal: oklch(0.70 0.19 165);
+  --signal-foreground: oklch(0.10 0.03 264);
+
+  /* Header: slightly elevated surface */
+  --header: oklch(0.08 0.020 264);
+  --header-foreground: oklch(0.98 0.003 250);
+  --header-muted: oklch(0.55 0.015 250);     /* #6B7280 */
+  --header-border: oklch(0.22 0.028 264);
+  --header-card: oklch(0.10 0.025 264);
+
+  /* Warning = amber */
+  --warning: oklch(0.83 0.18 72);
+  --warning-foreground: oklch(0.10 0.03 264);
+
+  /* Role accent colors — each role has a distinct identity */
+  --role-advertiser: oklch(0.65 0.22 40);   /* orange — energy/action */
+  --role-owner: oklch(0.83 0.18 72);         /* amber — wealth/fleet */
+  --role-driver: oklch(0.63 0.20 260);       /* blue — route/tech (#3B82F6) */
+  --role-provider: oklch(0.70 0.19 165);     /* green — service/active */
+  --role-partner: oklch(0.72 0.18 300);      /* violet — partnership */
+  --role-commercial: oklch(0.68 0.22 340);   /* pink — commercial */
+  --role-admin: oklch(0.75 0.16 250);        /* slate blue — control */
 }
 
 @layer base {
@@ -110,6 +131,8 @@
     color: var(--color-foreground);
     font-family: var(--font-body);
     font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
@@ -118,6 +141,11 @@
   h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
   }
 }
 
@@ -150,9 +178,33 @@
 
   .grid-pattern {
     background-image:
-      linear-gradient(oklch(0.3 0.03 255 / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, oklch(0.3 0.03 255 / 0.3) 1px, transparent 1px);
+      linear-gradient(oklch(0.22 0.028 264 / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.22 0.028 264 / 0.5) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+
+  /* Orange glow utility for CTA elements */
+  .shadow-orange-glow {
+    box-shadow: 0 0 24px oklch(0.65 0.22 40 / 0.35);
+  }
+  .shadow-orange-glow-lg {
+    box-shadow: 0 0 48px oklch(0.65 0.22 40 / 0.5);
+  }
+
+  /* Stagger animation helper for card lists */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+
+  /* Status badge animations */
+  @keyframes status-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .animate-status-pulse {
+    animation: status-pulse 2s ease-in-out infinite;
   }
 }
 

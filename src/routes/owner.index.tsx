@@ -843,11 +843,11 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
             type="button"
             disabled={pricingLoading}
             onClick={handleGetPricing}
-            className="text-xs px-3 py-1 rounded-full border border-violet-500/40 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10 disabled:opacity-60 transition-colors"
+            className="text-xs px-3 py-1 rounded-full border border-primary/30 text-primary dark:text-primary hover:bg-primary/10 disabled:opacity-60 transition-colors"
           >
             {pricingLoading ? (
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-2.5 h-2.5 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+                <span className="inline-block w-2.5 h-2.5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                 {t("owner.ai_pricing_loading")}
               </span>
             ) : (
@@ -858,9 +858,9 @@ function OwnerVehicleCard({ v }: { v: Vehicle }) {
       </div>
 
       {pricing && (
-        <div className="mt-2 rounded-xl border border-violet-500/30 bg-violet-500/5 p-3 text-xs space-y-1.5">
+        <div className="mt-2 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-violet-700 dark:text-violet-300">
+            <span className="font-semibold text-primary dark:text-primary">
               {t("owner.ai_pricing_title", { price: pricing.suggested })}
             </span>
             <span className="text-muted-foreground">
