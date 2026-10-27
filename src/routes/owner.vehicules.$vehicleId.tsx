@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -506,6 +507,23 @@ function DeleteVehicleButton({ vehicleId }: { vehicleId: string }) {
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  const handleRequestDelete = async () => {
+    setChecking(true);
+    const { data } = await supabase
+      .from("campaign_requests")
+      .select("id")
+      .eq("vehicle_id", vehicleId)
+      .in("status", ["approved", "active"])
+      .limit(1);
+    setChecking(false);
+    if (data && data.length > 0) {
+      toast.warning(t("owner.vehicules.modifier.delete_blocked_active"));
+      return;
+    }
+    setConfirming(true);
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -551,10 +569,11 @@ function DeleteVehicleButton({ vehicleId }: { vehicleId: string }) {
   return (
     <button
       type="button"
-      onClick={() => setConfirming(true)}
-      className="w-full rounded-lg border border-destructive/40 text-destructive py-3 text-sm font-semibold hover:bg-destructive/10 transition"
+      onClick={handleRequestDelete}
+      disabled={checking}
+      className="w-full rounded-lg border border-destructive/40 text-destructive py-3 text-sm font-semibold hover:bg-destructive/10 transition disabled:opacity-60"
     >
-      {t("owner.vehicules.modifier.delete")}
+      {checking ? "…" : t("owner.vehicules.modifier.delete")}
     </button>
   );
 }

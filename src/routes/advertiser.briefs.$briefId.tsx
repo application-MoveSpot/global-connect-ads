@@ -296,6 +296,13 @@ function BriefDetailPage() {
   };
 
   const cancelBrief = async () => {
+    const hasActiveCampaign = campaignRequests.some((cr) =>
+      ["approved", "active"].includes(cr.status),
+    );
+    if (hasActiveCampaign) {
+      toast.warning(t("advertiser.briefs.detail.cancel_blocked_active"));
+      return;
+    }
     if (!confirm(t("advertiser.briefs.detail.cancel_confirm"))) return;
     await supabase.from("advertiser_briefs").update({ status: "cancelled" }).eq("id", briefId);
     await load();
