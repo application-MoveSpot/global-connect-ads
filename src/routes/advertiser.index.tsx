@@ -392,8 +392,7 @@ function AnnonceurDashboard() {
 
         {/* Region selector */}
         <div className="mb-6 flex items-center gap-3 flex-wrap">
-          <label className="text-sm text-muted-foreground shrink-0 flex items-center gap-1.5">
-            <span>🌍</span>
+          <label className="text-sm text-muted-foreground shrink-0">
             {t("advertiser.target_region_label")}
           </label>
           <select
