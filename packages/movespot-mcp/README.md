@@ -60,6 +60,31 @@ Ces outils sont spécialisés dans la création d'images et ne disposent pas de 
 | HunyuanImage 3.0 | Tencent | Compréhension de scènes denses et complexes | Modèle ouvert / Applications Tencent | ❌ Outil image, pas de plugin MCP |
 | Z-Image | Alibaba | Vitesse ultra-rapide (sub-seconde) | Prototypage rapide / API | ❌ Outil image, pas de plugin MCP |
 
+## Compatibilité — Outils de génération musicale IA
+
+Ces outils sont spécialisés dans la création musicale et ne disposent pas de système de plugins MCP.
+
+**Outils occidentaux**
+
+| Outil | Type de création idéal | Voix chantée | Export | Support MCP |
+|---|---|---|---|---|
+| Suno | Chansons complètes (pop, rock, rap…) | ✅ Excellente qualité | MP3 / Vidéo | ❌ Outil musical, pas de plugin MCP |
+| Udio | Fidélité sonore (électro, urbain) | ✅ Très réaliste | Lecture en ligne | ❌ Outil musical, pas de plugin MCP |
+| AIVA | Bandes originales, classique, épique | ❌ Instrumental seul | MIDI / Audio (Stems) | ❌ Outil musical, pas de plugin MCP |
+| Soundraw | Musiques de fond pour vidéos & YouTube | ❌ Instrumental modifiable | WAV / MP3 | ❌ Outil musical, pas de plugin MCP |
+| ElevenLabs | Projets vocaux et chansons propres | ✅ Clonage et fidélité | MP3 / WAV | ❌ Outil musical, pas de plugin MCP |
+
+**Outils chinois**
+
+| Outil | Éditeur | Spécialité | Accès | Support MCP |
+|---|---|---|---|---|
+| NetEase Tianyin | NetEase | Export multipiste et arrangements pros | Studio complet Web | ❌ Outil musical, pas de plugin MCP |
+| Tencent Venus | Tencent Music | Édition en langage naturel (DeepSeek) | Application Pro | ❌ Outil musical, pas de plugin MCP |
+| Mureka AI | Indépendant | Qualité instrumentale et intégration API | Plateforme Web | ❌ Outil musical, pas de plugin MCP |
+| Happy Shrimp | Alibaba | Création de chansons grand public (Suno-like) | Application Web | ❌ Outil musical, pas de plugin MCP |
+| Tunee AI | Indépendant | Musique traditionnelle et folklorique asiatique | Assistant Web guidé | ❌ Outil musical, pas de plugin MCP |
+| LeVo 2 | Tencent | Qualité sonore et pureté acoustique brute | Modèle ouvert | ❌ Outil musical, pas de plugin MCP |
+
 ## Outils disponibles
 
 | Outil | Description |
