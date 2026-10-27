@@ -10,6 +10,7 @@ Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — 
 | Gemini (Google) | Function calling via API | ⚠️ Pas de plugin OpenAPI pour les utilisateurs Gemini Advanced |
 | Le Chat (Mistral) | Agents via API | ⚠️ Pas d'import OpenAPI pour les utilisateurs finaux |
 | ChatGPT | Actions / Plugins | ⚠️ Non supporté (pas de MCP) |
+| Perplexity | Aucun système de plugins | ❌ Pas possible côté utilisateur |
 
 ## Outils disponibles
 
