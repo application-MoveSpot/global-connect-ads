@@ -358,7 +358,7 @@ function NewBriefPage() {
       }
       const { data: prof } = await supabase
         .from("advertiser_profiles")
-        .select("user_id, account_type")
+        .select("user_id, account_type, target_region")
         .eq("user_id", session.user.id)
         .maybeSingle();
       if (!prof) {
@@ -368,6 +368,18 @@ function NewBriefPage() {
       setUserId(session.user.id);
       const type = (prof as { account_type?: string }).account_type ?? "business";
       setAccountType(type);
+      // Pre-select market from profile only when no draft is already loaded
+      const regionMap: Record<string, "EU" | "US" | "AF" | "AS"> = {
+        afrique: "AF",
+        asie: "AS",
+        amerique: "US",
+        europe: "EU",
+      };
+      const profileRegion = (prof as { target_region?: string | null }).target_region;
+      if (profileRegion && regionMap[profileRegion]) {
+        const hasDraft = Boolean(localStorage.getItem("movespot_brief_draft_v1"));
+        if (!hasDraft) setMarket(regionMap[profileRegion]);
+      }
     })();
   }, [navigate]);
 
