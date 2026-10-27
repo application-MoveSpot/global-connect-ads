@@ -23,7 +23,12 @@ export const Route = createFileRoute("/api/v1/briefs")({
         if (auth instanceof Response) return auth;
 
         const url = new URL(request.url);
-        const status = url.searchParams.get("status") ?? undefined;
+        const statusParam = url.searchParams.get("status");
+        const BRIEF_STATUSES = ["open", "cancelled", "closed", "fulfilled"] as const;
+        if (statusParam && !BRIEF_STATUSES.includes(statusParam as (typeof BRIEF_STATUSES)[number])) {
+          return apiJson({ error: `Invalid status filter. Allowed: ${BRIEF_STATUSES.join(", ")}` }, 400);
+        }
+        const status = statusParam as (typeof BRIEF_STATUSES)[number] | undefined;
         const limit = Math.min(parseInt(url.searchParams.get("limit") ?? "20", 10), 100);
         const offset = parseInt(url.searchParams.get("offset") ?? "0", 10);
 

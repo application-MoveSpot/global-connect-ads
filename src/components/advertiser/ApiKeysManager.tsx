@@ -8,6 +8,15 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
+interface ApiKeyItem {
+  id: string;
+  name: string;
+  key_prefix: string;
+  last_used_at: string | null;
+  created_at: string;
+  revoked_at: string | null;
+}
+
 export function ApiKeysManager() {
   const queryClient = useQueryClient();
   const listFn = useServerFn(listApiKeys);
@@ -47,7 +56,7 @@ export function ApiKeysManager() {
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["api-keys"] }),
   });
 
-  const keys = data?.keys ?? [];
+  const keys = (data?.keys ?? []) as ApiKeyItem[];
   const activeCount = keys.filter((k) => !k.revoked_at).length;
 
   async function copyKey() {
