@@ -107,7 +107,7 @@ function AnnonceurDashboard() {
   const init = useCallback(async () => {
     const session = await getOrRefreshSession();
     if (!session) {
-      navigate({ to: "/advertiser/inscription" });
+      navigate({ to: "/auth", search: { next: "/advertiser" } });
       return;
     }
     const { data: prof, error: profErr } = await supabase
