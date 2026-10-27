@@ -377,8 +377,16 @@ function NewBriefPage() {
       };
       const profileRegion = (prof as { target_region?: string | null }).target_region;
       if (profileRegion && regionMap[profileRegion]) {
-        const hasDraft = Boolean(localStorage.getItem("movespot_brief_draft_v1"));
-        if (!hasDraft) setMarket(regionMap[profileRegion]);
+        // Only skip if the draft has meaningful content AND already has a market saved
+        try {
+          const raw = localStorage.getItem("movespot_brief_draft_v1");
+          const draft = raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
+          const draftHasMarket = Boolean(draft?.market);
+          const draftHasContent = Boolean(draft?.title || draft?.description || draft?.budget || draft?.audience);
+          if (!(draftHasMarket && draftHasContent)) setMarket(regionMap[profileRegion]);
+        } catch {
+          setMarket(regionMap[profileRegion]);
+        }
       }
     })();
   }, [navigate]);

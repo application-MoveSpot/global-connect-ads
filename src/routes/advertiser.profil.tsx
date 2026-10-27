@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
+import { ApiKeysManager } from "@/components/advertiser/ApiKeysManager";
 
 export const Route = createFileRoute("/advertiser/profil")({
   head: () => ({
@@ -201,6 +202,8 @@ function AdvertiserProfilPage() {
             </button>
           </form>
         </div>
+
+        <ApiKeysManager />
       </div>
     </div>
   );
