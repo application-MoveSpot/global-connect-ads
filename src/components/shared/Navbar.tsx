@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import darkLogo from "@/assets/movespot-logo-horizontal-dark.png.asset.json";
+import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
 
 export function Navbar() {
   const { t } = useTranslation();
@@ -23,7 +23,7 @@ export function Navbar() {
           className="flex h-16 w-24 shrink-0 items-center justify-start overflow-hidden"
         >
           <img
-            src={darkLogo.url}
+            src={officialLogo.url}
             alt="MoveSpot"
             width={512}
             height={512}
