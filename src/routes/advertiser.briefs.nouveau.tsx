@@ -45,6 +45,7 @@ import { scoreBriefQuality, type BriefQualityResult } from "@/lib/ai/brief-quali
 import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
 import { AdvertiserBudgetEstimate } from "@/components/advertiser/AdvertiserBudgetEstimate";
+import { CreativeStudio } from "@/components/advertiser/CreativeStudio";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/nouveau")({
@@ -2105,6 +2106,15 @@ function NewBriefPage() {
               </div>
             )}
           </Field>
+
+          <CreativeStudio
+            briefId={undefined}
+            title={title}
+            description={description}
+            vehicleTypes={vehicleTypes}
+            adFormat={adFormat}
+            onAssetAdded={() => {}}
+          />
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
             <strong className="text-foreground">{t("advertiser.briefs.nouveau.ip_notice")}</strong>{" "}
