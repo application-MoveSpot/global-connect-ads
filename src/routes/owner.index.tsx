@@ -111,7 +111,7 @@ function DashboardPage() {
   const load = useCallback(async () => {
     const session = await getOrRefreshSession();
     if (!session) {
-      navigate({ to: "/owner/inscription" });
+      navigate({ to: "/auth", search: { next: "/owner" } });
       return;
     }
     setUserId(session.user.id);
