@@ -1,6 +1,14 @@
-# movespot-mcp
+# @movespot/mcp
 
-Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — connecte Claude et d'autres assistants IA à votre compte annonceur.
+Serveur MCP (Model Context Protocol) pour [MoveSpot](https://move-spot.com) — connecte **Claude** à votre compte annonceur.
+
+## Compatibilité
+
+| Assistant IA | Méthode | Support |
+|---|---|---|
+| Claude Desktop / Claude Code | MCP natif | ✅ |
+| Gemini (Google) | Function calling via API | ⚠️ Pas de plugin OpenAPI pour les utilisateurs Gemini Advanced |
+| ChatGPT | Actions / Plugins | ⚠️ Non supporté (pas de MCP) |
 
 ## Outils disponibles
 
@@ -31,7 +39,7 @@ Ajoutez ceci dans votre fichier de configuration Claude Desktop :
   "mcpServers": {
     "movespot": {
       "command": "npx",
-      "args": ["-y", "movespot-mcp"],
+      "args": ["-y", "@movespot/mcp"],
       "env": {
         "MOVESPOT_API_KEY": "ms_votre_cle_ici"
       }
@@ -47,7 +55,7 @@ Redémarrez Claude Desktop. Les outils MoveSpot apparaissent automatiquement.
 ## Installation — Claude Code (CLI)
 
 ```bash
-claude mcp add movespot -e MOVESPOT_API_KEY=ms_votre_cle_ici -- npx -y movespot-mcp
+claude mcp add movespot -e MOVESPOT_API_KEY=ms_votre_cle_ici -- npx -y @movespot/mcp
 ```
 
 ---
