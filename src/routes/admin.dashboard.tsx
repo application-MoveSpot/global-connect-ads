@@ -1916,7 +1916,7 @@ function AdminDashboard() {
                         const roleColors: Record<string, string> = {
                           advertiser: "bg-blue-500/10 text-blue-600",
                           owner: "bg-amber-500/10 text-amber-600",
-                          provider: "bg-purple-500/10 text-purple-600",
+                          provider: "bg-primary/10 text-primary",
                           partner: "bg-green-500/10 text-green-600",
                         };
                         const roleLabels: Record<string, string> = {
@@ -2331,9 +2331,9 @@ function AdminModerationPanel() {
         </div>
 
         {/* Matching proactif */}
-        <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div>
-            <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+            <p className="text-sm font-semibold text-primary dark:text-primary">
               {t("admin.dashboard.mod_matching_title")}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -2344,7 +2344,7 @@ function AdminModerationPanel() {
             type="button"
             disabled={matchingLoading}
             onClick={handleRunMatching}
-            className="shrink-0 rounded-full bg-violet-600 text-white px-4 py-2 text-sm font-semibold hover:bg-violet-700 disabled:opacity-60"
+            className="shrink-0 rounded-full bg-primary text-white px-4 py-2 text-sm font-semibold hover:bg-primary disabled:opacity-60"
           >
             {matchingLoading
               ? t("admin.dashboard.mod_matching_running")

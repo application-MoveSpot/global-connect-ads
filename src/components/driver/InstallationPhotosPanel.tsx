@@ -220,8 +220,8 @@ export function InstallationPhotosPanel({
           </div>
 
           {aiValidating && (
-            <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
-              <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+            <div className="mt-2 flex items-center gap-2 text-xs text-primary dark:text-primary animate-pulse">
+              <span className="inline-block w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
               {t("install_photos.ai_validating")}
             </div>
           )}

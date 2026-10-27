@@ -76,13 +76,13 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
   ];
 
   return (
-    <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
+    <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
       <div className="flex items-center gap-2">
         <span className="text-lg">✨</span>
-        <p className="text-sm font-semibold text-violet-700 dark:text-violet-300">
+        <p className="text-sm font-semibold text-primary dark:text-primary">
           Studio créatif IA
         </p>
-        <span className="ml-auto text-[10px] uppercase tracking-widest text-violet-500 border border-violet-400/40 rounded-full px-2 py-0.5">
+        <span className="ml-auto text-[10px] uppercase tracking-widest text-primary border border-primary/40 rounded-full px-2 py-0.5">
           Beta
         </span>
       </div>
@@ -102,7 +102,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
             }}
             className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed
               ${tab === t.id
-                ? "bg-violet-600 text-white shadow-sm"
+                ? "bg-primary text-white shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
               }`}
           >
@@ -124,7 +124,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder={defaultPrompt}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-violet-400/40"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
       </div>
 
@@ -133,7 +133,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
         type="button"
         onClick={generate}
         disabled={loading || tab === "video"}
-        className="w-full rounded-lg bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 transition-colors flex items-center justify-center gap-2"
+        className="w-full rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium py-2.5 transition-colors flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
@@ -180,7 +180,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
             <button
               type="button"
               onClick={attach}
-              className="w-full rounded-lg border border-violet-500/40 bg-violet-500/10 hover:bg-violet-500/20 text-violet-700 dark:text-violet-300 text-xs font-medium py-2 transition-colors"
+              className="w-full rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-primary dark:text-primary text-xs font-medium py-2 transition-colors"
             >
               ＋ Ajouter à mon brief
             </button>

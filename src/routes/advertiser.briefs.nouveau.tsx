@@ -2030,11 +2030,11 @@ function NewBriefPage() {
                 type="button"
                 disabled={aiPoseurFeeLoading || !vehicleTypes.length}
                 onClick={() => void handleSuggestPoseurFee()}
-                className="flex items-center gap-1 text-xs text-violet-500 hover:text-violet-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {aiPoseurFeeLoading ? (
                   <>
-                    <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+                    <span className="inline-block w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                     {t("advertiser.briefs.nouveau.poseur_fee_estimating")}
                   </>
                 ) : (
@@ -2073,8 +2073,8 @@ function NewBriefPage() {
               </p>
             )}
             {creativeValidating && (
-              <div className="mt-2 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400 animate-pulse">
-                <span className="inline-block w-3 h-3 border-2 border-violet-400/30 border-t-violet-500 rounded-full animate-spin" />
+              <div className="mt-2 flex items-center gap-2 text-xs text-primary dark:text-primary animate-pulse">
+                <span className="inline-block w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                 {t("advertiser.briefs.nouveau.creatives_analyzing")}
               </div>
             )}
