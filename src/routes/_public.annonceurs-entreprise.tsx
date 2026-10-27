@@ -46,8 +46,8 @@ export const Route = createFileRoute("/_public/annonceurs-entreprise")({
       },
     ],
     links: [
-      { rel: "canonical", href: "https://move-spot.com/advertisers-entreprise" },
-      ...hreflangLinks("/advertisers-entreprise"),
+      { rel: "canonical", href: "https://move-spot.com/annonceurs-entreprise" },
+      ...hreflangLinks("/annonceurs-entreprise"),
     ],
   }),
   component: AnnonceursEntreprise,

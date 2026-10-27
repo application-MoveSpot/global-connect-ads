@@ -613,7 +613,7 @@ function Index() {
               <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <Link to="/advertisers-entreprise" className="hover:text-foreground transition">
+              <Link to="/annonceurs-entreprise" className="hover:text-foreground transition">
                 {tx("footer.b2b", "Solution B2B")}
               </Link>
               <Link to="/cgu" className="hover:text-foreground transition">
