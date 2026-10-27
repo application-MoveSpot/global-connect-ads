@@ -9,10 +9,24 @@ export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 
 function getInitialLanguage(): SupportedLang {
   if (typeof window === "undefined") return "fr";
+
+  // 1. Explicit user choice (highest priority)
   try {
     const stored = localStorage.getItem("movespot_lang");
     if (stored === "fr" || stored === "en" || stored === "ar") return stored;
   } catch {}
+
+  // 2. Browser/OS language — e.g. "fr-FR", "en-US", "ar-SA"
+  const browserLangs = navigator.languages?.length
+    ? navigator.languages
+    : [navigator.language];
+
+  for (const lang of browserLangs) {
+    const code = lang.split("-")[0].toLowerCase() as SupportedLang;
+    if (SUPPORTED_LANGS.includes(code)) return code;
+  }
+
+  // 3. Default
   return "fr";
 }
 
