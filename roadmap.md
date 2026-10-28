@@ -12,4 +12,5 @@
 - [x] Renommer la page admin des prestataires en /admin/providers (fichier + chemin + liens du menu et du tableau de bord) ; vérifié en session connectée, l’ancien chemin renvoie 404.
 - [x] Rétablir les changements de base de données manquants des PR #248/#249 : table des positions GPS créée et vérifiée (envoi d’une tournée de test lue côté admin, fichier de test supprimé), colonnes documents du prestataire ajoutées, espace de stockage privé des documents créé et testé (envoi, lecture, suppression : 200).
 - [x] Corriger les erreurs de compilation liées aux briefs, aux documents prestataires et au relevé commercial ; compilation OK et pages connectées prestataires/campagnes affichées sans erreur. Test E2E existant bloqué par la configuration du navigateur.
+- [x] Protéger les jambages Syne des titres : la règle demandée (line-height 1.3 + padding-bottom 0.05em) était déjà en place et publiée ; marge relevée à padding-bottom 0.09em sur h1–h4, puis vérifié sur 11 pages publiques et 10 pages connectées à trois tailles de fenêtre (88 blocs Syne, 0 jambage coupé, marge minimale 2,8 px) ; compilation OK.
 
