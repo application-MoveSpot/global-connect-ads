@@ -1,0 +1,1852 @@
+<title>MoveSpot Motion Design</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ── Tokens — dark-first, MoveSpot palette ──────────────────────────────── */
+:root {
+  --bg:        #08090F;
+  --bg-card:   #11131C;
+  --bg-surf:   #181B28;
+  --bg-lift:   #20243A;
+  --fg:        #F0F2F8;
+  --fg-muted:  #9CA3AF;
+  --fg-dim:    #52566A;
+  --orange:    #FF5C00;
+  --orange-lo: rgba(255,92,0,.18);
+  --orange-md: rgba(255,92,0,.35);
+  --amber:     #FFB800;
+  --blue:      #3B82F6;
+  --green:     #10B981;
+  --border:    #22263A;
+  --radius:    10px;
+  --fd: 'Syne',        system-ui, sans-serif;
+  --fb: 'Inter',       system-ui, sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#EEEFF8; --bg-card:#FFF; --bg-surf:#E5E7F4; --bg-lift:#D8DAEC;
+    --fg:#0B0D1A; --fg-muted:#4B5563; --fg-dim:#9CA3AF; --border:#CDD0E4;
+    --orange-lo:rgba(255,92,0,.10); --orange-md:rgba(255,92,0,.22);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#EEEFF8; --bg-card:#FFF; --bg-surf:#E5E7F4; --bg-lift:#D8DAEC;
+  --fg:#0B0D1A; --fg-muted:#4B5563; --fg-dim:#9CA3AF; --border:#CDD0E4;
+  --orange-lo:rgba(255,92,0,.10); --orange-md:rgba(255,92,0,.22);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--fb);
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.wrapper {
+  max-width: 940px;
+  margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+
+/* ── Site header ─────────────────────────────────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+.site-header .wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 14px;
+  flex-wrap: wrap;
+}
+.logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.logo-dot {
+  width: 28px; height: 28px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-dot svg { display: block; }
+.logo-text {
+  font-family: var(--fd);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--fg);
+  letter-spacing: -.02em;
+  line-height: 1.4;
+}
+.logo-text span { color: var(--orange); }
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: var(--orange-lo);
+  color: var(--orange);
+  border: 1px solid var(--orange-md);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* ── Tab nav ─────────────────────────────────────────────────────────────── */
+.tab-nav {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 57px);
+  z-index: 90;
+}
+.tab-nav .wrapper {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 0;
+}
+.tab-nav .wrapper::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--fg-muted);
+  font-family: var(--fb);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 14px 20px 12px;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+  text-align: left;
+}
+.tab-btn:hover { color: var(--fg); }
+.tab-btn.active {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+}
+.tab-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  background: var(--bg-surf);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--fg-muted);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.tab-btn.active .tab-num {
+  background: var(--orange);
+  color: #fff;
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.section { padding-block: 40px; }
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 8px;
+}
+.section-title {
+  font-family: var(--fd);
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.3;
+  color: var(--fg);
+  text-wrap: balance;
+  margin-bottom: 10px;
+}
+.section-lead {
+  font-size: 15px;
+  color: var(--fg-muted);
+  max-width: 60ch;
+  margin-bottom: 32px;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card-pad { padding: 20px 24px; }
+
+/* ── Demo stage (phone frame) ────────────────────────────────────────────── */
+.demo-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+  align-items: start;
+}
+@media (max-width: 640px) { .demo-layout { grid-template-columns: 1fr; } }
+
+.phone-frame {
+  width: 200px;
+  margin: 0 auto;
+  background: #000;
+  border-radius: 28px;
+  border: 3px solid #2a2d3a;
+  box-shadow: 0 0 0 1px #111, 0 24px 48px rgba(0,0,0,.6);
+  overflow: hidden;
+  aspect-ratio: 9/19;
+  position: relative;
+}
+.phone-screen {
+  position: absolute; inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.phone-notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 22px;
+  background: #000;
+  border-radius: 0 0 12px 12px;
+  z-index: 10;
+}
+
+/* ── Splash animation ────────────────────────────────────────────────────── */
+.splash-scene {
+  position: absolute; inset: 0;
+  background: #08090F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+.splash-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Keyframes */
+@keyframes logoAppear {
+  0%   { transform: scale(.6);   opacity: 0; }
+  18%  { transform: scale(1.08); opacity: 1; }
+  28%  { transform: scale(1);    opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+@keyframes wordMove {
+  0%,10%  { clip-path: inset(0 100% 0 0); opacity: 0; }
+  35%,100%{ clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+@keyframes wordSpot {
+  0%,18%  { clip-path: inset(0 100% 0 0); opacity: 0; }
+  43%,100%{ clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+@keyframes carPass {
+  0%,32%  { transform: translateX(-90px); opacity: 0; }
+  36%     { opacity: 1; transform: translateX(-80px); }
+  70%     { opacity: 1; transform: translateX(90px); }
+  74%,100%{ opacity: 0; transform: translateX(110px); }
+}
+@keyframes trailDraw {
+  0%,32%  { transform: scaleX(0); opacity: 0; transform-origin: left; }
+  40%     { opacity: .5; transform: scaleX(.4); }
+  70%     { transform: scaleX(1); opacity: .3; }
+  80%,100%{ opacity: 0; }
+}
+@keyframes gpsPin {
+  0%,40%  { transform: scale(0) translateY(6px); opacity: 0; }
+  48%     { transform: scale(1.2) translateY(-2px); opacity: 1; }
+  55%,85% { transform: scale(1) translateY(0); opacity: 1; }
+  92%,100%{ transform: scale(.8); opacity: 0; }
+}
+@keyframes ringPulse1 {
+  0%,50%  { transform: scale(0); opacity: 0; }
+  56%     { opacity: .7; transform: scale(0); }
+  90%,100%{ transform: scale(3.5); opacity: 0; }
+}
+@keyframes ringPulse2 {
+  0%,58%  { transform: scale(0); opacity: 0; }
+  64%     { opacity: .5; transform: scale(0); }
+  96%,100%{ transform: scale(3); opacity: 0; }
+}
+@keyframes ringPulse3 {
+  0%,66%  { transform: scale(0); opacity: 0; }
+  72%     { opacity: .35; transform: scale(0); }
+  100%    { transform: scale(2.5); opacity: 0; }
+}
+@keyframes taglineIn {
+  0%,75%  { opacity: 0; transform: translateY(6px); }
+  88%,100%{ opacity: 1; transform: translateY(0); }
+}
+
+.splash-dot {
+  width: 28px; height: 28px;
+  background: #FF5C00;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: logoAppear 4.5s cubic-bezier(.16,1,.3,1) infinite;
+}
+.splash-wordmark {
+  display: flex;
+  gap: 1px;
+  font-family: var(--fd);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: #F0F2F8;
+  overflow: hidden;
+}
+.splash-move {
+  display: inline-block;
+  animation: wordMove 4.5s cubic-bezier(.16,1,.3,1) infinite;
+}
+.splash-spot {
+  display: inline-block;
+  color: #FF5C00;
+  animation: wordSpot 4.5s cubic-bezier(.16,1,.3,1) infinite;
+}
+.splash-car-wrap {
+  position: absolute;
+  bottom: 30%;
+  width: 100%;
+  height: 16px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.splash-trail {
+  position: absolute;
+  height: 2px;
+  width: 80px;
+  left: 50%;
+  transform-origin: left;
+  background: linear-gradient(90deg, transparent, #FF5C00 40%, #FF5C00);
+  margin-left: -40px;
+  animation: trailDraw 4.5s cubic-bezier(.16,1,.3,1) infinite;
+}
+.splash-car {
+  animation: carPass 4.5s cubic-bezier(.16,1,.3,1) infinite;
+  position: relative;
+  z-index: 2;
+}
+.splash-gps-wrap {
+  position: absolute;
+  bottom: 33%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.splash-pin {
+  width: 8px; height: 8px;
+  background: #FF5C00;
+  border-radius: 50%;
+  animation: gpsPin 4.5s cubic-bezier(.16,1,.3,1) infinite;
+  position: relative;
+  z-index: 2;
+}
+.splash-ring {
+  position: absolute;
+  width: 8px; height: 8px;
+  border: 1.5px solid #FF5C00;
+  border-radius: 50%;
+}
+.splash-ring:nth-child(1) { animation: ringPulse1 4.5s cubic-bezier(.16,1,.3,1) infinite; }
+.splash-ring:nth-child(2) { animation: ringPulse2 4.5s cubic-bezier(.16,1,.3,1) infinite; }
+.splash-ring:nth-child(3) { animation: ringPulse3 4.5s cubic-bezier(.16,1,.3,1) infinite; }
+
+.splash-tagline {
+  font-family: var(--fm);
+  font-size: 7px;
+  color: #9CA3AF;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  animation: taglineIn 4.5s cubic-bezier(.16,1,.3,1) infinite;
+  position: absolute;
+  bottom: 15%;
+}
+
+/* ── Specs grid ──────────────────────────────────────────────────────────── */
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.spec-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.spec-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-bottom: 4px;
+}
+.spec-value {
+  font-family: var(--fm);
+  font-size: 13px;
+  color: var(--fg);
+}
+.spec-value .hl { color: var(--orange); }
+
+/* ── Timeline table ──────────────────────────────────────────────────────── */
+.timeline-table { overflow-x: auto; margin-bottom: 24px; }
+table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  background: var(--bg-surf);
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-muted);
+  vertical-align: top;
+}
+td:first-child {
+  font-family: var(--fm);
+  color: var(--orange);
+  font-size: 12px;
+  white-space: nowrap;
+}
+td strong { color: var(--fg); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+
+/* ── Easing card ─────────────────────────────────────────────────────────── */
+.easing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.easing-card {
+  background: var(--bg-surf);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.easing-name {
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--orange);
+  margin-bottom: 3px;
+}
+.easing-curve {
+  font-size: 10px;
+  color: var(--fg-dim);
+  margin-bottom: 6px;
+  word-break: break-all;
+}
+.easing-use {
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+
+/* ── Code block ──────────────────────────────────────────────────────────── */
+.code-block {
+  background: var(--bg-surf);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-family: var(--fm);
+  font-size: 12px;
+  color: #c9d1e0;
+  overflow-x: auto;
+  white-space: pre;
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+.code-block .cm { color: #52566A; }
+.code-block .ck { color: var(--blue); }
+.code-block .cv { color: var(--green); }
+.code-block .co { color: var(--orange); }
+
+/* ── Micro-interaction demos ─────────────────────────────────────────────── */
+.micro-section {
+  margin-bottom: 48px;
+}
+.micro-title {
+  font-family: var(--fd);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.micro-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  background: var(--orange);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--fm);
+  flex-shrink: 0;
+}
+.micro-desc {
+  font-size: 14px;
+  color: var(--fg-muted);
+  margin-bottom: 20px;
+  max-width: 55ch;
+}
+
+/* Profile switcher */
+.profile-demo {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-width: 480px;
+  margin-bottom: 16px;
+}
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.profile-tab {
+  flex: 1;
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--fg-muted);
+  transition: color .3s;
+  position: relative;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.profile-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transition: transform .3s cubic-bezier(.16,1,.3,1);
+}
+.profile-tab.active { color: var(--role-color, var(--orange)); }
+.profile-tab.active::after { transform: scaleX(1); }
+.profile-tab[data-role="proprietaire"] { --role-color: var(--amber); }
+.profile-tab[data-role="chauffeur"] { --role-color: var(--blue); }
+
+.profile-content {
+  padding: 20px;
+  min-height: 100px;
+}
+.profile-card-inner {
+  display: none;
+  animation: profileIn .35s cubic-bezier(.16,1,.3,1) forwards;
+}
+.profile-card-inner.active { display: block; }
+
+@keyframes profileIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.profile-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+.profile-icon.orange { background: var(--orange-lo); color: var(--orange); }
+.profile-icon.amber  { background: rgba(255,184,0,.15); color: var(--amber); }
+.profile-icon.blue   { background: rgba(59,130,246,.12); color: var(--blue); }
+
+.profile-name {
+  font-family: var(--fd);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.profile-meta {
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+/* Campaign validation demo */
+.validation-demo {
+  max-width: 340px;
+  margin-bottom: 16px;
+}
+.validate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--fb);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+.validate-btn:hover { opacity: .9; transform: translateY(-1px); }
+.validate-btn:active { transform: translateY(0); }
+.validate-btn:disabled { cursor: default; transform: none; }
+
+.val-ring {
+  display: none;
+  width: 20px; height: 20px;
+  position: relative;
+  flex-shrink: 0;
+}
+.val-ring svg {
+  position: absolute; inset: 0;
+  animation: spinRing .9s linear infinite;
+}
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+@keyframes checkDraw {
+  from { stroke-dashoffset: 40; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.val-state-idle .val-ring { display: none; }
+.val-state-loading .val-label { display: none; }
+.val-state-loading .val-ring { display: block; }
+.val-state-loading .val-check { display: none; }
+.val-state-done {
+  background: var(--green) !important;
+  pointer-events: none;
+}
+.val-state-done .val-label { display: none; }
+.val-state-done .val-ring { display: none; }
+.val-check {
+  display: none;
+  animation: checkDraw .4s cubic-bezier(.34,1.56,.64,1) forwards;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+}
+.val-state-done .val-check { display: block; }
+
+/* GPS Map demo */
+.gps-demo {
+  background: #0B0E1A;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 480px;
+  aspect-ratio: 16/9;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.gps-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.gps-route {
+  position: absolute; inset: 0;
+}
+.gps-route svg { width: 100%; height: 100%; }
+
+@keyframes routeDraw {
+  from { stroke-dashoffset: 500; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes dotAppear {
+  0%  { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.3); opacity: 1; }
+  80% { transform: scale(.95); }
+  100%{ transform: scale(1);  opacity: 1; }
+}
+@keyframes pingRing {
+  0%  { transform: scale(1); opacity: .7; }
+  100%{ transform: scale(3.5); opacity: 0; }
+}
+
+.gps-dot {
+  position: absolute;
+  width: 10px; height: 10px;
+  transform: translate(-50%, -50%);
+  animation: dotAppear .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.gps-dot-inner {
+  width: 10px; height: 10px;
+  background: var(--orange);
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.5);
+  position: relative;
+  z-index: 2;
+}
+.gps-dot.blue .gps-dot-inner { background: var(--blue); }
+.gps-dot.green .gps-dot-inner { background: var(--green); }
+.gps-dot .ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--orange);
+  animation: pingRing 1.8s cubic-bezier(.16,1,.3,1) infinite;
+}
+.gps-dot.blue .ping { border-color: var(--blue); }
+.gps-dot.green .ping { border-color: var(--green); }
+
+.gps-label {
+  position: absolute;
+  background: rgba(18,20,30,.85);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--fm);
+  font-size: 8px;
+  color: var(--fg-muted);
+  padding: 2px 5px;
+  white-space: nowrap;
+  transform: translate(-50%, -120%);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.gps-dot:hover .gps-label { opacity: 1; }
+
+.gps-counter {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(18,20,30,.9);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: var(--fm);
+  font-size: 9px;
+  color: var(--fg-muted);
+  line-height: 1.8;
+}
+.gps-count-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--orange);
+  font-variant-numeric: tabular-nums;
+}
+
+.gps-legend {
+  position: absolute;
+  bottom: 10px; left: 12px;
+  display: flex;
+  gap: 10px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  color: var(--fg-dim);
+  font-family: var(--fm);
+}
+.legend-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+
+/* Control btn */
+.demo-ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--fg-muted);
+  font-family: var(--fb);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+  margin-bottom: 24px;
+}
+.demo-ctrl:hover { border-color: var(--orange); color: var(--fg); }
+
+/* ── Storyboard ──────────────────────────────────────────────────────────── */
+.storyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.scene-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.scene-visual {
+  aspect-ratio: 16/9;
+  background: #0B0E1A;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scene-num-badge {
+  position: absolute;
+  top: 8px; left: 8px;
+  background: rgba(0,0,0,.7);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--fm);
+  font-size: 9px;
+  color: var(--fg-dim);
+  padding: 2px 6px;
+}
+.scene-timing {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--orange);
+  border-radius: 4px;
+  font-family: var(--fm);
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  padding: 2px 6px;
+}
+.scene-body {
+  padding: 14px 16px;
+}
+.scene-title {
+  font-family: var(--fd);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 6px;
+  letter-spacing: -.01em;
+}
+.scene-motion {
+  font-size: 11px;
+  color: var(--fg-muted);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.scene-vo {
+  font-size: 11px;
+  color: var(--fg-dim);
+  font-style: italic;
+  line-height: 1.5;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.scene-vo::before {
+  content: '🎙 ';
+  font-style: normal;
+  font-size: 10px;
+}
+
+/* Scene visuals CSS illustrations */
+.sv-city {
+  background: linear-gradient(180deg, #04050A 60%, #0E1020 100%);
+  width: 100%; height: 100%;
+  position: relative;
+}
+.sv-building {
+  position: absolute;
+  bottom: 0;
+  background: #141828;
+  border-top: 1px solid #1E2235;
+}
+.sv-window {
+  position: absolute;
+  background: rgba(255,184,0,.6);
+  border-radius: 1px;
+}
+.sv-car-icon {
+  position: absolute;
+  bottom: 24px;
+  animation: svCarMove 3s linear infinite;
+}
+@keyframes svCarMove {
+  from { left: -40px; }
+  to   { left: 105%; }
+}
+.sv-taxi-body {
+  width: 32px; height: 14px;
+  background: var(--amber);
+  border-radius: 4px 6px 2px 2px;
+  position: relative;
+}
+.sv-taxi-wheel {
+  width: 7px; height: 7px;
+  background: #333;
+  border-radius: 50%;
+  border: 1.5px solid #555;
+  position: absolute;
+  bottom: -4px;
+}
+
+.sv-ad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; height: 100%;
+  background: #0B0E1A;
+  flex-direction: column;
+  gap: 8px;
+}
+.sv-billboard {
+  width: 80px; height: 48px;
+  border: 2px dashed var(--orange);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--orange);
+  font-size: 20px;
+  animation: billboardBlink 2s ease-in-out infinite;
+}
+@keyframes billboardBlink {
+  0%,100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+.sv-ui {
+  width: 100%; height: 100%;
+  background: #0B0E1A;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sv-ui-bar {
+  height: 7px;
+  background: var(--bg-lift);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+.sv-ui-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--orange), #FF8C40);
+  border-radius: 3px;
+  animation: barFill 2s cubic-bezier(.16,1,.3,1) infinite;
+  transform-origin: left;
+}
+@keyframes barFill {
+  0%  { transform: scaleX(0); }
+  60%,100% { transform: scaleX(1); }
+}
+.sv-ui-bar.w60::after { animation-delay: .15s; }
+.sv-ui-bar.w40::after { animation-delay: .3s; }
+
+.sv-map-mini {
+  width: 100%; height: 100%;
+  background: #0B0E1A;
+  position: relative;
+  overflow: hidden;
+}
+.sv-map-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,.05) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.sv-dot-anim {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  animation: dotAppear .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.sv-dot-anim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: pingRing 2s ease-out infinite;
+}
+
+.sv-dashboard {
+  width: 100%; height: 100%;
+  background: #0B0E1A;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+}
+.sv-kpi {
+  font-family: var(--fm);
+  font-size: 10px;
+  color: var(--fg-dim);
+}
+.sv-kpi-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  animation: countUp 3s cubic-bezier(.16,1,.3,1) infinite;
+}
+@keyframes countUp {
+  0% { opacity: 0; transform: translateY(4px); }
+  15%,85% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; }
+}
+
+.sv-match {
+  width: 100%; height: 100%;
+  background: #0B0E1A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+}
+.sv-node {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  z-index: 2;
+  animation: nodeFloat 3s ease-in-out infinite;
+}
+@keyframes nodeFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-4px); }
+}
+.sv-node.a { background: var(--orange-lo); animation-delay: 0s; }
+.sv-node.b { background: rgba(255,184,0,.15); animation-delay: .3s; }
+.sv-arc {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.sv-logo-scene {
+  width: 100%; height: 100%;
+  background: #08090F;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.sv-logo-big {
+  font-family: var(--fd);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--fg);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%,100% { opacity: .5; transform: scale(.95); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.sv-logo-big span { color: var(--orange); }
+.sv-glow {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--orange-md), transparent 70%);
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%,100% { transform: scale(.8); opacity: .4; }
+  50%     { transform: scale(1.5); opacity: .8; }
+}
+
+/* Matching arc SVG */
+.sv-arc-line {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: arcDraw 1.5s cubic-bezier(.16,1,.3,1) infinite;
+}
+@keyframes arcDraw {
+  0%   { stroke-dashoffset: 200; }
+  60%,80% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -200; }
+}
+
+/* Tags */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+.tag-orange { background: var(--orange-lo); color: var(--orange); }
+.tag-blue   { background: rgba(59,130,246,.12); color: var(--blue); }
+.tag-green  { background: rgba(16,185,129,.12); color: var(--green); }
+.tag-amber  { background: rgba(255,184,0,.12); color: var(--amber); }
+
+/* Technique note */
+.note {
+  background: var(--bg-surf);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--fg-muted);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.note strong { color: var(--fg); }
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 40px;
+}
+
+/* H3 micro */
+.h3 {
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin-bottom: 12px;
+  color: var(--fg);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="wrapper">
+    <div class="logo-mark">
+      <div class="logo-dot">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="6" r="3" fill="#fff"/>
+          <path d="M7 9c0 0 4 3 4 0" stroke="#fff" stroke-width="1" fill="none"/>
+        </svg>
+      </div>
+      <span class="logo-text">Move<span>Spot</span></span>
+    </div>
+    <span class="badge">Motion Design Brief</span>
+  </div>
+</header>
+
+<!-- ══ TAB NAV ═════════════════════════════════════════════════════════════ -->
+<nav class="tab-nav" role="tablist">
+  <div class="wrapper">
+    <button class="tab-btn active" role="tab" data-tab="splash" onclick="switchTab('splash', this)">
+      <span class="tab-num">1</span>Splash Screen
+    </button>
+    <button class="tab-btn" role="tab" data-tab="micro" onclick="switchTab('micro', this)">
+      <span class="tab-num">2</span>Micro-interactions
+    </button>
+    <button class="tab-btn" role="tab" data-tab="storyboard" onclick="switchTab('storyboard', this)">
+      <span class="tab-num">3</span>Storyboard Vidéo
+    </button>
+  </div>
+</nav>
+
+<main class="wrapper">
+
+<!-- ══ TAB 1 — SPLASH SCREEN ══════════════════════════════════════════════ -->
+<section class="section" id="tab-splash" role="tabpanel">
+  <div class="section-eyebrow">Livrable 01</div>
+  <h2 class="section-title">Animation Splash Screen</h2>
+  <p class="section-lead">Script visuel d'une séquence d'introduction de 2,5 secondes. Chaque frame est chorégraphiée pour installer le concept en une seule lecture.</p>
+
+  <div class="demo-layout">
+    <!-- Phone demo -->
+    <div>
+      <p class="h3">Démo live — Boucle 4,5 s</p>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="splash-scene">
+            <!-- GPS rings  -->
+            <div class="splash-gps-wrap">
+              <div class="splash-pin"></div>
+              <div class="splash-ring"></div>
+              <div class="splash-ring"></div>
+              <div class="splash-ring"></div>
+            </div>
+            <!-- Logo -->
+            <div class="splash-logo-wrap">
+              <div class="splash-dot">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <circle cx="6" cy="5" r="2.5" fill="#fff"/>
+                </svg>
+              </div>
+              <div class="splash-wordmark">
+                <span class="splash-move">MOVE</span><span class="splash-spot">SPOT</span>
+              </div>
+            </div>
+            <!-- Car pass -->
+            <div class="splash-car-wrap">
+              <div class="splash-trail"></div>
+              <div class="splash-car">
+                <svg width="30" height="12" viewBox="0 0 30 12" fill="none">
+                  <rect x="2" y="4" width="26" height="6" rx="2" fill="#FFB800"/>
+                  <rect x="6" y="1" width="14" height="5" rx="2" fill="#FFC940"/>
+                  <circle cx="7" cy="11" r="2.5" fill="#333" stroke="#555" stroke-width="1"/>
+                  <circle cx="23" cy="11" r="2.5" fill="#333" stroke="#555" stroke-width="1"/>
+                  <rect x="2" y="6" width="4" height="3" rx="1" fill="rgba(255,92,0,.5)"/>
+                </svg>
+              </div>
+            </div>
+            <span class="splash-tagline">La pub qui roule</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specs -->
+    <div>
+      <p class="h3">Architecture temporelle</p>
+      <div class="timeline-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Timecode</th>
+              <th>Élément</th>
+              <th>Animation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>0,0 → 0,4 s</td><td><strong>Logomark ●</strong></td><td>scale 0,6→1,08→1,0 · expo-out</td></tr>
+            <tr><td>0,4 → 0,7 s</td><td><strong>« MOVE »</strong></td><td>clip-path wipe gauche→droite</td></tr>
+            <tr><td>0,55 → 0,85 s</td><td><strong>« SPOT »</strong></td><td>idem, stagger +150 ms</td></tr>
+            <tr><td>0,9 → 1,6 s</td><td><strong>Taxi SVG</strong></td><td>translateX −90→+90 px · ease-out-quad</td></tr>
+            <tr><td>0,95 → 1,55 s</td><td><strong>Trail orange</strong></td><td>scaleX 0→1 · transform-origin left</td></tr>
+            <tr><td>1,5 → 2,1 s</td><td><strong>GPS pin ⬤</strong></td><td>scale 0→1,2→1 + translateY overshoot</td></tr>
+            <tr><td>1,6 → 2,4 s</td><td><strong>Rings ×3</strong></td><td>scale 0→3,5 · opacity 0,7→0 · stagger 150 ms</td></tr>
+            <tr><td>2,2 → 2,5 s</td><td><strong>Tagline</strong></td><td>opacity 0→1 · translateY +6px→0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Easing catalog -->
+  <p class="h3">Catalogue d'easings — Splash</p>
+  <div class="easing-grid">
+    <div class="easing-card">
+      <div class="easing-name">expo-out</div>
+      <div class="easing-curve">cubic-bezier(0.16, 1, 0.3, 1)</div>
+      <div class="easing-use">Logomark, wipe texte. Départ explosif, settle ultra-doux.</div>
+    </div>
+    <div class="easing-card">
+      <div class="easing-name">spring-overshoot</div>
+      <div class="easing-curve">cubic-bezier(0.34, 1.56, 0.64, 1)</div>
+      <div class="easing-use">GPS pin. Dépasse légèrement la cible — sentiment de masse.</div>
+    </div>
+    <div class="easing-card">
+      <div class="easing-name">ease-out-quad</div>
+      <div class="easing-curve">cubic-bezier(0.25, 0.46, 0.45, 0.94)</div>
+      <div class="easing-use">Traversée du taxi. Décélération naturelle sans overshoot.</div>
+    </div>
+    <div class="easing-card">
+      <div class="easing-name">linear</div>
+      <div class="easing-curve">linear</div>
+      <div class="easing-use">Rings GPS. L'expansion constante évite un effet « élastique ».</div>
+    </div>
+  </div>
+
+  <!-- Code snippet -->
+  <p class="h3">Keyframes — After Effects / CSS</p>
+  <div class="code-block"><span class="cm">/* ── Logomark entrance — expo-out ── */</span>
+<span class="ck">@keyframes</span> <span class="co">logoAppear</span> {
+  <span class="cv">0%</span>   { transform: <span class="ck">scale</span>(<span class="co">0.6</span>); opacity: <span class="co">0</span>; }   <span class="cm">/* hold */</span>
+  <span class="cv">18%</span>  { transform: <span class="ck">scale</span>(<span class="co">1.08</span>); opacity: <span class="co">1</span>; }  <span class="cm">/* overshoot */</span>
+  <span class="cv">28%</span>  { transform: <span class="ck">scale</span>(<span class="co">1</span>); opacity: <span class="co">1</span>; }    <span class="cm">/* settle */</span>
+  <span class="cv">100%</span> { transform: <span class="ck">scale</span>(<span class="co">1</span>); opacity: <span class="co">1</span>; }
+}
+
+<span class="cm">/* ── GPS rings expansion — 3 vagues ── */</span>
+<span class="ck">@keyframes</span> <span class="co">ring1</span> {
+  <span class="cv">0%,55%</span>  { transform: <span class="ck">scale</span>(<span class="co">0</span>); opacity: <span class="co">0</span>; }
+  <span class="cv">60%</span>     { opacity: <span class="co">0.7</span>; }
+  <span class="cv">100%</span>    { transform: <span class="ck">scale</span>(<span class="co">3.5</span>); opacity: <span class="co">0</span>; }
+}
+<span class="ck">@keyframes</span> <span class="co">ring2</span> { <span class="cm">/* delay: 150ms */</span> }
+<span class="ck">@keyframes</span> <span class="co">ring3</span> { <span class="cm">/* delay: 300ms */</span> }
+
+<span class="cm">/* ── Tagline fade-up ── */</span>
+<span class="ck">@keyframes</span> <span class="co">taglineIn</span> {
+  <span class="cv">from</span> { opacity: <span class="co">0</span>; transform: <span class="ck">translateY</span>(<span class="co">6px</span>); }
+  <span class="cv">to</span>   { opacity: <span class="co">1</span>; transform: <span class="ck">translateY</span>(<span class="co">0</span>); }
+  <span class="cm">/* timing-function: cubic-bezier(0.16, 1, 0.3, 1) */</span>
+}</div>
+
+  <div class="note">
+    <strong>Note développeur.</strong> Implémenter avec <code>Lottie</code> (After Effects → JSON) pour garantir la fluidité sur Android. Sur iOS, les animations CSS peuvent être utilisées directement dans WKWebView avec <code>animation-fill-mode: both</code>. Durée totale réelle : <strong>2 500 ms</strong> — la boucle demo est ralentie à 4 500 ms pour lisibilité.
+  </div>
+
+  <div class="specs-grid">
+    <div class="spec-item"><div class="spec-label">Durée totale</div><div class="spec-value"><span class="hl">2 500 ms</span></div></div>
+    <div class="spec-item"><div class="spec-label">FPS cible</div><div class="spec-value"><span class="hl">60 fps</span> (Lottie)</div></div>
+    <div class="spec-item"><div class="spec-label">Format export</div><div class="spec-value">Lottie JSON + MP4 fallback</div></div>
+    <div class="spec-item"><div class="spec-label">Son</div><div class="spec-value">Muet (UX mobile first)</div></div>
+    <div class="spec-item"><div class="spec-label">Palette</div><div class="spec-value"><span class="hl">#FF5C00</span> + <span style="color:var(--amber)">#FFB800</span></div></div>
+    <div class="spec-item"><div class="spec-label">Hold frames</div><div class="spec-value">Tagline : <span class="hl">12 frames</span></div></div>
+  </div>
+</section>
+
+<!-- ══ TAB 2 — MICRO-INTERACTIONS ═════════════════════════════════════════ -->
+<section class="section" id="tab-micro" role="tabpanel" hidden>
+  <div class="section-eyebrow">Livrable 02</div>
+  <h2 class="section-title">Micro-interactions UI</h2>
+  <p class="section-lead">Trois patterns d'animation qui rendent l'interface vivante sans jamais ralentir le flux utilisateur. Chaque interaction signale un état, jamais un délai.</p>
+
+  <!-- A. Profile switcher -->
+  <div class="micro-section">
+    <div class="micro-title"><span class="micro-num">A</span>Sélecteur de profil</div>
+    <p class="micro-desc">Au changement de rôle, le contenu slide depuis la droite avec un morphing de la couleur d'accent. La transition dure 350 ms — perceptible mais jamais bloquante.</p>
+
+    <div class="profile-demo">
+      <div class="profile-tabs">
+        <button class="profile-tab active" data-role="annonceur" onclick="switchProfile('annonceur', this)">Annonceur</button>
+        <button class="profile-tab" data-role="proprietaire" onclick="switchProfile('proprietaire', this)">Propriétaire</button>
+        <button class="profile-tab" data-role="chauffeur" onclick="switchProfile('chauffeur', this)">Chauffeur</button>
+      </div>
+      <div class="profile-content">
+        <div class="profile-card-inner active" id="prof-annonceur">
+          <div class="profile-icon orange">📣</div>
+          <div class="profile-name" style="color:var(--orange)">Annonceur</div>
+          <div class="profile-meta">Créez des briefs · Gérez vos campagnes · Suivez le ROI</div>
+          <div style="margin-top:10px">
+            <span class="tag tag-orange">Brief actif</span>
+            <span class="tag tag-orange">3 véhicules</span>
+          </div>
+        </div>
+        <div class="profile-card-inner" id="prof-proprietaire">
+          <div class="profile-icon amber">🚗</div>
+          <div class="profile-name" style="color:var(--amber)">Propriétaire de flotte</div>
+          <div class="profile-meta">Répondez aux briefs · Gérez vos véhicules · Recevez vos revenus</div>
+          <div style="margin-top:10px">
+            <span class="tag tag-amber">8 véhicules</span>
+            <span class="tag tag-amber">2 contrats actifs</span>
+          </div>
+        </div>
+        <div class="profile-card-inner" id="prof-chauffeur">
+          <div class="profile-icon blue">🧭</div>
+          <div class="profile-name" style="color:var(--blue)">Chauffeur</div>
+          <div class="profile-meta">Photos d'installation · Suivi de mission · Bonus kilométriques</div>
+          <div style="margin-top:10px">
+            <span class="tag tag-blue">Mission active</span>
+            <span class="tag tag-blue">247 km ce mois</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="easing-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))">
+      <div class="easing-card"><div class="easing-name">Durée</div><div class="easing-curve">350 ms</div><div class="easing-use">En dessous de 400 ms — invisible pour l'œil conscient.</div></div>
+      <div class="easing-card"><div class="easing-name">Entrée contenu</div><div class="easing-curve">translateX 16px → 0</div><div class="easing-use">Direction cohérente avec la navigation gauche/droite.</div></div>
+      <div class="easing-card"><div class="easing-name">Underline</div><div class="easing-curve">scaleX 0 → 1</div><div class="easing-use">transform-origin: left — synchronisé avec l'entrée.</div></div>
+      <div class="easing-card"><div class="easing-name">Couleur</div><div class="easing-curve">color-mix() / var()</div><div class="easing-use">Chaque rôle a son —role-color CSS var. Transition CSS: color .3s.</div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- B. Campaign validation -->
+  <div class="micro-section">
+    <div class="micro-title"><span class="micro-num">B</span>Validation de campagne</div>
+    <p class="micro-desc">Séquence en 3 états : Idle → Loading (ring spinner) → Success (checkmark morphing). L'animation du checkmark use un spring-overshoot pour signaler la réussite avec énergie.</p>
+
+    <div class="validation-demo">
+      <button class="validate-btn val-state-idle" id="val-btn" onclick="runValidation()">
+        <svg class="val-ring" id="val-ring" viewBox="0 0 20 20">
+          <circle cx="10" cy="10" r="7" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2"/>
+          <circle cx="10" cy="10" r="7" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="44" stroke-dashoffset="33" stroke-linecap="round"/>
+        </svg>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" id="val-check">
+          <polyline class="val-check" points="4,10 8,14 16,6" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="val-label">Valider la campagne</span>
+      </button>
+    </div>
+    <button class="demo-ctrl" onclick="resetValidation()">↺ Rejouer</button>
+
+    <div class="timeline-table">
+      <table>
+        <thead><tr><th>État</th><th>Durée</th><th>Détail animation</th></tr></thead>
+        <tbody>
+          <tr><td>Idle → Loading</td><td><strong>0 ms</strong></td><td>Icône disparaît (opacity 0, scale .8 · 150 ms), ring spinner fade-in · 150 ms</td></tr>
+          <tr><td>Spinner</td><td><strong>1 200 ms</strong></td><td>Rotation 360° · linear · infinite · stroke-dashoffset animé</td></tr>
+          <tr><td>Loading → Success</td><td><strong>400 ms</strong></td><td>Fond orange → vert (#10B981) · 300 ms ease-out</td></tr>
+          <tr><td>Checkmark draw</td><td><strong>400 ms</strong></td><td>stroke-dashoffset 40 → 0 · spring-overshoot · scale 0→1,15→1</td></tr>
+          <tr><td>Hold success</td><td><strong>∞</strong></td><td>Bouton désactivé · léger pulse opacity .9↔1 toutes les 2 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- C. GPS Map -->
+  <div class="micro-section">
+    <div class="micro-title"><span class="micro-num">C</span>Carte GPS temps réel</div>
+    <p class="micro-desc">Les véhicules apparaissent avec un spring d'échelle suivi d'un ping continu. La route se trace progressivement (stroke-dashoffset). Le tout signale l'activité sans saturer l'attention.</p>
+
+    <div class="gps-demo" id="gps-demo">
+      <div class="gps-grid"></div>
+      <div class="gps-route">
+        <svg viewBox="0 0 480 270" preserveAspectRatio="none">
+          <polyline id="gps-path"
+            points="60,180 120,150 190,160 240,120 300,130 360,100 420,80"
+            fill="none" stroke="#FF5C00" stroke-width="1.5" stroke-linecap="round"
+            stroke-dasharray="500" stroke-dashoffset="500" opacity=".5"/>
+        </svg>
+      </div>
+      <!-- Dots -->
+      <div class="gps-dot" style="left:25%;top:67%;animation-delay:.2s">
+        <div class="gps-dot-inner"></div>
+        <div class="ping"></div>
+        <div class="gps-label">TXI-047 · En route</div>
+      </div>
+      <div class="gps-dot blue" style="left:50%;top:44%;animation-delay:.5s">
+        <div class="gps-dot-inner"></div>
+        <div class="ping"></div>
+        <div class="gps-label">VTC-112 · Mission active</div>
+      </div>
+      <div class="gps-dot green" style="left:75%;top:37%;animation-delay:.8s">
+        <div class="gps-dot-inner"></div>
+        <div class="ping"></div>
+        <div class="gps-label">CAM-089 · Campagne Renault</div>
+      </div>
+      <div class="gps-dot" style="left:40%;top:59%;animation-delay:1.1s">
+        <div class="gps-dot-inner"></div>
+        <div class="ping"></div>
+        <div class="gps-label">TXI-203 · En route</div>
+      </div>
+      <div class="gps-counter">
+        <div class="spec-label" style="font-size:8px;margin-bottom:2px">Véhicules actifs</div>
+        <div class="gps-count-val" id="gps-count">0</div>
+        <div style="font-size:8px;color:var(--fg-dim);margin-top:4px">km cumulés aujourd'hui</div>
+        <div class="gps-count-val" id="gps-km" style="font-size:11px">0</div>
+      </div>
+      <div class="gps-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Annonceur</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>VTC</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Campagne</div>
+      </div>
+    </div>
+
+    <button class="demo-ctrl" onclick="replayGPS()">↺ Rejouer la carte</button>
+
+    <div class="easing-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr))">
+      <div class="easing-card"><div class="easing-name">Apparition dot</div><div class="easing-curve">spring-overshoot</div><div class="easing-use">scale 0 → 1,3 → 0,95 → 1 · donne du poids au véhicule.</div></div>
+      <div class="easing-card"><div class="easing-name">Ping ring</div><div class="easing-curve">ease-out · 1,8 s</div><div class="easing-use">Expansion infinie — signale l'activité GPS en cours.</div></div>
+      <div class="easing-card"><div class="easing-name">Route draw</div><div class="easing-curve">stroke-dashoffset</div><div class="easing-use">expo-out · 1,2 s — la route se trace comme une mémoire.</div></div>
+      <div class="easing-card"><div class="easing-name">Stagger dots</div><div class="easing-curve">+200 ms/véhicule</div><div class="easing-use">L'œil suit le rythme ; évite l'effet « tout d'un coup ».</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TAB 3 — STORYBOARD ══════════════════════════════════════════════════ -->
+<section class="section" id="tab-storyboard" role="tabpanel" hidden>
+  <div class="section-eyebrow">Livrable 03</div>
+  <h2 class="section-title">Storyboard — Vidéo 30 s</h2>
+  <p class="section-lead">7 scènes en motion design 2D pour réseaux sociaux. Format 9:16 (Reels/TikTok) avec adaptation 1:1 (carré). Style : flat dark + accents orange · typographie Syne Bold.</p>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px">
+    <span class="tag tag-orange">30 secondes</span>
+    <span class="tag tag-blue">7 scènes</span>
+    <span class="tag tag-amber">After Effects · Lottie</span>
+    <span class="tag tag-green">Voix off FR</span>
+  </div>
+
+  <div class="storyboard-grid">
+
+    <!-- Scene 1 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-city" style="width:100%;height:100%;position:relative;overflow:hidden">
+          <!-- Buildings -->
+          <div class="sv-building" style="left:5%;width:18%;height:55%">
+            <div class="sv-window" style="top:15%;left:20%;width:20%;height:10%"></div>
+            <div class="sv-window" style="top:30%;left:20%;width:20%;height:10%"></div>
+            <div class="sv-window" style="top:15%;left:55%;width:20%;height:10%"></div>
+          </div>
+          <div class="sv-building" style="left:25%;width:14%;height:70%">
+            <div class="sv-window" style="top:10%;left:15%;width:30%;height:8%"></div>
+            <div class="sv-window" style="top:25%;left:15%;width:30%;height:8%"></div>
+            <div class="sv-window" style="top:40%;left:15%;width:30%;height:8%"></div>
+          </div>
+          <div class="sv-building" style="left:42%;width:22%;height:45%">
+            <div class="sv-window" style="top:20%;left:15%;width:25%;height:12%;background:rgba(255,184,0,.8)"></div>
+            <div class="sv-window" style="top:20%;left:55%;width:25%;height:12%;background:rgba(255,184,0,.8)"></div>
+          </div>
+          <div class="sv-building" style="left:67%;width:16%;height:60%"></div>
+          <div class="sv-building" style="left:85%;width:15%;height:40%"></div>
+          <!-- Road -->
+          <div style="position:absolute;bottom:0;width:100%;height:22%;background:#0D1020;border-top:1px solid #1E2235">
+            <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#FFB800 30%,#FFB800 70%,transparent);opacity:.3"></div>
+          </div>
+          <!-- Taxi -->
+          <div class="sv-car-icon" style="bottom:12px">
+            <div class="sv-taxi-body">
+              <div class="sv-taxi-wheel" style="left:3px"></div>
+              <div class="sv-taxi-wheel" style="right:3px"></div>
+            </div>
+          </div>
+          <!-- Stars -->
+          <div style="position:absolute;top:8%;left:15%;width:3px;height:3px;background:#fff;border-radius:50%;opacity:.6"></div>
+          <div style="position:absolute;top:12%;left:60%;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.4"></div>
+          <div style="position:absolute;top:6%;left:82%;width:2px;height:2px;background:#fff;border-radius:50%;opacity:.5"></div>
+        </div>
+        <span class="scene-num-badge">SC 01</span>
+        <span class="scene-timing">0 → 4 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">Ville de nuit — Le décor</div>
+        <div class="scene-motion"><strong>Motion :</strong> Caméra drone — zoom lent 100%→115% sur la ville nocturne. Taxi animé qui traverse la scène (ease-out-quad). Particules lumineuses staggerées depuis les fenêtres.</div>
+        <div class="scene-vo">« Chaque jour, des milliers de véhicules sillonnent vos villes… »</div>
+      </div>
+    </div>
+
+    <!-- Scene 2 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-ad">
+          <div style="font-family:var(--fm);font-size:8px;color:var(--fg-dim);margin-bottom:4px;letter-spacing:.05em">SURFACE DISPONIBLE</div>
+          <div class="sv-billboard">📋</div>
+          <div style="font-family:var(--fd);font-size:11px;color:var(--fg-muted);margin-top:4px">flanc véhicule</div>
+        </div>
+        <span class="scene-num-badge">SC 02</span>
+        <span class="scene-timing">4 → 8 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">L'espace inexploité</div>
+        <div class="scene-motion"><strong>Motion :</strong> Morphing — le flanc du taxi se révèle en dashed border orange. Grille de carrés apparaît (stagger 50 ms/cellule). Ping GPS sur le centre du panneau. Reveal via clip-path expanding circle.</div>
+        <div class="scene-vo">« …avec une surface publicitaire inexploitée. »</div>
+      </div>
+    </div>
+
+    <!-- Scene 3 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-ui">
+          <div style="font-family:var(--fm);font-size:7px;color:var(--orange);margin-bottom:3px;letter-spacing:.08em">NOUVEAU BRIEF</div>
+          <div class="sv-ui-bar" style="width:80%"></div>
+          <div class="sv-ui-bar w60" style="width:60%;margin-top:4px"></div>
+          <div class="sv-ui-bar w40" style="width:40%;margin-top:4px"></div>
+          <div style="margin-top:8px;display:flex;gap:4px">
+            <div style="flex:1;height:24px;background:var(--orange);border-radius:4px;display:flex;align-items:center;justify-content:center">
+              <span style="font-family:var(--fm);font-size:7px;color:#fff">VALIDER →</span>
+            </div>
+          </div>
+        </div>
+        <span class="scene-num-badge">SC 03</span>
+        <span class="scene-timing">8 → 14 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">L'annonceur — Création brief</div>
+        <div class="scene-motion"><strong>Motion :</strong> Interface slide-in depuis la droite (translateX 30px→0, expo-out). Champs qui se remplissent avec stagger 80 ms. Zone map se trace (stroke-dashoffset). CTA pulse une fois à la fin (scale 1→1.04→1).</div>
+        <div class="scene-vo">« Avec MoveSpot, créez votre campagne en 5 minutes. Zone, budget, créatif. »</div>
+      </div>
+    </div>
+
+    <!-- Scene 4 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-match">
+          <div class="sv-node a">📣</div>
+          <svg width="60" height="30" viewBox="0 0 60 30" fill="none" style="margin:0 4px">
+            <path class="sv-arc-line" d="M5,25 Q30,5 55,25" stroke="url(#arcGrad)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FF5C00"/>
+                <stop offset="100%" stop-color="#FFB800"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="sv-node b">🚗</div>
+          <div class="sv-glow" style="width:30px;height:30px;top:auto;left:auto;position:relative;display:none"></div>
+        </div>
+        <span class="scene-num-badge">SC 04</span>
+        <span class="scene-timing">14 → 18 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">Le matching — Connexion</div>
+        <div class="scene-motion"><strong>Motion :</strong> Deux nodes (annonceur ↔ flotte) convergent vers le centre. Arc animé se trace (stroke-dashoffset). Flash orange au point de convergence. Particules éjectées vers l'extérieur (spring, 8 directions).</div>
+        <div class="scene-vo">« MoveSpot connecte votre brief aux flottes disponibles. En quelques minutes. »</div>
+      </div>
+    </div>
+
+    <!-- Scene 5 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-map-mini">
+          <div class="sv-map-grid"></div>
+          <svg viewBox="0 0 200 112" style="position:absolute;inset:0;width:100%;height:100%">
+            <polyline points="20,80 50,65 80,70 110,50 140,55 170,40"
+              fill="none" stroke="#FF5C00" stroke-width="1" opacity=".4"
+              stroke-dasharray="300" stroke-dashoffset="300">
+              <animate attributeName="stroke-dashoffset" from="300" to="0" dur="3s" repeatCount="indefinite"/>
+            </polyline>
+          </svg>
+          <div class="sv-dot-anim" style="left:27%;top:71%;background:#FF5C00;animation-delay:.3s"></div>
+          <div class="sv-dot-anim" style="left:55%;top:45%;background:#FF5C00;color:#FF5C00;animation-delay:.6s"></div>
+          <div class="sv-dot-anim" style="left:85%;top:36%;background:#10B981;color:#10B981;animation-delay:.9s"></div>
+          <div style="position:absolute;top:8px;left:8px;background:rgba(18,20,30,.9);border:1px solid var(--border);border-radius:4px;padding:4px 7px;font-family:var(--fm);font-size:7px;color:var(--fg-dim)">
+            <span style="color:var(--orange);font-size:11px;font-weight:700">3</span> actifs
+          </div>
+        </div>
+        <span class="scene-num-badge">SC 05</span>
+        <span class="scene-timing">18 → 23 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">En route — GPS live</div>
+        <div class="scene-motion"><strong>Motion :</strong> Dashboard GPS zoom-in depuis écran. Points orange apparaissent (spring, stagger 300 ms). Route se trace (stroke-dashoffset expo-out). Compteur d'impressions monte en temps réel (counter animation).</div>
+        <div class="scene-vo">« Votre publicité roule — tracée kilomètre par kilomètre par GPS. »</div>
+      </div>
+    </div>
+
+    <!-- Scene 6 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-dashboard">
+          <div class="sv-kpi">
+            <div style="font-size:8px;color:var(--fg-dim);margin-bottom:1px">Impressions</div>
+            <div class="sv-kpi-val" style="color:var(--orange)">47 820</div>
+          </div>
+          <div class="sv-kpi" style="animation-delay:.4s">
+            <div style="font-size:8px;color:var(--fg-dim);margin-bottom:1px">Distance</div>
+            <div class="sv-kpi-val" style="color:var(--blue);font-size:14px">1 203 km</div>
+          </div>
+          <div class="sv-kpi" style="animation-delay:.8s">
+            <div style="font-size:8px;color:var(--fg-dim);margin-bottom:1px">Coût / impression</div>
+            <div class="sv-kpi-val" style="color:var(--green);font-size:14px">0,003 €</div>
+          </div>
+        </div>
+        <span class="scene-num-badge">SC 06</span>
+        <span class="scene-timing">23 → 27 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">Les résultats — ROI transparent</div>
+        <div class="scene-motion"><strong>Motion :</strong> KPIs apparaissent en stagger 400 ms. Counter animation (odometer style) sur les chiffres. Barres graphes montent avec ease-out-expo. Chaque métrique entre par translateY(12px)→0.</div>
+        <div class="scene-vo">« Mesurez chaque impression. ROI transparent, virements automatiques. »</div>
+      </div>
+    </div>
+
+    <!-- Scene 7 -->
+    <div class="scene-card">
+      <div class="scene-visual">
+        <div class="sv-logo-scene">
+          <div class="sv-glow"></div>
+          <div class="sv-logo-big">Move<span>Spot</span></div>
+          <div style="font-family:var(--fm);font-size:8px;color:var(--fg-dim);letter-spacing:.1em;text-transform:uppercase;animation:taglineIn 3s ease-in-out infinite">La pub qui roule avec vous</div>
+        </div>
+        <span class="scene-num-badge">SC 07</span>
+        <span class="scene-timing">27 → 30 s</span>
+      </div>
+      <div class="scene-body">
+        <div class="scene-title">Logo lockup — CTA final</div>
+        <div class="scene-motion"><strong>Motion :</strong> Logo assemble depuis les lettres dispersées (chaque caractère spring-in, stagger 40 ms). Glow orange pulse 2×. URL fade-in. Hold 1 s. Freeze frame.</div>
+        <div class="scene-vo">« MoveSpot — Rejoignez le mouvement. »</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Production specs -->
+  <div style="margin-top:32px">
+    <p class="h3">Spécifications de production</p>
+    <div class="specs-grid">
+      <div class="spec-item"><div class="spec-label">Logiciel</div><div class="spec-value">After Effects 2024</div></div>
+      <div class="spec-item"><div class="spec-label">Format master</div><div class="spec-value"><span class="hl">1080×1920</span> (9:16)</div></div>
+      <div class="spec-item"><div class="spec-label">Adaptation</div><div class="spec-value">1080×1080 (1:1)</div></div>
+      <div class="spec-item"><div class="spec-label">Frame rate</div><div class="spec-value"><span class="hl">30 fps</span> (60 si budget)</div></div>
+      <div class="spec-item"><div class="spec-label">Voix off</div><div class="spec-value">FR · rythme urbain</div></div>
+      <div class="spec-item"><div class="spec-label">Musique</div><div class="spec-value">Lo-fi electronic BPM 90</div></div>
+      <div class="spec-item"><div class="spec-label">Sous-titres</div><div class="spec-value">Burn-in + SRT</div></div>
+      <div class="spec-item"><div class="spec-label">Export</div><div class="spec-value">H.264 · 10 Mbit/s</div></div>
+    </div>
+
+    <div class="note" style="margin-top:0">
+      <strong>Direction artistique.</strong> Style <em>flat dark + ligne</em> — aucune ombre portée sauf pour les éléments premium. Typographie exclusivement <strong>Syne Bold</strong> pour les chiffres et titres, <strong>JetBrains Mono</strong> pour les données. Palette stricte : orange #FF5C00, ambre #FFB800, vert #10B981. Aucun fond blanc — le contraste fond-sombre est la signature visuelle MoveSpot.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ── Tab switching ─────────────────────────────────────────────────────────── */
+function switchTab(id, btn) {
+  document.querySelectorAll('[role="tabpanel"]').forEach(el => el.hidden = true);
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).hidden = false;
+  btn.classList.add('active');
+  if (id === 'micro') initMicro();
+  if (id === 'storyboard') {} // visuals auto-animate via CSS
+}
+
+/* ── Profile switcher ──────────────────────────────────────────────────────── */
+function switchProfile(role, btn) {
+  document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.profile-card-inner').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const card = document.getElementById('prof-' + role);
+  if (card) { card.classList.add('active'); }
+}
+
+/* ── Campaign validation ───────────────────────────────────────────────────── */
+let valPlaying = false;
+function runValidation() {
+  if (valPlaying) return;
+  valPlaying = true;
+  const btn = document.getElementById('val-btn');
+  btn.classList.remove('val-state-idle', 'val-state-done');
+  btn.classList.add('val-state-loading');
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.classList.remove('val-state-loading');
+    btn.classList.add('val-state-done');
+    /* Replay check animation */
+    const check = document.getElementById('val-check');
+    check.style.animation = 'none';
+    check.offsetHeight; // reflow
+    check.style.animation = '';
+  }, 1400);
+}
+function resetValidation() {
+  const btn = document.getElementById('val-btn');
+  btn.classList.remove('val-state-loading', 'val-state-done');
+  btn.classList.add('val-state-idle');
+  btn.disabled = false;
+  valPlaying = false;
+}
+
+/* ── GPS map ───────────────────────────────────────────────────────────────── */
+function initMicro() {
+  animateGPS();
+}
+
+function animateGPS() {
+  /* Route draw */
+  const path = document.getElementById('gps-path');
+  if (path) {
+    path.style.transition = 'none';
+    path.style.strokeDashoffset = '500';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        path.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.16,1,0.3,1)';
+        path.style.strokeDashoffset = '0';
+      });
+    });
+  }
+  /* Counter animation */
+  animateCounter('gps-count', 0, 4, 1200);
+  animateCounter('gps-km', 0, 1203, 2000);
+}
+
+function animateCounter(id, from, to, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  function step(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(from + (to - from) * ease).toLocaleString('fr-FR');
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function replayGPS() {
+  /* Reset dot animations */
+  const dots = document.querySelectorAll('.gps-dot');
+  dots.forEach(d => {
+    d.style.animation = 'none';
+    d.offsetHeight;
+    d.style.animation = '';
+  });
+  animateGPS();
+}
+
+/* ── Hash routing ──────────────────────────────────────────────────────────── */
+const tabMap = { splash: 0, micro: 1, storyboard: 2 };
+function applyHash() {
+  const hash = location.hash.replace('#', '') || 'splash';
+  if (tabMap[hash] !== undefined) {
+    const btns = document.querySelectorAll('.tab-btn');
+    if (btns[tabMap[hash]]) btns[tabMap[hash]].click();
+  }
+}
+window.addEventListener('hashchange', applyHash);
+applyHash();
+</script>
