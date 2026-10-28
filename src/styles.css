@@ -234,11 +234,8 @@
 
 /* Jambages Syne Bold (g p q y j ç 9) — hors @layer : prime sur TOUTES les
  * utilities Tailwind layered (text-5xl line-height:1, leading-tight 1.25, etc.)
- * Les règles non-layered ont priorité absolue sur les règles @layer normales. */
+ * Pas de padding-bottom ni display:inline-block : casse l'alignement baseline
+ * dans les conteneurs flex items-baseline (prix "29 € /mois", etc.) */
 .font-display:not(.tabular-nums) {
   line-height: 1.4;
-  padding-bottom: 0.3em;
-}
-span.font-display:not(.tabular-nums) {
-  display: inline-block;
 }
