@@ -177,7 +177,7 @@ const CONTENT = {
       "Mises à jour sans coupure : les nouvelles versions se chargent sans vous déconnecter",
     ],
     cta_h2: "Prêt à démarrer ?",
-    cta_advertiser: "Je suis advertiser",
+    cta_advertiser: "Je suis annonceur",
     cta_owner: "J'ai des véhicules",
   },
   en: {
