@@ -685,9 +685,9 @@ function Tarifs() {
                   </div>
                 )}
                 <div className="font-display text-xl font-bold mb-2">{plan.name}</div>
-                <div className="flex items-end gap-1 mb-1">
+                <div className="flex items-baseline gap-1 mb-1">
                   <span className="font-display text-3xl font-bold">{plan.price}</span>
-                  <span className="text-sm text-muted-foreground mb-1">{plan.unit}</span>
+                  <span className="text-sm text-muted-foreground">{plan.unit}</span>
                 </div>
                 <div className="text-xs text-muted-foreground mb-5">{c.prov_trial}</div>
                 <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
