@@ -145,13 +145,17 @@ function AdminDashboard() {
     "referral",
     "regions",
   ];
-  const hashTab = (typeof window !== "undefined" ? window.location.hash.slice(1) : "") as Tab;
-  const [tab, setTab] = useState<Tab>(validTabs.includes(hashTab) ? hashTab : "afaire");
+  const [tab, setTab] = useState<Tab>("afaire");
   const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const hashTab = window.location.hash.slice(1) as Tab;
+    if (validTabs.includes(hashTab)) setTab(hashTab);
+  }, []);
 
   const switchTab = (t: Tab) => {
     setTab(t);
-    if (typeof window !== "undefined") window.location.hash = t;
+    window.location.hash = t;
   };
 
   // Refusal inline forms — keyed by entity ID

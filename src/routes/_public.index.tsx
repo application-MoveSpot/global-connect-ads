@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Instagram } from "lucide-react";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
@@ -127,6 +127,10 @@ function Index() {
   const tx = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const { vehiclesApproved, campaignsLaunched } = Route.useLoaderData();
+  const [isLovablePreview, setIsLovablePreview] = useState(false);
+  useEffect(() => {
+    setIsLovablePreview(window.location.hostname.includes("lovable.app"));
+  }, []);
 
   const stats: { k: string; vKey: string; fallback: string }[] = [
     {
@@ -631,8 +635,7 @@ function Index() {
               <Link to="/mentions-legales" className="hover:text-foreground transition">
                 {tx("footer.mentions", "Mentions légales")}
               </Link>
-              {typeof window !== "undefined" &&
-                window.location.hostname.includes("lovable.app") && (
+              {isLovablePreview && (
                   <Link to="/admin" className="hover:text-foreground transition text-amber-500">
                     ⚙ Admin
                   </Link>
