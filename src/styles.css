@@ -143,7 +143,7 @@
     letter-spacing: -0.02em;
     font-weight: 700;
     line-height: 1.3;
-    padding-bottom: 0.05em; /* laisse de la place aux jambages Syne (g p q y j) */
+    padding-bottom: 0.09em; /* laisse de la place aux jambages Syne (g p q y j ç) */
   }
 
   code, kbd, samp, pre {
