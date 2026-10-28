@@ -152,21 +152,6 @@
 }
 
 @layer utilities {
-  /*
-   * Jambages Syne Bold (g p q y j ç) — @layer utilities pour battre les règles
-   * text-{size} de Tailwind (spécificité 0,1,0) par notre sélecteur (0,2,0).
-   * line-height: 1.3 assure que la boîte de ligne est assez haute pour les
-   * jambages (text-4xl impose 1.11, text-5xl impose 1.0 — trop serré).
-   * padding-bottom ajoute une marge de sécurité sous la dernière ligne.
-   * Les <span> passent en inline-block pour que le padding s'applique à la hauteur.
-   */
-  .font-display:not(.tabular-nums) {
-    line-height: 1.3;
-    padding-bottom: 0.2em;
-  }
-  span.font-display:not(.tabular-nums) {
-    display: inline-block;
-  }
 
   .bg-gradient-hero {
     background-image: var(--gradient-hero);
@@ -246,3 +231,14 @@
 .covering-sheen { position: absolute; inset: 0; background: var(--covering-sheen); box-shadow: var(--covering-edge); }
 .covering-texture { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) brightness(1.5); mix-blend-mode: multiply; opacity: 0.45; clip-path: inherit; }
 .covering-reflections { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) contrast(1.7); mix-blend-mode: screen; opacity: 0.1; clip-path: inherit; }
+
+/* Jambages Syne Bold (g p q y j ç 9) — hors @layer : prime sur TOUTES les
+ * utilities Tailwind layered (text-5xl line-height:1, leading-tight 1.25, etc.)
+ * Les règles non-layered ont priorité absolue sur les règles @layer normales. */
+.font-display:not(.tabular-nums) {
+  line-height: 1.4;
+  padding-bottom: 0.3em;
+}
+span.font-display:not(.tabular-nums) {
+  display: inline-block;
+}
