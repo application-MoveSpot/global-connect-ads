@@ -32,11 +32,14 @@ function UnsubscribePage() {
   const [state, setState] = useState<State>("loading");
   const [email, setEmail] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-
-  const token =
-    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("token") : null;
+  const [token, setToken] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
+    setToken(new URLSearchParams(window.location.search).get("token"));
+  }, []);
+
+  useEffect(() => {
+    if (token === undefined) return;
     if (!token) {
       setState("invalid");
       return;
