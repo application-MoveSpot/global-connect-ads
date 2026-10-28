@@ -153,12 +153,16 @@
 
 @layer utilities {
   /*
-   * Jambages Syne Bold (g p q y j ç) — règle dans @layer utilities pour passer
-   * au-dessus des classes Tailwind de base. Inline elements (<span>) passent en
-   * inline-block pour que padding-bottom s'applique à la hauteur de ligne.
+   * Jambages Syne Bold (g p q y j ç) — @layer utilities pour battre les règles
+   * text-{size} de Tailwind (spécificité 0,1,0) par notre sélecteur (0,2,0).
+   * line-height: 1.3 assure que la boîte de ligne est assez haute pour les
+   * jambages (text-4xl impose 1.11, text-5xl impose 1.0 — trop serré).
+   * padding-bottom ajoute une marge de sécurité sous la dernière ligne.
+   * Les <span> passent en inline-block pour que le padding s'applique à la hauteur.
    */
   .font-display:not(.tabular-nums) {
-    padding-bottom: 0.16em;
+    line-height: 1.3;
+    padding-bottom: 0.2em;
   }
   span.font-display:not(.tabular-nums) {
     display: inline-block;
