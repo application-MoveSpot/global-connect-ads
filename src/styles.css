@@ -146,6 +146,11 @@
     padding-bottom: 0.09em; /* laisse de la place aux jambages Syne (g p q y j ç) */
   }
 
+  /* Jambages Syne sur tous éléments font-display hors chiffres tabular-nums */
+  .font-display:not(.tabular-nums) {
+    padding-bottom: 0.09em;
+  }
+
   code, kbd, samp, pre {
     font-family: var(--font-mono);
   }
