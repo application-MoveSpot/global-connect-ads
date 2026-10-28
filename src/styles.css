@@ -142,6 +142,8 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     font-weight: 700;
+    line-height: 1.25;
+    overflow: visible;
   }
 
   code, kbd, samp, pre {
