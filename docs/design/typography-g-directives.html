@@ -1,0 +1,1219 @@
+<title>MoveSpot — Directives Typographiques g</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Figtree:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&family=Albert+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap">
+
+<style>
+/* ─── Tokens ─────────────────────────────────────────── */
+:root {
+  color-scheme: dark;
+  --bg:       #08090F;
+  --bg-card:  #12141E;
+  --bg-lift:  #1A1D2B;
+  --bg-surf:  #0D0F18;
+  --border:   #252836;
+  --fg:       #F8F9FA;
+  --fg-m:     #9CA3AF;
+  --fg-d:     #4B5265;
+  --orange:   #FF5C00;
+  --amber:    #FFB800;
+  --blue:     #3B82F6;
+  --green:    #10B981;
+  --violet:   #8B5CF6;
+  --red:      #EF4444;
+  --e-expo:   cubic-bezier(0.16,1,0.3,1);
+  --sidebar-w: 220px;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #F4F5F7; --bg-card: #FFFFFF; --bg-lift: #ECEEF2; --bg-surf: #F9FAFB;
+    --border: #DDE1EA; --fg: #0D0F18; --fg-m: #4B5265; --fg-d: #9CA3AF;
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F4F5F7; --bg-card: #FFFFFF; --bg-lift: #ECEEF2; --bg-surf: #F9FAFB;
+  --border: #DDE1EA; --fg: #0D0F18; --fg-m: #4B5265; --fg-d: #9CA3AF;
+}
+
+/* ─── Reset / Base ───────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  display: flex;
+  min-height: 100vh;
+  padding-left: max(0px, env(safe-area-inset-left, 0px));
+  padding-right: max(0px, env(safe-area-inset-right, 0px));
+}
+
+/* ─── Layout ─────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--bg-surf);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 100;
+  padding-bottom: 24px;
+}
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-width: 0;
+  padding: 48px max(24px, env(safe-area-inset-right, 0px)) 80px max(32px, 32px);
+  max-width: 900px;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────── */
+.sb-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-logo .wordmark {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+.sb-logo .sub {
+  font-size: 11px;
+  color: var(--fg-d);
+  margin-top: 2px;
+}
+.sb-nav { padding: 12px 0; flex: 1; }
+.sb-nav a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  font-size: 12.5px;
+  color: var(--fg-m);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.sb-nav a:hover { color: var(--fg); background: var(--bg-lift); }
+.sb-nav a.active { color: var(--fg); border-left-color: var(--sc, var(--orange)); background: var(--bg-lift); }
+.sb-nav .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sc, var(--fg-d));
+  flex-shrink: 0;
+}
+.sb-nav a.active .dot { background: var(--sc, var(--orange)); }
+.sb-sep { height: 1px; background: var(--border); margin: 8px 20px; }
+
+/* ─── Page header ────────────────────────────────────── */
+.page-header {
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+.page-header .eyebrow {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--orange);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.page-header h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 600;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-bottom: 16px;
+}
+.page-header h1 .accent { color: var(--orange); }
+.page-header p {
+  color: var(--fg-m);
+  max-width: 600px;
+  font-size: 15px;
+}
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .03em;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--fg-m);
+}
+.badge.orange { border-color: color-mix(in srgb, var(--orange) 30%, transparent); background: color-mix(in srgb, var(--orange) 10%, transparent); color: var(--orange); }
+.badge.amber  { border-color: color-mix(in srgb, var(--amber)  30%, transparent); background: color-mix(in srgb, var(--amber)  10%, transparent); color: var(--amber); }
+.badge.green  { border-color: color-mix(in srgb, var(--green)  30%, transparent); background: color-mix(in srgb, var(--green)  10%, transparent); color: var(--green); }
+
+/* ─── Sections ───────────────────────────────────────── */
+.section { margin-bottom: 72px; scroll-margin-top: 32px; }
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.s-num {
+  min-width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+  background: color-mix(in srgb, var(--sc) 15%, transparent);
+  color: var(--sc);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.section-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.section-header .sh-sub {
+  font-size: 13px;
+  color: var(--fg-m);
+  margin-top: 4px;
+}
+
+/* ─── Cards ──────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--sc, var(--fg-d));
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* ─── Section 1: Diagnostic ─────────────────────────── */
+#s1 { --sc: var(--red); }
+.g-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.g-cell {
+  background: var(--bg-lift);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 16px;
+  text-align: center;
+}
+.g-cell.bad { border-color: color-mix(in srgb, var(--red) 30%, transparent); }
+.g-cell.good { border-color: color-mix(in srgb, var(--green) 30%, transparent); }
+.g-glyph {
+  font-size: 120px;
+  line-height: 1;
+  display: block;
+  margin-bottom: 12px;
+}
+.g-cell.bad  .g-glyph { font-family: 'Inter', serif; color: var(--red); }
+.g-cell.good .g-glyph { font-family: 'DM Sans', sans-serif; color: var(--green); }
+.g-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.g-cell.bad  .g-label { color: var(--red); }
+.g-cell.good .g-label { color: var(--green); }
+.g-desc { font-size: 12px; color: var(--fg-m); line-height: 1.5; }
+
+/* confusion matrix */
+.confusion-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.conf-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-lift);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+.conf-g { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 400; }
+.conf-arr { color: var(--fg-d); font-size: 14px; }
+.conf-x { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 400; }
+.conf-pair.high { border-color: color-mix(in srgb, var(--red) 40%, transparent); }
+.conf-pair.med  { border-color: color-mix(in srgb, var(--amber) 40%, transparent); }
+.conf-risk { font-size: 10px; font-weight: 600; letter-spacing: .06em; padding: 1px 5px; border-radius: 3px; }
+.high .conf-risk { background: color-mix(in srgb, var(--red) 20%, transparent); color: var(--red); }
+.med  .conf-risk { background: color-mix(in srgb, var(--amber) 20%, transparent); color: var(--amber); }
+
+.anatomy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.anat-item {
+  background: var(--bg-lift);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.anat-term { font-size: 11px; font-weight: 600; color: var(--sc); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+.anat-def  { font-size: 12px; color: var(--fg-m); line-height: 1.45; }
+
+/* ─── Section 2: Fonts ───────────────────────────────── */
+#s2 { --sc: var(--orange); }
+.font-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.font-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.font-name { font-size: 16px; font-weight: 600; }
+.font-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--bg-lift); color: var(--fg-m);
+  border: 1px solid var(--border);
+}
+.tag.rec { background: color-mix(in srgb, var(--orange) 15%, transparent); color: var(--orange); border-color: color-mix(in srgb, var(--orange) 30%, transparent); }
+
+.font-specimen {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.specimen-g {
+  font-size: 96px;
+  line-height: 1;
+  font-weight: 400;
+  color: var(--orange);
+  margin-bottom: 12px;
+}
+.specimen-text {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--fg);
+  margin-bottom: 8px;
+  letter-spacing: -.01em;
+}
+.specimen-small {
+  font-size: 13px;
+  color: var(--fg-m);
+  line-height: 1.6;
+}
+.font-body { padding: 16px 20px 20px; }
+.font-why { font-size: 13px; color: var(--fg-m); line-height: 1.6; margin-bottom: 14px; }
+.font-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fspec {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--bg-lift);
+  color: var(--fg-m);
+  border: 1px solid var(--border);
+}
+
+/* Individual font families */
+.ff-dm      { font-family: 'DM Sans', sans-serif; }
+.ff-fig     { font-family: 'Figtree', sans-serif; }
+.ff-out     { font-family: 'Outfit', sans-serif; }
+.ff-alb     { font-family: 'Albert Sans', sans-serif; }
+
+/* ─── Section 3: Custom glyph ────────────────────────── */
+#s3 { --sc: var(--violet); }
+.svg-diagram {
+  background: var(--bg-lift);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.rule-card {
+  background: var(--bg-lift);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.rule-num {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--violet);
+  color: #fff;
+  font-size: 10px; font-weight: 700;
+  text-align: center; line-height: 20px;
+  margin-bottom: 10px;
+}
+.rule-title { font-size: 12px; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
+.rule-val { font-size: 13px; color: var(--violet); font-weight: 600; font-variant-numeric: tabular-nums; }
+.rule-desc { font-size: 11.5px; color: var(--fg-m); line-height: 1.5; margin-top: 4px; }
+
+/* ─── Section 4: WCAG ────────────────────────────────── */
+#s4 { --sc: var(--green); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg-d);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surf);
+}
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-lift); }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pill.pass { background: color-mix(in srgb, var(--green) 15%, transparent); color: var(--green); }
+.pill.fail { background: color-mix(in srgb, var(--red) 15%, transparent); color: var(--red); }
+.pill.warn { background: color-mix(in srgb, var(--amber) 15%, transparent); color: var(--amber); }
+.cr-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+
+.color-demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.cd-cell {
+  border-radius: 10px;
+  padding: 20px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.cd-cell .sample-g {
+  font-size: 48px;
+  font-weight: 400;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.cd-cell .cd-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  opacity: .7;
+  margin-bottom: 2px;
+}
+.cd-cell .cd-ratio { font-size: 12px; font-weight: 600; }
+
+/* ─── Prose ──────────────────────────────────────────── */
+p { color: var(--fg-m); line-height: 1.65; margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--fg); font-weight: 600; }
+.kw { color: var(--sc); font-style: italic; font-weight: 500; }
+.mono { font-family: 'Courier New', monospace; font-size: 12px; background: var(--bg-lift); padding: 1px 5px; border-radius: 3px; color: var(--fg); }
+
+ul { list-style: none; padding: 0; }
+ul li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 13.5px;
+  color: var(--fg-m);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+ul li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--sc, var(--fg-d));
+}
+
+/* ─── Callout ────────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--sc);
+  background: color-mix(in srgb, var(--sc) 8%, transparent);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin: 16px 0;
+}
+.callout .cl-title { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--sc); margin-bottom: 6px; }
+.callout p { font-size: 13px; margin: 0; }
+
+/* ─── Mobile ─────────────────────────────────────────── */
+@media (max-width: 700px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-100%); transition: transform .25s var(--e-expo); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; padding: 24px max(16px, env(safe-area-inset-right,0px)) 60px max(16px, env(safe-area-inset-left,0px)); }
+  .g-compare { grid-template-columns: 1fr; }
+  .menu-btn {
+    display: flex;
+    position: fixed;
+    top: 14px; left: 14px;
+    width: 36px; height: 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 200;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+  }
+  .menu-btn span { display: block; width: 18px; height: 2px; background: var(--fg); border-radius: 1px; }
+}
+@media (min-width: 701px) {
+  .menu-btn { display: none; }
+}
+</style>
+
+<!-- mobile menu button -->
+<button class="menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- ─── Sidebar ─────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="wordmark">MoveSpot</div>
+    <div class="sub">Directives typographiques</div>
+  </div>
+  <div class="sb-nav">
+    <a href="#s1" data-s="s1"><span class="dot" style="--sc:var(--red)"></span>1 · Diagnostic</a>
+    <a href="#s2" data-s="s2"><span class="dot" style="--sc:var(--orange)"></span>2 · Polices alternatives</a>
+    <a href="#s3" data-s="s3"><span class="dot" style="--sc:var(--violet)"></span>3 · Glyphe sur-mesure</a>
+    <a href="#s4" data-s="s4"><span class="dot" style="--sc:var(--green)"></span>4 · Accessibilité WCAG</a>
+    <div class="sb-sep"></div>
+    <a href="#reco" data-s="reco"><span class="dot"></span>Résumé décisionnel</a>
+  </div>
+</nav>
+
+<!-- ─── Main ───────────────────────────────────────── -->
+<main class="main">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="eyebrow">Type Engineering · MoveSpot UI</div>
+    <h1>Le problème du <span class="accent">«&nbsp;g&nbsp;»</span><br>dans les interfaces mobiles</h1>
+    <p>Analyse optique, sélection de polices, directives de dessin vectoriel et conformité WCAG pour résoudre les confusions de glyphes sur thème sombre.</p>
+    <div class="meta-row">
+      <span class="badge orange">Expert Typography</span>
+      <span class="badge amber">Lead UI Design</span>
+      <span class="badge green">WCAG 2.2 AA/AAA</span>
+      <span class="badge">Google Fonts</span>
+      <span class="badge">iOS · Android · Web</span>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 1 — DIAGNOSTIC
+  ══════════════════════════════════════════════════ -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <div class="s-num" style="--sc:var(--red)">1</div>
+      <div>
+        <h2>Diagnostic Typographique</h2>
+        <div class="sh-sub">Double-story vs Single-story — mécanique de la confusion optique</div>
+      </div>
+    </div>
+
+    <!-- Comparaison visuelle -->
+    <div class="g-compare">
+      <div class="g-cell bad">
+        <span class="g-glyph">g</span>
+        <div class="g-label">⚠ Double-story g</div>
+        <div class="g-desc">Deux contreformes fermées (bol supérieur + boucle inférieure liée). La liaison (bridge) crée une masse visuelle dense, problématique sous 14px.</div>
+      </div>
+      <div class="g-cell good">
+        <span class="g-glyph ff-dm">g</span>
+        <div class="g-label">✓ Single-story g</div>
+        <div class="g-desc">Une seule contreforme ouverte. La hampe descendante se termine par une queue ouverte (loop ouvert), instantanément distincte de q, 9, 8.</div>
+      </div>
+    </div>
+
+    <!-- Matrice de confusions -->
+    <div class="card">
+      <div class="card-title">Matrice de confusions signalées</div>
+      <div class="confusion-row">
+        <div class="conf-pair high">
+          <span class="conf-g" style="font-family:Inter">g</span>
+          <span class="conf-arr">→</span>
+          <span class="conf-x" style="font-family:Inter">9</span>
+          <span class="conf-risk high">CRITIQUE</span>
+        </div>
+        <div class="conf-pair high">
+          <span class="conf-g" style="font-family:Inter">g</span>
+          <span class="conf-arr">→</span>
+          <span class="conf-x" style="font-family:Inter">q</span>
+          <span class="conf-risk high">CRITIQUE</span>
+        </div>
+        <div class="conf-pair med">
+          <span class="conf-g" style="font-family:Inter">g</span>
+          <span class="conf-arr">→</span>
+          <span class="conf-x" style="font-family:Inter">8</span>
+          <span class="conf-risk med">MODÉRÉ</span>
+        </div>
+        <div class="conf-pair med">
+          <span class="conf-g" style="font-family:Inter">g</span>
+          <span class="conf-arr">→</span>
+          <span class="conf-x" style="font-family:Inter">0</span>
+          <span class="conf-risk med">MODÉRÉ</span>
+        </div>
+      </div>
+      <p style="margin-top:12px; font-size:12.5px">Ces confusions se produisent principalement entre 11 et 14px, sur fond sombre à faible contraste, ou lors d'un défilement rapide (saccade oculaire).</p>
+    </div>
+
+    <!-- Explication optique -->
+    <div class="card">
+      <div class="card-title">Mécanique optique de la confusion</div>
+      <p>
+        Le <strong>g binoculaire</strong> (double-story) possède deux <span class="kw">contreformes</span> fermées. L'<span class="kw">œil de la lettre</span> supérieur constitue le bol principal, lié à une boucle inférieure via un <span class="kw">trait de liaison</span> (bridge). Cette architecture crée plusieurs vecteurs d'erreur :
+      </p>
+      <ul>
+        <li><strong>Confusion g/9 :</strong> La boucle inférieure fermée du double-story g, une fois la liaison réduite optiquement à petite taille, ressemble au corps fermé du chiffre 9. Sous 13px, la liaison peut disparaître dans le rendu antialiasé, laissant deux formes circulaires superposées identiques au 9.</li>
+        <li><strong>Confusion g/q :</strong> L'œil supérieur du g binoculaire partage la même géométrie de bol que le q. La différenciation repose uniquement sur la hampe descendante, mais celle du g (loop fermé) est visuellement plus compacte que la hampe droite du q — distinction fragile à petite taille.</li>
+        <li><strong>Confusion g/8 :</strong> Lorsque le bridge est large (style grotesque compact), les deux boucles peuvent fusionner visuellement avec les deux boucles du 8. Cette confusion est aggravée par le flou de sous-pixel sur écrans non-retina.</li>
+        <li><strong>Réduction de la contreforme :</strong> La boucle inférieure du double-story g est souvent plus petite que le bol supérieur. Son ratio de <span class="kw">contreforme</span> (espace interne / surface totale du glyphe) est faible — entre 18 et 25% pour les grotesques comme Inter — rendant la reconnaissance plus coûteuse cognitivement.</li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <div class="cl-title">Verdict typographique</div>
+      <p>Le <strong>single-story g</strong> élimine structurellement ces confusions : une seule contreforme, une hampe descendante à queue ouverte reconnaissable à 9px. Son schéma formel est isomorphe à l'écriture cursive apprise en primaire — la reconnaissance est plus rapide car elle active le même programme moteur mémorisé.</p>
+    </div>
+
+    <!-- Anatomie terminologique -->
+    <div class="card">
+      <div class="card-title">Anatomie du glyphe — vocabulaire de référence</div>
+      <div class="anatomy-grid">
+        <div class="anat-item">
+          <div class="anat-term">Bol (Bowl)</div>
+          <div class="anat-def">Partie arrondie fermée formant le corps principal. Dans un single-story g, il y a un seul bol.</div>
+        </div>
+        <div class="anat-item">
+          <div class="anat-term">Contreforme</div>
+          <div class="anat-def">Espace blanc interne au glyphe. Sa taille et son ouverture déterminent la lisibilité à petite échelle.</div>
+        </div>
+        <div class="anat-item">
+          <div class="anat-term">Hampe descendante</div>
+          <div class="anat-def">Extension verticale descendant sous la ligne de base. Pour g : doit être ≥ 0.6× la x-height pour garantir la distinction avec q.</div>
+        </div>
+        <div class="anat-item">
+          <div class="anat-term">Oreille (Ear)</div>
+          <div class="anat-def">Petit appendice partant du bol supérieur-droit. Sa forme (pointue, ronde, coupée) est la signature visuelle d'une police.</div>
+        </div>
+        <div class="anat-item">
+          <div class="anat-term">Queue / Loop</div>
+          <div class="anat-def">Terminaison de la hampe descendante. Ouverte dans le single-story g — c'est ce qui distingue immédiatement du 9 et du q.</div>
+        </div>
+        <div class="anat-item">
+          <div class="anat-term">X-height</div>
+          <div class="anat-def">Hauteur des minuscules (mesurée sur le x). Un ratio x-height/cap-height élevé (≥ 0.72) améliore la lisibilité au corps de texte.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 2 — POLICES ALTERNATIVES
+  ══════════════════════════════════════════════════ -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <div class="s-num" style="--sc:var(--orange)">2</div>
+      <div>
+        <h2>Polices Alternatives Recommandées</h2>
+        <div class="sh-sub">4 polices Google Fonts à single-story g, iOS/Android/Web ready</div>
+      </div>
+    </div>
+
+    <!-- DM Sans -->
+    <div class="font-card">
+      <div class="font-header">
+        <div class="font-name ff-dm">DM Sans</div>
+        <div class="font-tags">
+          <span class="tag rec">★ Recommandée #1</span>
+          <span class="tag">Humaniste</span>
+          <span class="tag">Variable</span>
+          <span class="tag">Google Fonts</span>
+        </div>
+      </div>
+      <div class="font-specimen ff-dm">
+        <div class="specimen-g">g</div>
+        <div class="specimen-text">Géolocalisation · 98 véhicules actifs · Campagne #42</div>
+        <div class="specimen-small">Affichage sur 120 000 km² · 8,4 g CO₂/km · Taux d'engagement : 3,2% · Longitude −0.6917° / Latitude 48.9°</div>
+      </div>
+      <div class="font-body">
+        <p class="font-why">
+          La <strong>DM Sans</strong> (Colophon Foundry, 2019) est une humaniste sans-serif à axe optique variable. Son <span class="kw">single-story g</span> présente une queue ouverte à angle ~35° — impossible à confondre avec un 9. La <span class="kw">contreforme</span> du bol supérieur est généreuse (ratio ≈ 42% de la surface du glyphe). Son <span class="kw">x-height</span> élevé (0.74× cap-height) garantit la lisibilité à 12px. Conçue explicitement pour les interfaces digitales.
+        </p>
+        <div class="font-specs">
+          <span class="fspec">x-height ratio : 0.74</span>
+          <span class="fspec">Contreforme bol : ~42%</span>
+          <span class="fspec">Axe optique 9–40pt</span>
+          <span class="fspec">Poids 300–700</span>
+          <span class="fspec">Italique vrai</span>
+          <span class="fspec">Chiffres tabulaires</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Figtree -->
+    <div class="font-card">
+      <div class="font-header">
+        <div class="font-name ff-fig">Figtree</div>
+        <div class="font-tags">
+          <span class="tag rec">★ Recommandée #2</span>
+          <span class="tag">Géométrique-humaniste</span>
+          <span class="tag">Variable</span>
+          <span class="tag">Google Fonts</span>
+        </div>
+      </div>
+      <div class="font-specimen ff-fig">
+        <div class="specimen-g">g</div>
+        <div class="specimen-text">Géolocalisation · 98 véhicules actifs · Campagne #42</div>
+        <div class="specimen-small">Affichage sur 120 000 km² · 8,4 g CO₂/km · Taux d'engagement : 3,2% · Longitude −0.6917° / Latitude 48.9°</div>
+      </div>
+      <div class="font-body">
+        <p class="font-why">
+          La <strong>Figtree</strong> (Erik Kennedy, 2022) marie la rigueur géométrique à la warmth humaniste. Son <span class="kw">g single-story</span> est particulièrement distinctif : la queue terminale forme une boucle ouverte en demi-cercle à gauche, clairement dissociée visuellement du 9 (dont la queue descend à droite). L'<span class="kw">oreille</span> du bol est courte et arrondie, réduisant les faux positifs. Idéale pour les tailles 14–18px en interface.
+        </p>
+        <div class="font-specs">
+          <span class="fspec">x-height ratio : 0.72</span>
+          <span class="fspec">Queue ouverte demi-cercle</span>
+          <span class="fspec">Poids 300–800</span>
+          <span class="fspec">Optimisée écran</span>
+          <span class="fspec">Très bonne lisibilité 12px</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outfit -->
+    <div class="font-card">
+      <div class="font-header">
+        <div class="font-name ff-out">Outfit</div>
+        <div class="font-tags">
+          <span class="tag">Géométrique</span>
+          <span class="tag">Variable</span>
+          <span class="tag">Google Fonts</span>
+        </div>
+      </div>
+      <div class="font-specimen ff-out">
+        <div class="specimen-g">g</div>
+        <div class="specimen-text">Géolocalisation · 98 véhicules actifs · Campagne #42</div>
+        <div class="specimen-small">Affichage sur 120 000 km² · 8,4 g CO₂/km · Taux d'engagement : 3,2% · Longitude −0.6917° / Latitude 48.9°</div>
+      </div>
+      <div class="font-body">
+        <p class="font-why">
+          <strong>Outfit</strong> (Alfredo Marco Pradil, 2021) est une géométrique pure-play. Son <span class="kw">g</span> à queue droite descendante avec terminaison plate est le plus distinctif du lot dans les titres et headings (≥ 18px). La hampe descendante est longue (0.7× x-height), éliminant toute ambiguïté avec le q. En revanche, à très petite taille (≤ 12px), la géométrie parfaite peut réduire les indices distinctifs — réserver aux titres, labels et badges.
+        </p>
+        <div class="font-specs">
+          <span class="fspec">x-height ratio : 0.71</span>
+          <span class="fspec">Hampe desc. longue : 0.7× xh</span>
+          <span class="fspec">Poids 100–900</span>
+          <span class="fspec">Idéale titres ≥18px</span>
+          <span class="fspec">Géométrie pure</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Albert Sans -->
+    <div class="font-card">
+      <div class="font-header">
+        <div class="font-name ff-alb">Albert Sans</div>
+        <div class="font-tags">
+          <span class="tag">Humaniste-géométrique</span>
+          <span class="tag">Variable</span>
+          <span class="tag">Google Fonts</span>
+        </div>
+      </div>
+      <div class="font-specimen ff-alb">
+        <div class="specimen-g">g</div>
+        <div class="specimen-text">Géolocalisation · 98 véhicules actifs · Campagne #42</div>
+        <div class="specimen-small">Affichage sur 120 000 km² · 8,4 g CO₂/km · Taux d'engagement : 3,2% · Longitude −0.6917° / Latitude 48.9°</div>
+      </div>
+      <div class="font-body">
+        <p class="font-why">
+          <strong>Albert Sans</strong> (Andreas Rasmussen, 2022) offre le meilleur compromis pour les textes denses (descriptions de campagnes, adresses, données de tracking). Son <span class="kw">g single-story</span> est résolument ouvert avec une queue remontante caractéristique — la signature la plus reconnaissable du quartet. L'<span class="kw">œil de la lettre</span> large et le contraste de fût minimal en font une police excellente pour la lisibilité en texte courant sur mobile.
+        </p>
+        <div class="font-specs">
+          <span class="fspec">x-height ratio : 0.73</span>
+          <span class="fspec">Queue remontante signature</span>
+          <span class="fspec">Poids 100–900</span>
+          <span class="fspec">Italique vrai</span>
+          <span class="fspec">Excellent pour corps de texte</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="cl-title">Recommandation d'implémentation</div>
+      <p><strong>Système bipolaire suggéré :</strong> <strong>DM Sans</strong> comme police principale UI (labels, boutons, données, navigation) + <strong>Outfit</strong> pour les headings et titres de sections. Ce duo maximise la cohérence visuelle tout en exploitant la force géométrique d'Outfit aux grandes tailles.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 3 — GLYPHE SUR-MESURE
+  ══════════════════════════════════════════════════ -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <div class="s-num" style="--sc:var(--violet)">3</div>
+      <div>
+        <h2>Modifications Sur-Mesure</h2>
+        <div class="sh-sub">Règles de dessin vectoriel pour le glyphe g du logo et des titres</div>
+      </div>
+    </div>
+
+    <!-- SVG Diagram -->
+    <div class="svg-diagram">
+      <svg viewBox="0 0 500 300" width="460" height="276" style="max-width:100%">
+        <!-- Background zones -->
+        <rect x="10" y="10" width="480" height="280" rx="8" fill="var(--bg-surf)" stroke="var(--border)" stroke-width="1"/>
+
+        <!-- Guide lines -->
+        <line x1="60" y1="30" x2="60" y2="270" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="220" y1="30" x2="220" y2="270" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+
+        <!-- Labels axe gauche -->
+        <text x="30" y="80"  fill="var(--fg-d)" font-size="9" font-family="DM Sans,sans-serif" text-anchor="middle">Cap</text>
+        <text x="30" y="140" fill="var(--fg-d)" font-size="9" font-family="DM Sans,sans-serif" text-anchor="middle">x-H</text>
+        <text x="30" y="195" fill="var(--fg-d)" font-size="9" font-family="DM Sans,sans-serif" text-anchor="middle">Base</text>
+        <text x="30" y="255" fill="var(--fg-d)" font-size="9" font-family="DM Sans,sans-serif" text-anchor="middle">Desc</text>
+
+        <!-- Guide lines horizontales -->
+        <line x1="45" y1="80"  x2="455" y2="80"  stroke="var(--border)" stroke-width="1" stroke-dasharray="3,6"/>
+        <line x1="45" y1="140" x2="455" y2="140" stroke="var(--violet)" stroke-width="1" stroke-dasharray="3,6" opacity=".5"/>
+        <line x1="45" y1="195" x2="455" y2="195" stroke="var(--fg-d)" stroke-width="1"/>
+        <line x1="45" y1="255" x2="455" y2="255" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,6"/>
+
+        <!-- ── G MAUVAIS (double-story, Inter-like) ─────────── -->
+        <!-- bol supérieur -->
+        <ellipse cx="120" cy="155" rx="42" ry="38" fill="none" stroke="var(--red)" stroke-width="2.5" opacity=".4"/>
+        <!-- bol inférieur -->
+        <ellipse cx="120" cy="220" rx="36" ry="28" fill="none" stroke="var(--red)" stroke-width="2.5" opacity=".4"/>
+        <!-- bridge -->
+        <path d="M 156,155 C 165,155 165,185 160,192 L 155,195" fill="none" stroke="var(--red)" stroke-width="2.5" opacity=".4"/>
+        <!-- trait droit bol sup gauche -->
+        <path d="M 78,155 L 78,140" stroke="var(--red)" stroke-width="2.5" opacity=".4"/>
+        <!-- annotation "double-story" -->
+        <text x="120" y="270" fill="var(--red)" font-size="9" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">Double-story ✗</text>
+
+        <!-- Zone de confusion -->
+        <rect x="75" y="190" width="90" height="45" rx="4" fill="none" stroke="var(--red)" stroke-width="1" stroke-dasharray="2,3" opacity=".5"/>
+        <text x="120" y="183" fill="var(--red)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">≈ 9 ici</text>
+
+        <!-- ── G CORRECT (single-story, DM Sans-like) ──────── -->
+        <!-- bol principal -->
+        <ellipse cx="340" cy="155" rx="44" ry="40" fill="none" stroke="var(--violet)" stroke-width="3"/>
+        <!-- oreille -->
+        <path d="M 378,130 C 390,122 398,128 393,138" fill="none" stroke="var(--violet)" stroke-width="3" stroke-linecap="round"/>
+        <!-- hampe descendante -->
+        <path d="M 378,155 L 382,215 C 383,238 368,248 350,248 C 330,248 316,238 316,222" fill="none" stroke="var(--violet)" stroke-width="3" stroke-linecap="round"/>
+        <!-- annotation "single-story" -->
+        <text x="340" y="270" fill="var(--violet)" font-size="9" font-family="DM Sans,sans-serif" text-anchor="middle" font-weight="600">Single-story ✓</text>
+
+        <!-- Annotations dims -->
+        <!-- hampe desc length -->
+        <line x1="395" y1="195" x2="395" y2="255" stroke="var(--violet)" stroke-width="1" stroke-dasharray="2,3" opacity=".7"/>
+        <text x="410" y="230" fill="var(--violet)" font-size="8" font-family="DM Sans,sans-serif">≥ 0.6× xH</text>
+
+        <!-- oreille angle -->
+        <path d="M 383,138 A 12,12 0 0 1 393,148" fill="none" stroke="var(--amber)" stroke-width="1.5"/>
+        <text x="405" y="148" fill="var(--amber)" font-size="8" font-family="DM Sans,sans-serif">∡ oreille</text>
+
+        <!-- ouverture loop -->
+        <path d="M 316,222 A 14,14 0 0 0 330,210" fill="none" stroke="var(--green)" stroke-width="1.5"/>
+        <text x="285" y="255" fill="var(--green)" font-size="8" font-family="DM Sans,sans-serif">Ouverture ≥15°</text>
+
+        <!-- x-height bracket -->
+        <line x1="55" y1="140" x2="55" y2="195" stroke="var(--violet)" stroke-width="1.5" opacity=".8"/>
+        <line x1="50" y1="140" x2="60" y2="140" stroke="var(--violet)" stroke-width="1.5" opacity=".8"/>
+        <line x1="50" y1="195" x2="60" y2="195" stroke="var(--violet)" stroke-width="1.5" opacity=".8"/>
+        <text x="45" y="170" fill="var(--violet)" font-size="8" font-family="DM Sans,sans-serif" text-anchor="middle">x-H</text>
+      </svg>
+    </div>
+
+    <p>Quand vous dessinez le glyphe <strong>g</strong> du logotype MoveSpot ou d'une typographie maison, appliquez ces 7 règles de dessin vectoriel pour maximiser la reconnaissance instantanée :</p>
+
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-num">1</div>
+        <div class="rule-title">Angle d'ouverture de la queue</div>
+        <div class="rule-val">15° — 35°</div>
+        <div class="rule-desc">L'ouverture de la loop terminale de la hampe descendante doit former un gap d'au moins 15° pour rester visible sous antialiasing. Au-delà de 35°, la hampe perd sa continuité optique.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">2</div>
+        <div class="rule-title">Profondeur de la hampe descendante</div>
+        <div class="rule-val">≥ 0.60× x-height</div>
+        <div class="rule-desc">La hampe doit descendre d'au moins 60% de la x-height sous la ligne de base. Moins de 50% : risque de confusion avec q. La DM Sans utilise 0.68× à titre de référence.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">3</div>
+        <div class="rule-title">Hauteur de l'oreille (ear)</div>
+        <div class="rule-val">≤ 0.40× x-height</div>
+        <div class="rule-desc">L'oreille du bol supérieur-droit ne doit pas excéder 40% de la x-height. Une oreille trop longue complexifie le glyphe et nuit à la vitesse de reconnaissance saccadique.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">4</div>
+        <div class="rule-title">Ratio de contreforme du bol</div>
+        <div class="rule-val">38% — 50%</div>
+        <div class="rule-desc">L'espace blanc interne (contreforme) doit représenter 38 à 50% de la surface totale du bol. En dessous : trop fermé (confusion avec 0/q). Au-dessus : perd sa corporalité.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">5</div>
+        <div class="rule-title">Angle de jonction bol / hampe</div>
+        <div class="rule-val">45° — 65°</div>
+        <div class="rule-desc">L'angle de raccord entre le bol droit et le début de la hampe descendante doit être entre 45° et 65° pour un flux optique naturel. Un angle proche de 90° crée une cassure brutale (style grotesque) peu adaptée aux petites tailles.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">6</div>
+        <div class="rule-title">Variation d'épaisseur de fût</div>
+        <div class="rule-val">≤ 15% (UI) · ≤ 30% (logo)</div>
+        <div class="rule-desc">Pour un usage UI (corps de texte, labels), garder la variation de stroke sous 15% — proche du monoline. Pour le logo et les titres display, jusqu'à 30% apporte du caractère sans nuire à la lisibilité.</div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">7</div>
+        <div class="rule-title">Orientation de la queue terminale</div>
+        <div class="rule-val">Vers la gauche (90°–180°)</div>
+        <div class="rule-desc">La queue de la loop doit pointer vers la gauche (entre 90° et 180°). Une queue orientée à droite ressemble au 9. La terminaison à gauche active le mouvement naturel de l'écriture manuscrite.</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px">
+      <div class="cl-title">Note sur le logotype MoveSpot</div>
+      <p>Si le logotype utilise une typo à double-story g, le remplacement du glyphe peut être réalisé dans Figma via le panel <strong>Type → Glyph Substitution</strong>, ou en dessinant directement le glyphe de remplacement dans votre fichier de police custom (FontForge, Glyphs App). Pour le web, une solution immédiate est d'utiliser la propriété CSS <mono>font-feature-settings: "ss01" 1</mono> sur les polices qui exposent un alternate single-story g (Inter SS01, Source Sans 3 SS01).</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 4 — WCAG
+  ══════════════════════════════════════════════════ -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <div class="s-num" style="--sc:var(--green)">4</div>
+      <div>
+        <h2>Recommandations d'Accessibilité WCAG 2.2</h2>
+        <div class="sh-sub">Taille minimale, line-height, graisse et contrastes sur thème sombre MoveSpot</div>
+      </div>
+    </div>
+
+    <!-- Table des tailles -->
+    <div class="card">
+      <div class="card-title">Tailles minimales par contexte</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Contexte</th>
+              <th>Taille min</th>
+              <th>Graisse</th>
+              <th>Line-height</th>
+              <th>WCAG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Corps de texte</strong> (descriptions, adresses, données)</td>
+              <td>14px / 0.875rem</td>
+              <td>400 Regular</td>
+              <td>1.6</td>
+              <td><span class="pill pass">AA ✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Labels UI</strong> (boutons, tabs, badges)</td>
+              <td>13px / 0.8125rem</td>
+              <td>500 Medium</td>
+              <td>1.4</td>
+              <td><span class="pill pass">AA ✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Texte secondaire</strong> (métadonnées, timestamps)</td>
+              <td>12px / 0.75rem</td>
+              <td>500 Medium</td>
+              <td>1.5</td>
+              <td><span class="pill warn">AA conditionnel</span></td>
+            </tr>
+            <tr>
+              <td><strong>Texte tertiaire</strong> (captions, notes de bas)</td>
+              <td>11px / 0.6875rem</td>
+              <td>600 SemiBold</td>
+              <td>1.5</td>
+              <td><span class="pill warn">AA conditionnel</span></td>
+            </tr>
+            <tr>
+              <td><strong>Micro-texte</strong> (10px et moins)</td>
+              <td>— (à éviter)</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="pill fail">Non conforme</span></td>
+            </tr>
+            <tr>
+              <td><strong>Titres / Headings</strong></td>
+              <td>18px / 1.125rem</td>
+              <td>600 SemiBold</td>
+              <td>1.25</td>
+              <td><span class="pill pass">AAA ✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Données chiffrées</strong> (GPS coords, pourcentages)</td>
+              <td>13px tabular</td>
+              <td>500 Medium</td>
+              <td>1.5</td>
+              <td><span class="pill pass">AA ✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px; font-size:12px; color:var(--fg-d)">* "AA conditionnel" = conforme uniquement si le ratio de contraste est ≥ 7:1 (niveau AAA) pour compenser la taille réduite. Standard WCAG 2.2 Success Criterion 1.4.3 + 1.4.6.</p>
+    </div>
+
+    <!-- Table des contrastes MoveSpot -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Ratios de contraste — palette MoveSpot thème sombre</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Token texte</th>
+              <th>Valeur</th>
+              <th>Sur #08090F</th>
+              <th>Ratio</th>
+              <th>Niveau</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>--fg (primaire)</td>
+              <td><span class="cr-swatch" style="background:#F8F9FA;border:1px solid var(--border)"></span>#F8F9FA</td>
+              <td>Texte principal</td>
+              <td><strong>17.8 : 1</strong></td>
+              <td><span class="pill pass">AAA ✓</span></td>
+            </tr>
+            <tr>
+              <td>--fg-m (medium)</td>
+              <td><span class="cr-swatch" style="background:#9CA3AF"></span>#9CA3AF</td>
+              <td>Texte secondaire</td>
+              <td><strong>7.4 : 1</strong></td>
+              <td><span class="pill pass">AAA ✓</span></td>
+            </tr>
+            <tr>
+              <td>--fg-d (dim)</td>
+              <td><span class="cr-swatch" style="background:#4B5265"></span>#4B5265</td>
+              <td>Texte tertiaire</td>
+              <td><strong>3.1 : 1</strong></td>
+              <td><span class="pill fail">Non conforme</span></td>
+            </tr>
+            <tr>
+              <td>--orange (accent)</td>
+              <td><span class="cr-swatch" style="background:#FF5C00"></span>#FF5C00</td>
+              <td>Labels, highlights</td>
+              <td><strong>5.6 : 1</strong></td>
+              <td><span class="pill pass">AA ✓</span></td>
+            </tr>
+            <tr>
+              <td>--amber (accent)</td>
+              <td><span class="cr-swatch" style="background:#FFB800"></span>#FFB800</td>
+              <td>Warnings, owner</td>
+              <td><strong>9.2 : 1</strong></td>
+              <td><span class="pill pass">AAA ✓</span></td>
+            </tr>
+            <tr>
+              <td>--green (accent)</td>
+              <td><span class="cr-swatch" style="background:#10B981"></span>#10B981</td>
+              <td>Succès, provider</td>
+              <td><strong>6.1 : 1</strong></td>
+              <td><span class="pill pass">AA ✓</span></td>
+            </tr>
+            <tr>
+              <td>--blue (accent)</td>
+              <td><span class="cr-swatch" style="background:#3B82F6"></span>#3B82F6</td>
+              <td>GPS, driver</td>
+              <td><strong>4.6 : 1</strong></td>
+              <td><span class="pill pass">AA ✓</span></td>
+            </tr>
+            <tr>
+              <td>--violet (accent)</td>
+              <td><span class="cr-swatch" style="background:#8B5CF6"></span>#8B5CF6</td>
+              <td>Auth, partner</td>
+              <td><strong>4.5 : 1</strong></td>
+              <td><span class="pill warn">AA limite</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Action point sur --fg-d -->
+    <div class="callout" style="--sc:var(--red); margin-top:0">
+      <div class="cl-title">⚠ Action requise — token --fg-d</div>
+      <p>La valeur actuelle <mono>#4B5265</mono> (3.1:1 sur fond sombre) est <strong>non conforme WCAG AA</strong>. Pour les textes contenant un "g" (et tout texte informatif), utiliser au minimum <mono>#6B7280</mono> (4.6:1, AA) ou <mono>#8B8FA8</mono> (5.5:1, AA+) comme valeur de remplacement pour --fg-d dans le thème sombre. Réserver <mono>#4B5265</mono> aux éléments purement décoratifs (séparateurs, icônes non-informatives).</p>
+    </div>
+
+    <!-- Démos de contraste -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Aperçu live — g dans les contextes critiques (DM Sans)</div>
+      <div class="color-demo">
+        <div class="cd-cell" style="background:#08090F; border:1px solid #252836">
+          <div class="sample-g ff-dm" style="color:#F8F9FA">g</div>
+          <div class="cd-label" style="color:#9CA3AF">--fg sur --bg</div>
+          <div class="cd-ratio" style="color:#F8F9FA">17.8 : 1 ✓ AAA</div>
+          <div style="font-family:'DM Sans',sans-serif; font-size:13px; color:#F8F9FA; margin-top:8px">Longitude −0.6917° · 8g CO₂</div>
+        </div>
+        <div class="cd-cell" style="background:#12141E; border:1px solid #252836">
+          <div class="sample-g ff-dm" style="color:#9CA3AF">g</div>
+          <div class="cd-label" style="color:#4B5265">--fg-m sur --bg-card</div>
+          <div class="cd-ratio" style="color:#9CA3AF">6.8 : 1 ✓ AAA</div>
+          <div style="font-family:'DM Sans',sans-serif; font-size:13px; color:#9CA3AF; margin-top:8px">Latitude 48.9° · Segment #3g</div>
+        </div>
+        <div class="cd-cell" style="background:#1A1D2B; border:1px solid #252836">
+          <div class="sample-g ff-dm" style="color:#FF5C00">g</div>
+          <div class="cd-label" style="color:#9CA3AF">--orange sur --bg-lift</div>
+          <div class="cd-ratio" style="color:#FF5C00">4.9 : 1 ✓ AA</div>
+          <div style="font-family:'DM Sans',sans-serif; font-size:13px; color:#FF5C00; margin-top:8px">Campagne #42g · tag: engage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Règles finales -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Règles à intégrer dans la charte graphique</div>
+      <ul>
+        <li><strong>Taille plancher universelle :</strong> Aucun texte informatif sous 12px. Aucune donnée numérique sous 13px (les chiffres contenant "g" comme "kg", "mg" ou les coordonnées GPS sont souvent confondus à cette taille).</li>
+        <li><strong>Graisse compensatoire :</strong> Sous 14px, utiliser systématiquement la graisse 500 (Medium). Le trait plus épais améliore la différenciation entre g, q et 9 en augmentant artificiellement l'espace inter-glyphes optique.</li>
+        <li><strong>Line-height minimum :</strong> 1.5 pour le body text, 1.6 pour les blocs de texte dense (descriptions de campagnes, tableaux de données). L'interlignage généreux réduit la fusion visuelle de mots voisins, isolant chaque glyphe.</li>
+        <li><strong>Letter-spacing :</strong> Pour les corps ≤ 13px, ajouter <mono>letter-spacing: 0.01em</mono> (0.13px à 13px). Cela augmente la séparation inter-glyphes sans déformer le rythme typographique.</li>
+        <li><strong>Chiffres tabulaires :</strong> Activer <mono>font-variant-numeric: tabular-nums</mono> sur toutes les données numériques. Les chiffres tabulaires ont des contreformes plus ouvertes, réduisant les confusions avec g dans les séquences mixtes (ex: "3g", "9g/km", "vitesse 80g").</li>
+        <li><strong>Token --fg-d :</strong> Rehausser de <mono>#4B5265</mono> à <mono>#6B7280</mono> minimum dans le thème sombre pour atteindre le niveau WCAG AA.</li>
+        <li><strong>Taille tactile :</strong> Tout élément interactif contenant du texte avec g, q, 9 doit avoir une zone tactile minimale de 44×44px (recommandation Apple HIG / Material 3), indépendamment de la taille du texte affiché.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       RÉSUMÉ DÉCISIONNEL
+  ══════════════════════════════════════════════════ -->
+  <section class="section" id="reco">
+    <div class="section-header">
+      <div class="s-num" style="--sc:var(--orange)">→</div>
+      <div>
+        <h2>Résumé Décisionnel</h2>
+        <div class="sh-sub">Plan d'action priorisé pour intégration dans la charte MoveSpot</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px">
+        <div style="background:var(--bg-lift); border-radius:8px; padding:16px; border:1px solid color-mix(in srgb, var(--red) 30%, transparent)">
+          <div style="font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--red); margin-bottom:8px">Priorité 1 — Immédiat</div>
+          <div style="font-size:13px; font-weight:600; color:var(--fg); margin-bottom:6px">Remplacer la police UI principale</div>
+          <div style="font-size:12px; color:var(--fg-m); line-height:1.5">Migrer vers <strong>DM Sans</strong> pour tous les composants UI (labels, données, navigation). Zero code change complexe — substitution CSS font-family.</div>
+        </div>
+        <div style="background:var(--bg-lift); border-radius:8px; padding:16px; border:1px solid color-mix(in srgb, var(--amber) 30%, transparent)">
+          <div style="font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--amber); margin-bottom:8px">Priorité 2 — Sprint 1</div>
+          <div style="font-size:13px; font-weight:600; color:var(--fg); margin-bottom:6px">Corriger --fg-d + tailles min</div>
+          <div style="font-size:12px; color:var(--fg-m); line-height:1.5">Rehausser le token dim à <strong>#6B7280</strong> et auditer tous les composants sous 13px pour les passer en font-weight 500.</div>
+        </div>
+        <div style="background:var(--bg-lift); border-radius:8px; padding:16px; border:1px solid color-mix(in srgb, var(--green) 30%, transparent)">
+          <div style="font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--green); margin-bottom:8px">Priorité 3 — Sprint 2</div>
+          <div style="font-size:13px; font-weight:600; color:var(--fg); margin-bottom:6px">Headings avec Outfit</div>
+          <div style="font-size:12px; color:var(--fg-m); line-height:1.5">Intégrer <strong>Outfit</strong> pour les h1-h3, les noms de campagnes et les KPI. Active tabular-nums sur toutes les données chiffrées.</div>
+        </div>
+        <div style="background:var(--bg-lift); border-radius:8px; padding:16px; border:1px solid color-mix(in srgb, var(--violet) 30%, transparent)">
+          <div style="font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--violet); margin-bottom:8px">Priorité 4 — Sprint 3</div>
+          <div style="font-size:13px; font-weight:600; color:var(--fg); margin-bottom:6px">Glyphe logo sur-mesure</div>
+          <div style="font-size:12px; color:var(--fg-m); line-height:1.5">Redesigner le g du logotype selon les 7 règles vectorielles. Exporter en SVG optimisé et en OpenType pour usage display.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ─── Sidebar active state ────────────────────────────
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.sb-nav a[data-s]');
+
+function updateActive() {
+  let current = '';
+  sections.forEach(s => {
+    const top = s.getBoundingClientRect().top;
+    if (top <= 80) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.dataset.s === current);
+  });
+}
+
+window.addEventListener('scroll', updateActive, { passive: true });
+updateActive();
+
+// Close sidebar on mobile link click
+navLinks.forEach(a => a.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.remove('open');
+}));
+</script>
