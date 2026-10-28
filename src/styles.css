@@ -143,12 +143,13 @@
     letter-spacing: -0.02em;
     font-weight: 700;
     line-height: 1.3;
-    padding-bottom: 0.09em; /* laisse de la place aux jambages Syne (g p q y j ç) */
+    padding-bottom: 0.16em; /* jambages Syne (g p q y j ç) — ç descend 0.27em, leading-tight besoin 0.145em min */
   }
 
   /* Jambages Syne sur tous éléments font-display hors chiffres tabular-nums */
+  /* 0.16em couvre leading-tight (line-height 1.25) où ç dépasse de 0.145em la line-box */
   .font-display:not(.tabular-nums) {
-    padding-bottom: 0.09em;
+    padding-bottom: 0.16em;
   }
 
   code, kbd, samp, pre {
