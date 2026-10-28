@@ -1,0 +1,1222 @@
+<title>MoveSpot Motion System</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ── TOKENS — dark-first MoveSpot ── */
+:root {
+  color-scheme: dark;
+  --bg:       #08090F;
+  --bg-card:  #12141E;
+  --bg-lift:  #1A1D2B;
+  --bg-surf:  #0D0F18;
+  --fg:       #F8F9FA;
+  --fg-m:     #9CA3AF;
+  --fg-d:     #4B5265;
+  --border:   #252836;
+  --orange:   #FF5C00;
+  --amber:    #FFB800;
+  --blue:     #3B82F6;
+  --green:    #10B981;
+  --violet:   #8B5CF6;
+  --slate:    #6B7280;
+  --font-d: "Syne", system-ui, sans-serif;
+  --font-b: "Inter", system-ui, sans-serif;
+  --font-m: "JetBrains Mono", ui-monospace, monospace;
+  --e-expo:   cubic-bezier(0.16,1,0.3,1);
+  --e-spring: cubic-bezier(0.34,1.56,0.64,1);
+  --e-quart:  cubic-bezier(0.25,0.46,0.45,0.94);
+  --e-sine:   cubic-bezier(0.37,0,0.63,1);
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  color-scheme:light;
+  --bg:#F0F1F8;--bg-card:#FFF;--bg-lift:#E5E8F0;--bg-surf:#F8F9FC;
+  --fg:#0E1018;--fg-m:#4B5563;--fg-d:#9CA3AF;--border:#D1D5E0;
+}}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F0F1F8;--bg-card:#FFF;--bg-lift:#E5E8F0;--bg-surf:#F8F9FC;
+  --fg:#0E1018;--fg-m:#4B5563;--fg-d:#9CA3AF;--border:#D1D5E0;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--font-b);
+  font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  display:flex;min-height:100%;
+  padding-left:max(0px,env(safe-area-inset-left,0px));
+  padding-right:max(0px,env(safe-area-inset-right,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:210px;flex-shrink:0;position:sticky;top:0;height:100vh;
+  overflow-y:auto;background:var(--bg-surf);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:0 0 24px;
+}
+.sb-logo{
+  font-family:var(--font-d);font-weight:800;font-size:15px;
+  letter-spacing:-0.03em;padding:20px 18px 16px;
+  border-bottom:1px solid var(--border);margin-bottom:8px;
+  color:var(--orange);
+}
+.sb-logo span{color:var(--fg)}
+.sb-sec{
+  padding:10px 14px 4px;font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--fg-d);
+}
+.sb-item{
+  display:flex;align-items:center;gap:9px;padding:7px 14px;
+  font-size:12.5px;font-weight:500;color:var(--fg-m);
+  text-decoration:none;border-left:2px solid transparent;
+  transition:all 180ms var(--e-quart);cursor:pointer;
+}
+.sb-item:hover{color:var(--fg);background:var(--bg-lift)}
+.sb-item.act{
+  color:var(--sc);border-left-color:var(--sc);
+  background:color-mix(in srgb,var(--sc) 10%,transparent);
+}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--sc);flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;min-width:0}
+.wrap{
+  max-width:860px;
+  padding-left:max(24px,env(safe-area-inset-left,24px));
+  padding-right:max(24px,env(safe-area-inset-right,24px));
+  padding-block:40px 80px;
+}
+
+/* TYPOGRAPHY */
+h1{font-family:var(--font-d);font-weight:800;font-size:26px;letter-spacing:-.03em;line-height:1.2}
+h2{font-family:var(--font-d);font-weight:700;font-size:18px;letter-spacing:-.02em;line-height:1.3;text-wrap:balance}
+h3{font-family:var(--font-d);font-weight:600;font-size:13.5px;letter-spacing:-.01em}
+code{font-family:var(--font-m);font-size:11.5px}
+
+/* PAGE HEADER */
+.ph{margin-bottom:44px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.ph h1{margin-bottom:8px}
+.ph p{color:var(--fg-m);max-width:560px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.tag{
+  font-size:10.5px;font-weight:600;font-family:var(--font-m);
+  padding:3px 8px;border-radius:4px;
+  background:var(--bg-lift);color:var(--fg-m);border:1px solid var(--border);
+}
+
+/* FOUNDATION */
+.found{margin-bottom:52px}
+.found h2{margin-bottom:16px}
+.found h3{margin:20px 0 10px;color:var(--fg-m);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+
+.ease-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.ease-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:9px;
+  padding:14px;cursor:pointer;
+}
+.ease-card:hover .e-ball{animation:easePop .5s var(--ecurve) forwards}
+.e-name{font-family:var(--font-m);font-size:10.5px;color:var(--orange);margin-bottom:2px}
+.e-bz{font-family:var(--font-m);font-size:9.5px;color:var(--fg-d);margin-bottom:10px}
+.e-track{height:3px;background:var(--border);border-radius:2px;position:relative;margin-bottom:6px}
+.e-ball{
+  width:10px;height:10px;border-radius:50%;background:var(--orange);
+  position:absolute;top:-3.5px;left:0;
+}
+.e-use{font-size:10.5px;color:var(--fg-m)}
+
+@keyframes easePop{0%{left:0}100%{left:calc(100% - 10px)}}
+
+.spring-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin-top:0}
+.spring-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;
+}
+.sp-name{font-family:var(--font-m);font-size:12px;font-weight:600;color:var(--fg);margin-bottom:6px}
+.sp-p{font-family:var(--font-m);font-size:10px;color:var(--fg-m);line-height:1.9}
+.kw{color:#C792EA}.nv{color:#82AAFF}.nm{color:var(--amber)}
+
+.dur-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:0}
+.dur-chip{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:6px;
+  padding:7px 11px;display:flex;align-items:baseline;gap:8px;
+}
+.dc-label{font-family:var(--font-m);font-size:10.5px;color:var(--orange);font-weight:600}
+.dc-ms{font-family:var(--font-m);font-size:10.5px;color:var(--amber);font-variant-numeric:tabular-nums}
+.dc-use{font-size:10.5px;color:var(--fg-d)}
+
+/* MODULE */
+.mod{margin-bottom:60px;scroll-margin-top:20px}
+.mod-hd{margin-bottom:20px}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--font-m);padding:3px 9px;border-radius:20px;
+  background:color-mix(in srgb,var(--sc) 14%,transparent);
+  color:var(--sc);border:1px solid color-mix(in srgb,var(--sc) 28%,transparent);
+  margin-bottom:10px;
+}
+.mod-hd h2{margin-bottom:6px}
+.lead{color:var(--fg-m);font-size:13px;max-width:570px}
+
+.mod-body{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:start}
+
+/* SPEC TABLE */
+.spec-wrap{overflow-x:auto}
+table.spec{
+  width:100%;border-collapse:collapse;font-size:12px;
+  background:var(--bg-card);border:1px solid var(--border);border-radius:9px;overflow:hidden;
+}
+table.spec th{
+  text-align:left;padding:8px 11px;font-weight:600;font-size:10px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--fg-d);
+  background:var(--bg-surf);border-bottom:1px solid var(--border);
+}
+table.spec td{
+  padding:9px 11px;border-bottom:1px solid color-mix(in srgb,var(--border) 55%,transparent);
+  vertical-align:top;line-height:1.5;
+}
+table.spec tr:last-child td{border-bottom:none}
+.an{font-weight:600;color:var(--fg)}
+.ae{font-family:var(--font-m);font-size:10.5px;color:var(--sc)}
+.am{font-family:var(--font-m);font-size:10.5px;color:var(--amber);font-variant-numeric:tabular-nums}
+.ad{color:var(--fg-m);font-size:11.5px}
+
+/* DEMO BOX */
+.demo{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:18px;display:flex;flex-direction:column;gap:14px;min-height:180px;
+}
+.demo-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-d)}
+.replay{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:5px;
+  padding:5px 10px;border-radius:6px;background:var(--bg-lift);
+  color:var(--fg-m);font-size:11px;font-family:var(--font-m);
+  cursor:pointer;border:1px solid var(--border);transition:all 140ms;
+  margin-top:auto;
+}
+.replay:hover{color:var(--fg);background:var(--border)}
+
+/* CODE BLOCK */
+.code-blk{
+  margin-top:16px;background:#070910;
+  border:1px solid var(--border);border-radius:9px;overflow:hidden;
+}
+.code-tabs{display:flex;border-bottom:1px solid var(--border)}
+.ct{
+  padding:8px 14px;font-size:11.5px;font-family:var(--font-m);
+  cursor:pointer;color:var(--fg-d);border-bottom:2px solid transparent;
+  transition:all 140ms;
+}
+.ct.act{color:var(--sc);border-bottom-color:var(--sc)}
+.cc{display:none;padding:14px 16px;font-family:var(--font-m);font-size:11px;line-height:1.75;overflow-x:auto;white-space:pre;color:#A9B7C6}
+.cc.act{display:block}
+.k{color:#CC7832}.s{color:#6A8759}.n{color:#6897BB}.f{color:#FFC66D}.c{color:#808080}.p{color:#9876AA}.t{color:#287BDE}
+
+/* DEMO COMPONENTS */
+
+/* Role cards */
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.rc{
+  background:var(--bg-lift);border:1.5px solid var(--border);
+  border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;
+  transition:transform 380ms cubic-bezier(0.34,1.56,0.64,1),
+             opacity 240ms cubic-bezier(0.25,0.46,0.45,0.94),
+             border-color 240ms,background 240ms,box-shadow 240ms;
+  font-size:10.5px;font-weight:600;color:var(--fg-m);user-select:none;
+}
+.rc .ri{font-size:18px;margin-bottom:3px;display:block;line-height:1}
+.rc.sel{transform:scale(1.07);color:var(--fg);border-color:var(--rc);background:color-mix(in srgb,var(--rc) 11%,var(--bg-card));box-shadow:0 0 0 3px color-mix(in srgb,var(--rc) 22%,transparent)}
+.rc.dim{opacity:.3;transform:scale(0.95)}
+.form-preview{
+  background:var(--bg-lift);border:1px solid var(--border);border-radius:8px;
+  padding:12px;opacity:0;transform:translateY(12px);
+  transition:opacity 360ms var(--e-expo),transform 360ms var(--e-expo);
+}
+.form-preview.show{opacity:1;transform:translateY(0)}
+.fp-row{height:28px;background:var(--border);border-radius:5px;margin-bottom:8px}
+.fp-btn{height:32px;background:var(--sc,var(--orange));border-radius:6px;opacity:.9}
+
+/* KPI bars */
+.kpi-wrap{display:flex;flex-direction:column;gap:8px}
+.kpi-top{display:flex;align-items:baseline;gap:6px}
+.kpi-num{font-family:var(--font-m);font-size:24px;font-weight:700;color:var(--orange);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi-unit{font-size:11px;color:var(--fg-d)}
+.bars-row{display:flex;align-items:flex-end;gap:5px;height:72px}
+.bar{
+  flex:1;border-radius:3px 3px 0 0;transform-origin:bottom;
+  transition:height 600ms var(--e-expo);
+  height:0;
+}
+
+/* GPS map */
+.gps-map{
+  background:var(--bg-lift);border-radius:8px;height:120px;
+  position:relative;overflow:hidden;
+}
+.map-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:20px 20px;opacity:.5;
+}
+.gps-dot{
+  width:11px;height:11px;border-radius:50%;position:absolute;
+  transform:translate(-50%,-50%);z-index:2;
+  transition:left 800ms cubic-bezier(0.25,0.46,0.45,0.94),
+             top  800ms cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.gps-ring{
+  width:11px;height:11px;border-radius:50%;border:2px solid;
+  position:absolute;transform:translate(-50%,-50%);z-index:1;
+}
+.gr-a{animation:ping1 2s linear infinite}
+.gr-b{animation:ping1 2s linear infinite .5s;opacity:.5}
+.dot-r{background:var(--orange)}.ring-r{border-color:var(--orange)}
+.dot-b{background:var(--blue)}.ring-b{border-color:var(--blue)}
+.route-line{
+  position:absolute;bottom:30%;left:28%;width:40%;height:2px;
+  background:linear-gradient(90deg,var(--orange),var(--blue));
+  border-radius:1px;opacity:0;transform-origin:left;transform:scaleX(0);
+  transition:transform 1.2s var(--e-expo) .3s,opacity .2s .3s;
+}
+.route-line.show{opacity:.7;transform:scaleX(1)}
+@keyframes ping1{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(4);opacity:0}}
+
+/* Stepper */
+.stepper{display:flex;align-items:flex-start;gap:0;position:relative}
+.step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;position:relative}
+.step:not(:last-child)::after{
+  content:'';position:absolute;top:14px;left:calc(50% + 14px);
+  right:calc(-50% + 14px);height:2px;background:var(--border);
+}
+.step:not(:last-child) .step-fill{
+  position:absolute;top:14px;left:calc(50% + 14px);
+  right:calc(-50% + 14px);height:2px;background:var(--green);
+  transform-origin:left;transform:scaleX(0);
+  transition:transform 450ms var(--e-expo);z-index:1;
+}
+.step-fill.done{transform:scaleX(1)}
+.sc{
+  width:28px;height:28px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10.5px;font-weight:700;color:var(--fg-d);background:var(--bg-card);
+  position:relative;z-index:2;
+  transition:all 350ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.sc.done{background:var(--green);border-color:var(--green);color:#fff}
+.sc.act{border-color:var(--green);color:var(--green);box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 18%,transparent)}
+.sl{font-size:9.5px;color:var(--fg-d);text-align:center;margin-top:2px}
+.next-btn{
+  align-self:flex-start;padding:7px 14px;border-radius:7px;
+  background:var(--green);color:#fff;font-size:12px;font-weight:600;
+  border:none;cursor:pointer;transition:transform 200ms var(--e-spring),background 200ms;
+  font-family:var(--font-b);
+}
+.next-btn:hover{transform:scale(1.04)}
+.next-btn:active{transform:scale(.97)}
+.next-btn:disabled{background:var(--border);color:var(--fg-d);cursor:default;transform:none}
+
+/* Gauge */
+.gauge-wrap{display:flex;align-items:center;gap:18px}
+.g-info{flex:1;min-width:0}
+.g-amount{font-family:var(--font-m);font-size:22px;font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.g-unit{font-size:11px;color:var(--fg-m);margin-top:1px}
+.g-label{font-size:11px;color:var(--fg-d);margin-top:4px}
+.status-row{display:flex;gap:8px;margin-top:12px}
+.sbtn{
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--border);background:transparent;
+  color:var(--fg-m);font-family:var(--font-b);
+  transition:all 300ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.sbtn.online{background:var(--green);border-color:var(--green);color:#fff;transform:scale(1.05)}
+
+/* Toggles */
+.tgl-list{display:flex;flex-direction:column;gap:14px}
+.tgl-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tgl-text{flex:1;min-width:0}
+.tgl-name{font-size:13px;font-weight:500;color:var(--fg)}
+.tgl-sub{font-size:11px;color:var(--fg-d);margin-top:1px}
+.tgl{
+  width:40px;height:22px;border-radius:11px;background:var(--border);
+  cursor:pointer;position:relative;flex-shrink:0;
+  transition:background 220ms var(--e-sine);
+}
+.tgl.on{background:var(--green)}
+.tgl-thumb{
+  width:16px;height:16px;border-radius:50%;background:#fff;
+  position:absolute;top:3px;left:3px;
+  box-shadow:0 1px 3px rgba(0,0,0,.35);
+  transition:transform 240ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.tgl.on .tgl-thumb{transform:translateX(18px)}
+
+/* notif badge demo */
+.notif-demo{position:relative;display:inline-flex;align-items:center;gap:10px}
+.notif-icon{
+  width:40px;height:40px;border-radius:10px;background:var(--bg-lift);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;cursor:pointer;
+}
+.notif-badge{
+  position:absolute;top:-5px;right:-5px;width:18px;height:18px;
+  border-radius:50%;background:var(--orange);color:#fff;
+  font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-m);border:2px solid var(--bg-card);
+  transform:scale(0);transition:transform 380ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.notif-badge.show{transform:scale(1)}
+
+/* DIVIDER */
+hr.div{border:none;border-top:1px solid var(--border);margin:48px 0}
+
+/* REDUCED MOTION */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* RESPONSIVE */
+@media(max-width:720px){
+  body{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:wrap;padding:10px;overflow-x:auto}
+  .sb-logo{padding:0;border:none;margin:0;align-self:center}
+  .sb-sec{display:none}
+  .sb-item{padding:5px 9px;white-space:nowrap;border-left:none;border-bottom:2px solid transparent}
+  .sb-item.act{border-left:none;border-bottom-color:var(--sc);background:none}
+  .mod-body{grid-template-columns:1fr}
+  .wrap{padding-inline:max(16px,env(safe-area-inset-left,16px))}
+  .ease-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+
+<!-- ─────────────────────── SIDEBAR ─────────────────────── -->
+<nav class="sidebar" id="sb">
+  <div class="sb-logo">Move<span>Spot</span></div>
+  <div class="sb-sec">Fondations</div>
+  <a class="sb-item" href="#found" style="--sc:var(--orange)"><span class="sb-dot"></span>Tokens & Easing</a>
+  <div class="sb-sec">Modules</div>
+  <a class="sb-item" href="#s1" style="--sc:var(--violet)"><span class="sb-dot"></span>1 · Auth & Profils</a>
+  <a class="sb-item" href="#s2" style="--sc:var(--orange)"><span class="sb-dot"></span>2 · Dashboard Annonceur</a>
+  <a class="sb-item" href="#s3" style="--sc:var(--blue)"><span class="sb-dot"></span>3 · GPS Live Tracking</a>
+  <a class="sb-item" href="#s4" style="--sc:var(--green)"><span class="sb-dot"></span>4 · Tunnel Campagne</a>
+  <a class="sb-item" href="#s5" style="--sc:var(--amber)"><span class="sb-dot"></span>5 · Dashboard Chauffeur</a>
+  <a class="sb-item" href="#s6" style="--sc:var(--slate)"><span class="sb-dot"></span>6 · Profil & Paramètres</a>
+</nav>
+
+<!-- ─────────────────────── MAIN ─────────────────────── -->
+<main class="main">
+<div class="wrap">
+
+<!-- PAGE HEADER -->
+<header class="ph">
+  <h1>Motion Design System</h1>
+  <p>Spécification technique complète — easing, timing, physique du ressort et implémentations Flutter / React Native Reanimated 3 pour chaque écran clé de MoveSpot.</p>
+  <div class="tags">
+    <span class="tag">Spring Physics</span>
+    <span class="tag">Staggered Animations</span>
+    <span class="tag">Lottie / JSON</span>
+    <span class="tag">Flutter AnimationController</span>
+    <span class="tag">RN Reanimated 3</span>
+    <span class="tag">60fps target</span>
+  </div>
+</header>
+
+<!-- ══════════════════════ FOUNDATION ══════════════════════ -->
+<section class="found" id="found">
+  <h2>Fondations du système</h2>
+
+  <h3>Bibliothèque d'easing</h3>
+  <div class="ease-grid">
+    <div class="ease-card" style="--ecurve:cubic-bezier(0.16,1,0.3,1)">
+      <div class="e-name">expo-out</div>
+      <div class="e-bz">cubic-bezier(0.16, 1, 0.3, 1)</div>
+      <div class="e-track"><div class="e-ball"></div></div>
+      <div class="e-use">Navigation, modales, overlays</div>
+    </div>
+    <div class="ease-card" style="--ecurve:cubic-bezier(0.34,1.56,0.64,1)">
+      <div class="e-name">spring-bounce</div>
+      <div class="e-bz">cubic-bezier(0.34, 1.56, 0.64, 1)</div>
+      <div class="e-track"><div class="e-ball" style="background:var(--violet)"></div></div>
+      <div class="e-use">Badges, pins GPS, sélections</div>
+    </div>
+    <div class="ease-card" style="--ecurve:cubic-bezier(0.25,0.46,0.45,0.94)">
+      <div class="e-name">out-quart</div>
+      <div class="e-bz">cubic-bezier(0.25, 0.46, 0.45, 0.94)</div>
+      <div class="e-track"><div class="e-ball" style="background:var(--blue)"></div></div>
+      <div class="e-use">Cards, listes, stagger</div>
+    </div>
+    <div class="ease-card" style="--ecurve:cubic-bezier(0.37,0,0.63,1)">
+      <div class="e-name">in-out-sine</div>
+      <div class="e-bz">cubic-bezier(0.37, 0, 0.63, 1)</div>
+      <div class="e-track"><div class="e-ball" style="background:var(--green)"></div></div>
+      <div class="e-use">Toggles, tabs, switches</div>
+    </div>
+  </div>
+
+  <h3>Presets Spring (Reanimated 3 / Flutter)</h3>
+  <div class="spring-grid">
+    <div class="spring-card">
+      <div class="sp-name">responsive</div>
+      <div class="sp-p"><span class="kw">damping</span>: <span class="nm">18</span>
+<span class="kw">stiffness</span>: <span class="nm">200</span>
+<span class="kw">mass</span>: <span class="nm">1.0</span></div>
+    </div>
+    <div class="spring-card">
+      <div class="sp-name">bouncy</div>
+      <div class="sp-p"><span class="kw">damping</span>: <span class="nm">12</span>
+<span class="kw">stiffness</span>: <span class="nm">150</span>
+<span class="kw">mass</span>: <span class="nm">0.8</span></div>
+    </div>
+    <div class="spring-card">
+      <div class="sp-name">stiff</div>
+      <div class="sp-p"><span class="kw">damping</span>: <span class="nm">30</span>
+<span class="kw">stiffness</span>: <span class="nm">400</span>
+<span class="kw">mass</span>: <span class="nm">1.0</span></div>
+    </div>
+    <div class="spring-card">
+      <div class="sp-name">gentle</div>
+      <div class="sp-p"><span class="kw">damping</span>: <span class="nm">25</span>
+<span class="kw">stiffness</span>: <span class="nm">100</span>
+<span class="kw">mass</span>: <span class="nm">1.2</span></div>
+    </div>
+  </div>
+
+  <h3>Échelle de durée</h3>
+  <div class="dur-row">
+    <div class="dur-chip"><span class="dc-label">nano</span><span class="dc-ms">100ms</span><span class="dc-use">Hover, focus ring</span></div>
+    <div class="dur-chip"><span class="dc-label">micro</span><span class="dc-ms">200ms</span><span class="dc-use">Toggles, icons</span></div>
+    <div class="dur-chip"><span class="dc-label">short</span><span class="dc-ms">300ms</span><span class="dc-use">Cards, chips</span></div>
+    <div class="dur-chip"><span class="dc-label">medium</span><span class="dc-ms">400ms</span><span class="dc-use">Page slide, modals</span></div>
+    <div class="dur-chip"><span class="dc-label">long</span><span class="dc-ms">550ms</span><span class="dc-use">Écrans complexes</span></div>
+    <div class="dur-chip"><span class="dc-label">xl</span><span class="dc-ms">800ms+</span><span class="dc-use">Onboarding, KPIs</span></div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ══════════════════════ S1 — AUTH & PROFILS ══════════════════════ -->
+<section class="mod" id="s1" style="--sc:var(--violet)">
+  <div class="mod-hd">
+    <div class="badge">01 · Auth</div>
+    <h2>Connexion / Inscription & Sélection du Profil</h2>
+    <p class="lead">Transition accueil → formulaire, sélection des 6 rôles avec spring-bounce et morphing couleur par identité.</p>
+  </div>
+  <div class="mod-body">
+    <div class="spec-wrap">
+      <table class="spec">
+        <tr><th>Animation</th><th>Easing</th><th>ms</th><th>Note</th></tr>
+        <tr><td class="an">Accueil → Form</td><td class="ae">expo-out</td><td class="am">450</td><td class="ad">translateY +64px→0 + opacity. Shared axis Z.</td></tr>
+        <tr><td class="an">Sélection profil (scale)</td><td class="ae">spring-bounce</td><td class="am">400</td><td class="ad">scale 1→1.07, border glow role color</td></tr>
+        <tr><td class="an">Dimming autres cartes</td><td class="ae">out-quart</td><td class="am">250</td><td class="ad">opacity 1→0.3, scale 1→0.95</td></tr>
+        <tr><td class="an">Form slide-in</td><td class="ae">expo-out</td><td class="am">380</td><td class="ad">translateY 16px→0, stagger champs 60ms</td></tr>
+        <tr><td class="an">Focus input</td><td class="ae">in-out-sine</td><td class="am">200</td><td class="ad">Border glow expand, label float</td></tr>
+        <tr><td class="an">Submit tap</td><td class="ae">spring-stiff</td><td class="am">180</td><td class="ad">scale 1→0.96→1, haptic impact</td></tr>
+        <tr><td class="an">Erreur shake</td><td class="ae">linear</td><td class="am">400</td><td class="ad">translateX ±6px × 3 oscillations</td></tr>
+      </table>
+    </div>
+    <div class="demo">
+      <div class="demo-lbl">Démo — Sélection du profil</div>
+      <div class="role-grid" id="rgrid">
+        <div class="rc" data-rc="#FF5C00" onclick="selRole(this)"><span class="ri">An</span>Annonceur</div>
+        <div class="rc" data-rc="#3B82F6" onclick="selRole(this)"><span class="ri">Ch</span>Chauffeur</div>
+        <div class="rc" data-rc="#FFB800" onclick="selRole(this)"><span class="ri">Pr</span>Propriétaire</div>
+        <div class="rc" data-rc="#10B981" onclick="selRole(this)"><span class="ri">Ps</span>Prestataire</div>
+        <div class="rc" data-rc="#8B5CF6" onclick="selRole(this)"><span class="ri">Pa</span>Partenaire</div>
+        <div class="rc" data-rc="#EC4899" onclick="selRole(this)"><span class="ri">Ad</span>Admin</div>
+      </div>
+      <div id="fp" class="form-preview">
+        <div class="fp-row" style="width:60%;margin-bottom:8px"></div>
+        <div class="fp-row"></div>
+        <div class="fp-row" style="width:80%"></div>
+        <div class="fp-btn" id="fp-btn"></div>
+      </div>
+    </div>
+  </div>
+  <div class="code-blk">
+    <div class="code-tabs">
+      <div class="ct act" onclick="switchTab(this,'c1a')">Flutter</div>
+      <div class="ct" onclick="switchTab(this,'c1b')">RN Reanimated 3</div>
+    </div>
+    <div class="cc act" id="c1a"><span class="c">// Spring selection — bouncy preset</span>
+<span class="k">final</span> spring = <span class="t">SpringDescription</span>(mass: <span class="n">0.8</span>, stiffness: <span class="n">150</span>, damping: <span class="n">12</span>);
+<span class="k">late final</span> AnimationController _ctrl;
+<span class="k">late final</span> Animation&lt;<span class="t">double</span>&gt; _scale;
+
+<span class="k">void</span> <span class="f">_onSelect</span>() {
+  _ctrl.<span class="f">animateWith</span>(<span class="t">SpringSimulation</span>(spring, <span class="n">0</span>, <span class="n">1</span>, <span class="n">0</span>));
+}
+
+<span class="k">return</span> <span class="t">AnimatedBuilder</span>(
+  animation: _scale,
+  builder: (ctx, child) => <span class="t">Transform.scale</span>(
+    scale: <span class="t">Tween</span>(begin: <span class="n">1.0</span>, end: <span class="n">1.07</span>)
+      .<span class="f">animate</span>(_ctrl).value,
+    child: child,
+  ),
+);</div>
+    <div class="cc" id="c1b"><span class="c">// RN Reanimated 3 — spring-bounce preset</span>
+<span class="k">import</span> { <span class="t">withSpring</span>, <span class="t">withTiming</span> } <span class="k">from</span> <span class="s">'react-native-reanimated'</span>;
+
+<span class="k">const</span> scale = useSharedValue(<span class="n">1</span>);
+<span class="k">const</span> opacity = useSharedValue(<span class="n">1</span>);
+
+<span class="k">const</span> <span class="f">selectProfile</span> = (id) => {
+  scale.value = <span class="t">withSpring</span>(<span class="n">1.07</span>, {
+    damping: <span class="n">12</span>, stiffness: <span class="n">150</span>, mass: <span class="n">0.8</span>,
+  });
+  <span class="c">// Dim others</span>
+  otherScale.value = <span class="t">withTiming</span>(<span class="n">0.95</span>, { duration: <span class="n">250</span> });
+  otherOpacity.value = <span class="t">withTiming</span>(<span class="n">0.3</span>, { duration: <span class="n">250</span> });
+  <span class="c">// Slide form in (stagger 60ms per field)</span>
+  formOpacity.value = <span class="t">withTiming</span>(<span class="n">1</span>, { duration: <span class="n">380</span> });
+  formY.value = <span class="t">withTiming</span>(<span class="n">0</span>, {
+    duration: <span class="n">380</span>,
+    easing: <span class="t">Easing</span>.bezier(<span class="n">0.16</span>,<span class="n">1</span>,<span class="n">0.3</span>,<span class="n">1</span>),
+  });
+};</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ══════════════════════ S2 — DASHBOARD ANNONCEUR ══════════════════════ -->
+<section class="mod" id="s2" style="--sc:var(--orange)">
+  <div class="mod-hd">
+    <div class="badge">02 · Dashboard</div>
+    <h2>Tableau de Bord Annonceur</h2>
+    <p class="lead">Build-up des KPIs au chargement, stagger cards, switch Liste ↔ Carte GPS avec crossfade et scale.</p>
+  </div>
+  <div class="mod-body">
+    <div class="spec-wrap">
+      <table class="spec">
+        <tr><th>Animation</th><th>Easing</th><th>ms</th><th>Note</th></tr>
+        <tr><td class="an">Bar chart build-up</td><td class="ae">expo-out</td><td class="am">600</td><td class="ad">height 0→target, stagger 80ms entre barres</td></tr>
+        <tr><td class="an">KPI counter</td><td class="ae">ease-out-cubic</td><td class="am">1 200</td><td class="ad">requestAnimationFrame, interpolation linéaire</td></tr>
+        <tr><td class="an">Card stagger</td><td class="ae">out-quart</td><td class="am">350</td><td class="ad">translateY 20→0, opacity, stagger 60ms</td></tr>
+        <tr><td class="an">Tab switch (Liste↔Carte)</td><td class="ae">in-out-sine</td><td class="am">280</td><td class="ad">Crossfade opacity + scale 0.97→1</td></tr>
+        <tr><td class="an">Carte GPS reveal</td><td class="ae">expo-out</td><td class="am">500</td><td class="ad">scale 0.94→1, blur 6px→0</td></tr>
+        <tr><td class="an">Refresh pull</td><td class="ae">spring-gentle</td><td class="am">—</td><td class="ad">Rubber-band: damping 25, stiffness 100</td></tr>
+      </table>
+    </div>
+    <div class="demo">
+      <div class="demo-lbl">Démo — KPI Build-up</div>
+      <div class="kpi-wrap">
+        <div class="kpi-top">
+          <div class="kpi-num" id="kpi-num">0</div>
+          <div class="kpi-unit">impressions / sem.</div>
+        </div>
+        <div class="bars-row" id="bars-row">
+          <div class="bar" style="background:var(--orange);opacity:.5" data-h="45"></div>
+          <div class="bar" style="background:var(--orange);opacity:.6" data-h="62"></div>
+          <div class="bar" style="background:var(--orange);opacity:.75" data-h="38"></div>
+          <div class="bar" style="background:var(--orange)" data-h="71"></div>
+          <div class="bar" style="background:var(--orange)" data-h="55"></div>
+          <div class="bar" style="background:var(--orange);opacity:.7" data-h="48"></div>
+          <div class="bar" style="background:var(--orange);opacity:.85" data-h="66"></div>
+        </div>
+      </div>
+      <button class="replay" onclick="runKPI()">▶ Rejouer</button>
+    </div>
+  </div>
+  <div class="code-blk">
+    <div class="code-tabs">
+      <div class="ct act" onclick="switchTab(this,'c2a')">Flutter</div>
+      <div class="ct" onclick="switchTab(this,'c2b')">RN Reanimated 3</div>
+    </div>
+    <div class="cc act" id="c2a"><span class="c">// Staggered bar chart + counter</span>
+<span class="k">class</span> <span class="t">_DashState</span> <span class="k">extends</span> <span class="t">State</span> <span class="k">with</span> <span class="t">TickerProviderStateMixin</span> {
+  <span class="k">late final</span> List&lt;AnimationController&gt; _bars;
+
+  <span class="k">void</span> <span class="f">initState</span>() {
+    <span class="k">super</span>.<span class="f">initState</span>();
+    _bars = List.generate(<span class="n">7</span>, (i) => <span class="t">AnimationController</span>(
+      vsync: <span class="k">this</span>,
+      duration: <span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">600</span>),
+    ));
+    <span class="c">// Stagger 80ms per bar</span>
+    <span class="k">for</span> (<span class="k">var</span> i = <span class="n">0</span>; i < _bars.length; i++) {
+      <span class="t">Future</span>.<span class="f">delayed</span>(<span class="t">Duration</span>(milliseconds: <span class="n">80</span> * i), () {
+        _bars[i].<span class="f">forward</span>();
+      });
+    }
+  }
+  <span class="c">// Tween: height 0 → target, curve: Curves.easeOutExpo</span>
+}</div>
+    <div class="cc" id="c2b"><span class="c">// Staggered bars — RN Reanimated 3</span>
+<span class="k">const</span> targets = [<span class="n">45</span>,<span class="n">62</span>,<span class="n">38</span>,<span class="n">71</span>,<span class="n">55</span>,<span class="n">48</span>,<span class="n">66</span>];
+<span class="k">const</span> heights = targets.<span class="f">map</span>(() => useSharedValue(<span class="n">0</span>));
+
+<span class="f">useEffect</span>(() => {
+  targets.<span class="f">forEach</span>((target, i) => {
+    heights[i].value = <span class="t">withDelay</span>(
+      i * <span class="n">80</span>,
+      <span class="t">withTiming</span>(target, {
+        duration: <span class="n">600</span>,
+        easing: <span class="t">Easing</span>.bezier(<span class="n">0.16</span>,<span class="n">1</span>,<span class="n">0.3</span>,<span class="n">1</span>),
+      })
+    );
+  });
+}, []);
+
+<span class="c">// Counter interpolation</span>
+<span class="k">const</span> progress = useDerivedValue(() =>
+  <span class="t">interpolate</span>(heights[<span class="n">6</span>].value, [<span class="n">0</span>,<span class="n">66</span>], [<span class="n">0</span>,<span class="n">48230</span>])
+);</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ══════════════════════ S3 — GPS LIVE TRACKING ══════════════════════ -->
+<section class="mod" id="s3" style="--sc:var(--blue)">
+  <div class="mod-hd">
+    <div class="badge">03 · GPS Tracking</div>
+    <h2>Carte de Suivi GPS en Temps Réel</h2>
+    <p class="lead">Marqueurs avec physique d'inertie, rings de géolocalisation en ping, trace SVG stroke-dashoffset, bottom sheet avec spring-bounce.</p>
+  </div>
+  <div class="mod-body">
+    <div class="spec-wrap">
+      <table class="spec">
+        <tr><th>Animation</th><th>Easing</th><th>ms</th><th>Note</th></tr>
+        <tr><td class="an">Marker pin-in (initial)</td><td class="ae">spring-bounce</td><td class="am">450</td><td class="ad">scale 0→1, stagger 120ms par véhicule</td></tr>
+        <tr><td class="an">Ping ring expand</td><td class="ae">linear</td><td class="am">2 000</td><td class="ad">scale 1→4, opacity 0.7→0, loop 2.5s</td></tr>
+        <tr><td class="an">Position update (inertie)</td><td class="ae">out-quart</td><td class="am">800</td><td class="ad">Interpolation lat/lng, spring trailing</td></tr>
+        <tr><td class="an">Route trace (SVG)</td><td class="ae">expo-out</td><td class="am">1 500</td><td class="ad">strokeDashoffset total→0</td></tr>
+        <tr><td class="an">Bottom sheet open</td><td class="ae">spring-bounce</td><td class="am">420</td><td class="ad">translateY 100%→0, damping 18</td></tr>
+        <tr><td class="an">Bottom sheet drag</td><td class="ae">spring-gentle</td><td class="am">—</td><td class="ad">Suit le doigt, rubber-band au-delà seuil</td></tr>
+        <tr><td class="an">Backdrop blur</td><td class="ae">out-quart</td><td class="am">300</td><td class="ad">blur 0→8px, opacity 0→0.6</td></tr>
+      </table>
+    </div>
+    <div class="demo">
+      <div class="demo-lbl">Démo — GPS markers & route</div>
+      <div class="gps-map" id="gmap">
+        <div class="map-grid"></div>
+        <div class="route-line" id="gps-route"></div>
+        <div class="gps-ring ring-r gr-a" id="gr1" style="top:50%;left:28%"></div>
+        <div class="gps-ring ring-r gr-b" id="gr1b" style="top:50%;left:28%"></div>
+        <div class="gps-dot dot-r" id="gd1" style="top:50%;left:28%"></div>
+        <div class="gps-ring ring-b gr-a" id="gr2" style="top:35%;left:66%"></div>
+        <div class="gps-ring ring-b gr-b" id="gr2b" style="top:35%;left:66%"></div>
+        <div class="gps-dot dot-b" id="gd2" style="top:35%;left:66%"></div>
+      </div>
+      <button class="replay" onclick="animGPS()">▶ Animer la route</button>
+    </div>
+  </div>
+  <div class="code-blk">
+    <div class="code-tabs">
+      <div class="ct act" onclick="switchTab(this,'c3a')">Flutter</div>
+      <div class="ct" onclick="switchTab(this,'c3b')">RN Reanimated 3</div>
+    </div>
+    <div class="cc act" id="c3a"><span class="c">// Marker inertia + ping rings (Flutter)</span>
+<span class="k">class</span> <span class="t">VehicleMarker</span> <span class="k">extends</span> <span class="t">StatefulWidget</span> {
+  <span class="k">final</span> LatLng position;
+}
+
+<span class="c">// Position update with spring curve</span>
+_latTween = <span class="t">Tween</span>&lt;<span class="t">double</span>&gt;(begin: oldLat, end: newLat)
+  .<span class="f">animate</span>(<span class="t">CurvedAnimation</span>(
+    parent: _moveCtrl,
+    curve: <span class="t">Curves</span>.easeOutQuart, <span class="c">// 800ms</span>
+  ));
+
+<span class="c">// Ping ring: AnimationController 2000ms, repeat()</span>
+<span class="k">final</span> _ring = <span class="t">CurvedAnimation</span>(
+  parent: _pingCtrl,
+  curve: <span class="t">Curves</span>.linear,
+);
+<span class="c">// scale: 1→4, opacity: 0.7→0</span></div>
+    <div class="cc" id="c3b"><span class="c">// GPS marker with trailing + ping rings</span>
+<span class="k">const</span> lat = useSharedValue(initialLat);
+<span class="k">const</span> lng = useSharedValue(initialLng);
+
+<span class="c">// Smooth position update (inertie)</span>
+<span class="k">const</span> <span class="f">updatePosition</span> = (newLat, newLng) => {
+  lat.value = <span class="t">withTiming</span>(newLat, {
+    duration: <span class="n">800</span>,
+    easing: <span class="t">Easing</span>.bezier(<span class="n">0.25</span>,<span class="n">0.46</span>,<span class="n">0.45</span>,<span class="n">0.94</span>),
+  });
+  lng.value = <span class="t">withTiming</span>(newLng, { duration: <span class="n">800</span> });
+};
+
+<span class="c">// Ping ring: loop animation</span>
+<span class="k">const</span> ringScale = useSharedValue(<span class="n">1</span>);
+<span class="k">const</span> ringOpacity = useSharedValue(<span class="n">0.7</span>);
+<span class="f">useEffect</span>(() => {
+  ringScale.value = <span class="t">withRepeat</span>(
+    <span class="t">withTiming</span>(<span class="n">4</span>, { duration: <span class="n">2000</span>, easing: <span class="t">Easing</span>.linear }),
+    <span class="n">-1</span>, <span class="k">false</span>
+  );
+  ringOpacity.value = <span class="t">withRepeat</span>(
+    <span class="t">withTiming</span>(<span class="n">0</span>, { duration: <span class="n">2000</span> }), <span class="n">-1</span>, <span class="k">false</span>
+  );
+}, []);</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ══════════════════════ S4 — TUNNEL CAMPAGNE ══════════════════════ -->
+<section class="mod" id="s4" style="--sc:var(--green)">
+  <div class="mod-hd">
+    <div class="badge">04 · Campagne</div>
+    <h2>Tunnel de Création de Campagne</h2>
+    <p class="lead">Shared axis X entre étapes, progress bar animée, drag-and-drop de la maquette avec feedback de succès stroke-dashoffset.</p>
+  </div>
+  <div class="mod-body">
+    <div class="spec-wrap">
+      <table class="spec">
+        <tr><th>Animation</th><th>Easing</th><th>ms</th><th>Note</th></tr>
+        <tr><td class="an">Slide écran suivant</td><td class="ae">expo-out</td><td class="am">420</td><td class="ad">translateX 100%→0, exit -60% simultané</td></tr>
+        <tr><td class="an">Progress bar fill</td><td class="ae">expo-out</td><td class="am">500</td><td class="ad">width n/4 × 100%, delay 80ms post-slide</td></tr>
+        <tr><td class="an">Step circle → done</td><td class="ae">spring-bounce</td><td class="am">350</td><td class="ad">scale pulse + checkmark stroke-dashoffset</td></tr>
+        <tr><td class="an">Budget slider thumb</td><td class="ae">spring-gentle</td><td class="am">—</td><td class="ad">Damping 25, suit le drag en temps réel</td></tr>
+        <tr><td class="an">Drop zone hover</td><td class="ae">in-out-sine</td><td class="am">200</td><td class="ad">border dashed animated, scale 1→1.02</td></tr>
+        <tr><td class="an">Upload progress</td><td class="ae">linear</td><td class="am">—</td><td class="ad">width 0→100%, couleur orange→green</td></tr>
+        <tr><td class="an">Success checkmark</td><td class="ae">spring-bounce</td><td class="am">600</td><td class="ad">stroke-dashoffset + scale burst 0→1</td></tr>
+      </table>
+    </div>
+    <div class="demo">
+      <div class="demo-lbl">Démo — Stepper campagne</div>
+      <div class="stepper" id="stepper">
+        <div class="step">
+          <div class="step-fill" id="sf0"></div>
+          <div class="sc act" id="sc0">1</div>
+          <div class="sl">Brief</div>
+        </div>
+        <div class="step">
+          <div class="step-fill" id="sf1"></div>
+          <div class="sc" id="sc1">2</div>
+          <div class="sl">Budget</div>
+        </div>
+        <div class="step">
+          <div class="step-fill" id="sf2"></div>
+          <div class="sc" id="sc2">3</div>
+          <div class="sl">Zone</div>
+        </div>
+        <div class="step">
+          <div class="sc" id="sc3">4</div>
+          <div class="sl">Visuels</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="next-btn" id="step-next" onclick="advStep()">Suivant →</button>
+        <button class="replay" onclick="resetStep()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+  <div class="code-blk">
+    <div class="code-tabs">
+      <div class="ct act" onclick="switchTab(this,'c4a')">Flutter</div>
+      <div class="ct" onclick="switchTab(this,'c4b')">RN Reanimated 3</div>
+    </div>
+    <div class="cc act" id="c4a"><span class="c">// Shared axis X page transition (Flutter)</span>
+<span class="t">PageRouteBuilder</span>(
+  transitionDuration: <span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">420</span>),
+  transitionsBuilder: (ctx, anim, sec, child) {
+    <span class="k">final</span> slide = <span class="t">Tween</span>(begin: <span class="k">const</span> <span class="t">Offset</span>(<span class="n">1.0</span>, <span class="n">0</span>), end: <span class="t">Offset</span>.zero)
+      .<span class="f">animate</span>(<span class="t">CurvedAnimation</span>(
+        parent: anim,
+        curve: <span class="k">const</span> <span class="t">Cubic</span>(<span class="n">0.16</span>, <span class="n">1</span>, <span class="n">0.3</span>, <span class="n">1</span>),
+      ));
+    <span class="k">final</span> exit = <span class="t">Tween</span>(begin: <span class="t">Offset</span>.zero, end: <span class="k">const</span> <span class="t">Offset</span>(-<span class="n">0.3</span>, <span class="n">0</span>))
+      .<span class="f">animate</span>(sec);
+    <span class="k">return</span> <span class="t">SlideTransition</span>(position: slide,
+      child: <span class="t">SlideTransition</span>(position: exit, child: child));
+  },
+);
+
+<span class="c">// Progress bar — delayed after slide</span>
+<span class="k">await</span> <span class="t">Future</span>.<span class="f">delayed</span>(<span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">80</span>));
+_progressCtrl.<span class="f">animateTo</span>(step / <span class="n">4.0</span>,
+  duration: <span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">500</span>),
+  curve: <span class="k">const</span> <span class="t">Cubic</span>(<span class="n">0.16</span>, <span class="n">1</span>, <span class="n">0.3</span>, <span class="n">1</span>));</div>
+    <div class="cc" id="c4b"><span class="c">// Campaign stepper — RN Reanimated 3</span>
+<span class="k">const</span> translateX = useSharedValue(<span class="n">400</span>);
+
+<span class="k">const</span> <span class="f">goNext</span> = () => {
+  <span class="c">// Slide new screen in</span>
+  translateX.value = <span class="t">withTiming</span>(<span class="n">0</span>, {
+    duration: <span class="n">420</span>,
+    easing: <span class="t">Easing</span>.bezier(<span class="n">0.16</span>,<span class="n">1</span>,<span class="n">0.3</span>,<span class="n">1</span>),
+  });
+  <span class="c">// Progress bar after 80ms</span>
+  progressWidth.value = <span class="t">withDelay</span>(<span class="n">80</span>,
+    <span class="t">withTiming</span>(stepIndex / <span class="n">4</span>, {
+      duration: <span class="n">500</span>,
+      easing: <span class="t">Easing</span>.bezier(<span class="n">0.16</span>,<span class="n">1</span>,<span class="n">0.3</span>,<span class="n">1</span>),
+    })
+  );
+  <span class="c">// Step circle spring-bounce</span>
+  circleScale.value = <span class="t">withSpring</span>(<span class="n">1</span>, {
+    damping: <span class="n">12</span>, stiffness: <span class="n">150</span>, mass: <span class="n">0.8</span>,
+    from: <span class="n">1.25</span>,
+  });
+};</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ══════════════════════ S5 — DASHBOARD CHAUFFEUR ══════════════════════ -->
+<section class="mod" id="s5" style="--sc:var(--amber)">
+  <div class="mod-hd">
+    <div class="badge">05 · Chauffeur</div>
+    <h2>Dashboard Chauffeur & Propriétaire</h2>
+    <p class="lead">Jauge de gains avec arc SVG animé, compteur d'argent 60fps, burst visuel au passage En ligne / En mission.</p>
+  </div>
+  <div class="mod-body">
+    <div class="spec-wrap">
+      <table class="spec">
+        <tr><th>Animation</th><th>Easing</th><th>ms</th><th>Note</th></tr>
+        <tr><td class="an">Gauge arc fill</td><td class="ae">expo-out</td><td class="am">1 200</td><td class="ad">strokeDashoffset total→(1-pct)×total</td></tr>
+        <tr><td class="an">Earnings counter</td><td class="ae">ease-out-cubic</td><td class="am">1 500</td><td class="ad">rAF interpolation, tabular-nums</td></tr>
+        <tr><td class="an">Status → En mission</td><td class="ae">spring-bounce</td><td class="am">380</td><td class="ad">scale burst 1→1.12→1, color morph green</td></tr>
+        <tr><td class="an">Status → Hors ligne</td><td class="ae">out-quart</td><td class="am">280</td><td class="ad">scale 1→0.95, muted palette</td></tr>
+        <tr><td class="an">Job card appear</td><td class="ae">spring-bounce</td><td class="am">450</td><td class="ad">translateY 40→0, scale 0.9→1</td></tr>
+        <tr><td class="an">Job swipe dismiss</td><td class="ae">spring-stiff</td><td class="am">300</td><td class="ad">translateX ±120%, rotation ±12deg</td></tr>
+        <tr><td class="an">Gains journaliers flash</td><td class="ae">spring-bounce</td><td class="am">400</td><td class="ad">Nouveau gain: scale 1→1.15→1 + amber glow</td></tr>
+      </table>
+    </div>
+    <div class="demo">
+      <div class="demo-lbl">Démo — Jauge de gains</div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" width="90" height="90" viewBox="0 0 90 90">
+          <circle cx="45" cy="45" r="36" fill="none" stroke="var(--border)" stroke-width="7"/>
+          <circle id="garc" cx="45" cy="45" r="36" fill="none"
+            stroke="var(--amber)" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"
+            transform="rotate(-90 45 45)"
+            style="transition:stroke-dashoffset 1200ms cubic-bezier(0.16,1,0.3,1)"/>
+        </svg>
+        <div class="g-info">
+          <div class="g-amount" id="g-amount">0,00 €</div>
+          <div class="g-unit">gains cumulés</div>
+          <div class="g-label">Objectif 2 000 €/mois</div>
+          <div class="status-row">
+            <button class="sbtn" id="sbtn-off" onclick="setStatus('off')">Hors ligne</button>
+            <button class="sbtn online" id="sbtn-on" onclick="setStatus('on')">En mission</button>
+          </div>
+        </div>
+      </div>
+      <button class="replay" onclick="runGauge()">▶ Animer</button>
+    </div>
+  </div>
+  <div class="code-blk">
+    <div class="code-tabs">
+      <div class="ct act" onclick="switchTab(this,'c5a')">Flutter</div>
+      <div class="ct" onclick="switchTab(this,'c5b')">RN Reanimated 3</div>
+    </div>
+    <div class="cc act" id="c5a"><span class="c">// Arc gauge + counter (Flutter)</span>
+<span class="k">late final</span> AnimationController _gaugeCtrl;
+<span class="k">late final</span> Animation&lt;<span class="t">double</span>&gt; _progress;
+
+<span class="k">void</span> <span class="f">initState</span>() {
+  _gaugeCtrl = <span class="t">AnimationController</span>(
+    vsync: <span class="k">this</span>,
+    duration: <span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">1200</span>),
+  );
+  _progress = <span class="t">CurvedAnimation</span>(
+    parent: _gaugeCtrl,
+    curve: <span class="k">const</span> <span class="t">Cubic</span>(<span class="n">0.16</span>, <span class="n">1</span>, <span class="n">0.3</span>, <span class="n">1</span>),
+  );
+}
+
+<span class="c">// Arc paint</span>
+<span class="k">void</span> <span class="f">paint</span>(<span class="t">Canvas</span> c, <span class="t">Size</span> s) {
+  <span class="k">final</span> sweep = _progress.value * (<span class="n">2</span> * pi * <span class="n">0.75</span>); <span class="c">// 270° arc</span>
+  c.<span class="f">drawArc</span>(rect, startAngle, sweep, <span class="k">false</span>, arcPaint);
+}
+
+<span class="c">// Earnings counter via Tween</span>
+<span class="k">final</span> counter = <span class="t">IntTween</span>(begin: <span class="n">0</span>, end: <span class="n">1247</span>)
+  .<span class="f">animate</span>(_progress);</div>
+    <div class="cc" id="c5b"><span class="c">// Gauge + counter — RN Reanimated 3</span>
+<span class="k">const</span> progress = useSharedValue(<span class="n">0</span>);
+<span class="k">const</span> TOTAL_CIRCUMFERENCE = <span class="n">226</span>; <span class="c">// 2π × r (36)</span>
+
+<span class="k">const</span> <span class="f">startGauge</span> = (targetPct) => {
+  progress.value = <span class="t">withTiming</span>(targetPct, {
+    duration: <span class="n">1200</span>,
+    easing: <span class="t">Easing</span>.bezier(<span class="n">0.16</span>,<span class="n">1</span>,<span class="n">0.3</span>,<span class="n">1</span>),
+  });
+};
+
+<span class="k">const</span> dashOffset = useDerivedValue(() =>
+  <span class="t">interpolate</span>(progress.value, [<span class="n">0</span>,<span class="n">1</span>],
+    [TOTAL_CIRCUMFERENCE, TOTAL_CIRCUMFERENCE * (<span class="n">1</span> - targetPct)])
+);
+
+<span class="c">// Counter with same easing</span>
+<span class="k">const</span> earnings = useDerivedValue(() =>
+  <span class="t">interpolate</span>(progress.value, [<span class="n">0</span>,<span class="n">1</span>], [<span class="n">0</span>, <span class="n">1247.50</span>])
+);</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ══════════════════════ S6 — PROFIL & PARAMÈTRES ══════════════════════ -->
+<section class="mod" id="s6" style="--sc:var(--slate)">
+  <div class="mod-hd">
+    <div class="badge">06 · Navigation</div>
+    <h2>Profil, Messagerie & Paramètres</h2>
+    <p class="lead">Bottom nav avec indicator springé, drawer expo-out, toggles spring-bounce, badge de notification burst.</p>
+  </div>
+  <div class="mod-body">
+    <div class="spec-wrap">
+      <table class="spec">
+        <tr><th>Animation</th><th>Easing</th><th>ms</th><th>Note</th></tr>
+        <tr><td class="an">Bottom nav tab switch</td><td class="ae">spring-bounce</td><td class="am">350</td><td class="ad">Icon scale 1→1.2, indicator slide spring</td></tr>
+        <tr><td class="an">Drawer sidebar open</td><td class="ae">expo-out</td><td class="am">380</td><td class="ad">translateX -100%→0 + overlay fade</td></tr>
+        <tr><td class="an">Drawer sidebar close</td><td class="ae">out-quart</td><td class="am">280</td><td class="ad">Plus rapide, snappy feeling</td></tr>
+        <tr><td class="an">Toggle switch</td><td class="ae">spring-bounce</td><td class="am">240</td><td class="ad">Thumb translateX, color background 220ms sine</td></tr>
+        <tr><td class="an">Settings row press</td><td class="ae">in-out-sine</span></td><td class="am">120</td><td class="ad">Background flash opacity 0→0.12→0</td></tr>
+        <tr><td class="an">Notif badge appear</td><td class="ae">spring-bounce</td><td class="am">400</td><td class="ad">scale 0→1, damping 10 (super bouncy)</td></tr>
+        <tr><td class="an">Push notif banner</td><td class="ae">spring-bounce</td><td class="am">500</td><td class="ad">translateY -100%→0 + subtle blur reveal</td></tr>
+      </table>
+    </div>
+    <div class="demo">
+      <div class="demo-lbl">Démo — Toggles & Badge</div>
+      <div class="tgl-list">
+        <div class="tgl-row">
+          <div class="tgl-text">
+            <div class="tgl-name">Notifications push</div>
+            <div class="tgl-sub">Alertes campagne en temps réel</div>
+          </div>
+          <div class="tgl on" onclick="toggleSwitch(this)"><div class="tgl-thumb"></div></div>
+        </div>
+        <div class="tgl-row">
+          <div class="tgl-text">
+            <div class="tgl-name">GPS Tracking actif</div>
+            <div class="tgl-sub">Partage de position en mission</div>
+          </div>
+          <div class="tgl on" onclick="toggleSwitch(this)"><div class="tgl-thumb"></div></div>
+        </div>
+        <div class="tgl-row">
+          <div class="tgl-text">
+            <div class="tgl-name">Mode sombre</div>
+            <div class="tgl-sub">Interface MoveSpot night</div>
+          </div>
+          <div class="tgl" onclick="toggleSwitch(this)"><div class="tgl-thumb"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;gap:14px">
+        <div class="notif-demo">
+          <div class="notif-icon" onclick="triggerBadge(this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <div class="notif-badge" id="nbadge">3</div>
+          </div>
+        </div>
+        <span style="font-size:11.5px;color:var(--fg-m)">Cliquer l'icône → badge burst spring (damping 10)</span>
+      </div>
+    </div>
+  </div>
+  <div class="code-blk">
+    <div class="code-tabs">
+      <div class="ct act" onclick="switchTab(this,'c6a')">Flutter</div>
+      <div class="ct" onclick="switchTab(this,'c6b')">RN Reanimated 3</div>
+    </div>
+    <div class="cc act" id="c6a"><span class="c">// Bottom nav indicator (Flutter)</span>
+<span class="t">TweenAnimationBuilder</span>&lt;<span class="t">double</span>&gt;(
+  duration: <span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">350</span>),
+  tween: <span class="t">Tween</span>(begin: _prevTab.toDouble(), end: _tab.toDouble()),
+  curve: <span class="t">SpringCurve</span>(damping: <span class="n">18</span>, stiffness: <span class="n">200</span>),
+  builder: (ctx, value, _) => <span class="t">Positioned</span>(
+    left: value / tabCount * navWidth,
+    child: indicator,
+  ),
+)
+
+<span class="c">// Toggle — spring thumb</span>
+<span class="t">AnimatedPositioned</span>(
+  left: isOn ? <span class="n">20</span> : <span class="n">3</span>,
+  duration: <span class="k">const</span> <span class="t">Duration</span>(milliseconds: <span class="n">240</span>),
+  curve: <span class="t">SpringCurve</span>(damping: <span class="n">12</span>, stiffness: <span class="n">150</span>),
+  child: thumb,
+)
+
+<span class="c">// Badge — scale burst (damping 10 = super bouncy)</span>
+<span class="t">ScaleTransition</span>(
+  scale: <span class="t">CurvedAnimation</span>(
+    parent: _badgeCtrl,
+    curve: <span class="t">SpringCurve</span>(damping: <span class="n">10</span>, stiffness: <span class="n">120</span>),
+  ),
+  child: badge,
+)</div>
+    <div class="cc" id="c6b"><span class="c">// Bottom nav + toggles + badge — RN Reanimated 3</span>
+
+<span class="c">// Nav indicator slide</span>
+<span class="k">const</span> indicatorX = useSharedValue(<span class="n">0</span>);
+<span class="k">const</span> <span class="f">switchTab</span> = (index) => {
+  indicatorX.value = <span class="t">withSpring</span>(index * tabWidth, {
+    damping: <span class="n">18</span>, stiffness: <span class="n">200</span>, mass: <span class="n">1</span>,
+  });
+  iconScales[index].value = <span class="t">withSpring</span>(<span class="n">1</span>, {
+    damping: <span class="n">12</span>, stiffness: <span class="n">150</span>, from: <span class="n">1.2</span>,
+  });
+};
+
+<span class="c">// Toggle</span>
+<span class="k">const</span> thumbX = useSharedValue(<span class="n">3</span>);
+<span class="k">const</span> <span class="f">toggle</span> = () => {
+  thumbX.value = <span class="t">withSpring</span>(isOn ? <span class="n">3</span> : <span class="n">21</span>, {
+    damping: <span class="n">12</span>, stiffness: <span class="n">150</span>, mass: <span class="n">0.8</span>,
+  });
+};
+
+<span class="c">// Badge burst — damping 10 (max bounce)</span>
+<span class="k">const</span> badgeScale = useSharedValue(<span class="n">0</span>);
+<span class="k">const</span> <span class="f">showBadge</span> = () => {
+  badgeScale.value = <span class="t">withSpring</span>(<span class="n">1</span>, {
+    damping: <span class="n">10</span>, stiffness: <span class="n">120</span>, mass: <span class="n">0.7</span>,
+  });
+};</div>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+</main>
+
+<script>
+/* ── SIDEBAR ACTIVE STATE ── */
+(function(){
+  const items = document.querySelectorAll('.sb-item');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        items.forEach(i => i.classList.remove('act'));
+        const link = document.querySelector('.sb-item[href="#'+e.target.id+'"]');
+        if(link) link.classList.add('act');
+      }
+    });
+  },{rootMargin:'-20% 0px -70% 0px'});
+  document.querySelectorAll('.mod,.found').forEach(s => obs.observe(s));
+})();
+
+/* ── CODE TABS ── */
+function switchTab(el, targetId){
+  const blk = el.closest('.code-blk');
+  blk.querySelectorAll('.ct').forEach(t => t.classList.remove('act'));
+  blk.querySelectorAll('.cc').forEach(c => c.classList.remove('act'));
+  el.classList.add('act');
+  document.getElementById(targetId).classList.add('act');
+}
+
+/* ── DEMO 1: PROFILE SELECTION ── */
+function selRole(card){
+  const rc = card.dataset.rc;
+  card.style.setProperty('--rc', rc);
+  document.querySelectorAll('.rc').forEach(c => {
+    c.classList.remove('sel','dim');
+    if(c === card) c.classList.add('sel');
+    else c.classList.add('dim');
+  });
+  const fp = document.getElementById('fp');
+  fp.style.setProperty('--sc', rc);
+  document.getElementById('fp-btn').style.background = rc;
+  setTimeout(() => fp.classList.add('show'), 40);
+}
+
+/* ── DEMO 2: KPI BUILD-UP ── */
+function runKPI(){
+  const bars = document.querySelectorAll('#bars-row .bar');
+  const numEl = document.getElementById('kpi-num');
+  bars.forEach(b => b.style.height = '0');
+  numEl.textContent = '0';
+  const targets = [45,62,38,71,55,48,66];
+  bars.forEach((b,i) => {
+    setTimeout(() => {
+      b.style.height = targets[i]+'px';
+    }, i*80 + 50);
+  });
+  // Counter
+  let start = null, target = 48230;
+  function tick(ts){
+    if(!start) start = ts;
+    const pct = Math.min((ts-start)/1200,1);
+    const v = Math.round(target * (pct < 0.5 ? 2*pct*pct : 1-(Math.pow(-2*pct+2,2)/2)));
+    numEl.textContent = v.toLocaleString('fr-FR');
+    if(pct<1) requestAnimationFrame(tick);
+  }
+  setTimeout(() => requestAnimationFrame(tick), 100);
+}
+runKPI();
+
+/* ── DEMO 3: GPS ── */
+function animGPS(){
+  const route = document.getElementById('gps-route');
+  route.classList.remove('show');
+  void route.offsetWidth;
+  setTimeout(() => route.classList.add('show'), 50);
+}
+animGPS();
+
+/* ── DEMO 4: STEPPER ── */
+let curStep = 0;
+function advStep(){
+  if(curStep >= 3) return;
+  // Mark current done
+  document.getElementById('sc'+curStep).className = 'sc done';
+  document.getElementById('sc'+curStep).textContent = '✓';
+  // Fill line after current
+  if(curStep < 3) document.getElementById('sf'+curStep).classList.add('done');
+  curStep++;
+  // Activate next
+  document.getElementById('sc'+curStep).className = 'sc act';
+  if(curStep >= 3) document.getElementById('step-next').disabled = true;
+}
+function resetStep(){
+  curStep = 0;
+  for(let i=0;i<4;i++){
+    const sc = document.getElementById('sc'+i);
+    sc.className = i===0 ? 'sc act' : 'sc';
+    sc.textContent = i+1;
+  }
+  for(let i=0;i<3;i++) document.getElementById('sf'+i).classList.remove('done');
+  document.getElementById('step-next').disabled = false;
+}
+
+/* ── DEMO 5: GAUGE ── */
+let gaugeActive = false;
+function runGauge(){
+  const arc = document.getElementById('garc');
+  const amtEl = document.getElementById('g-amount');
+  const circumference = 226;
+  const targetPct = 0.623; // 1247.50 / 2000
+  arc.style.strokeDashoffset = circumference;
+  amtEl.textContent = '0,00 €';
+  setTimeout(() => {
+    arc.style.strokeDashoffset = circumference * (1-targetPct);
+  }, 60);
+  let start = null, target = 1247.50;
+  function tick(ts){
+    if(!start) start = ts;
+    const pct = Math.min((ts-start)/1500,1);
+    const ease = 1-Math.pow(1-pct,3);
+    const v = (target*ease).toFixed(2).replace('.',',');
+    amtEl.textContent = v+' €';
+    if(pct<1) requestAnimationFrame(tick);
+  }
+  setTimeout(() => requestAnimationFrame(tick), 60);
+}
+function setStatus(s){
+  document.getElementById('sbtn-on').className = 'sbtn'+(s==='on'?' online':'');
+  document.getElementById('sbtn-off').className = 'sbtn'+(s==='off'?' online':'');
+  if(s==='on') runGauge();
+}
+runGauge();
+
+/* ── DEMO 6: TOGGLES ── */
+function toggleSwitch(el){
+  el.classList.toggle('on');
+}
+function triggerBadge(iconEl){
+  const badge = iconEl.querySelector('.notif-badge');
+  badge.classList.remove('show');
+  void badge.offsetWidth;
+  setTimeout(() => badge.classList.add('show'), 30);
+}
+// Show badge on load
+setTimeout(() => document.getElementById('nbadge').classList.add('show'), 800);
+</script>
