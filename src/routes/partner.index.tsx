@@ -27,7 +27,7 @@ type PartnerProfile = {
   website: string | null;
   description: string | null;
   status: string;
-  admin_notes: string | null;
+  notes: string | null;
   stripe_subscription_status: string | null;
   stripe_subscription_period_end: string | null;
 };
@@ -47,7 +47,7 @@ function PartnerDashboard() {
     const { data: p, error: profileError } = await supabase
       .from("partner_profiles")
       .select(
-        "id, user_id, company, full_name, email, phone, website, description, status, admin_notes, stripe_subscription_status, stripe_subscription_period_end",
+        "id, user_id, company, full_name, email, phone, website, description, status, notes, stripe_subscription_status, stripe_subscription_period_end",
       )
       .eq("user_id", session.user.id)
       .maybeSingle();
@@ -137,10 +137,10 @@ function PartnerDashboard() {
         {profile.status === "rejected" && (
           <div className="mb-6 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">
             {t("partner.dashboard.rejected_notice")}
-            {profile.admin_notes && (
+            {profile.notes && (
               <span>
                 {" "}
-                {t("common.reason_label")} {profile.admin_notes}
+                {t("common.reason_label")} {profile.notes}
               </span>
             )}
           </div>
