@@ -57,7 +57,7 @@ function PartnerDashboard() {
     }
     setProfile(p as unknown as PartnerProfile);
     setLoading(false);
-  }, [navigate]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     load();

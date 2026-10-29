@@ -65,7 +65,7 @@ function PartnerSignupPage() {
         }
       }
     })();
-  }, [navigate]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
