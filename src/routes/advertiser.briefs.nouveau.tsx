@@ -243,6 +243,7 @@ function NewBriefPage() {
   const [aiError, setAiError] = useState("");
   const [aiSessionExpired, setAiSessionExpired] = useState(false);
   const [aiFilled, setAiFilled] = useState<string[]>([]);
+  const [aiCreativeUrl, setAiCreativeUrl] = useState<string | null>(null);
   const [userAiKey, setUserAiKey] = useState<string>(() => {
     try {
       return localStorage.getItem("movespot_user_ai_key_v1") ?? "";
@@ -708,7 +709,7 @@ function NewBriefPage() {
           budget_max: budget ? Number(budget) : null,
           poseur_fee: poseurFee ? Number(poseurFee) : null,
           audience_target: audience || null,
-          creative_files: uploadedPaths,
+          creative_files: aiCreativeUrl ? [...uploadedPaths, aiCreativeUrl] : uploadedPaths,
           zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
           zone_area_km2: zonePolygon?.areaKm2 ?? null,
           ad_format: adFormat ?? null,
@@ -2113,7 +2114,7 @@ function NewBriefPage() {
             description={description}
             vehicleTypes={vehicleTypes}
             adFormat={adFormat}
-            onAssetAdded={() => {}}
+            onAssetAdded={(url) => setAiCreativeUrl(url)}
           />
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
