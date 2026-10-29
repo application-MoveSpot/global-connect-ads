@@ -42,17 +42,22 @@ export const Route = createFileRoute("/api/public/cinetpay/webhook")({
           // Parse custom data set at checkout creation
           const customData = tx.customData ? JSON.parse(tx.customData) : null;
           const userId: string | undefined = customData?.user_id;
+          // amount_eur_cents is stored at checkout (XOF converted to EUR cents at 655.957 XOF/EUR).
+          // Fallback to XOF-based conversion for transactions created before this field existed.
           const amountXof: number | undefined = customData?.amount_xof;
+          const amountEurCents: number =
+            customData?.amount_eur_cents ??
+            (amountXof ? Math.round((amountXof / 655.957) * 100) : undefined);
 
-          if (!userId || !amountXof) {
-            return new Response("Missing user_id or amount_xof in metadata", { status: 422 });
+          if (!userId || !amountEurCents) {
+            return new Response("Missing user_id or amount in metadata", { status: 422 });
           }
 
-          // Credit wallet — amount_xof is used as amount_cents (XOF has no sub-unit)
+          // Credit wallet in EUR cents
           const { error: rpcError } = await supabaseAdmin.rpc("apply_wallet_transaction", {
             p_user_id: userId,
             p_kind: "topup",
-            p_amount_cents: amountXof,
+            p_amount_cents: amountEurCents,
             p_description: "Recharge via Mobile Money (CinetPay)",
             p_stripe_checkout_session_id: undefined,
             p_stripe_payment_intent_id: idempotencyKey,

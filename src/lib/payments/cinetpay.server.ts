@@ -103,9 +103,13 @@ export const createCinetPayTopupCheckout = createServerFn({ method: "POST" })
         ? `${process.env.VITE_APP_URL}/api/public/cinetpay/webhook`
         : `${data.returnUrl.replace(/\/[^/]*$/, "")}/api/public/cinetpay/webhook`;
 
+    // Store EUR cents alongside XOF so the webhook can credit the correct amount.
+    // 655.957 XOF = 1 EUR (fixed peg for CFA franc)
+    const amountEurCents = Math.round((data.amountXof / 655.957) * 100);
     const customData = JSON.stringify({
       user_id: userId,
       amount_xof: data.amountXof,
+      amount_eur_cents: amountEurCents,
       ...(data.campaignBriefId ? { campaign_brief_id: data.campaignBriefId } : {}),
     });
 
