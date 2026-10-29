@@ -2,12 +2,8 @@
 import { createMiddleware } from "@tanstack/react-start";
 import { getOrRefreshSession } from "./session";
 
-// Must be registered as a global `functionMiddleware` in `src/start.ts`; otherwise
-// the browser never attaches the bearer token to serverFn RPCs.
 export const attachSupabaseAuth = createMiddleware({ type: "function" }).client(
   async ({ next }) => {
-    // getOrRefreshSession() deduplicates concurrent refresh calls so multiple
-    // simultaneous RPCs never race on the same Web Lock.
     const session = await getOrRefreshSession();
     const token = session?.access_token;
     return next({
