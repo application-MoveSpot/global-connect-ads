@@ -52,13 +52,17 @@ function PartnerSignupPage() {
     (async () => {
       const session = await getOrRefreshSession();
       if (session) {
-        const { data: existing } = await supabase
+        const { data: existing, error: profileError } = await supabase
           .from("partner_profiles")
           .select("user_id")
           .eq("user_id", session.user.id)
           .maybeSingle();
-        if (existing) navigate({ to: "/partner" });
-        else {
+        // Only navigate to /partner when the profile is confirmed — a query
+        // error must NOT redirect to /partner because /partner would then
+        // immediately redirect back here, creating a navigation loop.
+        if (!profileError && existing) {
+          navigate({ to: "/partner" });
+        } else {
           setEmail(session.user.email ?? "");
           setSessionEmail(session.user.email ?? null);
           setStep("profile");

@@ -44,13 +44,19 @@ function PartnerDashboard() {
       navigate({ to: "/partner/inscription" });
       return;
     }
-    const { data: p } = await supabase
+    const { data: p, error: profileError } = await supabase
       .from("partner_profiles")
       .select(
         "id, user_id, company, full_name, email, phone, website, description, status, admin_notes, stripe_subscription_status, stripe_subscription_period_end",
       )
       .eq("user_id", session.user.id)
       .maybeSingle();
+    // On query error don't redirect — a network blip would cause a loop between
+    // /partner and /partner/inscription if both pages navigate on any null result.
+    if (profileError) {
+      setLoading(false);
+      return;
+    }
     if (!p) {
       navigate({ to: "/partner/inscription" });
       return;

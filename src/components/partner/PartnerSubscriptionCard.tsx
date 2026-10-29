@@ -70,7 +70,7 @@ export function PartnerSubscriptionCard({
       const result = await createCheckout({
         data: {
           priceId: "partner_monthly",
-          returnUrl: `${window.location.origin}/partenaire`,
+          returnUrl: `${window.location.origin}/partner`,
         },
       });
       if ("error" in result) {

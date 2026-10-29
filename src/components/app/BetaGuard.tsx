@@ -48,9 +48,18 @@ export function BetaGuard({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // TOKEN_REFRESHED is fired by our own refreshSession() call inside check().
+      // TOKEN_REFRESHED: fired by our own refreshSession() call inside check().
       // Listening to it would re-trigger check() → refreshSession() → TOKEN_REFRESHED → ∞
-      if (event === "TOKEN_REFRESHED") return;
+      //
+      // INITIAL_SESSION: the initial session is already handled by the
+      // getOrRefreshSession() call above; re-running check() here is redundant.
+      //
+      // SIGNED_IN: fired by the SDK's _recoverAndRefresh() on every tab-focus
+      // or visibility-change. Status is already "allowed" at that point, so
+      // calling the check_beta_access RPC again is a no-op re-render-wise but
+      // wastes a round-trip on every tab switch.
+      if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION" || event === "SIGNED_IN")
+        return;
       check(session?.user?.email?.toLowerCase());
     });
 
