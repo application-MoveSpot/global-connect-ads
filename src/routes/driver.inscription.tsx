@@ -502,7 +502,7 @@ function ChauffeurInscription() {
                     required
                   />
                 ) : (
-                  <SiretField value={siret} onChange={setSiret} />
+                  <SiretField value={siret} onChange={(v) => { setSiret(v); if (v.verified) setError(""); }} />
                 ))}
 
               {error && <Err msg={error} />}

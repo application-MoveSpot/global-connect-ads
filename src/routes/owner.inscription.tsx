@@ -446,7 +446,7 @@ function InscriptionPage() {
               />
               {!isParticulier && (
                 <>
-                  <SiretField value={siret} onChange={setSiret} />
+                  <SiretField value={siret} onChange={(v) => { setSiret(v); if (v.verified) setError(""); }} />
                   {/* Nom commercial uniquement pour les sociétés (pas les EI) */}
                   {siret.verified && !siret.isIndividual && (
                     <Input
