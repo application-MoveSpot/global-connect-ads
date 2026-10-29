@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 
 const RELOAD_FLAG = "movespot:update-reload";
 
@@ -43,9 +43,7 @@ export function AppUpdateGuard() {
 
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) void supabase.auth.refreshSession();
-      });
+      void getOrRefreshSession().catch(() => {});
     };
 
     window.addEventListener("vite:preloadError", onPreloadError);
