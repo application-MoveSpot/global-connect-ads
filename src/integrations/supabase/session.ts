@@ -26,12 +26,39 @@ export async function getOrRefreshSession(): Promise<Session | null> {
 
       const expiresAt = session.expires_at;
       if (!session.access_token || (expiresAt && expiresAt * 1000 < Date.now() + 30_000)) {
-        const { data: refreshed } = await supabase.auth.refreshSession();
-        // Fall back to the current session if refresh fails (server will validate)
-        return refreshed.session ?? session ?? null;
+        try {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          return refreshed.session ?? session ?? null;
+        } catch {
+          // AbortError or network error — return the current session and let
+          // the server validate; better than crashing the page.
+          return session ?? null;
+        }
       }
 
       return session;
+    } finally {
+      _pendingSession = null;
+    }
+  })();
+
+  return _pendingSession;
+}
+
+/**
+ * Forces a token refresh regardless of expiry.  Routes through the same
+ * deduplication lock as getOrRefreshSession() so concurrent callers (e.g.
+ * BetaGuard retrying after a stale-JWT RPC failure) never race on the Web Lock.
+ */
+export async function forceRefreshSession(): Promise<Session | null> {
+  if (_pendingSession) return _pendingSession;
+
+  _pendingSession = (async () => {
+    try {
+      const { data } = await supabase.auth.refreshSession();
+      return data.session ?? null;
+    } catch {
+      return null;
     } finally {
       _pendingSession = null;
     }
