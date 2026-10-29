@@ -466,7 +466,7 @@ function ProviderSignupPage() {
               required
               placeholder="Raison sociale, ou nom commercial pour une entreprise individuelle"
             />
-            <SiretField value={siretCheck} onChange={setSiretCheck} required />
+            <SiretField value={siretCheck} onChange={(v) => { setSiretCheck(v); if (v.verified) setError(""); }} required />
             <Input
               label={t("provider.inscription.fullname_label")}
               value={fullName}

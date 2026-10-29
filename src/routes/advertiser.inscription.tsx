@@ -519,7 +519,7 @@ function AnnonceurInscription() {
 
               {accountType === "business" ? (
                 <>
-                  <SiretField value={siret} onChange={setSiret} />
+                  <SiretField value={siret} onChange={(v) => { setSiret(v); if (v.verified) setError(""); }} />
                   <Input
                     label={t("advertiser.inscription.label_company")}
                     value={company}
