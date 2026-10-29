@@ -42,7 +42,8 @@ export const Route = createFileRoute("/api/public/cinetpay/webhook")({
           // Parse custom data set at checkout creation
           const customData = tx.customData ? JSON.parse(tx.customData) : null;
           const userId: string | undefined = customData?.user_id;
-          // amount_eur_cents est stocké au checkout. Fallback conversion pour anciennes transactions.
+          // amount_eur_cents is stored at checkout (XOF converted to EUR cents at 655.957 XOF/EUR).
+          // Fallback to XOF-based conversion for transactions created before this field existed.
           const amountXof: number | undefined = customData?.amount_xof;
           const amountEurCents: number =
             customData?.amount_eur_cents ??

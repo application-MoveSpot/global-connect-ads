@@ -51,6 +51,8 @@ function PartnerDashboard() {
       )
       .eq("user_id", session.user.id)
       .maybeSingle();
+    // On query error don't redirect — a network blip would cause a loop between
+    // /partner and /partner/inscription if both pages navigate on any null result.
     if (profileError) {
       setLoading(false);
       return;

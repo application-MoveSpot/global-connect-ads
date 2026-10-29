@@ -29,7 +29,11 @@ function createSupabaseClient() {
     auth: {
       storage: brokeredPreviewStorage(),
       persistSession: true,
-      autoRefreshToken: true,
+      // Disabled: the SDK's internal timer competes with our getOrRefreshSession()
+      // calls on the Web Lock (navigator.locks), causing AbortError and page
+      // vibration. SessionKeeper owns all token refreshes via getOrRefreshSession(),
+      // which deduplicates concurrent callers through a single _pendingSession lock.
+      autoRefreshToken: false,
     },
   });
 }

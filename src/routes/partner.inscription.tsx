@@ -57,6 +57,9 @@ function PartnerSignupPage() {
           .select("user_id")
           .eq("user_id", session.user.id)
           .maybeSingle();
+        // Only navigate to /partner when the profile is confirmed — a query
+        // error must NOT redirect to /partner because /partner would then
+        // immediately redirect back here, creating a navigation loop.
         if (!profileError && existing) {
           navigate({ to: "/partner" });
         } else {
@@ -253,19 +256,24 @@ function PartnerSignupPage() {
             <div className="flex gap-2 text-sm mb-2">
               <button
                 type="button"
-                onClick={() => setMode("signup")}
+                onClick={() => { setMode("signup"); setError(""); }}
                 className={`px-3 py-1.5 rounded-full ${mode === "signup" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
               >
                 {t("auth.sign_up_btn")}
               </button>
               <button
                 type="button"
-                onClick={() => setMode("signin")}
+                onClick={() => { setMode("signin"); setError(""); }}
                 className={`px-3 py-1.5 rounded-full ${mode === "signin" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}
               >
                 {t("auth.have_account")}
               </button>
             </div>
+            <p className="text-xs text-muted-foreground mb-2">
+              {mode === "signup"
+                ? t("partner.inscription.auth_hint_signup")
+                : t("partner.inscription.auth_hint_signin")}
+            </p>
             <FormInput
               label={t("auth.email")}
               type="email"

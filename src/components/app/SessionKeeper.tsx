@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 
-const REFRESH_INTERVAL_MS = 4 * 60 * 1000;
+// Supabase autoRefreshToken is disabled on the client (client.ts) so the SDK's
+// internal timer doesn't compete with getOrRefreshSession() on the Web Lock.
+// This component owns all proactive token refreshes.
+const REFRESH_INTERVAL_MS = 4 * 60 * 1000; // 4 min — tokens expire in 1 h
 
 export function SessionKeeper() {
   useEffect(() => {
@@ -13,6 +16,7 @@ export function SessionKeeper() {
     const onOnline = () => check();
     const onFocus = () => check();
 
+    // Periodic refresh so idle-but-visible tabs don't expire.
     const timer = setInterval(check, REFRESH_INTERVAL_MS);
 
     document.addEventListener("visibilitychange", onVisibility);

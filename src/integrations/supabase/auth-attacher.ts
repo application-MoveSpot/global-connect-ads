@@ -4,6 +4,8 @@ import { getOrRefreshSession } from "./session";
 
 export const attachSupabaseAuth = createMiddleware({ type: "function" }).client(
   async ({ next }) => {
+    // getOrRefreshSession() deduplicates concurrent refresh calls so multiple
+    // simultaneous RPCs never race on the same Web Lock.
     const session = await getOrRefreshSession();
     const token = session?.access_token;
     return next({
