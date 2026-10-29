@@ -614,6 +614,60 @@ export type Database = {
           },
         ]
       }
+      commercial_profiles: {
+        Row: {
+          active: boolean
+          cgu_accepted_at: string | null
+          city: string | null
+          commission_rate: number
+          company: string | null
+          created_at: string
+          full_name: string
+          id: string
+          legal_address: string | null
+          legal_status: string | null
+          phone: string | null
+          referral_code: string
+          siret: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          cgu_accepted_at?: string | null
+          city?: string | null
+          commission_rate?: number
+          company?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          legal_address?: string | null
+          legal_status?: string | null
+          phone?: string | null
+          referral_code: string
+          siret?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          cgu_accepted_at?: string | null
+          city?: string | null
+          commission_rate?: number
+          company?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          legal_address?: string | null
+          legal_status?: string | null
+          phone?: string | null
+          referral_code?: string
+          siret?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       control_photo_requests: {
         Row: {
           admin_notes: string | null
