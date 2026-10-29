@@ -1255,6 +1255,8 @@ export type Database = {
         Row: {
           certification_notes: string | null
           certification_status: string
+          cgu_accepted_at: string | null
+          cgu_version: string | null
           city: string | null
           created_at: string
           full_name: string
@@ -1280,6 +1282,8 @@ export type Database = {
         Insert: {
           certification_notes?: string | null
           certification_status?: string
+          cgu_accepted_at?: string | null
+          cgu_version?: string | null
           city?: string | null
           created_at?: string
           full_name: string
@@ -1305,6 +1309,8 @@ export type Database = {
         Update: {
           certification_notes?: string | null
           certification_status?: string
+          cgu_accepted_at?: string | null
+          cgu_version?: string | null
           city?: string | null
           created_at?: string
           full_name?: string
