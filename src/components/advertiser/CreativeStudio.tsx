@@ -17,6 +17,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [resultPath, setResultPath] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
   const [attached, setAttached] = useState(false);
 
@@ -30,6 +31,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
     setLoading(true);
     setError(null);
     setResultUrl(null);
+    setResultPath(null);
     setAttached(false);
 
     const session = await supabase.auth.getSession();
@@ -59,12 +61,14 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
     }
 
     setResultUrl(data.url);
+    setResultPath(data.storage_path ?? null);
     setLoading(false);
   }
 
   function attach() {
-    if (resultUrl) {
-      onAssetAdded(resultUrl);
+    const path = resultPath ?? resultUrl;
+    if (path) {
+      onAssetAdded(path);
       setAttached(true);
     }
   }
@@ -97,6 +101,7 @@ export function CreativeStudio({ briefId, title, description, vehicleTypes, adFo
             onClick={() => {
               setTab(t.id);
               setResultUrl(null);
+              setResultPath(null);
               setError(null);
               setAttached(false);
             }}

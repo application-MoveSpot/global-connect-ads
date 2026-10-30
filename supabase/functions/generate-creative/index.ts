@@ -180,7 +180,7 @@ Deno.serve(async (req) => {
       });
 
       return new Response(
-        JSON.stringify({ url: pub.publicUrl, prompt: imagePrompt }),
+        JSON.stringify({ url: pub.publicUrl, storage_path: storagePath, prompt: imagePrompt }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -242,7 +242,7 @@ Deno.serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ url: pub.publicUrl, prompt: jinglePrompt }),
+      JSON.stringify({ url: pub.publicUrl, storage_path: storagePath, prompt: jinglePrompt }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
