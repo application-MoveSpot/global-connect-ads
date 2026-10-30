@@ -17,6 +17,11 @@ const AiCampaignEstimator = lazy(() =>
     default: m.AiCampaignEstimator,
   })),
 );
+const CampaignImpactSimulator = lazy(() =>
+  import("@/components/shared/CampaignImpactSimulator").then((m) => ({
+    default: m.CampaignImpactSimulator,
+  })),
+);
 
 export const Route = createFileRoute("/_public/")({
   loader: async () => {
@@ -614,6 +619,33 @@ function Index() {
       {/* Ad Spots */}
       <section id="spots" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <AdSpots onSelect={setSelectedSpot} />
+      </section>
+
+      {/* Campaign Impact Simulator */}
+      <section className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="text-xs uppercase tracking-widest text-primary mb-2">
+              {tx("simulator.badge", "Calculez votre impact")}
+            </div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
+              {tx("simulator.h2", "Combien d'impressions pour votre budget ?")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {tx(
+                "simulator.desc",
+                "Choisissez votre ville, votre type de flotte et votre budget mensuel — chaque paramètre met à jour vos métriques en temps réel.",
+              )}
+            </p>
+          </div>
+          <Suspense
+            fallback={
+              <div className="rounded-3xl border border-border bg-card/30 h-96 animate-pulse" />
+            }
+          >
+            <CampaignImpactSimulator />
+          </Suspense>
+        </div>
       </section>
 
       <footer className="border-t border-border">
