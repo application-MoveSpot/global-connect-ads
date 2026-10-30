@@ -1,8 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Instagram } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { generateProviderQuoteResponse } from "@/lib/ai/provider-quote-assistant.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -135,30 +133,6 @@ function ProviderDashboard() {
   useEffect(() => {
     load();
   }, [load]);
-
-  const respondQuote = async (id: string, priceEur: string, msg: string) => {
-    const cents = Math.round(Number(priceEur) * 100);
-    if (!cents || cents < 0) {
-      toast.error(t("provider.dashboard.error_invalid_price"));
-      return;
-    }
-    await supabase
-      .from("service_quotes")
-      .update({
-        status: "quoted",
-        quoted_price_cents: cents,
-        quoted_message: msg || null,
-        quoted_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-    await load();
-  };
-
-  const rejectQuote = async (id: string) => {
-    if (!confirm(t("provider.dashboard.error_confirm_reject"))) return;
-    await supabase.from("service_quotes").update({ status: "rejected" }).eq("id", id);
-    await load();
-  };
 
   const openImpossibleModal = (id: string) => setImpossibleModal({ open: true, quoteId: id });
 
@@ -347,8 +321,7 @@ function ProviderDashboard() {
                 q={q}
                 profile={profile}
                 vehicle={q.vehicle_id ? vehicleMap[q.vehicle_id] : undefined}
-                onRespond={respondQuote}
-                onReject={rejectQuote}
+                onQuoteAction={load}
                 onOpenImpossible={openImpossibleModal}
               />
             ))}
@@ -573,50 +546,16 @@ function QuoteCard({
   q,
   profile,
   vehicle,
-  onRespond,
-  onReject,
+  onQuoteAction,
   onOpenImpossible,
 }: {
   q: Quote;
   profile: Profile;
   vehicle?: VehicleId;
-  onRespond: (id: string, price: string, msg: string) => void;
-  onReject: (id: string) => void;
+  onQuoteAction: () => void;
   onOpenImpossible: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation();
-  const [price, setPrice] = useState("");
-  const [msg, setMsg] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState("");
-  const callQuoteAi = useServerFn(generateProviderQuoteResponse);
-
-  const handleAiGenerate = async () => {
-    setAiError("");
-    setAiLoading(true);
-    try {
-      const res = await callQuoteAi({
-        data: {
-          serviceType: q.service_type,
-          vehicleType: q.vehicle_type ?? undefined,
-          format: q.format ?? undefined,
-          quantity: q.quantity ?? undefined,
-          zone: q.zone ?? undefined,
-          deadline: q.deadline ?? undefined,
-          advertiserMessage: q.message,
-        },
-      });
-      if (!res.ok) {
-        setAiError(res.message);
-        return;
-      }
-      setMsg(res.message);
-    } catch {
-      setAiError(t("provider.dashboard.ai_quote_error"));
-    } finally {
-      setAiLoading(false);
-    }
-  };
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -729,6 +668,7 @@ function QuoteCard({
             description: profile.description,
             company: profile.company,
           }}
+          onQuoteAction={onQuoteAction}
         />
       </div>
       {q.status === "quoted" && (
@@ -765,64 +705,6 @@ function QuoteCard({
       {q.status === "impossible" && (
         <div className="mt-3 rounded-lg bg-orange-500/10 border border-orange-500/30 p-3 text-sm text-orange-700 dark:text-orange-300">
           {t("provider.dashboard.impossible_confirmed")}
-        </div>
-      )}
-      {q.status === "pending" && (
-        <div className="space-y-2 mt-3 border-t border-border pt-3">
-          <div className="flex gap-2">
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder={t("provider.dashboard.price_label")}
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
-            />
-            <button
-              onClick={() => onRespond(q.id, price, msg)}
-              className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90"
-            >
-              {t("provider.dashboard.send_quote_btn")}
-            </button>
-            <button
-              onClick={() => onReject(q.id)}
-              className="rounded-lg bg-destructive/15 text-destructive border border-destructive/40 px-3 py-2 text-sm font-semibold hover:bg-destructive/25"
-            >
-              {t("provider.dashboard.reject_btn")}
-            </button>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs text-muted-foreground">
-                {t("provider.dashboard.message_label")}
-              </label>
-              <button
-                type="button"
-                disabled={aiLoading}
-                onClick={handleAiGenerate}
-                className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 transition"
-              >
-                {aiLoading ? (
-                  <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                ) : (
-                  "✨"
-                )}
-                {aiLoading
-                  ? t("provider.dashboard.ai_quote_generating")
-                  : t("provider.dashboard.ai_quote_btn")}
-              </button>
-            </div>
-            {aiError && <p className="text-xs text-destructive mb-1">{aiError}</p>}
-            <textarea
-              value={msg}
-              onChange={(e) => setMsg(e.target.value)}
-              rows={3}
-              maxLength={1000}
-              placeholder={t("provider.dashboard.message_label")}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-            />
-          </div>
         </div>
       )}
     </div>
