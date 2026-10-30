@@ -12,6 +12,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscriptionCard";
 import { RouteError } from "@/components/app/RouteError";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
+import { ProviderQuoteReview } from "@/components/provider/ProviderQuoteReview";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -64,6 +65,7 @@ type Quote = {
   impossible_photos: string[];
   impossible_at: string | null;
   created_at: string;
+  ai_brief_id: string | null;
 };
 
 type VehicleId = {
@@ -343,6 +345,7 @@ function ProviderDashboard() {
               <QuoteCard
                 key={q.id}
                 q={q}
+                profile={profile}
                 vehicle={q.vehicle_id ? vehicleMap[q.vehicle_id] : undefined}
                 onRespond={respondQuote}
                 onReject={rejectQuote}
@@ -568,12 +571,14 @@ function Row({ label, value }: { label: string; value: string }) {
 
 function QuoteCard({
   q,
+  profile,
   vehicle,
   onRespond,
   onReject,
   onOpenImpossible,
 }: {
   q: Quote;
+  profile: Profile;
   vehicle?: VehicleId;
   onRespond: (id: string, price: string, msg: string) => void;
   onReject: (id: string) => void;
@@ -716,7 +721,16 @@ function QuoteCard({
           )}
         </div>
       )}
-      <p className="text-sm whitespace-pre-wrap mb-3">{q.message}</p>
+      <div className="mb-3">
+        <ProviderQuoteReview
+          quote={q}
+          providerProfile={{
+            services: profile.services,
+            description: profile.description,
+            company: profile.company,
+          }}
+        />
+      </div>
       {q.status === "quoted" && (
         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
           {t("provider.dashboard.quote_sent")}{" "}
@@ -1016,7 +1030,7 @@ function ImpossibleModal({
               <img
                 key={i}
                 src={src}
-                alt={`Photo ${i + 1}`}
+                alt={`Pièce jointe ${i + 1}`}
                 className="w-20 h-20 object-cover rounded-lg border border-border"
               />
             ))}
