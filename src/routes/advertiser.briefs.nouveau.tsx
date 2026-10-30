@@ -46,6 +46,7 @@ import { validateBriefCreative } from "@/lib/ai/visual-validation.functions";
 import { notifyBriefCreated } from "@/lib/campaigns/campaign-notifications.server";
 import { AdvertiserBudgetEstimate } from "@/components/advertiser/AdvertiserBudgetEstimate";
 import { CreativeStudio } from "@/components/advertiser/CreativeStudio";
+import { BriefCopilot } from "@/components/advertiser/BriefCopilot";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/nouveau")({
@@ -337,6 +338,7 @@ function NewBriefPage() {
     } catch {
       /* quota exceeded or private mode */
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     title,
     description,
@@ -384,7 +386,9 @@ function NewBriefPage() {
           const raw = localStorage.getItem("movespot_brief_draft_v1");
           const draft = raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
           const draftHasMarket = Boolean(draft?.market);
-          const draftHasContent = Boolean(draft?.title || draft?.description || draft?.budget || draft?.audience);
+          const draftHasContent = Boolean(
+            draft?.title || draft?.description || draft?.budget || draft?.audience,
+          );
           if (!(draftHasMarket && draftHasContent)) setMarket(regionMap[profileRegion]);
         } catch {
           setMarket(regionMap[profileRegion]);
@@ -1673,6 +1677,14 @@ function NewBriefPage() {
               rows={4}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
               placeholder="Marque, message clé, ton, contraintes, audience cible…"
+            />
+            <BriefCopilot
+              description={description}
+              vehicleTypes={vehicleTypes}
+              adFormat={adFormat}
+              onApplyDescription={setDescription}
+              onApplyAudience={setAudience}
+              onApplyVehicles={setVehicleTypes}
             />
           </Field>
 
