@@ -108,9 +108,15 @@ type Props = {
   serviceType: string;
   vehicleType?: string;
   onResult: (message: string) => void;
+  onBriefSessionCreated?: (id: string) => void;
 };
 
-export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Props) {
+export function BriefIntentAssistant({
+  serviceType,
+  vehicleType,
+  onResult,
+  onBriefSessionCreated,
+}: Props) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -194,7 +200,10 @@ export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Pro
           })
           .select("id")
           .single();
-        if (row?.id) setBriefSessionId(row.id);
+        if (row?.id) {
+          setBriefSessionId(row.id);
+          onBriefSessionCreated?.(row.id);
+        }
       }
 
       setPhase("done");
