@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
+import { usePackRecommendation } from "@/hooks/usePackRecommendation";
 import { WalletTopupCheckout } from "./WalletTopupCheckout";
 
 type Pack = {
@@ -25,6 +26,7 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
   const { t } = useTranslation();
   const { fmtAmount } = useCurrency();
   const isIndividual = accountType === "individual";
+  const { recommendedId, tagline, loading: recLoading } = usePackRecommendation();
 
   const BUSINESS_PACKS: Pack[] = [
     {
@@ -90,6 +92,16 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
 
   const packs = isIndividual ? INDIVIDUAL_PACKS : BUSINESS_PACKS;
   const [selected, setSelected] = useState<Pack>(() => packs[1]);
+  const [userOverride, setUserOverride] = useState(false);
+
+  useEffect(() => {
+    if (!recLoading && recommendedId && !userOverride) {
+      const rec = packs.find((p) => p.id === recommendedId);
+      if (rec) setSelected(rec);
+    }
+  // packs identity is stable per render, recommendedId/recLoading drive the update
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recLoading, recommendedId]);
 
   return (
     <div className="space-y-4">
@@ -98,37 +110,56 @@ export function CampaignPackCheckout({ returnUrl, campaignBriefId, accountType }
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {packs.map((pack) => (
-          <button
-            key={pack.id}
-            onClick={() => setSelected(pack)}
-            className={`relative rounded-2xl border-2 p-4 text-left transition ${
-              selected.id === pack.id
-                ? "border-primary bg-primary/10"
-                : "border-border bg-card hover:border-primary/40"
-            }`}
-          >
-            {pack.badge && (
-              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground whitespace-nowrap">
-                {pack.badge}
-              </span>
-            )}
-            {pack.icon && <span className="text-2xl mb-2 block">{pack.icon}</span>}
-            <p className="font-semibold text-sm mb-0.5">{pack.label}</p>
-            {pack.sublabel && (
-              <p className="text-[10px] text-muted-foreground mb-1.5">{pack.sublabel}</p>
-            )}
-            <p className="font-display text-2xl font-bold">{fmtAmount(pack.price)}</p>
-            <p className="text-xs text-muted-foreground mb-2">
-              {t("campaign_pack.days_rate", {
-                count: pack.days,
-                s: pack.days > 1 ? "s" : "",
-                rate: pack.perDay.toFixed(0),
-              })}
-            </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">{pack.desc}</p>
-          </button>
-        ))}
+        {packs.map((pack) => {
+          const isRecommended = !recLoading && recommendedId === pack.id;
+          return (
+            <button
+              key={pack.id}
+              onClick={() => {
+                setUserOverride(true);
+                setSelected(pack);
+              }}
+              className={`relative rounded-2xl border-2 p-4 text-left transition ${
+                selected.id === pack.id
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-card hover:border-primary/40"
+              }`}
+            >
+              {/* AI recommendation badge — floats above the "Populaire" badge row */}
+              {isRecommended && (
+                <span className="absolute -top-5 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-500 to-primary px-2.5 py-0.5 text-[9px] font-bold text-white whitespace-nowrap shadow animate-pulse">
+                  ✨ Recommandé par l'IA
+                </span>
+              )}
+              {pack.badge && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground whitespace-nowrap">
+                  {pack.badge}
+                </span>
+              )}
+              {pack.icon && <span className="text-2xl mb-2 block">{pack.icon}</span>}
+              <p className="font-semibold text-sm mb-0.5">{pack.label}</p>
+              {pack.sublabel && (
+                <p className="text-[10px] text-muted-foreground mb-1.5">{pack.sublabel}</p>
+              )}
+              <p className="font-display text-2xl font-bold">{fmtAmount(pack.price)}</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                {t("campaign_pack.days_rate", {
+                  count: pack.days,
+                  s: pack.days > 1 ? "s" : "",
+                  rate: pack.perDay.toFixed(0),
+                })}
+              </p>
+              {/* AI contextual tagline shown only on recommended pack */}
+              {isRecommended && tagline ? (
+                <p className="text-[11px] text-primary/80 dark:text-primary/70 font-medium leading-snug mb-1.5">
+                  {tagline}
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground leading-relaxed">{pack.desc}</p>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/30 p-3 text-xs text-muted-foreground space-y-0.5">
