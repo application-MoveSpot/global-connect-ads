@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Sparkles, ChevronRight, RotateCcw, CheckCircle2, Loader2 } from "lucide-react";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { supabase } from "@/integrations/supabase/client";
 import { synthesizeQuoteBrief } from "@/lib/ai/quote-brief-assistant.functions";
+import { MockupPreview } from "./MockupPreview";
 
 type Question = {
   id: string;
@@ -113,6 +115,8 @@ export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Pro
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
+  const [briefSessionId, setBriefSessionId] = useState<string | undefined>(undefined);
+  const [briefText, setBriefText] = useState("");
 
   const questions = QUESTIONS[serviceType] ?? DEFAULT_QUESTIONS;
   const currentQ = questions[step];
@@ -125,13 +129,14 @@ export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Pro
     setStep(0);
     setAnswers({});
     setError("");
+    setBriefSessionId(undefined);
+    setBriefText("");
   }
 
   function handleChip(value: string) {
     if (!currentQ) return;
     const next = { ...answers, [currentQ.id]: value };
     setAnswers(next);
-    // Auto-advance on chip selection
     setTimeout(() => advance(next), 180);
   }
 
@@ -155,6 +160,7 @@ export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Pro
     try {
       const session = await getOrRefreshSession();
       const filteredAnswers = Object.fromEntries(Object.entries(cur).filter(([, v]) => v.trim()));
+
       const result = await synthesizeQuoteBrief({
         data: {
           serviceType,
@@ -163,13 +169,35 @@ export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Pro
           _auth: session?.access_token,
         },
       });
-      if (result.ok) {
-        onResult(result.message);
-        setPhase("done");
-      } else {
+
+      if (!result.ok) {
         setError(result.message);
         setPhase("asking");
+        return;
       }
+
+      const text = result.message;
+      onResult(text);
+      setBriefText(text);
+
+      // Persist AI session to ai_brief_data
+      const userId = session?.user?.id;
+      if (userId) {
+        const { data: row } = await supabase
+          .from("ai_brief_data")
+          .insert({
+            user_id: userId,
+            service_type: serviceType,
+            vehicle_type: vehicleType || null,
+            answers: filteredAnswers,
+            generated_text_brief: text,
+          })
+          .select("id")
+          .single();
+        if (row?.id) setBriefSessionId(row.id);
+      }
+
+      setPhase("done");
     } catch {
       setError("Une erreur est survenue. Réessayez.");
       setPhase("asking");
@@ -200,20 +228,32 @@ export function BriefIntentAssistant({ serviceType, vehicleType, onResult }: Pro
 
   if (phase === "done") {
     return (
-      <div className="mt-3 rounded-xl border border-signal/30 bg-signal/5 px-4 py-3 flex items-start gap-2 text-sm">
-        <CheckCircle2 className="w-4 h-4 text-signal mt-0.5 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <span className="font-medium text-foreground">Besoin structuré par l'IA</span>
-          <span className="text-muted-foreground"> — vous pouvez ajuster le texte ci-dessus.</span>
+      <div className="mt-3 space-y-3">
+        <div className="rounded-xl border border-signal/30 bg-signal/5 px-4 py-3 flex items-start gap-2 text-sm">
+          <CheckCircle2 className="w-4 h-4 text-signal mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <span className="font-medium text-foreground">Besoin structuré par l'IA</span>
+            <span className="text-muted-foreground">
+              {" "}
+              — vous pouvez ajuster le texte ci-dessus.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={reset}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 flex-shrink-0"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Recommencer
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={reset}
-          className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 flex-shrink-0"
-        >
-          <RotateCcw className="w-3 h-3" />
-          Recommencer
-        </button>
+
+        <MockupPreview
+          briefText={briefText}
+          serviceType={serviceType}
+          vehicleType={vehicleType}
+          briefSessionId={briefSessionId}
+        />
       </div>
     );
   }
