@@ -12,6 +12,11 @@ const MobilityMap = lazy(() =>
 const BookingForm = lazy(() =>
   import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })),
 );
+const AiCampaignEstimator = lazy(() =>
+  import("@/components/shared/AiCampaignEstimator").then((m) => ({
+    default: m.AiCampaignEstimator,
+  })),
+);
 
 export const Route = createFileRoute("/_public/")({
   loader: async () => {
@@ -47,8 +52,18 @@ export const Route = createFileRoute("/_public/")({
       { property: "og:image:height", content: "630" },
       { name: "twitter:image", content: "https://move-spot.com/og-image.png" },
       // Arabic SEO
-      { name: "description", lang: "ar", content: "MoveSpot يربط المعلنين وأصحاب المركبات — شاحنات الطعام، التاكسي، دراجات التوصيل. ارسم منطقتك، والميزانية تُحسب تلقائيًا، وكل كيلومتر بث مُثبت بـ GPS." },
-      { name: "keywords", lang: "ar", content: "إعلانات متنقلة، سوق إعلانات المركبات، إعلانات سيارات الأجرة، شاحنة طعام إعلان، DOOH متنقل" },
+      {
+        name: "description",
+        lang: "ar",
+        content:
+          "MoveSpot يربط المعلنين وأصحاب المركبات — شاحنات الطعام، التاكسي، دراجات التوصيل. ارسم منطقتك، والميزانية تُحسب تلقائيًا، وكل كيلومتر بث مُثبت بـ GPS.",
+      },
+      {
+        name: "keywords",
+        lang: "ar",
+        content:
+          "إعلانات متنقلة، سوق إعلانات المركبات، إعلانات سيارات الأجرة، شاحنة طعام إعلان، DOOH متنقل",
+      },
     ],
     links: [
       { rel: "canonical", href: "https://move-spot.com/" },
@@ -546,6 +561,33 @@ function Index() {
         </div>
       </section>
 
+      {/* AI Campaign Estimator */}
+      <section className="max-w-7xl mx-auto px-6 pb-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-6">
+            <div className="text-xs uppercase tracking-widest text-primary mb-2">
+              {tx("estimator.badge", "Simulez votre campagne")}
+            </div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
+              {tx("estimator.h2", "Combien d'impressions pour votre budget ?")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {tx(
+                "estimator.desc",
+                "Renseignez votre secteur, votre ville et votre budget mensuel — l'IA calcule vos métriques en temps réel.",
+              )}
+            </p>
+          </div>
+          <Suspense
+            fallback={
+              <div className="rounded-3xl border border-border bg-card/30 h-72 animate-pulse" />
+            }
+          >
+            <AiCampaignEstimator />
+          </Suspense>
+        </div>
+      </section>
+
       {/* Map */}
       <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
@@ -636,10 +678,10 @@ function Index() {
                 {tx("footer.mentions", "Mentions légales")}
               </Link>
               {isLovablePreview && (
-                  <Link to="/admin" className="hover:text-foreground transition text-amber-500">
-                    ⚙ Admin
-                  </Link>
-                )}
+                <Link to="/admin" className="hover:text-foreground transition text-amber-500">
+                  ⚙ Admin
+                </Link>
+              )}
             </div>
           </div>
         </div>

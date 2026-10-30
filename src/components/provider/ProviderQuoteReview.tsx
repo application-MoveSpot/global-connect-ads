@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ChevronDown,
   ChevronUp,
@@ -11,13 +12,16 @@ import {
   AlertTriangle,
   Loader2,
   Image as ImageIcon,
+  Send,
+  ThumbsDown,
 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { generateMockupVariation } from "@/lib/ai/mockup-variation.functions";
-import { computeFeasibilityScore } from "@/lib/ai/feasibility-score.functions";
-import type { FeasibilityBreakdown } from "@/lib/ai/feasibility-score.functions";
+import { generateProviderQuoteResponse } from "@/lib/ai/provider-quote-assistant.functions";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
+import { useQuoteFeasibility } from "@/hooks/useQuoteFeasibility";
 
 // ─── Domain types ──────────────────────────────────────────────────────────────
 
@@ -43,6 +47,7 @@ export type QuoteWithBrief = {
   zone: string | null;
   created_at: string;
   ai_brief_id: string | null;
+  status: string;
 };
 
 type ProviderProfile = {
@@ -117,9 +122,11 @@ function CheckRow({ ok, label }: { ok: boolean; label: string }) {
 type Props = {
   quote: QuoteWithBrief;
   providerProfile: ProviderProfile;
+  /** Called after a successful send or reject so the parent can reload. */
+  onQuoteAction?: () => void;
 };
 
-export function ProviderQuoteReview({ quote, providerProfile }: Props) {
+export function ProviderQuoteReview({ quote, providerProfile, onQuoteAction }: Props) {
   // Brief data
   const [aiBrief, setAiBrief] = useState<AiBriefData | null>(null);
   const [briefLoading, setBriefLoading] = useState(!!quote.ai_brief_id);
@@ -132,9 +139,24 @@ export function ProviderQuoteReview({ quote, providerProfile }: Props) {
   const [varPhase, setVarPhase] = useState<"idle" | "loading" | "error">("idle");
   const [varError, setVarError] = useState("");
 
-  // Feasibility
-  const [feasibility, setFeasibility] = useState<FeasibilityBreakdown | null>(null);
-  const [feasLoading, setFeasLoading] = useState(false);
+  // Actions (send quote / reject)
+  const [price, setPrice] = useState("");
+  const [actionMsg, setActionMsg] = useState("");
+  const [sendPhase, setSendPhase] = useState<"idle" | "loading" | "done">("idle");
+  const [rejectPhase, setRejectPhase] = useState<"idle" | "confirm" | "loading" | "done">("idle");
+  const [aiMsgLoading, setAiMsgLoading] = useState(false);
+  const [aiMsgError, setAiMsgError] = useState("");
+
+  const callQuoteAi = useServerFn(generateProviderQuoteResponse);
+
+  // Feasibility (delegated to hook)
+  const { feasibility, feasLoading } = useQuoteFeasibility({
+    aiBrief,
+    serviceType: quote.service_type,
+    vehicleType: quote.vehicle_type,
+    providerServices: providerProfile.services,
+    providerDescription: providerProfile.description,
+  });
 
   // ── Fetch ai_brief_data ────────────────────────────────────────────────────
   useEffect(() => {
@@ -153,26 +175,7 @@ export function ProviderQuoteReview({ quote, providerProfile }: Props) {
       });
   }, [quote.ai_brief_id]);
 
-  // ── Auto-compute feasibility once brief is loaded ──────────────────────────
-  useEffect(() => {
-    if (!aiBrief) return;
-    setFeasLoading(true);
-    computeFeasibilityScore({
-      data: {
-        serviceType: quote.service_type,
-        vehicleType: quote.vehicle_type ?? undefined,
-        answers: aiBrief.answers,
-        providerServices: providerProfile.services ?? [],
-        providerDescription: providerProfile.description ?? undefined,
-      },
-    })
-      .then((res) => {
-        if (res.ok) setFeasibility(res.data);
-      })
-      .finally(() => setFeasLoading(false));
-  }, [aiBrief, quote.service_type, quote.vehicle_type, providerProfile]);
-
-  // ── Generate variation ─────────────────────────────────────────────────────
+  // ── Generate mockup variation ──────────────────────────────────────────────
   async function handleVariation() {
     if (!variationPrompt.trim() || !activeImageUrl) return;
     setVarPhase("loading");
@@ -202,11 +205,85 @@ export function ProviderQuoteReview({ quote, providerProfile }: Props) {
     }
   }
 
+  // ── AI-generate provider message ───────────────────────────────────────────
+  async function handleAiMsg() {
+    setAiMsgError("");
+    setAiMsgLoading(true);
+    try {
+      const res = await callQuoteAi({
+        data: {
+          serviceType: quote.service_type,
+          vehicleType: quote.vehicle_type ?? undefined,
+          format: quote.format ?? undefined,
+          quantity: quote.quantity ?? undefined,
+          zone: quote.zone ?? undefined,
+          deadline: quote.deadline ?? undefined,
+          advertiserMessage: quote.message,
+        },
+      });
+      if (res.ok) setActionMsg(res.message);
+      else setAiMsgError(res.message);
+    } catch {
+      setAiMsgError("Une erreur est survenue.");
+    } finally {
+      setAiMsgLoading(false);
+    }
+  }
+
+  // ── Send quote ─────────────────────────────────────────────────────────────
+  async function handleSendQuote() {
+    const cents = Math.round(Number(price) * 100);
+    if (!cents || cents <= 0) {
+      toast.error("Veuillez saisir un tarif valide (ex. 250).");
+      return;
+    }
+    setSendPhase("loading");
+    const { error } = await supabase
+      .from("service_quotes")
+      .update({
+        status: "quoted",
+        quoted_price_cents: cents,
+        quoted_message: actionMsg.trim() || null,
+        quoted_at: new Date().toISOString(),
+      })
+      .eq("id", quote.id);
+    if (error) {
+      toast.error("Erreur lors de l'envoi du devis. Réessayez.");
+      setSendPhase("idle");
+      return;
+    }
+    toast.success("Devis envoyé avec succès !");
+    setSendPhase("done");
+    onQuoteAction?.();
+  }
+
+  // ── Reject quote ───────────────────────────────────────────────────────────
+  async function handleRejectQuote() {
+    if (rejectPhase === "idle") {
+      setRejectPhase("confirm");
+      return;
+    }
+    setRejectPhase("loading");
+    const { error } = await supabase
+      .from("service_quotes")
+      .update({ status: "rejected" })
+      .eq("id", quote.id);
+    if (error) {
+      toast.error("Erreur lors du refus. Réessayez.");
+      setRejectPhase("idle");
+      return;
+    }
+    toast("Demande refusée.");
+    setRejectPhase("done");
+    onQuoteAction?.();
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────────────────────
 
   const hasAiContent = !!quote.ai_brief_id;
+  const isPending = quote.status === "pending";
   const vehicleLabel = quote.vehicle_type
     ? (VEHICLE_LABELS[quote.vehicle_type] ?? quote.vehicle_type)
     : null;
@@ -233,7 +310,7 @@ export function ProviderQuoteReview({ quote, providerProfile }: Props) {
         </span>
       </div>
 
-      {/* ── Section 1 : Brief Augmenté ─────────────────────────────────────── */}
+      {/* ── Section 1 : Brief Client ───────────────────────────────────────── */}
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
           Brief client
@@ -377,7 +454,6 @@ export function ProviderQuoteReview({ quote, providerProfile }: Props) {
           <div className="rounded-xl border border-border bg-card px-4 py-4 space-y-3">
             <div className="flex items-center gap-4">
               <ScoreRing score={feasibility.score} />
-              {/* Progress bar */}
               <div className="flex-1 space-y-1">
                 <div className="h-2 rounded-full bg-secondary overflow-hidden">
                   <div
@@ -418,6 +494,127 @@ export function ProviderQuoteReview({ quote, providerProfile }: Props) {
           </div>
         )}
       </section>
+
+      {/* ── Section 4 : Actions (seulement si statut pending) ─────────────── */}
+      {isPending && (
+        <section className="border-t border-border pt-5 space-y-4">
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Répondre à la demande
+          </h3>
+
+          {/* Tarif */}
+          <div>
+            <label
+              htmlFor={`price-${quote.id}`}
+              className="text-xs text-muted-foreground mb-1 block"
+            >
+              Tarif proposé (€) <span className="text-destructive">*</span>
+            </label>
+            <input
+              id={`price-${quote.id}`}
+              type="number"
+              min={0}
+              step="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Ex. 450.00"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              disabled={sendPhase === "loading"}
+            />
+          </div>
+
+          {/* Message */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor={`msg-${quote.id}`} className="text-xs text-muted-foreground">
+                Message au client (optionnel)
+              </label>
+              <button
+                type="button"
+                disabled={aiMsgLoading}
+                onClick={handleAiMsg}
+                className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 transition"
+              >
+                {aiMsgLoading ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3 h-3" />
+                )}
+                {aiMsgLoading ? "Génération…" : "Rédiger avec l'IA"}
+              </button>
+            </div>
+            {aiMsgError && <p className="text-xs text-destructive mb-1">{aiMsgError}</p>}
+            <textarea
+              id={`msg-${quote.id}`}
+              value={actionMsg}
+              onChange={(e) => setActionMsg(e.target.value)}
+              rows={3}
+              maxLength={1000}
+              placeholder="Décrivez votre offre, vos délais, votre expérience…"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+              disabled={sendPhase === "loading"}
+            />
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Send */}
+            <button
+              type="button"
+              onClick={handleSendQuote}
+              disabled={sendPhase === "loading" || !price}
+              className="flex-1 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-40 flex items-center justify-center gap-2 transition"
+            >
+              {sendPhase === "loading" ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Envoi…
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Envoyer le devis
+                </>
+              )}
+            </button>
+
+            {/* Reject — two-step inline confirmation */}
+            {rejectPhase === "confirm" ? (
+              <div className="flex items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-2.5">
+                <span className="text-sm text-destructive font-medium">Confirmer le refus ?</span>
+                <button
+                  type="button"
+                  onClick={handleRejectQuote}
+                  className="rounded-lg bg-destructive text-destructive-foreground px-3 py-1 text-xs font-semibold hover:bg-destructive/90 transition"
+                >
+                  Oui, refuser
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRejectPhase("idle")}
+                  className="rounded-lg border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-secondary transition"
+                >
+                  Annuler
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleRejectQuote}
+                disabled={rejectPhase === "loading"}
+                className="rounded-xl border border-destructive/40 bg-destructive/10 text-destructive px-4 py-2.5 text-sm font-semibold hover:bg-destructive/20 disabled:opacity-40 flex items-center gap-2 transition"
+              >
+                {rejectPhase === "loading" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ThumbsDown className="w-4 h-4" />
+                )}
+                Refuser
+              </button>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Lightbox */}
       {lightboxUrl && (
