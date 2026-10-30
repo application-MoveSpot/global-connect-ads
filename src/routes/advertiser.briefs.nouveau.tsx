@@ -262,6 +262,7 @@ function NewBriefPage() {
   const [guestPassword, setGuestPassword] = useState("");
   const [showGuestSignup, setShowGuestSignup] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
+  const [briefJustGeneratedByAi, setBriefJustGeneratedByAi] = useState(false);
 
   const DRAFT_KEY = "movespot_brief_draft_v1";
 
@@ -520,6 +521,7 @@ function NewBriefPage() {
         filled.push("durée");
       }
       setAiFilled(filled);
+      setBriefJustGeneratedByAi(true);
       setAiPanelOpen(false);
       setAiContext("");
     } catch (err) {
@@ -1658,26 +1660,48 @@ function NewBriefPage() {
           </div>
 
           <Field label={t("advertiser.briefs.nouveau.field_title")}>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              maxLength={120}
-              className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Ex. Campagne street food Paris 11e"
-            />
+            <div className="relative">
+              <input
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setBriefJustGeneratedByAi(false);
+                }}
+                required
+                maxLength={120}
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+                placeholder="Ex. Campagne street food Paris 11e"
+              />
+              {aiLoading && (
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-lg bg-primary/5 animate-pulse pointer-events-none"
+                />
+              )}
+            </div>
           </Field>
 
           <Field label={t("advertiser.briefs.nouveau.field_description")}>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              maxLength={2000}
-              rows={4}
-              className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Marque, message clé, ton, contraintes, audience cible…"
-            />
+            <div className="relative">
+              <textarea
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  setBriefJustGeneratedByAi(false);
+                }}
+                required
+                maxLength={2000}
+                rows={4}
+                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+                placeholder="Marque, message clé, ton, contraintes, audience cible…"
+              />
+              {aiLoading && (
+                <div
+                  aria-hidden
+                  className="absolute inset-0 rounded-lg bg-primary/5 animate-pulse pointer-events-none"
+                />
+              )}
+            </div>
             <BriefCopilot
               description={description}
               vehicleTypes={vehicleTypes}
@@ -1744,54 +1768,62 @@ function NewBriefPage() {
           )}
 
           <Field label={t("advertiser.briefs.nouveau.field_vehicles")}>
-            <button
-              type="button"
-              onClick={() => toggleType("camion_led")}
-              className={`px-3 py-1.5 rounded-full text-sm border transition-all mb-3 ${
-                vehicleTypes.includes("camion_led")
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card border-border hover:bg-secondary"
-              }`}
+            <div
+              className={
+                aiLoading
+                  ? "opacity-50 pointer-events-none transition-opacity"
+                  : "transition-opacity"
+              }
             >
-              {t("advertiser.briefs.nouveau.vehicle_led_btn")}
-            </button>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
-              {t("advertiser.briefs.nouveau.vehicles_available")}
+              <button
+                type="button"
+                onClick={() => toggleType("camion_led")}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-all mb-3 ${
+                  vehicleTypes.includes("camion_led")
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card border-border hover:bg-secondary"
+                }`}
+              >
+                {t("advertiser.briefs.nouveau.vehicle_led_btn")}
+              </button>
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+                {t("advertiser.briefs.nouveau.vehicles_available")}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {VEHICLE_TYPES.filter((vt) => vt.v !== "camion_led").map((vt) => {
+                  const blockedByBoxled =
+                    adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(vt.v as VehicleKey);
+                  const isSelected = vehicleTypes.includes(vt.v);
+                  return (
+                    <button
+                      type="button"
+                      key={vt.v}
+                      disabled={blockedByBoxled}
+                      title={
+                        blockedByBoxled
+                          ? t("advertiser.briefs.nouveau.boxled_incompatible_title")
+                          : vt.tip
+                      }
+                      onClick={() => toggleType(vt.v)}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                        blockedByBoxled
+                          ? "opacity-40 cursor-not-allowed bg-card border-border"
+                          : isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border hover:bg-secondary"
+                      }`}
+                    >
+                      {vtLabel(vt.v)}
+                    </button>
+                  );
+                })}
+              </div>
+              {adFormat === "boxled" && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                  {t("advertiser.briefs.nouveau.boxled_warning")}
+                </p>
+              )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {VEHICLE_TYPES.filter((vt) => vt.v !== "camion_led").map((vt) => {
-                const blockedByBoxled =
-                  adFormat === "boxled" && BOXLED_INCOMPATIBLE.includes(vt.v as VehicleKey);
-                const isSelected = vehicleTypes.includes(vt.v);
-                return (
-                  <button
-                    type="button"
-                    key={vt.v}
-                    disabled={blockedByBoxled}
-                    title={
-                      blockedByBoxled
-                        ? t("advertiser.briefs.nouveau.boxled_incompatible_title")
-                        : vt.tip
-                    }
-                    onClick={() => toggleType(vt.v)}
-                    className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
-                      blockedByBoxled
-                        ? "opacity-40 cursor-not-allowed bg-card border-border"
-                        : isSelected
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "bg-card border-border hover:bg-secondary"
-                    }`}
-                  >
-                    {vtLabel(vt.v)}
-                  </button>
-                );
-              })}
-            </div>
-            {adFormat === "boxled" && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
-                {t("advertiser.briefs.nouveau.boxled_warning")}
-              </p>
-            )}
           </Field>
 
           {/* Aperçu automatique sur un véhicule réel disponible */}
@@ -2024,13 +2056,21 @@ function NewBriefPage() {
               />
             </Field>
             <Field label={t("advertiser.briefs.nouveau.field_audience")}>
-              <input
-                value={audience}
-                onChange={(e) => setAudience(e.target.value)}
-                maxLength={200}
-                className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-                placeholder="Ex. 25-40 ans urbains"
-              />
+              <div className="relative">
+                <input
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                  maxLength={200}
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
+                  placeholder="Ex. 25-40 ans urbains"
+                />
+                {aiLoading && (
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 rounded-lg bg-primary/5 animate-pulse pointer-events-none"
+                  />
+                )}
+              </div>
             </Field>
           </div>
 
@@ -2127,6 +2167,8 @@ function NewBriefPage() {
             vehicleTypes={vehicleTypes}
             adFormat={adFormat}
             onAssetAdded={(url) => setAiCreativeUrl(url)}
+            highlightReady={briefJustGeneratedByAi}
+            onHighlightDismiss={() => setBriefJustGeneratedByAi(false)}
           />
 
           <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">

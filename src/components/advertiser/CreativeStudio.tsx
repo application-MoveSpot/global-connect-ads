@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Loader2, Film, Music, Image } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Loader2, Film, Music, Image, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateVideoScript, type VideoScriptResult } from "@/lib/ai/brief-script.functions";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,9 @@ interface Props {
   vehicleTypes: string[];
   adFormat: string | null;
   onAssetAdded: (url: string) => void;
+  /** When true, AI just filled the brief — show a nudge + auto-switch to image tab. */
+  highlightReady?: boolean;
+  onHighlightDismiss?: () => void;
 }
 
 // ── Prompt builder ────────────────────────────────────────────────────────────
@@ -102,6 +105,8 @@ export function CreativeStudio({
   vehicleTypes,
   adFormat,
   onAssetAdded,
+  highlightReady,
+  onHighlightDismiss,
 }: Props) {
   const [tab, setTab] = useState<Tab>("image");
   const [audioMode, setAudioMode] = useState<AudioMode>("jingle");
@@ -112,6 +117,18 @@ export function CreativeStudio({
   const [scriptResult, setScriptResult] = useState<VideoScriptResult | null>(null);
   const [attached, setAttached] = useState(false);
   const [customPrompt, setCustomPrompt] = useState("");
+
+  // Auto-switch to image tab and reset result when AI fills the brief
+  useEffect(() => {
+    if (!highlightReady) return;
+    setTab("image");
+    setResultUrl(null);
+    setResultPath(null);
+    setScriptResult(null);
+    setError(null);
+    setAttached(false);
+    setCustomPrompt("");
+  }, [highlightReady]);
 
   const defaultPrompt =
     tab === "image"
@@ -137,6 +154,7 @@ export function CreativeStudio({
     setResultPath(null);
     setScriptResult(null);
     setAttached(false);
+    onHighlightDismiss?.();
 
     // Video script: pure LLM, no fal.ai
     if (tab === "video") {
@@ -227,7 +245,34 @@ export function CreativeStudio({
   }[tab];
 
   return (
-    <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+    <div
+      className={cn(
+        "rounded-xl border bg-primary/5 p-4 space-y-3 transition-all duration-500",
+        highlightReady
+          ? "border-primary/60 shadow-lg shadow-primary/10 ring-2 ring-primary/20"
+          : "border-primary/30",
+      )}
+    >
+      {/* AI nudge banner */}
+      {highlightReady && !loading && !resultUrl && (
+        <div className="flex items-start gap-2 rounded-lg bg-primary/10 border border-primary/30 px-3 py-2.5">
+          <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+          <p className="flex-1 text-xs text-primary font-medium leading-snug">
+            Brief généré par l'IA — le prompt visuel est prêt. Cliquez sur{" "}
+            <strong>Générer le visuel</strong> pour créer votre mockup.
+          </p>
+          {onHighlightDismiss && (
+            <button
+              type="button"
+              onClick={onHighlightDismiss}
+              className="text-primary/60 hover:text-primary text-xs leading-none shrink-0"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-2">
         <span className="text-lg">✨</span>
