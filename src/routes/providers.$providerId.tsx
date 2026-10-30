@@ -84,6 +84,7 @@ function ProviderDetailPage() {
   const [zone, setZone] = useState("");
   const [message, setMessage] = useState("");
   const [serviceType, setServiceType] = useState("");
+  const [briefSessionId, setBriefSessionId] = useState<string | undefined>(undefined);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -174,6 +175,7 @@ function ProviderDetailPage() {
       deadline: deadline || null,
       zone: zone || null,
       message,
+      ai_brief_id: briefSessionId ?? null,
     });
     setSubmitting(false);
     if (insErr) {
@@ -391,6 +393,7 @@ function ProviderDetailPage() {
                   serviceType={serviceType}
                   vehicleType={vehicleType || undefined}
                   onResult={(text) => setMessage(text)}
+                  onBriefSessionCreated={(id) => setBriefSessionId(id)}
                 />
               </Suspense>
             </Field>
