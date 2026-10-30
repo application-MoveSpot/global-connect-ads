@@ -7,6 +7,7 @@ import { PROVIDER_SERVICES, providerServiceLabel } from "@/lib/providers/provide
 import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { RouteError } from "@/components/app/RouteError";
+import { BriefIntentAssistant } from "@/components/advertiser/BriefIntentAssistant";
 import { useTranslation } from "react-i18next";
 
 const VIDEO_EXTENSIONS = new Set(["mp4", "webm", "mov", "avi", "mkv"]);
@@ -380,6 +381,11 @@ function ProviderDetailPage() {
                   {t("providers.detail.contact_detected")}
                 </div>
               )}
+              <BriefIntentAssistant
+                serviceType={serviceType}
+                vehicleType={vehicleType || undefined}
+                onResult={(text) => setMessage(text)}
+              />
             </Field>
             {error && (
               <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
