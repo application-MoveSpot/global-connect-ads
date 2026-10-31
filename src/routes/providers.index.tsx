@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { RouteError } from "@/components/app/RouteError";
 import { LogoLink } from "@/components/app/LogoLink";
 import {
@@ -9,7 +10,6 @@ import {
   type ProviderServiceKey,
 } from "@/lib/providers/provider-services";
 import { useTranslation } from "react-i18next";
-import { useProviderSearch } from "@/hooks/useProviderSearch";
 import { Loader2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/providers/")({
@@ -82,12 +82,117 @@ export const Route = createFileRoute("/providers/")({
   }),
 });
 
+type Provider = {
+  user_id: string;
+  company: string;
+  full_name: string;
+  description: string;
+  coverage_areas: string[];
+  pricing_info: string | null;
+  logo_url: string | null;
+  website: string | null;
+  services: string[];
+  similarity?: number;
+};
+
+const DEBOUNCE_MS = 600;
+
 function ProvidersDirectory() {
   const { t } = useTranslation();
+  const [allProviders, setAllProviders] = useState<Provider[]>([]);
+  const [filtered, setFiltered] = useState<Provider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
+  const [mode, setMode] = useState<"keyword" | "semantic">("keyword");
   const [q, setQ] = useState("");
   const [serviceFilter, setServiceFilter] = useState<ProviderServiceKey | "">("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const { results: filtered, loading, searching, mode } = useProviderSearch(q, serviceFilter);
+  // Initial load
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("public_provider_profiles")
+        .select("user_id, company, full_name, description, coverage_areas, pricing_info, logo_url, website, services")
+        .order("created_at", { ascending: false });
+      const providers = (data as Provider[]) ?? [];
+      setAllProviders(providers);
+      setFiltered(providers);
+      setLoading(false);
+    })();
+  }, []);
+
+  // Search effect
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortRef.current) abortRef.current.abort();
+
+    const trimmed = q.trim();
+
+    if (trimmed.length < 3) {
+      setMode("keyword");
+      setFiltered(
+        allProviders.filter((p) => {
+          if (serviceFilter && !p.services?.includes(serviceFilter)) return false;
+          if (!trimmed) return true;
+          const s = trimmed.toLowerCase();
+          return (
+            p.company.toLowerCase().includes(s) ||
+            p.description?.toLowerCase().includes(s) ||
+            p.coverage_areas?.some((z) => z.toLowerCase().includes(s))
+          );
+        }).map((p) => ({ ...p, similarity: undefined }))
+      );
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      setMode("semantic");
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      try {
+        const { data: fnData, error: fnError } = await supabase.functions.invoke("embed-query", {
+          body: { text: trimmed },
+        });
+        if (controller.signal.aborted) return;
+
+        if (fnError || !fnData?.embedding) {
+          // Fallback to keyword
+          setMode("keyword");
+          const s = trimmed.toLowerCase();
+          setFiltered(
+            allProviders.filter((p) => {
+              if (serviceFilter && !p.services?.includes(serviceFilter)) return false;
+              return (
+                p.company.toLowerCase().includes(s) ||
+                p.description?.toLowerCase().includes(s) ||
+                p.coverage_areas?.some((z) => z.toLowerCase().includes(s))
+              );
+            })
+          );
+          return;
+        }
+
+        const { data: matches } = await (supabase as any).rpc("match_providers", {
+          query_embedding: fnData.embedding,
+          match_threshold: 0.25,
+          match_count: 30,
+          filter_category: serviceFilter || null,
+        });
+        if (controller.signal.aborted) return;
+        setFiltered((matches as Provider[]) ?? []);
+      } catch {
+        if (!controller.signal.aborted) setFiltered([]);
+      } finally {
+        if (!controller.signal.aborted) setSearching(false);
+      }
+    }, DEBOUNCE_MS);
+
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [q, serviceFilter, allProviders]);
 
   return (
     <div className="min-h-screen bg-background">
