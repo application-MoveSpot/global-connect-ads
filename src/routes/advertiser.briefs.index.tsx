@@ -1,9 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
+import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
+import { AiBriefModal } from "@/components/advertiser/AiBriefModal";
+import { AiBriefSummaryBadge } from "@/components/advertiser/AiBriefSummaryBadge";
+import { useAiBriefSummaries } from "@/hooks/useAiBriefSummaries";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/")({
@@ -44,6 +48,7 @@ function BriefsListPage() {
   const [briefIds, setBriefIds] = useState<string[]>([]);
   const briefIdsRef = useRef<string[]>([]);
   const [accountType, setAccountType] = useState<string | null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -118,6 +123,7 @@ function BriefsListPage() {
     };
   }, [briefIds]);
 
+  const { summaries: aiSummaries, loading: aiLoading } = useAiBriefSummaries(briefIds);
   const isIndividual = accountType === "individual";
 
   if (loading)
@@ -147,15 +153,24 @@ function BriefsListPage() {
                 : t("advertiser.briefs_list.subtitle_business")}
             </p>
           </div>
-          <Link
-            to="/advertiser/briefs/nouveau"
-            className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
-          >
-            +{" "}
-            {isIndividual
-              ? t("advertiser.briefs_list.new_individual")
-              : t("advertiser.briefs_list.new_business")}
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAiModal(true)}
+              className="rounded-full border border-primary/40 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/10 transition flex items-center gap-1.5"
+            >
+              <Sparkles className="h-4 w-4" />
+              IA
+            </button>
+            <Link
+              to="/advertiser/briefs/nouveau"
+              className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
+            >
+              +{" "}
+              {isIndividual
+                ? t("advertiser.briefs_list.new_individual")
+                : t("advertiser.briefs_list.new_business")}
+            </Link>
+          </div>
         </div>
 
         {briefs.length === 0 ? (
@@ -249,6 +264,11 @@ function BriefsListPage() {
                           J-{d}
                         </span>
                       )}
+                      <AiBriefSummaryBadge
+                        briefId={b.id}
+                        summary={aiSummaries[b.id]}
+                        loading={aiLoading}
+                      />
                     </div>
                   </div>
                 </Link>
@@ -257,6 +277,7 @@ function BriefsListPage() {
           </div>
         )}
       </main>
+      {showAiModal && <AiBriefModal onClose={() => setShowAiModal(false)} />}
     </div>
   );
 }
