@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
 import { useState } from "react";
+import { RouteError } from "@/components/app/RouteError";
 import { LogoLink } from "@/components/app/LogoLink";
 import {
   PROVIDER_SERVICES,
@@ -13,6 +14,7 @@ import { Loader2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/providers/")({
   component: ProvidersDirectory,
+  errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
   head: () => ({
     meta: [
       { title: "Prestataires impression covering — MoveSpot" },
