@@ -45,6 +45,7 @@ export const Route = createFileRoute("/providers/$providerId")({
         { property: "og:description", content: description },
         { property: "og:url", content: url },
         { property: "og:type", content: "profile" },
+        { name: "twitter:card", content: "summary" },
       ],
       links: [{ rel: "canonical", href: url }],
     };
@@ -204,10 +205,10 @@ function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="bg-header text-header-foreground border-b border-header-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
-          <Link to="/providers" className="text-sm text-muted-foreground hover:text-foreground">
+          <Link to="/providers" className="text-sm text-header-muted hover:text-header-foreground">
             {t("providers.detail.back")}
           </Link>
         </div>
