@@ -6,7 +6,9 @@ import { captureServerException } from "@/lib/sentry.server";
 const FeasibilityInput = z.object({
   serviceType: z.string().max(100),
   vehicleType: z.string().max(100).optional(),
-  answers: z.record(z.string().max(500)).max(15),
+  answers: z
+    .record(z.string(), z.string().max(500))
+    .refine((r) => Object.keys(r).length <= 15, { message: "Trop de réponses" }),
   providerServices: z.array(z.string().max(100)).max(10),
   providerDescription: z.string().max(1000).optional(),
 });

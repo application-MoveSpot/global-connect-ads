@@ -12,7 +12,9 @@ import { captureServerException } from "@/lib/sentry.server";
 const SynthesizeInput = z.object({
   serviceType: z.string().max(100),
   vehicleType: z.string().max(100).optional(),
-  answers: z.record(z.string().max(500)).max(10),
+  answers: z
+    .record(z.string(), z.string().max(500))
+    .refine((r) => Object.keys(r).length <= 10, { message: "Trop de réponses" }),
   _auth: z.string().optional(),
   userApiKey: z.string().max(300).optional(),
 });
