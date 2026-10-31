@@ -18,6 +18,10 @@ export const Route = createFileRoute("/providers/")({
   head: () => ({
     meta: [
       { title: "Prestataires impression covering — MoveSpot" },
+      { property: "og:title", content: "Prestataires impression covering — MoveSpot" },
+      { property: "og:description", content: "Annuaire des prestataires de covering véhicule sur MoveSpot. Demandez un devis en ligne." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         name: "description",
         content:
@@ -196,7 +200,7 @@ function ProvidersDirectory() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="bg-header text-header-foreground border-b border-header-border">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link
