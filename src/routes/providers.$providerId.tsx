@@ -205,7 +205,7 @@ function ProviderDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-header text-header-foreground border-b border-header-border">
+      <header className="bg-header text-header-foreground border-b border-header-border light-band">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/providers" className="text-sm text-header-muted hover:text-header-foreground">

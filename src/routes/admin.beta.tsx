@@ -73,7 +73,7 @@ function AdminBetaPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="border-b border-border light-band">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link to="/admin" className="text-muted-foreground hover:text-foreground transition">
             <ArrowLeft className="h-5 w-5" />

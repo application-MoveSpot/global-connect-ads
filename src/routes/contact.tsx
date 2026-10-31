@@ -138,7 +138,7 @@ function ChatPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border">
+      <header className="border-b border-border light-band">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
@@ -276,7 +276,7 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="border-b border-border">
+      <header className="border-b border-border light-band">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">

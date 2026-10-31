@@ -15,7 +15,7 @@ export function LogoLink() {
         alt="MoveSpot"
         width={273}
         height={359}
-        className="h-16 w-auto shrink-0 object-contain pointer-events-none"
+        className="h-14 sm:h-20 w-auto shrink-0 object-contain pointer-events-none"
       />
     </Link>
   );

@@ -52,7 +52,7 @@ function CartePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border print:hidden">
+      <header className="border-b border-border print:hidden light-band">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex gap-3">

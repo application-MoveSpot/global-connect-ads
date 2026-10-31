@@ -110,7 +110,7 @@ function AvisPage() {
   if (alreadyReviewed || submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border">
+        <header className="border-b border-border light-band">
           <div className="max-w-xl mx-auto px-4 py-4">
             <LogoLink />
           </div>
@@ -140,7 +140,7 @@ function AvisPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="border-b border-border light-band">
         <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link

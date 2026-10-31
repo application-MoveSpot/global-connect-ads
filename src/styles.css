@@ -121,6 +121,25 @@
   --role-admin: oklch(0.75 0.16 250);        /* slate blue — control */
 }
 
+/* Bande blanche : remet les couleurs claires à l'intérieur de toutes les barres du haut */
+.light-band {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.15 0.030 264);
+  --card: oklch(0.97 0.005 264);
+  --card-foreground: oklch(0.15 0.030 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.030 264);
+  --secondary: oklch(0.95 0.006 264);
+  --secondary-foreground: oklch(0.15 0.030 264);
+  --muted: oklch(0.96 0.005 264);
+  --muted-foreground: oklch(0.45 0.015 250);
+  --accent-foreground: oklch(0.15 0.030 264);
+  --border: oklch(0.90 0.010 264);
+  --input: oklch(0.90 0.010 264);
+  background-color: var(--header);
+  color: var(--header-foreground);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
