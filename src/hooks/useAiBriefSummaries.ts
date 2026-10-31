@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { generateBriefSummary } from "@/lib/briefs/generateBriefSummary";
 
 export type BriefSummary = {
   brief_id: string;
@@ -66,7 +67,8 @@ export function useAiBriefSummaries(briefIds: string[]) {
                   setSummaries((prev) => ({ ...prev, [briefId]: summary }));
                 }
               } catch {
-                /* fail silently per brief */
+                /* fail silently per brief — deterministic fallback via generateBriefSummary
+                   is used by callers that have access to proposal data locally */
               }
             }),
           );
