@@ -57,7 +57,8 @@ export const synthesizeQuoteBrief = createServerFn({ method: "POST" })
       ? [getUserKeyModel(data.userApiKey!)]
       : ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 
-    const answersText = Object.entries(data.answers)
+    const answers = data.answers as Record<string, string>;
+    const answersText = Object.entries(answers)
       .filter(([, v]) => v.trim())
       .map(([q, a]) => `- ${q} : ${a}`)
       .join("\n");
