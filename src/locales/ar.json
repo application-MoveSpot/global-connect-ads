@@ -268,5 +268,24 @@
     "autre": "أخرى",
     "micro_mobility": "التنقل المصغّر (دراجة، ثلاثي، سكوتر)",
     "utilitaire": "شاحنة مرافق / شاحنة"
+  },
+  "ai_chat": {
+    "summary_btn": "ملخص AI",
+    "summary_loading": "جارٍ التحليل…",
+    "action_required": "إجراء مطلوب",
+    "status": {
+      "negotiating": "جارٍ التفاوض",
+      "agreed": "تم الاتفاق",
+      "stalled": "متوقف",
+      "closed": "مغلق"
+    },
+    "cached": "محفوظ مؤقتاً",
+    "retry": "إعادة المحاولة",
+    "smart_replies_label": "اقتراحات AI",
+    "translate": "ترجمة",
+    "hide_translation": "إخفاء",
+    "translating": "جارٍ الترجمة…",
+    "placeholder": "رسالتك…",
+    "error_generic": "الميزة غير متاحة مؤقتاً"
   }
 }
