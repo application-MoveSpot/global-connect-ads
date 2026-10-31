@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { hreflangLinks } from "@/lib/seo";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { LogoLink } from "@/components/app/LogoLink";
 import {
   PROVIDER_SERVICES,
@@ -9,6 +8,8 @@ import {
   type ProviderServiceKey,
 } from "@/lib/providers/provider-services";
 import { useTranslation } from "react-i18next";
+import { useProviderSearch } from "@/hooks/useProviderSearch";
+import { Loader2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/providers/")({
   component: ProvidersDirectory,
@@ -79,48 +80,12 @@ export const Route = createFileRoute("/providers/")({
   }),
 });
 
-type Provider = {
-  user_id: string;
-  company: string;
-  full_name: string;
-  description: string;
-  coverage_areas: string[];
-  pricing_info: string | null;
-  logo_url: string | null;
-  website: string | null;
-  services: string[];
-};
-
 function ProvidersDirectory() {
   const { t } = useTranslation();
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [serviceFilter, setServiceFilter] = useState<ProviderServiceKey | "">("");
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("public_provider_profiles")
-        .select(
-          "user_id, company, full_name, description, coverage_areas, pricing_info, logo_url, website, services",
-        )
-        .order("created_at", { ascending: false });
-      setProviders((data as Provider[]) ?? []);
-      setLoading(false);
-    })();
-  }, []);
-
-  const filtered = providers.filter((p) => {
-    if (serviceFilter && !p.services?.includes(serviceFilter)) return false;
-    if (!q.trim()) return true;
-    const s = q.toLowerCase();
-    return (
-      p.company.toLowerCase().includes(s) ||
-      p.description.toLowerCase().includes(s) ||
-      p.coverage_areas.some((z) => z.toLowerCase().includes(s))
-    );
-  });
+  const { results: filtered, loading, searching, mode } = useProviderSearch(q, serviceFilter);
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,12 +104,23 @@ function ProvidersDirectory() {
         <h1 className="font-display text-3xl font-bold mb-2">{t("providers.annuaire.title")}</h1>
         <p className="text-sm text-muted-foreground mb-6">{t("providers.annuaire.subtitle")}</p>
 
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={t("providers.annuaire.search_placeholder")}
-          className="w-full rounded-full border border-border bg-card px-5 py-3 mb-3"
-        />
+        <div className="relative mb-3">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={t("providers.annuaire.search_placeholder")}
+            className="w-full rounded-full border border-border bg-card px-5 py-3 pr-12"
+          />
+          {searching && (
+            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-primary" />
+          )}
+        </div>
+        {mode === "semantic" && !searching && (
+          <div className="flex items-center gap-1.5 text-xs text-primary mb-4 font-medium">
+            <Sparkles className="h-3.5 w-3.5" />
+            {t("providers.annuaire.ai_search_active", { defaultValue: "Recherche intelligente IA activée ✨" })}
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 mb-6">
           <button
@@ -199,8 +175,19 @@ function ProvidersDirectory() {
                       {p.company.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <div className="min-w-0">
-                    <div className="font-semibold truncate">{p.company}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold truncate">{p.company}</span>
+                      {typeof p.similarity === "number" && (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] bg-primary/15 text-primary font-semibold px-2 py-0.5 rounded-full shrink-0">
+                          <Sparkles className="h-2.5 w-2.5" />
+                          {t("providers.annuaire.match_score", {
+                            score: Math.round(p.similarity * 100),
+                            defaultValue: `Match à ${Math.round(p.similarity * 100)}%`,
+                          })}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-muted-foreground truncate">
                       {t("common.contact_label")} {p.full_name}
                     </div>
