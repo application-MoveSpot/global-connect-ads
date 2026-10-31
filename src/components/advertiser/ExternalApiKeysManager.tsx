@@ -300,7 +300,7 @@ export function ExternalApiKeysManager() {
     queryFn: () => listProviderKeys(),
   });
 
-  const keys = data?.keys ?? [];
+  const keys: ProviderKey[] = data?.keys ?? [];
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {

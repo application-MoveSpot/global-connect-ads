@@ -6,7 +6,9 @@ import { captureServerException } from "@/lib/sentry.server";
 const FeasibilityInput = z.object({
   serviceType: z.string().max(100),
   vehicleType: z.string().max(100).optional(),
-  answers: z.record(z.string().max(500)).max(15),
+  answers: z
+    .record(z.string(), z.string().max(500))
+    .refine((r) => Object.keys(r).length <= 15, { message: "Trop de réponses" }),
   providerServices: z.array(z.string().max(100)).max(10),
   providerDescription: z.string().max(1000).optional(),
 });
@@ -36,7 +38,8 @@ export const computeFeasibilityScore = createServerFn({ method: "POST" })
     const platformKey = process.env.LOVABLE_API_KEY ?? process.env.GOOGLE_AI_API_KEY;
     if (!platformKey) return { ok: true, data: FALLBACK_SCORE };
 
-    const answersText = Object.entries(data.answers)
+    const answers = data.answers as Record<string, string>;
+    const answersText = Object.entries(answers)
       .filter(([, v]) => v?.trim())
       .map(([k, v]) => `- ${k} : ${v}`)
       .join("\n");

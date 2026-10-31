@@ -33,9 +33,7 @@ function fmt(n: number): string {
 }
 
 // Save lead context before redirecting to signup
-function saveEstimatorContext(
-  inputs: Parameters<typeof useAiCampaignEstimator>[0] extends undefined ? object : never,
-) {
+function saveEstimatorContext(inputs: object) {
   void inputs; // unused overload — handled inline
 }
 

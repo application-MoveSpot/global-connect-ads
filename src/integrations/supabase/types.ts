@@ -178,6 +178,45 @@ export type Database = {
           },
         ]
       }
+      ai_brief_data: {
+        Row: {
+          answers: Json
+          created_at: string
+          generated_text_brief: string | null
+          id: string
+          mockup_prompt: string | null
+          mockup_url: string | null
+          regeneration_count: number
+          service_type: string
+          user_id: string
+          vehicle_type: string | null
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          generated_text_brief?: string | null
+          id?: string
+          mockup_prompt?: string | null
+          mockup_url?: string | null
+          regeneration_count?: number
+          service_type: string
+          user_id: string
+          vehicle_type?: string | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          generated_text_brief?: string | null
+          id?: string
+          mockup_prompt?: string | null
+          mockup_url?: string | null
+          regeneration_count?: number
+          service_type?: string
+          user_id?: string
+          vehicle_type?: string | null
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           created_at: string
@@ -1541,6 +1580,7 @@ export type Database = {
       service_quotes: {
         Row: {
           advertiser_id: string
+          ai_brief_id: string | null
           attachments: string[]
           created_at: string
           deadline: string | null
@@ -1565,6 +1605,7 @@ export type Database = {
         }
         Insert: {
           advertiser_id: string
+          ai_brief_id?: string | null
           attachments?: string[]
           created_at?: string
           deadline?: string | null
@@ -1589,6 +1630,7 @@ export type Database = {
         }
         Update: {
           advertiser_id?: string
+          ai_brief_id?: string | null
           attachments?: string[]
           created_at?: string
           deadline?: string | null
@@ -1612,6 +1654,13 @@ export type Database = {
           zone?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "service_quotes_ai_brief_id_fkey"
+            columns: ["ai_brief_id"]
+            isOneToOne: false
+            referencedRelation: "ai_brief_data"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "service_quotes_vehicle_id_fkey"
             columns: ["vehicle_id"]

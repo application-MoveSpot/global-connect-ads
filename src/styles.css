@@ -100,12 +100,12 @@
   --signal: oklch(0.70 0.19 165);
   --signal-foreground: oklch(0.10 0.03 264);
 
-  /* Header: slightly elevated surface */
-  --header: oklch(0.08 0.020 264);
-  --header-foreground: oklch(0.98 0.003 250);
-  --header-muted: oklch(0.55 0.015 250);     /* #6B7280 */
-  --header-border: oklch(0.22 0.028 264);
-  --header-card: oklch(0.10 0.025 264);
+  /* Header: white band with official logo */
+  --header: oklch(1 0 0);                    /* #FFFFFF — bande blanche */
+  --header-foreground: oklch(0.15 0.030 264); /* navy foncé */
+  --header-muted: oklch(0.45 0.015 250);     /* gris moyen */
+  --header-border: oklch(0.90 0.010 264);    /* gris clair */
+  --header-card: oklch(0.97 0.005 264);      /* presque blanc */
 
   /* Warning = amber */
   --warning: oklch(0.83 0.18 72);
