@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import logoSvg from "@/assets/movespot-logo.svg";
+import logoOfficial from "@/assets/movespot-logo-horizontal.png.asset.json";
 
 export function Navbar() {
   const { t } = useTranslation();
