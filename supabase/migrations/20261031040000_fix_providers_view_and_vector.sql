@@ -1,8 +1,7 @@
--- Correctif : recrée la vue public_provider_profiles si elle a été supprimée
--- lors de la migration 20261031020000 (drop view sans recréation réussie).
--- Utilise CREATE OR REPLACE pour être idempotent.
+-- Migration idempotente : garantit que la vue et la fonction sont à jour
+-- après correction des erreurs dans 20261031020000.
 
--- 1. Recréer la vue sans DROP préalable
+-- Vue : conserve la définition correcte (status = 'approved')
 create or replace view public_provider_profiles as
 select
   pp.user_id,
@@ -16,11 +15,11 @@ select
   pp.services,
   pp.created_at
 from provider_profiles pp
-where pp.is_active = true;
+where pp.status = 'approved';
 
--- 2. Recrée la fonction match_providers avec le type vector correct (sans préfixe extensions.)
+-- Fonction : vector(384) pour gte-small (Supabase natif, gratuit)
 create or replace function match_providers(
-  query_embedding vector(1536),
+  query_embedding vector(384),
   match_threshold float default 0.3,
   match_count int default 20,
   filter_category text default null
@@ -52,7 +51,7 @@ as $$
     1 - (pp.embedding <=> query_embedding) as similarity
   from provider_profiles pp
   where
-    pp.is_active = true
+    pp.status = 'approved'
     and pp.embedding is not null
     and (filter_category is null or pp.services @> array[filter_category])
     and 1 - (pp.embedding <=> query_embedding) > match_threshold
