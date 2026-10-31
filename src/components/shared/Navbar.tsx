@@ -26,16 +26,12 @@ export function Navbar() {
           className="flex h-16 shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
         >
           <img
-            src={logoSvg}
+            src={logoOfficial.url}
             alt="MoveSpot"
-            width={56}
-            height={56}
-            className="h-14 w-14 shrink-0 object-contain pointer-events-none"
+            width={360}
+            height={80}
+            className="h-12 w-auto shrink-0 object-contain pointer-events-none"
           />
-          <span className="hidden font-bold text-lg tracking-tight sm:inline">
-            <span className="text-header-foreground">Move</span>
-            <span className="text-primary">Spot</span>
-          </span>
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
           <a href={mapHref} className="whitespace-nowrap hover:text-header-foreground transition">
