@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import logoOfficial from "@/assets/movespot-logo-horizontal.png.asset.json";
+import logoOfficial from "@/assets/movespot-logo.png.asset.json";
 
 export function Navbar() {
   const { t } = useTranslation();
@@ -28,9 +28,9 @@ export function Navbar() {
           <img
             src={logoOfficial.url}
             alt="MoveSpot"
-            width={360}
-            height={80}
-            className="h-12 w-auto shrink-0 object-contain pointer-events-none"
+            width={273}
+            height={359}
+            className="h-14 w-auto shrink-0 object-contain pointer-events-none"
           />
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
