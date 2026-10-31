@@ -30,7 +30,7 @@ export function Navbar() {
             alt="MoveSpot"
             width={273}
             height={359}
-            className="h-20 w-auto shrink-0 object-contain pointer-events-none"
+            className="h-14 sm:h-20 w-auto shrink-0 object-contain pointer-events-none"
           />
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
