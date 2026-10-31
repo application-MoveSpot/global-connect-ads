@@ -1,8 +1,8 @@
--- Correctif : recrée la vue public_provider_profiles si elle a été supprimée
--- lors de la migration 20261031020000 (drop view sans recréation réussie).
--- Utilise CREATE OR REPLACE pour être idempotent.
+-- Ce fichier corrigeait des erreurs dans 20261031020000 qui sont maintenant
+-- directement corrigées dans ce fichier source. Cette migration est un no-op
+-- idempotent pour éviter toute erreur si appliquée sur un projet déjà à jour.
 
--- 1. Recréer la vue sans DROP préalable
+-- Garantit que la vue existe avec la condition correcte (status = 'approved')
 create or replace view public_provider_profiles as
 select
   pp.user_id,
@@ -16,9 +16,9 @@ select
   pp.services,
   pp.created_at
 from provider_profiles pp
-where pp.is_active = true;
+where pp.status = 'approved';
 
--- 2. Recrée la fonction match_providers avec le type vector correct (sans préfixe extensions.)
+-- Garantit que la fonction match_providers existe avec la bonne condition
 create or replace function match_providers(
   query_embedding vector(1536),
   match_threshold float default 0.3,
@@ -52,7 +52,7 @@ as $$
     1 - (pp.embedding <=> query_embedding) as similarity
   from provider_profiles pp
   where
-    pp.is_active = true
+    pp.status = 'approved'
     and pp.embedding is not null
     and (filter_category is null or pp.services @> array[filter_category])
     and 1 - (pp.embedding <=> query_embedding) > match_threshold
