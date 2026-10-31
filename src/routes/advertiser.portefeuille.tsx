@@ -17,6 +17,7 @@ import { PaymentTestModeBanner } from "@/components/app/PaymentTestModeBanner";
 import { RouteError } from "@/components/app/RouteError";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useRegion } from "@/lib/region-context";
+import { useWalletAnalytics } from "@/hooks/useWalletAnalytics";
 
 export const Route = createFileRoute("/advertiser/portefeuille")({
   head: () => ({
@@ -30,6 +31,13 @@ export const Route = createFileRoute("/advertiser/portefeuille")({
 });
 
 type TxKind = "all" | "topup" | "campaign_debit" | "refund" | "admin_adjustment";
+
+type WalletTx = {
+  kind: string;
+  amount_cents: number;
+  created_at: string;
+  description?: string | null;
+};
 
 const TX_KINDS: TxKind[] = ["all", "topup", "campaign_debit", "refund", "admin_adjustment"];
 
@@ -50,6 +58,9 @@ function WalletPage() {
   const [balanceCents, setBalanceCents] = useState(0);
   const [accountType, setAccountType] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(100);
+
+  const isIndividual = accountType === "individual";
+  const analytics = useWalletAnalytics(userId, balanceCents, isIndividual);
 
   const [filterKind, setFilterKind] = useState<TxKind>("all");
   const [page, setPage] = useState(0);
@@ -152,6 +163,55 @@ function WalletPage() {
     setPage(0);
   }
 
+  async function exportPdfReport() {
+    setTxLoading(true);
+    try {
+      const r = await fetchTransactions({ data: { kind: "all", page: 0, pageSize: 5000 } });
+      const rows = r.transactions as WalletTx[];
+      const balanceEur = (balanceCents / 100).toFixed(2);
+      const totalTopup = (rows.filter((tx) => tx.kind === "topup").reduce((s, tx) => s + tx.amount_cents, 0) / 100).toFixed(2);
+      const totalSpent = Math.abs(rows.filter((tx) => tx.kind === "campaign_debit").reduce((s, tx) => s + tx.amount_cents, 0) / 100).toFixed(2);
+      const burnLine = analytics.burnRateEurPerDay > 0
+        ? `<div><label>Burn rate moyen</label><div class="val">${analytics.burnRateEurPerDay.toFixed(2)} €/j</div></div>`
+        : "";
+      const rowsHtml = rows
+        .map((tx) => {
+          const sign = tx.amount_cents >= 0;
+          return `<tr><td>${new Date(tx.created_at).toLocaleString("fr-FR")}</td><td>${tx.kind}</td><td>${tx.description ?? ""}</td><td class="${sign ? "pos" : "neg"}">${sign ? "+" : ""}${(tx.amount_cents / 100).toFixed(2)} €</td></tr>`;
+        })
+        .join("");
+      const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Rapport financier MoveSpot</title>
+<style>
+body{font-family:system-ui,sans-serif;padding:2rem;color:#111}h1{margin-bottom:.25rem}
+.meta{color:#666;font-size:.875rem;margin-bottom:1.5rem}
+table{width:100%;border-collapse:collapse;font-size:.875rem}
+th{background:#f3f4f6;text-align:left;padding:.5rem .75rem;border-bottom:2px solid #e5e7eb}
+td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
+.pos{color:#16a34a}.neg{color:#dc2626}
+.summary{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.summary>div{background:#f9fafb;border-radius:.5rem;padding:1rem 1.5rem;min-width:10rem}
+.summary label{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280}
+.summary .val{font-size:1.5rem;font-weight:700;margin-top:.25rem}
+@media print{body{padding:0}}
+</style></head><body>
+<h1>Rapport de performance financier</h1>
+<p class="meta">MoveSpot · ${new Date().toLocaleDateString("fr-FR", { dateStyle: "full" })} · ${rows.length} transactions</p>
+<div class="summary">
+  <div><label>Solde disponible</label><div class="val">${balanceEur} €</div></div>
+  <div><label>Total rechargé</label><div class="val">${totalTopup} €</div></div>
+  <div><label>Dépensé (campagnes)</label><div class="val">${totalSpent} €</div></div>
+  ${burnLine}
+</div>
+<table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Montant</th></tr></thead>
+<tbody>${rowsHtml}</tbody></table>
+</body></html>`;
+      const w = window.open("", "_blank");
+      if (w) { w.document.write(html); w.document.close(); w.print(); }
+    } finally {
+      setTxLoading(false);
+    }
+  }
+
   async function exportCsv() {
     setTxLoading(true);
     try {
@@ -227,6 +287,33 @@ function WalletPage() {
           <div className="font-display text-5xl font-bold mt-2">
             {fmt(fromEurCents(balanceCents))}
           </div>
+          {/* Burn-rate alert */}
+          {!analytics.loading && analytics.burnRateEurPerDay > 0 && (
+            <div
+              className={`mt-5 flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
+                (analytics.daysRemaining ?? 99) < 7
+                  ? "border-destructive/50 bg-destructive/10 text-destructive"
+                  : (analytics.daysRemaining ?? 99) < 14
+                    ? "border-orange-500/40 bg-orange-500/10 text-orange-400"
+                    : "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+              }`}
+            >
+              <span className="text-base mt-0.5" aria-hidden>
+                {(analytics.daysRemaining ?? 99) < 7 ? "🔴" : (analytics.daysRemaining ?? 99) < 14 ? "🟠" : "🟢"}
+              </span>
+              <div>
+                <p className="font-semibold">
+                  {analytics.daysRemaining !== null
+                    ? `Solde estimé pour ${analytics.daysRemaining} jour${analytics.daysRemaining > 1 ? "s" : ""}`
+                    : "Solde suffisant"}
+                </p>
+                <p className="text-xs opacity-80 mt-0.5">{analytics.topupReason}</p>
+                <p className="text-xs opacity-50 mt-0.5">
+                  Burn rate : ~{analytics.burnRateEurPerDay.toFixed(2)} €/jour (30 derniers jours)
+                </p>
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
@@ -240,15 +327,29 @@ function WalletPage() {
                   { v: 149, label: "149 € · Lancement" },
                 ]
               : [50, 100, 250, 500, 1000].map((v) => ({ v, label: `${v} €` }))
-            ).map(({ v, label }) => (
-              <button
-                key={v}
-                onClick={() => setAmount(v)}
-                className={`px-3 py-1.5 rounded-lg text-sm border ${amount === v ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"}`}
-              >
-                {label}
-              </button>
-            ))}
+            ).map(({ v, label }) => {
+              const isAiRec = analytics.recommendedTopupEur === v && analytics.recommendedTopupEur > 0;
+              return (
+                <button
+                  key={v}
+                  onClick={() => setAmount(v)}
+                  className={`relative px-3 py-1.5 rounded-lg text-sm border transition ${
+                    amount === v
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : isAiRec
+                        ? "border-orange-500 text-orange-400 ring-1 ring-orange-500/50 hover:bg-orange-500/10"
+                        : "border-border hover:bg-secondary"
+                  }`}
+                >
+                  {label}
+                  {isAiRec && (
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-1.5 py-px text-[9px] font-bold text-white whitespace-nowrap leading-tight">
+                      IA
+                    </span>
+                  )}
+                </button>
+              );
+            })}
             <input
               type="number"
               min={10}
@@ -273,13 +374,23 @@ function WalletPage() {
         <section>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <h2 className="font-display text-xl font-semibold">{t("wallet.history_title")}</h2>
-            <button
-              onClick={exportCsv}
-              disabled={txLoading || total === 0}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {t("wallet.export_csv_btn")}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={exportCsv}
+                disabled={txLoading || total === 0}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t("wallet.export_csv_btn")}
+              </button>
+              <button
+                onClick={exportPdfReport}
+                disabled={txLoading || total === 0}
+                title="Rapport de performance financier (PDF)"
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                📊 Rapport PDF
+              </button>
+            </div>
           </div>
 
           {/* Filtres */}
