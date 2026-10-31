@@ -23,7 +23,7 @@ export function Navbar() {
           /* clear space: px-1 py-1 — no fixed width, no overflow-hidden
              shrink-0 prevents the logo from being compressed by flex siblings
              z-index is inherited from sticky header z-40 */
-          className="flex h-20 shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
+          className="flex shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
         >
           <img
             src={logoOfficial.url}
