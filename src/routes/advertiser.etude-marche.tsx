@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LogoLink } from "@/components/app/LogoLink";
 import { cn } from "@/lib/utils";
 import { RouteError } from "@/components/app/RouteError";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/advertiser/etude-marche")({
   head: () => ({
@@ -777,6 +778,72 @@ const SEGMENTS_DATA: SegmentEntry[] = [
   },
 ];
 
+// ─── Matching segment → véhicules / zones (Axe 1 + 3) ───────────────────────
+
+type SegmentMatching = {
+  vehicles: string[];
+  vehicleLabels: string[];
+  vehicleEmoji: string;
+  zone: string;
+  adFormat: string;
+  adFormatKey: string;
+  ownerDemand: string;
+  ownerDemandCls: string;
+};
+
+const SEGMENT_TO_MATCHING: Record<string, SegmentMatching> = {
+  commerce: {
+    vehicles: ["taxi", "van"],
+    vehicleLabels: ["Taxi", "Van"],
+    vehicleEmoji: "🚕",
+    zone: "Artères commerçantes, zones piétonnes",
+    adFormat: "Covering flancs",
+    adFormatKey: "demi_covering",
+    ownerDemand: "Forte demande",
+    ownerDemandCls: "text-green-600 dark:text-green-400",
+  },
+  retail: {
+    vehicles: ["van", "food_truck"],
+    vehicleLabels: ["Van", "Food truck"],
+    vehicleEmoji: "🚐",
+    zone: "Zones commerciales, périphérie",
+    adFormat: "Covering total",
+    adFormatKey: "covering_total",
+    ownerDemand: "Très forte demande",
+    ownerDemandCls: "text-green-600 dark:text-green-400",
+  },
+  evenement: {
+    vehicles: ["tutuk", "velo_cargo"],
+    vehicleLabels: ["Tutuk", "Vélo cargo"],
+    vehicleEmoji: "🛺",
+    zone: "Salles, parcs, zones festives",
+    adFormat: "Stickers + LED",
+    adFormatKey: "stickers",
+    ownerDemand: "Demande ponctuelle",
+    ownerDemandCls: "text-amber-600 dark:text-amber-400",
+  },
+  startup: {
+    vehicles: ["scooter", "taxi"],
+    vehicleLabels: ["Scooter", "Taxi"],
+    vehicleEmoji: "🛵",
+    zone: "Quartiers tech, universités, métros",
+    adFormat: "Stickers latéraux",
+    adFormatKey: "stickers",
+    ownerDemand: "Forte demande",
+    ownerDemandCls: "text-green-600 dark:text-green-400",
+  },
+  grandemarque: {
+    vehicles: ["van", "camion_led"],
+    vehicleLabels: ["Van", "Camion LED"],
+    vehicleEmoji: "📺",
+    zone: "Grands axes, centre-ville, aéroports",
+    adFormat: "Covering intégral + LED",
+    adFormatKey: "covering_total",
+    ownerDemand: "Très forte demande",
+    ownerDemandCls: "text-green-600 dark:text-green-400",
+  },
+};
+
 // ─── Composant principal ───────────────────────────────────────────────────────
 
 type Tab = "marche" | "catalogue" | "previsionnel";
@@ -791,11 +858,57 @@ function EtudeMarche() {
   const [simBudget, setSimBudget] = useState(500);
   const [showAiBriefPanel, setShowAiBriefPanel] = useState(false);
   const [aiBriefVille, setAiBriefVille] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewCachedSeg, setPreviewCachedSeg] = useState<string | null>(null);
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const d = REGION_DATA[selectedRegion];
   const activeSeg = SEGMENTS_DATA.find((s) => s.key === selectedSegment) ?? SEGMENTS_DATA[0];
+  const activeMatching = SEGMENT_TO_MATCHING[selectedSegment] ?? SEGMENT_TO_MATCHING.commerce;
   const simImpressions = Math.round((simBudget / activeSeg.cpm) * 1000);
   const simCommission = Math.round(simBudget * 0.3);
   const simProprio = Math.round(simBudget * 0.7);
+
+  useEffect(() => {
+    if (previewCachedSeg === selectedSegment) return;
+    if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+    previewTimerRef.current = setTimeout(() => {
+      void (async () => {
+        setPreviewLoading(true);
+        setPreviewUrl(null);
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (!session) return;
+          const seg = SEGMENTS_DATA.find((s) => s.key === selectedSegment) ?? SEGMENTS_DATA[0];
+          const matching = SEGMENT_TO_MATCHING[selectedSegment] ?? SEGMENT_TO_MATCHING.commerce;
+          const { data, error } = await supabase.functions.invoke("generate-creative", {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+            body: {
+              type: "image",
+              title: seg.label,
+              description: `Publicité mobile ${seg.label} sur ${matching.vehicleLabels[0]}. Style : ${matching.adFormat}.`,
+              vehicleTypes: matching.vehicles,
+              adFormat: matching.adFormatKey,
+            },
+          });
+          if (!error && (data as { url?: string })?.url) {
+            setPreviewUrl((data as { url: string }).url);
+            setPreviewCachedSeg(selectedSegment);
+          }
+        } catch {
+          /* fail silently */
+        } finally {
+          setPreviewLoading(false);
+        }
+      })();
+    }, 900);
+    return () => {
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+    };
+  }, [selectedSegment, previewCachedSeg]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -958,6 +1071,98 @@ function EtudeMarche() {
               </Card>
             </div>
 
+            {/* ── Axe 1 — Aperçu créatif IA ────────────────────────────────── */}
+            <div className="rounded-2xl border border-primary/30 bg-card overflow-hidden">
+              <div className="px-6 py-4 border-b border-border flex items-center justify-between gap-3">
+                <h2 className="font-display text-lg font-bold flex items-center gap-2">
+                  <span>✨</span>
+                  Aperçu créatif IA — <span className="text-primary">{activeSeg.label}</span>
+                </h2>
+                <span className="shrink-0 text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
+                  Généré par IA · fal.ai
+                </span>
+              </div>
+              <div className="p-6">
+                <div className="grid md:grid-cols-2 gap-6 items-center">
+                  {/* Zone image / skeleton */}
+                  <div className="relative rounded-xl overflow-hidden bg-secondary/50 aspect-video flex items-center justify-center min-h-[180px]">
+                    {previewLoading ? (
+                      <div className="w-full h-full animate-pulse bg-secondary/80 flex flex-col items-center justify-center gap-3">
+                        <span className="text-4xl">{activeMatching.vehicleEmoji}</span>
+                        <div className="text-xs text-muted-foreground">Génération en cours…</div>
+                        <div className="w-32 h-1.5 bg-primary/30 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary rounded-full animate-[shimmer_1.5s_infinite]"
+                            style={{ width: "60%" }}
+                          />
+                        </div>
+                      </div>
+                    ) : previewUrl ? (
+                      <>
+                        <img
+                          src={previewUrl}
+                          alt={`Aperçu publicitaire ${activeSeg.label}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full font-medium backdrop-blur-sm">
+                          {activeMatching.vehicleEmoji} {activeMatching.vehicleLabels[0]}
+                        </div>
+                        <div className="absolute top-2 right-2 bg-primary/90 text-primary-foreground text-xs px-2 py-0.5 rounded-full font-semibold">
+                          ✨ IA
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 text-muted-foreground px-6 text-center">
+                        <span className="text-5xl">{activeSeg.emoji}</span>
+                        <p className="text-xs leading-relaxed">
+                          Sélectionnez un segment dans le simulateur ci-dessous pour générer un
+                          aperçu de bannière publicitaire.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Détails format + CTA */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-secondary/40 p-3">
+                        <div className="text-xs text-muted-foreground mb-1">Véhicules</div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {activeMatching.vehicleLabels.map((v) => (
+                            <span
+                              key={v}
+                              className="text-xs bg-secondary border border-border px-2 py-0.5 rounded-full"
+                            >
+                              {v}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="rounded-xl bg-secondary/40 p-3">
+                        <div className="text-xs text-muted-foreground mb-1">Format</div>
+                        <div className="text-sm font-medium mt-1">{activeMatching.adFormat}</div>
+                      </div>
+                    </div>
+                    <div className="rounded-xl bg-secondary/40 p-3">
+                      <div className="text-xs text-muted-foreground mb-1">Zone idéale</div>
+                      <div className="text-sm mt-1">{activeMatching.zone}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground bg-primary/5 border border-primary/20 rounded-xl p-3 leading-relaxed">
+                      L'aperçu est généré par IA (Flux Schnell) à partir de votre segment et du type
+                      de véhicule recommandé. Le visuel final sera personnalisé dans le Creative
+                      Studio.
+                    </div>
+                    <Link
+                      to="/advertiser/briefs/nouveau"
+                      className="block rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition text-center"
+                    >
+                      Personnaliser dans le Studio →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Benchmark CPM */}
             <Card title="Benchmark CPM — MoveSpot vs autres médias (€ / 1 000 impressions)">
               <p className="text-xs text-muted-foreground mb-4">
@@ -1013,24 +1218,110 @@ function EtudeMarche() {
               </div>
             </Card>
 
-            {/* 5 rôles utilisateurs */}
+            {/* ── Axe 3 — Smart Audience & Vehicle Matching ─────────────────── */}
             <Card title="Les 5 profils utilisateurs MoveSpot">
+              {selectedSegment && (
+                <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl bg-primary/5 border border-primary/20 text-xs">
+                  <span>✨</span>
+                  <span className="text-primary font-medium">Matching IA activé</span>
+                  <span className="text-muted-foreground">
+                    — recommandations basées sur le segment{" "}
+                    <strong className="text-foreground">{activeSeg.label}</strong>
+                  </span>
+                </div>
+              )}
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                {/* Annonceur — profil cible, toujours mis en avant */}
+                <div
+                  className={cn(
+                    "rounded-xl border p-4 transition-all duration-300",
+                    selectedSegment
+                      ? "border-primary/50 bg-primary/5 shadow-sm shadow-primary/10"
+                      : "border-border bg-secondary/20",
+                  )}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="text-2xl">🎯</div>
+                    {selectedSegment && (
+                      <span className="text-[10px] font-bold bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full shrink-0">
+                        ✨ Vous
+                      </span>
+                    )}
+                  </div>
+                  <div className="font-semibold text-sm mb-1">Annonceur</div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    PME, retail, startups. Crée des briefs, choisit les véhicules, paie via
+                    portefeuille Stripe. Suit sa campagne en direct.
+                  </p>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                    Budget 200–10 000 €/mois
+                  </span>
+                  {selectedSegment && (
+                    <div className="mt-3 pt-3 border-t border-primary/20 space-y-1.5">
+                      <div className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                        Recommandé pour vous
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {activeMatching.vehicleLabels.map((v) => (
+                          <span
+                            key={v}
+                            className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium"
+                          >
+                            {v}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground leading-snug">
+                        {activeMatching.zone}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Propriétaire — demande en temps réel */}
+                <div
+                  className={cn(
+                    "rounded-xl border p-4 transition-all duration-300",
+                    selectedSegment
+                      ? "border-green-500/30 bg-green-500/5"
+                      : "border-border bg-secondary/20",
+                  )}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="text-2xl">🚐</div>
+                    {selectedSegment && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0",
+                          activeMatching.ownerDemandCls,
+                          "bg-green-500/10",
+                        )}
+                      >
+                        📈 {activeMatching.ownerDemand}
+                      </span>
+                    )}
+                  </div>
+                  <div className="font-semibold text-sm mb-1">Propriétaire</div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    Gérant de taxis, vans, food trucks. Inscrit ses véhicules, répond aux briefs,
+                    encaisse via Stripe Connect.
+                  </p>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                    Revenus passifs/véhicule
+                  </span>
+                  {selectedSegment && (
+                    <div className="mt-3 pt-3 border-t border-green-500/20">
+                      <div className="text-[10px] text-muted-foreground leading-snug">
+                        Les annonceurs{" "}
+                        <strong className="text-foreground">{activeSeg.label}</strong> cherchent des{" "}
+                        {activeMatching.vehicleLabels.join(" & ")} dans cette région.
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Chauffeur, Prestataire, Partenaire — cartes statiques */}
                 {[
-                  {
-                    icon: "🎯",
-                    role: "Annonceur",
-                    desc: "PME, retail, startups. Crée des briefs, choisit les véhicules, paie via portefeuille Stripe. Suit sa campagne en direct.",
-                    tag: "Budget 200–10 000 €/mois",
-                    tagCls: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-                  },
-                  {
-                    icon: "🚐",
-                    role: "Propriétaire",
-                    desc: "Gérant de taxis, vans, food trucks. Inscrit ses véhicules, répond aux briefs, encaisse via Stripe Connect.",
-                    tag: "Revenus passifs/véhicule",
-                    tagCls: "bg-primary/10 text-primary",
-                  },
                   {
                     icon: "🗺️",
                     role: "Chauffeur",
@@ -1043,7 +1334,7 @@ function EtudeMarche() {
                     role: "Prestataire",
                     desc: "Artisan du covering et de l'habillage véhicule. Gère son portfolio et ses abonnements sur MoveSpot.",
                     tag: "Abonnement mensuel",
-                    tagCls: "bg-primary/10 text-primary dark:text-primary",
+                    tagCls: "bg-primary/10 text-primary",
                   },
                   {
                     icon: "🤝",
