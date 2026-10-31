@@ -1,18 +1,16 @@
 -- Enable pgvector extension (idempotent)
 create extension if not exists vector with schema extensions;
 
--- Add embedding column to provider_profiles (source table)
+-- Add embedding column (gte-small = 384 dimensions, gratuit, Supabase natif)
 alter table provider_profiles
-  add column if not exists embedding vector(1536);
+  add column if not exists embedding vector(384);
 
 -- NOTE: public_provider_profiles view already exists and uses status = 'approved'.
 -- Do NOT drop/recreate it here — the original view definition is correct.
 
 -- RPC: cosine similarity search on providers
--- Returns providers whose embedding is within match_threshold of the query embedding.
--- An optional category filter narrows by service key.
 create or replace function match_providers(
-  query_embedding vector(1536),
+  query_embedding vector(384),
   match_threshold float default 0.3,
   match_count int default 20,
   filter_category text default null

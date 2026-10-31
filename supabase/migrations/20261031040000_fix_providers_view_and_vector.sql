@@ -1,8 +1,7 @@
--- Ce fichier corrigeait des erreurs dans 20261031020000 qui sont maintenant
--- directement corrigées dans ce fichier source. Cette migration est un no-op
--- idempotent pour éviter toute erreur si appliquée sur un projet déjà à jour.
+-- Migration idempotente : garantit que la vue et la fonction sont à jour
+-- après correction des erreurs dans 20261031020000.
 
--- Garantit que la vue existe avec la condition correcte (status = 'approved')
+-- Vue : conserve la définition correcte (status = 'approved')
 create or replace view public_provider_profiles as
 select
   pp.user_id,
@@ -18,9 +17,9 @@ select
 from provider_profiles pp
 where pp.status = 'approved';
 
--- Garantit que la fonction match_providers existe avec la bonne condition
+-- Fonction : vector(384) pour gte-small (Supabase natif, gratuit)
 create or replace function match_providers(
-  query_embedding vector(1536),
+  query_embedding vector(384),
   match_threshold float default 0.3,
   match_count int default 20,
   filter_category text default null
