@@ -507,7 +507,7 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-t-2 border-t-amber-400 border-b border-border bg-card/50 backdrop-blur">
+      <header className="border-t-2 border-t-amber-400 border-b border-border backdrop-blur light-band">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
             <LogoLink />

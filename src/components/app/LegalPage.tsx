@@ -16,7 +16,7 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
   return (
     <div className="min-h-screen bg-background">
       {showHeader && (
-        <header className="sticky top-0 z-40 backdrop-blur-lg bg-background/70 border-b border-border">
+        <header className="sticky top-0 z-40 backdrop-blur-lg border-b border-border light-band">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <LogoLink />
             <Link

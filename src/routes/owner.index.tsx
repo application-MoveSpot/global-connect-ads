@@ -259,7 +259,7 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-t-2 border-t-cyan-400 border-b border-border bg-card/50 backdrop-blur">
+      <header className="border-t-2 border-t-cyan-400 border-b border-border backdrop-blur light-band">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
             <LogoLink />

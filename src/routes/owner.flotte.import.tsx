@@ -58,7 +58,7 @@ function ImportPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="border-b border-border light-band">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/owner/flotte" className="text-sm text-muted-foreground hover:text-foreground">

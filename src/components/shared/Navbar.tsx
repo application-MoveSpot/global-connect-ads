@@ -15,7 +15,7 @@ export function Navbar() {
   const spotsHref = isHome ? "#spots" : "/#spots";
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border">
+    <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border light-band">
       <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-2 sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
         <Link
           to="/"
@@ -23,14 +23,14 @@ export function Navbar() {
           /* clear space: px-1 py-1 — no fixed width, no overflow-hidden
              shrink-0 prevents the logo from being compressed by flex siblings
              z-index is inherited from sticky header z-40 */
-          className="flex h-16 shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
+          className="flex h-20 shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
         >
           <img
             src={logoOfficial.url}
             alt="MoveSpot"
             width={273}
             height={359}
-            className="h-14 w-auto shrink-0 object-contain pointer-events-none"
+            className="h-20 w-auto shrink-0 object-contain pointer-events-none"
           />
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
