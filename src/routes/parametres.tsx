@@ -2,10 +2,22 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
-import { checkDeletionBlockers, requestAccountDeletion } from "@/lib/account/account.functions";
+import {
+  checkDeletionBlockers,
+  requestAccountDeletion,
+  exportUserData,
+} from "@/lib/account/account.functions";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
-import { AlertTriangle, ChevronDown, ChevronUp, Loader2, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Loader2,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/parametres")({
   head: () => ({ meta: [{ title: "Paramètres du compte — MoveSpot" }] }),
@@ -20,7 +32,9 @@ function ParametresPage() {
   const navigate = useNavigate();
   const checkBlockers = useServerFn(checkDeletionBlockers);
   const deleteAccount = useServerFn(requestAccountDeletion);
+  const fetchExport = useServerFn(exportUserData);
 
+  const [exportLoading, setExportLoading] = useState(false);
   const [showDanger, setShowDanger] = useState(false);
   const [step, setStep] = useState<
     "idle" | "checking" | "blocked" | "confirm" | "deleting" | "done"
@@ -64,6 +78,29 @@ function ParametresPage() {
     }
   };
 
+  const handleDataExport = async () => {
+    setExportLoading(true);
+    try {
+      const payload = await fetchExport();
+      const userId = payload.user_id;
+      const json = JSON.stringify(payload, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `movespot_rgpd_export_${userId}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(t("parametres.export_success"));
+    } catch {
+      toast.error(t("parametres.export_error"));
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   const dateLocale = i18n.language;
 
   return (
@@ -100,6 +137,27 @@ function ParametresPage() {
               {t("parametres.rgpd_erasure_desc")}
             </li>
           </ul>
+
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={handleDataExport}
+              disabled={exportLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary/40 px-4 py-2.5 text-sm font-semibold hover:bg-secondary/70 transition-colors disabled:opacity-50"
+            >
+              {exportLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {exportLoading
+                ? t("parametres.export_loading")
+                : t("parametres.export_btn")}
+            </button>
+            <p className="mt-1.5 text-[11px] text-muted-foreground/60">
+              {t("parametres.export_hint")}
+            </p>
+          </div>
         </section>
 
         {/* ── Zone dangereuse ── */}

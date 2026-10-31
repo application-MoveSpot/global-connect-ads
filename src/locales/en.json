@@ -350,7 +350,12 @@
     "done": "✅ Your personal data has been deleted. Your account will be permanently closed in 30 days. You will be redirected…",
     "error_check": "Verification error. Please retry.",
     "error_delete": "Deletion failed. Please retry.",
-    "success_delete": "Account deleted. You will be logged out."
+    "success_delete": "Account deleted. You will be logged out.",
+    "export_btn": "Download my data (JSON)",
+    "export_loading": "Compiling data…",
+    "export_hint": "Generates a JSON file containing your personal data, briefs, campaigns and wallet history.",
+    "export_success": "Export downloaded successfully.",
+    "export_error": "Error generating the export."
   },
   "securite": {
     "page_title": "Security — How MoveSpot protects your data",
