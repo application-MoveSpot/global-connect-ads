@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
       prompt: customPrompt,
     } = await req.json();
 
-    if (!["image", "jingle"].includes(type)) {
+    if (!["image", "jingle", "voiceover"].includes(type)) {
       return new Response(JSON.stringify({ error: "type must be 'image' or 'jingle'" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
       // Download and store in Supabase Storage
       const imgRes = await fetch(imageUrl);
       const imgBuffer = await imgRes.arrayBuffer();
-      const storagePath = `creative-ai/${user.id}/${Date.now()}.jpg`;
+      const storagePath = `${user.id}/creative-ai/${Date.now()}.jpg`;
       await supabase.storage
         .from("campaign-creatives")
         .upload(storagePath, imgBuffer, { contentType: "image/jpeg", upsert: false });
@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
     }
 
     const audioBuffer = await elRes.arrayBuffer();
-    const storagePath = `creative-ai/${user.id}/${Date.now()}.mp3`;
+    const storagePath = `${user.id}/creative-ai/${Date.now()}.mp3`;
     await supabase.storage
       .from("campaign-creatives")
       .upload(storagePath, audioBuffer, { contentType: "audio/mpeg", upsert: false });
