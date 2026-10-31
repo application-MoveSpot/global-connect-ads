@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -717,16 +717,85 @@ const YEARS = ["An 1", "An 2", "An 3", "An 4", "An 5"];
 const fmt = (n: number | string, lang: string) =>
   new Intl.NumberFormat(lang, { maximumFractionDigits: 0 }).format(Number(n)) + " €";
 
+// ─── Données segments (Axe 2 + 4) ────────────────────────────────────────────
+
+type SegmentEntry = {
+  key: string;
+  emoji: string;
+  label: string;
+  formats: string;
+  budgetMin: number;
+  budgetMax: number;
+  cpm: number;
+};
+
+const SEGMENTS_DATA: SegmentEntry[] = [
+  {
+    key: "commerce",
+    emoji: "🏪",
+    label: "Commerce local / restauration",
+    formats: "Taxi, van",
+    budgetMin: 200,
+    budgetMax: 800,
+    cpm: 12,
+  },
+  {
+    key: "retail",
+    emoji: "🛍️",
+    label: "Retail & franchise",
+    formats: "Van, food truck",
+    budgetMin: 1000,
+    budgetMax: 5000,
+    cpm: 12,
+  },
+  {
+    key: "evenement",
+    emoji: "🎪",
+    label: "Événement & festival",
+    formats: "Tutuk, vélo cargo",
+    budgetMin: 500,
+    budgetMax: 3000,
+    cpm: 14,
+  },
+  {
+    key: "startup",
+    emoji: "🚀",
+    label: "Startup / app mobile",
+    formats: "Scooter, taxi",
+    budgetMin: 1500,
+    budgetMax: 8000,
+    cpm: 12,
+  },
+  {
+    key: "grandemarque",
+    emoji: "🏆",
+    label: "Grande marque",
+    formats: "Flotte multi-formats",
+    budgetMin: 10000,
+    budgetMax: 50000,
+    cpm: 11,
+  },
+];
+
 // ─── Composant principal ───────────────────────────────────────────────────────
 
 type Tab = "marche" | "catalogue" | "previsionnel";
 
 function EtudeMarche() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("marche");
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleEntry | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<Region>("europe");
+  const [selectedSegment, setSelectedSegment] = useState<string>("commerce");
+  const [simBudget, setSimBudget] = useState(500);
+  const [showAiBriefPanel, setShowAiBriefPanel] = useState(false);
+  const [aiBriefVille, setAiBriefVille] = useState("");
   const d = REGION_DATA[selectedRegion];
+  const activeSeg = SEGMENTS_DATA.find((s) => s.key === selectedSegment) ?? SEGMENTS_DATA[0];
+  const simImpressions = Math.round((simBudget / activeSeg.cpm) * 1000);
+  const simCommission = Math.round(simBudget * 0.3);
+  const simProprio = Math.round(simBudget * 0.7);
 
   return (
     <div className="min-h-screen bg-background">
@@ -1176,6 +1245,184 @@ function EtudeMarche() {
                   </div>
                 ))}
               </div>
+            </Card>
+
+            {/* ── Axe 2 — Simulateur de campagne ──────────────────────────────── */}
+            <Card title="Simulateur de campagne — Budget & Impressions">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Colonne gauche: segment + slider */}
+                <div className="space-y-5">
+                  <div>
+                    <div className="text-sm font-medium mb-3">Votre secteur d'activité</div>
+                    <div className="space-y-2">
+                      {SEGMENTS_DATA.map((seg) => (
+                        <button
+                          key={seg.key}
+                          type="button"
+                          onClick={() => {
+                            setSelectedSegment(seg.key);
+                            setSimBudget(Math.round((seg.budgetMin + seg.budgetMax) / 2 / 50) * 50);
+                            setShowAiBriefPanel(false);
+                          }}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition",
+                            selectedSegment === seg.key
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/40",
+                          )}
+                        >
+                          <span className="text-xl shrink-0">{seg.emoji}</span>
+                          <div className="min-w-0">
+                            <div className="text-sm font-medium truncate">{seg.label}</div>
+                            <div className="text-xs text-muted-foreground">{seg.formats}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium block mb-2">
+                      Budget mensuel :{" "}
+                      <span className="text-primary font-bold">
+                        {simBudget.toLocaleString(i18n.language)} €
+                      </span>
+                    </label>
+                    <input
+                      type="range"
+                      min={activeSeg.budgetMin}
+                      max={activeSeg.budgetMax}
+                      step={50}
+                      value={simBudget}
+                      onChange={(e) => setSimBudget(Number(e.target.value))}
+                      className="w-full accent-primary"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>{activeSeg.budgetMin.toLocaleString(i18n.language)} €</span>
+                      <span>{activeSeg.budgetMax.toLocaleString(i18n.language)} €</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Colonne droite: KPIs + CTAs */}
+                <div className="flex flex-col justify-center gap-4">
+                  <div className="rounded-xl bg-primary/10 border border-primary/20 p-5 text-center">
+                    <div className="font-display text-4xl font-bold text-primary mb-1 tabular-nums">
+                      {simImpressions.toLocaleString(i18n.language)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">impressions estimées / mois</div>
+                    <div className="text-xs text-muted-foreground/70 mt-0.5">
+                      CPM référence : {activeSeg.cpm} €
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-center">
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400 tabular-nums">
+                        {simCommission.toLocaleString(i18n.language)} €
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        Commission MoveSpot (30 %)
+                      </div>
+                    </div>
+                    <div className="rounded-xl bg-secondary/50 p-4 text-center">
+                      <div className="text-lg font-bold tabular-nums">
+                        {simProprio.toLocaleString(i18n.language)} €
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        Reversé propriétaires (70 %)
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    to="/advertiser/briefs/nouveau"
+                    className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition text-center"
+                  >
+                    Créer mon brief avec ce budget →
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowAiBriefPanel((v) => !v)}
+                    className="rounded-full border border-primary/50 text-primary px-5 py-2.5 text-sm font-semibold hover:bg-primary/10 transition text-center"
+                  >
+                    ✨ Générer mon brief par IA
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Axe 4 — Panel IA Brief ───────────────────────────────────── */}
+              {showAiBriefPanel && (
+                <div className="mt-6 pt-6 border-t border-border">
+                  <div className="rounded-xl bg-primary/5 border border-primary/20 p-5">
+                    <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                      <span>✨</span> Générer mon brief par IA — 3 informations suffisent
+                    </h3>
+                    <div className="grid sm:grid-cols-3 gap-4 mb-5">
+                      <div>
+                        <div className="text-xs font-medium text-muted-foreground mb-1.5">
+                          Secteur d'activité
+                        </div>
+                        <div className="rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm flex items-center gap-2">
+                          <span>{activeSeg.emoji}</span>
+                          <span className="truncate">{activeSeg.label}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="ai-brief-ville"
+                          className="text-xs font-medium text-muted-foreground block mb-1.5"
+                        >
+                          Ville cible
+                        </label>
+                        <input
+                          id="ai-brief-ville"
+                          type="text"
+                          value={aiBriefVille}
+                          onChange={(e) => setAiBriefVille(e.target.value)}
+                          placeholder="Paris, Lyon, Marseille…"
+                          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        />
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-muted-foreground mb-1.5">
+                          Budget mensuel
+                        </div>
+                        <div className="rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm font-semibold tabular-nums">
+                          {simBudget.toLocaleString(i18n.language)} €
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          const briefTitle = `${activeSeg.label}${aiBriefVille ? ` — ${aiBriefVille}` : ""}`;
+                          const briefDesc = `Campagne de publicité mobile pour ${activeSeg.label}. Véhicules recommandés : ${activeSeg.formats}.${aiBriefVille ? ` Ville cible : ${aiBriefVille}.` : ""} Budget mensuel : ${simBudget} €.`;
+                          localStorage.setItem(
+                            "movespot_brief_draft_v1",
+                            JSON.stringify({
+                              title: briefTitle,
+                              description: briefDesc,
+                              budget: String(simBudget),
+                              euCity: aiBriefVille,
+                              audience: activeSeg.label,
+                            }),
+                          );
+                        } catch {
+                          /* localStorage indisponible */
+                        }
+                        void navigate({ to: "/advertiser/briefs/nouveau" });
+                      }}
+                      className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold hover:bg-primary/90 transition inline-flex items-center gap-2"
+                    >
+                      <span>✨</span> Créer mon brief pré-rempli →
+                    </button>
+                    <p className="text-xs text-muted-foreground mt-3">
+                      L'IA pré-remplira votre brief avec ces informations. Vous pourrez ajuster
+                      chaque champ avant de soumettre.
+                    </p>
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
         )}
