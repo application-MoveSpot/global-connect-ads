@@ -22,22 +22,29 @@ export function CreativeFiles({ paths }: Props) {
       const { data } = await supabase.storage
         .from("campaign-creatives")
         .createSignedUrls(paths, 3600);
-      if (!alive || !data) return;
+      if (!alive) return;
+      const signedMap = new Map<string, string>();
+      if (data) {
+        for (const d of data) {
+          if (d.signedUrl && d.path) signedMap.set(d.path, d.signedUrl);
+        }
+      }
       setFiles(
-        data
-          .filter((d): d is typeof d & { signedUrl: string } => Boolean(d.signedUrl))
-          .map((d) => {
-            const path = d.path ?? "";
-            const name = path.split("/").pop() ?? path;
-            const ext = name.split(".").pop()?.toLowerCase() ?? "";
-            return {
-              path,
-              url: d.signedUrl,
-              name,
-              isImage: ["jpg", "jpeg", "png", "webp", "gif"].includes(ext),
-              isVideo: ["mp4", "mov", "webm"].includes(ext),
-            };
-          }),
+        paths.map((path) => {
+          const name = path.split("/").pop() ?? path;
+          const ext = name.split(".").pop()?.toLowerCase() ?? "";
+          const signedUrl = signedMap.get(path);
+          const fallbackUrl = signedUrl
+            ? signedUrl
+            : supabase.storage.from("campaign-creatives").getPublicUrl(path).data.publicUrl;
+          return {
+            path,
+            url: fallbackUrl,
+            name,
+            isImage: ["jpg", "jpeg", "png", "webp", "gif"].includes(ext),
+            isVideo: ["mp4", "mov", "webm"].includes(ext),
+          };
+        }).filter((f) => Boolean(f.url)),
       );
     };
     void refresh();
