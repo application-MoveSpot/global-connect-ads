@@ -20,16 +20,22 @@ export function Navbar() {
         <Link
           to="/"
           aria-label="MoveSpot — accueil"
-          className="flex h-16 w-24 shrink-0 items-center justify-start overflow-hidden"
+          /* clear space: px-1 py-1 — no fixed width, no overflow-hidden
+             shrink-0 prevents the logo from being compressed by flex siblings
+             z-index is inherited from sticky header z-40 */
+          className="flex h-16 shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
         >
           <img
             src={logoSvg}
             alt="MoveSpot"
             width={56}
             height={56}
-            className="h-14 w-14 object-contain"
+            className="h-14 w-14 shrink-0 object-contain pointer-events-none"
           />
-          <span className="ml-2 hidden font-bold text-lg tracking-tight text-header-foreground sm:inline">MoveSpot</span>
+          <span className="hidden font-bold text-lg tracking-tight sm:inline">
+            <span className="text-header-foreground">Move</span>
+            <span className="text-primary">Spot</span>
+          </span>
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
           <a href={mapHref} className="whitespace-nowrap hover:text-header-foreground transition">
