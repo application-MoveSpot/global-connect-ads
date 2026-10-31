@@ -2,6 +2,87 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// ── Export RGPD : toutes les données de l'utilisateur ─────────────────────────
+export const exportUserData = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { userId } = context;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async function safeQuery(fn: () => PromiseLike<{ data: any[] | null; error: unknown }>): Promise<any[]> {
+      try {
+        const { data } = await fn();
+        return data ?? [];
+      } catch {
+        return [];
+      }
+    }
+
+    const [profile, briefs, campaigns, walletTxs, wallet, apiKeys] = await Promise.all([
+      safeQuery(() =>
+        supabaseAdmin
+          .from("advertiser_profiles")
+          .select(
+            "full_name, city, phone, company_name, address, siret, account_type, created_at, updated_at",
+          )
+          .eq("user_id", userId),
+      ),
+      safeQuery(() =>
+        supabaseAdmin
+          .from("advertiser_briefs")
+          .select(
+            "id, title, description, status, start_date, end_date, budget_max, vehicle_count, vehicle_types, zones, audience_target, ad_format, created_at",
+          )
+          .eq("advertiser_id", userId),
+      ),
+      safeQuery(() =>
+        supabaseAdmin
+          .from("campaign_requests")
+          .select(
+            "id, company, spot_name, status, payment_status, total_price, start_date, end_date, created_at",
+          )
+          .eq("user_id", userId),
+      ),
+      safeQuery(() =>
+        supabaseAdmin
+          .from("wallet_transactions")
+          .select("id, kind, amount_cents, currency, description, created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false }),
+      ),
+      safeQuery(() =>
+        supabaseAdmin
+          .from("wallets")
+          .select("balance_cents, currency, updated_at")
+          .eq("user_id", userId),
+      ),
+      // Clés API externes : on exclut key_hash (données sensibles chiffrées)
+      // user_api_keys n'est pas encore dans les types générés — cast as never
+      safeQuery(async () => {
+        const res = await (supabaseAdmin as any)
+          .from("user_api_keys")
+          .select("id, provider_name, key_prefix, is_active, last_tested_at, created_at")
+          .eq("user_id", userId);
+        return res as { data: any[] | null; error: unknown };
+      }),
+    ]);
+
+    return {
+      exported_at: new Date().toISOString(),
+      user_id: userId,
+      profile: profile[0] ?? null,
+      briefs,
+      campaigns,
+      wallet: {
+        balance: wallet[0] ?? null,
+        transactions: walletTxs,
+      },
+      external_api_keys: apiKeys,
+      note: "Les clés API tierces sont stockées sous forme de hash SHA-256 uniquement. La clé brute n'est jamais conservée.",
+    };
+  });
+
 // ── Vérifie si le compte a des blocages à la suppression ──────────────────────
 export const checkDeletionBlockers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

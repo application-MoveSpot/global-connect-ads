@@ -349,7 +349,12 @@
     "done": "✅ Vos données personnelles ont été supprimées. Votre compte sera définitivement fermé dans 30 jours. Vous allez être redirigé…",
     "error_check": "Erreur lors de la vérification. Réessayez.",
     "error_delete": "Échec de la suppression. Réessayez.",
-    "success_delete": "Compte supprimé. Vous allez être déconnecté."
+    "success_delete": "Compte supprimé. Vous allez être déconnecté.",
+    "export_btn": "Télécharger mes données (JSON)",
+    "export_loading": "Compilation en cours…",
+    "export_hint": "Génère un fichier JSON contenant vos données personnelles, briefs, campagnes et historique portefeuille.",
+    "export_success": "Export téléchargé avec succès.",
+    "export_error": "Erreur lors de la génération de l'export."
   },
   "securite": {
     "page_title": "Sécurité — Comment MoveSpot protège vos données",
