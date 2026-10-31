@@ -120,6 +120,13 @@
       "when": 1793245894600,
       "tag": "0016_add_cgu_columns_to_payee_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793418128310,
+      "tag": "0017_ai_brief_data",
+      "breakpoints": true
     }
   ]
 }
