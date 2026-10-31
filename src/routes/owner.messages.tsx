@@ -4,9 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
-import { ArrowLeft, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { ConversationThread, type ChatMessage } from "@/components/shared/ConversationThread";
 
 export const Route = createFileRoute("/owner/messages")({
   head: () => ({
@@ -28,14 +29,7 @@ type Thread = {
   unread: number;
 };
 
-type Message = {
-  id: string;
-  sender_id: string;
-  sender_role: "advertiser" | "owner";
-  body: string;
-  created_at: string;
-  read_at: string | null;
-};
+type Message = ChatMessage;
 
 function OwnerMessagesPage() {
   const { t, i18n } = useTranslation();
@@ -49,7 +43,6 @@ function OwnerMessagesPage() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
-  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -129,7 +122,6 @@ function OwnerMessagesPage() {
 
     const { data } = await q;
     setMessages((data as Message[]) ?? []);
-    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
   };
 
   const sendMessage = async () => {
@@ -231,64 +223,18 @@ function OwnerMessagesPage() {
           </div>
 
           {activeThread ? (
-            <div className="rounded-2xl border border-border bg-card flex flex-col">
-              <div className="px-4 py-3 border-b border-border">
-                <p className="font-semibold text-sm">{activeThread.brief_title}</p>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.map((m) => {
-                  const isMe = m.sender_role === "owner";
-                  return (
-                    <div key={m.id} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
-                      <div
-                        className={cn(
-                          "max-w-[70%] rounded-2xl px-4 py-2.5 text-sm",
-                          isMe
-                            ? "bg-primary text-primary-foreground rounded-br-sm"
-                            : "bg-secondary rounded-bl-sm",
-                        )}
-                      >
-                        <p className="leading-relaxed">{m.body}</p>
-                        <p
-                          className={cn(
-                            "text-[10px] mt-1",
-                            isMe ? "text-primary-foreground/60" : "text-muted-foreground",
-                          )}
-                        >
-                          {new Date(m.created_at).toLocaleTimeString(dateLocale, {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-                <div ref={bottomRef} />
-              </div>
-              <div className="px-4 py-3 border-t border-border flex gap-2">
-                <input
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      void sendMessage();
-                    }
-                  }}
-                  placeholder={t("owner.messages.placeholder")}
-                  maxLength={2000}
-                  className="flex-1 rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <button
-                  onClick={() => void sendMessage()}
-                  disabled={!draft.trim() || sending}
-                  className="rounded-lg bg-primary text-primary-foreground p-2.5 hover:bg-primary/90 disabled:opacity-50 transition"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+            <ConversationThread
+              briefId={activeThread.brief_id}
+              proposalId={activeThread.proposal_id}
+              briefTitle={activeThread.brief_title}
+              messages={messages}
+              userId={userId!}
+              myRole="owner"
+              draft={draft}
+              sending={sending}
+              onDraftChange={setDraft}
+              onSend={() => void sendMessage()}
+            />
           ) : (
             <div className="rounded-2xl border border-border bg-card flex items-center justify-center text-muted-foreground text-sm">
               {t("owner.messages.select_thread")}

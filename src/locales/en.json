@@ -5759,5 +5759,24 @@
     "afrique": "Africa",
     "asie": "Asia-Pacific",
     "amerique": "Americas"
+  },
+  "ai_chat": {
+    "summary_btn": "AI Summary",
+    "summary_loading": "Analysing…",
+    "action_required": "Action needed",
+    "status": {
+      "negotiating": "Negotiating",
+      "agreed": "Agreed",
+      "stalled": "Stalled",
+      "closed": "Closed"
+    },
+    "cached": "Cached",
+    "retry": "Retry",
+    "smart_replies_label": "AI Suggestions",
+    "translate": "Translate",
+    "hide_translation": "Hide",
+    "translating": "Translating…",
+    "placeholder": "Your message…",
+    "error_generic": "Feature temporarily unavailable"
   }
 }

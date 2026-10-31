@@ -8,8 +8,8 @@ const corsHeaders = {
 
 type Message = {
   id: string;
-  content: string;
-  sender_id: string;
+  body: string;
+  sender_role: "advertiser" | "owner";
 };
 
 Deno.serve(async (req: Request) => {
@@ -32,9 +32,7 @@ Deno.serve(async (req: Request) => {
       { global: { headers: { Authorization: authHeader } } },
     );
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -42,26 +40,30 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { conversation_id, last_message_id } = (await req.json()) as {
-      conversation_id: string;
+    const { brief_id, proposal_id, my_role, last_message_id } = (await req.json()) as {
+      brief_id: string;
+      proposal_id?: string | null;
+      my_role: "advertiser" | "owner";
       last_message_id?: string;
     };
 
-    if (!conversation_id) {
-      return new Response(JSON.stringify({ error: "conversation_id is required" }), {
+    if (!brief_id || !my_role) {
+      return new Response(JSON.stringify({ error: "brief_id and my_role are required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Fetch last 10 messages for context
-    const { data: messages } = await supabase
+    let q = supabase
       .from("messages")
-      .select("id, content, sender_id")
-      .eq("conversation_id", conversation_id)
+      .select("id, body, sender_role")
+      .eq("brief_id", brief_id)
       .order("created_at", { ascending: false })
       .limit(10);
 
+    if (proposal_id) q = q.eq("proposal_id", proposal_id);
+
+    const { data: messages } = await q;
     const msgList = ((messages ?? []) as Message[]).reverse();
 
     if (msgList.length === 0) {
@@ -71,8 +73,8 @@ Deno.serve(async (req: Request) => {
     }
 
     const lastMsg = msgList[msgList.length - 1];
-    // If the last message is from the current user, no smart reply needed
-    if (lastMsg.sender_id === user.id) {
+    // Only suggest replies when the last message is from the other party
+    if (lastMsg.sender_role === my_role) {
       return new Response(JSON.stringify({ suggestions: [] }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -80,10 +82,13 @@ Deno.serve(async (req: Request) => {
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY")! });
 
+    const myLabel = my_role === "advertiser" ? "Annonceur" : "Propriétaire";
+    const otherLabel = my_role === "advertiser" ? "Propriétaire" : "Annonceur";
+
     const transcript = msgList
       .map((m) => {
-        const role = m.sender_id === user.id ? "Vous" : "Interlocuteur";
-        return `[${role}]: ${m.content}`;
+        const role = m.sender_role === my_role ? myLabel : otherLabel;
+        return `[${role}]: ${m.body}`;
       })
       .join("\n");
 
@@ -96,15 +101,15 @@ Deno.serve(async (req: Request) => {
           text: `Tu génères 3 suggestions de réponses courtes pour des négociations publicitaires entre annonceurs et propriétaires de véhicules.
 Retourne UNIQUEMENT un objet JSON: {"suggestions":["réponse 1","réponse 2","réponse 3"]}
 - Chaque suggestion: max 60 caractères, professionnelle, en français
-- Variées: une affirmative, une demande d'info, une proposition de compromis
-- Adaptées au contexte de la conversation`,
+- Variées: une affirmative, une question, une proposition de compromis
+- Adaptées au contexte et au rôle qui répond (${myLabel})`,
           cache_control: { type: "ephemeral" },
         },
       ],
       messages: [
         {
           role: "user",
-          content: `Dernier message de l'interlocuteur: "${lastMsg.content}"\n\nContexte:\n${transcript}`,
+          content: `Dernier message de l'interlocuteur: "${lastMsg.body}"\n\nContexte:\n${transcript}`,
         },
       ],
     });
