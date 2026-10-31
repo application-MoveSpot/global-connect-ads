@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
+import logoSvg from "@/assets/movespot-logo.svg";
 
 export function Navbar() {
   const { t } = useTranslation();
@@ -23,12 +23,13 @@ export function Navbar() {
           className="flex h-16 w-24 shrink-0 items-center justify-start overflow-hidden"
         >
           <img
-            src={officialLogo.url}
+            src={logoSvg}
             alt="MoveSpot"
-            width={512}
-            height={512}
-            className="h-14 w-auto max-w-full object-contain"
+            width={56}
+            height={56}
+            className="h-14 w-14 object-contain"
           />
+          <span className="ml-2 hidden font-bold text-lg tracking-tight text-header-foreground sm:inline">MoveSpot</span>
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
           <a href={mapHref} className="whitespace-nowrap hover:text-header-foreground transition">

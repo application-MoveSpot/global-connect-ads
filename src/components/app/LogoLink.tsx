@@ -1,20 +1,21 @@
 import { Link } from "@tanstack/react-router";
-import officialLogo from "@/assets/movespot-logo-official.png.asset.json";
+import logoSvg from "@/assets/movespot-logo.svg";
 
 export function LogoLink() {
   return (
     <Link
       to="/"
       aria-label="MoveSpot — accueil"
-      className="inline-flex shrink-0 items-center overflow-hidden rounded-lg"
+      className="inline-flex shrink-0 items-center gap-2 overflow-hidden rounded-lg"
     >
       <img
-        src={officialLogo.url}
+        src={logoSvg}
         alt="MoveSpot"
-        width={512}
-        height={512}
-        className="h-10 w-auto max-w-full object-contain"
+        width={40}
+        height={40}
+        className="h-10 w-10 object-contain"
       />
+      <span className="font-bold text-base tracking-tight">MoveSpot</span>
     </Link>
   );
 }
