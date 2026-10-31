@@ -244,7 +244,7 @@ function NewBriefPage() {
   const [aiError, setAiError] = useState("");
   const [aiSessionExpired, setAiSessionExpired] = useState(false);
   const [aiFilled, setAiFilled] = useState<string[]>([]);
-  const [aiCreativeUrl, setAiCreativeUrl] = useState<string | null>(null);
+  const [aiCreativeUrls, setAiCreativeUrls] = useState<string[]>([]);
   const [userAiKey, setUserAiKey] = useState<string>(() => {
     try {
       return localStorage.getItem("movespot_user_ai_key_v1") ?? "";
@@ -715,7 +715,7 @@ function NewBriefPage() {
           budget_max: budget ? Number(budget) : null,
           poseur_fee: poseurFee ? Number(poseurFee) : null,
           audience_target: audience || null,
-          creative_files: aiCreativeUrl ? [...uploadedPaths, aiCreativeUrl] : uploadedPaths,
+          creative_files: [...uploadedPaths, ...aiCreativeUrls],
           zone_polygon: zonePolygon ? (polygonToEwkt(zonePolygon.coordinates) as never) : null,
           zone_area_km2: zonePolygon?.areaKm2 ?? null,
           ad_format: adFormat ?? null,
@@ -2166,7 +2166,7 @@ function NewBriefPage() {
             description={description}
             vehicleTypes={vehicleTypes}
             adFormat={adFormat}
-            onAssetAdded={(url) => setAiCreativeUrl(url)}
+            onAssetAdded={(url) => setAiCreativeUrls((prev) => [...prev, url])}
             highlightReady={briefJustGeneratedByAi}
             onHighlightDismiss={() => setBriefJustGeneratedByAi(false)}
           />
