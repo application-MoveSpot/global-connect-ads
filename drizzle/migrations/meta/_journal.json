@@ -134,6 +134,13 @@
       "when": 1793496101836,
       "tag": "0018_create_ai_brief_summaries_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793496122301,
+      "tag": "0019_restrict_brief_summary_cache_grants",
+      "breakpoints": true
     }
   ]
 }
