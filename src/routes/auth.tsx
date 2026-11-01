@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { lovable } from "@/integrations/lovable";
 import { getStoredUtm } from "@/lib/analytics/utm";
+import { AppHeader } from "@/components/app/AppHeader";
 import { withAuthRetry, isServiceUnavailable } from "@/lib/auth/auth-retry";
 
 export const Route = createFileRoute("/auth")({
@@ -145,7 +146,9 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-var(--app-brand-height,0px))] flex items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
+      <AppHeader />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
         <Link
           to="/"
@@ -333,6 +336,7 @@ function AuthPage() {
             </button>
           </>
         )}
+      </div>
       </div>
     </div>
   );

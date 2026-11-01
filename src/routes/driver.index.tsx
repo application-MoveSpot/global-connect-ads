@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app/AppHeader";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
@@ -164,12 +165,10 @@ function DriverPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-start p-6">
+    <div className="min-h-screen bg-background flex flex-col">
+      <AppHeader />
+      <div className="flex-1 flex flex-col items-center justify-start p-6">
       <div className="w-full max-w-md mt-8">
-        <div className="text-center mb-6">
-          <div className="text-2xl">📍</div>
-          <h1 className="font-display text-2xl font-bold mt-2">MoveSpot Chauffeur</h1>
-        </div>
 
         {state === "verifying" && (
           <p className="text-center text-muted-foreground">{t("driver.verifying")}</p>
@@ -334,6 +333,7 @@ function DriverPage() {
             )}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getInvoiceData } from "@/lib/campaigns/invoice.functions";
 import { useTranslation } from "react-i18next";
 import { RouteError } from "@/components/app/RouteError";
+import { AppHeader } from "@/components/app/AppHeader";
 
 export const Route = createFileRoute("/advertiser/facture/$campaignId")({
   head: () => ({ meta: [{ title: "Facture — MoveSpot" }] }),
@@ -76,18 +77,22 @@ function FacturePage() {
         }
       `}</style>
 
-      {/* Toolbar — hidden on print */}
-      <div className="no-print bg-muted border-b py-3 px-6 flex items-center justify-between">
-        <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
-          {t("advertiser.facture.back")}
-        </Link>
-        <button
-          onClick={() => window.print()}
-          className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
-        >
-          {t("advertiser.facture.print_btn")}
-        </button>
-      </div>
+      <AppHeader
+        noPrint
+        right={
+          <>
+            <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("advertiser.facture.back")}
+            </Link>
+            <button
+              onClick={() => window.print()}
+              className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+            >
+              {t("advertiser.facture.print_btn")}
+            </button>
+          </>
+        }
+      />
 
       {/* Invoice */}
       <div className="min-h-screen bg-gray-100 py-10 px-4 print:bg-white print:py-0 print:px-0">

@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getContractData } from "@/lib/campaigns/contract.functions";
 import { useTranslation } from "react-i18next";
 import { RouteError } from "@/components/app/RouteError";
+import { AppHeader } from "@/components/app/AppHeader";
 
 export const Route = createFileRoute("/advertiser/contrat/$briefId")({
   head: () => ({ meta: [{ title: "Devis — MoveSpot" }] }),
@@ -68,22 +69,26 @@ function ContratPage() {
         }
       `}</style>
 
-      {/* Toolbar */}
-      <div className="no-print bg-muted border-b py-3 px-6 flex items-center justify-between">
-        <Link
-          to="/advertiser/briefs/$briefId"
-          params={{ briefId }}
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          {t("advertiser.contrat.back")}
-        </Link>
-        <button
-          onClick={() => window.print()}
-          className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
-        >
-          {t("advertiser.contrat.print_btn")}
-        </button>
-      </div>
+      <AppHeader
+        noPrint
+        right={
+          <>
+            <Link
+              to="/advertiser/briefs/$briefId"
+              params={{ briefId }}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              {t("advertiser.contrat.back")}
+            </Link>
+            <button
+              onClick={() => window.print()}
+              className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+            >
+              {t("advertiser.contrat.print_btn")}
+            </button>
+          </>
+        }
+      />
 
       <div className="min-h-screen bg-gray-100 py-10 px-4 print:bg-white print:py-0 print:px-0">
         <div
