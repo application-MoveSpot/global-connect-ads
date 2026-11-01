@@ -91,7 +91,14 @@ export const listRefundRequestsForAdmin = createServerFn({ method: "POST" })
     let q = (supabaseAdmin as any)
       .from("refund_requests")
       .select(
-        "id, user_id, campaign_request_id, amount_cents, reason, status, admin_notes, stripe_refund_id, created_at, updated_at",
+        `id, user_id, campaign_request_id, amount_cents, reason, status,
+         admin_notes, stripe_refund_id, created_at, updated_at,
+         refund_claims_moderation (
+           decision, risk_score, risk_score_numeric, compliance_eligible,
+           compliance_reason, extracted_facts, policy_violations,
+           risk_signals, tone_flags, decision_justification,
+           suggested_admin_note, analyzed_at, processing_ms
+         )`,
       )
       .order("created_at", { ascending: false })
       .limit(200);
@@ -153,8 +160,25 @@ export type RefundRequest = {
   created_at: string;
 };
 
+export type RefundModerationSummary = {
+  decision: "auto_approved" | "auto_rejected" | "requires_human_review";
+  risk_score: "low" | "medium" | "high";
+  risk_score_numeric: number;
+  compliance_eligible: boolean;
+  compliance_reason: string;
+  extracted_facts: string[];
+  policy_violations: string[];
+  risk_signals: string[];
+  tone_flags: string[];
+  decision_justification: string;
+  suggested_admin_note: string;
+  analyzed_at: string;
+  processing_ms: number | null;
+};
+
 export type AdminRefundRequest = RefundRequest & {
   user_id: string;
   stripe_refund_id: string | null;
   updated_at: string;
+  refund_claims_moderation: RefundModerationSummary | null;
 };
