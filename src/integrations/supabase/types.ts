@@ -217,6 +217,50 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_brief_summaries: {
+        Row: {
+          action_required: boolean
+          advertiser_id: string
+          brief_id: string
+          expires_at: string
+          generated_at: string
+          id: string
+          model: string
+          proposal_count: number
+          summary_text: string
+        }
+        Insert: {
+          action_required?: boolean
+          advertiser_id: string
+          brief_id: string
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          model?: string
+          proposal_count?: number
+          summary_text: string
+        }
+        Update: {
+          action_required?: boolean
+          advertiser_id?: string
+          brief_id?: string
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          model?: string
+          proposal_count?: number
+          summary_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_brief_summaries_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: true
+            referencedRelation: "advertiser_briefs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           created_at: string
