@@ -12,11 +12,7 @@ const MobilityMap = lazy(() =>
 const BookingForm = lazy(() =>
   import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })),
 );
-const AiCampaignEstimator = lazy(() =>
-  import("@/components/shared/AiCampaignEstimator").then((m) => ({
-    default: m.AiCampaignEstimator,
-  })),
-);
+const AiCampaignEstimator = lazy(() => import("@/components/shared/AiCampaignEstimator"));
 const CampaignImpactSimulator = lazy(() =>
   import("@/components/shared/CampaignImpactSimulator").then((m) => ({
     default: m.CampaignImpactSimulator,
