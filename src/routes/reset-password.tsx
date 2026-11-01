@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app/AppHeader";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
@@ -79,7 +80,9 @@ function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
+      <AppHeader />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
         <Link
           to="/auth"
@@ -203,6 +206,7 @@ function ResetPasswordPage() {
             </button>
           </form>
         )}
+      </div>
       </div>
     </div>
   );

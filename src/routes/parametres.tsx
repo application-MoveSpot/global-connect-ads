@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app/AppHeader";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
@@ -105,15 +106,19 @@ function ParametresPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="max-w-2xl mx-auto px-4 py-10 space-y-8">
-        <div>
+      <AppHeader
+        right={
           <button
             type="button"
             onClick={() => window.history.back()}
-            className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1"
+            className="text-sm text-muted-foreground hover:text-foreground"
           >
             {t("parametres.back")}
           </button>
+        }
+      />
+      <main className="max-w-2xl mx-auto px-4 py-10 space-y-8">
+        <div>
           <h1 className="font-display text-3xl font-bold">{t("parametres.title")}</h1>
           <p className="text-muted-foreground mt-1">{t("parametres.subtitle")}</p>
         </div>

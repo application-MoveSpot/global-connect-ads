@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app/AppHeader";
 import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -245,12 +246,17 @@ function TrackingPage() {
   const alertMM = String(alertMin % 60).padStart(2, "0");
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="mx-auto max-w-md space-y-4">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      <AppHeader
+        right={
           <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
             {t("owner.tracking.back")}
           </Link>
+        }
+      />
+      <div className="p-4">
+      <div className="mx-auto max-w-md space-y-4">
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-1 text-xs">
             {isMounted && !online ? (
               <WifiOff className="h-4 w-4 text-destructive" />
@@ -441,6 +447,7 @@ function TrackingPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

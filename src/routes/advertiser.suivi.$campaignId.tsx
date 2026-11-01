@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { MapConsentGate } from "@/components/app/MapConsentGate";
 import { useTranslation } from "react-i18next";
 import { RouteError } from "@/components/app/RouteError";
+import { AppHeader } from "@/components/app/AppHeader";
 
 export const Route = createFileRoute("/advertiser/suivi/$campaignId")({
   head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
@@ -297,13 +298,10 @@ function SuiviPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b bg-card p-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("advertiser.suivi.back")}
-          </Link>
-          <div className="flex items-center gap-3 text-sm">
-            <div className="flex items-center gap-2">
+      <AppHeader
+        right={
+          <>
+            <div className="flex items-center gap-2 text-sm">
               <Radio
                 className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`}
               />
@@ -324,9 +322,12 @@ function SuiviPage() {
             >
               {t("advertiser.suivi.report_pdf")}
             </Link>
-          </div>
-        </div>
-      </div>
+            <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("advertiser.suivi.back")}
+            </Link>
+          </>
+        }
+      />
 
       <div className="mx-auto max-w-6xl space-y-4 p-4">
         {/* Bannière événement pour les particuliers */}

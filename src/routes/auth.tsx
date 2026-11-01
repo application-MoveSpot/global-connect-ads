@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { lovable } from "@/integrations/lovable";
 import { getStoredUtm } from "@/lib/analytics/utm";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { withAuthRetry, isServiceUnavailable } from "@/lib/auth/auth-retry";
 
 export const Route = createFileRoute("/auth")({
@@ -138,11 +138,10 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
+      <AppHeader />
+      <div className="flex-1 flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
-        <div className="mb-4">
-          <LogoLink />
-        </div>
         <Link
           to="/"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
@@ -329,6 +328,7 @@ function AuthPage() {
             </button>
           </>
         )}
+      </div>
       </div>
     </div>
   );
