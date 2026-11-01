@@ -10,10 +10,34 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      admin_intrusion_attempts: {
+        Row: {
+          attempted_at: string
+          email: string | null
+          id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempted_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempted_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       advertiser_briefs: {
         Row: {
           ad_format: string | null
@@ -31,7 +55,7 @@ export type Database = {
           status: Database["public"]["Enums"]["brief_status"]
           title: string
           updated_at: string
-          vehicle_id: string | null
+          vehicle_count: number
           vehicle_types: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2: number | null
           zone_polygon: unknown
@@ -53,7 +77,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["brief_status"]
           title: string
           updated_at?: string
-          vehicle_id?: string | null
+          vehicle_count?: number
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2?: number | null
           zone_polygon?: unknown
@@ -75,21 +99,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["brief_status"]
           title?: string
           updated_at?: string
-          vehicle_id?: string | null
+          vehicle_count?: number
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2?: number | null
           zone_polygon?: unknown
           zones?: string[]
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertiser_briefs_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertiser_profiles: {
         Row: {
@@ -104,7 +120,6 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
-          referral_code: string | null
           referred_by_advertiser_id: string | null
           siret: string | null
           siret_denomination: string | null
@@ -125,7 +140,6 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
-          referral_code?: string | null
           referred_by_advertiser_id?: string | null
           siret?: string | null
           siret_denomination?: string | null
@@ -146,7 +160,6 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
-          referral_code?: string | null
           referred_by_advertiser_id?: string | null
           siret?: string | null
           siret_denomination?: string | null
@@ -157,57 +170,8 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "advertiser_profiles_commercial_id_fkey"
-            columns: ["commercial_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "advertiser_profiles_referred_by_advertiser_id_fkey"
             columns: ["referred_by_advertiser_id"]
-            isOneToOne: false
-            referencedRelation: "advertiser_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      advertiser_referral_rewards: {
-        Row: {
-          created_at: string
-          credited_at: string | null
-          id: string
-          referee_id: string
-          referrer_id: string
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          credited_at?: string | null
-          id?: string
-          referee_id: string
-          referrer_id: string
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          credited_at?: string | null
-          id?: string
-          referee_id?: string
-          referrer_id?: string
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "advertiser_referral_rewards_referee_id_fkey"
-            columns: ["referee_id"]
-            isOneToOne: true
-            referencedRelation: "advertiser_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "advertiser_referral_rewards_referrer_id_fkey"
-            columns: ["referrer_id"]
             isOneToOne: false
             referencedRelation: "advertiser_profiles"
             referencedColumns: ["id"]
@@ -224,7 +188,7 @@ export type Database = {
           mockup_url: string | null
           regeneration_count: number
           service_type: string
-          user_id: string | null
+          user_id: string
           vehicle_type: string | null
         }
         Insert: {
@@ -236,7 +200,7 @@ export type Database = {
           mockup_url?: string | null
           regeneration_count?: number
           service_type: string
-          user_id?: string | null
+          user_id: string
           vehicle_type?: string | null
         }
         Update: {
@@ -248,148 +212,8 @@ export type Database = {
           mockup_url?: string | null
           regeneration_count?: number
           service_type?: string
-          user_id?: string | null
-          vehicle_type?: string | null
-        }
-        Relationships: []
-      }
-      ai_brief_summaries: {
-        Row: {
-          action_required: boolean
-          advertiser_id: string
-          brief_id: string
-          expires_at: string
-          generated_at: string
-          id: string
-          model: string
-          proposal_count: number
-          summary_text: string
-        }
-        Insert: {
-          action_required?: boolean
-          advertiser_id: string
-          brief_id: string
-          expires_at?: string
-          generated_at?: string
-          id?: string
-          model?: string
-          proposal_count?: number
-          summary_text: string
-        }
-        Update: {
-          action_required?: boolean
-          advertiser_id?: string
-          brief_id?: string
-          expires_at?: string
-          generated_at?: string
-          id?: string
-          model?: string
-          proposal_count?: number
-          summary_text?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_brief_summaries_brief_id_fkey"
-            columns: ["brief_id"]
-            isOneToOne: true
-            referencedRelation: "advertiser_briefs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_conversation_summaries: {
-        Row: {
-          action_required: boolean
-          conversation_id: string
-          expires_at: string
-          generated_at: string
-          id: string
-          message_count: number
-          model: string
-          negotiation_status: string
-          summary: string
-          user_id: string
-        }
-        Insert: {
-          action_required?: boolean
-          conversation_id: string
-          expires_at: string
-          generated_at?: string
-          id?: string
-          message_count?: number
-          model?: string
-          negotiation_status?: string
-          summary: string
-          user_id: string
-        }
-        Update: {
-          action_required?: boolean
-          conversation_id?: string
-          expires_at?: string
-          generated_at?: string
-          id?: string
-          message_count?: number
-          model?: string
-          negotiation_status?: string
-          summary?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      ai_translations: {
-        Row: {
-          cache_key: string
-          created_at: string
-          detected_lang: string
-          message_id: string | null
-          model: string
-          target_lang: string
-          translation: string
-        }
-        Insert: {
-          cache_key: string
-          created_at?: string
-          detected_lang?: string
-          message_id?: string | null
-          model?: string
-          target_lang: string
-          translation: string
-        }
-        Update: {
-          cache_key?: string
-          created_at?: string
-          detected_lang?: string
-          message_id?: string | null
-          model?: string
-          target_lang?: string
-          translation?: string
-        }
-        Relationships: []
-      }
-      analytics_events: {
-        Row: {
-          created_at: string
-          event: string
-          id: string
-          properties: Json | null
-          session_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          event: string
-          id?: string
-          properties?: Json | null
-          session_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          event?: string
-          id?: string
-          properties?: Json | null
-          session_id?: string | null
-          user_id?: string | null
+          vehicle_type?: string | null
         }
         Relationships: []
       }
@@ -478,6 +302,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      beta_whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          email: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
       }
       brief_proposals: {
         Row: {
@@ -587,11 +435,10 @@ export type Database = {
       campaign_requests: {
         Row: {
           admin_notes: string | null
-          commercial_id: string | null
-          commission_amount_cents: number | null
-          commission_paid_at: string | null
+          audience: string | null
+          campaign_goal: string | null
           company: string
-          country_code: string
+          country_code: string | null
           created_at: string
           creative_files: string[]
           daily_end_time: string | null
@@ -609,6 +456,10 @@ export type Database = {
           end_date: string | null
           estimated_impressions_per_day: number | null
           id: string
+          installation_address: string | null
+          installation_impossible_at: string | null
+          installation_impossible_photos: string[]
+          installation_impossible_reason: string | null
           installation_notes: string | null
           installation_photos: Json | null
           installation_reviewed_at: string | null
@@ -625,6 +476,7 @@ export type Database = {
           platform_fee_cents: number | null
           pose_fee_cents: number | null
           pose_installer_user_id: string | null
+          pose_location_type: string | null
           pose_payout_status: string | null
           pose_stripe_transfer_id: string | null
           route_pois: string[] | null
@@ -640,12 +492,11 @@ export type Database = {
           stripe_payment_intent_id: string | null
           stripe_subscription_id: string | null
           stripe_transfer_id: string | null
-          subscription_current_period_end: string | null
-          subscription_customer_id: string | null
           subscription_status: string | null
           target_region: string | null
-          timezone: string
+          timezone: string | null
           total_price: number | null
+          trial_end: string | null
           updated_at: string
           user_id: string | null
           vehicle_id: string | null
@@ -654,11 +505,10 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
-          commercial_id?: string | null
-          commission_amount_cents?: number | null
-          commission_paid_at?: string | null
+          audience?: string | null
+          campaign_goal?: string | null
           company: string
-          country_code?: string
+          country_code?: string | null
           created_at?: string
           creative_files?: string[]
           daily_end_time?: string | null
@@ -676,6 +526,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_address?: string | null
+          installation_impossible_at?: string | null
+          installation_impossible_photos?: string[]
+          installation_impossible_reason?: string | null
           installation_notes?: string | null
           installation_photos?: Json | null
           installation_reviewed_at?: string | null
@@ -692,6 +546,7 @@ export type Database = {
           platform_fee_cents?: number | null
           pose_fee_cents?: number | null
           pose_installer_user_id?: string | null
+          pose_location_type?: string | null
           pose_payout_status?: string | null
           pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
@@ -707,12 +562,11 @@ export type Database = {
           stripe_payment_intent_id?: string | null
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
-          subscription_current_period_end?: string | null
-          subscription_customer_id?: string | null
           subscription_status?: string | null
           target_region?: string | null
-          timezone?: string
+          timezone?: string | null
           total_price?: number | null
+          trial_end?: string | null
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
@@ -721,11 +575,10 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
-          commercial_id?: string | null
-          commission_amount_cents?: number | null
-          commission_paid_at?: string | null
+          audience?: string | null
+          campaign_goal?: string | null
           company?: string
-          country_code?: string
+          country_code?: string | null
           created_at?: string
           creative_files?: string[]
           daily_end_time?: string | null
@@ -743,6 +596,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_address?: string | null
+          installation_impossible_at?: string | null
+          installation_impossible_photos?: string[]
+          installation_impossible_reason?: string | null
           installation_notes?: string | null
           installation_photos?: Json | null
           installation_reviewed_at?: string | null
@@ -759,6 +616,7 @@ export type Database = {
           platform_fee_cents?: number | null
           pose_fee_cents?: number | null
           pose_installer_user_id?: string | null
+          pose_location_type?: string | null
           pose_payout_status?: string | null
           pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
@@ -774,12 +632,11 @@ export type Database = {
           stripe_payment_intent_id?: string | null
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
-          subscription_current_period_end?: string | null
-          subscription_customer_id?: string | null
           subscription_status?: string | null
           target_region?: string | null
-          timezone?: string
+          timezone?: string | null
           total_price?: number | null
+          trial_end?: string | null
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
@@ -787,13 +644,6 @@ export type Database = {
           zone_polygon?: unknown
         }
         Relationships: [
-          {
-            foreignKeyName: "campaign_requests_commercial_id_fkey"
-            columns: ["commercial_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "campaign_requests_vehicle_id_fkey"
             columns: ["vehicle_id"]
@@ -857,55 +707,10 @@ export type Database = {
         }
         Relationships: []
       }
-      contact_leads: {
-        Row: {
-          budget_range: string | null
-          company_name: string | null
-          contact_name: string
-          created_at: string
-          email: string
-          id: string
-          message: string | null
-          phone: string | null
-          plan: string
-          siret: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          budget_range?: string | null
-          company_name?: string | null
-          contact_name: string
-          created_at?: string
-          email: string
-          id?: string
-          message?: string | null
-          phone?: string | null
-          plan?: string
-          siret?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          budget_range?: string | null
-          company_name?: string | null
-          contact_name?: string
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string | null
-          phone?: string | null
-          plan?: string
-          siret?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       control_photo_requests: {
         Row: {
           admin_notes: string | null
-          admin_validated: boolean | null
+          admin_validated: boolean
           campaign_request_id: string | null
           created_at: string
           deadline_at: string
@@ -923,7 +728,7 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
-          admin_validated?: boolean | null
+          admin_validated?: boolean
           campaign_request_id?: string | null
           created_at?: string
           deadline_at: string
@@ -934,14 +739,14 @@ export type Database = {
           photo_lat?: number | null
           photo_lng?: number | null
           photo_path?: string | null
-          scheduled_at?: string
+          scheduled_at: string
           status?: string
           submitted_at?: string | null
           vehicle_id?: string | null
         }
         Update: {
           admin_notes?: string | null
-          admin_validated?: boolean | null
+          admin_validated?: boolean
           campaign_request_id?: string | null
           created_at?: string
           deadline_at?: string
@@ -981,102 +786,23 @@ export type Database = {
           },
         ]
       }
-      creative_assets: {
+      cron_config: {
         Row: {
-          ad_format: string | null
-          advertiser_id: string
-          brief_id: string | null
-          cost_cents: number
-          created_at: string
-          id: string
-          prompt: string | null
-          provider: string
-          storage_path: string | null
-          type: string
-          url: string
-          vehicle_types: string[]
+          key: string
+          updated_at: string
+          value: string
         }
         Insert: {
-          ad_format?: string | null
-          advertiser_id: string
-          brief_id?: string | null
-          cost_cents?: number
-          created_at?: string
-          id?: string
-          prompt?: string | null
-          provider: string
-          storage_path?: string | null
-          type: string
-          url: string
-          vehicle_types?: string[]
+          key: string
+          updated_at?: string
+          value: string
         }
         Update: {
-          ad_format?: string | null
-          advertiser_id?: string
-          brief_id?: string | null
-          cost_cents?: number
-          created_at?: string
-          id?: string
-          prompt?: string | null
-          provider?: string
-          storage_path?: string | null
-          type?: string
-          url?: string
-          vehicle_types?: string[]
+          key?: string
+          updated_at?: string
+          value?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "creative_assets_brief_id_fkey"
-            columns: ["brief_id"]
-            isOneToOne: false
-            referencedRelation: "advertiser_briefs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      driver_trust_scores: {
-        Row: {
-          control_requests_expired: number
-          control_requests_ok: number
-          control_requests_rejected: number
-          control_requests_total: number
-          driver_id: string
-          gps_anomaly_flags: number
-          last_updated_at: string
-          score: number
-          zone_compliance_pct: number | null
-        }
-        Insert: {
-          control_requests_expired?: number
-          control_requests_ok?: number
-          control_requests_rejected?: number
-          control_requests_total?: number
-          driver_id: string
-          gps_anomaly_flags?: number
-          last_updated_at?: string
-          score?: number
-          zone_compliance_pct?: number | null
-        }
-        Update: {
-          control_requests_expired?: number
-          control_requests_ok?: number
-          control_requests_rejected?: number
-          control_requests_total?: number
-          driver_id?: string
-          gps_anomaly_flags?: number
-          last_updated_at?: string
-          score?: number
-          zone_compliance_pct?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "driver_trust_scores_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: true
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       drivers: {
         Row: {
@@ -1218,7 +944,6 @@ export type Database = {
           brief_id: string
           created_at: string
           id: string
-          moderation: Json | null
           proposal_id: string | null
           read_at: string | null
           sender_id: string
@@ -1229,7 +954,6 @@ export type Database = {
           brief_id: string
           created_at?: string
           id?: string
-          moderation?: Json | null
           proposal_id?: string | null
           read_at?: string | null
           sender_id: string
@@ -1240,7 +964,6 @@ export type Database = {
           brief_id?: string
           created_at?: string
           id?: string
-          moderation?: Json | null
           proposal_id?: string | null
           read_at?: string | null
           sender_id?: string
@@ -1263,50 +986,68 @@ export type Database = {
           },
         ]
       }
-      moderation_alerts: {
+      obstacle_reports: {
         Row: {
-          conversation_id: string | null
-          created_at: string
-          flags: string[]
+          admin_notes: string | null
+          admin_validated: boolean
+          admin_validated_at: string | null
+          campaign_id: string | null
+          description: string | null
           id: string
-          intent: string
-          message_id: string | null
-          reviewed: boolean
-          reviewed_at: string | null
-          reviewed_by: string | null
-          sender_id: string | null
-          severity: number
-          suggested_action: string | null
+          impact_end: string | null
+          impact_start: string | null
+          metadata: Json
+          obstacle_type: string
+          photo_paths: string[]
+          reported_at: string
+          vehicle_id: string | null
         }
         Insert: {
-          conversation_id?: string | null
-          created_at?: string
-          flags?: string[]
+          admin_notes?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          campaign_id?: string | null
+          description?: string | null
           id?: string
-          intent?: string
-          message_id?: string | null
-          reviewed?: boolean
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          sender_id?: string | null
-          severity?: number
-          suggested_action?: string | null
+          impact_end?: string | null
+          impact_start?: string | null
+          metadata?: Json
+          obstacle_type: string
+          photo_paths?: string[]
+          reported_at?: string
+          vehicle_id?: string | null
         }
         Update: {
-          conversation_id?: string | null
-          created_at?: string
-          flags?: string[]
+          admin_notes?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          campaign_id?: string | null
+          description?: string | null
           id?: string
-          intent?: string
-          message_id?: string | null
-          reviewed?: boolean
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          sender_id?: string | null
-          severity?: number
-          suggested_action?: string | null
+          impact_end?: string | null
+          impact_start?: string | null
+          metadata?: Json
+          obstacle_type?: string
+          photo_paths?: string[]
+          reported_at?: string
+          vehicle_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "obstacle_reports_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obstacle_reports_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       owner_profiles: {
         Row: {
@@ -1330,10 +1071,10 @@ export type Database = {
           user_id: string
           vigilance_attestation_url: string | null
           vigilance_date_verification: string | null
-          vigilance_gains_cumules_centimes: number
+          vigilance_gains_cumules_centimes: number | null
           vigilance_notes: string | null
           vigilance_seuil_atteint_at: string | null
-          vigilance_statut: string
+          vigilance_statut: string | null
         }
         Insert: {
           bio?: string | null
@@ -1356,10 +1097,10 @@ export type Database = {
           user_id: string
           vigilance_attestation_url?: string | null
           vigilance_date_verification?: string | null
-          vigilance_gains_cumules_centimes?: number
+          vigilance_gains_cumules_centimes?: number | null
           vigilance_notes?: string | null
           vigilance_seuil_atteint_at?: string | null
-          vigilance_statut?: string
+          vigilance_statut?: string | null
         }
         Update: {
           bio?: string | null
@@ -1382,17 +1123,17 @@ export type Database = {
           user_id?: string
           vigilance_attestation_url?: string | null
           vigilance_date_verification?: string | null
-          vigilance_gains_cumules_centimes?: number
+          vigilance_gains_cumules_centimes?: number | null
           vigilance_notes?: string | null
           vigilance_seuil_atteint_at?: string | null
-          vigilance_statut?: string
+          vigilance_statut?: string | null
         }
         Relationships: []
       }
       owner_reviews: {
         Row: {
           advertiser_id: string
-          campaign_request_id: string | null
+          campaign_request_id: string
           comment: string | null
           created_at: string
           id: string
@@ -1401,7 +1142,7 @@ export type Database = {
         }
         Insert: {
           advertiser_id: string
-          campaign_request_id?: string | null
+          campaign_request_id: string
           comment?: string | null
           created_at?: string
           id?: string
@@ -1410,7 +1151,7 @@ export type Database = {
         }
         Update: {
           advertiser_id?: string
-          campaign_request_id?: string | null
+          campaign_request_id?: string
           comment?: string | null
           created_at?: string
           id?: string
@@ -1425,18 +1166,10 @@ export type Database = {
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "owner_reviews_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "owner_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       partner_profiles: {
         Row: {
-          admin_notes: string | null
           city: string | null
           company: string | null
           created_at: string
@@ -1450,7 +1183,9 @@ export type Database = {
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
-          status: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           stripe_subscription_period_end: string | null
           stripe_subscription_status: string | null
           updated_at: string
@@ -1458,7 +1193,6 @@ export type Database = {
           website: string | null
         }
         Insert: {
-          admin_notes?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
@@ -1472,7 +1206,9 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
-          status?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           stripe_subscription_period_end?: string | null
           stripe_subscription_status?: string | null
           updated_at?: string
@@ -1480,7 +1216,6 @@ export type Database = {
           website?: string | null
         }
         Update: {
-          admin_notes?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
@@ -1494,7 +1229,9 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
-          status?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           stripe_subscription_period_end?: string | null
           stripe_subscription_status?: string | null
           updated_at?: string
@@ -1689,13 +1426,6 @@ export type Database = {
             referencedRelation: "public_provider_profiles"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "provider_positions_service_quote_id_fkey"
-            columns: ["service_quote_id"]
-            isOneToOne: false
-            referencedRelation: "service_quotes"
-            referencedColumns: ["id"]
-          },
         ]
       }
       provider_profiles: {
@@ -1708,14 +1438,13 @@ export type Database = {
           docs_ai_report: Json | null
           docs_ai_status: string | null
           email: string
-          embedding: string | null
-          formation_doc_urls: string[] | null
           full_name: string
           id_doc_url: string | null
           kbis_url: string | null
           logo_url: string | null
           phone: string | null
           portfolio_urls: string[]
+          pose_location_types: string[]
           pricing_info: string | null
           rc_pro_expiry: string | null
           rc_pro_url: string | null
@@ -1723,6 +1452,10 @@ export type Database = {
           services: string[]
           siret: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_subscription_period_end: string | null
+          stripe_subscription_status: string | null
           updated_at: string
           user_id: string
           website: string | null
@@ -1736,14 +1469,13 @@ export type Database = {
           docs_ai_report?: Json | null
           docs_ai_status?: string | null
           email: string
-          embedding?: string | null
-          formation_doc_urls?: string[] | null
           full_name: string
           id_doc_url?: string | null
           kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
+          pose_location_types?: string[]
           pricing_info?: string | null
           rc_pro_expiry?: string | null
           rc_pro_url?: string | null
@@ -1751,6 +1483,10 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -1764,14 +1500,13 @@ export type Database = {
           docs_ai_report?: Json | null
           docs_ai_status?: string | null
           email?: string
-          embedding?: string | null
-          formation_doc_urls?: string[] | null
           full_name?: string
           id_doc_url?: string | null
           kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
+          pose_location_types?: string[]
           pricing_info?: string | null
           rc_pro_expiry?: string | null
           rc_pro_url?: string | null
@@ -1779,88 +1514,15 @@ export type Database = {
           services?: string[]
           siret?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_subscription_period_end?: string | null
+          stripe_subscription_status?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
         }
         Relationships: []
-      }
-      push_subscriptions: {
-        Row: {
-          auth: string
-          created_at: string
-          endpoint: string
-          id: string
-          p256dh: string
-          user_agent: string | null
-          user_id: string
-        }
-        Insert: {
-          auth: string
-          created_at?: string
-          endpoint: string
-          id?: string
-          p256dh: string
-          user_agent?: string | null
-          user_id: string
-        }
-        Update: {
-          auth?: string
-          created_at?: string
-          endpoint?: string
-          id?: string
-          p256dh?: string
-          user_agent?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      refund_requests: {
-        Row: {
-          admin_notes: string | null
-          amount_cents: number | null
-          campaign_request_id: string | null
-          created_at: string
-          id: string
-          reason: string
-          status: string
-          stripe_refund_id: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          admin_notes?: string | null
-          amount_cents?: number | null
-          campaign_request_id?: string | null
-          created_at?: string
-          id?: string
-          reason: string
-          status?: string
-          stripe_refund_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          admin_notes?: string | null
-          amount_cents?: number | null
-          campaign_request_id?: string | null
-          created_at?: string
-          id?: string
-          reason?: string
-          status?: string
-          stripe_refund_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "refund_requests_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       refunds: {
         Row: {
@@ -1925,7 +1587,7 @@ export type Database = {
           format: string | null
           id: string
           impossible_at: string | null
-          impossible_photos: string[] | null
+          impossible_photos: string[]
           impossible_reason: string | null
           message: string
           provider_id: string
@@ -1937,6 +1599,7 @@ export type Database = {
           service_type: string
           status: string
           updated_at: string
+          vehicle_id: string | null
           vehicle_type: string | null
           zone: string | null
         }
@@ -1949,7 +1612,7 @@ export type Database = {
           format?: string | null
           id?: string
           impossible_at?: string | null
-          impossible_photos?: string[] | null
+          impossible_photos?: string[]
           impossible_reason?: string | null
           message: string
           provider_id: string
@@ -1961,6 +1624,7 @@ export type Database = {
           service_type: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -1973,7 +1637,7 @@ export type Database = {
           format?: string | null
           id?: string
           impossible_at?: string | null
-          impossible_photos?: string[] | null
+          impossible_photos?: string[]
           impossible_reason?: string | null
           message?: string
           provider_id?: string
@@ -1985,6 +1649,7 @@ export type Database = {
           service_type?: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -1996,36 +1661,43 @@ export type Database = {
             referencedRelation: "ai_brief_data"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "service_quotes_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       status_history: {
         Row: {
-          actor_id: string | null
+          changed_by: string | null
           created_at: string
           entity_id: string
           entity_type: string
           id: string
-          new_status: string
+          new_status: string | null
           previous_status: string | null
           reason: string | null
         }
         Insert: {
-          actor_id?: string | null
+          changed_by?: string | null
           created_at?: string
           entity_id: string
           entity_type: string
           id?: string
-          new_status: string
+          new_status?: string | null
           previous_status?: string | null
           reason?: string | null
         }
         Update: {
-          actor_id?: string | null
+          changed_by?: string | null
           created_at?: string
           entity_id?: string
           entity_type?: string
           id?: string
-          new_status?: string
+          new_status?: string | null
           previous_status?: string | null
           reason?: string | null
         }
@@ -2052,42 +1724,6 @@ export type Database = {
           processed_at?: string | null
           received_at?: string
           type?: string
-        }
-        Relationships: []
-      }
-      support_tickets: {
-        Row: {
-          admin_response: string | null
-          context_url: string | null
-          created_at: string
-          id: string
-          message: string
-          resolved_at: string | null
-          status: string
-          subject: string
-          user_id: string
-        }
-        Insert: {
-          admin_response?: string | null
-          context_url?: string | null
-          created_at?: string
-          id?: string
-          message: string
-          resolved_at?: string | null
-          status?: string
-          subject: string
-          user_id: string
-        }
-        Update: {
-          admin_response?: string | null
-          context_url?: string | null
-          created_at?: string
-          id?: string
-          message?: string
-          resolved_at?: string | null
-          status?: string
-          subject?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -2197,6 +1833,8 @@ export type Database = {
         Row: {
           admin_notes: string | null
           ai_verification: Json | null
+          brand: string | null
+          color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           covering_zone: Json | null
           created_at: string
@@ -2205,6 +1843,8 @@ export type Database = {
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
+          license_plate: string | null
+          model: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -2218,6 +1858,8 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           covering_zone?: Json | null
           created_at?: string
@@ -2226,6 +1868,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
+          model?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -2239,6 +1883,8 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           covering_zone?: Json | null
           created_at?: string
@@ -2247,6 +1893,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
+          license_plate?: string | null
+          model?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null
@@ -2424,20 +2072,18 @@ export type Database = {
         }
         Returns: string
       }
-      call_send_push: { Args: { payload: Json }; Returns: undefined }
+      check_beta_access: { Args: never; Returns: boolean }
       check_is_admin: { Args: never; Returns: boolean }
-      credit_advertiser_referral: {
-        Args: { p_referee_user_id: string }
-        Returns: undefined
-      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      fleet_public_stats: { Args: never; Returns: Json }
       get_vehicle_booked_periods: {
         Args: { p_vehicle_id: string }
         Returns: {
@@ -2455,26 +2101,6 @@ export type Database = {
       is_point_in_campaign_zone: {
         Args: { p_campaign_id: string; p_lat: number; p_lng: number }
         Returns: boolean
-      }
-      match_providers: {
-        Args: {
-          filter_category?: string
-          match_count?: number
-          match_threshold?: number
-          query_embedding: string
-        }
-        Returns: {
-          company: string
-          coverage_areas: string[]
-          description: string
-          full_name: string
-          logo_url: string
-          pricing_info: string
-          services: string[]
-          similarity: number
-          user_id: string
-          website: string
-        }[]
       }
       move_to_dlq: {
         Args: {
@@ -2536,6 +2162,7 @@ export type Database = {
         | "tutuk"
         | "sac_a_dos_lcd"
         | "sac_a_dos_affiche"
+        | "camion_boxled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2689,8 +2316,8 @@ export const Constants = {
         "tutuk",
         "sac_a_dos_lcd",
         "sac_a_dos_affiche",
+        "camion_boxled",
       ],
     },
   },
 } as const
-
