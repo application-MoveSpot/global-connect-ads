@@ -15,7 +15,15 @@ export const Route = createFileRoute("/auth")({
       ? { next: s.next }
       : {},
   head: () => ({
-    meta: [{ title: "Connexion — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
+    meta: [
+      { title: "Connexion — MoveSpot" },
+      { name: "description", content: "Connectez-vous à votre espace MoveSpot." },
+      { property: "og:title", content: "Connexion — MoveSpot" },
+      { property: "og:description", content: "Connectez-vous à votre espace MoveSpot." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
   }),
   component: AuthPage,
 });

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
 export type AlertType = "conflict" | "opportunity" | "extension" | "overlap";
 export type AlertPriority = "high" | "medium" | "low";
@@ -85,7 +86,7 @@ export function useDynamicAdjustment(campaigns: CalendarCampaignInput[]) {
   // Apply a suggested adjustment directly to Supabase
   const applyAction = useCallback(
     async (alert: CalendarAlert): Promise<boolean> => {
-      const patch: Record<string, unknown> = {};
+      const patch: Database["public"]["Tables"]["advertiser_briefs"]["Update"] = {};
 
       if (alert.action.new_start_date) patch.start_date = alert.action.new_start_date;
       if (alert.action.new_end_date) patch.end_date = alert.action.new_end_date;
