@@ -1,4 +1,5 @@
 - [x] Généraliser la bande blanche et le logo officiel complet à toutes les pages, connexion incluse, sans doubler les en-têtes ; affichage vérifié sur 10 pages et 2 vues téléphone.
+- [ ] Corriger les erreurs restantes de compilation : cache des résumés absent et typage des ajustements de dates.
 - [x] Créer la vidéo du raton avec le script commerciaux expérimentés et une voix masculine posée.
 - [x] Corriger les liens de photos refusés par l’IA et vérifier l’analyse d’un véhicule.
 - [x] Rétablir la lecture sécurisée des disponibilités et proposer les créneaux avant/après en cas de conflit, puis vérifier le calendrier connecté (requête réelle 200 ; blocage et suggestions vérifiés avec dates simulées ; 5 tests réussis).
