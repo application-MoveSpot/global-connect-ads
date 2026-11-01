@@ -122,7 +122,8 @@
 }
 
 /* Bande blanche : remet les couleurs claires à l'intérieur de toutes les barres du haut */
-.light-band {
+.light-band,
+.app-page header:has(img[alt="MoveSpot"]) {
   --background: oklch(1 0 0);
   --foreground: oklch(0.15 0.030 264);
   --card: oklch(0.97 0.005 264);
@@ -138,6 +139,22 @@
   --input: oklch(0.90 0.010 264);
   background-color: var(--header);
   color: var(--header-foreground);
+}
+
+/* Keep existing navigation; supply the shared band only when it is absent.
+   CSS evaluates the rendered page on SSR and after navigation, without effects. */
+.app-brand-shell:has(.app-page header img[alt="MoveSpot"]) > .app-brand-header {
+  display: none;
+}
+
+.app-brand-shell:not(:has(.app-page header img[alt="MoveSpot"])) .app-page {
+  --app-brand-height: 101px;
+}
+
+@media (max-width: 639px) {
+  .app-brand-shell:not(:has(.app-page header img[alt="MoveSpot"])) .app-page {
+    --app-brand-height: 77px;
+  }
 }
 
 @layer base {
