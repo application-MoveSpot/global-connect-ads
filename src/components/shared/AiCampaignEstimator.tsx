@@ -65,7 +65,7 @@ function MetricBox({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function AiCampaignEstimator() {
+export default function AiCampaignEstimator() {
   const { inputs, result, llmLoading, isReady, update } = useAiCampaignEstimator();
 
   const searchParams = {
