@@ -16,6 +16,7 @@ import { RegionProvider } from "@/lib/region-context";
 import { AppUpdateGuard } from "@/components/app/AppUpdateGuard";
 import { BetaGuard } from "@/components/app/BetaGuard";
 import { SessionKeeper } from "@/components/app/SessionKeeper";
+import { AppBrandShell } from "@/components/app/AppBrandShell";
 import { LanguageAuditGuard } from "@/components/app/LanguageAuditGuard";
 import { StatusBanner } from "@/components/app/StatusBanner";
 import { TestEnvBanner } from "@/components/app/TestEnvBanner";
@@ -306,9 +307,11 @@ function RootComponent() {
           <AppUpdateGuard />
           <LanguageAuditGuard />
           <StatusBanner />
-          <BetaGuard>
-            <Outlet />
-          </BetaGuard>
+          <AppBrandShell>
+            <BetaGuard>
+              <Outlet />
+            </BetaGuard>
+          </AppBrandShell>
           <CookieBanner />
         </RegionProvider>
       </QueryClientProvider>
