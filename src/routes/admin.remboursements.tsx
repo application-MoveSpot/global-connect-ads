@@ -6,6 +6,7 @@ import {
   listRefundRequestsForAdmin,
   reviewRefundRequest,
   type AdminRefundRequest,
+  type RefundModerationSummary,
 } from "@/lib/payments/refund.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
@@ -28,6 +29,180 @@ const STATUS_COLOR: Record<string, string> = {
   rejected: "bg-destructive/10 text-destructive border-destructive/30",
   processed: "bg-primary/10 text-primary border-primary/30",
 };
+
+const DECISION_CONFIG = {
+  auto_approved: {
+    label: "Auto-approuvé",
+    className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30",
+    dot: "bg-emerald-500",
+  },
+  auto_rejected: {
+    label: "Auto-rejeté",
+    className: "bg-destructive/10 text-destructive border-destructive/30",
+    dot: "bg-destructive",
+  },
+  requires_human_review: {
+    label: "Revue humaine requise",
+    className: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30",
+    dot: "bg-amber-500",
+  },
+};
+
+const RISK_CONFIG = {
+  low: { label: "Faible", bar: "bg-emerald-500", text: "text-emerald-700 dark:text-emerald-400" },
+  medium: { label: "Moyen", bar: "bg-amber-500", text: "text-amber-700 dark:text-amber-400" },
+  high: { label: "Élevé", bar: "bg-destructive", text: "text-destructive" },
+};
+
+function RefundAIPanel({ mod, onCopySuggestion }: { mod: RefundModerationSummary; onCopySuggestion: (note: string) => void }) {
+  const [open, setOpen] = useState(true);
+  const decision = DECISION_CONFIG[mod.decision];
+  const risk = RISK_CONFIG[mod.risk_score];
+
+  return (
+    <div className="rounded-xl border border-violet-500/20 bg-violet-50/30 dark:bg-violet-950/10 overflow-hidden">
+      {/* Header */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-violet-500/5 transition"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-violet-500">✦</span>
+          <span className="text-sm font-semibold text-violet-700 dark:text-violet-400">Analyse IA</span>
+          {/* Decision badge */}
+          <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border flex items-center gap-1.5 ${decision.className}`}>
+            <span className={`size-1.5 rounded-full ${decision.dot}`} />
+            {decision.label}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Risk score mini */}
+          <span className={`text-xs font-bold ${risk.text}`}>
+            Risque {risk.label} ({mod.risk_score_numeric}/100)
+          </span>
+          <span className="text-muted-foreground text-xs">{open ? "▲" : "▼"}</span>
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-4 border-t border-violet-500/15">
+          {/* Risk score bar */}
+          <div className="pt-3 space-y-1.5">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Score de risque</span>
+              <span className={`font-bold ${risk.text}`}>{mod.risk_score_numeric} / 100</span>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${risk.bar}`}
+                style={{ width: `${mod.risk_score_numeric}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Compliance */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg bg-background/60 border border-border p-3 space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Conformité</p>
+              <p className={`text-sm font-bold ${mod.compliance_eligible ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
+                {mod.compliance_eligible ? "✓ Éligible" : "✗ Non éligible"}
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{mod.compliance_reason}</p>
+            </div>
+            <div className="rounded-lg bg-background/60 border border-border p-3 space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Décision IA</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{mod.decision_justification}</p>
+            </div>
+          </div>
+
+          {/* Extracted facts */}
+          {mod.extracted_facts.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Faits extraits</p>
+              <ul className="space-y-1">
+                {mod.extracted_facts.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-foreground">
+                    <span className="text-violet-400 mt-0.5 shrink-0">•</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Policy violations */}
+          {mod.policy_violations.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-destructive uppercase tracking-wide">Violations de politique</p>
+              <ul className="space-y-1">
+                {mod.policy_violations.map((v, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs text-destructive">
+                    <span className="mt-0.5 shrink-0">⚠</span>
+                    {v}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Risk signals + tone flags */}
+          {(mod.risk_signals.length > 0 || mod.tone_flags.length > 0) && (
+            <div className="grid grid-cols-2 gap-3">
+              {mod.risk_signals.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Signaux de risque</p>
+                  <div className="flex flex-wrap gap-1">
+                    {mod.risk_signals.map((s, i) => (
+                      <span key={i} className="text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 rounded px-2 py-0.5">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {mod.tone_flags.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ton détecté</p>
+                  <div className="flex flex-wrap gap-1">
+                    {mod.tone_flags.map((f, i) => (
+                      <span key={i} className="text-xs bg-secondary border border-border rounded px-2 py-0.5">
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Suggested admin note */}
+          {mod.suggested_admin_note && (
+            <div className="rounded-lg border border-violet-500/20 bg-violet-500/5 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-violet-700 dark:text-violet-400 uppercase tracking-wide">
+                  Note admin suggérée
+                </p>
+                <button
+                  onClick={() => onCopySuggestion(mod.suggested_admin_note)}
+                  className="text-xs text-violet-600 dark:text-violet-400 hover:underline font-medium"
+                >
+                  Copier →
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed italic">"{mod.suggested_admin_note}"</p>
+            </div>
+          )}
+
+          {/* Meta */}
+          <p className="text-xs text-muted-foreground/60">
+            Analysé le {new Date(mod.analyzed_at).toLocaleString("fr-FR")}
+            {mod.processing_ms != null && ` · ${mod.processing_ms} ms`}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AdminRemboursementsPage() {
   const { t, i18n } = useTranslation();
@@ -62,12 +237,19 @@ function AdminRemboursementsPage() {
     void reload();
   }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onAction = async (id: string, status: "approved" | "rejected" | "processed") => {
+  const onAction = async (
+    id: string,
+    status: "approved" | "rejected" | "processed",
+    suggestedNote?: string,
+  ) => {
     let adminNotes: string | undefined;
     let stripeRefundId: string | undefined;
 
     if (status === "rejected") {
-      const note = window.prompt(t("admin.refunds.reject_reason"));
+      const note = window.prompt(
+        t("admin.refunds.reject_reason"),
+        suggestedNote ?? "",
+      );
       if (note === null) return;
       adminNotes = note || undefined;
     }
@@ -188,6 +370,22 @@ function AdminRemboursementsPage() {
                   {r.reason}
                 </div>
 
+                {/* Panneau IA */}
+                {r.refund_claims_moderation ? (
+                  <RefundAIPanel
+                    mod={r.refund_claims_moderation}
+                    onCopySuggestion={(note) => {
+                      void navigator.clipboard.writeText(note).catch(() => {});
+                      toast.success("Note copiée dans le presse-papiers");
+                    }}
+                  />
+                ) : (
+                  <div className="rounded-xl border border-violet-500/15 bg-violet-50/20 dark:bg-violet-950/10 px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="text-violet-400 animate-pulse">✦</span>
+                    Analyse IA en cours…
+                  </div>
+                )}
+
                 {/* Note admin existante */}
                 {r.admin_notes && (
                   <div className="rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 text-xs">
@@ -205,14 +403,14 @@ function AdminRemboursementsPage() {
                 {r.status === "pending" && (
                   <div className="flex gap-2 flex-wrap">
                     <button
-                      onClick={() => onAction(r.id, "approved")}
+                      onClick={() => onAction(r.id, "approved", r.refund_claims_moderation?.suggested_admin_note)}
                       disabled={busy}
                       className="rounded-lg bg-emerald-500/15 text-emerald-700 border border-emerald-500/40 px-4 py-2 text-sm font-semibold hover:bg-emerald-500/25 disabled:opacity-50 transition"
                     >
                       {t("admin.refunds.approve")}
                     </button>
                     <button
-                      onClick={() => onAction(r.id, "rejected")}
+                      onClick={() => onAction(r.id, "rejected", r.refund_claims_moderation?.suggested_admin_note)}
                       disabled={busy}
                       className="rounded-lg bg-destructive/10 text-destructive border border-destructive/30 px-4 py-2 text-sm font-semibold hover:bg-destructive/20 disabled:opacity-50 transition"
                     >
