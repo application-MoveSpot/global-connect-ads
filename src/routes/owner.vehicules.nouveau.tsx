@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,15 @@ export const Route = createFileRoute("/owner/vehicules/nouveau")({
       { title: "Ajouter un véhicule — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
+  }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    marque: typeof search.marque === "string" ? search.marque : undefined,
+    modele: typeof search.modele === "string" ? search.modele : undefined,
+    immatriculation:
+      typeof search.immatriculation === "string" ? search.immatriculation : undefined,
+    dateCirculation:
+      typeof search.dateCirculation === "string" ? search.dateCirculation : undefined,
+    energie: typeof search.energie === "string" ? search.energie : undefined,
   }),
   component: NewVehiclePage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -45,15 +54,16 @@ type ConditionValue = (typeof CONDITION_VALUES)[number];
 function NewVehiclePage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const ocrParams = useSearch({ from: "/owner/vehicules/nouveau" });
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [type, setType] = useState("food_truck");
   const [autreDescription, setAutreDescription] = useState("");
   const [condition, setCondition] = useState<ConditionValue>("bon");
   const [name, setName] = useState("");
-  const [licensePlate, setLicensePlate] = useState("");
-  const [brand, setBrand] = useState("");
-  const [vehicleModel, setVehicleModel] = useState("");
+  const [licensePlate, setLicensePlate] = useState(ocrParams.immatriculation ?? "");
+  const [brand, setBrand] = useState(ocrParams.marque ?? "");
+  const [vehicleModel, setVehicleModel] = useState(ocrParams.modele ?? "");
   const [color, setColor] = useState("");
   const [description, setDescription] = useState("");
   const [surface, setSurface] = useState("");
@@ -525,6 +535,27 @@ function NewVehiclePage() {
           >
             {t("owner.vehicules.nouveau.back")}
           </Link>
+          {(ocrParams.marque || ocrParams.modele || ocrParams.immatriculation) && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+              <svg
+                className="w-4 h-4 text-primary shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+                <rect x="7" y="7" width="10" height="10" rx="1" />
+              </svg>
+              <div>
+                <span className="font-semibold text-primary">Champs pré-remplis par l'IA</span>
+                <span className="text-muted-foreground ml-1.5">
+                  depuis la carte grise scannée — vérifiez avant de valider.
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-border bg-card p-8 mt-4">
             <h1 className="font-display text-3xl font-bold mb-2">
               {t("owner.vehicules.nouveau.title")}
@@ -659,6 +690,7 @@ function NewVehiclePage() {
                     value={licensePlate}
                     onChange={setLicensePlate}
                     placeholder={t("owner.vehicules.nouveau.plate_placeholder")}
+                    prefilled={!!ocrParams.immatriculation}
                   />
                   <Field
                     label={t("owner.vehicules.nouveau.color_label")}
@@ -673,12 +705,14 @@ function NewVehiclePage() {
                     value={brand}
                     onChange={setBrand}
                     placeholder={t("owner.vehicules.nouveau.brand_placeholder")}
+                    prefilled={!!ocrParams.marque}
                   />
                   <Field
                     label={t("owner.vehicules.nouveau.model_label")}
                     value={vehicleModel}
                     onChange={setVehicleModel}
                     placeholder={t("owner.vehicules.nouveau.model_placeholder")}
+                    prefilled={!!ocrParams.modele}
                   />
                 </div>
               </div>
@@ -1053,6 +1087,7 @@ function Field({
   required,
   placeholder,
   hint,
+  prefilled,
 }: {
   label: string;
   value: string;
@@ -1061,17 +1096,25 @@ function Field({
   required?: boolean;
   placeholder?: string;
   hint?: string;
+  prefilled?: boolean;
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium mb-1.5">{label}</label>
+      <label className="block text-sm font-medium mb-1.5 flex items-center gap-1.5">
+        {label}
+        {prefilled && value && (
+          <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full leading-none">
+            IA
+          </span>
+        )}
+      </label>
       <input
         type={type}
         required={required}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className={`w-full rounded-lg bg-input border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring ${prefilled && value ? "border-primary/40 bg-primary/5" : "border-border"}`}
       />
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
