@@ -45,7 +45,10 @@ export const generateSmartReplies = createServerFn({ method: "POST" })
 
     const lastMsg = data.lastMessages.at(-1);
     const history = data.lastMessages
-      .map((m) => `[${m.role === "advertiser" ? "Annonceur" : "Moi"}]: ${m.body}`)
+      .map(
+        (m: { role: string; body: string }) =>
+          `[${m.role === "advertiser" ? "Annonceur" : "Moi"}]: ${m.body}`,
+      )
       .join("\n");
 
     const vehicleCtx = data.context
