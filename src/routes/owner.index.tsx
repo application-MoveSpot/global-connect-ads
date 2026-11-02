@@ -3,6 +3,7 @@ import { Instagram } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { VehicleOcrModal } from "@/components/owner/VehicleOcrModal";
 import {
   recommendVehiclePrice,
   type PricingRecommendation,
@@ -106,6 +107,7 @@ function DashboardPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [tab, setTab] = useState<"vehicles" | "requests">("vehicles");
+  const [ocrOpen, setOcrOpen] = useState(false);
   const callRespondToCampaign = useServerFn(respondToCampaignRequest);
 
   const load = useCallback(async () => {
@@ -449,12 +451,31 @@ function DashboardPage() {
               </button>
             )}
             {tab === "vehicles" && (
-              <Link
-                to="/owner/vehicules/nouveau"
-                className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
-              >
-                + {t("owner.add_vehicle")}
-              </Link>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOcrOpen(true)}
+                  className="rounded-full border border-primary/40 bg-primary/5 text-primary px-4 py-2 text-sm font-semibold hover:bg-primary/10 transition flex items-center gap-1.5"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+                    <rect x="7" y="7" width="10" height="10" rx="1" />
+                  </svg>
+                  Scanner carte grise
+                </button>
+                <Link
+                  to="/owner/vehicules/nouveau"
+                  className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:bg-primary/90 transition"
+                >
+                  + {t("owner.add_vehicle")}
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -540,6 +561,8 @@ function DashboardPage() {
           <SignalementDialog contextUrl="/owner" triggerLabel={t("owner.signalement_label")} />
         </div>
       </main>
+
+      {ocrOpen && <VehicleOcrModal onClose={() => setOcrOpen(false)} />}
 
       <FAQChatbot
         audience="owner"
