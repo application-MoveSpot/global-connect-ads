@@ -7,7 +7,7 @@ import { captureServerException } from "@/lib/sentry.server";
 import { generateText } from "ai";
 
 const Input = z.object({
-  imageDataUrl: z.string().max(4_000_000),
+  imageDataUrl: z.string().max(15_000_000),
 });
 
 export type VehicleOcrResult = {
@@ -54,16 +54,23 @@ Règles :
 - Si un champ est illisible ou absent : null (pas de devinette)
 - Retourne UNIQUEMENT le JSON, sans markdown ni explication`;
 
+    const isPdf = data.imageDataUrl.startsWith("data:application/pdf");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const docPart: any = isPdf
+      ? {
+          type: "file",
+          data: data.imageDataUrl.replace(/^data:[^;]+;base64,/, ""),
+          mimeType: "application/pdf",
+        }
+      : { type: "image", image: data.imageDataUrl };
+
     try {
       const { text } = await generateText({
         model,
         messages: [
           {
             role: "user",
-            content: [
-              { type: "image", image: data.imageDataUrl },
-              { type: "text", text: prompt },
-            ],
+            content: [docPart, { type: "text", text: prompt }],
           },
         ],
         temperature: 0,
