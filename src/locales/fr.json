@@ -2152,7 +2152,11 @@
       "statement_empty": "Aucune commission ce mois-ci.",
       "statement_total": "Total commissions :",
       "statement_paid": "dont versées :",
-      "statement_pending": "En attente :"
+      "statement_pending": "En attente :",
+      "legal_status_sasu": "SASU",
+      "legal_status_sa": "SA",
+      "status_active": "Active",
+      "status_cancelled": "Annulée"
     }
   },
   "contact": {
@@ -4427,7 +4431,13 @@
       "loading": "Chargement…",
       "received_at": "Reçue le {{date}}",
       "title": "Historique des reversements",
-      "chart_title": "Revenus par campagne"
+      "chart_title": "Revenus par campagne",
+      "status_pending": "En attente",
+      "status_approved": "Approuvée",
+      "status_active": "Active",
+      "status_completed": "Terminée",
+      "status_cancelled": "Annulée",
+      "status_rejected": "Refusée"
     },
     "map_desc": "Visualisez la zone de couverture de votre flotte sur la carte.",
     "map_title": "Carte de ma flotte",
@@ -4654,7 +4664,12 @@
       "calendar": {
         "title": "Calendrier de disponibilité",
         "days": "jours",
-        "empty": "Aucune période sélectionnée"
+        "empty": "Aucune période sélectionnée",
+        "status_pending": "En attente",
+        "status_confirmed": "Confirmée",
+        "status_active": "Active",
+        "status_completed": "Terminée",
+        "status_cancelled": "Annulée"
       }
     },
     "welcome": "Bienvenue",
@@ -4774,7 +4789,30 @@
         "cancel_blocked_active": "Impossible d'annuler : une campagne est en cours sur ce brief.",
         "poseur_fee_label": "Frais de pose",
         "poseur_fee_suffix": "TTC",
-        "submitted_at": "Soumis le {{date}}"
+        "submitted_at": "Soumis le {{date}}",
+        "status_open": "Ouvert",
+        "status_closed": "Clôturé",
+        "status_fulfilled": "Réalisé",
+        "status_cancelled": "Annulé",
+        "proposal_pending": "En attente",
+        "proposal_accepted": "Acceptée",
+        "proposal_rejected": "Refusée",
+        "proposal_withdrawn": "Retirée",
+        "campaign_pending": "En attente",
+        "campaign_approved": "Approuvée",
+        "campaign_active": "Active",
+        "campaign_completed": "Terminée",
+        "campaign_cancelled": "Annulée",
+        "campaign_rejected": "Refusée",
+        "payment_pending": "En attente",
+        "payment_paid": "Payé",
+        "payment_refunded": "Remboursé",
+        "install_pending": "En attente",
+        "install_scheduled": "Planifiée",
+        "install_in_progress": "En cours",
+        "install_completed": "Terminée",
+        "install_approved": "Validée",
+        "install_rejected": "Refusée"
       },
       "nouveau": {
         "ai_btn": "Générer avec l'IA",
@@ -5342,7 +5380,11 @@
       "reason_placeholder": "Ex : La campagne n'a pas démarré à la date prévue.",
       "select_placeholder": "Sélectionnez un motif…",
       "title": "Demande de remboursement",
-      "toast_success": "Demande de remboursement envoyée avec succès."
+      "toast_success": "Demande de remboursement envoyée avec succès.",
+      "status_pending": "En attente",
+      "status_approved": "Approuvé",
+      "status_rejected": "Refusé",
+      "status_paid": "Remboursé"
     },
     "suivi": {
       "back": "Retour",
@@ -5453,7 +5495,7 @@
     "region_save_error": "Erreur lors de la sauvegarde.",
     "briefs_list": {
       "back": "Retour",
-      "date_from": "Depuis {{city}}",
+      "date_from": "Du {{from}} au {{to}}",
       "empty_biz": "Aucune campagne business pour le moment.",
       "empty_biz_cta": "Créer ma première campagne",
       "empty_ind_cta": "Lancer ma campagne",
@@ -5469,7 +5511,11 @@
       "subtitle_business": "Gérez et suivez vos campagnes publicitaires mobiles.",
       "subtitle_individual": "Vos campagnes en cours et à venir.",
       "title": "Mes campagnes",
-      "types_label": "Types : {{types}}"
+      "types_label": "Types :",
+      "status_open": "Ouvert",
+      "status_closed": "Clôturé",
+      "status_fulfilled": "Réalisé",
+      "status_cancelled": "Annulé"
     }
   },
   "driver": {
@@ -5753,7 +5799,11 @@
       "doc_rib_label": "RIB",
       "docs_subtitle": "Ajoutez vos documents pour finaliser votre inscription.",
       "docs_subtitle_production": "Kbis, RC Pro et RIB obligatoires. L'IA vérifiera l'authenticité avant validation.",
-      "docs_title": "Documents requis"
+      "docs_title": "Documents requis",
+      "status_pending": "En cours de vérification",
+      "status_approved": "Validé",
+      "status_rejected": "Refusé",
+      "status_suspended": "Suspendu"
     },
     "portfolio": {
       "add_btn": "Ajouter une réalisation",
