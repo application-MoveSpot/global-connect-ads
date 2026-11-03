@@ -3939,7 +3939,8 @@
     "individual_note": "(entreprise individuelle — l'identité légale est le nom du chef d'entreprise)",
     "digit_count": "{{count}}/14 chiffres",
     "err_luhn": "Numéro invalide — vérifiez les chiffres saisis.",
-    "err_verify": "Erreur lors de la vérification."
+    "err_verify": "Erreur lors de la vérification.",
+    "skipped_note": "SIRET accepté sans vérification INSEE (mode test)"
   },
   "creative_files": {
     "header": "🎨 Créa fournie ({{count}})",
@@ -4280,7 +4281,8 @@
         "notif_accepted": "Proposition acceptée !",
         "notif_accepted_body": "L'annonceur a accepté votre proposition pour ce brief.",
         "notif_rejected": "Proposition refusée",
-        "notif_rejected_body": "L'annonceur a refusé votre proposition pour ce brief."
+        "notif_rejected_body": "L'annonceur a refusé votre proposition pour ce brief.",
+        "ai_price_filled": "Prix suggéré par l'IA"
       }
     },
     "carte": {
@@ -4768,7 +4770,11 @@
         "notif_new_proposal_body": "Un propriétaire a soumis une nouvelle proposition pour votre brief.",
         "reengagement_edit_btn": "Modifier le brief",
         "reengagement_loading": "Chargement…",
-        "reengagement_title": "Relancer les propriétaires"
+        "reengagement_title": "Relancer les propriétaires",
+        "cancel_blocked_active": "Impossible d'annuler : une campagne est en cours sur ce brief.",
+        "poseur_fee_label": "Frais de pose",
+        "poseur_fee_suffix": "TTC",
+        "submitted_at": "Soumis le {{date}}"
       },
       "nouveau": {
         "ai_btn": "Générer avec l'IA",
@@ -4924,7 +4930,11 @@
         "zone_area_label": "Surface",
         "zone_delete": "Supprimer",
         "zone_list_title": "Zones dessinées",
-        "budget_prepare": "💳 Préparer {{amount}} €"
+        "budget_prepare": "💳 Préparer {{amount}} €",
+        "field_poseur_fee": "Budget pose (optionnel)",
+        "poseur_fee_estimate_cta": "Estimer le coût de pose",
+        "poseur_fee_estimating": "Estimation en cours…",
+        "poseur_fee_hint": "Montant proposé au prestataire pour la pose des visuels sur les véhicules."
       },
       "index": {
         "empty_desc": "Vous n'avez pas encore de brief. Créez-en un pour lancer votre première campagne.",
@@ -5440,7 +5450,27 @@
     "target_region_label": "Marché cible :",
     "region_none": "— Choisir une région —",
     "region_saved": "Marché cible mis à jour.",
-    "region_save_error": "Erreur lors de la sauvegarde."
+    "region_save_error": "Erreur lors de la sauvegarde.",
+    "briefs_list": {
+      "back": "Retour",
+      "date_from": "Depuis {{city}}",
+      "empty_biz": "Aucune campagne business pour le moment.",
+      "empty_biz_cta": "Créer ma première campagne",
+      "empty_ind_cta": "Lancer ma campagne",
+      "empty_ind_desc": "Faites circuler votre marque sur des véhicules dans toute la ville.",
+      "empty_ind_examples": "Voir des exemples",
+      "empty_ind_packs": "Découvrir les packs",
+      "empty_ind_title": "Prêt à lancer votre première campagne ?",
+      "loading": "Chargement de vos campagnes…",
+      "new_business": "Nouvelle campagne",
+      "new_individual": "Lancer une campagne",
+      "pending_proposals": "{{count}} proposition(s) en attente",
+      "proposals": "{{count}} proposition(s)",
+      "subtitle_business": "Gérez et suivez vos campagnes publicitaires mobiles.",
+      "subtitle_individual": "Vos campagnes en cours et à venir.",
+      "title": "Mes campagnes",
+      "types_label": "Types : {{types}}"
+    }
   },
   "driver": {
     "confirm_no": "Ce n'est pas mon véhicule",
@@ -5681,7 +5711,12 @@
         "short_description": "Décrivez votre activité en au moins 30 caractères.",
         "siret_mismatch": "SIRET Mismatch",
         "site_verify": "Erreur lors de la vérification du site.",
-        "verify_site": "Veuillez vérifier votre site web avant de soumettre."
+        "verify_site": "Veuillez vérifier votre site web avant de soumettre.",
+        "missing_kbis": "L'extrait Kbis est obligatoire.",
+        "missing_rc_pro": "L'attestation RC Professionnelle est obligatoire.",
+        "missing_rc_pro_expiry": "La date d'expiration de la RC Pro est obligatoire.",
+        "missing_rib": "Veuillez fournir votre RIB (IBAN).",
+        "rc_pro_expired": "Votre RC Pro est expirée. Renouvelez votre assurance avant de vous inscrire."
       },
       "estimate_btn": "Estimer mes tarifs",
       "estimating": "Estimation en cours…",
@@ -5705,7 +5740,20 @@
       "ai_generate": "Générer",
       "ai_generating": "Génération…",
       "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
-      "coverage_hint": "Indiquez les zones géographiques où vous intervenez."
+      "coverage_hint": "Indiquez les zones géographiques où vous intervenez.",
+      "doc_id_hint": "Carte nationale d'identité ou passeport en cours de validité.",
+      "doc_id_label": "Pièce d'identité",
+      "doc_kbis_hint": "Extrait Kbis de moins de 3 mois.",
+      "doc_kbis_label": "Extrait Kbis",
+      "doc_rc_pro_expiry_hint": "Date d'expiration de votre RC Professionnelle.",
+      "doc_rc_pro_expiry_label": "Date d'expiration RC Pro",
+      "doc_rc_pro_hint": "Attestation de responsabilité civile professionnelle en cours de validité.",
+      "doc_rc_pro_label": "RC Professionnelle",
+      "doc_rib_hint": "RIB au nom de l'entreprise pour les virements.",
+      "doc_rib_label": "RIB",
+      "docs_subtitle": "Ajoutez vos documents pour finaliser votre inscription.",
+      "docs_subtitle_production": "Kbis, RC Pro et RIB obligatoires. L'IA vérifiera l'authenticité avant validation.",
+      "docs_title": "Documents requis"
     },
     "portfolio": {
       "add_btn": "Ajouter une réalisation",
@@ -5729,7 +5777,9 @@
       "no_results": "Aucun résultat",
       "search_placeholder": "Rechercher un prestataire…",
       "subtitle": "Trouvez un prestataire qualifié pour la pose et la dépose de vos adhésifs.",
-      "title": "Annuaire des prestataires"
+      "title": "Annuaire des prestataires",
+      "ai_search_active": "Recherche intelligente IA activée ✨",
+      "match_score": "Score de correspondance : {{score}}%"
     },
     "detail": {
       "about": "About",
@@ -5813,6 +5863,15 @@
       "confirm_btn": "Confirmer la demande de virement",
       "success": "Demande de virement enregistrée. Votre solde sera crédité à réception.",
       "not_available": "Le virement bancaire n'est pas disponible pour le moment. Contactez-nous."
+    },
+    "flutterwave": {
+      "description": "Recharge portefeuille campagne",
+      "failed": "Paiement non complété.",
+      "pay_btn": "Payer maintenant",
+      "powered_by": "Sécurisé par Flutterwave",
+      "subtitle": "Paiement sécurisé par carte ou mobile money",
+      "success": "Paiement reçu. Votre portefeuille a été crédité.",
+      "title": "Payer en ligne"
     }
   },
   "region": {
