@@ -102,13 +102,13 @@ ALTER TABLE public.driver_fraud_scores       ENABLE ROW LEVEL SECURITY;
 
 -- Admins voient tout
 CREATE POLICY "admin_full_access_gps_alerts" ON public.gps_fraud_alerts
-  FOR ALL USING (EXISTS (SELECT 1 FROM public.admin_profiles WHERE user_id = auth.uid()));
+  FOR ALL USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));
 
 CREATE POLICY "admin_full_access_device_checks" ON public.device_integrity_checks
-  FOR ALL USING (EXISTS (SELECT 1 FROM public.admin_profiles WHERE user_id = auth.uid()));
+  FOR ALL USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));
 
 CREATE POLICY "admin_full_access_fraud_scores" ON public.driver_fraud_scores
-  FOR ALL USING (EXISTS (SELECT 1 FROM public.admin_profiles WHERE user_id = auth.uid()));
+  FOR ALL USING (EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin'));
 
 -- Conducteurs : insert uniquement leur propre check d'intégrité
 CREATE POLICY "user_insert_own_device_check" ON public.device_integrity_checks
