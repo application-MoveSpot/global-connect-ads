@@ -36,7 +36,7 @@ export function VehicleOcrModal({ onClose }: Props) {
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        setErrorMsg("Image trop lourde (max 10 Mo).");
+        setErrorMsg("Fichier trop lourd (max 10 Mo).");
         setStep("error");
         return;
       }
@@ -44,29 +44,46 @@ export function VehicleOcrModal({ onClose }: Props) {
       setStep("uploading");
       setErrorMsg(null);
 
-      // Convert to base64 data URL, resize to max 1024px for efficiency
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const MAX = 1024;
-            const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.round(img.width * ratio);
-            canvas.height = Math.round(img.height * ratio);
-            const ctx = canvas.getContext("2d")!;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL("image/jpeg", 0.85));
-          };
-          img.onerror = reject;
-          img.src = e.target!.result as string;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      let dataUrl: string;
+      try {
+        if (file.type === "application/pdf") {
+          // PDFs cannot be loaded into <img> — read directly as base64 data URL
+          dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target!.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        } else {
+          // Images: resize to max 1024px for efficiency
+          dataUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const img = new Image();
+              img.onload = () => {
+                const MAX = 1024;
+                const ratio = Math.min(MAX / img.width, MAX / img.height, 1);
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.round(img.width * ratio);
+                canvas.height = Math.round(img.height * ratio);
+                const ctx = canvas.getContext("2d")!;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL("image/jpeg", 0.85));
+              };
+              img.onerror = reject;
+              img.src = e.target!.result as string;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+      } catch {
+        setErrorMsg("Impossible de lire le fichier. Vérifiez qu'il n'est pas corrompu.");
+        setStep("error");
+        return;
+      }
 
-      setPreview(dataUrl);
+      setPreview(file.type === "application/pdf" ? "__pdf__" : dataUrl);
       setStep("analyzing");
 
       try {
@@ -204,12 +221,31 @@ export function VehicleOcrModal({ onClose }: Props) {
             <div className="space-y-4">
               {preview && (
                 <div className="relative rounded-xl overflow-hidden h-40 bg-secondary/30">
-                  <img src={preview} alt="Document" className="w-full h-full object-contain" />
+                  {preview === "__pdf__" ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <svg
+                        className="w-10 h-10 opacity-40"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                      </svg>
+                      <span className="text-xs font-medium">Carte grise PDF</span>
+                    </div>
+                  ) : (
+                    <img src={preview} alt="Document" className="w-full h-full object-contain" />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2 text-white text-sm font-medium">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     {step === "uploading"
-                      ? "Traitement de l'image…"
+                      ? "Traitement du document…"
                       : "Analyse de la carte grise par l'IA…"}
                   </div>
                 </div>

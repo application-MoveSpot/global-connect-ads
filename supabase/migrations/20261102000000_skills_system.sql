@@ -51,7 +51,7 @@ CREATE POLICY "skills_public_read" ON public.skills
 -- Only admins can create skills
 CREATE POLICY "skills_admin_insert" ON public.skills
   FOR INSERT WITH CHECK (
-    EXISTS (SELECT 1 FROM public.admin_profiles WHERE user_id = auth.uid())
+    EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
   );
 
 -- Vehicle skills: owner manages their own vehicles' skills
@@ -62,7 +62,7 @@ CREATE POLICY "vehicle_skills_owner_read" ON public.vehicle_skills
       JOIN public.owner_profiles op ON op.id = v.owner_id
       WHERE v.id = vehicle_id AND op.user_id = auth.uid()
     )
-    OR EXISTS (SELECT 1 FROM public.admin_profiles WHERE user_id = auth.uid())
+    OR EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
   );
 
 CREATE POLICY "vehicle_skills_owner_write" ON public.vehicle_skills
@@ -82,7 +82,7 @@ CREATE POLICY "driver_skills_owner_read" ON public.driver_skills
       JOIN public.owner_profiles op ON op.id = d.owner_id
       WHERE d.id = driver_id AND op.user_id = auth.uid()
     )
-    OR EXISTS (SELECT 1 FROM public.admin_profiles WHERE user_id = auth.uid())
+    OR EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
   );
 
 CREATE POLICY "driver_skills_owner_write" ON public.driver_skills
