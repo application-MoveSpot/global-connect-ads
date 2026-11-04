@@ -196,9 +196,9 @@ function Cookies() {
       <LegalSection title={t("cookies.s7")}>
         <p>
           Pour toute question relative à cette politique cookies, contactez-nous à
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
             {" "}
-            contact@notify.move-spot.com
+            contact@move-spot.com
           </a>
           .
         </p>

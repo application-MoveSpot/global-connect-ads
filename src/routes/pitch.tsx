@@ -243,10 +243,10 @@ const slides: Slide[] = [
         </p>
         <div className="flex flex-wrap gap-3">
           <a
-            href="mailto:contact@notify.move-spot.com"
+            href="mailto:contact@move-spot.com"
             className="rounded-full bg-primary text-primary-foreground px-6 py-3 font-semibold hover:bg-primary/90 transition shadow-glow"
           >
-            contact@notify.move-spot.com
+            contact@move-spot.com
           </a>
           <Link
             to="/"
