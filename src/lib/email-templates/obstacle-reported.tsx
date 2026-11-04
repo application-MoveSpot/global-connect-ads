@@ -96,7 +96,7 @@ export const template = {
   subject: (data: Record<string, unknown>) =>
     `⚠️ Obstacle signalé — ${data.vehicleName ?? "véhicule"} (${data.obstacleType ?? "autre"})`,
   displayName: "Obstacle signalé par chauffeur",
-  to: "contact@notify.move-spot.com",
+  to: "contact@move-spot.com",
   previewData: {
     vehicleName: "Taxi Guadeloupe #12",
     vehicleId: "uuid-exemple",

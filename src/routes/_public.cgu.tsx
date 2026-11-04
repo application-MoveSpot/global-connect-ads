@@ -52,8 +52,8 @@ function CGU() {
           La Plateforme MoveSpot est éditée par <strong>RAKOUN KLUB</strong>, entreprise
           individuelle. Adresse postale de l'entreprise : 1 Lot, Immeuble Sud Jarry, ZAC de
           Houelbourg, 97122 Baie-Mahault (Guadeloupe, France). SIRET : 804 671 444 00052. Contact :{" "}
-          <a href="mailto:contact@notify.move-spot.com" className="text-primary hover:underline">
-            contact@notify.move-spot.com
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
           </a>
           .
         </p>

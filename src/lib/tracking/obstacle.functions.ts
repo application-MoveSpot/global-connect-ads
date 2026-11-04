@@ -115,7 +115,7 @@ export const reportObstacleWithToken = createServerFn({ method: "POST" })
     const { sendAppEmailSafe } = await import("@/lib/email/send.server");
     await sendAppEmailSafe({
       templateName: "obstacle-reported",
-      recipientEmail: "contact@notify.move-spot.com",
+      recipientEmail: "contact@move-spot.com",
       idempotencyKey: `obstacle-${payload.v}-${reportedAt}`,
       templateData: {
         vehicleName: vehicle?.name ?? payload.v,
