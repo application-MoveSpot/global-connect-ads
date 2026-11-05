@@ -2,6 +2,8 @@
 
 - AppBrandShell supplies a white official-logo band around all page states; CSS suppresses it only when the rendered page already has a branded header, preventing duplicate navigation without changing authentication.
 - AI brief summary cache grants are read-only for authenticated advertisers with owner-scoped RLS, with writes reserved to service_role; cache schema lives in applied migrations rather than hand-written database types.
+- Refund and chat AI schema is restored through applied additive Drizzle migrations; caches have privileged-only writes, translations inherit message visibility, and summary uniqueness is per conversation and user to prevent cross-user cache leakage.
+- Never install legacy AI database triggers targeting another backend; automatic analysis requires a verified same-backend service so unavailable AI cannot block message or refund persistence.
 
 - Logo background removal uses an isolated public fetch to the externally deployed remove-logo-bg endpoint without session tokens or cookies; never repoint the app auth/database client for this integration.
 

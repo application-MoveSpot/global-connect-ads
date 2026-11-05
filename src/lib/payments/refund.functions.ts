@@ -69,7 +69,7 @@ export const listMyRefundRequests = createServerFn({ method: "POST" })
       .eq("user_id" as never, userId)
       .order("created_at" as never, { ascending: false });
 
-    if (error) return { ok: false as const, requests: [] };
+    if (error) return { ok: false as const, requests: [], error: "Impossible de charger vos demandes de remboursement." };
     return { ok: true as const, requests: (data ?? []) as RefundRequest[] };
   });
 
@@ -106,7 +106,7 @@ export const listRefundRequestsForAdmin = createServerFn({ method: "POST" })
     if (data.status && data.status !== "all") q = q.eq("status", data.status);
 
     const { data: rows, error } = await q;
-    if (error) return { ok: false as const, requests: [] };
+    if (error) return { ok: false as const, requests: [], error: "Impossible de charger les demandes de remboursement." };
     return { ok: true as const, requests: (rows ?? []) as AdminRefundRequest[] };
   });
 

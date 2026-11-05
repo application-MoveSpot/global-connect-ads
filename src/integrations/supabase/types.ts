@@ -261,6 +261,83 @@ export type Database = {
           },
         ]
       }
+      ai_conversation_summaries: {
+        Row: {
+          action_required: boolean
+          conversation_id: string
+          expires_at: string
+          generated_at: string
+          id: string
+          message_count: number
+          model: string
+          negotiation_status: string
+          summary: string
+          user_id: string
+        }
+        Insert: {
+          action_required?: boolean
+          conversation_id: string
+          expires_at: string
+          generated_at?: string
+          id?: string
+          message_count?: number
+          model?: string
+          negotiation_status?: string
+          summary: string
+          user_id: string
+        }
+        Update: {
+          action_required?: boolean
+          conversation_id?: string
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          message_count?: number
+          model?: string
+          negotiation_status?: string
+          summary?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_translations: {
+        Row: {
+          cache_key: string
+          created_at: string
+          detected_lang: string
+          message_id: string | null
+          model: string
+          target_lang: string
+          translation: string
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          detected_lang?: string
+          message_id?: string | null
+          model?: string
+          target_lang: string
+          translation: string
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          detected_lang?: string
+          message_id?: string | null
+          model?: string
+          target_lang?: string
+          translation?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_translations_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           created_at: string
@@ -988,6 +1065,7 @@ export type Database = {
           brief_id: string
           created_at: string
           id: string
+          moderation: Json | null
           proposal_id: string | null
           read_at: string | null
           sender_id: string
@@ -998,6 +1076,7 @@ export type Database = {
           brief_id: string
           created_at?: string
           id?: string
+          moderation?: Json | null
           proposal_id?: string | null
           read_at?: string | null
           sender_id: string
@@ -1008,6 +1087,7 @@ export type Database = {
           brief_id?: string
           created_at?: string
           id?: string
+          moderation?: Json | null
           proposal_id?: string | null
           read_at?: string | null
           sender_id?: string
@@ -1026,6 +1106,65 @@ export type Database = {
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "brief_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_alerts: {
+        Row: {
+          brief_id: string | null
+          conversation_id: string | null
+          created_at: string
+          flags: string[]
+          id: string
+          intent: string
+          message_id: string | null
+          proposal_id: string | null
+          reviewed: boolean
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sender_id: string | null
+          severity: number
+          suggested_action: string | null
+        }
+        Insert: {
+          brief_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          flags?: string[]
+          id?: string
+          intent?: string
+          message_id?: string | null
+          proposal_id?: string | null
+          reviewed?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_id?: string | null
+          severity?: number
+          suggested_action?: string | null
+        }
+        Update: {
+          brief_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          flags?: string[]
+          id?: string
+          intent?: string
+          message_id?: string | null
+          proposal_id?: string | null
+          reviewed?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sender_id?: string | null
+          severity?: number
+          suggested_action?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_alerts_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_briefs"
             referencedColumns: ["id"]
           },
         ]
@@ -1567,6 +1706,124 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      refund_claims_moderation: {
+        Row: {
+          analyzed_at: string
+          compliance_eligible: boolean
+          compliance_reason: string
+          created_at: string
+          decision: string
+          decision_justification: string
+          extracted_facts: string[]
+          id: string
+          model_version: string
+          policy_violations: string[]
+          processing_ms: number | null
+          raw_response: Json | null
+          refund_request_id: string
+          risk_score: string
+          risk_score_numeric: number
+          risk_signals: string[]
+          suggested_admin_note: string
+          tone_flags: string[]
+        }
+        Insert: {
+          analyzed_at?: string
+          compliance_eligible: boolean
+          compliance_reason: string
+          created_at?: string
+          decision: string
+          decision_justification: string
+          extracted_facts?: string[]
+          id?: string
+          model_version: string
+          policy_violations?: string[]
+          processing_ms?: number | null
+          raw_response?: Json | null
+          refund_request_id: string
+          risk_score: string
+          risk_score_numeric: number
+          risk_signals?: string[]
+          suggested_admin_note: string
+          tone_flags?: string[]
+        }
+        Update: {
+          analyzed_at?: string
+          compliance_eligible?: boolean
+          compliance_reason?: string
+          created_at?: string
+          decision?: string
+          decision_justification?: string
+          extracted_facts?: string[]
+          id?: string
+          model_version?: string
+          policy_violations?: string[]
+          processing_ms?: number | null
+          raw_response?: Json | null
+          refund_request_id?: string
+          risk_score?: string
+          risk_score_numeric?: number
+          risk_signals?: string[]
+          suggested_admin_note?: string
+          tone_flags?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_claims_moderation_refund_request_id_fkey"
+            columns: ["refund_request_id"]
+            isOneToOne: true
+            referencedRelation: "refund_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refund_requests: {
+        Row: {
+          admin_notes: string | null
+          amount_cents: number | null
+          campaign_request_id: string | null
+          created_at: string
+          id: string
+          reason: string
+          status: string
+          stripe_refund_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_cents?: number | null
+          campaign_request_id?: string | null
+          created_at?: string
+          id?: string
+          reason: string
+          status?: string
+          stripe_refund_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_cents?: number | null
+          campaign_request_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string
+          status?: string
+          stripe_refund_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_requests_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       refunds: {
         Row: {

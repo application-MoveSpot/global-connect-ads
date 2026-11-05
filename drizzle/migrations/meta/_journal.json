@@ -141,6 +141,20 @@
       "when": 1793496122301,
       "tag": "0019_restrict_brief_summary_cache_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793922762488,
+      "tag": "0020_restore_refund_and_chat_ai_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793922866719,
+      "tag": "0021_restrict_restored_ai_refund_grants",
+      "breakpoints": true
     }
   ]
 }

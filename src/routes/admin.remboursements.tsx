@@ -11,11 +11,17 @@ import {
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/remboursements")({
   head: () => ({
     meta: [
       { title: "Remboursements — Admin MoveSpot" },
+      { name: "description", content: "Gestion et analyse des demandes de remboursement MoveSpot." },
+      { property: "og:title", content: "Remboursements — Admin MoveSpot" },
+      { property: "og:description", content: "Gestion et analyse des demandes de remboursement MoveSpot." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -214,6 +220,7 @@ function AdminRemboursementsPage() {
     "pending",
   );
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   function fmt(cents: number | null) {
@@ -223,11 +230,15 @@ function AdminRemboursementsPage() {
 
   const reload = async (f = filter) => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetchRows({ data: { status: f === "all" ? undefined : f } });
+      if (!res.ok) throw new Error(res.error);
       setRows(res.requests);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("admin.refunds.loading_error"));
+      const message = e instanceof Error ? e.message : t("admin.refunds.loading_error");
+      setLoadError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -329,6 +340,11 @@ function AdminRemboursementsPage() {
               </div>
             ))}
           </div>
+        ) : loadError ? (
+          <div role="alert" className="border border-destructive rounded-lg p-6 space-y-3">
+            <p className="text-destructive">{loadError}</p>
+            <Button variant="outline" onClick={() => void reload()}>Réessayer</Button>
+          </div>
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
             {t("admin.refunds.empty")}
@@ -381,8 +397,8 @@ function AdminRemboursementsPage() {
                   />
                 ) : (
                   <div className="rounded-xl border border-violet-500/15 bg-violet-50/20 dark:bg-violet-950/10 px-4 py-3 flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="text-violet-400 animate-pulse">✦</span>
-                    Analyse IA en cours…
+                    <span className="text-muted-foreground">✦</span>
+                    Aucune analyse IA disponible.
                   </div>
                 )}
 

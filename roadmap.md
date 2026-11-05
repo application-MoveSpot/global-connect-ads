@@ -10,6 +10,9 @@
 - [x] Vérifier que useProcessedLogo appelle bien l’adresse directe du détourage par fetch public (aucun supabase.functions.invoke) et que le token Replicate n’est plus refusé (401 disparu).
 - [x] Confirmer que le hash du modèle Replicate corrigé dans remove-logo-bg v4 est accepté (422 disparu).
 - [ ] Recharger le crédit du compte Replicate (replicate.com/account/billing) : remove-logo-bg renvoie désormais 402 « Insufficient credit » ; après rechargement, vérifier détourage réel et cache serveur.
+- [x] Rétablir les cinq tables des remboursements et du chat IA avec droits et relations sécurisés.
+- [x] Vérifier les remboursements connectés : demande technique soumise puis lue en administrateur et supprimée, droits testés via API réelle, interruption de chargement affichée avec Réessayer.
+- [ ] Raccorder les traitements IA : bloqué par l’absence des quatre services sur le backend actuel (404 vérifiés) ; stockage restauré, aucun ancien appel externe activé.
 - [x] Permettre d’ajuster les coins sur le rebord de la portière et accepter l’ordre inversé non croisé : déplacement souris et ajustement au pixel vérifiés sur la photo réelle en session connectée, sans modifier la zone enregistrée ; 7 tests réussis.
 - [x] Renommer la page admin des prestataires en /admin/providers (fichier + chemin + liens du menu et du tableau de bord) ; vérifié en session connectée, l’ancien chemin renvoie 404.
 - [x] Rétablir les changements de base de données manquants des PR #248/#249 : table des positions GPS créée et vérifiée (envoi d’une tournée de test lue côté admin, fichier de test supprimé), colonnes documents du prestataire ajoutées, espace de stockage privé des documents créé et testé (envoi, lecture, suppression : 200).
