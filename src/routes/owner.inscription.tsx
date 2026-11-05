@@ -10,7 +10,6 @@ import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
 import { Eye, EyeOff } from "lucide-react";
-import { LogoLink } from "@/components/app/LogoLink";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { SiretField, type SiretCheck } from "@/components/shared/SiretField";
 import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
@@ -266,9 +265,6 @@ function InscriptionPage() {
   return (
     <div className="min-h-screen bg-background p-4 flex items-center justify-center">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-elevated">
-        <div className="mb-4">
-          <LogoLink />
-        </div>
         <Link
           to="/commencer"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
