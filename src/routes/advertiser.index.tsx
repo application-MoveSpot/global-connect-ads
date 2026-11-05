@@ -239,13 +239,13 @@ function AnnonceurDashboard() {
     );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <OnboardingModal isIndividual={isIndividual} />
       <header className="border-t-2 border-t-primary border-b border-border backdrop-blur light-band">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-2">
           <LogoLink />
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:inline">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-sm text-muted-foreground hidden lg:inline">
               {profile?.full_name}
               {profile?.company ? ` · ${profile.company}` : ""}
             </span>
@@ -260,13 +260,13 @@ function AnnonceurDashboard() {
             </a>
             <Link
               to="/advertiser/profil"
-              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
+              className="text-sm rounded-full border border-border px-3 py-2 hover:bg-secondary transition"
             >
               {t("profile.title")}
             </Link>
             <Link
               to="/parametres"
-              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
+              className="hidden sm:inline-flex text-sm rounded-full border border-border px-3 py-2 hover:bg-secondary transition"
             >
               {t("common.settings")}
             </Link>
@@ -275,7 +275,7 @@ function AnnonceurDashboard() {
                 await supabase.auth.signOut();
                 navigate({ to: "/" });
               }}
-              className="text-sm rounded-full border border-border px-4 py-2 hover:bg-secondary transition"
+              className="hidden sm:inline-flex text-sm rounded-full border border-border px-3 py-2 hover:bg-secondary transition"
             >
               {t("common.logout")}
             </button>
