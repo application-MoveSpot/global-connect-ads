@@ -2,8 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const HS_TOKEN = Deno.env.get("HUBSPOT_PRIVATE_APP_TOKEN")!;
-const HS_BASE = "https://api.hubapi.com";
+const MAKE_WEBHOOK_DEAL = Deno.env.get("MAKE_WEBHOOK_DEAL_URL")!;
 
 interface SyncDealRequest {
   campaign_id: string;
@@ -18,20 +17,6 @@ const PM_STATUS_TO_STAGE: Record<string, string> = {
   completed: "closedwon",
   incident: "closedlost",
 };
-
-async function hsRequest(path: string, method: string, body?: unknown) {
-  const res = await fetch(`${HS_BASE}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${HS_TOKEN}`,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`HubSpot ${method} ${path}: ${JSON.stringify(data)}`);
-  return data;
-}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
@@ -54,7 +39,7 @@ Deno.serve(async (req) => {
 
   const { data: campaign, error: campErr } = await supabase
     .from("campaign_requests")
-    .select("id, company, spot_name, total_price, pm_status, status, start_date, end_date, user_id, email")
+    .select("id, company, spot_name, total_price, pm_status, status, start_date, end_date, user_id, email, target_region")
     .eq("id", body.campaign_id)
     .single();
 
@@ -66,92 +51,66 @@ Deno.serve(async (req) => {
   }
 
   const dealStage = PM_STATUS_TO_STAGE[campaign.pm_status ?? "idle"] ?? "appointmentscheduled";
-  const amountEuros = campaign.total_price != null ? String(campaign.total_price) : "0";
 
-  const dealProperties: Record<string, string> = {
-    dealname: `${campaign.company} — ${campaign.spot_name}`,
-    dealstage: dealStage,
-    amount: amountEuros,
-    movespot_campaign_id: campaign.id,
-    movespot_pm_status: campaign.pm_status ?? "idle",
-    movespot_start_date: campaign.start_date ?? "",
-    movespot_end_date: campaign.end_date ?? "",
-  };
-  if (campaign.end_date) {
-    dealProperties.closedate = new Date(campaign.end_date).getTime().toString();
-  }
-
-  const { data: syncLog } = await supabase
-    .from("hs_sync_log")
-    .select("hubspot_id")
-    .eq("object_type", "deal")
-    .eq("supabase_id", campaign.id)
-    .maybeSingle();
-
-  let hubspotId = syncLog?.hubspot_id ?? null;
-  let syncStatus = "ok";
-  let errorMessage: string | null = null;
-
-  try {
-    if (hubspotId) {
-      await hsRequest(`/crm/v3/objects/deals/${hubspotId}`, "PATCH", { properties: dealProperties });
-    } else {
-      const created = await hsRequest("/crm/v3/objects/deals", "POST", { properties: dealProperties });
-      hubspotId = created.id;
-    }
-
-    // Associer le deal au contact correspondant (best-effort)
-    if (hubspotId && campaign.user_id) {
-      const { data: contactLog } = await supabase
+  // Récupérer le hubspot_contact_id du contact lié (si déjà synchro)
+  const { data: contactLog } = campaign.user_id
+    ? await supabase
         .from("hs_sync_log")
         .select("hubspot_id")
         .eq("object_type", "contact")
         .eq("supabase_id", campaign.user_id)
-        .maybeSingle();
+        .maybeSingle()
+    : { data: null };
 
-      if (contactLog?.hubspot_id) {
-        await hsRequest("/crm/v4/associations/deals/contacts/batch/create", "POST", {
-          inputs: [{
-            from: { id: hubspotId },
-            to: { id: contactLog.hubspot_id },
-            types: [{ associationCategory: "HUBSPOT_DEFINED", associationTypeId: 3 }],
-          }],
-        }).catch(() => null);
-      } else {
-        // Synchro du contact en parallèle si pas encore dans le log
-        fetch(`${SUPABASE_URL}/functions/v1/hs-sync-contact`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
-          body: JSON.stringify({ user_id: campaign.user_id }),
-        }).catch(() => null);
-      }
-    }
-  } catch (err) {
-    syncStatus = "error";
-    errorMessage = String(err);
-    console.error(`[hs-sync-deal] campaign=${campaign.id}`, err);
-  }
+  const payload = {
+    event: body.event ?? "updated",
+    campaign_id: campaign.id,
+    deal_name: `${campaign.company} — ${campaign.spot_name}`,
+    deal_stage: dealStage,
+    pm_status: campaign.pm_status ?? "idle",
+    amount: campaign.total_price ?? 0,
+    start_date: campaign.start_date ?? "",
+    end_date: campaign.end_date ?? "",
+    target_region: campaign.target_region ?? "",
+    advertiser_email: campaign.email ?? "",
+    advertiser_user_id: campaign.user_id ?? "",
+    hubspot_contact_id: contactLog?.hubspot_id ?? "",
+    supabase_url: SUPABASE_URL,
+  };
 
+  // Marquer pending
   await supabase
     .from("hs_sync_log")
     .upsert(
-      {
-        object_type: "deal",
-        supabase_id: campaign.id,
-        hubspot_id: hubspotId,
-        sync_status: syncStatus,
-        error_message: errorMessage,
-        synced_at: syncStatus === "ok" ? new Date().toISOString() : null,
-        updated_at: new Date().toISOString(),
-      },
+      { object_type: "deal", supabase_id: campaign.id, sync_status: "pending", updated_at: new Date().toISOString() },
       { onConflict: "object_type,supabase_id" }
     )
     .catch(() => null);
 
-  console.log(`[hs-sync-deal] campaign=${campaign.id} hs_id=${hubspotId} stage=${dealStage} status=${syncStatus}`);
+  if (MAKE_WEBHOOK_DEAL) {
+    const makeRes = await fetch(MAKE_WEBHOOK_DEAL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => null);
 
-  return new Response(
-    JSON.stringify({ ok: syncStatus === "ok", hubspot_id: hubspotId, deal_stage: dealStage }),
-    { headers: { "Content-Type": "application/json" } }
-  );
+    const makeOk = makeRes?.ok ?? false;
+    await supabase
+      .from("hs_sync_log")
+      .update({
+        sync_status: makeOk ? "ok" : "error",
+        error_message: makeOk ? null : "Make webhook call failed",
+        synced_at: makeOk ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("object_type", "deal")
+      .eq("supabase_id", campaign.id)
+      .catch(() => null);
+
+    console.log(`[hs-sync-deal] campaign=${campaign.id} stage=${dealStage} make_ok=${makeOk}`);
+    return new Response(JSON.stringify({ ok: makeOk, forwarded_to: "make", deal_stage: dealStage }), { headers: { "Content-Type": "application/json" } });
+  }
+
+  console.warn(`[hs-sync-deal] MAKE_WEBHOOK_DEAL_URL not configured`);
+  return new Response(JSON.stringify({ ok: false, error: "MAKE_WEBHOOK_DEAL_URL not set" }), { status: 503, headers: { "Content-Type": "application/json" } });
 });

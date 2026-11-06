@@ -2,26 +2,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const HS_TOKEN = Deno.env.get("HUBSPOT_PRIVATE_APP_TOKEN")!;
-const HS_BASE = "https://api.hubapi.com";
+const MAKE_WEBHOOK_CONTACT = Deno.env.get("MAKE_WEBHOOK_CONTACT_URL")!;
 
 interface SyncContactRequest {
   user_id: string;
   event?: "upsert" | "delete";
-}
-
-async function hsRequest(path: string, method: string, body?: unknown) {
-  const res = await fetch(`${HS_BASE}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${HS_TOKEN}`,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(`HubSpot ${method} ${path}: ${JSON.stringify(data)}`);
-  return data;
 }
 
 Deno.serve(async (req) => {
@@ -56,92 +41,69 @@ Deno.serve(async (req) => {
   // Récupérer le profil (annonceur en priorité, sinon propriétaire)
   const { data: advProfile } = await supabase
     .from("advertiser_profiles")
-    .select("full_name, phone, company, city")
+    .select("full_name, phone, company, city, siret, account_type")
     .eq("user_id", body.user_id)
     .maybeSingle();
 
   const { data: ownerProfile } = !advProfile
     ? await supabase
         .from("owner_profiles")
-        .select("full_name, phone, company, city")
+        .select("full_name, phone, company, city, siret")
         .eq("user_id", body.user_id)
         .maybeSingle()
     : { data: null };
 
   const profile = advProfile ?? ownerProfile;
-  const nameParts = (profile?.full_name ?? "").trim().split(" ");
-  const firstName = nameParts[0] ?? "";
-  const lastName = nameParts.slice(1).join(" ");
+  const role = advProfile ? "advertiser" : "owner";
 
-  const properties: Record<string, string> = {
+  const payload = {
+    event: body.event ?? "upsert",
+    user_id: body.user_id,
     email: user.email,
-    firstname: firstName,
-    lastname: lastName,
+    role,
+    full_name: profile?.full_name ?? "",
     phone: profile?.phone ?? "",
     company: profile?.company ?? "",
     city: profile?.city ?? "",
-    movespot_user_id: body.user_id,
+    siret: profile?.siret ?? "",
+    account_type: (advProfile as { account_type?: string } | null)?.account_type ?? "",
+    supabase_url: SUPABASE_URL,
   };
 
-  // Chercher l'ID HubSpot existant dans notre log
-  const { data: syncLog } = await supabase
-    .from("hs_sync_log")
-    .select("hubspot_id")
-    .eq("object_type", "contact")
-    .eq("supabase_id", body.user_id)
-    .maybeSingle();
-
-  let hubspotId = syncLog?.hubspot_id ?? null;
-  let syncStatus = "ok";
-  let errorMessage: string | null = null;
-
-  try {
-    if (hubspotId) {
-      await hsRequest(`/crm/v3/objects/contacts/${hubspotId}`, "PATCH", { properties });
-    } else {
-      try {
-        const created = await hsRequest("/crm/v3/objects/contacts", "POST", { properties });
-        hubspotId = created.id;
-      } catch {
-        // Contact peut déjà exister — rechercher par email
-        const search = await hsRequest("/crm/v3/objects/contacts/search", "POST", {
-          filterGroups: [{ filters: [{ propertyName: "email", operator: "EQ", value: user.email }] }],
-          limit: 1,
-        });
-        if (search.results?.length > 0) {
-          hubspotId = search.results[0].id;
-          await hsRequest(`/crm/v3/objects/contacts/${hubspotId}`, "PATCH", { properties });
-        } else {
-          throw new Error(`contact creation failed and email search returned nothing`);
-        }
-      }
-    }
-  } catch (err) {
-    syncStatus = "error";
-    errorMessage = String(err);
-    console.error(`[hs-sync-contact] user=${body.user_id}`, err);
-  }
-
+  // Marquer pending dans le log
   await supabase
     .from("hs_sync_log")
     .upsert(
-      {
-        object_type: "contact",
-        supabase_id: body.user_id,
-        hubspot_id: hubspotId,
-        sync_status: syncStatus,
-        error_message: errorMessage,
-        synced_at: syncStatus === "ok" ? new Date().toISOString() : null,
-        updated_at: new Date().toISOString(),
-      },
+      { object_type: "contact", supabase_id: body.user_id, sync_status: "pending", updated_at: new Date().toISOString() },
       { onConflict: "object_type,supabase_id" }
     )
     .catch(() => null);
 
-  console.log(`[hs-sync-contact] user=${body.user_id} hs_id=${hubspotId} status=${syncStatus}`);
+  // Envoyer au scénario Make (best-effort)
+  if (MAKE_WEBHOOK_CONTACT) {
+    const makeRes = await fetch(MAKE_WEBHOOK_CONTACT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => null);
 
-  return new Response(
-    JSON.stringify({ ok: syncStatus === "ok", hubspot_id: hubspotId, sync_status: syncStatus }),
-    { headers: { "Content-Type": "application/json" } }
-  );
+    const makeOk = makeRes?.ok ?? false;
+    await supabase
+      .from("hs_sync_log")
+      .update({
+        sync_status: makeOk ? "ok" : "error",
+        error_message: makeOk ? null : "Make webhook call failed",
+        synced_at: makeOk ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("object_type", "contact")
+      .eq("supabase_id", body.user_id)
+      .catch(() => null);
+
+    console.log(`[hs-sync-contact] user=${body.user_id} make_ok=${makeOk}`);
+    return new Response(JSON.stringify({ ok: makeOk, forwarded_to: "make" }), { headers: { "Content-Type": "application/json" } });
+  }
+
+  console.warn(`[hs-sync-contact] MAKE_WEBHOOK_CONTACT_URL not configured`);
+  return new Response(JSON.stringify({ ok: false, error: "MAKE_WEBHOOK_CONTACT_URL not set" }), { status: 503, headers: { "Content-Type": "application/json" } });
 });
