@@ -44,8 +44,9 @@ Deno.serve(async (req) => {
     .single();
 
   if (campErr || !campaign) {
+    console.error(`[hs-sync-deal] campaign lookup failed: ${JSON.stringify(campErr)} | url=${SUPABASE_URL} | key_prefix=${SERVICE_ROLE_KEY?.substring(0,20)}`);
     return new Response(
-      JSON.stringify({ error: "campaign not found" }),
+      JSON.stringify({ error: "campaign not found", detail: campErr?.message ?? "no row", url: SUPABASE_URL }),
       { status: 404, headers: { "Content-Type": "application/json" } }
     );
   }
