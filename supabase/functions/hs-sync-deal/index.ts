@@ -5,12 +5,12 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const MAKE_WEBHOOK_DEAL = Deno.env.get("MAKE_WEBHOOK_DEAL_URL") ?? "";
 
 const PM_STATUS_TO_STAGE: Record<string, string> = {
-  idle: "appointmentscheduled",
-  awaiting_installation: "qualifiedtobuy",
-  active: "presentationscheduled",
-  completing: "decisionmakerboughtin",
-  completed: "closedwon",
-  incident: "closedlost",
+  idle: "1480498275",                // Réunion d'introduction
+  awaiting_installation: "1480498276", // Évaluation de la campagne
+  active: "1480498277",              // Proposition de stratégie
+  completing: "1480498278",          // Présentation de stratégie
+  completed: "1480498281",           // Fermée gagnée
+  incident: "1480498282",            // Fermée perdue
 };
 
 Deno.serve(async (req) => {
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "campaign not found", detail: campErr?.message }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
 
-    const dealStage = PM_STATUS_TO_STAGE[campaign.pm_status ?? "idle"] ?? "appointmentscheduled";
+    const dealStage = PM_STATUS_TO_STAGE[campaign.pm_status ?? "idle"] ?? "1480498275";
 
     let hubspotContactId = "";
     try {
