@@ -1,5 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { Instagram } from "lucide-react";
+import { Instagram, MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
@@ -279,6 +286,32 @@ function AnnonceurDashboard() {
             >
               {t("common.logout")}
             </button>
+            {/* Mobile fallback — menu "⋮" visible uniquement sous sm */}
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className="sm:hidden rounded-full p-2 hover:bg-secondary transition text-muted-foreground hover:text-foreground"
+                aria-label="Menu"
+              >
+                <MoreVertical className="h-5 w-5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[160px]">
+                <DropdownMenuItem asChild>
+                  <Link to="/parametres" className="cursor-pointer">
+                    {t("common.settings")}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onSelect={async () => {
+                    await supabase.auth.signOut();
+                    navigate({ to: "/" });
+                  }}
+                >
+                  {t("common.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
