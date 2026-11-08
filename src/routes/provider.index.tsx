@@ -198,6 +198,12 @@ function ProviderDashboard() {
               <Instagram className="h-4 w-4" />
             </a>
             <Link
+              to="/provider/missions"
+              className="text-sm rounded-full border border-rose-400/40 bg-rose-500/5 text-rose-600 dark:text-rose-400 px-4 py-2 hover:bg-rose-500/10 transition flex items-center gap-1.5"
+            >
+              🔧 Mes missions
+            </Link>
+            <Link
               to="/provider/tracking"
               className="text-sm rounded-full border border-primary/30 bg-primary/5 text-primary px-4 py-2 hover:bg-primary/10 transition flex items-center gap-1.5"
             >
