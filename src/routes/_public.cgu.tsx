@@ -139,7 +139,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s10")}>
         <p>
-          MoveSpot est un intermédiaire numérique de mise en relation entre advertisers,
+          MoveSpot est un intermédiaire numérique de mise en relation entre annonceurs,
           propriétaires de véhicules, drivers et poseurs certifiés. MoveSpot ne possède aucun
           véhicule, aucun matériel d'affichage et n'exerce aucune activité de transport ni de pose
           de covering.
@@ -181,7 +181,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s12")}>
         <p>
-          Les paiements des advertisers sont encaissés via Stripe (ou par virement bancaire pour les
+          Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les
           budgets B2B) et conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à
           l'exécution de la campagne. MoveSpot prélève une commission d'intermédiation de 30 % du
           montant hors taxes ; 70 % sont destinés au propriétaire du véhicule, au driver et, le cas
@@ -199,7 +199,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s13")}>
         <p>
-          L'advertiser définit sa zone de diffusion en dessinant un polygone sur la carte
+          L'annonceur définit sa zone de diffusion en dessinant un polygone sur la carte
           interactive. Le budget indicatif est calculé automatiquement à partir de la surface réelle
           de la zone (base de 1,80 € par km² et par jour), majorée d'un coefficient de densité de
           1,5× (soit 2,70 € par km² et par jour) pour les grandes agglomérations. Un montant
@@ -207,7 +207,7 @@ function CGU() {
         </p>
         <p>
           Ce montant est un devis indicatif calculé par la Plateforme ; il est présenté à
-          l'advertiser pour validation avant tout paiement et ne constitue pas une garantie de
+          l'annonceur pour validation avant tout paiement et ne constitue pas une garantie de
           volume d'impressions.
         </p>
       </LegalSection>
@@ -216,7 +216,7 @@ function CGU() {
         <p>
           Les relevés de géolocalisation transmis par les drivers sont agrégés (distance parcourue,
           minutes actives, part du trajet effectuée à l'intérieur de la zone de ciblage) et
-          restitués à l'advertiser dans son tableau de suivi de campagne. Ces métriques, calculées
+          restitués à l'annonceur dans son tableau de suivi de campagne. Ces métriques, calculées
           côté serveur, constituent la base contractuelle des reversements.
         </p>
         <p>
@@ -250,15 +250,15 @@ function CGU() {
 
       <LegalSection title={t("cgu.s15bis")}>
         <p>
-          Si, après validation d'une campagne et paiement par l'advertiser, le poseur certifié
+          Si, après validation d'une campagne et paiement par l'annonceur, le poseur certifié
           constate que la pose est techniquement impossible (surface incompatible, état du véhicule
           ou contrainte matérielle indépendante de la volonté des parties), il doit le signaler
           immédiatement via le bouton « Signaler une pose impossible » de son espace provider.
         </p>
         <p>
-          Dans ce cas, MoveSpot procédera au <strong>remboursement intégral de l'advertiser</strong>{" "}
+          Dans ce cas, MoveSpot procédera au <strong>remboursement intégral de l'annonceur</strong>{" "}
           dans un délai de 5 jours ouvrés. Aucune commission ne sera due au propriétaire du véhicule
-          pour cette campagne. MoveSpot se réserve le droit de proposer à l'advertiser un véhicule
+          pour cette campagne. MoveSpot se réserve le droit de proposer à l'annonceur un véhicule
           alternatif sans frais supplémentaires.
         </p>
         <p>
@@ -307,7 +307,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s19")}>
         <p>
-          Lors de la création d'un brief, l'advertiser saisit des étapes (adresses ou lieux). La
+          Lors de la création d'un brief, l'annonceur saisit des étapes (adresses ou lieux). La
           Plateforme les géocode automatiquement, calcule le tracé routier, identifie les quartiers
           traversés et les points d'intérêt situés à proximité du trajet, puis en déduit une
           estimation d'impressions quotidiennes (distance × densité de trafic × coefficients de
@@ -335,7 +335,7 @@ function CGU() {
         <p>
           Certaines situations indépendantes de la volonté du driver ou du propriétaire du véhicule
           peuvent empêcher ou limiter la circulation dans la zone de ciblage déclarée par
-          l'advertiser. Sont notamment visés :
+          l'annonceur. Sont notamment visés :
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
@@ -367,10 +367,10 @@ function CGU() {
           En l'absence de signalement, les périodes non couvertes ou hors zone restent non
           comptabilisées, conformément à l'article 14. MoveSpot ne peut en aucun cas garantir
           l'absence d'obstacles extérieurs sur un itinéraire donné, ni la disponibilité permanente
-          de la zone de ciblage choisie par l'advertiser.
+          de la zone de ciblage choisie par l'annonceur.
         </p>
         <p>
-          L'advertiser est informé que la surface de diffusion effective peut être réduite par de
+          L'annonceur est informé que la surface de diffusion effective peut être réduite par de
           tels événements, sans que cela n'ouvre droit à remboursement du budget déjà consommé, sauf
           accord exprès de MoveSpot.
         </p>
@@ -378,7 +378,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s22")}>
         <p>
-          Toute relation commerciale entre utilisateurs (advertiser, propriétaire de véhicule,
+          Toute relation commerciale entre utilisateurs (annonceur, propriétaire de véhicule,
           driver, poseur) dont la mise en contact a été réalisée via MoveSpot doit être
           intégralement conclue et exécutée au sein de la Plateforme. Il est expressément interdit
           de :
