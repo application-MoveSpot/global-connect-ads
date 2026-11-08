@@ -252,18 +252,56 @@ function CGU() {
         <p>
           Si, après validation d'une campagne et paiement par l'annonceur, le poseur certifié
           constate que la pose est techniquement impossible (surface incompatible, état du véhicule
-          ou contrainte matérielle indépendante de la volonté des parties), il doit le signaler
-          immédiatement via le bouton « Signaler une pose impossible » de son espace provider.
+          ou contrainte matérielle indépendante de la volonté des parties), il doit le signaler{" "}
+          <strong>dans les 24 heures suivant le constat</strong> via le bouton « Signaler une pose
+          impossible » de son espace provider, en joignant obligatoirement{" "}
+          <strong>au moins deux photographies horodatées</strong> justifiant l'impossibilité.
         </p>
         <p>
-          Dans ce cas, MoveSpot procédera au <strong>remboursement intégral de l'annonceur</strong>{" "}
-          dans un délai de 5 jours ouvrés. Aucune commission ne sera due au propriétaire du véhicule
-          pour cette campagne. MoveSpot se réserve le droit de proposer à l'annonceur un véhicule
-          alternatif sans frais supplémentaires.
+          En cas d'indisponibilité temporaire du bouton dédié, le signalement peut être effectué par
+          email à{" "}
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
+          </a>{" "}
+          dans le même délai de 24 heures, avec les preuves photographiques en pièces jointes. Tout
+          signalement effectué hors de ce délai ou sans justificatif photographique ne sera pas
+          recevable au titre du présent article.
+        </p>
+        <p>
+          Après réception et vérification du signalement par MoveSpot, celle-ci procédera au{" "}
+          <strong>remboursement intégral de l'annonceur</strong> dans un délai de{" "}
+          <strong>7 jours ouvrés</strong>, ce délai tenant compte des délais incompressibles imposés
+          par le prestataire de paiement Stripe. Aucune commission ne sera due au propriétaire du
+          véhicule pour cette campagne.
+        </p>
+        <p>
+          MoveSpot se réserve le droit de proposer à l'annonceur un véhicule alternatif sans frais
+          supplémentaires. Si l'annonceur refuse expressément le véhicule alternatif proposé, le
+          remboursement intégral lui est acquis dans les conditions ci-dessus. L'absence de réponse
+          de l'annonceur dans un délai de 48 heures suivant la proposition vaut acceptation du
+          véhicule alternatif.
+        </p>
+        <p>
+          S'agissant du poseur certifié, les frais de déplacement engagés pour se rendre sur le
+          lieu de pose sont supportés exclusivement par le poseur en sa qualité de professionnel
+          indépendant agissant pour son propre compte. MoveSpot n'étant qu'un intermédiaire de mise
+          en relation, elle ne saurait être tenue au remboursement de ces frais, l'incompatibilité
+          du véhicule relevant de la relation directe entre le poseur et le propriétaire du
+          véhicule. Le poseur certifié reconnaît et accepte expressément cette répartition des
+          risques en utilisant la Plateforme.
+        </p>
+        <p>
+          Le présent article 15 bis constitue le régime spécial applicable à l'impossibilité
+          technique de pose et prévaut sur les dispositions générales d'annulation et de
+          remboursement des Conditions Générales de Vente, notamment sur les règles relatives au
+          délai de 72 heures, dès lors que l'impossibilité est dûment signalée et justifiée dans
+          les conditions ci-dessus.
         </p>
         <p>
           MoveSpot ne saurait être tenue responsable des conséquences d'une impossibilité technique
-          de pose dûment signalée dans les conditions prévues au présent article.
+          de pose dûment signalée et justifiée dans les conditions prévues au présent article. En
+          l'absence de signalement conforme, les règles générales de remboursement des CGV
+          s'appliquent.
         </p>
       </LegalSection>
 
