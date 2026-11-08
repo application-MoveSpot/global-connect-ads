@@ -4,6 +4,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+
+// Tables nouvellement créées non encore dans les types auto-générés Supabase
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as unknown as any;
 import type {
   InstallationMission,
   MissionProof,
@@ -30,7 +34,7 @@ export function useCampaignMissions(campaignId: string) {
   return useQuery({
     queryKey: missionsKeys.byCampaign(campaignId),
     queryFn: async (): Promise<InstallationMission[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('installation_missions')
         .select(`
           *,
@@ -53,7 +57,7 @@ export function useMyMissions(payeeUserId: string) {
   return useQuery({
     queryKey: missionsKeys.byPayee(payeeUserId),
     queryFn: async (): Promise<InstallationMission[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('installation_missions')
         .select('*')
         .eq('payee_user_id', payeeUserId)
@@ -74,7 +78,7 @@ export function useMissionProofs(missionId: string) {
   return useQuery({
     queryKey: missionsKeys.proofs(missionId),
     queryFn: async (): Promise<MissionProof[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('mission_proofs')
         .select('*')
         .eq('mission_id', missionId)
@@ -183,12 +187,13 @@ export function useUploadMissionProof() {
       if (uploadErr) throw uploadErr;
 
       // 2. Obtenir l'URL publique signée (1 heure)
-      const { data: { signedUrl } } = await supabase.storage
+      const signedResult = await supabase.storage
         .from('mission-proofs')
         .createSignedUrl(path, 3600);
+      const signedUrl = signedResult.data?.signedUrl ?? null;
 
       // 3. Insérer en base via update-mission-status (photos incluses dans payload)
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('mission_proofs')
         .insert({
           mission_id:   missionId,

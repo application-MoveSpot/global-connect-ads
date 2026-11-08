@@ -317,6 +317,12 @@ function AdminPage() {
               🌐 Traductions
             </Link>
             <Link
+              to="/admin/missions"
+              className="px-4 py-2 rounded-lg text-sm font-semibold border border-indigo-400/50 text-indigo-600 hover:bg-indigo-500/10"
+            >
+              🚗 Missions
+            </Link>
+            <Link
               to="/admin/beta"
               className="px-4 py-2 rounded-lg text-sm font-semibold border border-primary/40 text-primary hover:bg-primary/10"
             >
