@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { hreflangLinks } from "@/lib/seo";
+import { buildSeoHead, FAQ_ADVERTISERS_JSON_LD } from "@/components/SEO";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Instagram } from "lucide-react";
@@ -27,68 +27,23 @@ export const Route = createFileRoute("/_public/")({
       return { vehiclesApproved: 0, campaignsLaunched: 0 };
     }
   },
-  head: () => ({
-    meta: [
-      { title: "MoveSpot — Marketplace de publicité mobile sur véhicules" },
-      {
-        name: "description",
-        content:
-          "MoveSpot met en relation advertisers et propriétaires de véhicules (food trucks, vans, taxis, scooters de livraison) pour louer des espaces publicitaires mobiles à la journée.",
-      },
-      {
-        name: "keywords",
-        content:
-          "publicité mobile, marketplace publicitaire véhicules, food truck publicité, habillage van, taxi publicité, scooter livraison pub, DOOH mobile",
-      },
-      { property: "og:title", content: "MoveSpot — Marketplace de publicité mobile" },
-      {
-        property: "og:description",
-        content:
-          "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement.",
-      },
-      { property: "og:url", content: "https://move-spot.com/" },
-      { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://move-spot.com/og-image.png" },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: "https://move-spot.com/og-image.png" },
-      // Arabic SEO
-      {
-        name: "description",
-        lang: "ar",
-        content:
-          "MoveSpot يربط المعلنين وأصحاب المركبات — شاحنات الطعام، التاكسي، دراجات التوصيل. ارسم منطقتك، والميزانية تُحسب تلقائيًا، وكل كيلومتر بث مُثبت بـ GPS.",
-      },
-      {
-        name: "keywords",
-        lang: "ar",
-        content:
-          "إعلانات متنقلة، سوق إعلانات المركبات، إعلانات سيارات الأجرة، شاحنة طعام إعلان، DOOH متنقل",
-      },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/" },
-      ...hreflangLinks("/"),
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap",
-      },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
+  head: () => {
+    const seoBase = buildSeoHead({
+      title: "MoveSpot — Régie Publicitaire Mobile sur Véhicules",
+      description:
+        "MoveSpot, régie publicitaire mobile : publicité sur véhicule et street-marketing certifiés GPS. Annonceurs et propriétaires de flottes en direct.",
+      path: "/",
+      jsonLd: [
+        {
           "@context": "https://schema.org",
           "@type": "Service",
           "@id": "https://move-spot.com/#service",
-          name: "Marketplace de publicité mobile MoveSpot",
+          name: "Régie publicitaire mobile MoveSpot — publicité sur véhicule",
           description:
-            "Louez des espaces publicitaires sur food trucks, vans, taxis et scooters de livraison. Réservation à la journée, sans engagement.",
+            "Régie publicitaire mobile connectant annonceurs et propriétaires de véhicules pour du street-marketing GPS certifié. Publicité sur véhicule à partir de 25 €/jour.",
           provider: { "@id": "https://move-spot.com/#organization" },
           areaServed: { "@type": "Country", name: "France" },
-          serviceType: "Publicité extérieure mobile",
+          serviceType: "Publicité extérieure mobile — street-marketing",
           category: "DOOH mobile",
           offers: {
             "@type": "AggregateOffer",
@@ -131,10 +86,43 @@ export const Route = createFileRoute("/_public/")({
               },
             ],
           },
-        }),
-      },
-    ],
-  }),
+        },
+        FAQ_ADVERTISERS_JSON_LD,
+      ],
+    });
+    return {
+      meta: [
+        ...seoBase.meta,
+        {
+          name: "keywords",
+          content:
+            "régie publicitaire mobile, publicité sur véhicule, street-marketing mobile, marketplace publicitaire véhicules, food truck publicité, habillage van, taxi publicité, scooter livraison pub, DOOH mobile",
+        },
+        {
+          name: "description",
+          lang: "ar",
+          content:
+            "MoveSpot يربط المعلنين وأصحاب المركبات — شاحنات الطعام، التاكسي، دراجات التوصيل. ارسم منطقتك، والميزانية تُحسب تلقائيًا، وكل كيلومتر بث مُثبت بـ GPS.",
+        },
+        {
+          name: "keywords",
+          lang: "ar",
+          content:
+            "إعلانات متنقلة، سوق إعلانات المركبات، إعلانات سيارات الأجرة، شاحنة طعام إعلان، DOOH متنقل",
+        },
+      ],
+      links: [
+        ...seoBase.links,
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap",
+        },
+      ],
+      scripts: seoBase.scripts,
+    };
+  },
   component: Index,
 });
 
@@ -309,16 +297,16 @@ function Index() {
             {tx("hero.badge", "Plateforme en ligne · suivi GPS & paiements actifs")}
           </div>
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight max-w-4xl">
-            {tx("hero.h1", "Vos pubs roulent,")}
+            {tx("hero.h1", "La régie publicitaire mobile")}
             <br />
             <span className="bg-gradient-signal bg-clip-text text-transparent">
-              {tx("hero.h1_accent", "vos ventes décollent.")}
+              {tx("hero.h1_accent", "qui fait rouler vos ventes.")}
             </span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl">
             <Trans
               i18nKey="hero.desc"
-              defaults="MoveSpot est la marketplace qui met en relation <strong>advertisers</strong> et <strong>propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Vous dessinez votre zone, le budget se calcule au km², et chaque kilomètre diffusé est prouvé par GPS."
+              defaults="MoveSpot connecte <strong>annonceurs</strong> et <strong>propriétaires de véhicules</strong> — food trucks, vans, taxis, VTC, scooters de livraison. Publicité sur véhicule et street-marketing certifiés GPS : dessinez votre zone, le budget se calcule au km²."
               components={{ strong: <strong className="text-foreground" /> }}
             />
           </p>
@@ -425,7 +413,7 @@ function Index() {
           <div className="grid sm:grid-cols-3 gap-4 mb-8">
             {particularItems.map((e) => (
               <div key={e.key} className="rounded-2xl border border-border bg-card p-5">
-                <div className="text-3xl mb-3">{e.icon}</div>
+                <div className="text-3xl mb-3" aria-hidden="true">{e.icon}</div>
                 <div className="font-semibold text-sm mb-1">
                   {tx(`particular.${e.key}_l`, e.label)}
                 </div>
@@ -448,6 +436,63 @@ function Index() {
             >
               {tx("particular.cta2", "Comment ça marche →")}
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Propriétaires — revenu passif véhicule */}
+      <section className="max-w-7xl mx-auto px-6 py-16">
+        <div className="rounded-3xl border border-border bg-gradient-card px-8 py-10">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <div className="text-xs uppercase tracking-widest text-primary mb-2">
+                {tx("owner.badge", "Propriétaires de véhicules")}
+              </div>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+                {tx("owner.h2", "Monétisez vos trajets quotidiens")}
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                <Trans
+                  i18nKey="owner.desc"
+                  defaults="Transformez votre voiture, van ou scooter en source de <strong>revenu passif</strong>. Rejoignez la flotte MoveSpot et touchez <strong>70 % du tarif annonceur</strong> — jusqu'à 49 €/jour en zone dense, sans changer vos habitudes."
+                  components={{ strong: <strong className="text-foreground" /> }}
+                />
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/devenir-partenaire"
+                  className="rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:bg-primary/90 transition shadow-glow"
+                >
+                  {tx("owner.cta", "Devenir partenaire →")}
+                </Link>
+                <Link
+                  to="/devenir-partenaire"
+                  className="rounded-full border border-border bg-card px-5 py-3 text-sm font-medium hover:bg-secondary transition"
+                >
+                  {tx("owner.cta2", "Voir comment ça marche →")}
+                </Link>
+              </div>
+            </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-1 gap-4">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <dt className="font-display text-2xl font-bold text-primary">17,50 €</dt>
+                <dd className="mt-1 text-sm text-muted-foreground">
+                  {tx("owner.stat0", "minimum garanti / véhicule / jour actif")}
+                </dd>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <dt className="font-display text-2xl font-bold text-primary">70 %</dt>
+                <dd className="mt-1 text-sm text-muted-foreground">
+                  {tx("owner.stat1", "du tarif annonceur reversé aux partners")}
+                </dd>
+              </div>
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <dt className="font-display text-2xl font-bold text-primary">48 h</dt>
+                <dd className="mt-1 text-sm text-muted-foreground">
+                  {tx("owner.stat2", "pour faire valider votre véhicule")}
+                </dd>
+              </div>
+            </dl>
           </div>
         </div>
       </section>
@@ -527,7 +572,7 @@ function Index() {
               <div className="space-y-3">
                 {audienceItems.map((item) => (
                   <div key={item.key} className="flex gap-3">
-                    <span className="text-xl flex-shrink-0">{item.icon}</span>
+                    <span className="text-xl flex-shrink-0" aria-hidden="true">{item.icon}</span>
                     <div>
                       <div className="font-medium text-sm">
                         {tx(`audience.${item.key}_l`, item.label)}
