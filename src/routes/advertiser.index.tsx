@@ -32,6 +32,7 @@ import { getMyReferralStats } from "@/lib/referral/advertiser-referral.functions
 import { firePixelEvent } from "@/lib/analytics/pixels";
 import { updateAdvertiserRegion } from "@/lib/advertiser/advertiser.functions";
 import { AdvertiserReports } from "@/components/advertiser/AdvertiserReports";
+import { AdvertiserChatWidget } from "@/components/advertiser/AdvertiserChatWidget";
 
 type Req = {
   id: string;
@@ -625,6 +626,7 @@ function AnnonceurDashboard() {
               ]
         }
       />
+      <AdvertiserChatWidget />
     </div>
   );
 }
