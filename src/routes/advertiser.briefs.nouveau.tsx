@@ -44,11 +44,11 @@ import { BriefCopilot } from "@/components/advertiser/BriefCopilot";
 import { useTranslation } from "react-i18next";
 
 type EuCountryCode = "FR" | "BE" | "LU" | "DE";
-const SUPPORTED_EU_COUNTRIES: { code: EuCountryCode; flag: string; label: string }[] = [
-  { code: "FR", flag: "🇫🇷", label: "France" },
-  { code: "BE", flag: "🇧🇪", label: "Belgique" },
-  { code: "LU", flag: "🇱🇺", label: "Luxembourg" },
-  { code: "DE", flag: "🇩🇪", label: "Allemagne" },
+const TARGET_COUNTRIES: { id: EuCountryCode; label: string; isDefault?: true }[] = [
+  { id: "FR", label: "France", isDefault: true },
+  { id: "BE", label: "Belgique" },
+  { id: "LU", label: "Luxembourg" },
+  { id: "DE", label: "Allemagne" },
 ];
 
 export const Route = createFileRoute("/advertiser/briefs/nouveau")({
@@ -285,7 +285,7 @@ function NewBriefPage() {
       if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
       if (d.brandColor) setBrandColor(d.brandColor as string);
       // Market is now always EU — restore country sub-selection
-      if (d.euCountry && SUPPORTED_EU_COUNTRIES.some((c) => c.code === d.euCountry)) {
+      if (d.euCountry && TARGET_COUNTRIES.some((c) => c.id === d.euCountry)) {
         setEuCountry(d.euCountry as EuCountryCode);
       }
       if (d.frCity) setEuCity(d.frCity as string);
@@ -1090,22 +1090,22 @@ function NewBriefPage() {
             <div>
               <p className="text-sm font-semibold mb-2">{t("compliance.market_label")}</p>
               <div className="flex flex-wrap gap-2">
-                {SUPPORTED_EU_COUNTRIES.map((country) => (
+                {TARGET_COUNTRIES.map((country) => (
                   <button
-                    key={country.code}
+                    key={country.id}
                     type="button"
                     onClick={() => {
-                      setEuCountry(country.code);
+                      setEuCountry(country.id);
                       setEuCity("");
                       setContentCategory("");
                     }}
                     className={`flex-1 min-w-[7rem] rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
-                      euCountry === country.code
+                      euCountry === country.id
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {country.flag} {country.label}
+                    {country.label}
                   </button>
                 ))}
               </div>
