@@ -201,6 +201,19 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  // ── 7. Générer la facture PDF (fire-and-forget) ───────────────────────────
+  if (advertiserId) {
+    const internalSecret = Deno.env.get("INTERNAL_FUNCTION_SECRET") ?? "";
+    fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-invoice-pdf`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": internalSecret,
+      },
+      body: JSON.stringify({ campaign_id: campaignId, advertiser_id: advertiserId }),
+    }).catch((e) => console.error("Invoice generation failed (non-blocking):", e));
+  }
+
   return json({
     ok: true,
     mission_id,
