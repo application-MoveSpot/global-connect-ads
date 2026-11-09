@@ -18,8 +18,12 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const today = new Date().toISOString().slice(0, 10);
 
+        // Pages with head() noindex are intentionally excluded:
+        //   /brief/:id, /c/:id, /pitch, /previsionnel, /kit (press kit - internal)
         const staticEntries: SitemapEntry[] = [
-          { path: "/", changefreq: "weekly", priority: "1.0", lastmod: today },
+          // ── Core ────────────────────────────────────────────────────────────
+          { path: "/", changefreq: "daily", priority: "1.0", lastmod: today },
+          // ── Annonceurs ──────────────────────────────────────────────────────
           { path: "/pourquoi-movespot", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/comment-ca-marche", changefreq: "monthly", priority: "0.9", lastmod: today },
           { path: "/tarifs", changefreq: "monthly", priority: "0.9", lastmod: today },
@@ -31,12 +35,16 @@ export const Route = createFileRoute("/sitemap.xml")({
           },
           { path: "/commencer", changefreq: "monthly", priority: "0.8", lastmod: today },
           { path: "/campagnes", changefreq: "weekly", priority: "0.7", lastmod: today },
-          { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.7", lastmod: today },
-          { path: "/remboursement", changefreq: "yearly", priority: "0.3", lastmod: today },
-          { path: "/driver", changefreq: "monthly", priority: "0.7", lastmod: today },
+          // ── Propriétaires ───────────────────────────────────────────────────
+          { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.8", lastmod: today },
+          { path: "/driver/inscription", changefreq: "monthly", priority: "0.6", lastmod: today },
+          // ── Prestataires (directory = public) ───────────────────────────────
           { path: "/providers", changefreq: "weekly", priority: "0.7", lastmod: today },
+          // ── Contact & support ───────────────────────────────────────────────
           { path: "/contact", changefreq: "yearly", priority: "0.5", lastmod: today },
           { path: "/securite", changefreq: "yearly", priority: "0.4", lastmod: today },
+          { path: "/remboursement", changefreq: "yearly", priority: "0.3", lastmod: today },
+          // ── Légal ───────────────────────────────────────────────────────────
           { path: "/mentions-legales", changefreq: "yearly", priority: "0.3", lastmod: today },
           { path: "/cgu", changefreq: "yearly", priority: "0.3", lastmod: today },
           { path: "/cgv", changefreq: "yearly", priority: "0.3", lastmod: today },
