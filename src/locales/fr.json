@@ -2854,7 +2854,35 @@
       "regions_col_region": "Région",
       "regions_col_advertisers": "Annonceurs",
       "regions_col_campaigns": "Campagnes",
-      "regions_col_gmv": "GMV (€)"
+      "regions_col_gmv": "GMV (€)",
+      "tab_support": "💬 Support",
+      "support_title": "Conversations support",
+      "support_open_count": "ouverte(s)",
+      "support_no_open_rooms": "Aucune conversation ouverte pour le moment.",
+      "support_status_open": "En cours",
+      "support_status_resolved": "Résolu",
+      "support_resolved_history_one": "{{count}} conversation résolue",
+      "support_resolved_history_other": "{{count}} conversations résolues",
+      "support_empty_conversation": "Aucun message dans cette conversation.",
+      "support_reply_placeholder": "Répondre à l'annonceur…",
+      "support_resolve_btn": "Marquer résolu",
+      "support_resolved_toast": "Conversation marquée comme résolue.",
+      "support_back_btn": "Retour"
+    },
+    "support": {
+      "title": "Support MoveSpot",
+      "open_count": "ouverte(s)",
+      "no_open_rooms": "Aucune conversation ouverte pour le moment.",
+      "status_open": "En cours",
+      "status_resolved": "Résolu",
+      "resolved_history_one": "{{count}} conversation résolue",
+      "resolved_history_other": "{{count}} conversations résolues",
+      "resolved_history": "{{count}} conversation(s) résolue(s)",
+      "empty_conversation": "Aucun message dans cette conversation.",
+      "reply_placeholder": "Répondre à l'annonceur…",
+      "resolve_btn": "Marquer résolu",
+      "resolved_toast": "Conversation marquée comme résolue.",
+      "back_btn": "Retour"
     },
     "audit": {
       "title": "Audit & Conformité",
@@ -5386,6 +5414,13 @@
       "desc": "Partagez votre code de parrainage et gagnez des récompenses.",
       "pending": "En attente",
       "title": "Parrainage"
+    },
+    "support": {
+      "open_chat": "Ouvrir le support",
+      "title": "Support MoveSpot",
+      "online_status": "En ligne ⚡",
+      "empty_chat": "Envoyez votre premier message, nous répondons rapidement.",
+      "input_placeholder": "Votre message…"
     },
     "remboursement": {
       "admin_note_label": "Note admin :",

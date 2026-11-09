@@ -58,6 +58,7 @@ import {
 } from "@/components/driver/InstallationPhotoGrid";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
+import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard";
 import {
   moderateBriefVisual,
   type VisualModerationResult,
@@ -118,7 +119,8 @@ type Tab =
   | "moderation"
   | "alertes"
   | "referral"
-  | "regions";
+  | "regions"
+  | "support";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -144,6 +146,7 @@ function AdminDashboard() {
     "alertes",
     "referral",
     "regions",
+    "support",
   ];
   const [tab, setTab] = useState<Tab>("afaire");
   const [ready, setReady] = useState(false);
@@ -674,6 +677,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "regions"} onClick={() => switchTab("regions")}>
             {t("admin.dashboard.tab_regions")}
+          </TabBtn>
+          <TabBtn active={tab === "support"} onClick={() => switchTab("support")}>
+            {t("admin.dashboard.tab_support")}
           </TabBtn>
         </div>
 
@@ -2132,6 +2138,8 @@ function AdminDashboard() {
             </div>
           )
         ) : null}
+
+        {tab === "support" ? <AdminSupportDashboard /> : null}
 
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (

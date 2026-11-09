@@ -2805,7 +2805,35 @@
       "regions_col_region": "Region",
       "regions_col_advertisers": "Advertisers",
       "regions_col_campaigns": "Campaigns",
-      "regions_col_gmv": "GMV (€)"
+      "regions_col_gmv": "GMV (€)",
+      "tab_support": "💬 Support",
+      "support_title": "Support conversations",
+      "support_open_count": "open",
+      "support_no_open_rooms": "No open conversations at the moment.",
+      "support_status_open": "Open",
+      "support_status_resolved": "Resolved",
+      "support_resolved_history_one": "{{count}} resolved conversation",
+      "support_resolved_history_other": "{{count}} resolved conversations",
+      "support_empty_conversation": "No messages in this conversation.",
+      "support_reply_placeholder": "Reply to advertiser…",
+      "support_resolve_btn": "Mark as resolved",
+      "support_resolved_toast": "Conversation marked as resolved.",
+      "support_back_btn": "Back"
+    },
+    "support": {
+      "title": "Support MoveSpot",
+      "open_count": "open",
+      "no_open_rooms": "No open conversations at the moment.",
+      "status_open": "Open",
+      "status_resolved": "Resolved",
+      "resolved_history_one": "{{count}} resolved conversation",
+      "resolved_history_other": "{{count}} resolved conversations",
+      "resolved_history": "{{count}} resolved conversation(s)",
+      "empty_conversation": "No messages in this conversation.",
+      "reply_placeholder": "Reply to advertiser…",
+      "resolve_btn": "Mark as resolved",
+      "resolved_toast": "Conversation marked as resolved.",
+      "back_btn": "Back"
     },
     "audit": {
       "title": "Audit & Compliance",
@@ -5276,6 +5304,13 @@
       "desc": "Share your referral code and earn rewards.",
       "pending": "Pending",
       "title": "Referral Program"
+    },
+    "support": {
+      "open_chat": "Open support chat",
+      "title": "MoveSpot Support",
+      "online_status": "Online ⚡",
+      "empty_chat": "Send your first message, we reply quickly.",
+      "input_placeholder": "Your message…"
     },
     "remboursement": {
       "admin_note_label": "Admin note:",
