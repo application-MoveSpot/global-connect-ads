@@ -4159,6 +4159,7 @@
   },
   "compliance": {
     "market_label": "Marché cible",
+    "euro_zone_note": "MoveSpot opère exclusivement dans la zone Euro. La conformité des paiements et la validation des profils sont opérées de manière sécurisée par Stripe.",
     "us_city_label": "Ville / marché Amériques",
     "us_city_placeholder": "Sélectionnez une ville…",
     "content_category_label": "Catégorie de contenu",
@@ -5181,6 +5182,9 @@
       "label_address": "Adresse",
       "label_city": "Ville",
       "label_company": "Raison sociale",
+      "label_tva_intracom": "N° TVA intracommunautaire",
+      "label_tva_intracom_hint": "(optionnel — hors France)",
+      "tva_intracom_note": "Si votre entreprise est établie dans un pays de l'UE autre que la France et dispose d'un numéro de TVA intracommunautaire valide, indiquez-le ici pour bénéficier du mécanisme d'autoliquidation (0% TVA sur vos factures MoveSpot).",
       "label_email": "E-mail",
       "label_full_name": "Nom complet",
       "label_password": "Mot de passe",
