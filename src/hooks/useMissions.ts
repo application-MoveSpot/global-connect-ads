@@ -215,6 +215,57 @@ export function useReportPoseImpossible() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Soumettre la validation d'une pose (poseur) — 4 photos obligatoires
+// ─────────────────────────────────────────────────────────────────────────────
+export interface SubmitInstallationPhoto {
+  proof_type: "face_avant" | "face_arriere" | "profil_gauche" | "profil_droit";
+  storage_path: string;
+  storage_url: string | null;
+}
+
+export interface SubmitInstallationPayload {
+  missionId: string;
+  photos: SubmitInstallationPhoto[];
+  providerNotes?: string;
+}
+
+export interface SubmitInstallationResponse {
+  ok: boolean;
+  mission_id: string;
+  status: string;
+  submitted_at: string;
+  proofs_inserted: number;
+}
+
+export function useSubmitInstallation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<SubmitInstallationResponse, Error, SubmitInstallationPayload>({
+    mutationFn: async ({ missionId, photos, providerNotes }) => {
+      const { data, error } = await supabase.functions.invoke<SubmitInstallationResponse>(
+        "validate-installation",
+        {
+          body: {
+            mission_id: missionId,
+            photos,
+            provider_notes: providerNotes,
+          },
+        },
+      );
+      if (error) throw new Error(error.message);
+      return data!;
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["missions"] });
+      queryClient.invalidateQueries({ queryKey: ["missions", "payee"] });
+      queryClient.invalidateQueries({
+        predicate: (q) => Array.isArray(q.queryKey) && q.queryKey.includes(result.mission_id),
+      });
+    },
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Uploader une preuve photo et créer l'entrée en base
 // ─────────────────────────────────────────────────────────────────────────────
 export function useUploadMissionProof() {
