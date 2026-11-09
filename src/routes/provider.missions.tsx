@@ -1,26 +1,27 @@
 /**
  * /provider/missions — Espace missions du poseur certifié
  *
- * Affiche les missions d'installation assignées au poseur connecté.
- * Permet de signaler une pose impossible (art. 15bis) dans la fenêtre
- * de 24h suivant la date prévue.
+ * Deux onglets :
+ *  - "Missions disponibles" : missions dispatched où le poseur a été invité
+ *  - "Mes missions" : missions assignées / en cours / terminées
  */
 
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, MapPin, Clock, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Clock, ChevronRight, Bell, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { PoseImpossibleModal } from "@/components/provider/PoseImpossibleModal";
-import { useMyMissions } from "@/hooks/useMissions";
+import { useMyMissions, useAvailableMissions, useAcceptMission } from "@/hooks/useMissions";
 import {
   MISSION_STATUS_LABELS,
   MISSION_STATUS_COLORS,
   MISSION_TYPE_LABELS,
   type InstallationMission,
 } from "@/lib/missions/types";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/provider/missions")({
   head: () => ({
@@ -30,10 +31,13 @@ export const Route = createFileRoute("/provider/missions")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
+type Tab = "available" | "mine";
+
 function ProviderMissionsPage() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>("available");
   const [impossibleModal, setImpossibleModal] = useState<{
     open: boolean;
     mission: InstallationMission | null;
@@ -50,7 +54,11 @@ function ProviderMissionsPage() {
     });
   }, [navigate]);
 
-  const { data: missions = [], isLoading, refetch } = useMyMissions(userId ?? "");
+  const { data: availableMissions = [], isLoading: availableLoading } = useAvailableMissions(
+    userId ?? "",
+  );
+  const { data: myMissions = [], isLoading: myLoading, refetch } = useMyMissions(userId ?? "");
+  const acceptMutation = useAcceptMission();
 
   if (!authReady || !userId) {
     return (
@@ -60,13 +68,29 @@ function ProviderMissionsPage() {
     );
   }
 
-  // Séparer missions actives et terminées
-  const activeMissions = missions.filter(
+  const activeMissions = myMissions.filter(
     (m) => !["validated", "cancelled", "failed_technical_impossible"].includes(m.status),
   );
-  const closedMissions = missions.filter((m) =>
+  const closedMissions = myMissions.filter((m) =>
     ["validated", "cancelled", "failed_technical_impossible"].includes(m.status),
   );
+
+  const handleAccept = async (mission: InstallationMission) => {
+    try {
+      await acceptMutation.mutateAsync({ missionId: mission.id, payeeUserId: userId });
+      toast.success("Mission acceptée ! Elle apparaît maintenant dans vos missions actives.");
+      setActiveTab("mine");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erreur inconnue";
+      if (msg === "already_taken") {
+        toast.error("Cette mission vient d'être prise par un autre poseur.");
+      } else if (msg === "not_invited") {
+        toast.error("Vous n'êtes plus invité à cette mission.");
+      } else {
+        toast.error("Impossible d'accepter la mission. Réessayez.");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,51 +117,128 @@ function ProviderMissionsPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div>
-          <h1 className="font-display text-3xl font-bold">Mes missions de pose</h1>
+          <h1 className="font-display text-3xl font-bold">Missions de pose</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Missions d'installation assignées à votre compte
+            Acceptez de nouvelles missions ou suivez vos missions en cours.
           </p>
         </div>
 
-        {isLoading && (
-          <div className="text-center py-12 text-muted-foreground text-sm">Chargement…</div>
-        )}
+        {/* ── Onglets ── */}
+        <div className="flex gap-1 p-1 rounded-xl bg-muted w-fit">
+          <button
+            onClick={() => setActiveTab("available")}
+            className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "available"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Bell className="h-4 w-4" />
+            Disponibles
+            {availableMissions.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                {availableMissions.length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("mine")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "mine"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Mes missions
+            {activeMissions.length > 0 && (
+              <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-muted-foreground/20 px-1.5 text-[10px] font-semibold">
+                {activeMissions.length}
+              </span>
+            )}
+          </button>
+        </div>
 
-        {!isLoading && missions.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-            Aucune mission en cours.
-          </div>
-        )}
-
-        {activeMissions.length > 0 && (
+        {/* ── Onglet : Missions disponibles ── */}
+        {activeTab === "available" && (
           <section>
-            <h2 className="font-semibold text-sm uppercase tracking-widest text-muted-foreground mb-3">
-              Missions actives ({activeMissions.length})
-            </h2>
-            <div className="space-y-3">
-              {activeMissions.map((m) => (
-                <MissionCard
-                  key={m.id}
-                  mission={m}
-                  onReportImpossible={(mission) => setImpossibleModal({ open: true, mission })}
-                />
-              ))}
-            </div>
+            {availableLoading && (
+              <div className="text-center py-12 text-muted-foreground text-sm">Chargement…</div>
+            )}
+            {!availableLoading && availableMissions.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-border bg-card/30 p-10 text-center">
+                <Bell className="h-10 w-10 mx-auto text-muted-foreground/50 mb-3" />
+                <p className="font-semibold text-sm">Aucune mission disponible pour le moment</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Vous serez notifié dès qu'une mission vous sera proposée.
+                </p>
+              </div>
+            )}
+            {availableMissions.length > 0 && (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {availableMissions.length} mission{availableMissions.length > 1 ? "s" : ""} en
+                  attente d'acceptation · Répondez rapidement, d'autres poseurs sont invités.
+                </p>
+                {availableMissions.map((m) => (
+                  <AvailableMissionCard
+                    key={m.id}
+                    mission={m}
+                    onAccept={handleAccept}
+                    isAccepting={
+                      acceptMutation.isPending && acceptMutation.variables?.missionId === m.id
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </section>
         )}
 
-        {closedMissions.length > 0 && (
-          <section>
-            <h2 className="font-semibold text-sm uppercase tracking-widest text-muted-foreground mb-3">
-              Historique ({closedMissions.length})
-            </h2>
-            <div className="space-y-3">
-              {closedMissions.map((m) => (
-                <MissionCard key={m.id} mission={m} onReportImpossible={null} />
-              ))}
-            </div>
+        {/* ── Onglet : Mes missions ── */}
+        {activeTab === "mine" && (
+          <section className="space-y-8">
+            {myLoading && (
+              <div className="text-center py-12 text-muted-foreground text-sm">Chargement…</div>
+            )}
+
+            {!myLoading && myMissions.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+                Aucune mission assignée. Consultez l'onglet "Disponibles" pour accepter vos
+                premières missions.
+              </div>
+            )}
+
+            {activeMissions.length > 0 && (
+              <div>
+                <h2 className="font-semibold text-sm uppercase tracking-widest text-muted-foreground mb-3">
+                  Missions actives ({activeMissions.length})
+                </h2>
+                <div className="space-y-3">
+                  {activeMissions.map((m) => (
+                    <MissionCard
+                      key={m.id}
+                      mission={m}
+                      onReportImpossible={(mission) => setImpossibleModal({ open: true, mission })}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {closedMissions.length > 0 && (
+              <div>
+                <h2 className="font-semibold text-sm uppercase tracking-widest text-muted-foreground mb-3">
+                  Historique ({closedMissions.length})
+                </h2>
+                <div className="space-y-3">
+                  {closedMissions.map((m) => (
+                    <MissionCard key={m.id} mission={m} onReportImpossible={null} />
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
       </main>
@@ -155,6 +256,86 @@ function ProviderMissionsPage() {
           onCancel={() => setImpossibleModal({ open: false, mission: null })}
         />
       )}
+    </div>
+  );
+}
+
+function AvailableMissionCard({
+  mission,
+  onAccept,
+  isAccepting,
+}: {
+  mission: InstallationMission;
+  onAccept: (m: InstallationMission) => void;
+  isAccepting: boolean;
+}) {
+  const typeLabel = MISSION_TYPE_LABELS[mission.mission_type] ?? mission.mission_type;
+
+  return (
+    <div className="rounded-xl border-2 border-orange-400/50 bg-orange-500/5 dark:bg-orange-500/10 p-5">
+      <div className="flex items-start gap-3 justify-between mb-3">
+        <div className="min-w-0">
+          <div className="font-semibold text-sm">
+            {typeLabel} — <span className="font-mono text-xs">{mission.id.slice(0, 8)}</span>
+          </div>
+          {mission.location_address && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+              <MapPin className="h-3 w-3 shrink-0" />
+              {mission.location_address}
+              {mission.location_city && `, ${mission.location_city}`}
+            </div>
+          )}
+        </div>
+        <span className="shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
+          À saisir
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-muted-foreground mb-4">
+        {mission.scheduled_date && (
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 shrink-0" />
+            {new Date(mission.scheduled_date).toLocaleDateString("fr-FR", {
+              weekday: "short",
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
+          </div>
+        )}
+        {mission.scheduled_time_slot && (
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            {
+              {
+                matin: "Matin",
+                apres_midi: "Après-midi",
+                journee: "Journée",
+                flexible: "Flexible",
+              }[mission.scheduled_time_slot]
+            }
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 font-semibold text-foreground">
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          {(mission.fee_cents / 100).toFixed(2)} €
+        </div>
+      </div>
+
+      <button
+        onClick={() => onAccept(mission)}
+        disabled={isAccepting}
+        className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white px-5 py-2.5 text-sm font-semibold transition"
+      >
+        {isAccepting ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Acceptation…
+          </>
+        ) : (
+          "Accepter cette mission"
+        )}
+      </button>
     </div>
   );
 }
