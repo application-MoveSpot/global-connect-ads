@@ -28,7 +28,7 @@ export const Route = createFileRoute("/cgv")({
 function CGV() {
   const { t } = useTranslation();
   return (
-    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="12 août 2026">
+    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="9 novembre 2026">
       <LegalSection title={t("cgv.s1")}>
         <p>
           Les présentes Conditions Générales de Vente (« CGV ») régissent les relations
@@ -209,6 +209,61 @@ function CGV() {
           être recrédité sur son portefeuille MoveSpot ou remboursé selon le moyen de paiement
           d'origine.
         </p>
+        <p className="text-sm text-muted-foreground">
+          <strong>Disposition spéciale :</strong> en cas d'impossibilité technique de pose constatée
+          par le prestataire certifié, les conditions de remboursement et d'indemnisation sont
+          exclusivement régies par l'article 8bis ci-après, qui prime sur tout autre stipulation du
+          présent article.
+        </p>
+      </LegalSection>
+
+      <LegalSection title={t("cgv.s8bis")}>
+        <p>
+          Lorsqu'un prestataire certifié MoveSpot (poseur) constate, sur site, une impossibilité
+          technique de poser le support publicitaire sur le véhicule prévu (état de la carrosserie
+          incompatible, absence du véhicule au rendez-vous, force majeure, etc.), il est tenu de
+          signaler l'incident dans les 24 heures suivant la date de pose planifiée, via la
+          Plateforme, avec au minimum deux photographies horodatées à l'appui.
+        </p>
+
+        <p>
+          <strong>a) Remboursement — Délai de 7 jours ouvrés.</strong> Dès validation du signalement
+          par MoveSpot, l'Annonceur est remboursé intégralement du montant de la campagne non
+          exécutée dans un délai de <strong>7 jours ouvrés</strong>, par reversement sur le moyen de
+          paiement d'origine (carte bancaire via Stripe) ou recrédit sur le portefeuille MoveSpot
+          selon le choix de l'Annonceur. Ce délai correspond au traitement technique opéré par notre
+          partenaire de paiement Stripe Connect.
+        </p>
+
+        <p>
+          <strong>b) Véhicule alternatif — Acceptation tacite après 48 heures.</strong> MoveSpot
+          peut proposer à l'Annonceur un ou plusieurs véhicules alternatifs de remplacement issus de
+          la flotte disponible. L'Annonceur dispose d'un délai de <strong>48 heures</strong> à
+          compter de la notification de l'offre alternative pour refuser expressément cette
+          proposition. Passé ce délai de 48 heures sans réponse de sa part, le silence de
+          l'Annonceur vaut <strong>acceptation tacite</strong> du ou des véhicules alternatifs
+          proposés, et la campagne reprend son cours sans modification du prix convenu.
+        </p>
+
+        <p>
+          <strong>c) Exclusion de tout dommage et intérêt.</strong> Le remboursement intégral du
+          montant de la campagne non exécutée, tel que prévu au paragraphe a) ci-dessus, constitue{" "}
+          <strong>la seule et unique réparation</strong> à laquelle l'Annonceur peut prétendre au
+          titre de l'impossibilité technique de pose. L'Annonceur renonce expressément à réclamer à
+          MoveSpot, au prestataire ou à tout tiers intervenant dans la campagne, toute indemnité,
+          dommage et intérêt, pénalité ou compensation de quelque nature que ce soit (y compris pour
+          manque à gagner, préjudice d'image, perte d'une chance ou retard de campagne) consécutifs
+          à ladite impossibilité technique terrain.
+        </p>
+
+        <p>
+          <strong>d) Priorité sur les autres clauses.</strong> Le présent article 8bis constitue un
+          régime spécial d'ordre contractuel. Il prime sur toute autre stipulation des présentes CGV
+          susceptible de régler une situation d'annulation, de remboursement ou de responsabilité
+          (notamment les articles 8, 10 et toute clause de force majeure), dès lors que
+          l'impossibilité technique de pose a été régulièrement constatée et signalée dans les
+          conditions définies ci-dessus.
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgv.s9")}>
@@ -226,6 +281,11 @@ function CGV() {
           effectivement payé par l'Annonceur pour la campagne concernée. MoveSpot n'est pas
           responsable de l'état des véhicules, de la qualité de pose réalisée par un provider
           indépendant, ni des indisponibilités liées à des cas de force majeure.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <strong>Disposition spéciale :</strong> en cas d'impossibilité technique de pose, la
+          responsabilité de MoveSpot est exclusivement régie par l'article 8bis des présentes CGV,
+          qui se substitue à la présente clause pour toute situation relevant de ce régime spécial.
         </p>
       </LegalSection>
 
