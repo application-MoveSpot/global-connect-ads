@@ -12,7 +12,7 @@
  *   - Sets installation_missions.status = 'pending_validation'
  *   - The trigger trg_sync_mission_to_campaign automatically sets
  *     campaign_requests.installation_status = 'pending_approval'
- *   - Inserts a moderation_alerts record for the admin dashboard
+ *   - Inserts an installation_moderation_queue record for the admin dashboard
  *   - Enqueues an admin email via email_queue
  *
  * Request body:
@@ -179,27 +179,14 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Failed to update mission status" }, 500);
   }
 
-  // ── Create moderation_alerts record for admin ─────────────────────────────
-  const photoSummary = photos
-    .map(
-      (p) =>
-        `${PROOF_TYPE_LABELS[p.proof_type] ?? p.proof_type}: ${p.storage_url ?? p.storage_path}`,
-    )
-    .join("\n");
-
-  await admin.from("moderation_alerts").insert({
-    alert_type: "installation_validation_pending",
-    campaign_request_id: mission.campaign_request_id,
+  // ── Create installation_moderation_queue record for admin ────────────────
+  await admin.from("installation_moderation_queue").insert({
     mission_id,
-    payload: {
-      poseur_name: payeeProfile.full_name,
-      mission_type: mission.mission_type,
-      photos,
-      photo_summary: photoSummary,
-      submitted_at: now,
-      provider_notes: provider_notes?.trim() ?? null,
-    },
-    resolved: false,
+    campaign_request_id: mission.campaign_request_id,
+    submitted_by: user.id,
+    poseur_name: payeeProfile.full_name,
+    mission_type: mission.mission_type,
+    status: "pending",
     created_at: now,
   });
 
