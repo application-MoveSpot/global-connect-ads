@@ -425,6 +425,12 @@ function DashboardPage() {
               {t("owner.nav_historique")}
             </Link>
             <Link
+              to="/owner/portefeuille"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition"
+            >
+              Portefeuille
+            </Link>
+            <Link
               to="/owner/messages"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >
