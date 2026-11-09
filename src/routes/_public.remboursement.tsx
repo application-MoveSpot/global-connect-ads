@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_public/remboursement")({
       { title: "Politique de remboursement — MoveSpot" },
       {
         name: "description",
-        content: "Conditions et procédure de remboursement MoveSpot pour les advertisers.",
+        content: "Conditions et procédure de remboursement MoveSpot pour les annonceurs.",
       },
     ],
   }),

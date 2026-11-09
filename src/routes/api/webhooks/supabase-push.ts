@@ -309,8 +309,8 @@ export const Route = createFileRoute("/api/webhooks/supabase-push")({
                       newStatus === "accepted" ? "Proposition acceptée !" : "Proposition refusée",
                     body:
                       newStatus === "accepted"
-                        ? "Un advertiser a accepté votre proposition."
-                        : "Un advertiser a refusé votre proposition.",
+                        ? "Un annonceur a accepté votre proposition."
+                        : "Un annonceur a refusé votre proposition.",
                     url: "/owner/briefs",
                   });
                 }

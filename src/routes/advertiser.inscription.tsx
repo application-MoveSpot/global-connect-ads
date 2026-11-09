@@ -26,7 +26,7 @@ type Search = { redirect?: string; ref?: string; invite?: string; mode?: "signin
 export const Route = createFileRoute("/advertiser/inscription")({
   head: () => ({
     meta: [
-      { title: "Inscription advertiser — MoveSpot" },
+      { title: "Inscription annonceur — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

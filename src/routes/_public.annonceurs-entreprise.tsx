@@ -161,7 +161,7 @@ const CONTENT = {
     cta_h2: "Prêt à lancer votre pilote ?",
     cta_desc:
       "Démarrez avec 1 véhicule sur 7 jours pour valider le concept. Pas d'engagement, rapport GPS certifié inclus, facturation à la fin de la campagne.",
-    cta_btn: "Créer mon compte advertiser",
+    cta_btn: "Créer mon compte annonceur",
     cta_contact: "Vous avez des questions ?",
     cta_contact_link: "Contactez-nous",
     cta_how: "comment ça marche",

@@ -7,7 +7,7 @@ import { FAQChatbot } from "@/components/app/FAQChatbot";
 const FAQ_ITEMS_FR = [
   {
     q: "Combien puis-je gagner par mois avec MoveSpot ?",
-    a: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher advertiser de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
+    a: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher annonceur de 25 €). Avec 15 jours d'activité par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les campagnes sont plus chères et les revenus peuvent atteindre 49 €/jour pour un taxi.",
   },
   {
     q: "Quels véhicules sont acceptés sur MoveSpot ?",
@@ -31,14 +31,14 @@ const FAQ_ITEMS_FR = [
   },
   {
     q: "Combien de temps dure la validation de mon véhicule ?",
-    a: "La validation prend généralement 48 heures ouvrées après soumission de votre profil et des 4 photos de votre véhicule. Une fois validé, vous apparaissez sur la marketplace et pouvez recevoir des propositions d'advertisers.",
+    a: "La validation prend généralement 48 heures ouvrées après soumission de votre profil et des 4 photos de votre véhicule. Une fois validé, vous apparaissez sur la marketplace et pouvez recevoir des propositions d'annonceurs.",
   },
 ];
 
 export const Route = createFileRoute("/_public/devenir-partenaire")({
   head: () => ({
     meta: [
-      { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partner MoveSpot" },
+      { title: "Revenu complémentaire taxi, VTC, food truck — Devenir partenaire MoveSpot" },
       {
         name: "description",
         content:
@@ -69,9 +69,9 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "HowTo",
-          name: "Comment devenir partner MoveSpot et générer un revenu complémentaire",
+          name: "Comment devenir partenaire MoveSpot et générer un revenu complémentaire",
           description:
-            "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'advertisers locaux.",
+            "Inscrivez-vous sur MoveSpot pour monétiser votre véhicule en portant des publicités d'annonceurs locaux.",
           step: [
             {
               "@type": "HowToStep",
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
             {
               "@type": "HowToStep",
               name: "Recevez des campagnes et encaissez",
-              text: "Les advertisers vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu.",
+              text: "Les annonceurs vous proposent des campagnes. Vous acceptez ou refusez librement. Chaque kilomètre parcouru dans la zone est prouvé par GPS et génère votre revenu.",
             },
           ],
         }),

@@ -12,13 +12,13 @@ export const Route = createFileRoute("/securite")({
       {
         name: "description",
         content:
-          "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des advertisers et propriétaires de véhicules.",
+          "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des annonceurs et propriétaires de véhicules.",
       },
       { property: "og:title", content: "Sécurité — Comment MoveSpot protège vos données" },
       {
         property: "og:description",
         content:
-          "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des advertisers et propriétaires de véhicules.",
+          "MoveSpot applique RLS, signatures HMAC, chiffrement TLS et bonnes pratiques RGPD pour sécuriser les comptes, les paiements et les données des annonceurs et propriétaires de véhicules.",
       },
       { property: "og:url", content: "https://move-spot.com/securite" },
     ],

@@ -11,7 +11,7 @@ import { Eye, EyeOff } from "lucide-react";
 export const Route = createFileRoute("/provider/connexion")({
   head: () => ({
     meta: [
-      { title: "Connexion provider — MoveSpot" },
+      { title: "Connexion prestataire — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

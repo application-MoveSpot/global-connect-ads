@@ -9,7 +9,7 @@ export const Route = createFileRoute("/kit")({
       {
         name: "description",
         content:
-          "Kit média et ressources partners MoveSpot : présentation, tarifs, chiffres clés et contacts.",
+          "Kit média et ressources partenaires MoveSpot : présentation, tarifs, chiffres clés et contacts.",
       },
       { property: "og:title", content: "Kit média MoveSpot" },
     ],
@@ -77,7 +77,7 @@ function KitMedia() {
                 label: "reversé au propriétaire",
                 sub: "30 % commission plateforme",
               },
-              { value: "14 jours", label: "essai gratuit advertiser", sub: "sans CB requise" },
+              { value: "14 jours", label: "essai gratuit annonceur", sub: "sans CB requise" },
             ].map(({ value, label, sub }) => (
               <div key={label} className="rounded-xl border border-border p-4 flex flex-col gap-1">
                 <span className="text-2xl font-black">{value}</span>

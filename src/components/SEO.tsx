@@ -121,7 +121,7 @@ export const FAQ_ADVERTISERS_JSON_LD = {
       name: "Comment MoveSpot suit-il les campagnes publicitaires en temps réel ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Chaque véhicule partner envoie sa position GPS toutes les 30 secondes. MoveSpot calcule les kilomètres réellement parcourus dans votre zone, les impressions estimées par densité de population, et vous génère un rapport mensuel en PDF téléchargeable depuis votre espace annonceur. Zéro estimation approximative — 100 % de données certifiées GPS.",
+        text: "Chaque véhicule partenaire envoie sa position GPS toutes les 30 secondes. MoveSpot calcule les kilomètres réellement parcourus dans votre zone, les impressions estimées par densité de population, et vous génère un rapport mensuel en PDF téléchargeable depuis votre espace annonceur. Zéro estimation approximative — 100 % de données certifiées GPS.",
       },
     },
     {
@@ -145,7 +145,7 @@ export const FAQ_OWNERS_JSON_LD = {
       name: "Combien puis-je gagner par mois avec MoveSpot ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher advertiser de 25 €). Avec 15 jours actifs par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les revenus peuvent atteindre 49 €/jour.",
+        text: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (= 70 % du tarif plancher annonceur de 25 €). Avec 15 jours actifs par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les revenus peuvent atteindre 49 €/jour.",
       },
     },
     {

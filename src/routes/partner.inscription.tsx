@@ -16,7 +16,7 @@ import { Eye, EyeOff } from "lucide-react";
 export const Route = createFileRoute("/partner/inscription")({
   head: () => ({
     meta: [
-      { title: "Inscription partner — MoveSpot" },
+      { title: "Inscription partenaire — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -373,7 +373,7 @@ function PartnerSignupPage() {
                 maxLength={1500}
                 rows={5}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2"
-                placeholder="Votre secteur d'activité, vos clients cibles, pourquoi vous souhaitez devenir partner MoveSpot…"
+                placeholder="Votre secteur d'activité, vos clients cibles, pourquoi vous souhaitez devenir partenaire MoveSpot…"
               />
             </div>
             {error && <ErrorBox>{error}</ErrorBox>}

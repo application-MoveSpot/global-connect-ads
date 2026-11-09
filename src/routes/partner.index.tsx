@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/partner/")({
   head: () => ({
-    meta: [{ title: "Espace partner — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
+    meta: [{ title: "Espace partenaire — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: PartnerDashboard,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,

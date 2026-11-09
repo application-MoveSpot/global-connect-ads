@@ -22,16 +22,16 @@ type Kind = "driver" | "installer" | "both";
 export const Route = createFileRoute("/driver/inscription")({
   head: () => ({
     meta: [
-      { title: "Inscription driver / poseur — MoveSpot" },
+      { title: "Inscription chauffeur / poseur — MoveSpot" },
       {
         name: "description",
         content:
-          "Rejoignez le réseau MoveSpot en tant que driver ou poseur de covering et liez votre IBAN pour recevoir vos reversements.",
+          "Rejoignez le réseau MoveSpot en tant que chauffeur ou poseur de covering et liez votre IBAN pour recevoir vos reversements.",
       },
-      { property: "og:title", content: "Inscription driver / poseur — MoveSpot" },
+      { property: "og:title", content: "Inscription chauffeur / poseur — MoveSpot" },
       {
         property: "og:description",
-        content: "Créez votre compte provider MoveSpot et recevez vos paiements automatiquement.",
+        content: "Créez votre compte prestataire MoveSpot et recevez vos paiements automatiquement.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

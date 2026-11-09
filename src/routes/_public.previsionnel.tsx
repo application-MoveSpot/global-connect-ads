@@ -72,8 +72,8 @@ for (let i = 0; i < 5; i++) {
 
 const synthese: Array<[string, (string | number)[], (n: number) => string]> = [
   ["Structure juridique", structure as any, txt as any],
-  ["Véhicules partners en diffusion (moy.)", [15, 60, 180, 380, 650], (n) => n.toString()],
-  ["GMV — facturé aux advertisers", gmv, fmt],
+  ["Véhicules partenaires en diffusion (moy.)", [15, 60, 180, 380, 650], (n) => n.toString()],
+  ["GMV — facturé aux annonceurs", gmv, fmt],
   ["Reversé aux propriétaires (flux passant, hors CA)", reversement, fmt],
   ["Commission MoveSpot = CA réel", commission, fmt],
   ["Charges d'exploitation", chargesCash, fmt],
@@ -134,7 +134,7 @@ const compteResultat: Array<{
   bold?: boolean;
 }> = [
   { section: "VOLUME MARKETPLACE (information — hors CA grâce au mandat)" },
-  { row: ["GMV facturé aux advertisers", gmv, fmt] },
+  { row: ["GMV facturé aux annonceurs", gmv, fmt] },
   { row: ["Reversé aux propriétaires (flux passant)", reversement, fmt] },
   { section: "CHIFFRE D'AFFAIRES MOVESPOT" },
   { row: ["Commission (take rate 30 % × GMV) = CA", commission, fmt], bold: true },
@@ -357,7 +357,7 @@ function PrevisionnelPage() {
         <section className="mb-10 avoid-break">
           <h2 className="font-display text-2xl font-bold mb-4">Graphiques</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            <BarChart title="GMV (volume facturé aux advertisers)" data={gmv} color="#3b82f6" />
+            <BarChart title="GMV (volume facturé aux annonceurs)" data={gmv} color="#3b82f6" />
             <BarChart title="CA MoveSpot (commission)" data={commission} color="#10b981" />
             <BarChart title="Résultat net après fiscalité" data={resultatNet} color="#f59e0b" />
             <BarChart title="Trésorerie fin de période" data={tresoFin} color="#8b5cf6" />

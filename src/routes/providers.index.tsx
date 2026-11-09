@@ -25,7 +25,7 @@ export const Route = createFileRoute("/providers/")({
       {
         name: "description",
         content:
-          "Annuaire des providers d'impression covering véhicule sur MoveSpot. Demandez un devis en ligne.",
+          "Annuaire des prestataires d'impression covering véhicule sur MoveSpot. Demandez un devis en ligne.",
       },
     ],
     links: [
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/providers/")({
               "@type": "CollectionPage",
               "@id": "https://move-spot.com/providers#page",
               url: "https://move-spot.com/providers",
-              name: "Annuaire des providers covering véhicule — MoveSpot",
+              name: "Annuaire des prestataires covering véhicule — MoveSpot",
               description:
                 "Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.",
               isPartOf: { "@id": "https://move-spot.com/#website" },

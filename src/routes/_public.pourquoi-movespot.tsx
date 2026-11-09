@@ -40,7 +40,7 @@ const AVANTAGES = {
     {
       icon: "⚡",
       titre: "Lancement en 5 minutes",
-      desc: "Créez votre brief, choisissez vos zones et votre budget. Un véhicule partner est assigné immédiatement, pas besoin d'attendre un devis ou un responsable commercial.",
+      desc: "Créez votre brief, choisissez vos zones et votre budget. Un véhicule partenaire est assigné immédiatement, pas besoin d'attendre un devis ou un responsable commercial.",
       vs: "Les agences traditionnelles demandent 3 à 6 semaines entre la demande et le lancement effectif.",
     },
     {
@@ -58,13 +58,13 @@ const AVANTAGES = {
     {
       icon: "📍",
       titre: "Mesure GPS certifiée",
-      desc: "Chaque véhicule partner transmet sa position en temps réel. Vous voyez exactement quelles rues ont été parcourues, à quelle heure, et combien d'impressions ont été générées.",
+      desc: "Chaque véhicule partenaire transmet sa position en temps réel. Vous voyez exactement quelles rues ont été parcourues, à quelle heure, et combien d'impressions ont été générées.",
       vs: "Les billboards et la plupart des agences fournissent des estimations basées sur des études de trafic périmées.",
     },
     {
       icon: "🎯",
       titre: "Ciblage géographique précis",
-      desc: "Dessinez directement sur la carte les zones que vous voulez couvrir. Les véhicules partners dans ces zones reçoivent votre brief automatiquement.",
+      desc: "Dessinez directement sur la carte les zones que vous voulez couvrir. Les véhicules partenaires dans ces zones reçoivent votre brief automatiquement.",
       vs: "Wrapify (leader US) n'est pas disponible en France. Les acteurs locaux n'ont pas de ciblage cartographique en libre-service.",
     },
     {
@@ -189,7 +189,7 @@ const CONTENT = {
     comparatif_headers: ["MoveSpot", "Agence trad.", "Billboard", "Wrapify (US)"],
     cta_h2: "Prêt à lancer votre campagne ?",
     cta_desc:
-      "Rejoignez les advertisers qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
+      "Rejoignez les annonceurs qui ont choisi la publicité mobile sans agence. Compte gratuit, première campagne en 5 minutes.",
     cta_final_primary: "Créer mon compte gratuitement →",
     cta_final_secondary: "Voir les véhicules disponibles",
     footer_rights: "Tous droits réservés.",
