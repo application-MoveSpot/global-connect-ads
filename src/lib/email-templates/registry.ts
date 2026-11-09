@@ -24,6 +24,9 @@ import { template as enterpriseLeadConfirmTemplate } from "./enterprise-lead-con
 import { template as briefCreatedTemplate } from "./brief-created";
 import { template as briefCampaignConfirmedTemplate } from "./brief-campaign-confirmed";
 import { template as advertiserWelcomeTemplate } from "./advertiser-welcome";
+import { template as advertiserWelcomeDay3Template } from "./advertiser-welcome-day3";
+import { template as ownerWelcomeTemplate } from "./owner-welcome";
+import { template as ownerWelcomeDay2Template } from "./owner-welcome-day2";
 import { template as adminIntrusionAlertTemplate } from "./admin-intrusion-alert";
 import { template as briefDecisionTemplate } from "./brief-decision";
 import { template as campaignOwnerResponseTemplate } from "./campaign-owner-response";
@@ -67,6 +70,9 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "brief-created": briefCreatedTemplate,
   "brief-campaign-confirmed": briefCampaignConfirmedTemplate,
   "advertiser-welcome": advertiserWelcomeTemplate,
+  "advertiser-welcome-day3": advertiserWelcomeDay3Template,
+  "owner-welcome": ownerWelcomeTemplate,
+  "owner-welcome-day2": ownerWelcomeDay2Template,
   "admin-intrusion-alert": adminIntrusionAlertTemplate,
   "brief-decision": briefDecisionTemplate,
   "campaign-owner-response": campaignOwnerResponseTemplate,
