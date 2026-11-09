@@ -45,6 +45,7 @@ function InscriptionPage() {
     verified: false,
   });
   const [isParticulier, setIsParticulier] = useState(false);
+  const [euCountry, setEuCountry] = useState<"FR" | "BE" | "LU" | "DE">("FR");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -243,6 +244,7 @@ function InscriptionPage() {
         siret: isParticulier ? null : siret.siret || null,
         siret_denomination: isParticulier ? null : siret.denomination,
         siret_verified_at: isParticulier ? null : new Date().toISOString(),
+        country_code: euCountry,
       },
       { onConflict: "user_id" },
     );
@@ -390,6 +392,34 @@ function InscriptionPage() {
             <p className="text-sm text-muted-foreground mb-6">
               {t("owner.inscription.profile_desc")}
             </p>
+            {/* Pays cible */}
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-2">{t("owner.inscription.label_country")}</p>
+              <div className="flex flex-wrap gap-2">
+                {(["FR", "BE", "LU", "DE"] as const).map((code) => {
+                  const labels: Record<string, string> = {
+                    FR: "France",
+                    BE: "Belgique",
+                    LU: "Luxembourg",
+                    DE: "Allemagne",
+                  };
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={() => setEuCountry(code)}
+                      className={`flex-1 min-w-[7rem] rounded-xl border-2 py-2 text-sm font-medium transition-all ${
+                        euCountry === code
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card hover:bg-secondary"
+                      }`}
+                    >
+                      {labels[code]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             {/* Toggle particulier / professionnel */}
             <div className="flex rounded-lg border border-border overflow-hidden mb-6">
               <button
@@ -442,7 +472,13 @@ function InscriptionPage() {
               />
               {!isParticulier && (
                 <>
-                  <SiretField value={siret} onChange={(v) => { setSiret(v); if (v.verified) setError(""); }} />
+                  <SiretField
+                    value={siret}
+                    onChange={(v) => {
+                      setSiret(v);
+                      if (v.verified) setError("");
+                    }}
+                  />
                   {/* Nom commercial uniquement pour les sociétés (pas les EI) */}
                   {siret.verified && !siret.isIndividual && (
                     <Input

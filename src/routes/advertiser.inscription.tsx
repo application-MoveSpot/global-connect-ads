@@ -64,6 +64,7 @@ function AnnonceurInscription() {
     verified: false,
   });
   const [tvaIntracom, setTvaIntracom] = useState("");
+  const [euCountry, setEuCountry] = useState<"FR" | "BE" | "LU" | "DE">("FR");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -324,6 +325,7 @@ function AnnonceurInscription() {
       payload.company = null;
       payload.address = address;
     }
+    payload.country_code = euCountry;
     const { error } = await supabase.from("advertiser_profiles").insert(payload as never);
     if (error) {
       setError(error.message);
@@ -510,6 +512,36 @@ function AnnonceurInscription() {
               }
               onDismissFilled={() => setAiFilled([])}
             />
+
+            <div className="mb-4">
+              <p className="text-sm font-medium mb-2">
+                {t("advertiser.inscription.label_country")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {(["FR", "BE", "LU", "DE"] as const).map((code) => {
+                  const labels: Record<string, string> = {
+                    FR: "France",
+                    BE: "Belgique",
+                    LU: "Luxembourg",
+                    DE: "Allemagne",
+                  };
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={() => setEuCountry(code)}
+                      className={`flex-1 min-w-[7rem] rounded-xl border-2 py-2 text-sm font-medium transition-all ${
+                        euCountry === code
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-card hover:bg-secondary"
+                      }`}
+                    >
+                      {labels[code]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <form onSubmit={handleProfile} className="space-y-4">
               <Input
