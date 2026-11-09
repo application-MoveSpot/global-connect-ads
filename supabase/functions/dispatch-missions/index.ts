@@ -171,9 +171,10 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // ── 6. Envoyer les notifications push aux poseurs (via pgmq) ─────────────
+    // ── 6. Envoyer les notifications push aux poseurs (via pm_jobs) ───────────
+    const notifyErrors: string[] = [];
     for (const installer of availableInstallers.slice(0, 10)) {
-      await supabase.from('pm_jobs').insert({
+      const { error: notifyErr } = await supabase.from('pm_jobs').insert({
         campaign_request_id,
         job_type: 'notify_installer_dispatch',
         status: 'pending',
@@ -187,6 +188,25 @@ Deno.serve(async (req: Request) => {
           fee_cents,
         },
       });
+
+      if (notifyErr) {
+        console.error(
+          `pm_jobs insert error (notify_installer_dispatch) for user ${installer.user_id}:`,
+          notifyErr
+        );
+        notifyErrors.push(installer.user_id);
+      }
+    }
+
+    if (notifyErrors.length > 0) {
+      return Response.json(
+        {
+          error: 'notify_installer_dispatch job creation failed',
+          failed_user_ids: notifyErrors,
+          mission,
+        },
+        { status: 500 }
+      );
     }
 
     return Response.json({

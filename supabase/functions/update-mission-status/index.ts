@@ -139,7 +139,7 @@ Deno.serve(async (req: Request) => {
       }
 
       // Déclencher le virement Stripe si payee a un stripe_connect_account_id
-      await supabase.from('pm_jobs').insert({
+      const { error: pmJobErr } = await supabase.from('pm_jobs').insert({
         campaign_request_id: mission.campaign_request_id,
         job_type: 'payout_installer',
         status: 'pending',
@@ -151,6 +151,14 @@ Deno.serve(async (req: Request) => {
           payee_id:     mission.payee_id,
         },
       });
+
+      if (pmJobErr) {
+        console.error('pm_jobs insert error (payout_installer):', pmJobErr);
+        return Response.json(
+          { error: 'Payout job creation failed', details: pmJobErr.message },
+          { status: 500 }
+        );
+      }
 
       return Response.json({ mission: validated, payout_queued: true });
     }
