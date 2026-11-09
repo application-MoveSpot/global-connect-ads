@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -15,7 +15,6 @@ import {
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import type mapboxgl from "mapbox-gl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertTriangle,
@@ -27,12 +26,11 @@ import {
   Clock,
   Star,
   TrendingUp,
-  Locate,
 } from "lucide-react";
 import { PaymentModeSelector } from "@/components/advertiser/PaymentModeSelector";
 import { submitCampaignRating, getCampaignRating } from "@/lib/campaigns/rating.functions";
 import { toast } from "sonner";
-import { MapConsentGate } from "@/components/app/MapConsentGate";
+import { AdvertiserCampaignTracker } from "@/components/advertiser/AdvertiserCampaignTracker";
 import { useTranslation } from "react-i18next";
 import { RouteError } from "@/components/app/RouteError";
 import { AppHeader } from "@/components/app/AppHeader";
@@ -68,19 +66,17 @@ function SuiviPage() {
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [ratingDone, setRatingDone] = useState(false);
 
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const markerRef = useRef<mapboxgl.Marker | null>(null);
-  const mglRef = useRef<typeof mapboxgl | null>(null);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [live, setLive] = useState(false);
-
   const { data: tokenData } = useQuery({ queryKey: ["mapbox-token"], queryFn: () => fetchToken() });
   const { data: posData } = useQuery({
     queryKey: ["campaign-positions", campaignId],
     queryFn: () => fetchPositions({ data: { campaignRequestId: campaignId } }),
     refetchInterval: 30_000,
   });
+
+  // Positions utilisées uniquement pour les statistiques sous la carte ;
+  // la carte temps réel elle-même est encapsulée dans AdvertiserCampaignTracker.
+  const positions = (posData?.positions ?? []) as Position[];
+  const live = positions.length > 0;
   const { data: metrics } = useQuery({
     queryKey: ["campaign-metrics", campaignId],
     queryFn: () => fetchMetrics({ data: { campaignRequestId: campaignId } }),
@@ -139,157 +135,6 @@ function SuiviPage() {
   });
 
   const isIndividual = advertiserMeta?.account_type === "individual";
-
-  useEffect(() => {
-    if (posData?.positions) setPositions(posData.positions as Position[]);
-  }, [posData]);
-
-  // Realtime subscription
-  useEffect(() => {
-    const channel = supabase
-      .channel(`positions-${campaignId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "vehicle_positions",
-          filter: `campaign_request_id=eq.${campaignId}`,
-        },
-        (payload) => {
-          const r = payload.new as {
-            lat: number;
-            lng: number;
-            recorded_at: string;
-            speed: number | null;
-            heading: number | null;
-          };
-          setPositions((prev) => [
-            ...prev,
-            {
-              lat: r.lat,
-              lng: r.lng,
-              recorded_at: r.recorded_at,
-              speed: r.speed,
-              heading: r.heading,
-            },
-          ]);
-          setLive(true);
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [campaignId]);
-
-  // Init map — dynamic import defers the ~800 KB Mapbox bundle until this view mounts
-  useEffect(() => {
-    if (!tokenData?.token || !mapContainer.current || mapRef.current) return;
-    (async () => {
-      await import("mapbox-gl/dist/mapbox-gl.css");
-      const mgl = (await import("mapbox-gl")).default;
-      mglRef.current = mgl;
-      mgl.accessToken = tokenData.token;
-      mapRef.current = new mgl.Map({
-        container: mapContainer.current!,
-        style: "mapbox://styles/mapbox/streets-v12",
-        center: [2.3522, 48.8566],
-        zoom: 11,
-      });
-      mapRef.current.addControl(new mgl.NavigationControl(), "top-right");
-    })();
-  }, [tokenData]);
-
-  // Update marker + polyline
-  useEffect(() => {
-    const map = mapRef.current;
-    const mgl = mglRef.current;
-    if (!map || !mgl || positions.length === 0) return;
-
-    const last = positions[positions.length - 1];
-    const coords: [number, number][] = positions.map((p) => [p.lng, p.lat]);
-
-    const draw = () => {
-      if (!markerRef.current) {
-        markerRef.current = new mgl.Marker({ color: "#0f172a" })
-          .setLngLat([last.lng, last.lat])
-          .addTo(map);
-        map.flyTo({ center: [last.lng, last.lat], zoom: 14 });
-      } else {
-        markerRef.current.setLngLat([last.lng, last.lat]);
-      }
-
-      const src = map.getSource("trail") as mapboxgl.GeoJSONSource | undefined;
-      const geojson = {
-        type: "Feature" as const,
-        properties: {},
-        geometry: { type: "LineString" as const, coordinates: coords },
-      };
-      if (src) {
-        src.setData(geojson);
-      } else {
-        map.addSource("trail", { type: "geojson", data: geojson });
-        map.addLayer({
-          id: "trail-line",
-          type: "line",
-          source: "trail",
-          paint: { "line-color": "#3b82f6", "line-width": 3, "line-opacity": 0.7 },
-        });
-      }
-
-      // Heatmap layer for position density
-      const heatGeojson = {
-        type: "FeatureCollection" as const,
-        features: positions.map((p) => ({
-          type: "Feature" as const,
-          properties: {},
-          geometry: { type: "Point" as const, coordinates: [p.lng, p.lat] },
-        })),
-      };
-      const heatSrc = map.getSource("heat-points") as mapboxgl.GeoJSONSource | undefined;
-      if (heatSrc) {
-        heatSrc.setData(heatGeojson);
-      } else if (positions.length >= 5) {
-        map.addSource("heat-points", { type: "geojson", data: heatGeojson });
-        map.addLayer(
-          {
-            id: "heat-layer",
-            type: "heatmap",
-            source: "heat-points",
-            maxzoom: 15,
-            paint: {
-              "heatmap-weight": 0.4,
-              "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 1, 15, 3],
-              "heatmap-color": [
-                "interpolate",
-                ["linear"],
-                ["heatmap-density"],
-                0,
-                "rgba(33,102,172,0)",
-                0.2,
-                "rgb(103,169,207)",
-                0.4,
-                "rgb(209,229,240)",
-                0.6,
-                "rgb(253,219,199)",
-                0.8,
-                "rgb(239,138,98)",
-                1,
-                "rgb(178,24,43)",
-              ],
-              "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 0, 2, 15, 20],
-              "heatmap-opacity": 0.5,
-            },
-          },
-          "trail-line",
-        );
-      }
-    };
-
-    if (map.isStyleLoaded()) draw();
-    else map.once("load", draw);
-  }, [positions]);
 
   const last = positions[positions.length - 1];
 
@@ -593,40 +438,10 @@ function SuiviPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <MapConsentGate className="h-[500px]">
-              <div className="relative h-[500px] w-full rounded-md border overflow-hidden">
-                <div ref={mapContainer} className="h-full w-full" />
-                {positions.length === 0 && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-muted/85 backdrop-blur-sm">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-md">
-                      <Locate className="h-7 w-7 text-muted-foreground" />
-                    </div>
-                    <div className="text-center px-6">
-                      <p className="font-semibold text-foreground text-sm">
-                        {campaign?.payment_status !== "paid"
-                          ? t("advertiser.suivi.map_empty_unpaid")
-                          : campaign.start_date && new Date(campaign.start_date) > new Date()
-                            ? t("advertiser.suivi.map_empty_paid_future", {
-                                date: new Date(campaign.start_date).toLocaleDateString(dateLocale, {
-                                  day: "numeric",
-                                  month: "long",
-                                }),
-                              })
-                            : t("advertiser.suivi.map_empty_waiting")}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {t("advertiser.suivi.map_empty_waiting_sub")}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </MapConsentGate>
-            {positions.length >= 5 && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {t("advertiser.suivi.heatmap_note")}
-              </p>
-            )}
+            <AdvertiserCampaignTracker
+              campaignId={campaignId}
+              mapboxToken={tokenData?.token ?? ""}
+            />
             {isIndividual ? (
               <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 <Stat
