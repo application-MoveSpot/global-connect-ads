@@ -31,6 +31,7 @@ import { OnboardingModal } from "@/components/advertiser/OnboardingModal";
 import { getMyReferralStats } from "@/lib/referral/advertiser-referral.functions";
 import { firePixelEvent } from "@/lib/analytics/pixels";
 import { updateAdvertiserRegion } from "@/lib/advertiser/advertiser.functions";
+import { AdvertiserReports } from "@/components/advertiser/AdvertiserReports";
 
 type Req = {
   id: string;
@@ -581,6 +582,10 @@ function AnnonceurDashboard() {
               <AnalyticsDashboard requests={requests} />
             </section>
           )}
+
+        <section className="mt-12">
+          <AdvertiserReports />
+        </section>
 
         <section className="mt-12">
           <h2 className="font-display text-2xl font-bold mb-2">{t("advertiser.map_title")}</h2>
