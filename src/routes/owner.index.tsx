@@ -431,6 +431,12 @@ function DashboardPage() {
               Portefeuille
             </Link>
             <Link
+              to="/owner/parrainage"
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-violet-500/10 text-violet-700 dark:text-violet-400 hover:bg-violet-500/20 transition"
+            >
+              {t("owner.nav_parrainage")}
+            </Link>
+            <Link
               to="/owner/messages"
               className="px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-foreground hover:bg-secondary/80 transition"
             >

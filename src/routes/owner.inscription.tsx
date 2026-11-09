@@ -46,6 +46,7 @@ function InscriptionPage() {
   });
   const [isParticulier, setIsParticulier] = useState(false);
   const [euCountry, setEuCountry] = useState<"FR" | "BE" | "LU" | "DE">("FR");
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
@@ -233,7 +234,8 @@ function InscriptionPage() {
       setLoading(false);
       return;
     }
-    const { error } = await supabase.from("owner_profiles").upsert(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from("owner_profiles") as any).upsert(
       {
         user_id: session.user.id,
         full_name: fullName,
@@ -249,9 +251,27 @@ function InscriptionPage() {
       { onConflict: "user_id" },
     );
     if (error) {
-      setError(error.message);
+      setError((error as { message?: string }).message ?? "Erreur");
       setLoading(false);
       return;
+    }
+    // Si un code de parrainage a été saisi, créer l'entrée dans referrals
+    if (referralCode.trim()) {
+      const code = referralCode.trim().toUpperCase();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: referrer } = await (supabase.from("owner_profiles") as any)
+        .select("user_id")
+        .eq("referral_code", code)
+        .neq("user_id", session.user.id)
+        .maybeSingle();
+      if (referrer) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).from("referrals").insert({
+          referrer_id: (referrer as { user_id: string }).user_id,
+          referee_id: session.user.id,
+          status: "pending",
+        });
+      }
     }
     void track("signup_completed", { role: "owner" });
     navigate({ to: "/owner/vehicules/nouveau" });
@@ -508,6 +528,25 @@ function InscriptionPage() {
                   maxLength={300}
                   className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("owner.inscription.referral_code_label")}{" "}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    ({t("common.optional")})
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  placeholder="MS-XXXXX"
+                  maxLength={8}
+                  className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-ring uppercase"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("owner.inscription.referral_code_hint")}
+                </p>
               </div>
               {error && <Err msg={error} />}
               <button
