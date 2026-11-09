@@ -1,16 +1,26 @@
 User-agent: *
 Allow: /
 
+# ── Espaces applicatifs privés (dashboard connecté) ──────────────────────────
 Disallow: /admin
 Disallow: /advertiser
 Disallow: /owner
 Disallow: /driver
 Disallow: /provider
-Disallow: /providers
 Disallow: /partner
+Disallow: /commercial
+
+# ── Auth & gestion de compte ──────────────────────────────────────────────────
 Disallow: /auth
 Disallow: /reset-password
+Disallow: /parametres
 Disallow: /unsubscribe
+
+# ── Routes techniques internes ────────────────────────────────────────────────
+Disallow: /api
+Disallow: /mcp
+Disallow: /email
 Disallow: /lovable/
 
+# ── Sitemap ───────────────────────────────────────────────────────────────────
 Sitemap: https://move-spot.com/sitemap.xml
