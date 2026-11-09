@@ -266,6 +266,96 @@ export function useSubmitInstallation() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Admin : missions en attente de modération
+// ─────────────────────────────────────────────────────────────────────────────
+export interface AdminPendingInstallation {
+  id: string;
+  mission_type: "pose" | "depose";
+  status: string;
+  campaign_request_id: string;
+  payee_user_id: string | null;
+  provider_notes: string | null;
+  validation_submitted_at: string | null;
+  payee_profiles: {
+    full_name: string | null;
+    phone: string | null;
+    city: string | null;
+  } | null;
+  mission_proofs: Array<{
+    id: string;
+    proof_type: string;
+    storage_url: string | null;
+    uploaded_at: string;
+  }>;
+}
+
+export function useAdminPendingInstallations() {
+  return useQuery({
+    queryKey: ["missions", "admin", "pending_validation"],
+    queryFn: async (): Promise<AdminPendingInstallation[]> => {
+      const { data, error } = await db
+        .from("installation_missions")
+        .select(
+          `
+          *,
+          payee_profiles!payee_id ( full_name, phone, city ),
+          mission_proofs!mission_id ( id, proof_type, storage_url, uploaded_at )
+        `,
+        )
+        .eq("status", "pending_validation")
+        .order("validation_submitted_at", { ascending: true });
+
+      if (error) throw error;
+      return (data ?? []) as unknown as AdminPendingInstallation[];
+    },
+  });
+}
+
+export function useApproveInstallation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { ok: boolean; mission_id: string },
+    Error,
+    { missionId: string; adminNotes?: string }
+  >({
+    mutationFn: async ({ missionId, adminNotes }) => {
+      const { data, error } = await supabase.functions.invoke("approve-installation", {
+        body: { mission_id: missionId, admin_notes: adminNotes },
+      });
+      if (error) throw new Error(error.message);
+      return data!;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["missions", "admin", "pending_validation"] });
+      queryClient.invalidateQueries({ queryKey: ["missions"] });
+    },
+  });
+}
+
+export function useRejectInstallation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { ok: boolean; mission_id: string },
+    Error,
+    { missionId: string; rejectionReason: string }
+  >({
+    mutationFn: async ({ missionId, rejectionReason }) => {
+      const { data, error } = await supabase.functions.invoke("reject-installation", {
+        body: { mission_id: missionId, rejection_reason: rejectionReason },
+      });
+      if (error) throw new Error(error.message);
+      return data!;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["missions", "admin", "pending_validation"] });
+      queryClient.invalidateQueries({ queryKey: ["missions"] });
+    },
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Uploader une preuve photo et créer l'entrée en base
 // ─────────────────────────────────────────────────────────────────────────────
 export function useUploadMissionProof() {
