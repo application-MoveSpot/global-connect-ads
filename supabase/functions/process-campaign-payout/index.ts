@@ -246,6 +246,79 @@ Deno.serve(async (req: Request) => {
       .eq("id", earning.id);
   }
 
+  // ── 8b. Bonus parrainage (premier paiement du filleul) ───────────────────
+  const newBalanceHt = (wallet.balance_ht ?? 0) + netEur;
+  const { data: referral } = await admin
+    .from("referrals")
+    .select("id, referrer_id")
+    .eq("referee_id", owner_user_id)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (referral) {
+    const { count: priorEarnings } = await admin
+      .from("wallet_transactions")
+      .select("id", { count: "exact", head: true })
+      .eq("wallet_id", wallet.id)
+      .eq("type", "earnings")
+      .eq("status", "completed")
+      .neq("reference_id", campaign_id);
+
+    if ((priorEarnings ?? 0) === 0) {
+      const BONUS_EUR = 15;
+
+      // Wallet du parrain
+      let { data: referrerWallet } = await admin
+        .from("owner_wallets")
+        .select("id, balance_ht")
+        .eq("owner_id", referral.referrer_id)
+        .maybeSingle();
+
+      if (!referrerWallet) {
+        const { data: newRefWallet } = await admin
+          .from("owner_wallets")
+          .insert({ owner_id: referral.referrer_id, balance_ht: 0 })
+          .select("id, balance_ht")
+          .single();
+        referrerWallet = newRefWallet;
+      }
+
+      if (referrerWallet) {
+        await admin.from("wallet_transactions").insert({
+          wallet_id: referrerWallet.id,
+          amount: BONUS_EUR,
+          type: "referral_bonus",
+          status: "completed",
+          reference_id: referral.id,
+          description: "Bonus parrainage — filleul première campagne",
+        });
+        await admin
+          .from("owner_wallets")
+          .update({ balance_ht: (referrerWallet.balance_ht ?? 0) + BONUS_EUR })
+          .eq("id", referrerWallet.id);
+      }
+
+      // Bonus filleul
+      await admin.from("wallet_transactions").insert({
+        wallet_id: wallet.id,
+        amount: BONUS_EUR,
+        type: "referral_bonus",
+        status: "completed",
+        reference_id: referral.id,
+        description: "Bonus parrainage — première campagne",
+      });
+      await admin
+        .from("owner_wallets")
+        .update({ balance_ht: newBalanceHt + BONUS_EUR })
+        .eq("id", wallet.id);
+
+      await admin
+        .from("referrals")
+        .update({ status: "completed" })
+        .eq("id", referral.id);
+    }
+  }
+
   // ── 9. Mettre à jour payout_status sur campaign_requests ─────────────────
   await admin
     .from("campaign_requests")
