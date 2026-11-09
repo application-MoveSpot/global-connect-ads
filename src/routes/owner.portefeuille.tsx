@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/app/AppHeader";
 import { OwnerWallet } from "@/components/owner/OwnerWallet";
 import { Wallet } from "lucide-react";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/owner/portefeuille")({
@@ -22,14 +23,16 @@ export const Route = createFileRoute("/owner/portefeuille")({
 
 function PortefeuillePage() {
   const { connect } = useSearch({ from: "/owner/portefeuille" });
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (connect === "success") {
+      queryClient.invalidateQueries({ queryKey: ["owner-wallet"] });
       toast.success("Compte Stripe Connect configuré avec succès !");
     } else if (connect === "refresh") {
       toast.info("Lien expiré. Veuillez recommencer la configuration Stripe.");
     }
-  }, [connect]);
+  }, [connect, queryClient]);
 
   return (
     <div className="min-h-screen bg-background">
