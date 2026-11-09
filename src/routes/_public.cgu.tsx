@@ -31,7 +31,7 @@ function CGU() {
     <LegalPage
       eyebrow={t("cgu.eyebrow")}
       title={t("cgu.title")}
-      updatedAt="24 août 2026"
+      updatedAt="9 novembre 2026"
       showHeader={false}
     >
       <LegalSection title={t("cgu.s1")}>
@@ -179,6 +179,61 @@ function CGU() {
         </ul>
       </LegalSection>
 
+      <LegalSection title={t("cgu.s11bis")}>
+        <p>
+          Le propriétaire du véhicule s'engage à présenter son véhicule dans un état compatible avec
+          la pose d'un support publicitaire vinyle le jour de l'intervention planifiée. À ce titre,
+          il s'engage expressément à :
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            présenter son véhicule <strong>parfaitement lavé à l'extérieur</strong> le jour de la
+            pose (carrosserie, bas de caisse, pavillon) ;
+          </li>
+          <li>
+            signaler <strong>avant la planification de la pose</strong> tout défaut de carrosserie
+            connu susceptible d'empêcher l'adhésion du vinyle (rouille, bosses profondes, peinture
+            écaillée, réparations en cours) ;
+          </li>
+          <li>
+            être présent au lieu et à l'heure convenus avec le poseur certifié, ou désigner un
+            représentant habilité à remettre le véhicule ;
+          </li>
+          <li>
+            maintenir le véhicule en état de marche et disponible pendant toute la durée de la
+            campagne, sauf force majeure dûment déclarée.
+          </li>
+        </ul>
+
+        <p>
+          <strong>Pénalité financière automatique.</strong> Si un poseur certifié MoveSpot déclare
+          une pose impossible en sélectionnant comme cause « Véhicule trop sale », « Carrosserie
+          endommagée / Surface incompatible » ou « Véhicule absent au rendez-vous », cette
+          déclaration entraîne automatiquement le prélèvement de{" "}
+          <strong>frais de traitement et de dérangement d'un montant de 30 € TTC</strong> sur le
+          portefeuille prépayé du propriétaire ou, à défaut de solde suffisant, sur sa prochaine
+          campagne. Ces frais couvrent les coûts administratifs et logistiques supportés par
+          MoveSpot et par le poseur certifié.
+        </p>
+
+        <p>
+          <strong>Suspension de campagne sans indemnité.</strong> Le propriétaire est
+          automatiquement suspendu de la campagne concernée, sans perception d'aucune commission ni
+          indemnité pour cette campagne, conformément à l'article 15 bis des présentes CGU.
+        </p>
+
+        <p>
+          <strong>Procédure de contestation.</strong> Le propriétaire dispose d'un délai de{" "}
+          <strong>72 heures</strong> à compter de la notification par email pour contester la
+          déclaration d'impossibilité en adressant ses éléments de preuve à{" "}
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
+          </a>
+          . MoveSpot examine la contestation dans les 5 jours ouvrés et notifie sa décision. En
+          l'absence de contestation dans ce délai, la pénalité est définitivement appliquée.
+        </p>
+      </LegalSection>
+
       <LegalSection title={t("cgu.s12")}>
         <p>
           Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les
@@ -207,8 +262,8 @@ function CGU() {
         </p>
         <p>
           Ce montant est un devis indicatif calculé par la Plateforme ; il est présenté à
-          l'annonceur pour validation avant tout paiement et ne constitue pas une garantie de
-          volume d'impressions.
+          l'annonceur pour validation avant tout paiement et ne constitue pas une garantie de volume
+          d'impressions.
         </p>
       </LegalSection>
 
@@ -282,8 +337,8 @@ function CGU() {
           véhicule alternatif.
         </p>
         <p>
-          S'agissant du poseur certifié, les frais de déplacement engagés pour se rendre sur le
-          lieu de pose sont supportés exclusivement par le poseur en sa qualité de professionnel
+          S'agissant du poseur certifié, les frais de déplacement engagés pour se rendre sur le lieu
+          de pose sont supportés exclusivement par le poseur en sa qualité de professionnel
           indépendant agissant pour son propre compte. MoveSpot n'étant qu'un intermédiaire de mise
           en relation, elle ne saurait être tenue au remboursement de ces frais, l'incompatibilité
           du véhicule relevant de la relation directe entre le poseur et le propriétaire du
@@ -294,8 +349,8 @@ function CGU() {
           Le présent article 15 bis constitue le régime spécial applicable à l'impossibilité
           technique de pose et prévaut sur les dispositions générales d'annulation et de
           remboursement des Conditions Générales de Vente, notamment sur les règles relatives au
-          délai de 72 heures, dès lors que l'impossibilité est dûment signalée et justifiée dans
-          les conditions ci-dessus.
+          délai de 72 heures, dès lors que l'impossibilité est dûment signalée et justifiée dans les
+          conditions ci-dessus.
         </p>
         <p>
           MoveSpot ne saurait être tenue responsable des conséquences d'une impossibilité technique
