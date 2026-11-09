@@ -4109,6 +4109,7 @@
   },
   "compliance": {
     "market_label": "Target market",
+    "euro_zone_note": "MoveSpot operates exclusively in the Euro zone. Payment compliance and profile validation are handled securely by Stripe.",
     "us_city_label": "Americas city / market",
     "us_city_placeholder": "Select a city…",
     "content_category_label": "Content category",
@@ -5072,6 +5073,9 @@
       "label_address": "Address",
       "label_city": "City",
       "label_company": "Company name",
+      "label_tva_intracom": "EU VAT number",
+      "label_tva_intracom_hint": "(optional — outside France)",
+      "tva_intracom_note": "If your company is established in an EU country other than France and has a valid intra-EU VAT number, enter it here to benefit from the reverse charge mechanism (0% VAT on your MoveSpot invoices).",
       "label_email": "Email",
       "label_full_name": "Full name",
       "label_password": "Password",

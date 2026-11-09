@@ -63,6 +63,7 @@ function AnnonceurInscription() {
     denomination: null,
     verified: false,
   });
+  const [tvaIntracom, setTvaIntracom] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -318,6 +319,7 @@ function AnnonceurInscription() {
       payload.siret = siret.siret;
       payload.siret_denomination = siret.denomination;
       payload.siret_verified_at = new Date().toISOString();
+      payload.tva_intracom = tvaIntracom.trim() || null;
     } else {
       payload.company = null;
       payload.address = address;
@@ -519,12 +521,38 @@ function AnnonceurInscription() {
 
               {accountType === "business" ? (
                 <>
-                  <SiretField value={siret} onChange={(v) => { setSiret(v); if (v.verified) setError(""); }} />
+                  <SiretField
+                    value={siret}
+                    onChange={(v) => {
+                      setSiret(v);
+                      if (v.verified) setError("");
+                    }}
+                  />
                   <Input
                     label={t("advertiser.inscription.label_company")}
                     value={company}
                     onChange={setCompany}
                   />
+                  <div>
+                    <label htmlFor="tva_intracom" className="block text-sm font-medium mb-1.5">
+                      {t("advertiser.inscription.label_tva_intracom")}
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        {t("advertiser.inscription.label_tva_intracom_hint")}
+                      </span>
+                    </label>
+                    <input
+                      id="tva_intracom"
+                      type="text"
+                      value={tvaIntracom}
+                      onChange={(e) => setTvaIntracom(e.target.value.toUpperCase())}
+                      placeholder="Ex: BE0411905847, LU12345678, DE123456789"
+                      maxLength={20}
+                      className="w-full rounded-lg bg-input border border-border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("advertiser.inscription.tva_intracom_note")}
+                    </p>
+                  </div>
                 </>
               ) : (
                 <>

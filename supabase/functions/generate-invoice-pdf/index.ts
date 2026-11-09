@@ -32,7 +32,8 @@ const MOVESPOT = {
   tva:     "FR XX XXX XXX XXX",           // À remplacer en production
   email:   "facturation@movespot.fr",
 };
-const TVA_RATE = 0.20;
+const TVA_RATE_FR = 0.20;
+const TVA_RATE_REVERSE_CHARGE = 0.00;
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -103,7 +104,7 @@ Deno.serve(async (req: Request) => {
   // ── Charger le profil de l'annonceur ─────────────────────────────────────
   const { data: profile } = await admin
     .from("advertiser_profiles")
-    .select("full_name, company, siret, address, phone")
+    .select("full_name, company, siret, address, phone, tva_intracom")
     .eq("user_id", advertiser_id)
     .maybeSingle();
 
@@ -119,8 +120,15 @@ Deno.serve(async (req: Request) => {
   const invoiceDate   = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
 
   // ── Calculs financiers ────────────────────────────────────────────────────
+  // Reverse charge (autoliquidation) applies when advertiser has a non-FR EU VAT number
+  const tvaIntracom = (profile as { tva_intracom?: string } | null)?.tva_intracom ?? null;
+  const isReverseCharge = !!(tvaIntracom && !tvaIntracom.toUpperCase().startsWith("FR"));
+  const TVA_RATE = isReverseCharge ? TVA_RATE_REVERSE_CHARGE : TVA_RATE_FR;
+
   const totalTTC  = campaign.total_price ?? 0;
-  const totalHT   = parseFloat((totalTTC / (1 + TVA_RATE)).toFixed(2));
+  const totalHT   = isReverseCharge
+    ? totalTTC
+    : parseFloat((totalTTC / (1 + TVA_RATE)).toFixed(2));
   const vatAmount = parseFloat((totalTTC - totalHT).toFixed(2));
 
   const fmtDate = (d: string | null) =>
@@ -189,7 +197,8 @@ Deno.serve(async (req: Request) => {
   y -= 13;
 
   drawRow(`TVA : ${MOVESPOT.tva}`, col1, y);
-  if (advertiserEmail) drawRow(advertiserEmail, col2, y);
+  if (tvaIntracom) drawRow(`N° TVA : ${tvaIntracom}`, col2, y);
+  else if (advertiserEmail) drawRow(advertiserEmail, col2, y);
   y -= 13;
 
   drawRow(MOVESPOT.email, col1, y);
@@ -235,9 +244,12 @@ Deno.serve(async (req: Request) => {
   });
   y -= 18;
 
+  const tvaLabel = isReverseCharge
+    ? "TVA 0 % (Autoliquidation)"
+    : "TVA 20 %";
   const finRows: [string, string][] = [
     ["Montant HT",  `${totalHT.toFixed(2).replace(".", ",")} €`],
-    ["TVA 20 %",    `${vatAmount.toFixed(2).replace(".", ",")} €`],
+    [tvaLabel,      `${vatAmount.toFixed(2).replace(".", ",")} €`],
   ];
 
   for (const [label, value] of finRows) {
@@ -269,8 +281,11 @@ Deno.serve(async (req: Request) => {
   page.drawLine({ start: { x: col1, y }, end: { x: width - 40, y }, thickness: 0.5, color: colorLineSep });
   y -= 16;
 
+  const mentionTva = isReverseCharge
+    ? "Autoliquidation — Art. 283-2 du CGI / Dir. 2006/112/CE art. 196 — TVA due par le preneur."
+    : "TVA non récupérable — Article 293B du CGI si applicable.";
   const mentions = [
-    "TVA non récupérable — Article 293B du CGI si applicable.",
+    mentionTva,
     "Conformément à la loi n° 92-1442 du 31 décembre 1992, le paiement a été effectué avant",
     "la réalisation de la prestation. En cas de litige : facturation@movespot.fr",
     `Facture générée automatiquement le ${invoiceDate}.`,

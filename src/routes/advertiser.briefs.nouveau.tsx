@@ -8,17 +8,11 @@ import { captureError } from "@/lib/sentry";
 import { LogoLink } from "@/components/app/LogoLink";
 import { findForbiddenKeyword, findForbiddenMatch } from "@/lib/campaigns/forbidden-keywords";
 import { detectContact } from "@/lib/moderation/contact-detection";
-import { US_CITIES, findUsCity } from "@/lib/compliance/us-markets";
-import { EU_CITIES, findEuCity, getEuCitiesByCountry } from "@/lib/compliance/eu-markets";
-import { AF_CITIES, findAfCity, getAfCitiesByCountry } from "@/lib/compliance/africa-markets";
-import { AS_CITIES, findAsCity, getAsCitiesByCountry } from "@/lib/compliance/asia-markets";
+import { EU_CITIES, findEuCity } from "@/lib/compliance/eu-markets";
 import {
   CONTENT_CATEGORIES,
-  checkContentCompliance,
   checkFrContentCompliance,
   checkEuContentCompliance,
-  checkAfContentCompliance,
-  checkAsContentCompliance,
 } from "@/lib/compliance/content-restrictions";
 import {
   ZoneSelector,
@@ -48,6 +42,14 @@ import { AdvertiserBudgetEstimate } from "@/components/advertiser/AdvertiserBudg
 import { CreativeStudio } from "@/components/advertiser/CreativeStudio";
 import { BriefCopilot } from "@/components/advertiser/BriefCopilot";
 import { useTranslation } from "react-i18next";
+
+type EuCountryCode = "FR" | "BE" | "LU" | "DE";
+const SUPPORTED_EU_COUNTRIES: { code: EuCountryCode; flag: string; label: string }[] = [
+  { code: "FR", flag: "🇫🇷", label: "France" },
+  { code: "BE", flag: "🇧🇪", label: "Belgique" },
+  { code: "LU", flag: "🇱🇺", label: "Luxembourg" },
+  { code: "DE", flag: "🇩🇪", label: "Allemagne" },
+];
 
 export const Route = createFileRoute("/advertiser/briefs/nouveau")({
   head: () => ({
@@ -225,11 +227,8 @@ function NewBriefPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [autreVehicleNote, setAutreVehicleNote] = useState("");
   const [adFormat, setAdFormat] = useState<AdFormat | null>(null);
-  const [market, setMarket] = useState<"EU" | "US" | "AF" | "AS">("EU");
+  const [euCountry, setEuCountry] = useState<EuCountryCode>("FR");
   const [euCity, setEuCity] = useState("");
-  const [afCity, setAfCity] = useState("");
-  const [asCity, setAsCity] = useState("");
-  const [usCity, setUsCity] = useState("");
   const [contentCategory, setContentCategory] = useState("");
   const [previewVehicleId, setPreviewVehicleId] = useState<string | null>(null);
   const [previewSearching, setPreviewSearching] = useState(false);
@@ -285,13 +284,12 @@ function NewBriefPage() {
       if (d.autreVehicleNote) setAutreVehicleNote(d.autreVehicleNote as string);
       if (d.adFormat) setAdFormat(d.adFormat as typeof adFormat);
       if (d.brandColor) setBrandColor(d.brandColor as string);
-      const savedMarket = d.market === "FR" ? "EU" : d.market;
-      if (savedMarket) setMarket(savedMarket as "EU" | "US" | "AF" | "AS");
-      if (d.usCity) setUsCity(d.usCity as string);
+      // Market is now always EU — restore country sub-selection
+      if (d.euCountry && SUPPORTED_EU_COUNTRIES.some((c) => c.code === d.euCountry)) {
+        setEuCountry(d.euCountry as EuCountryCode);
+      }
       if (d.frCity) setEuCity(d.frCity as string);
       else if (d.euCity) setEuCity(d.euCity as string);
-      if (d.afCity) setAfCity(d.afCity as string);
-      if (d.asCity) setAsCity(d.asCity as string);
       if (d.contentCategory) setContentCategory(d.contentCategory as string);
       setDraftRestored(true);
     } catch {
@@ -328,11 +326,8 @@ function NewBriefPage() {
           autreVehicleNote,
           adFormat,
           brandColor,
-          market,
-          usCity,
+          euCountry,
           euCity,
-          afCity,
-          asCity,
           contentCategory,
         }),
       );
@@ -373,28 +368,7 @@ function NewBriefPage() {
       setUserId(session.user.id);
       const type = (prof as { account_type?: string }).account_type ?? "business";
       setAccountType(type);
-      // Pre-select market from profile only when no draft is already loaded
-      const regionMap: Record<string, "EU" | "US" | "AF" | "AS"> = {
-        afrique: "AF",
-        asie: "AS",
-        amerique: "US",
-        europe: "EU",
-      };
-      const profileRegion = (prof as { target_region?: string | null }).target_region;
-      if (profileRegion && regionMap[profileRegion]) {
-        // Only skip if the draft has meaningful content AND already has a market saved
-        try {
-          const raw = localStorage.getItem("movespot_brief_draft_v1");
-          const draft = raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
-          const draftHasMarket = Boolean(draft?.market);
-          const draftHasContent = Boolean(
-            draft?.title || draft?.description || draft?.budget || draft?.audience,
-          );
-          if (!(draftHasMarket && draftHasContent)) setMarket(regionMap[profileRegion]);
-        } catch {
-          setMarket(regionMap[profileRegion]);
-        }
-      }
+      // Market is always Zone Euro — no region pre-select needed
     })();
   }, [navigate]);
 
@@ -807,87 +781,22 @@ function NewBriefPage() {
       return;
     }
 
-    if (market === "US") {
-      if (!usCity) {
-        setError("Sélectionnez une ville pour le marché Amériques.");
-        return;
-      }
-      if (!contentCategory) {
-        setError("La catégorie de contenu est obligatoire pour le marché Amériques.");
-        return;
-      }
-      const compliance = checkContentCompliance(contentCategory, usCity);
-      if (compliance.status === "blocked") {
-        setError(compliance.reason);
-        return;
-      }
-      const cityInfo = findUsCity(usCity);
-      if (cityInfo?.status === "restricted") {
-        setError(
-          `La ville sélectionnée (${cityInfo.name}) est classée « accès restreint » pour la publicité mobile. ` +
-            `Contactez MoveSpot avant de soumettre ce brief : une vérification juridique est requise.`,
-        );
-        return;
-      }
+    // Zone Euro — validation ville + catégorie de contenu
+    if (!euCity) {
+      setError("Sélectionnez une ville pour votre marché cible.");
+      return;
     }
-
-    if (market === "EU") {
-      if (!euCity) {
-        setError("Sélectionnez une ville européenne pour ce brief.");
-        return;
-      }
-      if (!contentCategory) {
-        setError("La catégorie de contenu est obligatoire.");
-        return;
-      }
-      const euCityData = findEuCity(euCity);
-      const euCompliance = euCityData?.isFrance
-        ? checkFrContentCompliance(contentCategory)
-        : checkEuContentCompliance(contentCategory);
-      if (euCompliance.status === "blocked") {
-        setError(euCompliance.reason);
-        return;
-      }
+    if (!contentCategory) {
+      setError("La catégorie de contenu est obligatoire.");
+      return;
     }
-
-    if (market === "AF") {
-      if (!afCity) {
-        setError("Sélectionnez une ville africaine pour ce brief.");
-        return;
-      }
-      if (!contentCategory) {
-        setError("La catégorie de contenu est obligatoire.");
-        return;
-      }
-      const afCityData = AF_CITIES.find((c) => c.id === afCity);
-      const afCompliance = checkAfContentCompliance(contentCategory, {
-        blocked: afCityData?.alcoholBlocked,
-        restricted: afCityData?.alcoholRestricted,
-      });
-      if (afCompliance.status === "blocked") {
-        setError(afCompliance.reason);
-        return;
-      }
-    }
-
-    if (market === "AS") {
-      if (!asCity) {
-        setError("Sélectionnez une ville asiatique pour ce brief.");
-        return;
-      }
-      if (!contentCategory) {
-        setError("La catégorie de contenu est obligatoire.");
-        return;
-      }
-      const asCityData = AS_CITIES.find((c) => c.id === asCity);
-      const asCompliance = checkAsContentCompliance(contentCategory, {
-        blocked: asCityData?.alcoholBlocked,
-        restricted: asCityData?.alcoholRestricted,
-      });
-      if (asCompliance.status === "blocked") {
-        setError(asCompliance.reason);
-        return;
-      }
+    const euCityData = findEuCity(euCity);
+    const euCompliance = euCityData?.isFrance
+      ? checkFrContentCompliance(contentCategory)
+      : checkEuContentCompliance(contentCategory);
+    if (euCompliance.status === "blocked") {
+      setError(euCompliance.reason);
+      return;
     }
 
     if (!userId) {
@@ -1176,487 +1085,155 @@ function NewBriefPage() {
             }}
           />
 
-          {/* ── Marché cible ───────────────────────────────────────────── */}
+          {/* ── Marché cible (Zone Euro) ─────────────────────────────── */}
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
             <div>
               <p className="text-sm font-semibold mb-2">{t("compliance.market_label")}</p>
-              <div className="flex gap-2">
-                {(["EU", "AF", "AS", "US"] as const).map((m) => (
+              <div className="flex flex-wrap gap-2">
+                {SUPPORTED_EU_COUNTRIES.map((country) => (
                   <button
-                    key={m}
+                    key={country.code}
                     type="button"
                     onClick={() => {
-                      setMarket(m);
-                      setUsCity("");
+                      setEuCountry(country.code);
                       setEuCity("");
-                      setAfCity("");
-                      setAsCity("");
                       setContentCategory("");
                     }}
-                    className={`flex-1 rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
-                      market === m
+                    className={`flex-1 min-w-[7rem] rounded-xl border-2 py-2.5 text-sm font-medium transition-all ${
+                      euCountry === country.code
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border bg-card hover:bg-secondary"
                     }`}
                   >
-                    {m === "EU"
-                      ? "Europe"
-                      : m === "AF"
-                        ? "Afrique"
-                        : m === "AS"
-                          ? "Asie"
-                          : "Amérique"}
+                    {country.flag} {country.label}
                   </button>
                 ))}
               </div>
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                {t("compliance.euro_zone_note")}
+              </p>
             </div>
 
-            {market === "US" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.us_city_label")} <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={usCity}
-                    onChange={(e) => setUsCity(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.us_city_placeholder")}</option>
-                    {(["US", "CA", "MX"] as const).map((ctry) => {
-                      const label =
-                        ctry === "US"
-                          ? "🇺🇸 États-Unis"
-                          : ctry === "CA"
-                            ? "🇨🇦 Canada"
-                            : "🇲🇽 Mexique";
-                      const open = US_CITIES.filter(
-                        (c) => c.country === ctry && c.status !== "restricted",
-                      );
-                      const restricted = US_CITIES.filter(
-                        (c) => c.country === ctry && c.status === "restricted",
-                      );
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("compliance.eu_city_label")} <span className="text-destructive">*</span>
+                </label>
+                <select
+                  value={euCity}
+                  onChange={(e) => setEuCity(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                >
+                  <option value="">{t("compliance.eu_city_placeholder")}</option>
+                  {EU_CITIES.filter((c) => c.countryCode === euCountry).map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                      {c.status === "restreint" ? " — Réglementé" : ""}
+                      {c.status === "zone_protegee" ? " — Zone protégée" : ""}
+                    </option>
+                  ))}
+                </select>
+                {euCity &&
+                  (() => {
+                    const city = findEuCity(euCity);
+                    if (!city) return null;
+                    return (
+                      <div
+                        className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
+                          city.status === "open"
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                            : city.status === "restreint"
+                              ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                              : "bg-red-500/10 text-red-700 dark:text-red-400"
+                        }`}
+                      >
+                        {city.isFrance &&
+                          city.status === "open" &&
+                          !city.isOutreMer &&
+                          "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
+                        {city.isFrance &&
+                          city.status === "open" &&
+                          city.isOutreMer &&
+                          `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
+                        {city.isFrance &&
+                          city.status === "restreint" &&
+                          !city.isOutreMer &&
+                          `⚠ RLP renforcé. ${city.notes ?? ""}`}
+                        {city.isFrance &&
+                          city.status === "restreint" &&
+                          city.isOutreMer &&
+                          `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
+                        {city.isFrance &&
+                          city.status === "zone_protegee" &&
+                          `⛔ Zone protégée. ${city.notes ?? ""}`}
+                        {!city.isFrance &&
+                          city.status === "open" &&
+                          `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
+                        {!city.isFrance &&
+                          city.status === "restreint" &&
+                          `⚠ Réglementé. ${city.notes ?? ""}`}
+                        {!city.isFrance &&
+                          city.status === "zone_protegee" &&
+                          `⛔ Zone protégée. ${city.notes ?? ""}`}
+                      </div>
+                    );
+                  })()}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5">
+                  {t("compliance.content_category_label")}{" "}
+                  <span className="text-destructive">*</span>
+                </label>
+                <select
+                  value={contentCategory}
+                  onChange={(e) => setContentCategory(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
+                >
+                  <option value="">{t("compliance.content_category_placeholder")}</option>
+                  {CONTENT_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.labelFr}
+                    </option>
+                  ))}
+                </select>
+                {contentCategory &&
+                  (() => {
+                    const selectedEuCity = findEuCity(euCity);
+                    const result = selectedEuCity?.isFrance
+                      ? checkFrContentCompliance(contentCategory)
+                      : checkEuContentCompliance(contentCategory);
+                    if (result.status === "restricted") {
                       return (
-                        <optgroup key={ctry} label={label}>
-                          {open.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.name}, {c.state}
-                              {c.status === "license_required" ? " — Licence requise" : ""}
-                            </option>
-                          ))}
-                          {restricted.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.name}, {c.state} — Restreint
-                            </option>
-                          ))}
-                        </optgroup>
-                      );
-                    })}
-                  </select>
-                  {usCity &&
-                    (() => {
-                      const city = findUsCity(usCity);
-                      if (!city) return null;
-                      return (
-                        <div
-                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
-                            city.status === "open"
-                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                              : city.status === "license_required"
-                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-red-500/10 text-red-700 dark:text-red-400"
-                          }`}
-                        >
-                          {city.status === "open" &&
-                            "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
-                          {city.status === "license_required" &&
-                            `⚠ Licence municipale requise. ${city.notes ?? ""}`}
-                          {city.status === "restricted" &&
-                            `⛔ Marché restreint. ${city.notes ?? ""}`}
+                        <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
+                          ⚠ {result.disclaimer}
                         </div>
                       );
-                    })()}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.content_category_label")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={contentCategory}
-                    onChange={(e) => setContentCategory(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.content_category_placeholder")}</option>
-                    {CONTENT_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {i18n.language === "en" ? cat.labelEn : cat.labelFr}
-                      </option>
-                    ))}
-                  </select>
-                  {contentCategory &&
-                    usCity &&
-                    (() => {
-                      const result = checkContentCompliance(contentCategory, usCity);
-                      if (result.status === "restricted") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
-                            ⚠ {result.disclaimer}
-                          </div>
-                        );
-                      }
-                      if (result.status === "blocked") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
-                            ⛔ {result.reason}
-                          </div>
-                        );
-                      }
+                    }
+                    if (result.status === "blocked") {
                       return (
-                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓ {t("compliance.content_ok")}
-                        </p>
-                      );
-                    })()}
-                </div>
-
-                <p className="text-xs text-muted-foreground">{t("compliance.us_legal_note")}</p>
-              </>
-            )}
-
-            {market === "EU" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.eu_city_label")} <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={euCity}
-                    onChange={(e) => setEuCity(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.eu_city_placeholder")}</option>
-                    {Array.from(getEuCitiesByCountry().entries()).map(([countryLabel, cities]) => (
-                      <optgroup key={countryLabel} label={countryLabel}>
-                        {cities.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                            {c.status === "restreint" ? " — Réglementé" : ""}
-                            {c.status === "zone_protegee" ? " — Zone protégée" : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  {euCity &&
-                    (() => {
-                      const city = findEuCity(euCity);
-                      if (!city) return null;
-                      return (
-                        <div
-                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
-                            city.status === "open"
-                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                              : city.status === "restreint"
-                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-red-500/10 text-red-700 dark:text-red-400"
-                          }`}
-                        >
-                          {city.isFrance &&
-                            city.status === "open" &&
-                            !city.isOutreMer &&
-                            "✓ Marché ouvert — publicité mobile sur flotte autorisée."}
-                          {city.isFrance &&
-                            city.status === "open" &&
-                            city.isOutreMer &&
-                            `✓ DROM — droit national français applicable. ${city.notes ?? ""}`}
-                          {city.isFrance &&
-                            city.status === "restreint" &&
-                            !city.isOutreMer &&
-                            `⚠ RLP renforcé. ${city.notes ?? ""}`}
-                          {city.isFrance &&
-                            city.status === "restreint" &&
-                            city.isOutreMer &&
-                            `⚠ COM — règles locales partiellement autonomes. ${city.notes ?? ""}`}
-                          {city.isFrance &&
-                            city.status === "zone_protegee" &&
-                            `⛔ Zone protégée. ${city.notes ?? ""}`}
-                          {!city.isFrance &&
-                            city.status === "open" &&
-                            `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
-                          {!city.isFrance &&
-                            city.status === "restreint" &&
-                            `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {!city.isFrance &&
-                            city.status === "zone_protegee" &&
-                            `⛔ Zone protégée. ${city.notes ?? ""}`}
+                        <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
+                          ⛔ {result.reason}
                         </div>
                       );
-                    })()}
-                </div>
+                    }
+                    return (
+                      <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                        ✓{" "}
+                        {selectedEuCity?.isFrance
+                          ? t("compliance.fr_content_ok")
+                          : t("compliance.eu_content_ok")}
+                      </p>
+                    );
+                  })()}
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.content_category_label")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={contentCategory}
-                    onChange={(e) => setContentCategory(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.content_category_placeholder")}</option>
-                    {CONTENT_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.labelFr}
-                      </option>
-                    ))}
-                  </select>
-                  {contentCategory &&
-                    (() => {
-                      const selectedEuCity = findEuCity(euCity);
-                      const result = selectedEuCity?.isFrance
-                        ? checkFrContentCompliance(contentCategory)
-                        : checkEuContentCompliance(contentCategory);
-                      if (result.status === "restricted") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
-                            ⚠ {result.disclaimer}
-                          </div>
-                        );
-                      }
-                      if (result.status === "blocked") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
-                            ⛔ {result.reason}
-                          </div>
-                        );
-                      }
-                      return (
-                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓{" "}
-                          {selectedEuCity?.isFrance
-                            ? t("compliance.fr_content_ok")
-                            : t("compliance.eu_content_ok")}
-                        </p>
-                      );
-                    })()}
-                </div>
-
-                <p className="text-xs text-muted-foreground">
-                  {findEuCity(euCity)?.isFrance
-                    ? t("compliance.fr_legal_note")
-                    : t("compliance.eu_legal_note")}
-                </p>
-              </>
-            )}
-
-            {market === "AF" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.af_city_label")} <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={afCity}
-                    onChange={(e) => setAfCity(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.af_city_placeholder")}</option>
-                    {Array.from(getAfCitiesByCountry().entries()).map(([countryLabel, cities]) => (
-                      <optgroup key={countryLabel} label={countryLabel}>
-                        {cities.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                            {c.status === "restreint" ? " — Réglementé" : ""}
-                            {c.status === "zone_protegee" ? " — Zone protégée" : ""}
-                            {c.alcoholBlocked
-                              ? " ⛔ alcool interdit"
-                              : c.alcoholRestricted
-                                ? " ⚠ alcool restreint"
-                                : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  {afCity &&
-                    (() => {
-                      const city = findAfCity(afCity);
-                      if (!city) return null;
-                      return (
-                        <div
-                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
-                            city.status === "zone_protegee"
-                              ? "bg-red-500/10 text-red-700 dark:text-red-400"
-                              : city.status === "restreint"
-                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          }`}
-                        >
-                          {city.status === "open" &&
-                            `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
-                          {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {city.status === "zone_protegee" &&
-                            `⛔ Zone protégée. ${city.notes ?? ""}`}
-                        </div>
-                      );
-                    })()}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.content_category_label")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={contentCategory}
-                    onChange={(e) => setContentCategory(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.content_category_placeholder")}</option>
-                    {CONTENT_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.labelFr}
-                      </option>
-                    ))}
-                  </select>
-                  {contentCategory &&
-                    (() => {
-                      const city = findAfCity(afCity);
-                      const result = checkAfContentCompliance(contentCategory, {
-                        blocked: city?.alcoholBlocked,
-                        restricted: city?.alcoholRestricted,
-                      });
-                      if (result.status === "restricted") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
-                            ⚠ {result.disclaimer}
-                          </div>
-                        );
-                      }
-                      if (result.status === "blocked") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
-                            ⛔ {result.reason}
-                          </div>
-                        );
-                      }
-                      return (
-                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓ {t("compliance.af_content_ok")}
-                        </p>
-                      );
-                    })()}
-                </div>
-
-                <p className="text-xs text-muted-foreground">{t("compliance.af_legal_note")}</p>
-              </>
-            )}
-
-            {market === "AS" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.as_city_label")} <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={asCity}
-                    onChange={(e) => setAsCity(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.as_city_placeholder")}</option>
-                    {Array.from(getAsCitiesByCountry().entries()).map(([countryLabel, cities]) => (
-                      <optgroup key={countryLabel} label={countryLabel}>
-                        {cities.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                            {c.status === "restreint" ? " — Réglementé" : ""}
-                            {c.status === "zone_protegee" ? " — Zone protégée" : ""}
-                            {c.alcoholBlocked
-                              ? " ⛔ alcool interdit"
-                              : c.alcoholRestricted
-                                ? " ⚠ alcool restreint"
-                                : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  {asCity &&
-                    (() => {
-                      const city = findAsCity(asCity);
-                      if (!city) return null;
-                      return (
-                        <div
-                          className={`mt-2 text-xs px-3 py-2 rounded-lg leading-relaxed ${
-                            city.status === "zone_protegee"
-                              ? "bg-red-500/10 text-red-700 dark:text-red-400"
-                              : city.status === "restreint"
-                                ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                                : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-                          }`}
-                        >
-                          {city.status === "open" &&
-                            `✓ Marché ouvert. ${city.notes ?? "Publicité mobile sur flotte autorisée."}`}
-                          {city.status === "restreint" && `⚠ Réglementé. ${city.notes ?? ""}`}
-                          {city.status === "zone_protegee" &&
-                            `⛔ Zone protégée. ${city.notes ?? ""}`}
-                        </div>
-                      );
-                    })()}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">
-                    {t("compliance.content_category_label")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <select
-                    value={contentCategory}
-                    onChange={(e) => setContentCategory(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm"
-                  >
-                    <option value="">{t("compliance.content_category_placeholder")}</option>
-                    {CONTENT_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.labelFr}
-                      </option>
-                    ))}
-                  </select>
-                  {contentCategory &&
-                    (() => {
-                      const city = findAsCity(asCity);
-                      const result = checkAsContentCompliance(contentCategory, {
-                        blocked: city?.alcoholBlocked,
-                        restricted: city?.alcoholRestricted,
-                      });
-                      if (result.status === "restricted") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 leading-relaxed">
-                            ⚠ {result.disclaimer}
-                          </div>
-                        );
-                      }
-                      if (result.status === "blocked") {
-                        return (
-                          <div className="mt-2 text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-700 dark:text-red-400 leading-relaxed">
-                            ⛔ {result.reason}
-                          </div>
-                        );
-                      }
-                      return (
-                        <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-                          ✓ {t("compliance.as_content_ok")}
-                        </p>
-                      );
-                    })()}
-                </div>
-
-                <p className="text-xs text-muted-foreground">{t("compliance.as_legal_note")}</p>
-              </>
-            )}
+              <p className="text-xs text-muted-foreground">
+                {findEuCity(euCity)?.isFrance
+                  ? t("compliance.fr_legal_note")
+                  : t("compliance.eu_legal_note")}
+              </p>
+            </>
           </div>
 
           <Field label={t("advertiser.briefs.nouveau.field_title")}>
