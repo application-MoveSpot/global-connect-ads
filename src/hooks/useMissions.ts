@@ -24,6 +24,7 @@ export const missionsKeys = {
   all: () => ["missions"] as const,
   byCampaign: (id: string) => ["missions", "campaign", id] as const,
   byPayee: (uid: string) => ["missions", "payee", uid] as const,
+  available: (uid: string) => ["missions", "available", uid] as const,
   proofs: (missionId: string) => ["missions", "proofs", missionId] as const,
 };
 
@@ -351,6 +352,58 @@ export function useRejectInstallation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["missions", "admin", "pending_validation"] });
       queryClient.invalidateQueries({ queryKey: ["missions"] });
+    },
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lire les missions disponibles (dispatched) pour un poseur
+// ─────────────────────────────────────────────────────────────────────────────
+export function useAvailableMissions(payeeUserId: string) {
+  return useQuery({
+    queryKey: missionsKeys.available(payeeUserId),
+    queryFn: async (): Promise<InstallationMission[]> => {
+      // La nouvelle policy RLS filtre automatiquement les missions dispatched
+      // où le poseur figure dans mission_dispatch_log avec response='pending'
+      const { data, error } = await db
+        .from("installation_missions")
+        .select("*")
+        .eq("status", "dispatched")
+        .order("scheduled_date", { ascending: true });
+
+      if (error) throw error;
+      return (data ?? []) as unknown as InstallationMission[];
+    },
+    enabled: !!payeeUserId,
+    refetchInterval: 30_000,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Accepter une mission disponible (poseur)
+// ─────────────────────────────────────────────────────────────────────────────
+export function useAcceptMission() {
+  const queryClient = useQueryClient();
+
+  return useMutation<InstallationMission, Error, { missionId: string; payeeUserId: string }>({
+    mutationFn: async ({ missionId }) => {
+      const { data, error } = await supabase.functions.invoke<{
+        ok: boolean;
+        mission: InstallationMission;
+        mission_id?: string;
+      }>("accept-mission", { body: { mission_id: missionId } });
+
+      if (error) throw new Error(error.message);
+      if (!data?.ok) throw new Error((data as { error?: string })?.error ?? "Acceptation échouée");
+      return data.mission;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: missionsKeys.available(variables.payeeUserId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: missionsKeys.byPayee(variables.payeeUserId),
+      });
     },
   });
 }
