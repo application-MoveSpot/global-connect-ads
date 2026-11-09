@@ -397,6 +397,12 @@ function AnnonceurDashboard() {
               {t("advertiser.nav.refunds")}
             </Link>
             <Link
+              to="/advertiser/factures"
+              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+            >
+              Factures
+            </Link>
+            <Link
               to="/advertiser/briefs/nouveau"
               className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
             >
