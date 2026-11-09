@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_public/tarifs")({
       {
         name: "description",
         content:
-          "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les advertisers.",
+          "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les annonceurs.",
       },
       { property: "og:title", content: "MoveSpot Pricing — Transparent on price" },
       {
@@ -111,7 +111,7 @@ const CONTENT = {
     own_card2_features: [
       "Tout ce qui est dans Particulier",
       "Carte flotte multi-véhicules",
-      "Import CSV + gestion multi-drivers",
+      "Import CSV + gestion multi-chauffeurs",
       "Indicateurs CA, km, taux d'occupation",
     ],
     own_card2_cta: "Inscrire ma flotte",
@@ -142,7 +142,7 @@ const CONTENT = {
           "20 demandes/mois",
           "Profil vérifié + portfolio",
           "Messagerie + devis intégrés",
-          "Badge partner certifié",
+          "Badge partenaire certifié",
         ],
         cta: "Essayer gratuitement",
         href: "/provider/inscription",
@@ -184,7 +184,7 @@ const CONTENT = {
         a: "Oui, dès qu'un SIRET valide est associé à votre compte, le taux passe à 25 % automatiquement.",
       },
       {
-        q: "Les providers peuvent-ils résilier à tout moment ?",
+        q: "Les prestataires peuvent-ils résilier à tout moment ?",
         a: "Oui, sans frais ni préavis. L'abonnement se poursuit jusqu'à la fin de la période en cours.",
       },
     ],
@@ -222,7 +222,7 @@ const CONTENT = {
       { label: "Carte flotte multi-véhicules", particulier: false, pro: true },
       { label: "Import CSV de la flotte", particulier: false, pro: true },
       { label: "Indicateurs CA / km", particulier: false, pro: true },
-      { label: "Gestion multi-drivers", particulier: false, pro: true },
+      { label: "Gestion multi-chauffeurs", particulier: false, pro: true },
     ] as OwnerRow[],
   },
   en: {

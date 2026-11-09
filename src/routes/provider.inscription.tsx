@@ -29,7 +29,7 @@ import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/provider/inscription")({
   head: () => ({
     meta: [
-      { title: "Inscription provider — MoveSpot" },
+      { title: "Inscription prestataire — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

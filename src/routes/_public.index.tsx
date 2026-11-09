@@ -147,7 +147,7 @@ function Index() {
       vKey: "hero.stat1_v",
       fallback: "par véhicule par jour — soit 375 €/mois pour 1 véhicule",
     },
-    { k: "70 / 30", vKey: "hero.stat2_v", fallback: "reversé aux partners / commission MoveSpot" },
+    { k: "70 / 30", vKey: "hero.stat2_v", fallback: "reversé aux partenaires / commission MoveSpot" },
     {
       k: "14 j",
       vKey: "hero.stat3_v",
@@ -566,7 +566,7 @@ function Index() {
               <p className="text-muted-foreground mb-6">
                 {tx(
                   "audience.desc",
-                  "Chaque véhicule partner transmet sa position GPS en temps réel. MoveSpot calcule automatiquement les impressions générées selon les zones traversées, la densité de population et les horaires de circulation.",
+                  "Chaque véhicule partenaire transmet sa position GPS en temps réel. MoveSpot calcule automatiquement les impressions générées selon les zones traversées, la densité de population et les horaires de circulation.",
                 )}
               </p>
               <div className="space-y-3">

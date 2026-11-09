@@ -17,7 +17,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/provider/")({
   head: () => ({
     meta: [
-      { title: "Espace provider — MoveSpot" },
+      { title: "Espace prestataire — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

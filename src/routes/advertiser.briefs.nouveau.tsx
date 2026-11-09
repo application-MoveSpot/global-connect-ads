@@ -925,7 +925,7 @@ function NewBriefPage() {
           authErr.message.includes("User already registered");
         setError(
           alreadyExists
-            ? "Cet email est déjà utilisé. Connectez-vous depuis l'espace advertiser."
+            ? "Cet email est déjà utilisé. Connectez-vous depuis l'espace annonceur."
             : `Erreur lors de la création du compte : ${authErr.message}`,
         );
         setLoading(false);

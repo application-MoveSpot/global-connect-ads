@@ -9,12 +9,12 @@ export const Route = createFileRoute("/_public/comment-ca-marche")({
       {
         name: "description",
         content:
-          "MoveSpot en 3 minutes : comment advertisers, propriétaires de véhicules et drivers utilisent la marketplace de publicité mobile.",
+          "MoveSpot en 3 minutes : comment annonceurs, propriétaires de véhicules et chauffeurs utilisent la marketplace de publicité mobile.",
       },
       { property: "og:title", content: "Comment fonctionne MoveSpot" },
       {
         property: "og:description",
-        content: "Annonceur, propriétaire, driver : découvrez le parcours complet sur MoveSpot.",
+        content: "Annonceur, propriétaire, chauffeur : découvrez le parcours complet sur MoveSpot.",
       },
     ],
     links: [
@@ -117,7 +117,7 @@ const CONTENT = {
     owner: [
       {
         title: "Je reçois des demandes",
-        body: "Demandes ciblées d'advertisers OU briefs ouverts auxquels je peux candidater.",
+        body: "Demandes ciblées d'annonceurs OU briefs ouverts auxquels je peux candidater.",
       },
       {
         title: "J'imprime un QR par véhicule",
@@ -140,11 +140,11 @@ const CONTENT = {
       },
       {
         title: "Je conduis",
-        body: "L'advertiser voit la campagne vivre en temps réel sur sa carte.",
+        body: "L'annonceur voit la campagne vivre en temps réel sur sa carte.",
       },
       {
         title: "J'arrête en fin de tournée",
-        body: "Un bouton, et c'est fini. Mes données ne sont accessibles qu'à mon employeur et à l'advertiser, uniquement pendant la campagne.",
+        body: "Un bouton, et c'est fini. Mes données ne sont accessibles qu'à mon employeur et à l'annonceur, uniquement pendant la campagne.",
       },
     ],
     payment_h2: "💳 Payer sa campagne",
@@ -171,9 +171,9 @@ const CONTENT = {
       "SIRET vérifié en temps réel (API INSEE Sirene 3.11)",
       "Modération des véhicules : photos contrôlées, mauvais état refusé automatiquement",
       "QR signés HMAC-SHA256 : la moindre modification invalide le QR",
-      "Positions GPS visibles par l'advertiser uniquement pendant la fenêtre de campagne approuvée (RLS Postgres)",
+      "Positions GPS visibles par l'annonceur uniquement pendant la fenêtre de campagne approuvée (RLS Postgres)",
       "Double authentification (TOTP) disponible sur tous les comptes",
-      "Conformité RGPD : les positions sont liées au véhicule, pas à l'identité du driver",
+      "Conformité RGPD : les positions sont liées au véhicule, pas à l'identité du chauffeur",
       "Mises à jour sans coupure : les nouvelles versions se chargent sans vous déconnecter",
     ],
     cta_h2: "Prêt à démarrer ?",

@@ -68,7 +68,7 @@ type Step = {
 export const Route = createFileRoute("/advertiser/")({
   head: () => ({
     meta: [
-      { title: "Espace advertiser — MoveSpot" },
+      { title: "Espace annonceur — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

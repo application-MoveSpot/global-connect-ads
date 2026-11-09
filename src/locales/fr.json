@@ -1154,7 +1154,7 @@
       "toast_rating_error": "Impossible d'enregistrer l'évaluation."
     },
     "etude_marche": {
-      "back": "Dashboard",
+      "back": "Tableau de bord",
       "new_brief_btn": "+ Nouveau brief",
       "title": "Étude de marché & Prévisionnel",
       "subtitle": "Analyse complète du marché OOH mobile, catalogue des supports, modèle économique et projections financières 5 ans.",
@@ -2341,7 +2341,7 @@
     "access_denied": "Accès refusé.",
     "refunds": {
       "title": "Remboursements",
-      "back": "Dashboard",
+      "back": "Tableau de bord",
       "empty": "Aucune demande dans cette catégorie.",
       "loading_error": "Erreur de chargement",
       "updated": "Demande mise à jour.",
@@ -2368,7 +2368,7 @@
       "checking": "Vérification...",
       "denied": "Accès refusé — compte admin requis.",
       "title": "Commissions & marges",
-      "back": "Dashboard admin",
+      "back": "Tableau de bord admin",
       "rates_section": "Taux en vigueur",
       "floor": "Plancher : {{amount}} / campagne",
       "since": "Depuis le {{date}}",
@@ -2415,7 +2415,7 @@
     "dashboard": {
       "checking": "Vérification de la session...",
       "session_not_found": "Session introuvable",
-      "reconnect_desc": "Reconnectez-vous pour accéder au dashboard admin.",
+      "reconnect_desc": "Reconnectez-vous pour accéder au tableau de bord admin.",
       "sign_in": "Se connecter",
       "access_denied": "Accès refusé",
       "not_admin": "Vous n'êtes pas administrateur.",
@@ -2469,7 +2469,7 @@
       "payout_transfer_btn": "Reverser au propriétaire",
       "payout_transferring": "Transfert…",
       "payout_waiting": "En attente fin de campagne",
-      "back": "Dashboard admin",
+      "back": "Tableau de bord admin",
       "error_msg": "Erreur : {{message}}",
       "tab_briefs": "Briefs & Campagnes",
       "tab_vehicules": "Véhicules",
@@ -2839,7 +2839,7 @@
     "audit": {
       "title": "Audit & Conformité",
       "desc": "Export des données pour contrôle DGFIP / URSSAF / CNIL · Détection de fraude GPS et identitaire",
-      "nav_dashboard": "Dashboard",
+      "nav_dashboard": "Tableau de bord",
       "nav_transfers": "Virements",
       "period_section": "Période d'analyse",
       "from": "Du",
@@ -5650,7 +5650,7 @@
       "nav_btn": "Ma tournée",
       "title": "Suivi de tournée",
       "desc": "Activez le GPS pour que vos déplacements soient visibles par l'administrateur. Cela permet de valider vos interventions à domicile.",
-      "back": "Retour au dashboard",
+      "back": "Retour au tableau de bord",
       "start": "Démarrer ma tournée",
       "stop": "Arrêter la tournée",
       "active": "Tournée en cours",

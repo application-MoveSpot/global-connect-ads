@@ -42,15 +42,15 @@ type Profile = {
 export const Route = createFileRoute("/driver/espace")({
   head: () => ({
     meta: [
-      { title: "Espace driver / poseur — MoveSpot" },
+      { title: "Espace chauffeur / poseur — MoveSpot" },
       {
         name: "description",
-        content: "Gérez votre profil provider MoveSpot et vos reversements automatiques sur IBAN.",
+        content: "Gérez votre profil prestataire MoveSpot et vos reversements automatiques sur IBAN.",
       },
-      { property: "og:title", content: "Espace driver / poseur — MoveSpot" },
+      { property: "og:title", content: "Espace chauffeur / poseur — MoveSpot" },
       {
         property: "og:description",
-        content: "Profil provider et reversements automatiques MoveSpot.",
+        content: "Profil prestataire et reversements automatiques MoveSpot.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

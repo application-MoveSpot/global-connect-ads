@@ -77,7 +77,7 @@ const slides: Slide[] = [
         </p>
         <ul className="space-y-3 text-muted-foreground">
           {[
-            "L'advertiser cible une zone qu'il dessine lui-même sur la carte",
+            "L'annonceur cible une zone qu'il dessine lui-même sur la carte",
             "Le budget se calcule au km², pondéré par la densité de l'agglomération",
             "Diffusion prouvée par GPS : km réels, minutes actives, couverture de zone",
             "Charte éditoriale stricte : pas de politique, religion ou contenu violent",
@@ -100,7 +100,7 @@ const slides: Slide[] = [
         {[
           {
             step: "1",
-            t: "L'advertiser dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls.",
+            t: "L'annonceur dessine sa zone et saisit ses étapes : trajet, quartiers, points d'intérêt et impressions/jour se calculent seuls.",
           },
           {
             step: "2",
@@ -112,7 +112,7 @@ const slides: Slide[] = [
           },
           {
             step: "4",
-            t: "Le driver roule : GPS agrégé, km réels et taux de couverture de zone en direct.",
+            t: "Le chauffeur roule : GPS agrégé, km réels et taux de couverture de zone en direct.",
           },
         ].map((s) => (
           <div
@@ -220,7 +220,7 @@ const slides: Slide[] = [
           "Une charte éditoriale assumée, pour rassurer marques et collectivités.",
           "Des preuves plutôt que des promesses : chaque euro facturé s'appuie sur des kilomètres réellement parcourus dans la zone.",
           "Un outil simple et accessible : un commerçant peut lancer une campagne dès 25 €/jour par véhicule, sans jargon publicitaire.",
-          "Un écosystème de providers spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
+          "Un écosystème de prestataires spécialisés (covering, vidéo, création graphique) qualifiés et certifiés.",
           "Un projet porté depuis la Guadeloupe, avec une ambition internationale.",
         ].map((l) => (
           <li key={l} className="flex items-start gap-3">

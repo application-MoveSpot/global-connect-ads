@@ -281,7 +281,7 @@ const REGION_DATA: Record<Region, RegionData> = {
     kpis: [
       { v: "7 Mds €", l: "Marché OOH Europe", s: "+6 %/an" },
       { v: "+18 %", l: "Croissance mobile OOH", s: "Segment le plus rapide" },
-      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV annonceurs" },
       { v: "901 836 €", l: "CA An 5", s: "Marge nette 50 %" },
       { v: "650", l: "Véhicules An 5", s: "Démarrage : 15" },
       { v: "3 006 120 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
@@ -311,8 +311,8 @@ const REGION_DATA: Record<Region, RegionData> = {
         gmv: "37 620 €",
         items: [
           "Île-de-France prioritaire",
-          "15 véhicules partners",
-          "10 advertisers pilotes",
+          "véhicules partenaires",
+          "10 annonceurs pilotes",
           "Stripe Connect + GPS live",
           "Prestataires couvrant Paris",
         ],
@@ -323,7 +323,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         gmv: "191 880 €",
         items: [
           "Lyon, Marseille, Bordeaux",
-          "60 véhicules partners",
+          "véhicules partenaires",
           "Tutuk & vélo cargo actifs",
           "Brief en ligne v2",
           "Partenaires réseau apporteurs",
@@ -338,7 +338,7 @@ const REGION_DATA: Record<Region, RegionData> = {
           "Passage SASU (IS)",
           "Campagnes multi-villes",
           "API agences médias",
-          "Dashboard analytics advertisers",
+          "Dashboard analytics annonceurs",
         ],
       },
       {
@@ -368,7 +368,7 @@ const REGION_DATA: Record<Region, RegionData> = {
     kpis: [
       { v: "3,5 Mds $", l: "Marché OOH Afrique", s: "+12 %/an" },
       { v: "+25 %", l: "Croissance mobile OOH", s: "Marché émergent fort" },
-      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV annonceurs" },
       { v: "585 000 €", l: "CA An 5", s: "Marge nette 49 %" },
       { v: "480", l: "Véhicules An 5", s: "Démarrage : 10" },
       { v: "1 950 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
@@ -399,7 +399,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         items: [
           "Dakar & Abidjan pilotes",
           "10 moto-taxis + tutuks",
-          "8 advertisers locaux",
+          "8 annonceurs locaux",
           "Stripe + Mobile Money",
           "Partenaires locaux covering",
         ],
@@ -410,7 +410,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         gmv: "95 000 €",
         items: [
           "Lagos, Casablanca, Accra",
-          "35 véhicules partners",
+          "véhicules partenaires",
           "Minibus bush taxis actifs",
           "App mobile offline-first",
           "Régie publicitaire locale",
@@ -455,7 +455,7 @@ const REGION_DATA: Record<Region, RegionData> = {
     kpis: [
       { v: "8 Mds $", l: "Marché OOH Asie", s: "+15 %/an" },
       { v: "+30 %", l: "Croissance mobile OOH", s: "Densité urbaine record" },
-      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV annonceurs" },
       { v: "1 560 000 €", l: "CA An 5", s: "Marge nette 48 %" },
       { v: "900", l: "Véhicules An 5", s: "Démarrage : 20" },
       { v: "5 200 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
@@ -486,7 +486,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         items: [
           "Bangkok & Hô Chi Minh Ville",
           "20 tuks-tuks + mototaxis",
-          "15 advertisers FMCG",
+          "15 annonceurs FMCG",
           "QR code + GPS tracking",
           "Partenaire tuk-tuk local",
         ],
@@ -497,7 +497,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         gmv: "320 000 €",
         items: [
           "Jakarta, Kuala Lumpur, Manila",
-          "80 véhicules partners",
+          "véhicules partenaires",
           "Rickshaws électriques actifs",
           "Brief multilingue (EN/TH/VI)",
           "API annonceurs nationaux",
@@ -542,7 +542,7 @@ const REGION_DATA: Record<Region, RegionData> = {
     kpis: [
       { v: "12 Mds $", l: "Marché OOH Amériques", s: "+10 %/an" },
       { v: "+22 %", l: "Croissance mobile OOH", s: "LATAM en forte demande" },
-      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV annonceurs" },
       { v: "1 230 000 €", l: "CA An 5", s: "Marge nette 49 %" },
       { v: "760", l: "Véhicules An 5", s: "Démarrage : 18" },
       { v: "4 100 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
@@ -573,7 +573,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         items: [
           "Mexico City & Miami pilotes",
           "18 vans + food trucks",
-          "12 advertisers consumer",
+          "12 annonceurs consumer",
           "Stripe USD + MXN",
           "Partenaires covering locaux",
         ],
@@ -584,7 +584,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         gmv: "245 000 €",
         items: [
           "São Paulo, Buenos Aires, Bogotá",
-          "72 véhicules partners",
+          "véhicules partenaires",
           "Mototaxis LATAM actifs",
           "App iOS/Android bilingue",
           "Régie pub locale intégrée",
@@ -629,7 +629,7 @@ const REGION_DATA: Record<Region, RegionData> = {
     kpis: [
       { v: "2,5 Mds $", l: "Marché OOH Moyen-Orient", s: "+14 %/an" },
       { v: "+28 %", l: "Croissance mobile OOH", s: "Métropoles premium" },
-      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV advertisers" },
+      { v: "30 %", l: "Commission MoveSpot", s: "Sur GMV annonceurs" },
       { v: "1 020 000 €", l: "CA An 5", s: "Marge nette 47 %" },
       { v: "620", l: "Véhicules An 5", s: "Démarrage : 12" },
       { v: "3 400 000 €", l: "GMV An 5", s: "70 % reversé propriétaires" },
@@ -666,7 +666,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         items: [
           "Dubaï & Riyad pilotes",
           "12 taxis premium + VTC",
-          "10 advertisers luxe & FMCG",
+          "10 annonceurs luxe & FMCG",
           "Stripe + Apple Pay UAE",
           "Partenaires covering locaux",
         ],
@@ -677,7 +677,7 @@ const REGION_DATA: Record<Region, RegionData> = {
         gmv: "180 000 €",
         items: [
           "Doha, Abu Dhabi, Kuwait City",
-          "50 véhicules partners",
+          "véhicules partenaires",
           "Camions LED événementiels",
           "App multilingue (AR/EN/FR)",
           "API annonceurs grands groupes",
@@ -1025,7 +1025,7 @@ function EtudeMarche() {
                   </p>
                 ))}
               </Card>
-              <Card title="Segments advertisers">
+              <Card title="Segments annonceurs">
                 <div className="space-y-1.5">
                   {[
                     {
@@ -1339,7 +1339,7 @@ function EtudeMarche() {
                   {
                     icon: "🤝",
                     role: "Partenaire",
-                    desc: "Apporteur d'affaires, partner territorial. Tableau de bord réseau et suivi des commissions.",
+                    desc: "Apporteur d'affaires, partenaire territorial. Tableau de bord réseau et suivi des commissions.",
                     tag: "Commission réseau",
                     tagCls: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
                   },
@@ -1516,7 +1516,7 @@ function EtudeMarche() {
                   {
                     icon: "🎯",
                     t: "Audience qualifiée",
-                    d: "Touche les passants et riverains dans la zone de chalandise exacte de l'advertiser.",
+                    d: "Touche les passants et riverains dans la zone de chalandise exacte de l'annonceur.",
                   },
                   {
                     icon: "🔁",
@@ -1926,7 +1926,7 @@ function EtudeMarche() {
             </Card>
 
             {/* Demande par type */}
-            <Card title="Demande advertisers par type de support">
+            <Card title="Demande annonceurs par type de support">
               <div className="space-y-2.5">
                 {CATALOGUE.filter((v) => v.demandePct > 0)
                   .sort((a, b) => b.demandePct - a.demandePct)
@@ -1967,7 +1967,7 @@ function EtudeMarche() {
             <Card title="Volume d'affaires — GMV total vs Commission MoveSpot">
               <p className="text-xs text-muted-foreground mb-4">
                 Commission MoveSpot (30 %, en bleu) + reversement propriétaires (70 %, en gris) =
-                GMV total facturé aux advertisers.
+                GMV total facturé aux annonceurs.
               </p>
               <div className="space-y-3">
                 {YEARS.map((y, i) => (
@@ -2059,13 +2059,13 @@ function EtudeMarche() {
                       format={(v) => String(v)}
                     />
                     <DataRow
-                      label="Véhicules partners"
+                      label="Véhicules partenaires"
                       values={d.vehicules}
                       format={(v) => String(v)}
                     />
                     <SectionRow label="Flux financiers" />
                     <DataRow
-                      label="GMV — facturé aux advertisers"
+                      label="GMV — facturé aux annonceurs"
                       values={d.gmv}
                       format={(v) => fmt(v, i18n.language)}
                     />
