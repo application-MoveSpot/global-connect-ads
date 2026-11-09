@@ -7,10 +7,31 @@
  */
 
 import { useState, useRef } from "react";
-import { AlertTriangle, Upload, X, Loader2 } from "lucide-react";
+import { AlertTriangle, Upload, X, Loader2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useReportPoseImpossible } from "@/hooks/useMissions";
+import { useReportPoseImpossible, type PoseImpossibleFaultCause } from "@/hooks/useMissions";
 import { toast } from "sonner";
+
+const FAULT_CAUSE_OPTIONS: Array<{
+  value: PoseImpossibleFaultCause;
+  label: string;
+  ownerFault: boolean;
+}> = [
+  { value: "vehicle_dirty", label: "Véhicule trop sale", ownerFault: true },
+  {
+    value: "body_damage",
+    label: "Carrosserie endommagée / Surface incompatible",
+    ownerFault: true,
+  },
+  { value: "vehicle_absent", label: "Véhicule absent au rendez-vous", ownerFault: true },
+  { value: "other", label: "Autre contrainte matérielle", ownerFault: false },
+];
+
+const OWNER_FAULT_CAUSES = new Set<PoseImpossibleFaultCause>([
+  "vehicle_dirty",
+  "body_damage",
+  "vehicle_absent",
+]);
 
 interface PoseImpossibleModalProps {
   missionId: string;
@@ -38,12 +59,16 @@ export function PoseImpossibleModal({
   onSuccess,
   onCancel,
 }: PoseImpossibleModalProps) {
+  const [faultCause, setFaultCause] = useState<PoseImpossibleFaultCause | "">("");
   const [reason, setReason] = useState("");
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { mutateAsync: reportImpossible } = useReportPoseImpossible();
+
+  const isOwnerFault =
+    faultCause !== "" && OWNER_FAULT_CAUSES.has(faultCause as PoseImpossibleFaultCause);
 
   // Vérifie si le délai 24h est encore ouvert
   const isWithin24h = (): boolean => {
@@ -55,7 +80,8 @@ export function PoseImpossibleModal({
   };
 
   const uploadedCount = photos.filter((p) => p.url !== null && !p.uploading).length;
-  const canSubmit = reason.trim().length >= 10 && uploadedCount >= 2 && !submitting;
+  const canSubmit =
+    faultCause !== "" && reason.trim().length >= 10 && uploadedCount >= 2 && !submitting;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files ?? []).slice(0, 5 - photos.length);
@@ -135,6 +161,7 @@ export function PoseImpossibleModal({
         mission_id: missionId,
         reason: reason.trim(),
         photo_paths: readyPhotos.map((p) => ({ path: p.path!, url: p.url })),
+        fault_cause: faultCause as PoseImpossibleFaultCause,
       });
       toast.success("Signalement enregistré. MoveSpot vous recontactera sous 7 jours ouvrés.");
       onSuccess();
@@ -212,6 +239,41 @@ export function PoseImpossibleModal({
               </strong>
             </p>
           )}
+
+          {/* Cause principale */}
+          <div>
+            <label htmlFor="pose-impossible-cause" className="block text-sm font-semibold mb-1.5">
+              Cause principale <span className="text-rose-600">*</span>
+            </label>
+            <div className="relative">
+              <select
+                id="pose-impossible-cause"
+                value={faultCause}
+                onChange={(e) => setFaultCause(e.target.value as PoseImpossibleFaultCause | "")}
+                disabled={submitting}
+                className="w-full appearance-none rounded-xl border border-border bg-background px-3 py-2.5 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/40 disabled:opacity-50"
+              >
+                <option value="" disabled>
+                  — Sélectionnez une cause —
+                </option>
+                {FAULT_CAUSE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+
+            {/* Warning if owner fault */}
+            {isOwnerFault && (
+              <div className="mt-2 rounded-lg border border-orange-300 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-700 px-3 py-2 text-xs text-orange-800 dark:text-orange-300">
+                <strong>Faute du propriétaire détectée</strong> — Une pénalité de{" "}
+                <strong>30 €</strong> sera automatiquement appliquée (art. 11bis CGU) et le
+                propriétaire recevra un email d'avertissement avec vos photos à l'appui.
+              </div>
+            )}
+          </div>
 
           {/* Raison */}
           <div>

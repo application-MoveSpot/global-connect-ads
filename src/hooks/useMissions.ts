@@ -173,10 +173,13 @@ export function useValidateMission() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Signaler une pose impossible (art. 15bis CGU)
 // ─────────────────────────────────────────────────────────────────────────────
+export type PoseImpossibleFaultCause = "vehicle_dirty" | "body_damage" | "vehicle_absent" | "other";
+
 export interface ReportPoseImpossiblePayload {
   mission_id: string;
   reason: string;
   photo_paths: Array<{ path: string; url: string | null }>;
+  fault_cause: PoseImpossibleFaultCause;
 }
 
 export interface ReportPoseImpossibleResponse {
@@ -184,6 +187,8 @@ export interface ReportPoseImpossibleResponse {
   mission_id: string;
   status: string;
   reported_at: string;
+  fault_cause: PoseImpossibleFaultCause;
+  owner_fault: boolean;
 }
 
 export function useReportPoseImpossible() {
