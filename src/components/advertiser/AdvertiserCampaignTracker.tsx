@@ -13,6 +13,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MapConsentGate } from "@/components/app/MapConsentGate";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Locate, Radio } from "lucide-react";
 import type mapboxgl from "mapbox-gl";
 
@@ -50,7 +51,7 @@ const VEHICLE_COLORS = [
   "#f97316", // orange-500
 ];
 
-function colorForVehicle(vehicleId: string, index: number): string {
+function colorForVehicle(index: number): string {
   return VEHICLE_COLORS[index % VEHICLE_COLORS.length];
 }
 
@@ -76,6 +77,7 @@ export function AdvertiserCampaignTracker({
   const [positions, setPositions] = useState<VehiclePosition[]>([]);
   const [live, setLive] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const consent = useCookieConsent();
 
   // ── Positions du jour depuis la DB ────────────────────────────────────────
   const { data: initialPositions } = useQuery({
@@ -91,6 +93,7 @@ export function AdvertiserCampaignTracker({
       return (data ?? []) as VehiclePosition[];
     },
     refetchInterval: 60_000,
+    enabled: Boolean(campaignId),
   });
 
   // ── Zone polygone de la campagne ──────────────────────────────────────────
@@ -99,10 +102,12 @@ export function AdvertiserCampaignTracker({
     queryFn: async (): Promise<GeoJSON.Feature | null> => {
       const { data, error } = await db
         .from("campaign_requests")
-        .select("zone_polygon_geojson:zone_polygon.ST_AsGeoJSON()")
+        // PostgREST supports geometry casts, not SQL function calls in select.
+        .select("zone_polygon_geojson:zone_polygon::json")
         .eq("id", campaignId)
         .maybeSingle();
-      if (error || !data) return null;
+      if (error) throw error;
+      if (!data) return null;
       const raw = data.zone_polygon_geojson;
       if (!raw) return null;
       try {
@@ -113,16 +118,33 @@ export function AdvertiserCampaignTracker({
       }
     },
     staleTime: 5 * 60_000,
+    enabled: Boolean(campaignId),
   });
 
   useEffect(() => {
-    if (initialPositions) setPositions(initialPositions);
+    if (initialPositions) {
+      setPositions((prev) => {
+        const rows = new Map(initialPositions.map((p) => [p.id, p]));
+        for (const p of prev) {
+          if (p.recorded_at >= todayISO()) rows.set(p.id, p);
+        }
+        return [...rows.values()].sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+      });
+    }
   }, [initialPositions]);
 
   // ── Realtime ──────────────────────────────────────────────────────────────
   useEffect(() => {
+    setPositions([]);
+    setLive(false);
+    vehicleIndexRef.current.clear();
+    nextIndexRef.current = 0;
+  }, [campaignId]);
+
+  useEffect(() => {
+    if (!campaignId) return;
     const channel = supabase
-      .channel(`tracker-${campaignId}`)
+      .channel(`tracker-${campaignId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {
@@ -133,8 +155,8 @@ export function AdvertiserCampaignTracker({
         },
         (payload) => {
           const r = payload.new as VehiclePosition;
-          if (!r.vehicle_id) return;
-          setPositions((prev) => [
+          if (!r.vehicle_id || r.recorded_at < todayISO()) return;
+          setPositions((prev) => prev.some((p) => p.id === r.id) ? prev : [
             ...prev,
             {
               id: r.id,
@@ -157,25 +179,39 @@ export function AdvertiserCampaignTracker({
 
   // ── Init carte ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!mapboxToken || !mapContainer.current || mapRef.current) return;
+    if (consent === "refused" || !mapboxToken || !mapContainer.current) return;
+    let cancelled = false;
+    let instance: mapboxgl.Map | null = null;
     (async () => {
       await import("mapbox-gl/dist/mapbox-gl.css");
       const mgl = (await import("mapbox-gl")).default;
+      const container = mapContainer.current;
+      if (cancelled || !container) return;
       mglRef.current = mgl;
       mgl.accessToken = mapboxToken;
       const map = new mgl.Map({
-        container: mapContainer.current!,
+        container,
         style: "mapbox://styles/mapbox/streets-v12",
         center: [2.3522, 48.8566],
         zoom: 11,
       });
+      instance = map;
+      mapRef.current = map;
       map.addControl(new mgl.NavigationControl(), "top-right");
       map.once("load", () => {
-        mapRef.current = map;
-        setMapReady(true);
+        if (!cancelled) setMapReady(true);
       });
-    })();
-  }, [mapboxToken]);
+    })().catch((error) => console.error("Unable to load campaign map", error));
+    return () => {
+      cancelled = true;
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current.clear();
+      instance?.remove();
+      mapRef.current = null;
+      mglRef.current = null;
+      setMapReady(false);
+    };
+  }, [mapboxToken, campaignId, consent]);
 
   // ── Zone polygone ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -231,7 +267,7 @@ export function AdvertiserCampaignTracker({
     if (!vehicleIndexRef.current.has(vehicleId)) {
       vehicleIndexRef.current.set(vehicleId, nextIndexRef.current++);
     }
-    return vehicleIndexRef.current.get(vehicleId)!;
+    return vehicleIndexRef.current.get(vehicleId) ?? 0;
   }, []);
 
   useEffect(() => {
@@ -251,17 +287,22 @@ export function AdvertiserCampaignTracker({
 
     byVehicle.forEach((pts, vehicleId) => {
       const idx = getVehicleIndex(vehicleId);
-      const color = colorForVehicle(vehicleId, idx);
+      const color = colorForVehicle(idx);
       const sorted = [...pts].sort(
         (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime(),
       );
       const last = sorted[sorted.length - 1];
+      if (!last) return;
       const coords: [number, number][] = sorted.map((p) => [p.lng, p.lat]);
 
       // Marqueur véhicule
       const existing = markersRef.current.get(vehicleId);
+      const popupContent = document.createElement("p");
+      popupContent.className = "m-0 text-xs font-mono";
+      popupContent.textContent = `${last.lat.toFixed(5)}, ${last.lng.toFixed(5)}`;
       if (existing) {
         existing.setLngLat([last.lng, last.lat]);
+        existing.getPopup()?.setDOMContent(popupContent);
       } else {
         const el = document.createElement("div");
         el.style.cssText = `
@@ -274,15 +315,13 @@ export function AdvertiserCampaignTracker({
         const marker = new mgl.Marker({ element: el })
           .setLngLat([last.lng, last.lat])
           .setPopup(
-            new mgl.Popup({ offset: 10 }).setHTML(
-              `<p style="margin:0;font-size:12px;font-family:monospace">${last.lat.toFixed(5)}, ${last.lng.toFixed(5)}</p>`,
-            ),
+            new mgl.Popup({ offset: 10 }).setDOMContent(popupContent),
           )
           .addTo(map);
         markersRef.current.set(vehicleId, marker);
 
         // Centrer sur le premier véhicule détecté
-        if (markersRef.current.size === 1) {
+        if (markersRef.current.size === 1 && !zoneGeoJson) {
           map.flyTo({ center: [last.lng, last.lat], zoom: 14 });
         }
       }
@@ -293,7 +332,7 @@ export function AdvertiserCampaignTracker({
       const geojson: GeoJSON.Feature = {
         type: "Feature",
         properties: {},
-        geometry: { type: "LineString", coordinates: coords },
+        geometry: { type: "LineString", coordinates: coords.length === 1 ? [coords[0], coords[0]] : coords },
       };
       const src = map.getSource(sourceId) as mapboxgl.GeoJSONSource | undefined;
       if (src) {
@@ -361,7 +400,7 @@ export function AdvertiserCampaignTracker({
         `trail-line-${[...byVehicle.keys()][0]}`,
       );
     }
-  }, [positions, mapReady, getVehicleIndex]);
+  }, [positions, mapReady, getVehicleIndex, zoneGeoJson]);
 
   // ── Nettoyage marqueurs au démontage ──────────────────────────────────────
   useEffect(() => {
@@ -386,7 +425,7 @@ export function AdvertiserCampaignTracker({
       {showLiveBadge && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Radio
-            className={`h-4 w-4 ${live ? "text-green-600 animate-pulse" : "text-muted-foreground"}`}
+            className={`h-4 w-4 ${live ? "text-primary motion-safe:animate-pulse" : "text-muted-foreground"}`}
           />
           <span>{live ? "Données en temps réel" : "En attente de données GPS…"}</span>
           {vehicleIds.length > 0 && (
@@ -424,7 +463,7 @@ export function AdvertiserCampaignTracker({
             <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm rounded-md border p-2 space-y-1 text-xs max-w-[180px]">
               {vehicleIds.map((vid) => {
                 const idx = getVehicleIndex(vid);
-                const color = colorForVehicle(vid, idx);
+                const color = colorForVehicle(idx);
                 const last = lastByVehicle.get(vid);
                 return (
                   <div key={vid} className="flex items-center gap-2">
@@ -445,11 +484,6 @@ export function AdvertiserCampaignTracker({
         </div>
       </MapConsentGate>
 
-      {positions.length >= 5 && (
-        <p className="text-xs text-muted-foreground">
-          La heatmap affiche la densité de passage dans la zone de couverture.
-        </p>
-      )}
     </div>
   );
 }

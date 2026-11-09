@@ -36,7 +36,14 @@ import { RouteError } from "@/components/app/RouteError";
 import { AppHeader } from "@/components/app/AppHeader";
 
 export const Route = createFileRoute("/advertiser/suivi/$campaignId")({
-  head: () => ({ meta: [{ title: "Suivi temps réel — MoveSpot" }] }),
+  head: () => ({ meta: [
+    { title: "Suivi GPS de campagne — MoveSpot" },
+    { name: "description", content: "Suivez les véhicules et les parcours de votre campagne publicitaire MoveSpot en temps réel." },
+    { property: "og:title", content: "Suivi GPS de campagne — MoveSpot" },
+    { property: "og:description", content: "Suivez les véhicules et les parcours de votre campagne publicitaire MoveSpot en temps réel." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: SuiviPage,
   errorComponent: RouteError,
 });
