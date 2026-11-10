@@ -20,3 +20,5 @@
 - [x] Protéger les jambages Syne des titres : la règle demandée (line-height 1.3 + padding-bottom 0.05em) était déjà en place et publiée ; marge relevée à padding-bottom 0.09em sur h1–h4, puis vérifié sur 11 pages publiques et 10 pages connectées à trois tailles de fenêtre (88 blocs Syne, 0 jambage coupé, marge minimale 2,8 px) ; compilation OK.
 - [x] Supprimer les dernières sources de course sur le verrou de session : session.ts enveloppe le rafraîchissement en try/catch et expose forceRefreshSession, BetaGuard l’utilise (plus d’appel direct) et encaisse les échecs ; vérifié en session connectée (5 appels simultanés = 0 requête de rafraîchissement, forceRefreshSession = 1 seule requête et aucune exception, 0 AbortError) ; 84 tests réussis, compilation OK.
 
+
+- [ ] Analyser la capture image-44.png envoyée sur /advertiser/inscription
