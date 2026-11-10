@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useState, useRef, Fragment } from "react";
+import { Receipt, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -67,6 +68,7 @@ function WalletPage() {
   const [txLoading, setTxLoading] = useState(false);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
+  const [selectedTx, setSelectedTx] = useState<any | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -249,6 +251,58 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
 
   return (
     <div className="min-h-screen bg-background">
+      {selectedTx && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setSelectedTx(null)}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-2xl bg-card border border-border p-6 shadow-xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedTx(null)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="flex flex-col items-center gap-1 pb-2 border-b border-border">
+              <Receipt className="h-8 w-8 text-primary mb-1" />
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Reçu de transaction</p>
+              <p className={`text-2xl font-bold tabular-nums ${selectedTx.amount_cents >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}>
+                {selectedTx.amount_cents >= 0 ? "+" : ""}
+                {fmt(fromEurCents(selectedTx.amount_cents))}
+              </p>
+            </div>
+            <dl className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Date</dt>
+                <dd className="font-medium">{new Date(selectedTx.created_at).toLocaleString(locale)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Type</dt>
+                <dd>{t(`wallet.tx_label.${selectedTx.kind}` as Parameters<typeof t>[0]) ?? selectedTx.kind}</dd>
+              </div>
+              {selectedTx.description && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground shrink-0">Description</dt>
+                  <dd className="text-right">{selectedTx.description}</dd>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Référence</dt>
+                <dd className="font-mono text-xs text-muted-foreground truncate max-w-[180px]">{selectedTx.id}</dd>
+              </div>
+              {selectedTx.stripe_payment_intent_id && (
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Stripe PI</dt>
+                  <dd className="font-mono text-xs text-muted-foreground truncate max-w-[180px]">{selectedTx.stripe_payment_intent_id}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        </div>
+      )}
       <PaymentTestModeBanner />
       <header className="border-b border-border light-band">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -428,11 +482,12 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
                     <th className="text-left px-4 py-3">{t("wallet.col_type")}</th>
                     <th className="text-left px-4 py-3">{t("wallet.col_desc")}</th>
                     <th className="text-right px-4 py-3">{t("wallet.col_amount")}</th>
+                    <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((tx) => (
-                    <tr key={tx.id} className="border-t border-border hover:bg-secondary/20">
+                    <tr key={tx.id} className="group border-t border-border hover:bg-secondary/20">
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                         {new Date(tx.created_at).toLocaleString(locale)}
                       </td>
@@ -457,6 +512,15 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
                       >
                         {tx.amount_cents >= 0 ? "+" : ""}
                         {fmt(fromEurCents(tx.amount_cents))}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => setSelectedTx(tx)}
+                          className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition opacity-0 group-hover:opacity-100"
+                        >
+                          <Receipt className="h-3 w-3" />
+                          Reçu
+                        </button>
                       </td>
                     </tr>
                   ))}
