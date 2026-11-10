@@ -59,6 +59,7 @@ import {
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard";
+import { AdminCronJobPanel } from "@/components/admin/AdminCronJobPanel";
 import {
   moderateBriefVisual,
   type VisualModerationResult,
@@ -120,7 +121,8 @@ type Tab =
   | "alertes"
   | "referral"
   | "regions"
-  | "support";
+  | "support"
+  | "cron";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -147,6 +149,7 @@ function AdminDashboard() {
     "referral",
     "regions",
     "support",
+    "cron",
   ];
   const [tab, setTab] = useState<Tab>("afaire");
   const [ready, setReady] = useState(false);
@@ -680,6 +683,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "support"} onClick={() => switchTab("support")}>
             {t("admin.dashboard.tab_support")}
+          </TabBtn>
+          <TabBtn active={tab === "cron"} onClick={() => switchTab("cron")}>
+            Automatisation
           </TabBtn>
         </div>
 
@@ -2140,6 +2146,18 @@ function AdminDashboard() {
         ) : null}
 
         {tab === "support" ? <AdminSupportDashboard /> : null}
+
+        {tab === "cron" ? (
+          <div className="max-w-3xl mx-auto space-y-6">
+            <div>
+              <h2 className="font-display text-lg font-bold">Automatisation</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Tâches planifiées et déclenchement manuel.
+              </p>
+            </div>
+            <AdminCronJobPanel />
+          </div>
+        ) : null}
 
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
