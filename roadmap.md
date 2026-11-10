@@ -21,4 +21,4 @@
 - [x] Supprimer les dernières sources de course sur le verrou de session : session.ts enveloppe le rafraîchissement en try/catch et expose forceRefreshSession, BetaGuard l’utilise (plus d’appel direct) et encaisse les échecs ; vérifié en session connectée (5 appels simultanés = 0 requête de rafraîchissement, forceRefreshSession = 1 seule requête et aucune exception, 0 AbortError) ; 84 tests réussis, compilation OK.
 
 
-- [ ] Analyser la capture image-44.png envoyée sur /advertiser/inscription
+- [x] Préparer le filigrane YouTube avec le logo officiel : PNG 150 × 150 pixels, 12 853 octets ; aucun ajout dans l’application.
