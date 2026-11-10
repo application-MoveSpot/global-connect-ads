@@ -189,6 +189,20 @@ Deno.serve(async (req: Request) => {
   const stripeAccountId = wallet.stripe_connect_id;
 
   if (stripeAccountId && netEur > 0 && STRIPE_SECRET_KEY) {
+    // Créer la demande de virement pour traçabilité admin
+    const { data: transferRequest } = await admin
+      .from("bank_transfer_requests")
+      .insert({
+        user_id:            owner_user_id,
+        campaign_request_id: campaign_id,
+        amount_cents:       Math.round(netEur * 100),
+        currency:           "eur",
+        reference:          `MoveSpot — virement campagne ${campaign_id.slice(0, 8).toUpperCase()}`,
+        status:             "pending",
+      })
+      .select("id")
+      .single();
+
     try {
       const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2024-04-10" });
       const transfer = await stripe.transfers.create({
@@ -199,9 +213,28 @@ Deno.serve(async (req: Request) => {
         description: `MoveSpot — virement campagne ${campaign_id.slice(0, 8).toUpperCase()}`,
       });
       stripeTransferId = transfer.id;
-    } catch (stripeErr) {
-      console.error("Stripe transfer error (non-blocking):", stripeErr);
-      // On ne bloque pas le payout — la transaction reste en 'pending' si Stripe échoue
+
+      // Marquer le virement comme complété
+      if (transferRequest?.id) {
+        await admin
+          .from("bank_transfer_requests")
+          .update({ status: "completed", stripe_transfer_id: stripeTransferId })
+          .eq("id", transferRequest.id);
+      }
+    } catch (stripeErr: any) {
+      console.error("Stripe transfer error:", stripeErr.message);
+
+      // Marquer le virement comme échoué — visible dans le dashboard admin
+      if (transferRequest?.id) {
+        await admin
+          .from("bank_transfer_requests")
+          .update({
+            status:         "failed",
+            failure_reason: stripeErr.code ?? stripeErr.type ?? stripeErr.message,
+            admin_notes:    `Échec automatique Stripe — ${new Date().toISOString()}`,
+          })
+          .eq("id", transferRequest.id);
+      }
     }
   }
 
