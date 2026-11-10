@@ -1,13 +1,12 @@
 -- Traitement de la file d'attente des emails support
 --
--- Prérequis (à exécuter une seule fois sur le projet) :
+-- Prérequis (à exécuter une seule fois dans SQL Editor) :
 --   1. Dans Supabase Dashboard → Edge Functions → Secrets :
 --      SUPPORT_WEBHOOK_SECRET = <une chaîne aléatoire longue>
 --   2. Dans SQL Editor :
---      -- Secret chiffré dans Vault (ALTER DATABASE est interdit dans Supabase) :
---      SELECT vault.create_secret('<même valeur>', 'support_webhook_secret');
---      -- URL non-sensible via ALTER ROLE (fonctionne sans superuser) :
---      ALTER ROLE postgres SET app.supabase_url TO 'https://<project-ref>.supabase.co';
+--      SELECT vault.create_secret('<même valeur>',               'support_webhook_secret');
+--      SELECT vault.create_secret('https://<ref>.supabase.co',   'supabase_url');
+--   (ALTER DATABASE et ALTER ROLE sont interdits sans superuser dans Supabase)
 
 -- Active pg_net pour les requêtes HTTP asynchrones depuis SQL
 CREATE EXTENSION IF NOT EXISTS pg_net;
@@ -28,10 +27,11 @@ DECLARE
   v_supabase_url     TEXT;
   v_webhook_secret   TEXT;
 BEGIN
-  -- Lire les paramètres configurés une fois en base
-  v_supabase_url   := current_setting('app.supabase_url', true);
+  -- Lire les deux valeurs depuis Vault (ALTER DATABASE/ROLE interdit sans superuser)
+  SELECT decrypted_secret INTO v_supabase_url
+  FROM vault.decrypted_secrets
+  WHERE name = 'supabase_url';
 
-  -- Secret stocké dans Vault (ALTER DATABASE est interdit sans superuser dans Supabase)
   SELECT decrypted_secret INTO v_webhook_secret
   FROM vault.decrypted_secrets
   WHERE name = 'support_webhook_secret';
