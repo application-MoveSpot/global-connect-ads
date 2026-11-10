@@ -1,11 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { useDynamicCampaignPrice } from '@/hooks/useDynamicCampaignPrice';
 
 export function BriefCreationForm() {
+  const navigate = useNavigate();
+
   const [basePrice] = useState(500);
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Ne déclenche la requête que si région + dates sont renseignées
   const pricingParams =
@@ -13,7 +19,46 @@ export function BriefCreationForm() {
       ? { basePrice, regionId: selectedRegionId, startDate, endDate }
       : null;
 
-  const { data: priceData, isLoading, isError } = useDynamicCampaignPrice(pricingParams);
+  const { data: dynamicPrice, isLoading, isError } = useDynamicCampaignPrice(pricingParams);
+
+  const handleCampaignPayment = async () => {
+    if (!dynamicPrice || !selectedRegionId) return;
+
+    try {
+      setIsProcessingPayment(true);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Utilisateur non connecté');
+
+      const { data: paymentResult, error: paymentError } = await supabase.rpc(
+        'process_campaign_wallet_payment',
+        {
+          p_advertiser_id: user.id,
+          p_amount: dynamicPrice,
+          p_region_id: selectedRegionId,
+          p_start_date: startDate,
+          p_end_date: endDate,
+        },
+      );
+
+      if (paymentError) throw paymentError;
+
+      if (paymentResult.success) {
+        toast.success(`Campagne créée — ${dynamicPrice.toFixed(2)} € débités de votre portefeuille.`);
+        navigate({ to: '/annonceur/campagnes' });
+      } else {
+        toast.error('Solde insuffisant. Veuillez recharger votre portefeuille.');
+        navigate({
+          to: '/annonceur/wallet/topup',
+          search: { amount: dynamicPrice - paymentResult.current_balance },
+        });
+      }
+    } catch (error: any) {
+      toast.error(`Échec du paiement : ${error.message}`);
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
@@ -72,7 +117,7 @@ export function BriefCreationForm() {
             </div>
           )}
 
-          {!isLoading && !priceData && !isError && (
+          {!isLoading && !pricingParams && !isError && (
             <p className="text-sm text-gray-400 text-center py-4">
               Renseignez une zone et des dates pour afficher le prix de votre campagne.
             </p>
@@ -84,10 +129,10 @@ export function BriefCreationForm() {
             </p>
           )}
 
-          {!isLoading && priceData != null && (
+          {!isLoading && dynamicPrice != null && (
             <div className="text-center">
               <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Montant Estimé</span>
-              <p className="text-4xl font-black text-white mt-1 tabular-nums">{priceData.toFixed(2)} €</p>
+              <p className="text-4xl font-black text-white mt-1 tabular-nums">{dynamicPrice.toFixed(2)} €</p>
               <p className="text-[10px] text-emerald-400 mt-2 flex items-center justify-center gap-1">
                 <span>⚡</span> Indexé en temps réel via MoveSpot Yield
               </p>
@@ -96,10 +141,19 @@ export function BriefCreationForm() {
         </div>
 
         <button
-          disabled={priceData == null || isLoading}
-          className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold rounded-lg transition-colors shadow-md text-sm"
+          type="button"
+          disabled={dynamicPrice == null || isLoading || isProcessingPayment}
+          onClick={handleCampaignPayment}
+          className="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold rounded-lg transition-colors shadow-md text-sm flex items-center justify-center gap-2"
         >
-          Valider et Payer le Brief
+          {isProcessingPayment ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              <span>Traitement du débit...</span>
+            </>
+          ) : (
+            <span>Payer avec mon Portefeuille</span>
+          )}
         </button>
       </div>
     </div>
