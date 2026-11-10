@@ -155,6 +155,69 @@
       "when": 1793922866719,
       "tag": "0021_restrict_restored_ai_refund_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794323007390,
+      "tag": "0022_support_chat_rooms_and_messages",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794323018323,
+      "tag": "0023_support_chat_read_tracking_and_attachments",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794323020650,
+      "tag": "0024_support_email_queue_and_triggers",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794323022902,
+      "tag": "0025_get_support_analytics_function",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794323024896,
+      "tag": "0026_owner_profiles_stripe_requirements",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794323027290,
+      "tag": "0027_pricing_zone_and_seasonal_multipliers",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794323038102,
+      "tag": "0028_calculate_dynamic_campaign_price_function",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794323041650,
+      "tag": "0029_process_campaign_wallet_payment_function",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794323045966,
+      "tag": "0030_get_owner_financial_analytics_function",
+      "breakpoints": true
     }
   ]
 }

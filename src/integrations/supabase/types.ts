@@ -1250,6 +1250,7 @@ export type Database = {
           stripe_details_submitted: boolean
           stripe_onboarding_completed_at: string | null
           stripe_payouts_enabled: boolean
+          stripe_requirements_due: string[] | null
           updated_at: string
           user_id: string
           vigilance_attestation_url: string | null
@@ -1276,6 +1277,7 @@ export type Database = {
           stripe_details_submitted?: boolean
           stripe_onboarding_completed_at?: string | null
           stripe_payouts_enabled?: boolean
+          stripe_requirements_due?: string[] | null
           updated_at?: string
           user_id: string
           vigilance_attestation_url?: string | null
@@ -1302,6 +1304,7 @@ export type Database = {
           stripe_details_submitted?: boolean
           stripe_onboarding_completed_at?: string | null
           stripe_payouts_enabled?: boolean
+          stripe_requirements_due?: string[] | null
           updated_at?: string
           user_id?: string
           vigilance_attestation_url?: string | null
@@ -1554,6 +1557,48 @@ export type Database = {
           user_id?: string
           vehicle_kind?: string | null
           vehicle_plate?: string | null
+        }
+        Relationships: []
+      }
+      pricing_seasonal_multipliers: {
+        Row: {
+          end_date: string
+          id: number
+          multiplier: number
+          name: string
+          start_date: string
+        }
+        Insert: {
+          end_date: string
+          id?: number
+          multiplier?: number
+          name: string
+          start_date: string
+        }
+        Update: {
+          end_date?: string
+          id?: number
+          multiplier?: number
+          name?: string
+          start_date?: string
+        }
+        Relationships: []
+      }
+      pricing_zone_multipliers: {
+        Row: {
+          base_multiplier: number
+          region_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          base_multiplier?: number
+          region_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          base_multiplier?: number
+          region_id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -2028,6 +2073,114 @@ export type Database = {
         }
         Relationships: []
       }
+      support_email_queue: {
+        Row: {
+          created_at: string
+          room_id: string
+          scheduled_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          room_id: string
+          scheduled_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          room_id?: string
+          scheduled_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_email_queue_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: true
+            referencedRelation: "support_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_messages: {
+        Row: {
+          attachment_name: string | null
+          attachment_type: string | null
+          attachment_url: string | null
+          content: string
+          created_at: string
+          id: string
+          room_id: string
+          sender_id: string
+          sender_type: string
+        }
+        Insert: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          room_id: string
+          sender_id: string
+          sender_type: string
+        }
+        Update: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          room_id?: string
+          sender_id?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "support_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_rooms: {
+        Row: {
+          advertiser_id: string
+          created_at: string
+          id: string
+          last_read_at: string | null
+          status: string
+        }
+        Insert: {
+          advertiser_id: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          status?: string
+        }
+        Update: {
+          advertiser_id?: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_rooms_advertiser_id_fkey"
+            columns: ["advertiser_id"]
+            isOneToOne: false
+            referencedRelation: "advertiser_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -2373,6 +2526,15 @@ export type Database = {
         }
         Returns: string
       }
+      calculate_dynamic_campaign_price: {
+        Args: {
+          p_base_price: number
+          p_end_date: string
+          p_region_id: string
+          p_start_date: string
+        }
+        Returns: number
+      }
       check_beta_access: { Args: never; Returns: boolean }
       check_is_admin: { Args: never; Returns: boolean }
       delete_email: {
@@ -2385,6 +2547,11 @@ export type Database = {
         Returns: number
       }
       fleet_public_stats: { Args: never; Returns: Json }
+      get_owner_financial_analytics: {
+        Args: { p_owner_id: string }
+        Returns: Json
+      }
+      get_support_analytics: { Args: never; Returns: Json }
       get_vehicle_booked_periods: {
         Args: { p_vehicle_id: string }
         Returns: {
@@ -2399,6 +2566,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
       is_point_in_campaign_zone: {
         Args: { p_campaign_id: string; p_lat: number; p_lng: number }
         Returns: boolean
@@ -2411,6 +2579,16 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      process_campaign_wallet_payment: {
+        Args: {
+          p_advertiser_id: string
+          p_amount: number
+          p_end_date: string
+          p_region_id: string
+          p_start_date: string
+        }
+        Returns: Json
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }

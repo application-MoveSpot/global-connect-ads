@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function uploadSupportAttachment(file: File, roomId: string) {
@@ -6,7 +5,7 @@ export async function uploadSupportAttachment(file: File, roomId: string) {
   if (!user) throw new Error("Non authentifié");
 
   const ext      = file.name.split(".").pop();
-  const filePath = `${roomId}/${uuidv4()}.${ext}`;
+  const filePath = `${roomId}/${crypto.randomUUID()}.${ext}`;
 
   // 1. Upload vers le bucket privé
   const { data: uploadData, error: uploadError } = await supabase.storage

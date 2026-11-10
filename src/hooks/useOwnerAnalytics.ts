@@ -21,7 +21,8 @@ export function useOwnerAnalytics() {
       });
 
       if (error) throw error;
-      return data as OwnerFinancialAnalytics;
+      if (!data) throw new Error('Aucune donnée analytique reçue.');
+      return data as unknown as OwnerFinancialAnalytics;
     },
   });
 }

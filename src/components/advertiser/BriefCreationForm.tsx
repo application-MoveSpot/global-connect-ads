@@ -4,6 +4,11 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useDynamicCampaignPrice } from '@/hooks/useDynamicCampaignPrice';
 
+/** Shape returned by the process_campaign_wallet_payment RPC (JSONB). */
+type WalletPaymentResult =
+  | { success: true; campaign_id: string }
+  | { success: false; error: string; current_balance: number };
+
 export function BriefCreationForm() {
   const navigate = useNavigate();
 
@@ -43,14 +48,17 @@ export function BriefCreationForm() {
 
       if (paymentError) throw paymentError;
 
-      if (paymentResult.success) {
+      const result = paymentResult as unknown as WalletPaymentResult | null;
+      if (!result) throw new Error('Réponse vide du serveur pendant le paiement.');
+
+      if (result.success) {
         toast.success(`Campagne créée — ${dynamicPrice.toFixed(2)} € débités de votre portefeuille.`);
         navigate({ to: '/annonceur/campagnes' });
       } else {
         toast.error('Solde insuffisant. Veuillez recharger votre portefeuille.');
         navigate({
           to: '/annonceur/wallet/topup',
-          search: { amount: dynamicPrice - paymentResult.current_balance },
+          search: { amount: dynamicPrice - result.current_balance },
         });
       }
     } catch (error: any) {
