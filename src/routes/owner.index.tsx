@@ -107,6 +107,7 @@ function DashboardPage() {
   const [profile, setProfile] = useState<{
     id: string;
     full_name: string;
+    stripe_connect_account_id: string | null;
     stripe_payouts_enabled: boolean | null;
     stripe_requirements_due: string[] | null;
   } | null>(null);
@@ -125,7 +126,7 @@ function DashboardPage() {
     setUserId(session.user.id);
     const { data: prof, error: profErr } = await supabase
       .from("owner_profiles")
-      .select("id, full_name, stripe_payouts_enabled, stripe_requirements_due")
+      .select("id, full_name, stripe_connect_account_id, stripe_payouts_enabled")
       .eq("user_id", session.user.id)
       .maybeSingle();
     if (profErr) throw new Error(profErr.message);
@@ -133,7 +134,7 @@ function DashboardPage() {
       navigate({ to: "/owner/inscription" });
       return;
     }
-    setProfile(prof);
+    setProfile({ ...prof, stripe_requirements_due: null });
     const [{ data: v, error: vErr }, { data: r, error: rErr }] = await Promise.all([
       supabase
         .from("vehicles")
@@ -306,6 +307,7 @@ function DashboardPage() {
       </header>
 
       <StripeComplianceBanner
+        stripeConnectAccountId={profile?.stripe_connect_account_id}
         payoutsEnabled={profile?.stripe_payouts_enabled ?? true}
         requirementsDue={profile?.stripe_requirements_due ?? []}
       />

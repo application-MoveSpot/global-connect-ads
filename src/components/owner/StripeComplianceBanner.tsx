@@ -2,19 +2,22 @@ import { AlertTriangle, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 interface StripeComplianceBannerProps {
+  stripeConnectAccountId: string | null | undefined;
   payoutsEnabled: boolean;
   requirementsDue: string[];
 }
 
 export function StripeComplianceBanner({
+  stripeConnectAccountId,
   payoutsEnabled,
   requirementsDue,
 }: StripeComplianceBannerProps) {
-  const hasIssues = !payoutsEnabled || requirementsDue.length > 0;
-  if (!hasIssues) return null;
+  // On n'affiche rien si l'utilisateur n'a pas encore lié son compte Stripe Connect
+  if (!stripeConnectAccountId || payoutsEnabled || requirementsDue.length === 0) return null;
 
   const isBlocked  = !payoutsEnabled;
   const hasPending = requirementsDue.length > 0;
+  // Si on est ici : compte Stripe lié, payouts bloqués, et requirements > 0
 
   return (
     <div
