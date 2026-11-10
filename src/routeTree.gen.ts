@@ -54,6 +54,7 @@ import { Route as AdvertiserCalendrierRouteImport } from './routes/advertiser.ca
 import { Route as AdvertiserEssaiActiveRouteImport } from './routes/advertiser.essai-active'
 import { Route as AdvertiserEtudeMarcheRouteImport } from './routes/advertiser.etude-marche'
 import { Route as AdvertiserExemplesRouteImport } from './routes/advertiser.exemples'
+import { Route as AdvertiserFacturesRouteImport } from './routes/advertiser.factures'
 import { Route as AdvertiserInscriptionRouteImport } from './routes/advertiser.inscription'
 import { Route as AdvertiserMessagesRouteImport } from './routes/advertiser.messages'
 import { Route as AdvertiserPackRouteImport } from './routes/advertiser.pack'
@@ -77,6 +78,8 @@ import { Route as OwnerFlotteRouteImport } from './routes/owner.flotte'
 import { Route as OwnerHistoriqueRouteImport } from './routes/owner.historique'
 import { Route as OwnerInscriptionRouteImport } from './routes/owner.inscription'
 import { Route as OwnerMessagesRouteImport } from './routes/owner.messages'
+import { Route as OwnerParrainageRouteImport } from './routes/owner.parrainage'
+import { Route as OwnerPortefeuilleRouteImport } from './routes/owner.portefeuille'
 import { Route as OwnerProfilRouteImport } from './routes/owner.profil'
 import { Route as OwnerTrackingRouteImport } from './routes/owner.tracking'
 import { Route as PartnerIndexRouteImport } from './routes/partner.index'
@@ -355,6 +358,11 @@ const AdvertiserExemplesRoute = AdvertiserExemplesRouteImport.update({
   path: '/advertiser/exemples',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdvertiserFacturesRoute = AdvertiserFacturesRouteImport.update({
+  id: '/advertiser/factures',
+  path: '/advertiser/factures',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdvertiserInscriptionRoute = AdvertiserInscriptionRouteImport.update({
   id: '/advertiser/inscription',
   path: '/advertiser/inscription',
@@ -468,6 +476,16 @@ const OwnerInscriptionRoute = OwnerInscriptionRouteImport.update({
 const OwnerMessagesRoute = OwnerMessagesRouteImport.update({
   id: '/owner/messages',
   path: '/owner/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerParrainageRoute = OwnerParrainageRouteImport.update({
+  id: '/owner/parrainage',
+  path: '/owner/parrainage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerPortefeuilleRoute = OwnerPortefeuilleRouteImport.update({
+  id: '/owner/portefeuille',
+  path: '/owner/portefeuille',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerProfilRoute = OwnerProfilRouteImport.update({
@@ -780,6 +798,7 @@ export interface FileRoutesByFullPath {
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
+  '/advertiser/factures': typeof AdvertiserFacturesRoute
   '/advertiser/inscription': typeof AdvertiserInscriptionRoute
   '/advertiser/messages': typeof AdvertiserMessagesRoute
   '/advertiser/pack': typeof AdvertiserPackRoute
@@ -800,6 +819,8 @@ export interface FileRoutesByFullPath {
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
   '/owner/messages': typeof OwnerMessagesRoute
+  '/owner/parrainage': typeof OwnerParrainageRoute
+  '/owner/portefeuille': typeof OwnerPortefeuilleRoute
   '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
@@ -898,6 +919,7 @@ export interface FileRoutesByTo {
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
+  '/advertiser/factures': typeof AdvertiserFacturesRoute
   '/advertiser/inscription': typeof AdvertiserInscriptionRoute
   '/advertiser/messages': typeof AdvertiserMessagesRoute
   '/advertiser/pack': typeof AdvertiserPackRoute
@@ -918,6 +940,8 @@ export interface FileRoutesByTo {
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
   '/owner/messages': typeof OwnerMessagesRoute
+  '/owner/parrainage': typeof OwnerParrainageRoute
+  '/owner/portefeuille': typeof OwnerPortefeuilleRoute
   '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
@@ -1019,6 +1043,7 @@ export interface FileRoutesById {
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
+  '/advertiser/factures': typeof AdvertiserFacturesRoute
   '/advertiser/inscription': typeof AdvertiserInscriptionRoute
   '/advertiser/messages': typeof AdvertiserMessagesRoute
   '/advertiser/pack': typeof AdvertiserPackRoute
@@ -1039,6 +1064,8 @@ export interface FileRoutesById {
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
   '/owner/messages': typeof OwnerMessagesRoute
+  '/owner/parrainage': typeof OwnerParrainageRoute
+  '/owner/portefeuille': typeof OwnerPortefeuilleRoute
   '/owner/profil': typeof OwnerProfilRoute
   '/owner/tracking': typeof OwnerTrackingRoute
   '/partner/inscription': typeof PartnerInscriptionRoute
@@ -1141,6 +1168,7 @@ export interface FileRouteTypes {
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
+    | '/advertiser/factures'
     | '/advertiser/inscription'
     | '/advertiser/messages'
     | '/advertiser/pack'
@@ -1161,6 +1189,8 @@ export interface FileRouteTypes {
     | '/owner/historique'
     | '/owner/inscription'
     | '/owner/messages'
+    | '/owner/parrainage'
+    | '/owner/portefeuille'
     | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
@@ -1259,6 +1289,7 @@ export interface FileRouteTypes {
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
+    | '/advertiser/factures'
     | '/advertiser/inscription'
     | '/advertiser/messages'
     | '/advertiser/pack'
@@ -1279,6 +1310,8 @@ export interface FileRouteTypes {
     | '/owner/historique'
     | '/owner/inscription'
     | '/owner/messages'
+    | '/owner/parrainage'
+    | '/owner/portefeuille'
     | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
@@ -1379,6 +1412,7 @@ export interface FileRouteTypes {
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
+    | '/advertiser/factures'
     | '/advertiser/inscription'
     | '/advertiser/messages'
     | '/advertiser/pack'
@@ -1399,6 +1433,8 @@ export interface FileRouteTypes {
     | '/owner/historique'
     | '/owner/inscription'
     | '/owner/messages'
+    | '/owner/parrainage'
+    | '/owner/portefeuille'
     | '/owner/profil'
     | '/owner/tracking'
     | '/partner/inscription'
@@ -1479,6 +1515,7 @@ export interface RootRouteChildren {
   AdvertiserEssaiActiveRoute: typeof AdvertiserEssaiActiveRoute
   AdvertiserEtudeMarcheRoute: typeof AdvertiserEtudeMarcheRoute
   AdvertiserExemplesRoute: typeof AdvertiserExemplesRoute
+  AdvertiserFacturesRoute: typeof AdvertiserFacturesRoute
   AdvertiserInscriptionRoute: typeof AdvertiserInscriptionRoute
   AdvertiserMessagesRoute: typeof AdvertiserMessagesRoute
   AdvertiserPackRoute: typeof AdvertiserPackRoute
@@ -1499,6 +1536,8 @@ export interface RootRouteChildren {
   OwnerHistoriqueRoute: typeof OwnerHistoriqueRoute
   OwnerInscriptionRoute: typeof OwnerInscriptionRoute
   OwnerMessagesRoute: typeof OwnerMessagesRoute
+  OwnerParrainageRoute: typeof OwnerParrainageRoute
+  OwnerPortefeuilleRoute: typeof OwnerPortefeuilleRoute
   OwnerProfilRoute: typeof OwnerProfilRoute
   OwnerTrackingRoute: typeof OwnerTrackingRoute
   PartnerInscriptionRoute: typeof PartnerInscriptionRoute
@@ -1868,6 +1907,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdvertiserExemplesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/advertiser/factures': {
+      id: '/advertiser/factures'
+      path: '/advertiser/factures'
+      fullPath: '/advertiser/factures'
+      preLoaderRoute: typeof AdvertiserFacturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/advertiser/inscription': {
       id: '/advertiser/inscription'
       path: '/advertiser/inscription'
@@ -2027,6 +2073,20 @@ declare module '@tanstack/react-router' {
       path: '/owner/messages'
       fullPath: '/owner/messages'
       preLoaderRoute: typeof OwnerMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/parrainage': {
+      id: '/owner/parrainage'
+      path: '/owner/parrainage'
+      fullPath: '/owner/parrainage'
+      preLoaderRoute: typeof OwnerParrainageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/owner/portefeuille': {
+      id: '/owner/portefeuille'
+      path: '/owner/portefeuille'
+      fullPath: '/owner/portefeuille'
+      preLoaderRoute: typeof OwnerPortefeuilleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner/profil': {
@@ -2495,6 +2555,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdvertiserEssaiActiveRoute: AdvertiserEssaiActiveRoute,
   AdvertiserEtudeMarcheRoute: AdvertiserEtudeMarcheRoute,
   AdvertiserExemplesRoute: AdvertiserExemplesRoute,
+  AdvertiserFacturesRoute: AdvertiserFacturesRoute,
   AdvertiserInscriptionRoute: AdvertiserInscriptionRoute,
   AdvertiserMessagesRoute: AdvertiserMessagesRoute,
   AdvertiserPackRoute: AdvertiserPackRoute,
@@ -2515,6 +2576,8 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerHistoriqueRoute: OwnerHistoriqueRoute,
   OwnerInscriptionRoute: OwnerInscriptionRoute,
   OwnerMessagesRoute: OwnerMessagesRoute,
+  OwnerParrainageRoute: OwnerParrainageRoute,
+  OwnerPortefeuilleRoute: OwnerPortefeuilleRoute,
   OwnerProfilRoute: OwnerProfilRoute,
   OwnerTrackingRoute: OwnerTrackingRoute,
   PartnerInscriptionRoute: PartnerInscriptionRoute,
