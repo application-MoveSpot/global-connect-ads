@@ -3,9 +3,11 @@
 -- Prérequis (à exécuter une seule fois sur le projet) :
 --   1. Dans Supabase Dashboard → Edge Functions → Secrets :
 --      SUPPORT_WEBHOOK_SECRET = <une chaîne aléatoire longue>
---   2. Dans SQL Editor (en tant que postgres) :
---      ALTER DATABASE postgres SET app.support_webhook_secret TO '<même valeur>';
---      ALTER DATABASE postgres SET app.supabase_url TO 'https://<project-ref>.supabase.co';
+--   2. Dans SQL Editor :
+--      -- Secret chiffré dans Vault (ALTER DATABASE est interdit dans Supabase) :
+--      SELECT vault.create_secret('<même valeur>', 'support_webhook_secret');
+--      -- URL non-sensible via ALTER ROLE (fonctionne sans superuser) :
+--      ALTER ROLE postgres SET app.supabase_url TO 'https://<project-ref>.supabase.co';
 
 -- Active pg_net pour les requêtes HTTP asynchrones depuis SQL
 CREATE EXTENSION IF NOT EXISTS pg_net;
@@ -27,8 +29,12 @@ DECLARE
   v_webhook_secret   TEXT;
 BEGIN
   -- Lire les paramètres configurés une fois en base
-  v_supabase_url   := current_setting('app.supabase_url',          true);
-  v_webhook_secret := current_setting('app.support_webhook_secret', true);
+  v_supabase_url   := current_setting('app.supabase_url', true);
+
+  -- Secret stocké dans Vault (ALTER DATABASE est interdit sans superuser dans Supabase)
+  SELECT decrypted_secret INTO v_webhook_secret
+  FROM vault.decrypted_secrets
+  WHERE name = 'support_webhook_secret';
 
   FOR r IN
     SELECT
