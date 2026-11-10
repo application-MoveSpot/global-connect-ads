@@ -26,6 +26,7 @@ import { downloadCsv } from "@/lib/exportCsv";
 import { RouteError } from "@/components/app/RouteError";
 import { SignalementDialog } from "@/components/shared/SignalementDialog";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
+import { StripeComplianceBanner } from "@/components/owner/StripeComplianceBanner";
 
 const MobilityMap = lazy(() =>
   import("@/components/shared/MobilityMap").then((m) => ({ default: m.MobilityMap })),
@@ -103,7 +104,12 @@ function DashboardPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [profile, setProfile] = useState<{ id: string; full_name: string } | null>(null);
+  const [profile, setProfile] = useState<{
+    id: string;
+    full_name: string;
+    stripe_payouts_enabled: boolean | null;
+    stripe_requirements_due: string[] | null;
+  } | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [requests, setRequests] = useState<Request[]>([]);
   const [tab, setTab] = useState<"vehicles" | "requests">("vehicles");
@@ -119,7 +125,7 @@ function DashboardPage() {
     setUserId(session.user.id);
     const { data: prof, error: profErr } = await supabase
       .from("owner_profiles")
-      .select("id, full_name")
+      .select("id, full_name, stripe_payouts_enabled, stripe_requirements_due")
       .eq("user_id", session.user.id)
       .maybeSingle();
     if (profErr) throw new Error(profErr.message);
@@ -298,6 +304,11 @@ function DashboardPage() {
           </div>
         </div>
       </header>
+
+      <StripeComplianceBanner
+        payoutsEnabled={profile?.stripe_payouts_enabled ?? true}
+        requirementsDue={profile?.stripe_requirements_due ?? []}
+      />
 
       {loadError && (
         <div className="max-w-6xl mx-auto px-4 pt-4">
