@@ -60,6 +60,7 @@ import { StatusHistory } from "@/components/shared/StatusHistory";
 import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard";
 import { AdminCronJobPanel } from "@/components/admin/AdminCronJobPanel";
+import { AdminBankTransfersPanel } from "@/components/admin/AdminBankTransfersPanel";
 import {
   moderateBriefVisual,
   type VisualModerationResult,
@@ -2148,7 +2149,7 @@ function AdminDashboard() {
         {tab === "support" ? <AdminSupportDashboard /> : null}
 
         {tab === "cron" ? (
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6">
             <div>
               <h2 className="font-display text-lg font-bold">Automatisation</h2>
               <p className="text-sm text-muted-foreground mt-1">
@@ -2156,6 +2157,7 @@ function AdminDashboard() {
               </p>
             </div>
             <AdminCronJobPanel />
+            <AdminBankTransfersPanel />
           </div>
         ) : null}
 
