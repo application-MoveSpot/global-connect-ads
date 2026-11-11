@@ -5,7 +5,8 @@
  * installation publicitaire. Appelé via pg_net depuis un trigger SQL sur
  * installation_missions (AFTER INSERT).
  *
- * Auth : x-internal-secret header (même secret que les autres fonctions internes)
+ * Provider : Brevo (ex-Sendinblue) — plan gratuit disponible
+ * Auth     : x-internal-secret header
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -14,9 +15,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const INTERNAL_SECRET = Deno.env.get("INTERNAL_FUNCTION_SECRET")!;
 
-const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID")!;
-const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN")!;
-const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER")!;
+const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY")!;
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -129,55 +128,41 @@ Deno.serve(async (req: Request) => {
         ? ` (${scheduled_time_slot})`
         : "";
 
-    const locationStr =
-      location_address
-        ? location_address + (location_city ? `, ${location_city}` : "")
-        : location_city ?? "";
+    const locationStr = location_address
+      ? location_address + (location_city ? `, ${location_city}` : "")
+      : location_city ?? "";
 
-    let messageBody = `Bonjour ${driver.full_name},\n\n`;
+    let messageBody = `Bonjour ${driver.full_name},\n`;
     messageBody += `Une ${actionLabel} est planifiée sur votre véhicule ${vehicle.name ?? ""}`;
+    if (dateStr) messageBody += ` le ${dateStr}${slotStr}`;
+    if (locationStr) messageBody += ` à ${locationStr}`;
+    messageBody += `.\nMerci d'assurer la disponibilité de votre véhicule.\n— MoveSpot`;
 
-    if (dateStr) {
-      messageBody += ` le ${dateStr}${slotStr}`;
-    }
-
-    if (locationStr) {
-      messageBody += ` à ${locationStr}`;
-    }
-
-    messageBody += `.\n\nMerci de vous assurer que votre véhicule est disponible.\n\n— MoveSpot`;
-
-    // ── Envoyer via Twilio ─────────────────────────────────────────────────
-    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
-
-    const formData = new URLSearchParams();
-    formData.set("From", TWILIO_PHONE_NUMBER);
-    formData.set("To", driver.phone);
-    formData.set("Body", messageBody);
-
-    const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
-
-    const twilioRes = await fetch(twilioUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString(),
-    });
-
-    const twilioData = await twilioRes.json();
-
-    if (!twilioRes.ok) {
-      console.error(
-        "send-driver-installation-sms: Twilio error",
-        twilioData
-      );
-      return new Response(
-        JSON.stringify({
-          error: "twilio_error",
-          details: twilioData,
+    // ── Envoyer via Brevo Transactional SMS API ────────────────────────────
+    const brevoRes = await fetch(
+      "https://api.brevo.com/v3/transactionalSMS/sms",
+      {
+        method: "POST",
+        headers: {
+          "api-key": BREVO_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: "MoveSpot",
+          recipient: driver.phone,
+          content: messageBody,
+          type: "transactional",
         }),
+      }
+    );
+
+    const brevoData = await brevoRes.json();
+
+    if (!brevoRes.ok) {
+      console.error("send-driver-installation-sms: Brevo error", brevoData);
+      return new Response(
+        JSON.stringify({ error: "brevo_error", details: brevoData }),
         { status: 502, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -189,7 +174,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        sid: twilioData.sid,
+        message_id: brevoData.messageId,
         driver_phone: driver.phone,
         mission_id,
       }),
