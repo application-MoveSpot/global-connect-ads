@@ -28,7 +28,7 @@ export const Route = createFileRoute("/cgv")({
 function CGV() {
   const { t } = useTranslation();
   return (
-    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="9 novembre 2026">
+    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="11 novembre 2026">
       <LegalSection title={t("cgv.s1")}>
         <p>
           Les présentes Conditions Générales de Vente (« CGV ») régissent les relations
@@ -178,10 +178,12 @@ function CGV() {
       <LegalSection title={t("cgv.s6")}>
         <p>
           MoveSpot prélève une commission d'intermédiation de 30 % du montant hors taxes. Les 70 %
-          restants sont répartis entre le propriétaire du véhicule, le driver et, le cas échéant, le
-          provider de pose. Les reversements sont effectués vers les comptes de paiement des
-          bénéficiaires (Stripe Connect Express) ou par virement SEPA, après validation des
-          métriques de campagne et finalisation de leur vérification d'identité et de leur IBAN.
+          restants sont versés <strong>intégralement au propriétaire du véhicule</strong> inscrit
+          sur la Plateforme, via son compte Stripe Connect Express. La rémunération éventuelle du
+          driver et du provider de pose relève exclusivement de l'accord bilatéral conclu entre le
+          propriétaire et ces intervenants. Les reversements sont effectués après validation des
+          métriques de campagne et finalisation de la vérification d'identité et de l'IBAN du
+          propriétaire.
         </p>
       </LegalSection>
 

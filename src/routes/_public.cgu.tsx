@@ -31,7 +31,7 @@ function CGU() {
     <LegalPage
       eyebrow={t("cgu.eyebrow")}
       title={t("cgu.title")}
-      updatedAt="9 novembre 2026"
+      updatedAt="11 novembre 2026"
       showHeader={false}
     >
       <LegalSection title={t("cgu.s1")}>
@@ -239,14 +239,17 @@ function CGU() {
           Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les
           budgets B2B) et conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à
           l'exécution de la campagne. MoveSpot prélève une commission d'intermédiation de 30 % du
-          montant hors taxes ; 70 % sont destinés au propriétaire du véhicule, au driver et, le cas
-          échéant, au poseur certifié.
+          montant hors taxes. Les 70 % restants sont versés <strong>intégralement au propriétaire
+          du véhicule</strong> inscrit sur la Plateforme, via son compte Stripe Connect. La
+          rémunération éventuelle du chauffeur et du poseur certifié relève exclusivement de
+          l'accord bilatéral conclu entre le propriétaire et ces intervenants ; MoveSpot n'est
+          pas partie à cet accord et ne saurait en être tenu responsable.
         </p>
         <p>
-          Les gains sont cumulés sur le compte du bénéficiaire et deviennent exigibles après
+          Les gains sont cumulés sur le compte du propriétaire et deviennent exigibles après
           validation des métriques de campagne (distance parcourue dans la zone de ciblage, minutes
           actives et taux de couverture). Le reversement est conditionné à la finalisation de
-          l'inscription Stripe Connect du bénéficiaire (identité vérifiée et IBAN valide). En cas
+          l'inscription Stripe Connect du propriétaire (identité vérifiée et IBAN valide). En cas
           d'anomalie de suivi, de fraude présumée ou de non-respect des obligations ci-dessus,
           MoveSpot peut suspendre le reversement le temps de l'instruction du dossier.
         </p>
