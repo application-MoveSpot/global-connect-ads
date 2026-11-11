@@ -34,6 +34,7 @@ serve(async (req: Request) => {
 
     console.log(`Webhook Stripe reçu : ${event.type} [${event.id}]`);
 
+    // ── account.updated : sync Stripe Connect status ──────────────────────────
     if (event.type === "account.updated") {
       const account = event.data.object as Stripe.Account;
 
@@ -63,6 +64,82 @@ serve(async (req: Request) => {
       }
 
       console.log(`Profil synchronisé pour ${stripeAccountId}`);
+    }
+
+    // ── transfer.reversed : virement annulé par Stripe ───────────────────────
+    if (event.type === "transfer.reversed") {
+      const transfer = event.data.object as Stripe.Transfer;
+      const transferId = transfer.id;
+      const reversalReason =
+        (transfer.reversals?.data?.[0] as any)?.reason ?? "unknown";
+      const failureReason = `transfer_reversed: ${reversalReason}`;
+
+      console.log(`Transfer ${transferId} reversé (${reversalReason})`);
+
+      const { error } = await supabase
+        .from("bank_transfer_requests")
+        .update({
+          status:         "failed",
+          failure_reason: failureReason,
+          updated_at:     new Date().toISOString(),
+        })
+        .eq("stripe_transfer_id", transferId);
+
+      if (error) {
+        console.error(
+          `Erreur update bank_transfer_requests pour transfer ${transferId}:`,
+          error.message,
+        );
+        return new Response(`DB Error: ${error.message}`, { status: 500 });
+      }
+
+      console.log(
+        `bank_transfer_requests mis en failed pour transfer ${transferId}`,
+      );
+    }
+
+    // ── payout.failed : versement bancaire final échoué ───────────────────────
+    // event.account = Connect account ID (disponible sur les webhooks Connect)
+    if (event.type === "payout.failed") {
+      const payout = event.data.object as Stripe.Payout;
+      const connectAccountId = (event as any).account as string | undefined;
+      const failCode    = payout.failure_code ?? "unknown_failure";
+      const failMessage = payout.failure_message ?? "payout_failed";
+      const failureReason = `payout_failed: ${failCode} — ${failMessage}`;
+
+      console.log(
+        `Payout ${payout.id} échoué pour ${connectAccountId ?? "unknown"}: ${failCode}`,
+      );
+
+      if (connectAccountId) {
+        // On marque en failed toutes les lignes completed pour ce compte
+        // dont le payout_id correspond (ou les plus récentes si pas d'ID payout stocké)
+        const { error } = await supabase
+          .from("bank_transfer_requests")
+          .update({
+            status:         "failed",
+            failure_reason: failureReason,
+            updated_at:     new Date().toISOString(),
+          })
+          .eq("stripe_account_id", connectAccountId)
+          .eq("status", "completed");
+
+        if (error) {
+          console.error(
+            `Erreur update bank_transfer_requests pour payout ${payout.id}:`,
+            error.message,
+          );
+          return new Response(`DB Error: ${error.message}`, { status: 500 });
+        }
+
+        console.log(
+          `bank_transfer_requests mis en failed pour payout échoué (${connectAccountId})`,
+        );
+      } else {
+        console.warn(
+          `payout.failed reçu sans event.account — impossible de matcher bank_transfer_requests`,
+        );
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {
