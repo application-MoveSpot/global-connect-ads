@@ -11,6 +11,12 @@ export function CookieBanner() {
 
   useEffect(() => {
     if (getConsent() === null) setVisible(true);
+
+    const handler = (e: Event) => {
+      if ((e as CustomEvent).detail === null) setVisible(true);
+    };
+    window.addEventListener("ms-consent-change", handler);
+    return () => window.removeEventListener("ms-consent-change", handler);
   }, []);
 
   const save = (choice: "accepted" | "refused") => {

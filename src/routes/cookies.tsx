@@ -32,7 +32,7 @@ export const Route = createFileRoute("/cookies")({
 function Cookies() {
   const { t } = useTranslation();
   return (
-    <LegalPage eyebrow={t("cookies.eyebrow")} title={t("cookies.title")} updatedAt="12 août 2026">
+    <LegalPage eyebrow={t("cookies.eyebrow")} title={t("cookies.title")} updatedAt="11 novembre 2026">
       <LegalSection title={t("cookies.s1")}>
         <p>
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette,
@@ -111,6 +111,16 @@ function Cookies() {
               </td>
               <td className="p-3">Variable</td>
               <td className="p-3">Non requis (nécessaire au paiement)</td>
+            </tr>
+            <tr>
+              <td className="p-3">Tiers (SMS)</td>
+              <td className="p-3">
+                Envoi de SMS transactionnels aux chauffeurs pour les confirmations
+                d'installation (Brevo / Sendinblue SAS) — aucun cookie déposé côté navigateur ;
+                traitement limité au numéro de téléphone et au contenu du message
+              </td>
+              <td className="p-3">Sans objet (canal SMS)</td>
+              <td className="p-3">Non requis (exécution du contrat)</td>
             </tr>
           </tbody>
         </table>

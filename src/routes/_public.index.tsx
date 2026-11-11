@@ -3,6 +3,7 @@ import { buildSeoHead, FAQ_ADVERTISERS_JSON_LD } from "@/components/SEO";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { Instagram } from "lucide-react";
+import { clearConsent } from "@/lib/consent";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
 import { getPublicStats } from "@/lib/stats/public-stats.functions";
 
@@ -125,6 +126,18 @@ export const Route = createFileRoute("/_public/")({
   },
   component: Index,
 });
+
+function ManageCookiesButton({ label }: { label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => clearConsent()}
+      className="hover:text-foreground transition text-left"
+    >
+      {label}
+    </button>
+  );
+}
 
 function Index() {
   const { t } = useTranslation();
@@ -750,6 +763,7 @@ function Index() {
               <Link to="/mentions-legales" className="hover:text-foreground transition">
                 {tx("footer.mentions", "Mentions légales")}
               </Link>
+              <ManageCookiesButton label={tx("footer.manage_cookies", "Gérer mes cookies")} />
               {isLovablePreview && (
                 <Link to="/admin" className="hover:text-foreground transition text-amber-500">
                   ⚙ Admin
