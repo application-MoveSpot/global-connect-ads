@@ -82,10 +82,9 @@ function MentionsLegales() {
         </p>
         <p>
           <strong>Téléphone</strong> :{" "}
-          <a href="tel:+33XXXXXXXXX" className="text-primary hover:underline">
-            +33 X XX XX XX XX
-          </a>{" "}
-          <span className="text-muted-foreground text-sm">[À COMPLÉTER]</span>
+          <a href="tel:+33972178087" className="text-primary hover:underline">
+            +33 9 72 17 80 87
+          </a>
         </p>
         <p>
           <strong>Adresse de correspondance</strong> : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg,
