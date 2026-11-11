@@ -2,6 +2,7 @@ import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { RouteError } from "@/components/app/RouteError";
 import { AppHeader } from "@/components/app/AppHeader";
 import { OwnerWallet } from "@/components/owner/OwnerWallet";
+import { OwnerBankTransfersList } from "@/components/owner/OwnerBankTransfersList";
 import { Wallet } from "lucide-react";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -52,6 +53,7 @@ function PortefeuillePage() {
         </div>
 
         <OwnerWallet />
+        <OwnerBankTransfersList />
       </main>
     </div>
   );
