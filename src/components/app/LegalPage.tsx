@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { LogoLink } from "@/components/app/LogoLink";
+import { clearConsent } from "@/lib/consent";
 
 type Props = {
   eyebrow: string;
@@ -63,6 +64,13 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
             <Link to="/cookies" className="hover:text-foreground transition">
               {t("legal.link_cookies")}
             </Link>
+            <button
+              type="button"
+              onClick={() => clearConsent()}
+              className="hover:text-foreground transition text-left"
+            >
+              {t("legal.manage_cookies")}
+            </button>
           </div>
         </div>
       </footer>

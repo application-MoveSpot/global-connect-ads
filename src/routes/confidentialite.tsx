@@ -34,7 +34,7 @@ function Privacy() {
     <LegalPage
       eyebrow={t("confidentialite.eyebrow")}
       title={t("confidentialite.title")}
-      updatedAt="6 octobre 2026"
+      updatedAt="11 novembre 2026"
     >
       <LegalSection title={t("confidentialite.s1")}>
         <p>
@@ -69,8 +69,9 @@ function Privacy() {
             d'entreprise, fonction, SIREN/SIRET.
           </li>
           <li>
-            <strong>Données de contact</strong> : adresse email, téléphone, adresse de
-            correspondance.
+            <strong>Données de contact</strong> : adresse email, numéro de téléphone (collecté
+            pour les chauffeurs afin de leur envoyer les confirmations d'installation par SMS),
+            adresse de correspondance.
           </li>
           <li>
             <strong>Données de compte et de sécurité</strong> : identifiants, journaux de connexion,
@@ -207,33 +208,45 @@ function Privacy() {
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
-            <strong>Hébergement, base de données, authentification et stockage de fichiers</strong>{" "}
-            — infrastructure cloud de la Plateforme (Union européenne).
+            <strong>Supabase Inc.</strong> (970 Toa Payoh North #07-04, Singapore 318992 —
+            données stockées en UE, région AWS eu-west-3 Paris) — hébergement de la base de
+            données, authentification des comptes (dont 2FA TOTP) et stockage des fichiers
+            (photos de véhicules, créations publicitaires).
           </li>
           <li>
-            <strong>Stripe</strong> — paiements par carte, abonnements, comptes de paiement partners
-            et reversements.
+            <strong>Stripe Payments Europe, Ltd.</strong> (The One Building, 1 Grand Canal Street
+            Lower, Dublin 2, Irlande) — paiements par carte, abonnements, comptes de paiement
+            Stripe Connect des propriétaires et reversements.
           </li>
           <li>
-            <strong>Établissement bancaire</strong> — traitement des virements entrants B2B et des
-            virements SEPA sortants.
+            <strong>Établissement bancaire partenaire</strong> — traitement des virements entrants
+            B2B et des virements SEPA sortants.
           </li>
           <li>
-            <strong>Mapbox</strong> — affichage cartographique, fonds de carte, géocodage des
-            adresses d'itinéraire, calcul de trajet et détection des points d'intérêt.
+            <strong>Resend Inc.</strong> (2261 Market Street, Suite 5039, San Francisco, CA 94114,
+            États-Unis) — envoi des emails transactionnels (notifications d'activation, de
+            virement, de modération, alertes de sécurité) depuis le domaine{" "}
+            <strong>notify.move-spot.com</strong>.
+          </li>
+          <li>
+            <strong>Brevo (Sendinblue SAS)</strong> (7 rue de Madrid, 75008 Paris, France) —
+            envoi de SMS transactionnels aux chauffeurs pour les confirmations d'installation
+            publicitaire. Données transmises : numéro de téléphone du chauffeur et message de
+            notification horodaté.
+          </li>
+          <li>
+            <strong>Mapbox, Inc.</strong> (740 15th Street NW, Washington, DC 20005,
+            États-Unis) — affichage cartographique, géocodage des adresses d'itinéraire, calcul
+            de trajet et dessin des zones de diffusion.
           </li>
           <li>
             <strong>API publiques françaises</strong> (Annuaire des Entreprises / INSEE Sirene) —
-            vérification des identités d'entreprise.
+            vérification des identités d'entreprise (SIRET).
           </li>
           <li>
-            <strong>Service d'envoi d'emails transactionnels</strong> — notifications de compte et
-            de campagne.
-          </li>
-          <li>
-            <strong>Fournisseur de modèles d'IA</strong> — assistance conversationnelle et analyse
-            automatisée de photos de véhicules ; aucune donnée n'est utilisée pour entraîner des
-            modèles.
+            <strong>Fournisseur de modèles d'IA</strong> (Anthropic) — assistance
+            conversationnelle (FAQ) et analyse automatisée de photos de véhicules ; aucune donnée
+            n'est utilisée pour entraîner des modèles tiers.
           </li>
         </ul>
       </LegalSection>

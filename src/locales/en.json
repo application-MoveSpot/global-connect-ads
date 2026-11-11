@@ -3157,7 +3157,8 @@
     "link_cgu": "Terms of Use",
     "link_cgv": "Terms of Sale",
     "link_privacy": "Privacy",
-    "link_cookies": "Cookies"
+    "link_cookies": "Cookies",
+    "manage_cookies": "Manage cookies"
   },
   "cgv": {
     "eyebrow": "Legal",

@@ -10,12 +10,12 @@ export const Route = createFileRoute("/mentions-legales")({
       {
         name: "description",
         content:
-          "Mentions légales MoveSpot : éditeur, SIRET, hébergement, services tiers (paiement, cartographie) et propriété intellectuelle.",
+          "Mentions légales MoveSpot : éditeur, SIRET, hébergement (Lovable, Supabase), services tiers (Stripe, Resend, Brevo, Mapbox) et propriété intellectuelle.",
       },
       { property: "og:title", content: "Mentions légales — MoveSpot" },
       {
         property: "og:description",
-        content: "Éditeur, coordonnées, hébergeur et services tiers de la plateforme MoveSpot.",
+        content: "Éditeur, coordonnées, hébergeurs et services tiers de la plateforme MoveSpot.",
       },
       { name: "robots", content: "index, follow" },
     ],
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/mentions-legales")({
 function MentionsLegales() {
   const { t } = useTranslation();
   return (
-    <LegalPage eyebrow={t("mentions.eyebrow")} title={t("mentions.title")} updatedAt="12 août 2026">
+    <LegalPage eyebrow={t("mentions.eyebrow")} title={t("mentions.title")} updatedAt="11 novembre 2026">
       <LegalSection title={t("mentions.s_editor")}>
         <p>
           La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>RAKOUN KLUB</strong>,
@@ -81,6 +81,13 @@ function MentionsLegales() {
           </a>
         </p>
         <p>
+          <strong>Téléphone</strong> :{" "}
+          <a href="tel:+33XXXXXXXXX" className="text-primary hover:underline">
+            +33 X XX XX XX XX
+          </a>{" "}
+          <span className="text-muted-foreground text-sm">[À COMPLÉTER]</span>
+        </p>
+        <p>
           <strong>Adresse de correspondance</strong> : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg,
           97122 Baie-Mahault
         </p>
@@ -88,7 +95,8 @@ function MentionsLegales() {
 
       <LegalSection title={t("mentions.s_host")}>
         <p>
-          Le Site est hébergé par <strong>Lovable GPT AB</strong>.
+          <strong>Hébergement de l'application web (front-end)</strong> — Le Site est hébergé par{" "}
+          <strong>Lovable GPT AB</strong>.
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
@@ -103,6 +111,31 @@ function MentionsLegales() {
               className="underline"
             >
               https://lovable.dev
+            </a>
+          </li>
+        </ul>
+
+        <p className="mt-4">
+          <strong>Hébergement de la base de données, de l'authentification et du stockage</strong>{" "}
+          — Les données sont hébergées par <strong>Supabase Inc.</strong>
+        </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Siège social</strong> : 970 Toa Payoh North #07-04, Singapore 318992
+          </li>
+          <li>
+            <strong>Région de stockage des données</strong> : Union européenne (AWS eu-west-3,
+            Paris, France)
+          </li>
+          <li>
+            <strong>Site web</strong> :{" "}
+            <a
+              href="https://supabase.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              https://supabase.com
             </a>
           </li>
         </ul>
@@ -182,13 +215,20 @@ function MentionsLegales() {
             Entreprises » / INSEE Sirene.
           </li>
           <li>
-            <strong>Emails transactionnels</strong> : envoi des notifications de compte et de
-            campagne depuis le domaine <strong>move-spot.com</strong>, avec gestion des
-            désinscriptions.
+            <strong>Emails transactionnels</strong> : <strong>Resend Inc.</strong> (2261 Market
+            Street, Suite 5039, San Francisco, CA 94114, États-Unis — https://resend.com) — envoi
+            des notifications de compte et de campagne depuis le domaine{" "}
+            <strong>notify.move-spot.com</strong>.
           </li>
           <li>
-            <strong>Infrastructure applicative</strong> : base de données, authentification (dont
-            double authentification TOTP) et stockage de fichiers hébergés dans l'Union européenne.
+            <strong>Notifications SMS</strong> : <strong>Brevo (Sendinblue SAS)</strong> (7 rue de
+            Madrid, 75008 Paris, France — https://www.brevo.com) — envoi des SMS de confirmation
+            aux chauffeurs lors de la planification d'une installation publicitaire.
+          </li>
+          <li>
+            <strong>Infrastructure applicative</strong> : <strong>Supabase Inc.</strong> — base de
+            données, authentification (dont double authentification TOTP) et stockage de fichiers
+            hébergés dans l'Union européenne (région AWS eu-west-3, Paris).
           </li>
         </ul>
       </LegalSection>

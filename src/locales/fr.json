@@ -237,7 +237,8 @@
     "payment_secure": "Paiement sécurisé :",
     "transactions_3ds": "· Transactions 3D Secure",
     "follow_us": "Suivez-nous :",
-    "b2b": "Solution B2B"
+    "b2b": "Solution B2B",
+    "manage_cookies": "Gérer mes cookies"
   },
   "root": {
     "skip_to_content": "Aller au contenu principal",
@@ -3206,7 +3207,8 @@
     "link_cgu": "CGU",
     "link_cgv": "CGV",
     "link_privacy": "Confidentialité",
-    "link_cookies": "Cookies"
+    "link_cookies": "Cookies",
+    "manage_cookies": "Gérer mes cookies"
   },
   "cgv": {
     "eyebrow": "Mentions légales",
