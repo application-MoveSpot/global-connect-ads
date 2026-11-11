@@ -19,6 +19,7 @@ import { RouteError } from "@/components/app/RouteError";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useRegion } from "@/lib/region-context";
 import { useWalletAnalytics } from "@/hooks/useWalletAnalytics";
+import { WalletBalanceChart } from "@/components/advertiser/wallet/WalletBalanceChart";
 
 export const Route = createFileRoute("/advertiser/portefeuille")({
   head: () => ({
@@ -369,6 +370,8 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
             </div>
           )}
         </section>
+
+        <WalletBalanceChart userId={userId} />
 
         <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
           <h2 className="font-display text-xl font-semibold">{t("wallet.topup_card_title")}</h2>
