@@ -18,7 +18,8 @@
     "test:e2e": "node node_modules/@playwright/test/cli.js test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "node node_modules/@playwright/test/cli.js show-report e2e/report",
-    "test:e2e:list": "node node_modules/@playwright/test/cli.js test --list"
+    "test:e2e:list": "node node_modules/@playwright/test/cli.js test --list",
+    "test:payments": "node --experimental-strip-types --test 'src/lib/payments/__tests__/payment-sql-functions.integration.test.ts'"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.48",
