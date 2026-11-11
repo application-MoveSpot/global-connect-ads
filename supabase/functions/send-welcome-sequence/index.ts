@@ -1,11 +1,14 @@
 /**
  * send-welcome-sequence
  *
- * Handles two modes:
+ * Handles three modes:
  *   - welcome: sends the immediate welcome email after a new profile is created
  *              called by an AFTER INSERT trigger on advertiser_profiles / owner_profiles
  *   - batch-followup: scans users who registered N days ago and haven't completed
  *                     the activation step; called by a pg_cron daily job
+ *   - batch-activation: activation sequence for advertisers who haven't created a brief
+ *                       J+1 (first nudge) and J+7 (final nudge + in-app notification)
+ *                       secured by x-internal-secret header
  *
  * Uses enqueue_email RPC so the existing process-email-queue function dispatches via Resend.
  * Locale is determined by the user's country_code: 'DE' → German, all others → French.
@@ -14,6 +17,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const INTERNAL_FUNCTION_SECRET = Deno.env.get("INTERNAL_FUNCTION_SECRET") ?? "";
 const SITE_URL = "https://move-spot.com";
 const FROM_NAME = "MoveSpot";
 const FROM_DOMAIN = "notify.move-spot.com";
@@ -313,6 +317,133 @@ function buildOwnerDay2(firstName: string | null, lang: string) {
   return lang === "de" ? buildOwnerDay2DE(firstName) : buildOwnerDay2FR(firstName);
 }
 
+// ─── Activation J+1 ──────────────────────────────────────────────────────────
+
+function buildAdvertiserDay1FR(firstName: string | null): { subject: string; html: string; text: string } {
+  const name = firstName ?? "";
+  const subject = name
+    ? `${name}, créez votre premier brief MoveSpot — c'est rapide !`
+    : "Créez votre premier brief MoveSpot — c'est rapide !";
+  const previewText = name
+    ? `${name}, votre espace annonceur vous attend. Lancez votre première campagne en 5 minutes.`
+    : "Votre espace annonceur vous attend. Lancez votre première campagne en 5 minutes.";
+
+  const greeting = name ? `${name}, bienvenue à nouveau !` : "Bienvenue à nouveau !";
+
+  const body = `
+    <h1 style="font-size:22px;line-height:1.35;color:#0f172a;font-weight:700;margin:16px 0 12px">${greeting} 🎯</h1>
+    <p style="font-size:15px;line-height:1.65;color:#374151;margin:0 0 16px">
+      Votre compte annonceur MoveSpot est prêt. Il ne vous reste qu'une chose à faire&nbsp;:
+      créer votre premier brief pour recevoir des propositions de flottes locales.
+    </p>
+    <div style="background-color:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:16px 18px;margin:20px 0">
+      <p style="font-size:13px;color:#0369a1;font-weight:600;margin:0 0 8px">📋 En moins de 5 minutes, vous pouvez&nbsp;:</p>
+      <ul style="font-size:13px;line-height:1.7;color:#0c4a6e;margin:0;padding-left:18px">
+        <li>Dessiner votre zone de diffusion sur la carte</li>
+        <li>Choisir la durée et le type de véhicules souhaités</li>
+        <li>Uploader votre visuel publicitaire (ou le générer avec notre IA)</li>
+        <li>Recevoir les premières propositions de propriétaires dans les 24h</li>
+      </ul>
+    </div>
+    <p style="font-size:13px;line-height:1.6;color:#6b7280;margin:0 0 8px">
+      Pas encore votre visuel ? Pas de souci — notre assistant IA peut vous aider à décrire votre message
+      et générer un brief en quelques clics.
+    </p>
+    ${ctaButton(langUrl("/advertiser/briefs/nouveau", "fr"), "Créer mon premier brief")}`;
+
+  const text = `${greeting}\n\nCréez votre premier brief en 5 minutes : ${SITE_URL}/advertiser/briefs/nouveau\n\n— L'équipe MoveSpot`;
+
+  return { subject, html: htmlWrap(previewText, body, "fr"), text };
+}
+
+function buildAdvertiserDay1DE(firstName: string | null): { subject: string; html: string; text: string } {
+  const name = firstName ?? "";
+  const subject = name
+    ? `${name}, erstellen Sie Ihr erstes MoveSpot-Brief — es geht schnell!`
+    : "Erstellen Sie Ihr erstes MoveSpot-Brief — es geht schnell!";
+  const previewText = "Ihr Werbebereich wartet. Starten Sie Ihre erste Kampagne in 5 Minuten.";
+  const greeting = name ? `${name}, herzlich willkommen zurück!` : "Herzlich willkommen zurück!";
+
+  const body = `
+    <h1 style="font-size:22px;line-height:1.35;color:#0f172a;font-weight:700;margin:16px 0 12px">${greeting} 🎯</h1>
+    <p style="font-size:15px;line-height:1.65;color:#374151;margin:0 0 16px">
+      Ihr MoveSpot-Werbekonto ist bereit. Erstellen Sie Ihr erstes Brief, um Angebote von lokalen Fahrzeugflotten zu erhalten.
+    </p>
+    ${ctaButton(langUrl("/advertiser/briefs/nouveau", "de"), "Mein erstes Brief erstellen")}`;
+
+  const text = `${greeting}\n\nErstellen Sie Ihr erstes Brief: ${SITE_URL}/advertiser/briefs/nouveau\n\n— Das MoveSpot-Team`;
+
+  return { subject, html: htmlWrap(previewText, body, "de"), text };
+}
+
+function buildAdvertiserDay1(firstName: string | null, lang: string) {
+  return lang === "de" ? buildAdvertiserDay1DE(firstName) : buildAdvertiserDay1FR(firstName);
+}
+
+// ─── Activation J+7 ──────────────────────────────────────────────────────────
+
+function buildAdvertiserDay7FR(firstName: string | null): { subject: string; html: string; text: string } {
+  const name = firstName ?? "";
+  const subject = name
+    ? `${name}, dernière chance — votre onboarding MoveSpot se termine bientôt`
+    : "Dernière chance — votre onboarding MoveSpot se termine bientôt";
+  const previewText = name
+    ? `${name}, votre espace annonceur restera actif, mais nos relances personnalisées s'arrêtent aujourd'hui.`
+    : "Votre espace annonceur restera actif, mais nos relances personnalisées s'arrêtent aujourd'hui.";
+
+  const greeting = name ? `${name}, un dernier message de notre part` : "Un dernier message de notre part";
+
+  const body = `
+    <h1 style="font-size:22px;line-height:1.35;color:#0f172a;font-weight:700;margin:16px 0 12px">${greeting} 👋</h1>
+    <p style="font-size:15px;line-height:1.65;color:#374151;margin:0 0 16px">
+      Vous vous êtes inscrit sur MoveSpot il y a 7 jours, mais n'avez pas encore créé de brief.
+      C'est tout à fait normal — peut-être attendiez-vous le bon moment ou votre visuel.
+    </p>
+    <div style="background-color:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:16px 18px;margin:20px 0">
+      <p style="font-size:13px;color:#92400e;font-weight:600;margin:0 0 8px">⏰ Ce qui se passe maintenant</p>
+      <p style="font-size:13px;line-height:1.65;color:#78350f;margin:0">
+        Votre compte reste actif et opérationnel. Mais c'est notre dernier email de relance&nbsp;:
+        après aujourd'hui, nous ne vous contacterons que si vous initiez vous-même une campagne.
+      </p>
+    </div>
+    <p style="font-size:15px;line-height:1.65;color:#374151;margin:0 0 16px">
+      Si vous avez des questions ou si quelque chose vous a bloqué, répondez simplement à cet email.
+      Notre équipe vous répond sous 24h.
+    </p>
+    <p style="font-size:13px;line-height:1.6;color:#6b7280;margin:0 0 16px">
+      Sinon, votre premier brief peut démarrer à tout moment — même dans 6 mois.
+    </p>
+    ${ctaButton(langUrl("/advertiser/briefs/nouveau", "fr"), "Je lance ma campagne maintenant")}`;
+
+  const text = `${greeting}\n\nVotre compte reste actif. Lancez votre campagne quand vous voulez : ${SITE_URL}/advertiser/briefs/nouveau\n\n— L'équipe MoveSpot`;
+
+  return { subject, html: htmlWrap(previewText, body, "fr"), text };
+}
+
+function buildAdvertiserDay7DE(firstName: string | null): { subject: string; html: string; text: string } {
+  const name = firstName ?? "";
+  const subject = name
+    ? `${name}, letzte Chance — Ihr MoveSpot-Onboarding endet bald`
+    : "Letzte Chance — Ihr MoveSpot-Onboarding endet bald";
+  const previewText = "Ihr Konto bleibt aktiv, aber unsere personalisierten Erinnerungen enden heute.";
+  const greeting = name ? `${name}, eine letzte Nachricht von uns` : "Eine letzte Nachricht von uns";
+
+  const body = `
+    <h1 style="font-size:22px;line-height:1.35;color:#0f172a;font-weight:700;margin:16px 0 12px">${greeting} 👋</h1>
+    <p style="font-size:15px;line-height:1.65;color:#374151;margin:0 0 16px">
+      Sie haben sich vor 7 Tagen bei MoveSpot angemeldet, aber noch kein Brief erstellt. Ihr Konto bleibt aktiv.
+    </p>
+    ${ctaButton(langUrl("/advertiser/briefs/nouveau", "de"), "Jetzt meine Kampagne starten")}`;
+
+  const text = `${greeting}\n\nStarten Sie Ihre Kampagne: ${SITE_URL}/advertiser/briefs/nouveau\n\n— Das MoveSpot-Team`;
+
+  return { subject, html: htmlWrap(previewText, body, "de"), text };
+}
+
+function buildAdvertiserDay7(firstName: string | null, lang: string) {
+  return lang === "de" ? buildAdvertiserDay7DE(firstName) : buildAdvertiserDay7FR(firstName);
+}
+
 function countryToLang(countryCode: string | null | undefined): string {
   return countryCode === "DE" ? "de" : "fr";
 }
@@ -501,6 +632,151 @@ async function handleBatchFollowup(supabase: ReturnType<typeof createClient>) {
   });
 }
 
+// ─── Activation batch (J+1 / J+7) ───────────────────────────────────────────
+
+async function handleActivationBatch(supabase: ReturnType<typeof createClient>) {
+  const now = new Date();
+  const stats = { j1Sent: 0, j7Sent: 0, j7Notified: 0, skipped: 0, errors: 0 };
+
+  // ── STEP 1 : J+1 — first nudge ─────────────────────────────────────────────
+  // Target: registered between 48h and 24h ago, no brief yet, j1 not sent
+  const j1Start = new Date(now);
+  j1Start.setDate(j1Start.getDate() - 2);
+  const j1End = new Date(now);
+  j1End.setDate(j1End.getDate() - 1);
+
+  const { data: j1Profiles } = await supabase
+    .from("advertiser_profiles")
+    .select("id, user_id, full_name, country_code, activation_j1_sent_at")
+    .gte("created_at", j1Start.toISOString())
+    .lt("created_at", j1End.toISOString())
+    .is("activation_j1_sent_at", null);
+
+  for (const profile of j1Profiles ?? []) {
+    try {
+      // Check no brief yet (advertiser_id = auth user_id)
+      const { count } = await supabase
+        .from("advertiser_briefs")
+        .select("id", { count: "exact", head: true })
+        .eq("advertiser_id", profile.user_id);
+
+      if ((count ?? 0) > 0) {
+        stats.skipped++;
+        continue;
+      }
+
+      const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id);
+      const email = authUser?.user?.email;
+      if (!email) { stats.skipped++; continue; }
+
+      const firstName = profile.full_name?.split(" ")[0] ?? null;
+      const lang = countryToLang(profile.country_code);
+      const content = buildAdvertiserDay1(firstName, lang);
+      const sent = await enqueueWelcomeEmail(
+        supabase, email,
+        `advertiser-activation-j1${lang === "de" ? "-de" : ""}`,
+        content,
+        `activation-j1-${profile.user_id}`,
+      );
+
+      if (sent) {
+        await supabase
+          .from("advertiser_profiles")
+          .update({ activation_j1_sent_at: now.toISOString() })
+          .eq("id", profile.id);
+        stats.j1Sent++;
+      } else {
+        stats.errors++;
+      }
+    } catch (err) {
+      console.error(`[send-welcome-sequence] activation J+1 error for ${profile.user_id}:`, err);
+      stats.errors++;
+    }
+  }
+
+  // ── STEP 2 : J+7 — final nudge + in-app notification ──────────────────────
+  // Target: registered between 8d and 7d ago, no brief yet, j7 not sent
+  const j7Start = new Date(now);
+  j7Start.setDate(j7Start.getDate() - 8);
+  const j7End = new Date(now);
+  j7End.setDate(j7End.getDate() - 7);
+
+  const { data: j7Profiles } = await supabase
+    .from("advertiser_profiles")
+    .select("id, user_id, full_name, country_code, activation_j7_sent_at")
+    .gte("created_at", j7Start.toISOString())
+    .lt("created_at", j7End.toISOString())
+    .is("activation_j7_sent_at", null);
+
+  for (const profile of j7Profiles ?? []) {
+    try {
+      const { count } = await supabase
+        .from("advertiser_briefs")
+        .select("id", { count: "exact", head: true })
+        .eq("advertiser_id", profile.user_id);
+
+      if ((count ?? 0) > 0) {
+        stats.skipped++;
+        continue;
+      }
+
+      const { data: authUser } = await supabase.auth.admin.getUserById(profile.user_id);
+      const email = authUser?.user?.email;
+      if (!email) { stats.skipped++; continue; }
+
+      const firstName = profile.full_name?.split(" ")[0] ?? null;
+      const lang = countryToLang(profile.country_code);
+      const content = buildAdvertiserDay7(firstName, lang);
+      const sent = await enqueueWelcomeEmail(
+        supabase, email,
+        `advertiser-activation-j7${lang === "de" ? "-de" : ""}`,
+        content,
+        `activation-j7-${profile.user_id}`,
+      );
+
+      if (sent) {
+        await supabase
+          .from("advertiser_profiles")
+          .update({ activation_j7_sent_at: now.toISOString() })
+          .eq("id", profile.id);
+        stats.j7Sent++;
+
+        // Insert in-app notification (read by useNotifications hook)
+        const notifTitle = lang === "de"
+          ? "Starten Sie noch heute Ihre erste Kampagne"
+          : "Lancez votre première campagne aujourd'hui";
+        const notifBody = lang === "de"
+          ? "Ihr MoveSpot-Konto ist aktiv — erstellen Sie Ihr erstes Brief und erhalten Sie lokale Fahrzeugangebote."
+          : "Votre espace annonceur est prêt. Créez un brief pour recevoir des propositions de flottes locales.";
+
+        const { error: notifError } = await supabase
+          .from("user_notifications")
+          .insert({
+            user_id: profile.user_id,
+            kind: "activation_j7",
+            title: notifTitle,
+            body: notifBody,
+            href: "/advertiser/briefs/nouveau",
+          });
+
+        if (!notifError) stats.j7Notified++;
+        else console.error(`[send-welcome-sequence] user_notifications insert error for ${profile.user_id}:`, notifError);
+      } else {
+        stats.errors++;
+      }
+    } catch (err) {
+      console.error(`[send-welcome-sequence] activation J+7 error for ${profile.user_id}:`, err);
+      stats.errors++;
+    }
+  }
+
+  console.log("[send-welcome-sequence] batch-activation done", stats);
+  return new Response(JSON.stringify({ ok: true, stats }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 // ─── Entry point ─────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -548,6 +824,18 @@ Deno.serve(async (req) => {
 
   if (emailType === "batch-followup") {
     return await handleBatchFollowup(supabase);
+  }
+
+  if (emailType === "batch-activation") {
+    // Secured by INTERNAL_FUNCTION_SECRET (called by pg_cron SQL wrapper)
+    const secret = req.headers.get("x-internal-secret");
+    if (!INTERNAL_FUNCTION_SECRET || !secret || secret !== INTERNAL_FUNCTION_SECRET) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    return await handleActivationBatch(supabase);
   }
 
   return new Response(JSON.stringify({ error: "invalid emailType" }), {
