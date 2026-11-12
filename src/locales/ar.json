@@ -288,5 +288,11 @@
     "translating": "جارٍ الترجمة…",
     "placeholder": "رسالتك…",
     "error_generic": "الميزة غير متاحة مؤقتاً"
+  },
+  "owner": {
+    "inscription": {
+      "referral_code_label": "رمز الإحالة",
+      "referral_code_hint": "إذا تلقيت رمز إحالة، أدخله هنا."
+    }
   }
 }
