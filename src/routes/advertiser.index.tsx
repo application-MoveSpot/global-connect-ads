@@ -638,7 +638,7 @@ function ReferralWidget() {
 
   useEffect(() => {
     void (
-      statsFn({}) as Promise<
+      statsFn({ data: {} }) as Promise<
         | { ok: false }
         | {
             ok: true;
@@ -651,12 +651,16 @@ function ReferralWidget() {
             }>;
           }
       >
-    ).then((res) => {
-      if (!res.ok) return;
-      setCode(res.referralCode);
-      setCredited(res.rewards.filter((r) => r.status === "credited").length);
-      setPending(res.rewards.filter((r) => r.status === "pending").length);
-    });
+    )
+      .then((res) => {
+        if (!res.ok) return;
+        setCode(res.referralCode);
+        setCredited(res.rewards.filter((r) => r.status === "credited").length);
+        setPending(res.rewards.filter((r) => r.status === "pending").length);
+      })
+      .catch(() => {
+        // Échec silencieux — le widget de parrainage est optionnel
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
