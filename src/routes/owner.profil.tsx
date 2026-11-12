@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/owner/profil")({
@@ -106,9 +105,6 @@ function OwnerProfilPage() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-4">
-          <LogoLink />
-        </div>
         <Link
           to="/owner"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
