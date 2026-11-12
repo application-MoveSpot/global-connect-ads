@@ -2961,7 +2961,7 @@ function InstallationReviewCard({
                   rel="noopener noreferrer"
                   className="block h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-border"
                 >
-                  <img src={url} alt="" className="h-full w-full object-cover" />
+                  <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 </a>
               ))}
             </div>

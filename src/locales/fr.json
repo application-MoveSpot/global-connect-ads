@@ -64,7 +64,9 @@
     "phone_invalid": "Numéro de téléphone français invalide (ex : 06 12 34 56 78)",
     "ein_label": "EIN",
     "unknown": "Inconnu",
-    "saving": "Enregistrement…"
+    "saving": "Enregistrement…",
+    "phone_invalid_us": "Invalid US phone number.",
+    "siret_label_us": "EIN / Tax ID"
   },
   "wallet": {
     "page_title": "Mon portefeuille — MoveSpot",
@@ -461,7 +463,8 @@
       "checklist_all_done": "✅ Tout est prêt — bonne route !",
       "checklist_incomplete": "Cochez toutes les étapes avant de partir",
       "gps_status_active": "🟢 GPS actif",
-      "gps_status_inactive": "⚪ GPS inactif"
+      "gps_status_inactive": "⚪ GPS inactif",
+      "payment_step4_us": "Payment confirmed"
     },
     "ecran": {
       "verifying": "Vérification…",
@@ -504,7 +507,9 @@
       "error_confirm_email": "Vérifiez votre email pour confirmer votre compte, puis connectez-vous.",
       "error_cgu": "Vous devez accepter les CGU MoveSpot pour continuer.",
       "error_siret": "Merci de vérifier votre numéro SIRET avant de continuer.",
-      "error_session": "Session expirée"
+      "error_session": "Session expirée",
+      "city_label_us": "City",
+      "zip_label": "ZIP code"
     }
   },
   "cookies": {
@@ -1363,7 +1368,8 @@
       "ai_generate": "Remplir le profil",
       "ai_generating": "Analyse en cours…",
       "ai_filled": "Champs pré-remplis : {{fields}}",
-      "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez."
+      "ai_generate_error": "L'IA n'a pas pu générer de suggestion. Réessayez.",
+      "error_invalid_credentials": "Incorrect email or password."
     },
     "vehicules": {
       "nouveau": {

@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Instagram } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { FAQChatbot } from "@/components/app/FAQChatbot";
@@ -13,6 +12,13 @@ import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 import { ProviderQuoteReview } from "@/components/provider/ProviderQuoteReview";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import {
+  useProviderDashboard,
+  type ProviderProfile,
+  type ProviderQuote,
+  type ProviderVehicleId,
+} from "@/hooks/useProviderDashboard";
 
 export const Route = createFileRoute("/provider/")({
   head: () => ({
@@ -25,159 +31,24 @@ export const Route = createFileRoute("/provider/")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-type Profile = {
-  user_id: string;
-  company: string;
-  full_name: string;
-  status: string;
-  admin_notes: string | null;
-  siret: string | null;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  description: string | null;
-  services: string[] | null;
-  coverage_areas: string[] | null;
-  pricing_info: string | null;
-  logo_url: string | null;
-  stripe_subscription_status: string | null;
-  stripe_subscription_period_end: string | null;
-  pose_location_types: string[];
-};
-
-type Quote = {
-  id: string;
-  advertiser_id: string;
-  service_type: string;
-  vehicle_type: string | null;
-  vehicle_id: string | null;
-  format: string | null;
-  quantity: number | null;
-  deadline: string | null;
-  zone: string | null;
-  message: string;
-  status: string;
-  quoted_price_cents: number | null;
-  quoted_message: string | null;
-  impossible_reason: string | null;
-  impossible_photos: string[];
-  impossible_at: string | null;
-  created_at: string;
-  ai_brief_id: string | null;
-};
-
-type VehicleId = {
-  license_plate: string | null;
-  brand: string | null;
-  model: string | null;
-  color: string | null;
-  name: string;
-  type: string;
-  photos: string[] | null;
-};
-
 function ProviderDashboard() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [vehicleMap, setVehicleMap] = useState<Record<string, VehicleId>>({});
   const [impossibleModal, setImpossibleModal] = useState<{ open: boolean; quoteId: string | null }>(
     { open: false, quoteId: null },
   );
-
-  const load = useCallback(async () => {
-    const session = await getOrRefreshSession();
-    if (!session) {
-      navigate({ to: "/provider/connexion" });
-      return;
-    }
-    const { data: p } = await supabase
-      .from("provider_profiles")
-      .select(
-        "user_id, company, full_name, status, admin_notes, siret, email, phone, website, description, services, coverage_areas, pricing_info, logo_url, stripe_subscription_status, stripe_subscription_period_end, pose_location_types",
-      )
-      .eq("user_id", session.user.id)
-      .maybeSingle();
-    if (!p) {
-      navigate({ to: "/provider/inscription" });
-      return;
-    }
-    setProfile(p as Profile);
-    const { data: qs } = await supabase
-      .from("service_quotes")
-      .select("*")
-      .eq("provider_id", session.user.id)
-      .order("created_at", { ascending: false });
-    const quoteList = (qs as unknown as Quote[]) ?? [];
-    setQuotes(quoteList);
-
-    // Fetch identification data for quoted vehicles
-    const vehicleIds = [
-      ...new Set(quoteList.map((q) => q.vehicle_id).filter((id): id is string => !!id)),
-    ];
-    if (vehicleIds.length > 0) {
-      const { data: vehicles } = await supabase
-        .from("vehicles")
-        .select("id, license_plate, brand, model, color, name, type, photos")
-        .in("id", vehicleIds);
-      const map: Record<string, VehicleId> = {};
-      for (const v of vehicles ?? []) map[v.id] = v as VehicleId;
-      setVehicleMap(map);
-    }
-
-    setLoading(false);
-  }, [navigate]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const navigate = useNavigate();
+  const { loading, profile, quotes, vehicleMap, load, submitImpossibleReport } = useProviderDashboard();
 
   const openImpossibleModal = (id: string) => setImpossibleModal({ open: true, quoteId: id });
 
   const submitImpossible = async (reason: string, files: File[]) => {
     const { quoteId } = impossibleModal;
     if (!quoteId) return;
-    const session = await getOrRefreshSession();
-    const uid = session?.user.id;
-    if (!uid) return;
-
-    const photoUrls: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const path = `${uid}/${quoteId}/photo-${i + 1}.${file.name.split(".").pop()}`;
-      const { error } = await supabase.storage
-        .from("pose-impossible")
-        .upload(path, file, { upsert: true });
-      if (!error) {
-        const { data: signed } = await supabase.storage
-          .from("pose-impossible")
-          .createSignedUrl(path, 60 * 60 * 24 * 7);
-        if (signed) photoUrls.push(signed.signedUrl);
-      }
-    }
-
-    await supabase
-      .from("service_quotes")
-      .update({
-        status: "impossible_pending",
-        impossible_reason: reason,
-        impossible_photos: photoUrls,
-        impossible_at: new Date().toISOString(),
-      })
-      .eq("id", quoteId);
-
+    await submitImpossibleReport(quoteId, reason, files);
     setImpossibleModal({ open: false, quoteId: null });
-    await load();
   };
 
-  if (loading || !profile)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        {t("common.loading")}
-      </div>
-    );
+  if (loading || !profile) return <LoadingSkeleton variant="page" />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -355,7 +226,7 @@ function ProviderDashboard() {
   );
 }
 
-function ProfilePreview({ profile, onSaved }: { profile: Profile; onSaved?: () => void }) {
+function ProfilePreview({ profile, onSaved }: { profile: ProviderProfile; onSaved?: () => void }) {
   const { t } = useTranslation();
   const arr = (a: string[] | null) => (a && a.length > 0 ? a : null);
   const [editingAreas, setEditingAreas] = useState(false);
@@ -555,9 +426,9 @@ function QuoteCard({
   onQuoteAction,
   onOpenImpossible,
 }: {
-  q: Quote;
-  profile: Profile;
-  vehicle?: VehicleId;
+  q: ProviderQuote;
+  profile: ProviderProfile;
+  vehicle?: ProviderVehicleId;
   onQuoteAction: () => void;
   onOpenImpossible: (id: string) => void;
 }) {

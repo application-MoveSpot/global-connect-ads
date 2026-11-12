@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Instagram, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -17,46 +17,19 @@ import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { CampaignStepper } from "@/components/shared/CampaignStepper";
 import { MobilityMap } from "@/components/shared/MobilityMap";
-import { supabase } from "@/integrations/supabase/client";
-import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { payCampaignWithWallet, getMyWallet } from "@/lib/payments/wallet.functions";
-import { track } from "@/lib/analytics/track";
 import { downloadCsv } from "@/lib/exportCsv";
-import { toast } from "sonner";
 import { NetworkErrorBanner } from "@/components/app/NetworkErrorBanner";
-import { withRetry } from "@/lib/retry";
 import { CampaignMetricsRow } from "@/components/advertiser/CampaignMetricsRow";
 import { RouteError } from "@/components/app/RouteError";
 import { OnboardingModal } from "@/components/advertiser/OnboardingModal";
 import { getMyReferralStats } from "@/lib/referral/advertiser-referral.functions";
-import { firePixelEvent } from "@/lib/analytics/pixels";
-import { updateAdvertiserRegion } from "@/lib/advertiser/advertiser.functions";
 import { AdvertiserReports } from "@/components/advertiser/AdvertiserReports";
 import { AdvertiserChatWidget } from "@/components/advertiser/AdvertiserChatWidget";
-
-type Req = {
-  id: string;
-  spot_name: string;
-  spot_location: string | null;
-  spot_price: number | null;
-  message: string;
-  status: string;
-  owner_response: string;
-  admin_notes: string | null;
-  created_at: string;
-  route_zones: string[] | null;
-  route_waypoints: string[] | null;
-  route_pois: string[] | null;
-  estimated_impressions_per_day: number | null;
-  days_count: number | null;
-  creative_files: string[] | null;
-  total_price: number | null;
-  payment_status: string;
-  installation_status: string | null;
-  subscription_status: string | null;
-};
-
-type Profile = { full_name: string; company: string | null; account_type: string | null; target_region: string | null };
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import {
+  useAdvertiserDashboard,
+  type AdvertiserReq,
+} from "@/hooks/useAdvertiserDashboard";
 
 type Step = {
   icon: string;
@@ -79,117 +52,23 @@ export const Route = createFileRoute("/advertiser/")({
 
 function AnnonceurDashboard() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [retrying, setRetrying] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [requests, setRequests] = useState<Req[]>([]);
-  const [balanceCents, setBalanceCents] = useState<number>(0);
-  const [paying, setPaying] = useState<string | null>(null);
-  const [savingRegion, setSavingRegion] = useState(false);
+  const dateLocale = i18n.language;
+  const {
+    loading,
+    loadError,
+    retrying,
+    profile,
+    userId,
+    requests,
+    balanceCents,
+    paying,
+    savingRegion,
+    loadWithRetry,
+    handlePay,
+    handleRegionChange,
+    logout,
+  } = useAdvertiserDashboard();
   const isIndividual = profile?.account_type === "individual";
-  const payFn = useServerFn(payCampaignWithWallet);
-  const walletFn = useServerFn(getMyWallet);
-  const updateRegionFn = useServerFn(updateAdvertiserRegion);
-
-  const reload = useCallback(
-    async (userId: string) => {
-      const [{ data: reqs, error: reqErr }, w] = await Promise.all([
-        supabase
-          .from("campaign_requests")
-          .select(
-            "id, spot_name, spot_location, spot_price, message, status, owner_response, admin_notes, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, total_price, payment_status, installation_status, subscription_status",
-          )
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false }),
-        walletFn(),
-      ]);
-      if (reqErr) throw new Error(reqErr.message);
-      setRequests((reqs as unknown as Req[]) ?? []);
-      setBalanceCents(w?.balance_cents ?? 0);
-    },
-    [walletFn],
-  );
-
-  const init = useCallback(async () => {
-    const session = await getOrRefreshSession();
-    if (!session) {
-      navigate({ to: "/auth", search: { next: "/advertiser" } });
-      return;
-    }
-    const { data: prof, error: profErr } = await supabase
-      .from("advertiser_profiles")
-      .select("full_name, company, account_type, target_region")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
-    if (profErr) throw new Error(profErr.message);
-    if (!prof) {
-      navigate({ to: "/advertiser/inscription" });
-      return;
-    }
-    setProfile(prof as unknown as Profile);
-    setUserId(session.user.id);
-    await reload(session.user.id);
-    setLoading(false);
-  }, [navigate, reload]);
-
-  const loadWithRetry = useCallback(
-    async (isManualRetry = false) => {
-      if (isManualRetry) setRetrying(true);
-      setLoadError(null);
-      try {
-        await withRetry(init, { maxAttempts: 3 });
-      } catch (err) {
-        setLoadError(err instanceof Error ? err.message : t("errors.network"));
-        setLoading(false);
-      } finally {
-        if (isManualRetry) setRetrying(false);
-      }
-    },
-    [init],
-  );
-
-  useEffect(() => {
-    void loadWithRetry();
-  }, [loadWithRetry]);
-
-  useEffect(() => {
-    if (!userId) return;
-    const channel = supabase
-      .channel(`advertiser-realtime-${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "campaign_requests",
-          filter: `user_id=eq.${userId}`,
-        },
-        () => {
-          void reload(userId);
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId, reload]);
-
-  const handleRegionChange = async (region: string) => {
-    setSavingRegion(true);
-    try {
-      const val = region === "" ? null : region;
-      await updateRegionFn({ data: { target_region: val as any } });
-      setProfile((p) => p ? { ...p, target_region: val } : p);
-      toast.success(t("advertiser.region_saved"));
-    } catch {
-      toast.error(t("advertiser.region_save_error"));
-    } finally {
-      setSavingRegion(false);
-    }
-  };
 
   const exportCsv = () => {
     const rows = requests.map((r) => ({
@@ -208,44 +87,7 @@ function AnnonceurDashboard() {
     downloadCsv(rows, `movespot-campagnes-${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
-  const handlePay = async (r: Req) => {
-    const cents = Math.round(Number(r.total_price ?? 0) * 100);
-    if (cents > balanceCents) {
-      toast.error(
-        t("advertiser.insufficient_balance", {
-          missing: ((cents - balanceCents) / 100).toFixed(2),
-        }),
-      );
-      navigate({ to: "/advertiser/portefeuille" });
-      return;
-    }
-    setPaying(r.id);
-    try {
-      await payFn({ data: { campaignRequestId: r.id } });
-      void track("campaign_paid", { campaign_request_id: r.id, total_price: r.total_price });
-      firePixelEvent("Purchase", {
-        value: (r.total_price ?? 0) / 100,
-        currency: "EUR",
-        content_name: "campaign",
-      });
-      toast.success(t("advertiser.payment_success"));
-      const session = await getOrRefreshSession();
-      if (session) await reload(session.user.id);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("advertiser.payment_failed"));
-    } finally {
-      setPaying(null);
-    }
-  };
-
-  const dateLocale = i18n.language;
-
-  if (loading && !loadError)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        {t("common.loading")}
-      </div>
-    );
+  if (loading && !loadError) return <LoadingSkeleton variant="page" />;
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -280,10 +122,7 @@ function AnnonceurDashboard() {
               {t("common.settings")}
             </Link>
             <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                navigate({ to: "/" });
-              }}
+              onClick={logout}
               className="hidden sm:inline-flex text-sm rounded-full border border-border px-3 py-2 hover:bg-secondary transition"
             >
               {t("common.logout")}
@@ -305,10 +144,7 @@ function AnnonceurDashboard() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive"
-                  onSelect={async () => {
-                    await supabase.auth.signOut();
-                    navigate({ to: "/" });
-                  }}
+                  onSelect={logout}
                 >
                   {t("common.logout")}
                 </DropdownMenuItem>
@@ -938,7 +774,7 @@ function SubscriptionBadge({ status }: { status: string }) {
   return <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${s.cls}`}>{s.label}</span>;
 }
 
-function AnalyticsDashboard({ requests }: { requests: Req[] }) {
+function AnalyticsDashboard({ requests }: { requests: AdvertiserReq[] }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const done = requests.filter((r) => ["approved", "paid", "completed"].includes(r.status));
