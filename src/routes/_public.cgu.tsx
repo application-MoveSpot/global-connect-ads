@@ -206,7 +206,7 @@ function CGU() {
         </ul>
 
         <p>
-          <strong>Pénalité financière automatique.</strong> Si un poseur certifié MoveSpot déclare
+          <strong>Frais de traitement en cas de non-présentation.</strong> Si un poseur certifié MoveSpot déclare
           une pose impossible en sélectionnant comme cause « Véhicule trop sale », « Carrosserie
           endommagée / Surface incompatible » ou « Véhicule absent au rendez-vous », cette
           déclaration entraîne automatiquement le prélèvement de{" "}
@@ -217,9 +217,9 @@ function CGU() {
         </p>
 
         <p>
-          <strong>Suspension de campagne sans indemnité.</strong> Le propriétaire est
-          automatiquement suspendu de la campagne concernée, sans perception d'aucune commission ni
-          indemnité pour cette campagne, conformément à l'article 15 bis des présentes CGU.
+          <strong>Non-exécution de campagne.</strong> Le propriétaire est
+          automatiquement retiré de la campagne concernée, sans perception d'aucune commission ni
+          rémunération pour cette campagne, conformément à l'article 15 bis des présentes CGU.
         </p>
 
         <p>
@@ -230,7 +230,7 @@ function CGU() {
             contact@move-spot.com
           </a>
           . MoveSpot examine la contestation dans les 5 jours ouvrés et notifie sa décision. En
-          l'absence de contestation dans ce délai, la pénalité est définitivement appliquée.
+          l'absence de contestation dans ce délai, les frais de traitement sont définitivement acquis.
         </p>
       </LegalSection>
 
