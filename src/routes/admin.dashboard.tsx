@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { Button } from "@/components/ui/button";
+import { isAdmin } from "@/lib/admin/isAdmin";
 import {
   adminAnalyticsData,
   adminApproveBrief,
@@ -233,14 +234,21 @@ function AdminDashboard() {
 
   useEffect(() => {
     let alive = true;
-    getOrRefreshSession().then((session) => {
+    (async () => {
+      const session = await getOrRefreshSession();
       if (!alive) return;
       if (!session) {
         navigate({ to: "/auth" });
         return;
       }
+      const adminOk = await isAdmin();
+      if (!alive) return;
+      if (!adminOk) {
+        navigate({ to: "/" });
+        return;
+      }
       setReady(true);
-    });
+    })();
     return () => {
       alive = false;
     };

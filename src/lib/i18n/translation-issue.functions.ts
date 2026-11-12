@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const IssueSchema = z.object({
   route: z.string().max(500),
@@ -47,16 +48,21 @@ export const reportTranslationIssues = createServerFn({ method: "POST" })
   });
 
 export const resolveTranslationIssue = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
     z.object({ id: z.string().uuid(), note: z.string().max(500).optional() }).parse(d),
   )
-  .handler(async ({ data }) => {
-    const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "";
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-    if (!supabaseUrl || !serviceKey) throw new Error("Missing env");
+  .handler(async ({ data, context }) => {
+    const { data: adminOk } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!adminOk) throw new Error("Accès réservé aux administrateurs");
 
-    const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
-    const { error } = await admin
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // translation_issues is not yet in the generated types (pending regen — issue I5)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabaseAdmin as any)
       .from("translation_issues")
       .update({ resolved_at: new Date().toISOString(), resolution_note: data.note ?? null })
       .eq("id", data.id);
@@ -65,18 +71,24 @@ export const resolveTranslationIssue = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const listTranslationIssues = createServerFn({ method: "GET" }).handler(async () => {
-  const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "";
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-  if (!supabaseUrl || !serviceKey) return { issues: [] };
+export const listTranslationIssues = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: adminOk } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!adminOk) throw new Error("Accès réservé aux administrateurs");
 
-  const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
-  const { data, error } = await admin
-    .from("translation_issues")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(200);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // translation_issues is not yet in the generated types (pending regen — issue I5)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabaseAdmin as any)
+      .from("translation_issues")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
 
-  if (error) return { issues: [] };
-  return { issues: data ?? [] };
-});
+    if (error) return { issues: [] };
+    return { issues: data ?? [] };
+  });
