@@ -48,9 +48,10 @@ const Email = ({ fullName, vehicleName, spotName, trackingUrl }: Props) => (
           </Text>
         </Section>
         <Text style={text}>
-          Assurez-vous que l'application de suivi est bien démarrée sur ce véhicule. Le suivi GPS
-          est obligatoire pendant toute la durée de la campagne. Une inactivité prolongée peut
-          affecter votre score de fiabilité et déclencher des vérifications.
+          Assurez-vous que l'application de suivi est bien démarrée sur ce véhicule. Les relevés GPS
+          constituent la base de calcul des métriques de diffusion transmises à l'annonceur (distance
+          parcourue dans la zone, minutes actives, taux de couverture). Toute période sans relevés
+          n'est pas comptabilisée et ne donne lieu à aucune rémunération pour cette période.
         </Text>
         {trackingUrl && (
           <Button style={button} href={trackingUrl}>

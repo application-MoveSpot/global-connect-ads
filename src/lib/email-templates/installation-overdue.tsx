@@ -52,7 +52,8 @@ const Email = ({ fullName, spotName, startDate, delayDays, jobUrl }: Props) => (
         </Section>
         <Text style={text}>
           Merci de confirmer la pose en prenant les photos requises depuis votre espace poseur dès
-          que possible. Un retard persistant peut affecter votre score de fiabilité.
+          que possible. Sans confirmation de pose, la campagne reste en attente de validation et
+          la diffusion ne peut pas démarrer.
         </Text>
         {jobUrl && (
           <Button style={button} href={jobUrl}>

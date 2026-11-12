@@ -47,7 +47,7 @@ function PortefeuillePage() {
           <div>
             <h1 className="text-2xl font-bold font-display">Mon portefeuille</h1>
             <p className="text-sm text-muted-foreground">
-              Gains, pénalités et virements bancaires via Stripe Connect.
+              Gains, ajustements et virements bancaires via Stripe Connect.
             </p>
           </div>
         </div>
