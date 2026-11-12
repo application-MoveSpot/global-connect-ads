@@ -149,26 +149,32 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
 
         const installResults = { remindersSent: 0 };
 
+        // Batch-fetch vehicles and drivers to avoid N+1 queries
+        const overdueList = (overdueInstallations ?? []) as Array<{
+          id: string;
+          spot_name: string;
+          start_date: string | null;
+          vehicle_id: string | null;
+          user_id: string | null;
+        }>;
+        const vehicleIds = [...new Set(overdueList.map((c) => c.vehicle_id).filter(Boolean) as string[])];
+        const { data: vehicleRows } = vehicleIds.length
+          ? await supabaseAdmin.from("vehicles").select("id, name, driver_id, owner_id").in("id", vehicleIds)
+          : { data: [] };
+        const vehicleMap = new Map((vehicleRows ?? []).map((v) => [v.id as string, v as { id: string; name: string; driver_id: string | null; owner_id: string }]));
+
+        const driverIds = [...new Set((vehicleRows ?? []).map((v) => (v as { driver_id: string | null }).driver_id).filter(Boolean) as string[])];
+        const { data: driverRows } = driverIds.length
+          ? await supabaseAdmin.from("drivers").select("id, full_name, email, user_id").in("id", driverIds)
+          : { data: [] };
+        const driverMap = new Map((driverRows ?? []).map((d) => [d.id as string, d as { id: string; full_name: string; email: string | null; user_id: string | null }]));
+
         await Promise.allSettled(
-          (overdueInstallations ?? []).map(async (c) => {
-            const cr = c as {
-              id: string;
-              spot_name: string;
-              start_date: string | null;
-              vehicle_id: string | null;
-              user_id: string | null;
-            };
+          overdueList.map(async (cr) => {
             if (!cr.vehicle_id) return;
 
-            // Get driver info for this vehicle
-            const { data: vehicle } = await supabaseAdmin
-              .from("vehicles")
-              .select("name, driver_id, owner_id")
-              .eq("id", cr.vehicle_id)
-              .maybeSingle();
-            if (!vehicle) return;
-
-            const veh = vehicle as { name: string; driver_id: string | null; owner_id: string };
+            const veh = vehicleMap.get(cr.vehicle_id);
+            if (!veh) return;
             const delayDays = cr.start_date
               ? Math.floor((now.getTime() - new Date(cr.start_date).getTime()) / 86_400_000)
               : 0;
@@ -177,16 +183,7 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
 
             // Notify driver if assigned
             if (veh.driver_id) {
-              const { data: driver } = await supabaseAdmin
-                .from("drivers")
-                .select("full_name, email, user_id")
-                .eq("id", veh.driver_id)
-                .maybeSingle();
-              const drv = driver as {
-                full_name: string;
-                email: string | null;
-                user_id: string | null;
-              } | null;
+              const drv = driverMap.get(veh.driver_id) ?? null;
               if (drv?.email) {
                 await sendAppEmailSafe({
                   templateName: "installation-overdue",

@@ -19,7 +19,7 @@ export function initSentry() {
       }),
     ],
     tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0.01,
+    replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0,
     ignoreErrors: [
       "ResizeObserver loop limit exceeded",

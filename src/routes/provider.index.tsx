@@ -739,6 +739,7 @@ function ImpossibleModal({
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files ?? []).slice(0, 3);
+    previews.forEach((url) => URL.revokeObjectURL(url));
     setFiles(selected);
     setPreviews(selected.map((f) => URL.createObjectURL(f)));
   };
@@ -749,8 +750,13 @@ function ImpossibleModal({
       return;
     }
     setUploading(true);
-    await onSubmit(reason.trim(), files);
-    setUploading(false);
+    try {
+      await onSubmit(reason.trim(), files);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("errors.network"));
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (

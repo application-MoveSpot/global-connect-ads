@@ -8,6 +8,7 @@ import { isValidPhone, normalizePhoneForMarket } from "@/lib/phone";
 import { useMarket } from "@/lib/market";
 import { track } from "@/lib/analytics/track";
 import { firePixelEvent } from "@/lib/analytics/pixels";
+import { htmlEscape } from "@/lib/security/csp";
 import { SignedInBanner } from "@/components/app/SignedInBanner";
 import { HoneypotField } from "@/components/app/HoneypotField";
 import { LogoLink } from "@/components/app/LogoLink";
@@ -439,7 +440,7 @@ function AnnonceurInscription() {
               <div
                 className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-emerald-700 dark:text-emerald-400"
                 dangerouslySetInnerHTML={{
-                  __html: t("advertiser.inscription.referral_banner", { name: commercialName }),
+                  __html: t("advertiser.inscription.referral_banner", { name: htmlEscape(commercialName) }),
                 }}
               />
             )}

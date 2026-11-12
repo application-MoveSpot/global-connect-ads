@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CheckCircle2, XCircle, Clock, Loader2, AlertCircle, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOwnerBankTransfers, type OwnerBankTransferRow } from "@/hooks/useOwnerBankTransfers";
+import { htmlEscape } from "@/lib/security/csp";
 
 function fmt(cents: number) {
   return (cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
@@ -50,15 +51,15 @@ function ReceiptModal({ row, onClose }: { row: OwnerBankTransferRow; onClose: ()
         <p>MoveSpot SAS — virements@move-spot.com</p>
         <table>
           <tr><td>Montant</td><td class="amount">${fmt(row.amount_cents)}</td></tr>
-          <tr><td>Statut</td><td>${STATUS_STYLES[row.status]?.label ?? row.status}</td></tr>
-          <tr><td>Référence</td><td><code>${row.reference}</code></td></tr>
-          ${row.stripe_transfer_id ? `<tr><td>ID Stripe Transfer</td><td><code>${row.stripe_transfer_id}</code></td></tr>` : ""}
+          <tr><td>Statut</td><td>${htmlEscape(STATUS_STYLES[row.status]?.label ?? row.status)}</td></tr>
+          <tr><td>Référence</td><td><code>${htmlEscape(row.reference)}</code></td></tr>
+          ${row.stripe_transfer_id ? `<tr><td>ID Stripe Transfer</td><td><code>${htmlEscape(row.stripe_transfer_id)}</code></td></tr>` : ""}
           <tr><td>Date de création</td><td>${formatDate(row.created_at)}</td></tr>
           <tr><td>Dernière mise à jour</td><td>${formatDate(row.updated_at)}</td></tr>
         </table>
         <footer>
           Ce reçu est généré automatiquement par la plateforme MoveSpot.<br/>
-          Réf. interne : ${row.id}
+          Réf. interne : ${htmlEscape(row.id)}
         </footer>
         <script>window.onload = () => { window.print(); }</script>
       </body></html>
