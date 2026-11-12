@@ -441,7 +441,7 @@ function InscriptionPage() {
               </div>
             </div>
             {/* Toggle particulier / professionnel */}
-            <div className="flex rounded-lg border border-border overflow-hidden mb-6">
+            <div className="flex rounded-lg border border-border overflow-hidden mb-4">
               <button
                 type="button"
                 onClick={() => {
@@ -461,6 +461,14 @@ function InscriptionPage() {
                 {t("owner.inscription.tab_professionnel")}
               </button>
             </div>
+            {isParticulier && (
+              <div
+                className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-200 mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: t("owner.inscription.particulier_warning"),
+                }}
+              />
+            )}
             <AiAssistantPanel
               variant="inline"
               open={aiPanelOpen}

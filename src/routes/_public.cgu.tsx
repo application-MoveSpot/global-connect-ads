@@ -282,6 +282,37 @@ function CGU() {
         </p>
       </LegalSection>
 
+      <LegalSection title={t("cgu.s12ter")}>
+        <p>
+          MoveSpot est assujettie aux obligations de tiers déclarant prévues par l'
+          <strong>article 242 bis du Code général des impôts</strong> (transposition de la directive
+          DAC7). À ce titre, MoveSpot collecte les informations fiscales (NIF ou NIR) de chaque
+          bénéficiaire de revenus sur la Plateforme et communique annuellement à l'administration
+          fiscale française un récapitulatif des sommes versées à chaque utilisateur. Ce récapitulatif
+          est également adressé à l'utilisateur concerné avant le{" "}
+          <strong>31 janvier de chaque année</strong> pour les sommes perçues au cours de l'année
+          civile précédente.
+        </p>
+        <p>
+          Chaque bénéficiaire (propriétaire de véhicule, poseur certifié, apporteur d'affaires) est
+          seul responsable de la déclaration de ses revenus perçus via la Plateforme auprès de
+          l'administration fiscale compétente et du règlement des impositions correspondantes.{" "}
+          <strong>
+            Les revenus versés par MoveSpot constituent des revenus imposables au titre de l'impôt
+            sur le revenu.
+          </strong>
+        </p>
+        <p>
+          Les propriétaires de véhicules personnes physiques (particuliers) sont informés que, si
+          leur activité sur la Plateforme présente un caractère régulier ou génère des revenus
+          excédant les seuils légaux en vigueur, ils peuvent être tenus de s'immatriculer sous un
+          statut professionnel (notamment micro-entrepreneur) et d'acquitter les cotisations sociales
+          afférentes. MoveSpot ne fournit pas de conseil fiscal ou social ; les utilisateurs sont
+          invités à se rapprocher d'un expert-comptable ou de l'URSSAF pour toute question relative à
+          leur situation personnelle.
+        </p>
+      </LegalSection>
+
       <LegalSection title={t("cgu.s13")}>
         <p>
           L'annonceur définit sa zone de diffusion en dessinant un polygone sur la carte

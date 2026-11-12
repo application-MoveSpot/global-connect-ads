@@ -81,7 +81,7 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
             {
               "@type": "HowToStep",
               name: "Validation sous 48h par MoveSpot",
-              text: "MoveSpot vérifie votre véhicule et votre SIRET pour garantir la qualité de la marketplace. Vous recevez une confirmation par email.",
+              text: "MoveSpot vérifie votre véhicule (et votre SIRET le cas échéant) pour garantir la qualité de la marketplace. Vous recevez une confirmation par email.",
             },
             {
               "@type": "HowToStep",
