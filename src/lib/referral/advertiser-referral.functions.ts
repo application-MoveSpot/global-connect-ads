@@ -22,7 +22,7 @@ export const resolveAdvertiserInviteCode = createServerFn({ method: "POST" })
 
 export const getMyReferralStats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({}).parse(input))
+  .inputValidator((input) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
