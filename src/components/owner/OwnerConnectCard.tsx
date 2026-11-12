@@ -61,10 +61,12 @@ export function OwnerConnectCard() {
     setError(null);
     const newTab = window.open("", "_blank");
     try {
-      const returnUrl =
-        window.top !== window
-          ? (window.top?.location.href ?? window.location.href)
-          : window.location.href;
+      let returnUrl = window.location.href;
+      try {
+        if (window.top && window.top !== window) returnUrl = window.top.location.href;
+      } catch {
+        // Cross-origin iframe (e.g. Lovable preview): fall back to current page href
+      }
       const { url } = await createLink({ data: { returnUrl } });
       if (newTab) newTab.location.href = url;
       else window.location.href = url;

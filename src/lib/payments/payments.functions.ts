@@ -193,10 +193,11 @@ export const createConnectOnboardingLink = createServerFn({ method: "POST" })
       });
       accountId = account.id;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
+      const { error: saveErr } = await supabaseAdmin
         .from("owner_profiles")
-        .update({ stripe_account_id: accountId } as never)
+        .update({ stripe_account_id: accountId, stripe_connect_account_id: accountId } as never)
         .eq("id", profile.id);
+      if (saveErr) console.error("[createConnectOnboardingLink] stripe_account_id save failed:", saveErr);
     }
 
     const link = await stripe.accountLinks.create({

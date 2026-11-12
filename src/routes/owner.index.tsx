@@ -507,7 +507,7 @@ function DashboardPage() {
 
         {tab === "vehicles" ? (
           vehicles.length === 0 ? (
-            <OwnerVehicleOnboarding />
+            <OwnerVehicleOnboarding stripeConnected={profile?.stripe_payouts_enabled ?? false} />
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
               {vehicles.map((v) => (
@@ -603,7 +603,7 @@ function DashboardPage() {
   );
 }
 
-function OwnerVehicleOnboarding() {
+function OwnerVehicleOnboarding({ stripeConnected }: { stripeConnected: boolean }) {
   const { t } = useTranslation();
 
   const steps = [
@@ -632,8 +632,8 @@ function OwnerVehicleOnboarding() {
       icon: "💳",
       title: t("owner.onboarding_step4_title"),
       desc: t("owner.onboarding_step4_desc"),
-      done: false,
-      cta: { label: t("owner.onboarding_step4_cta"), to: "/owner/stripe-connect" } as const,
+      done: stripeConnected,
+      cta: stripeConnected ? null : ({ label: t("owner.onboarding_step4_cta"), to: "/owner/stripe-connect" } as const),
     },
     {
       icon: "📣",
