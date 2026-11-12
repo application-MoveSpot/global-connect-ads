@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { Button } from "@/components/ui/button";
 import { isAdmin } from "@/lib/admin/isAdmin";
 import {
@@ -522,19 +522,13 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-t-2 border-t-amber-400 border-b border-border backdrop-blur light-band">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div>
-            <LogoLink />
-            <h1 className="mt-1 font-display text-2xl font-bold">{t("admin.dashboard.title")}</h1>
-          </div>
-          <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("admin.dashboard.back")}
-          </Link>
-        </div>
-      </header>
+      <AppHeader
+        className="border-t-2 border-t-amber-400 backdrop-blur"
+        right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.dashboard.back")}</Link>}
+      />
 
       <main className="mx-auto max-w-6xl px-4 py-8">
+        <h1 className="font-display text-2xl font-bold mb-6">{t("admin.dashboard.title")}</h1>
         {/* KPI summary bar */}
         {pendingCountsQuery.data && (
           <div className="mb-6 grid grid-cols-3 sm:grid-cols-6 gap-3">

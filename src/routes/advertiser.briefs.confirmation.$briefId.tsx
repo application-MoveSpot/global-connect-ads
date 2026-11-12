@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { CheckCircle, Clock, Star, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -105,14 +105,7 @@ function ConfirmationPage() {
   if (isIndividual) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border light-band">
-          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-            <LogoLink />
-            <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
-              {t("advertiser.briefs_confirm.back")}
-            </Link>
-          </div>
-        </header>
+        <AppHeader right={<Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_confirm.back")}</Link>} />
 
         <main className="max-w-2xl mx-auto px-4 py-12">
           <div className="text-center mb-10">
@@ -207,14 +200,7 @@ function ConfirmationPage() {
   // Version entreprise
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("advertiser.briefs_confirm.back")}
-          </Link>
-        </div>
-      </header>
+      <AppHeader right={<Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_confirm.back")}</Link>} />
       <main className="max-w-2xl mx-auto px-4 py-12 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/15 mb-6">
           <Zap className="w-8 h-8 text-emerald-600" />

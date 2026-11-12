@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { ArrowLeft, Star } from "lucide-react";
 import { toast } from "sonner";
@@ -110,11 +110,7 @@ function AvisPage() {
   if (alreadyReviewed || submitted) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border light-band">
-          <div className="max-w-xl mx-auto px-4 py-4">
-            <LogoLink />
-          </div>
-        </header>
+        <AppHeader />
         <main className="max-w-xl mx-auto px-4 py-16 text-center space-y-4">
           <div className="text-5xl">{submitted ? "🎉" : "✅"}</div>
           <h1 className="font-display text-2xl font-bold">
@@ -140,17 +136,16 @@ function AvisPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
+      <AppHeader
+        right={
           <Link
             to="/advertiser"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
             Retour
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <main className="max-w-xl mx-auto px-4 py-10 space-y-6">
         <div>

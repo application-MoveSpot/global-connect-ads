@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { providerServiceLabel } from "@/lib/providers/provider-services";
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { RouteError } from "@/components/app/RouteError";
@@ -176,14 +176,7 @@ function AdminProvidersPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-          <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("admin.back")}
-          </Link>
-        </div>
-      </header>
+      <AppHeader right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.back")}</Link>} />
       <main className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="font-display text-3xl font-bold mb-6">{t("admin.providers.title")}</h1>
 

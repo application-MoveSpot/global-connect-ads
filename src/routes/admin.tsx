@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { isAdmin } from "@/lib/admin/isAdmin";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { Link } from "@tanstack/react-router";
@@ -252,19 +252,10 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">{t("admin.dashboard.title")}</h1>
-          </div>
-          <button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">
-            {t("admin.dashboard.logout")}
-          </button>
-        </div>
-      </header>
+      <AppHeader right={<button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">{t("admin.dashboard.logout")}</button>} />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="font-display text-2xl font-bold mb-6">{t("admin.dashboard.title")}</h1>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex gap-2 flex-wrap">
             <TabBtn active={tab === "requests"} onClick={() => setTab("requests")}>

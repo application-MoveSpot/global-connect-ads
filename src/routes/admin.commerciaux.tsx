@@ -7,7 +7,7 @@ import {
   listCommercialsForAdmin,
   type CommercialProfile,
 } from "@/lib/commercial/commercial.functions";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
@@ -40,22 +40,19 @@ function AdminCommerciauxPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">{t("admin.commerciaux.title")}</h1>
-          </div>
+      <AppHeader
+        right={
           <Link
             to="/admin"
             className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
           >
             {t("admin.back")}
           </Link>
-        </div>
-      </header>
+        }
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-8">
+        <h1 className="font-display text-2xl font-bold mb-6">{t("admin.commerciaux.title")}</h1>
         {loading ? (
           <div className="text-muted-foreground text-sm">{t("admin.commerciaux.loading")}</div>
         ) : rows.length === 0 ? (

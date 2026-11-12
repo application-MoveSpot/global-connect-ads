@@ -8,7 +8,7 @@ import {
   type AdminRefundRequest,
   type RefundModerationSummary,
 } from "@/lib/payments/refund.functions";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -300,19 +300,10 @@ function AdminRemboursementsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">{t("admin.refunds.title")}</h1>
-          </div>
-          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("admin.refunds.back")}
-          </a>
-        </div>
-      </header>
+      <AppHeader right={<a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.refunds.back")}</a>} />
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <h1 className="font-display text-2xl font-bold mb-6">{t("admin.refunds.title")}</h1>
         {/* Filtres */}
         <div className="flex gap-2 flex-wrap">
           {FILTERS.map((f) => (

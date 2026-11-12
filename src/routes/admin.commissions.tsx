@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { toast } from "sonner";
 import {
   getCommissionRates,
@@ -159,21 +159,10 @@ function CommissionsAdmin() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-xl font-bold mt-0.5">
-              {t("admin.commissions.title")}
-            </h1>
-          </div>
-          <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("admin.commissions.back")}
-          </Link>
-        </div>
-      </header>
+      <AppHeader right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.commissions.back")}</Link>} />
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-10">
+        <h1 className="font-display text-xl font-bold mb-6">{t("admin.commissions.title")}</h1>
         {/* Taux en vigueur */}
         <section>
           <h2 className="font-display text-2xl font-bold mb-4">

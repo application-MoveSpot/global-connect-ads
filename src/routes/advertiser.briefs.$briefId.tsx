@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { track } from "@/lib/analytics/track";
 import { toast } from "sonner";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { pushNotification } from "@/hooks/useNotifications";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
 import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
@@ -329,9 +329,8 @@ function BriefDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
+      <AppHeader
+        right={
           <div className="flex items-center gap-3">
             {brief.status === "open" && (
               <button
@@ -360,8 +359,8 @@ function BriefDetailPage() {
               {t("advertiser.briefs.detail.back")}
             </Link>
           </div>
-        </div>
-      </header>
+        }
+      />
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Compte à rebours événement pour les particuliers */}
         {isIndividual && brief.status === "open" && daysUntilStart > 0 && (

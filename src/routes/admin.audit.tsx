@@ -10,7 +10,7 @@ import {
   type GpsFraudFlag,
   type IdentityFraudFlag,
 } from "@/lib/admin/audit-export.functions";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { toast } from "sonner";
 import { AlertTriangle, Download, FileText, Loader2, Shield, ShieldAlert } from "lucide-react";
@@ -194,9 +194,8 @@ function AdminAuditPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
+      <AppHeader
+        right={
           <nav className="flex gap-4 text-sm text-muted-foreground">
             <Link to="/admin/dashboard" className="hover:text-foreground">
               {t("admin.audit.nav_dashboard")}
@@ -205,8 +204,8 @@ function AdminAuditPage() {
               {t("admin.audit.nav_transfers")}
             </Link>
           </nav>
-        </div>
-      </header>
+        }
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
         <div>
