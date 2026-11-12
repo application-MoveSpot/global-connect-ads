@@ -56,7 +56,7 @@ export const submitRefundRequest = createServerFn({ method: "POST" })
 
 export const listMyRefundRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({}).parse(input))
+  .inputValidator((input) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

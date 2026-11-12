@@ -11,7 +11,7 @@ const BASE_URL = "https://move-spot.com";
  */
 export const sendAdvertiserWelcomeEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({}).parse(input))
+  .inputValidator((input) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

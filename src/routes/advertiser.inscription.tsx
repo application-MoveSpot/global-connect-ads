@@ -335,7 +335,7 @@ function AnnonceurInscription() {
     }
     void track("signup_completed", { role: "advertiser", account_type: accountType });
     firePixelEvent("CompleteRegistration", { content_name: "advertiser" });
-    void welcomeEmailFn({ data: {} });
+    void welcomeEmailFn({ data: {} }).catch(() => {});
     goNext();
   };
 
