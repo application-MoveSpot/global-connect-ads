@@ -310,6 +310,45 @@ function CGV() {
           litige sera porté devant les tribunaux compétents du ressort du siège de MoveSpot.
         </p>
       </LegalSection>
+
+      <LegalSection title={t("cgv.s12bis_mediation")}>
+        <p>
+          Conformément aux articles L.612-1, L.616-1 et R.616-1 du Code de la consommation, tout
+          consommateur a le droit de recourir gratuitement à un médiateur de la consommation en vue
+          de la résolution amiable du litige qui l'oppose à un professionnel. MoveSpot adhère au
+          service de médiation du{" "}
+          <strong>
+            Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C)
+          </strong>{" "}
+          — 49 Rue de Ponthieu, 75008 Paris —{" "}
+          <a
+            href="https://cm2c.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            https://cm2c.net
+          </a>{" "}
+          — Email :{" "}
+          <a href="mailto:cm2c@cm2c.net" className="text-primary hover:underline">
+            cm2c@cm2c.net
+          </a>
+          .
+        </p>
+        <p className="mt-2">
+          Le consommateur peut également soumettre son litige à la plateforme européenne de
+          règlement en ligne des litiges :{" "}
+          <a
+            href="https://ec.europa.eu/consumers/odr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            https://ec.europa.eu/consumers/odr
+          </a>
+          .
+        </p>
+      </LegalSection>
     </LegalPage>
   );
 }

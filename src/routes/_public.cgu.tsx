@@ -570,6 +570,30 @@ function CGU() {
           Les présentes CGU sont régies par le droit français. Tout litige relatif à leur
           interprétation ou exécution relève de la compétence exclusive des tribunaux français.
         </p>
+        <p className="mt-2">
+          <strong>Médiation de la consommation.</strong> Conformément aux articles L.612-1 et
+          L.616-1 du Code de la consommation, les consommateurs peuvent recourir gratuitement au
+          médiateur agréé de MoveSpot :{" "}
+          <strong>CM2C</strong> — 49 Rue de Ponthieu, 75008 Paris —{" "}
+          <a
+            href="https://cm2c.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            https://cm2c.net
+          </a>
+          . Plateforme européenne de RLL :{" "}
+          <a
+            href="https://ec.europa.eu/consumers/odr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            https://ec.europa.eu/consumers/odr
+          </a>
+          .
+        </p>
       </LegalSection>
     </LegalPage>
   );
