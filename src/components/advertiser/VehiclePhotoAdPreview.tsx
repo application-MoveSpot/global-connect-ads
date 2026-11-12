@@ -162,7 +162,7 @@ export function VehiclePhotoAdPreview({ vehicleId, brandColor, logoUrl, videoFil
                 i === index ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
               }`}
             >
-              <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" decoding="async" />
             </button>
           ))}
         </div>

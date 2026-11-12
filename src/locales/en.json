@@ -239,7 +239,8 @@
     "payment_secure": "Secure payment:",
     "transactions_3ds": "· 3D Secure transactions",
     "follow_us": "Follow us:",
-    "b2b": "B2B solution"
+    "b2b": "B2B solution",
+    "manage_cookies": "Manage my cookies"
   },
   "root": {
     "skip_to_content": "Skip to main content",
@@ -316,7 +317,8 @@
     "error_service_unavailable": "Service temporarily unavailable. Your password is correct — please retry in a few seconds.",
     "retrying": "Auto-reconnecting…",
     "confirm_email": "Check your inbox to confirm your account.",
-    "reset_sent": "A reset link has been sent."
+    "reset_sent": "A reset link has been sent.",
+    "sign_in_with_google": "Sign in with Google"
   },
   "parametres": {
     "page_title": "Account settings — MoveSpot",
@@ -716,7 +718,28 @@
       "error_session": "Session expired",
       "error_duplicate": "An account already exists with this email. Please log in.",
       "error_verify_email": "Check your email to confirm your account, then log in.",
-      "error_invalid_credentials": "Incorrect email or password."
+      "error_invalid_credentials": "Incorrect email or password.",
+      "cgu_accept": "I accept the",
+      "cgu_link_label": "terms and conditions",
+      "cgu_strong": "T&C",
+      "desc_signin": "Sign in to your advertiser space.",
+      "desc_signup": "Create your advertiser account.",
+      "error_cgu": "You must accept the terms and conditions.",
+      "error_confirm_email": "Please confirm your email.",
+      "error_email_exists": "An account already exists with this email.",
+      "name_label": "Full name",
+      "phone_label": "Phone",
+      "step_account": "Account",
+      "step_profile": "Profile",
+      "submit_signin": "Sign in",
+      "submit_signup": "Create my account",
+      "switch_to_signin": "Already have an account? Sign in",
+      "switch_to_signup": "Create an account",
+      "title_signin": "Sign in",
+      "title_signup": "Create my advertiser account",
+      "type_entreprise": "Business",
+      "type_particulier": "Individual",
+      "company_label": "Company name"
     },
     "contrat": {
       "loading": "Generating quote…",
@@ -1338,7 +1361,15 @@
       "ai_generate": "Fill profile",
       "ai_generating": "Analysing…",
       "ai_filled": "Pre-filled fields: {{fields}}",
-      "ai_generate_error": "The AI could not generate a suggestion. Please try again."
+      "ai_generate_error": "The AI could not generate a suggestion. Please try again.",
+      "cgu_accept": "I accept the",
+      "cgu_link_label": "terms and conditions",
+      "cgu_strong": "T&C",
+      "error_cgu": "You must accept the terms and conditions.",
+      "forgot_password": "Forgot password?",
+      "submit_signin": "Sign in",
+      "submit_signup": "Create my account",
+      "switch_to_signin": "Already have an account? Sign in"
     },
     "vehicules": {
       "nouveau": {
@@ -1905,7 +1936,24 @@
         "missing_rc_pro_expiry": "Please enter the expiry date of your RC Pro insurance.",
         "rc_pro_expired": "Your RC Pro insurance has expired. Please renew it before registering.",
         "missing_rib": "Please provide your bank details (IBAN)."
-      }
+      },
+      "back": "Back",
+      "cgu_accept": "I accept the",
+      "cgu_link_label": "terms and conditions",
+      "cgu_strong": "T&C",
+      "desc_signin": "Sign in to your provider space.",
+      "desc_signup": "Create your provider account.",
+      "error_cgu": "You must accept the terms and conditions.",
+      "error_confirm_email": "Please confirm your email.",
+      "error_email_exists": "An account already exists with this email.",
+      "error_session": "Session expired.",
+      "forgot_password": "Forgot password?",
+      "name_label": "Full name",
+      "phone_label": "Phone",
+      "submit_signin": "Sign in",
+      "submit_signup": "Create my account",
+      "title_signin": "Sign in",
+      "title_signup": "Create my provider account"
     },
     "connexion": {
       "title": "Provider account",
@@ -2053,7 +2101,11 @@
       "ai_generate": "Fill profile",
       "ai_generating": "Analysing…",
       "ai_filled": "Pre-filled fields: {{fields}}",
-      "ai_generate_error": "The AI could not generate a suggestion. Please try again."
+      "ai_generate_error": "The AI could not generate a suggestion. Please try again.",
+      "desc_signin": "Sign in to your sales space.",
+      "desc_signup": "Create your sales account.",
+      "submit_signin": "Sign in",
+      "submit_signup": "Create my account"
     },
     "dashboard": {
       "title": "Commercial account",
@@ -2128,7 +2180,11 @@
       "statement_empty": "No commissions this month.",
       "statement_total": "Total commissions:",
       "statement_paid": "of which paid:",
-      "statement_pending": "Pending:"
+      "statement_pending": "Pending:",
+      "legal_status_sasu": "SASU",
+      "legal_status_sa": "SA",
+      "status_active": "Active",
+      "status_cancelled": "Cancelled"
     }
   },
   "contact": {
@@ -3949,7 +4005,8 @@
     "individual_note": "(sole trader — the legal identity is the business owner's name)",
     "digit_count": "{{count}}/14 digits",
     "err_luhn": "Invalid number — please check the digits.",
-    "err_verify": "Verification error."
+    "err_verify": "Verification error.",
+    "skipped_note": "SIRET accepted without INSEE verification (test mode)"
   },
   "creative_files": {
     "header": "🎨 Provided creatives ({{count}})",
@@ -4168,7 +4225,23 @@
     "content_category_label": "Content category",
     "content_category_placeholder": "Select a category…",
     "content_ok": "Category is permitted in this city.",
-    "us_legal_note": "MoveSpot verifies regulatory compliance for each Americas market. The advertiser remains solely responsible for compliance with local laws applicable to their industry."
+    "us_legal_note": "MoveSpot verifies regulatory compliance for each Americas market. The advertiser remains solely responsible for compliance with local laws applicable to their industry.",
+    "fr_city_label": "City / French market",
+    "fr_city_placeholder": "Select a city…",
+    "fr_content_ok": "Category allowed for the French market.",
+    "fr_legal_note": "MoveSpot applies the rules of the Loi Évin, ARPP, and decree 2012-118 on outdoor advertising. The advertiser remains responsible for compliance with regulations specific to their industry.",
+    "eu_city_label": "City / European market",
+    "eu_city_placeholder": "Select a city…",
+    "eu_content_ok": "Category allowed for the European market.",
+    "eu_legal_note": "MoveSpot applies European rules: Directive 2001/83/EC (pharmaceuticals), MiFID II + MiCA (financial/crypto), ARPP, and national outdoor advertising laws. The advertiser remains responsible for compliance with local regulations in the target market.",
+    "af_city_label": "City / African market",
+    "af_city_placeholder": "Select a city…",
+    "af_content_ok": "Category allowed for this African market.",
+    "af_legal_note": "Advertising regulations vary significantly across African countries. MoveSpot applies the local rules of the partner fleet and applicable national laws. The advertiser remains responsible for compliance with the legislation of the target market.",
+    "as_city_label": "City / Asian market",
+    "as_city_placeholder": "Select a city…",
+    "as_content_ok": "Category allowed for this Asian market.",
+    "as_legal_note": "Advertising regulations vary greatly across Asian countries. MoveSpot applies the local rules of the partner fleet and applicable national laws. The advertiser remains responsible for compliance with the legislation of the target market."
   },
   "owner": {
     "inscription": {
@@ -4278,7 +4351,8 @@
         "notif_accepted": "Proposal accepted!",
         "notif_accepted_body": "The advertiser accepted your proposal for this brief.",
         "notif_rejected": "Proposal rejected",
-        "notif_rejected_body": "The advertiser rejected your proposal for this brief."
+        "notif_rejected_body": "The advertiser rejected your proposal for this brief.",
+        "ai_price_filled": "AI-suggested price"
       }
     },
     "carte": {
@@ -4423,7 +4497,13 @@
       "loading": "Loading…",
       "received_at": "Received {{date}}",
       "title": "Payment History",
-      "chart_title": "Revenue by campaign"
+      "chart_title": "Revenue by campaign",
+      "status_pending": "Pending",
+      "status_approved": "Approved",
+      "status_active": "Active",
+      "status_completed": "Completed",
+      "status_cancelled": "Cancelled",
+      "status_rejected": "Rejected"
     },
     "map_desc": "View the coverage area of your fleet on the map.",
     "map_title": "My Fleet Map",
@@ -4651,7 +4731,12 @@
       "calendar": {
         "title": "Availability calendar",
         "days": "days",
-        "empty": "No period selected"
+        "empty": "No period selected",
+        "status_pending": "Pending",
+        "status_confirmed": "Confirmed",
+        "status_active": "Active",
+        "status_completed": "Completed",
+        "status_cancelled": "Cancelled"
       }
     },
     "welcome": "Welcome",
@@ -4767,7 +4852,34 @@
         "notif_new_proposal_body": "An owner has submitted a new proposal for your brief.",
         "reengagement_edit_btn": "Edit brief",
         "reengagement_loading": "Loading…",
-        "reengagement_title": "Re-engage owners"
+        "reengagement_title": "Re-engage owners",
+        "cancel_blocked_active": "Cannot cancel: a campaign is currently running on this brief.",
+        "poseur_fee_label": "Installation fee",
+        "poseur_fee_suffix": "incl. tax",
+        "submitted_at": "Submitted on {{date}}",
+        "status_open": "Open",
+        "status_closed": "Closed",
+        "status_fulfilled": "Fulfilled",
+        "status_cancelled": "Cancelled",
+        "proposal_pending": "Pending",
+        "proposal_accepted": "Accepted",
+        "proposal_rejected": "Rejected",
+        "proposal_withdrawn": "Withdrawn",
+        "campaign_pending": "Pending",
+        "campaign_approved": "Approved",
+        "campaign_active": "Active",
+        "campaign_completed": "Completed",
+        "campaign_cancelled": "Cancelled",
+        "campaign_rejected": "Rejected",
+        "payment_pending": "Pending",
+        "payment_paid": "Paid",
+        "payment_refunded": "Refunded",
+        "install_pending": "Pending",
+        "install_scheduled": "Scheduled",
+        "install_in_progress": "In progress",
+        "install_completed": "Completed",
+        "install_approved": "Approved",
+        "install_rejected": "Rejected"
       },
       "nouveau": {
         "ai_btn": "Generate with AI",
@@ -4923,7 +5035,11 @@
         "zone_area_label": "Area",
         "zone_delete": "Delete",
         "zone_list_title": "Drawn zones",
-        "budget_prepare": "💳 Prepare {{amount}} €"
+        "budget_prepare": "💳 Prepare {{amount}} €",
+        "field_poseur_fee": "Installation budget (optional)",
+        "poseur_fee_estimate_cta": "Estimate installation cost",
+        "poseur_fee_estimating": "Estimating…",
+        "poseur_fee_hint": "Amount proposed to the provider for installing visuals on vehicles."
       },
       "index": {
         "empty_desc": "You have no briefs yet. Create one to launch your first campaign.",
@@ -5174,7 +5290,8 @@
       "ai_panel_title": "Fill with AI — describe your activity",
       "ai_placeholder": "E.g.: I run a communication agency in Paris, I want to promote my services…",
       "account_type_business": "Business",
-      "account_type_individual": "Individual"
+      "account_type_individual": "Individual",
+      "error_invalid_credentials": "Incorrect email or password."
     },
     "insufficient_balance": "Insufficient Balance",
     "ip_notice": "Ip Notice",
@@ -5341,7 +5458,11 @@
       "reason_placeholder": "e.g. The campaign did not start on the scheduled date.",
       "select_placeholder": "Select e.g.",
       "title": "Refund Request",
-      "toast_success": "Refund request sent successfully."
+      "toast_success": "Refund request sent successfully.",
+      "status_pending": "Pending",
+      "status_approved": "Approved",
+      "status_rejected": "Rejected",
+      "status_paid": "Refunded"
     },
     "suivi": {
       "back": "Back",
@@ -5449,7 +5570,31 @@
     "target_region_label": "Target market:",
     "region_none": "— Choose a region —",
     "region_saved": "Target market updated.",
-    "region_save_error": "Failed to save."
+    "region_save_error": "Failed to save.",
+    "briefs_list": {
+      "back": "Back",
+      "date_from": "From {{from}} to {{to}}",
+      "empty_biz": "No business campaigns yet.",
+      "empty_biz_cta": "Create my first campaign",
+      "empty_ind_cta": "Launch my campaign",
+      "empty_ind_desc": "Get your brand circulating on vehicles throughout the city.",
+      "empty_ind_examples": "See examples",
+      "empty_ind_packs": "Discover packs",
+      "empty_ind_title": "Ready to launch your first campaign?",
+      "loading": "Loading your campaigns…",
+      "new_business": "New campaign",
+      "new_individual": "Launch a campaign",
+      "pending_proposals": "{{count}} proposal(s) pending",
+      "proposals": "{{count}} proposal(s)",
+      "subtitle_business": "Manage and track your mobile advertising campaigns.",
+      "subtitle_individual": "Your ongoing and upcoming campaigns.",
+      "title": "My campaigns",
+      "types_label": "Types:",
+      "status_open": "Open",
+      "status_closed": "Closed",
+      "status_fulfilled": "Fulfilled",
+      "status_cancelled": "Cancelled"
+    }
   },
   "driver": {
     "confirm_no": "That's not my vehicle",
@@ -5690,7 +5835,12 @@
         "short_description": "Describe your business in at least 30 characters.",
         "siret_mismatch": "SIRET Mismatch",
         "site_verify": "Error verifying your website.",
-        "verify_site": "Please verify your website before submitting."
+        "verify_site": "Please verify your website before submitting.",
+        "missing_kbis": "The Kbis extract is required.",
+        "missing_rc_pro": "The professional liability certificate is required.",
+        "missing_rc_pro_expiry": "The RC Pro expiry date is required.",
+        "missing_rib": "Please provide your bank details (IBAN).",
+        "rc_pro_expired": "Your professional liability insurance has expired. Please renew before registering."
       },
       "estimate_btn": "Estimate my rates",
       "estimating": "Estimating…",
@@ -5714,7 +5864,24 @@
       "ai_generate": "Generate",
       "ai_generating": "Generating…",
       "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed.",
-      "coverage_hint": "Indicate the geographic areas where you operate."
+      "coverage_hint": "Indicate the geographic areas where you operate.",
+      "doc_id_hint": "Valid national identity card or passport.",
+      "doc_id_label": "Identity document",
+      "doc_kbis_hint": "Kbis extract less than 3 months old.",
+      "doc_kbis_label": "Kbis extract",
+      "doc_rc_pro_expiry_hint": "Expiry date of your professional liability insurance.",
+      "doc_rc_pro_expiry_label": "RC Pro expiry date",
+      "doc_rc_pro_hint": "Valid professional liability insurance certificate.",
+      "doc_rc_pro_label": "Professional liability (RC Pro)",
+      "doc_rib_hint": "Bank details (IBAN) in the company name for transfers.",
+      "doc_rib_label": "Bank details (RIB)",
+      "docs_subtitle": "Add your documents to complete your registration.",
+      "docs_subtitle_production": "Kbis, RC Pro and bank details are required. The AI will verify authenticity before approval.",
+      "docs_title": "Required documents",
+      "status_pending": "Under review",
+      "status_approved": "Approved",
+      "status_rejected": "Rejected",
+      "status_suspended": "Suspended"
     },
     "portfolio": {
       "add_btn": "Add a project",
@@ -5738,7 +5905,9 @@
       "no_results": "No Results",
       "search_placeholder": "Search a provider…",
       "subtitle": "Subtitle",
-      "title": "Service Provider Directory"
+      "title": "Service Provider Directory",
+      "ai_search_active": "Smart AI search enabled ✨",
+      "match_score": "Match score: {{score}}%"
     },
     "detail": {
       "about": "About",
@@ -5822,6 +5991,15 @@
       "confirm_btn": "Confirm bank transfer request",
       "success": "Bank transfer request registered. Your balance will be credited upon receipt.",
       "not_available": "Bank transfer is not available at the moment. Please contact us."
+    },
+    "flutterwave": {
+      "description": "Campaign wallet top-up",
+      "failed": "Payment not completed.",
+      "pay_btn": "Pay now",
+      "powered_by": "Secured by Flutterwave",
+      "subtitle": "Secure payment by card or mobile money",
+      "success": "Payment received. Your wallet has been credited.",
+      "title": "Pay online"
     }
   },
   "region": {

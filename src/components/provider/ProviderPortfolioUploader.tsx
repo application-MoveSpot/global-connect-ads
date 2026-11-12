@@ -129,7 +129,7 @@ export function ProviderPortfolioUploader({ value, onChange }: Props) {
               className="relative rounded-md border border-border bg-background overflow-hidden"
             >
               {it.mime.startsWith("image/") ? (
-                <img src={it.url} alt={it.name} className="w-full h-28 object-cover" />
+                <img src={it.url} alt={it.name} className="w-full h-28 object-cover" loading="lazy" decoding="async" />
               ) : (
                 <video
                   src={it.url}
