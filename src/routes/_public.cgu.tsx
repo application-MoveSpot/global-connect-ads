@@ -239,11 +239,15 @@ function CGU() {
           Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les
           budgets B2B) et conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à
           l'exécution de la campagne. MoveSpot prélève une commission d'intermédiation de 30 % du
-          montant hors taxes. Les 70 % restants sont versés <strong>intégralement au propriétaire
-          du véhicule</strong> inscrit sur la Plateforme, via son compte Stripe Connect. La
-          rémunération éventuelle du chauffeur et du poseur certifié relève exclusivement de
-          l'accord bilatéral conclu entre le propriétaire et ces intervenants ; MoveSpot n'est
-          pas partie à cet accord et ne saurait en être tenu responsable.
+          montant hors taxes. Sur les 70 % restants, MoveSpot verse directement{" "}
+          <strong>au propriétaire du véhicule</strong> sa part de diffusion, et directement{" "}
+          <strong>au poseur certifié</strong> ses honoraires de pose et de dépose, chacun via leur
+          compte Stripe Connect respectif. Ces honoraires de pose et de dépose sont fixés par
+          MoveSpot au moment de la planification de la mission (montant communiqué au poseur avant
+          acceptation) et prélevés sur le budget de campagne avant reversement au propriétaire. Le
+          chauffeur, en tant qu'indépendant lié au propriétaire du véhicule, est rémunéré par ce
+          dernier selon l'accord bilatéral qu'ils ont conclu entre eux ; MoveSpot n'est pas partie
+          à cet accord.
         </p>
         <p>
           Les gains sont cumulés sur le compte du propriétaire et deviennent exigibles après

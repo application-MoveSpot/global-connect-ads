@@ -268,9 +268,9 @@ export function PoseImpossibleModal({
             {/* Warning if owner fault */}
             {isOwnerFault && (
               <div className="mt-2 rounded-lg border border-orange-300 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-700 px-3 py-2 text-xs text-orange-800 dark:text-orange-300">
-                <strong>Faute du propriétaire détectée</strong> — Une pénalité de{" "}
-                <strong>30 €</strong> sera automatiquement appliquée (art. 11bis CGU) et le
-                propriétaire recevra un email d'avertissement avec vos photos à l'appui.
+                <strong>Responsabilité du propriétaire engagée</strong> — Des frais de traitement de{" "}
+                <strong>30 €</strong> seront prélevés sur son portefeuille (art. 11bis CGU) et le
+                propriétaire recevra un email de notification avec vos photos à l'appui.
               </div>
             )}
           </div>
