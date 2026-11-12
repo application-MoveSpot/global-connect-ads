@@ -110,7 +110,7 @@ function ProviderDashboard() {
       .select("*")
       .eq("provider_id", session.user.id)
       .order("created_at", { ascending: false });
-    const quoteList = (qs as Quote[]) ?? [];
+    const quoteList = (qs as unknown as Quote[]) ?? [];
     setQuotes(quoteList);
 
     // Fetch identification data for quoted vehicles

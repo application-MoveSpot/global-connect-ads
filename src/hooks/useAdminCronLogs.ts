@@ -28,7 +28,7 @@ export function useAdminCronLogs() {
   return useQuery({
     queryKey: ["admin-cron-logs"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("admin_cron_logs")
         .select("id, job_name, status, retry_count, max_retries, parent_log_id, result, executed_at")
         .order("executed_at", { ascending: false })

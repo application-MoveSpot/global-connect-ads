@@ -100,12 +100,11 @@ export function useProviderSearch(q: string, serviceFilter: string) {
         }
 
         // 2. RPC call with cosine similarity
-        // match_providers n'est pas encore dans les types Supabase générés — cast as any
-        const { data: matches, error: rpcError } = await (supabase as any).rpc("match_providers", {
+        const { data: matches, error: rpcError } = await supabase.rpc("match_providers", {
           query_embedding: fnData.embedding,
           match_threshold: 0.25,
           match_count: 30,
-          filter_category: serviceFilter || null,
+          filter_category: serviceFilter || undefined,
         });
 
         if (controller.signal.aborted) return;

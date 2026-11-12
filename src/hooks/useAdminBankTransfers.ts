@@ -22,7 +22,7 @@ export function useAdminBankTransfers(statusFilter: BankTransferStatus = "all") 
   return useQuery({
     queryKey: ["admin-bank-transfers", statusFilter],
     queryFn: async () => {
-      let q = (supabase as any)
+      let q = supabase
         .from("bank_transfer_requests")
         .select(
           "id, user_id, amount_cents, currency, reference, status, stripe_account_id, stripe_transfer_id, failure_reason, admin_notes, created_at, updated_at"
