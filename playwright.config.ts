@@ -15,7 +15,7 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"], ["html", { open: "never", outputFolder: "e2e/report" }]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "off",
@@ -39,7 +39,7 @@ export default defineConfig({
     command: process.env.CI
       ? "WRANGLER_SEND_METRICS=false npx wrangler dev --config .output/server/wrangler.json --port 3000"
       : "npm run dev",
-    url: "http://localhost:3000",
+    url: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
