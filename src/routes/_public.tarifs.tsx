@@ -52,7 +52,7 @@ const CONTENT = {
     // Advertiser cards
     card1_badge: "Particulier · Asso",
     card1_price_sub: "d'inscription",
-    card1_commission: "+ 30 % de commission par campagne",
+    card1_commission: "Commission MoveSpot : 30 % incluse dans le tarif de campagne",
     card1_features: [
       "Campagnes dès 25 €/jour par véhicule",
       "Briefs illimités",
@@ -63,7 +63,7 @@ const CONTENT = {
     card2_badge: "PME · Startup · Indépendant",
     card2_popular: "Le plus populaire",
     card2_price_sub: "d'inscription",
-    card2_commission: "+ 25 % de commission par campagne",
+    card2_commission: "Commission MoveSpot : 25 % incluse dans le tarif (appliqué automatiquement dès SIRET validé)",
     card2_features: [
       "Campagnes dès 25 €/jour par véhicule",
       "Briefs illimités",
@@ -120,9 +120,9 @@ const CONTENT = {
     own_col_pro: "Pro / Flotte",
     // Provider section
     prov_eyebrow: "Prestataires poseurs",
-    prov_h2: "Vous posez les habillages — abonnement mensuel",
+    prov_h2: "Vous posez les habillages — rémunéré à la prestation",
     prov_sub:
-      "Accédez aux demandes de pose géolocalisées autour de votre secteur. Résiliable à tout moment.",
+      "Accédez aux missions de pose géolocalisées autour de votre secteur et soyez payé à la prestation via Stripe Connect. L'abonnement couvre l'accès à la plateforme et aux demandes de mission.",
     prov_trial: "14 jours d'essai gratuit",
     prov_plans: [
       {
@@ -167,14 +167,6 @@ const CONTENT = {
     // FAQ
     faq_h2: "Questions fréquentes",
     faq: [
-      {
-        q: "La commission est-elle prélevée sur le montant TTC ou HT ?",
-        a: "Sur le montant HT de la campagne. La TVA est collectée et reversée indépendamment.",
-      },
-      {
-        q: "Quand suis-je payé en tant que propriétaire ?",
-        a: "Après validation de la campagne (fin de mission + confirmation du propriétaire). Le virement est émis sous 5 jours ouvrés via Stripe Connect.",
-      },
       {
         q: "Puis-je lancer une campagne sans créer de compte ?",
         a: "Non. Un compte est requis pour créer un brief, suivre la campagne en temps réel et accéder à vos factures.",
@@ -234,7 +226,7 @@ const CONTENT = {
     adv_comparison: "See full comparison",
     card1_badge: "Individual · Non-profit",
     card1_price_sub: "sign-up",
-    card1_commission: "+ 30% commission per campaign",
+    card1_commission: "MoveSpot commission: 30% included in the campaign price",
     card1_features: [
       "Campaigns from €25/day per vehicle",
       "Unlimited briefs",
@@ -245,7 +237,7 @@ const CONTENT = {
     card2_badge: "SME · Startup · Freelancer",
     card2_popular: "Most popular",
     card2_price_sub: "sign-up",
-    card2_commission: "+ 25% commission per campaign",
+    card2_commission: "MoveSpot commission: 25% included in the campaign price (applied automatically once company registration is validated)",
     card2_features: [
       "Campaigns from €25/day per vehicle",
       "Unlimited briefs",
@@ -298,8 +290,8 @@ const CONTENT = {
     own_col_individual: "Individual",
     own_col_pro: "Pro / Fleet",
     prov_eyebrow: "Installers",
-    prov_h2: "You install wraps — monthly subscription",
-    prov_sub: "Access geolocated installation requests around your area. Cancel any time.",
+    prov_h2: "You install wraps — paid per job",
+    prov_sub: "Access geolocated installation jobs near you and get paid per mission via Stripe Connect. The subscription covers access to the platform and job requests.",
     prov_trial: "14-day free trial",
     prov_plans: [
       {
@@ -343,14 +335,6 @@ const CONTENT = {
     prov_recommended: "★ Recommended",
     faq_h2: "Frequently asked questions",
     faq: [
-      {
-        q: "Is the commission taken on the VAT-inclusive or VAT-exclusive amount?",
-        a: "On the VAT-exclusive (net) campaign amount. VAT is collected and remitted separately.",
-      },
-      {
-        q: "When do I get paid as an owner?",
-        a: "After campaign validation (end of mission + owner confirmation). Payment is sent within 5 business days via Stripe Connect.",
-      },
       {
         q: "Can I launch a campaign without creating an account?",
         a: "No. An account is required to create a brief, track the campaign in real time and access your invoices.",
