@@ -200,8 +200,6 @@ function AdminPage() {
     navigate({ to: "/auth" });
   };
 
-  if (location.pathname !== "/admin") return <Outlet />;
-
   if (authState === "checking")
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground">
@@ -246,6 +244,9 @@ function AdminPage() {
       </div>
     );
   }
+
+  // Auth confirmed OK — sub-routes can now render safely
+  if (location.pathname !== "/admin") return <Outlet />;
 
   const loc = i18n.language;
 
