@@ -13,7 +13,6 @@ const MobilityMap = lazy(() =>
 const BookingForm = lazy(() =>
   import("@/components/shared/BookingForm").then((m) => ({ default: m.BookingForm })),
 );
-const AiCampaignEstimator = lazy(() => import("@/components/shared/AiCampaignEstimator"));
 const CampaignImpactSimulator = lazy(() =>
   import("@/components/shared/CampaignImpactSimulator").then((m) => ({
     default: m.CampaignImpactSimulator,
@@ -620,33 +619,6 @@ function Index() {
         </div>
       </section>
 
-      {/* AI Campaign Estimator */}
-      <section className="max-w-7xl mx-auto px-6 pb-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-6">
-            <div className="text-xs uppercase tracking-widest text-primary mb-2">
-              {tx("estimator.badge", "Simulez votre campagne")}
-            </div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
-              {tx("estimator.h2", "Combien d'impressions pour votre budget ?")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {tx(
-                "estimator.desc",
-                "Renseignez votre secteur, votre ville et votre budget mensuel — l'IA calcule vos métriques en temps réel.",
-              )}
-            </p>
-          </div>
-          <Suspense
-            fallback={
-              <div className="rounded-3xl border border-border bg-card/30 h-72 animate-pulse" />
-            }
-          >
-            <AiCampaignEstimator />
-          </Suspense>
-        </div>
-      </section>
-
       {/* Map */}
       <section id="map" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-20">
         <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
@@ -683,7 +655,7 @@ function Index() {
               {tx("simulator.badge", "Calculez votre impact")}
             </div>
             <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
-              {tx("simulator.h2", "Combien d'impressions pour votre budget ?")}
+              {tx("simulator.h2", "Combien d'impressions pour votre budget ?")}
             </h2>
             <p className="text-sm text-muted-foreground">
               {tx(
