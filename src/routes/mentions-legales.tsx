@@ -234,13 +234,50 @@ function MentionsLegales() {
 
       <LegalSection title={t("mentions.s_mediation")}>
         <p>
-          Conformément à l'article L.612-1 du Code de la consommation, tout consommateur peut
-          recourir gratuitement à un médiateur de la consommation en vue de la résolution amiable
-          d'un litige. Pour toute demande, écrivez à{" "}
-          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
-            contact@move-spot.com
-          </a>{" "}
-          afin d'obtenir les coordonnées du médiateur compétent.
+          Conformément aux articles L.612-1 et L.616-1 du Code de la consommation, MoveSpot
+          adhère au service de médiation du{" "}
+          <strong>
+            Centre de la Médiation de la Consommation de Conciliateurs de Justice (CM2C)
+          </strong>
+          . Tout consommateur peut recourir gratuitement à ce médiateur en vue de la résolution
+          amiable d'un litige, après avoir préalablement tenté de résoudre le différend directement
+          auprès de MoveSpot.
+        </p>
+        <ul className="list-none space-y-1 text-sm mt-3">
+          <li>
+            <strong>Adresse postale :</strong> 49 Rue de Ponthieu, 75008 Paris
+          </li>
+          <li>
+            <strong>Site & formulaire de saisine :</strong>{" "}
+            <a
+              href="https://cm2c.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              https://cm2c.net
+            </a>
+          </li>
+          <li>
+            <strong>Email :</strong>{" "}
+            <a href="mailto:cm2c@cm2c.net" className="text-primary hover:underline">
+              cm2c@cm2c.net
+            </a>
+          </li>
+        </ul>
+        <p className="mt-3">
+          Conformément au règlement (UE) n° 524/2013 et à l'article L.616-2 du Code de la
+          consommation, vous pouvez également utiliser la plateforme européenne de règlement en
+          ligne des litiges :{" "}
+          <a
+            href="https://ec.europa.eu/consumers/odr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            https://ec.europa.eu/consumers/odr
+          </a>
+          .
         </p>
       </LegalSection>
 
