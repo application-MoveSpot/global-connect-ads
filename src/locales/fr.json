@@ -4269,7 +4269,9 @@
       "ai_generate": "Générer",
       "ai_generating": "Génération…",
       "ai_generate_error": "Erreur lors de la génération. Réessayez.",
-      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
+      "referral_code_label": "Code de parrainage",
+      "referral_code_hint": "Si vous avez reçu un code de parrainage, saisissez-le ici."
     },
     "add_vehicle": "Ajouter Véhicule",
     "ai_pricing_cta": "Estimer mon tarif →",

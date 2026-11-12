@@ -4202,7 +4202,9 @@
       "ai_generate": "Generate",
       "ai_generating": "Generating…",
       "ai_generate_error": "Error during generation. Please try again.",
-      "ai_filled": "✨ AI filled in: {{fields}} — please review and adjust as needed."
+      "ai_filled": "✨ AI filled in: {{fields}} — please review and adjust as needed.",
+      "referral_code_label": "Referral code",
+      "referral_code_hint": "If you received a referral code, enter it here."
     },
     "add_vehicle": "Add Vehicle",
     "ai_pricing_cta": "Estimate my price →",
