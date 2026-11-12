@@ -10,7 +10,7 @@ export const Route = createFileRoute("/cgv")({
       {
         name: "description",
         content:
-          "Conditions Générales de Vente MoveSpot : devis cartographique, paiement par carte, portefeuille, virement bancaire B2B et reversements aux partners.",
+          "Conditions Générales de Vente MoveSpot : devis cartographique, paiement par carte, portefeuille, virement bancaire B2B et reversements aux prestataires certifiés.",
       },
       { property: "og:title", content: "Conditions Générales de Vente — MoveSpot" },
       {
@@ -177,13 +177,15 @@ function CGV() {
 
       <LegalSection title={t("cgv.s6")}>
         <p>
-          MoveSpot prélève une commission d'intermédiation de 30 % du montant hors taxes. Les 70 %
-          restants sont versés <strong>intégralement au propriétaire du véhicule</strong> inscrit
-          sur la Plateforme, via son compte Stripe Connect Express. La rémunération éventuelle du
-          driver et du provider de pose relève exclusivement de l'accord bilatéral conclu entre le
-          propriétaire et ces intervenants. Les reversements sont effectués après validation des
-          métriques de campagne et finalisation de la vérification d'identité et de l'IBAN du
-          propriétaire.
+          MoveSpot prélève une commission d'intermédiation de 30 % du montant hors taxes. Sur les
+          70 % restants, MoveSpot verse directement au propriétaire du véhicule sa part de
+          diffusion, et directement au poseur certifié ses honoraires de pose et de dépose, chacun
+          via leur compte Stripe Connect respectif. Ces honoraires sont fixés par MoveSpot au moment
+          de la planification de la mission et communiqués au poseur avant acceptation. Le chauffeur,
+          en tant qu'indépendant lié au propriétaire du véhicule, est rémunéré par ce dernier selon
+          l'accord bilatéral conclu entre eux ; MoveSpot n'est pas partie à cet accord. Les
+          reversements sont effectués après validation des métriques de campagne et finalisation de
+          la vérification d'identité et de l'IBAN des bénéficiaires.
         </p>
       </LegalSection>
 
