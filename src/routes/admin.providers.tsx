@@ -99,7 +99,7 @@ function AdminProvidersPage() {
     }
     setAuthed(true);
     const [{ data }, { data: reports }, { data: installs }] = await Promise.all([
-      supabase.from("provider_profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("provider_profiles").select("user_id, company, siret, full_name, email, phone, website, description, coverage_areas, portfolio_urls, pricing_info, status, admin_notes, services, created_at, kbis_url, rc_pro_url, rc_pro_expiry, rib_url, id_doc_url, docs_ai_status, docs_ai_report").order("created_at", { ascending: false }),
       supabase
         .from("service_quotes")
         .select(

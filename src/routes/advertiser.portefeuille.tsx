@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useCallback, useState, useRef, Fragment } from "react";
+import { htmlEscape } from "@/lib/security/csp";
 import { Receipt, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
@@ -180,7 +181,7 @@ function WalletPage() {
       const rowsHtml = rows
         .map((tx) => {
           const sign = tx.amount_cents >= 0;
-          return `<tr><td>${new Date(tx.created_at).toLocaleString("fr-FR")}</td><td>${tx.kind}</td><td>${tx.description ?? ""}</td><td class="${sign ? "pos" : "neg"}">${sign ? "+" : ""}${(tx.amount_cents / 100).toFixed(2)} €</td></tr>`;
+          return `<tr><td>${new Date(tx.created_at).toLocaleString("fr-FR")}</td><td>${htmlEscape(tx.kind)}</td><td>${htmlEscape(tx.description ?? "")}</td><td class="${sign ? "pos" : "neg"}">${sign ? "+" : ""}${(tx.amount_cents / 100).toFixed(2)} €</td></tr>`;
         })
         .join("");
       const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Rapport financier MoveSpot</title>

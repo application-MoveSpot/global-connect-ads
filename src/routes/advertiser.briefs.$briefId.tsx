@@ -125,7 +125,7 @@ function BriefDetailPage() {
       return;
     }
     const [{ data: b }, { data: prof }] = await Promise.all([
-      supabase.from("advertiser_briefs").select("*").eq("id", briefId).maybeSingle(),
+      supabase.from("advertiser_briefs").select("id, advertiser_id, title, description, vehicle_types, zones, start_date, end_date, days_count, budget_max, poseur_fee, audience_target, creative_files, status, created_at").eq("id", briefId).maybeSingle(),
       supabase
         .from("advertiser_profiles")
         .select("account_type")

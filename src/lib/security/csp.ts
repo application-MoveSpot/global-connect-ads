@@ -44,3 +44,17 @@ export const CSP_DIRECTIVES = [
 ] as const;
 
 export const CSP_HEADER = CSP_DIRECTIVES.join("; ");
+
+/**
+ * Escape a string for safe injection into an HTML context (innerHTML, document.write).
+ * Use this whenever a database or user-supplied value must appear inside a template-literal
+ * HTML string or a dangerouslySetInnerHTML translation interpolation.
+ */
+export function htmlEscape(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

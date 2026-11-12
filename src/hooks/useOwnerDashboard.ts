@@ -88,10 +88,13 @@ export function useOwnerDashboard() {
     const [{ data: v, error: vErr }, { data: r, error: rErr }] = await Promise.all([
       supabase
         .from("vehicles")
-        .select("*")
+        .select("id, name, type, format_publicitaire, price_per_day, status, admin_notes, photos, created_at, condition, km_per_day, surface_m2, zones, description")
         .eq("owner_id", prof.id)
         .order("created_at", { ascending: false }),
-      supabase.from("campaign_requests").select("*").order("created_at", { ascending: false }),
+      supabase
+        .from("campaign_requests")
+        .select("id, spot_name, company, message, status, owner_response, admin_notes, start_date, end_date, total_price, created_at, route_zones, route_waypoints, route_pois, estimated_impressions_per_day, days_count, creative_files, vehicle_id")
+        .order("created_at", { ascending: false }),
     ]);
     if (vErr) throw new Error(vErr.message);
     if (rErr) throw new Error(rErr.message);
