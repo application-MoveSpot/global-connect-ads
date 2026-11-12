@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { useCampaignMissions, useDispatchMission, useValidateMission, useMissionProofs } from "@/hooks/useMissions";
 import { supabase } from "@/integrations/supabase/client";
@@ -503,22 +503,19 @@ function AdminMissionsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-xl font-bold mt-1">Missions Pose / Dépose</h1>
-          </div>
+      <AppHeader
+        right={
           <button
             onClick={() => navigate({ to: "/admin" })}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
             ← Retour admin
           </button>
-        </div>
-      </header>
+        }
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+        <h1 className="font-display text-xl font-bold mb-6">Missions Pose / Dépose</h1>
         {/* Dispatch new mission */}
         <section className="rounded-xl border border-border bg-card p-6 space-y-4">
           <button

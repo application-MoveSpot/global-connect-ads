@@ -20,7 +20,7 @@ export function useOwnerBankTransfers() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non authentifié");
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("bank_transfer_requests")
         .select(
           "id, amount_cents, currency, reference, status, stripe_transfer_id, failure_reason, created_at, updated_at"

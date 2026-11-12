@@ -6,7 +6,8 @@ import { forceRefreshSession, getOrRefreshSession } from "@/integrations/supabas
 // returns true if the whitelist is empty (open to all) or the user's
 // email is in it, false otherwise.
 async function checkBetaAccess(): Promise<boolean> {
-  const { data, error } = await supabase.rpc("check_beta_access");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc("check_beta_access");
   if (error) {
     // On error, fail open so a DB hiccup never locks everyone out.
     console.error("BetaGuard: check_beta_access RPC error", error);

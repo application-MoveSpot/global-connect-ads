@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, Globe, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import {
   listTranslationIssues,
   resolveTranslationIssue,
@@ -62,15 +62,8 @@ function TranslationIssuesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1 flex items-center gap-2">
-              <Globe className="h-5 w-5 text-primary" />
-              Problèmes de traduction
-            </h1>
-          </div>
+      <AppHeader
+        right={
           <div className="flex items-center gap-3">
             <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
               Admin
@@ -83,10 +76,14 @@ function TranslationIssuesPage() {
               Actualiser
             </button>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <h1 className="font-display text-2xl font-bold mb-6 flex items-center gap-2">
+          <Globe className="h-5 w-5 text-primary" />
+          Problèmes de traduction
+        </h1>
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <StatCard label="Problèmes en attente" value={pendingCount} accent="orange" />

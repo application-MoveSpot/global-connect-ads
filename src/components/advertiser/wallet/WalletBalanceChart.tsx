@@ -37,7 +37,7 @@ function useWalletHistory(userId: string | null) {
     queryKey: ["wallet-balance-history", userId],
     queryFn: async () => {
       if (!userId) return [] as TxRow[];
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("wallet_transactions")
         .select("amount_cents, created_at")
         .eq("user_id", userId)

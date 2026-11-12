@@ -162,7 +162,7 @@ export function AdminBankTransfersPanel() {
 
   const retryMutation = useMutation({
     mutationFn: async (requestId: string) => {
-      const { data, error } = await (supabase as any).rpc("retry_bank_transfer", {
+      const { data, error } = await supabase.rpc("retry_bank_transfer", {
         request_id: requestId,
       });
       if (error) throw error;

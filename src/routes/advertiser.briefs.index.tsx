@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { AiBriefModal } from "@/components/advertiser/AiBriefModal";
 import { AiBriefSummaryBadge } from "@/components/advertiser/AiBriefSummaryBadge";
@@ -135,14 +135,7 @@ function BriefsListPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-          <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("advertiser.briefs_list.back")}
-          </Link>
-        </div>
-      </header>
+      <AppHeader right={<Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_list.back")}</Link>} />
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>

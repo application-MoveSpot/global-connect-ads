@@ -40,8 +40,7 @@ export function StatusHistory({ entityType, entityId, statusLabel, triggerLabel 
     setOpen(next);
     if (next && entries === null) {
       setLoading(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from("status_history")
         .select("id, previous_status, new_status, reason, created_at")
         .eq("entity_type", entityType)

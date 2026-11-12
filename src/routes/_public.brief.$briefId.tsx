@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
 
@@ -114,12 +114,7 @@ function PublicBriefPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <LogoLink />
-          <span className="text-xs text-muted-foreground">Annonce partagée</span>
-        </div>
-      </header>
+      <AppHeader right={<span className="text-xs text-muted-foreground">Annonce partagée</span>} />
 
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-6">
         {/* Header */}

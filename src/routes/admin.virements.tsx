@@ -6,7 +6,7 @@ import {
   listBankTransfersForAdmin,
   reviewBankTransfer,
 } from "@/lib/payments/bank-transfers.functions";
-import { LogoLink } from "@/components/app/LogoLink";
+import { AppHeader } from "@/components/app/AppHeader";
 import { Button } from "@/components/ui/button";
 import { RouteError } from "@/components/app/RouteError";
 
@@ -79,14 +79,7 @@ function AdminBankTransfers() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <LogoLink />
-          <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("admin.back")}
-          </Link>
-        </div>
-      </header>
+      <AppHeader right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.back")}</Link>} />
 
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
         <h1 className="font-display text-3xl font-bold">{t("admin.virements.title")}</h1>
