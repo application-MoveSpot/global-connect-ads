@@ -259,6 +259,29 @@ function CGU() {
         </p>
       </LegalSection>
 
+      <LegalSection title={t("cgu.s12bis")}>
+        <p>
+          MoveSpot peut nouer des partenariats commerciaux avec des apporteurs d'affaires
+          indépendants (ci-après « commerciaux ») qui lui présentent des annonceurs potentiels via
+          un lien de parrainage personnel. Cette relation est régie par un accord distinct conclu
+          entre MoveSpot et chaque commercial ; les présentes CGU ne s'y substituent pas.
+        </p>
+        <p>
+          Le commercial agit en qualité de professionnel indépendant. Il fixe librement son emploi
+          du temps, ses méthodes de prospection et les moyens mis en œuvre. Il n'existe aucun lien
+          de subordination entre MoveSpot et le commercial : MoveSpot ne lui donne pas
+          d'instructions sur la manière d'exercer son activité, ne lui impose ni horaires ni quotas,
+          et ne peut pas lui infliger de sanction disciplinaire.
+        </p>
+        <p>
+          La commission due au commercial est calculée en pourcentage du montant hors taxes des
+          campagnes conclues par les annonceurs qu'il a parrainés, selon le taux fixé dans son
+          accord. Elle est versée par virement bancaire, selon les modalités et délais prévus audit
+          accord, et uniquement pour les campagnes effectivement encaissées par MoveSpot. Aucune
+          commission n'est due sur les remboursements, annulations ou transactions non exécutées.
+        </p>
+      </LegalSection>
+
       <LegalSection title={t("cgu.s13")}>
         <p>
           L'annonceur définit sa zone de diffusion en dessinant un polygone sur la carte
