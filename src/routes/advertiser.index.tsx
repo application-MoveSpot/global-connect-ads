@@ -336,10 +336,10 @@ function AnnonceurDashboard() {
               {t("advertiser.campaigns_subtitle")}
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap md:flex-nowrap md:overflow-x-auto pb-0.5 shrink-0">
             <Link
               to="/advertiser/portefeuille"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
             >
               {t("advertiser.nav.wallet", { balance: (balanceCents / 100).toFixed(2) })}
             </Link>
@@ -347,13 +347,13 @@ function AnnonceurDashboard() {
               <>
                 <Link
                   to="/advertiser/pack"
-                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
                 >
                   {t("advertiser.nav.packs")}
                 </Link>
                 <Link
                   to="/advertiser/exemples"
-                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
                 >
                   {t("advertiser.nav.examples")}
                 </Link>
@@ -362,13 +362,13 @@ function AnnonceurDashboard() {
               <>
                 <Link
                   to="/providers"
-                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
                 >
                   {t("advertiser.nav.providers")}
                 </Link>
                 <Link
                   to="/advertiser/etude-marche"
-                  className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
                 >
                   {t("advertiser.nav.market_study")}
                 </Link>
@@ -376,37 +376,37 @@ function AnnonceurDashboard() {
             )}
             <Link
               to="/advertiser/briefs"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
             >
               {t("advertiser.nav.briefs")}
             </Link>
             <Link
               to="/advertiser/messages"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
             >
               {t("advertiser.nav.messages")}
             </Link>
             <Link
               to="/advertiser/calendrier"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
             >
               {t("advertiser.nav.calendar")}
             </Link>
             <Link
               to="/advertiser/remboursement"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
             >
               {t("advertiser.nav.refunds")}
             </Link>
             <Link
               to="/advertiser/factures"
-              className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
             >
               Factures
             </Link>
             <Link
               to="/advertiser/briefs/nouveau"
-              className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition"
+              className="rounded-full bg-primary text-primary-foreground px-4 py-1.5 text-xs font-semibold whitespace-nowrap hover:bg-primary/90 transition"
             >
               {isIndividual ? t("advertiser.nav.new_brief") : t("advertiser.nav.new_campaign")}
             </Link>
@@ -414,7 +414,7 @@ function AnnonceurDashboard() {
               <Link
                 to="/"
                 hash="spots"
-                className="rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2.5 text-sm font-semibold hover:bg-primary/20 transition"
+                className="rounded-full border border-primary/40 bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold whitespace-nowrap hover:bg-primary/20 transition"
               >
                 {t("advertiser.nav.browse_spots")}
               </Link>
@@ -423,7 +423,7 @@ function AnnonceurDashboard() {
               <button
                 type="button"
                 onClick={exportCsv}
-                className="rounded-full border border-border bg-card px-4 py-2.5 text-sm font-semibold hover:bg-secondary transition"
+                className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium whitespace-nowrap hover:bg-secondary transition"
               >
                 {t("common.export_csv")}
               </button>
