@@ -148,12 +148,12 @@
 }
 
 .app-brand-shell:not(:has(.app-page header img[alt="MoveSpot"])) .app-page {
-  --app-brand-height: 65px; /* h-16 (64px) + border-b (1px) */
+  --app-brand-height: 73px; /* h-[72px] (72px) + border-b (1px) */
 }
 
 @media (max-width: 639px) {
   .app-brand-shell:not(:has(.app-page header img[alt="MoveSpot"])) .app-page {
-    --app-brand-height: 57px; /* h-14 (56px) + border-b (1px) */
+    --app-brand-height: 65px; /* h-16 (64px) + border-b (1px) */
   }
 }
 

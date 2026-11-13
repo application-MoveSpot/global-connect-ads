@@ -201,7 +201,7 @@ function ProvidersDirectory() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-header text-header-foreground border-b border-header-border backdrop-blur-sm light-band">
-        <div className="max-w-5xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
           <LogoLink />
           <Link
             to="/provider/inscription"

@@ -307,7 +307,7 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
       )}
       <PaymentTestModeBanner />
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <div className="max-w-4xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
           <LogoLink />
           <Link
             to="/advertiser"
