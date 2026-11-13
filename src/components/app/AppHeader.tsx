@@ -12,14 +12,14 @@ export function AppHeader({ right, noPrint, className }: AppHeaderProps) {
   return (
     <header
       className={[
-        "border-b border-border light-band",
+        "sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm",
         noPrint ? "no-print" : "",
         className ?? "",
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
         <LogoLink />
         {right && <div className="flex items-center gap-3 shrink-0">{right}</div>}
       </div>
