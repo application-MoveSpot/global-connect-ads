@@ -93,7 +93,7 @@ function AnnonceurDashboard() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <OnboardingModal isIndividual={isIndividual} />
       <header className="sticky top-0 z-40 border-t-2 border-t-primary border-b border-border backdrop-blur-sm light-band">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-[72px] flex items-center justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
           <LogoLink />
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-sm text-muted-foreground hidden lg:inline">

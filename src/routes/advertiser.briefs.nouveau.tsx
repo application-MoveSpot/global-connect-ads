@@ -866,7 +866,7 @@ function NewBriefPage() {
     return (
       <div className="min-h-screen bg-background">
         <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-          <div className="max-w-3xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
+          <div className="max-w-3xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
             <LogoLink />
             <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
               {t("advertiser.briefs.nouveau.back")}
@@ -937,7 +937,7 @@ function NewBriefPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
+        <div className="max-w-3xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
             {t("advertiser.briefs.nouveau.back")}
