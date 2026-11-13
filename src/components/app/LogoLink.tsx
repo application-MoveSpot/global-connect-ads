@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logoOfficial from "@/assets/movespot-logo.png.asset.json";
+import logoHorizontal from "@/assets/movespot-logo-horizontal.png.asset.json";
 
 export function LogoLink() {
   return (
@@ -11,10 +11,10 @@ export function LogoLink() {
       className="inline-flex shrink-0 items-center gap-2 rounded-lg px-1 py-0.5 select-none"
     >
       <img
-        src={logoOfficial.url}
+        src={logoHorizontal.url}
         alt="MoveSpot"
-        width={273}
-        height={359}
+        width={320}
+        height={80}
         className="h-9 sm:h-10 w-auto shrink-0 object-contain pointer-events-none"
       />
     </Link>
