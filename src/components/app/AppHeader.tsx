@@ -19,7 +19,7 @@ export function AppHeader({ right, noPrint, className }: AppHeaderProps) {
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="max-w-6xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
+      <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
         <LogoLink />
         {right && <div className="flex items-center gap-3 shrink-0">{right}</div>}
       </div>

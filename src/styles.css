@@ -148,7 +148,7 @@
 }
 
 .app-brand-shell:not(:has(.app-page header img[alt="MoveSpot"])) .app-page {
-  --app-brand-height: 73px; /* h-[72px] (72px) + border-b (1px) */
+  --app-brand-height: 81px; /* h-20 (80px) + border-b (1px) */
 }
 
 @media (max-width: 639px) {

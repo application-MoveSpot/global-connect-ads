@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/app/LanguageSwitcher";
-import logoHorizontal from "@/assets/movespot-logo-horizontal.png.asset.json";
 
 export function Navbar() {
   const { t } = useTranslation();
@@ -16,22 +15,26 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border light-band">
-      <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 h-16 sm:h-[72px] sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
+      <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 h-16 sm:h-20 sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
         <Link
           to="/"
           aria-label="MoveSpot — accueil"
-          /* clear space: px-1 py-1 — no fixed width, no overflow-hidden
-             shrink-0 prevents the logo from being compressed by flex siblings
-             z-index is inherited from sticky header z-40 */
-          className="flex shrink-0 items-center justify-start gap-2 px-1 py-1 select-none"
+          className="inline-flex shrink-0 items-center px-1 py-1.5 select-none rounded-lg"
         >
-          <img
-            src={logoHorizontal.url}
-            alt="MoveSpot"
-            width={320}
-            height={80}
-            className="h-12 sm:h-14 w-auto shrink-0 object-contain pointer-events-none"
-          />
+          <span className="flex flex-col items-center gap-[3px] sm:gap-1 h-12 sm:h-16 justify-center leading-none">
+            <svg viewBox="0 0 64 64" className="h-8 sm:h-11 w-auto shrink-0 pointer-events-none" aria-hidden="true">
+              <path d="M32 59C21 46 7 36 7 22C7 13 18.6 5 32 5C45.4 5 57 13 57 22C57 36 43 46 32 59Z" fill="#F05A28"/>
+              <circle cx="32" cy="22" r="11" fill="#EFF2F8"/>
+              <circle cx="32" cy="22" r="4.5" fill="#F05A28"/>
+              <circle cx="20" cy="52" r="7" fill="#0A1628"/>
+              <circle cx="20" cy="52" r="4" fill="#CBD5E1"/>
+              <circle cx="44" cy="52" r="7" fill="#0A1628"/>
+              <circle cx="44" cy="52" r="4" fill="#CBD5E1"/>
+            </svg>
+            <span className="font-display font-bold text-[13px] sm:text-[15px] leading-none tracking-tight text-header-foreground whitespace-nowrap pointer-events-none">
+              MoveSpot
+            </span>
+          </span>
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">
           <a href={mapHref} className="whitespace-nowrap hover:text-header-foreground transition">
