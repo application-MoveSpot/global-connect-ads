@@ -302,13 +302,8 @@ ${
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-t-2 border-t-rose-400 border-b border-border backdrop-blur-sm light-band">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">
-              {t("commercial.dashboard.title")}
-            </h1>
-          </div>
+        <div className="max-w-4xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+          <LogoLink />
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"

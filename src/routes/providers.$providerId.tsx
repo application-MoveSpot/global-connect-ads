@@ -206,7 +206,7 @@ function ProviderDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 bg-header text-header-foreground border-b border-header-border backdrop-blur-sm light-band">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
           <LogoLink />
           <Link to="/providers" className="text-sm text-header-muted hover:text-header-foreground">
             {t("providers.detail.back")}

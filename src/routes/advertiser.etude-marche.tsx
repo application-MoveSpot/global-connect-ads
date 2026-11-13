@@ -912,8 +912,8 @@ function EtudeMarche() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border backdrop-blur sticky top-0 z-10 light-band">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-border backdrop-blur-sm sticky top-0 z-40 light-band">
+        <div className="max-w-6xl mx-auto px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
           <LogoLink />
           <nav className="flex items-center gap-2">
             <Link
