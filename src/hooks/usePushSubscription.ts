@@ -50,7 +50,7 @@ export function usePushSubscription(userId: string | null) {
       if (existing) {
         const keys = existing.toJSON().keys;
         if (keys) {
-          await save({ endpoint: existing.endpoint, p256dh: keys.p256dh, auth: keys.auth });
+          await save({ data: { endpoint: existing.endpoint, p256dh: keys.p256dh, auth: keys.auth } });
         }
         setState("subscribed");
         return;
@@ -101,10 +101,12 @@ export function usePushSubscription(userId: string | null) {
       }
 
       await save({
-        endpoint: sub.endpoint,
-        p256dh: keys.p256dh,
-        auth: keys.auth,
-        userAgent: navigator.userAgent.slice(0, 200),
+        data: {
+          endpoint: sub.endpoint,
+          p256dh: keys.p256dh,
+          auth: keys.auth,
+          userAgent: navigator.userAgent.slice(0, 200),
+        },
       });
 
       setState("subscribed");
@@ -121,7 +123,7 @@ export function usePushSubscription(userId: string | null) {
       const reg = await navigator.serviceWorker.getRegistration("/");
       const sub = await reg?.pushManager.getSubscription();
       if (sub) {
-        await remove({ endpoint: sub.endpoint });
+        await remove({ data: { endpoint: sub.endpoint } });
         await sub.unsubscribe();
       }
       setState("default");

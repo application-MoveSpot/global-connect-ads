@@ -1250,7 +1250,7 @@ export type AdminRegionStat = {
 
 export const getAdminRegionStats = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({}).parse(input))
+  .inputValidator((input) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { data: isAdmin } = await supabase.rpc("has_role" as never, {

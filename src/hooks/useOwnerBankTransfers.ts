@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 
 export interface OwnerBankTransferRow {
   id: string;
@@ -17,7 +18,8 @@ export function useOwnerBankTransfers() {
   return useQuery({
     queryKey: ["owner-bank-transfers"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const session = await getOrRefreshSession();
+      const user = session?.user;
       if (!user) throw new Error("Non authentifié");
 
       const { data, error } = await supabase
