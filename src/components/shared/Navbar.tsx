@@ -16,7 +16,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-lg bg-header border-b border-header-border light-band">
-      <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 h-14 sm:h-16 sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
+      <div className="mx-auto grid max-w-[1700px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 h-16 sm:h-[72px] sm:px-6 min-[1700px]:grid-cols-[auto_minmax(0,1fr)_auto]">
         <Link
           to="/"
           aria-label="MoveSpot — accueil"
@@ -30,7 +30,7 @@ export function Navbar() {
             alt="MoveSpot"
             width={320}
             height={80}
-            className="h-9 sm:h-10 w-auto shrink-0 object-contain pointer-events-none"
+            className="h-12 sm:h-14 w-auto shrink-0 object-contain pointer-events-none"
           />
         </Link>
         <nav className="hidden min-w-0 items-center justify-center gap-5 text-sm text-header-muted min-[1700px]:flex">

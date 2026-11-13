@@ -295,7 +295,7 @@ function FleetPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
           <LogoLink />
           <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
             {t("owner.flotte.back")}

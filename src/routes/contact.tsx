@@ -139,7 +139,7 @@ function ChatPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <div className="max-w-3xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
           <LogoLink />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
             {t("contact.header_badge")}
@@ -277,7 +277,7 @@ function ClassicForm({ onSwitchToChat }: { onSwitchToChat: () => void }) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <div className="max-w-3xl mx-auto px-4 h-16 sm:h-[72px] flex items-center justify-between gap-4">
           <LogoLink />
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-secondary text-muted-foreground">
             {t("contact.header_badge")}
