@@ -83,13 +83,8 @@ function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-t-2 border-t-cyan-400 border-b border-border backdrop-blur-sm light-band">
-        <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">
-              {t("owner.welcome", { name: profile?.full_name })}
-            </h1>
-          </div>
+        <div className="max-w-6xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+          <LogoLink />
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
             <a

@@ -158,13 +158,8 @@ function AdvertiserMessagesPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <LogoLink />
-            <h1 className="font-display text-2xl font-bold mt-1">
-              {t("advertiser.messages.title")}
-            </h1>
-          </div>
+        <div className="max-w-5xl mx-auto px-4 h-14 sm:h-16 flex items-center justify-between gap-4">
+          <LogoLink />
           <Link
             to="/advertiser"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
