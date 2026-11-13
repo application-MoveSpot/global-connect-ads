@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { getOrRefreshSession } from '@/integrations/supabase/session';
 
 interface OwnerFinancialAnalytics {
   total_vehicles: number;
@@ -13,7 +14,8 @@ export function useOwnerAnalytics() {
   return useQuery({
     queryKey: ['owner-financial-analytics'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const session = await getOrRefreshSession();
+      const user = session?.user;
       if (!user) throw new Error('Utilisateur non connecté');
 
       const { data, error } = await supabase.rpc('get_owner_financial_analytics', {

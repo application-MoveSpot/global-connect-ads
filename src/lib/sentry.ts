@@ -26,6 +26,9 @@ export function initSentry() {
       "Network request failed",
       "Failed to fetch",
       "Load failed",
+      // Bruit interne supabase-js navigator.locks : un autre onglet / requête
+      // a "volé" le verrou d'auth — mécanisme normal, pas une erreur applicative.
+      /Lock "lock:sb-[^"]+" was released because another request stole it/,
     ],
   });
 }

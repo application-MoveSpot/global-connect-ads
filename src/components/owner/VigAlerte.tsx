@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { getOrRefreshSession } from "@/integrations/supabase/session";
 import {
   getMyVigilanceStatus,
   submitAttestationUrssaf,
@@ -195,10 +196,11 @@ export function VigAlerte() {
   const [soumis, setSoumis] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Récupérer l'id utilisateur courant
+  // Récupérer l'id utilisateur courant via le singleton dédupliqué (évite la
+  // contention navigatorLock quand useOwnerDashboard fait getOrRefreshSession).
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id ?? null);
+    getOrRefreshSession().then((session) => {
+      setUserId(session?.user.id ?? null);
     });
   }, []);
 
