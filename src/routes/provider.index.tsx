@@ -52,7 +52,7 @@ function ProviderDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-t-2 border-t-orange-400 border-b border-border backdrop-blur light-band">
+      <header className="sticky top-0 z-40 border-t-2 border-t-orange-400 border-b border-border backdrop-blur-sm light-band">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <div className="flex items-center gap-3">

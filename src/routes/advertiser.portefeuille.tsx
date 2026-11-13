@@ -306,7 +306,7 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
         </div>
       )}
       <PaymentTestModeBanner />
-      <header className="border-b border-border light-band">
+      <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link

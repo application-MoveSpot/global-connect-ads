@@ -52,7 +52,7 @@ function PackPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border light-band">
+      <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <LogoLink />
           <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
