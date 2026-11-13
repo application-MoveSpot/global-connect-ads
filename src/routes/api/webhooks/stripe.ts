@@ -6,12 +6,55 @@
  *   Événements à écouter :
  *     - transfer.created
  *
- * Variable d'environnement requise : STRIPE_WEBHOOK_SECRET
+ * Variable d'environnement requise : STRIPE_VIGILANCE_WEBHOOK_SECRET
+ * (fallback sur STRIPE_WEBHOOK_SECRET si absent, pour compatibilité)
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { verifyWebhook } from "@/lib/payments/stripe.server";
 import { VIGILANCE_SEUIL_CENTIMES } from "@/lib/payments/vigilance.functions";
+
+/** Vérifie la signature Stripe HMAC-SHA256 avec le secret dédié au webhook vigilance. */
+async function verifyVigilanceWebhook(
+  req: Request,
+): Promise<{ id: string; type: string; data: { object: unknown } }> {
+  const secret =
+    process.env["STRIPE_VIGILANCE_WEBHOOK_SECRET"] ??
+    process.env["STRIPE_WEBHOOK_SECRET"];
+  if (!secret) throw new Error("STRIPE_VIGILANCE_WEBHOOK_SECRET non configuré");
+
+  const signature = req.headers.get("stripe-signature");
+  const body = await req.text();
+  if (!signature || !body) throw new Error("Signature ou body manquant");
+
+  let timestamp: string | undefined;
+  const v1Signatures: string[] = [];
+  for (const part of signature.split(",")) {
+    const [key, value] = part.split("=", 2);
+    if (key === "t") timestamp = value;
+    if (key === "v1") v1Signatures.push(value);
+  }
+  if (!timestamp || v1Signatures.length === 0) throw new Error("Format de signature invalide");
+
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
+  if (age > 300) throw new Error("Signature expirée");
+
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signed = await crypto.subtle.sign(
+    "HMAC",
+    cryptoKey,
+    new TextEncoder().encode(`${timestamp}.${body}`),
+  );
+  const expected = Buffer.from(new Uint8Array(signed)).toString("hex");
+  if (!v1Signatures.includes(expected)) throw new Error("Signature invalide");
+
+  return JSON.parse(body);
+}
 
 export const Route = createFileRoute("/api/webhooks/stripe")({
   server: {
@@ -20,7 +63,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
         // ─── 1. Vérification de la signature Stripe ─────────────────────────
         let event: { id: string; type: string; data: { object: unknown } };
         try {
-          event = await verifyWebhook(request);
+          event = await verifyVigilanceWebhook(request);
         } catch (err) {
           const msg = err instanceof Error ? err.message : "Signature invalide";
           return new Response(msg, { status: 400 });
