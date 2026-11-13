@@ -502,18 +502,6 @@ function AnnonceursEntreprise() {
         </p>
       </section>
 
-      <footer className="border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 py-6 text-sm text-muted-foreground text-center">
-          © {new Date().getFullYear()} MoveSpot —{" "}
-          <Link to="/devenir-partenaire" className="hover:text-foreground">
-            {c.footer_owners}
-          </Link>
-          {" · "}
-          <Link to="/comment-ca-marche" className="hover:text-foreground">
-            {c.footer_how}
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 }
