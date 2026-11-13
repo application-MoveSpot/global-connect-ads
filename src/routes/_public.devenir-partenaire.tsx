@@ -462,11 +462,6 @@ function DevenirPartenaire() {
         </p>
       </section>
 
-      <footer className="border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 py-6 text-sm text-muted-foreground text-center">
-          © {new Date().getFullYear()} MoveSpot
-        </div>
-      </footer>
       <FAQChatbot
         audience="owner"
         suggestions={[

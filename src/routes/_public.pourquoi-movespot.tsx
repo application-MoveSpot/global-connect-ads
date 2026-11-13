@@ -368,28 +368,6 @@ function PourquoiMovespot() {
         </div>
       </section>
 
-      {/* Footer minimal */}
-      <footer className="border-t border-border">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <div>
-            © {new Date().getFullYear()} MoveSpot. {c.footer_rights}
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <Link to="/cgu" className="hover:text-foreground transition">
-              CGU
-            </Link>
-            <Link to="/confidentialite" className="hover:text-foreground transition">
-              {isEn ? "Privacy" : "Confidentialité"}
-            </Link>
-            <Link to="/comment-ca-marche" className="hover:text-foreground transition">
-              {isEn ? "How it works" : "Comment ça marche"}
-            </Link>
-            <Link to="/" className="hover:text-foreground transition">
-              {isEn ? "Home" : "Accueil"}
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
