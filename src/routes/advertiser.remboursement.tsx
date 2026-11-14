@@ -147,9 +147,9 @@ function RemboursementAnnonceurPage() {
           <h2 className="font-semibold text-lg">{t("advertiser.remboursement.new_request")}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">
+              <label className="text-sm font-medium text-foreground">
                 {t("advertiser.remboursement.label_campaign")}{" "}
-                <span className="normal-case">
+                <span className="text-muted-foreground font-normal">
                   {t("advertiser.remboursement.label_campaign_optional")}
                 </span>
               </label>
@@ -168,11 +168,8 @@ function RemboursementAnnonceurPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                {t("advertiser.remboursement.label_amount")}{" "}
-                <span className="normal-case">
-                  {t("advertiser.remboursement.label_campaign_optional")}
-                </span>
+              <label className="text-sm font-medium text-foreground">
+                {t("advertiser.remboursement.label_amount")}
               </label>
               <input
                 type="number"
@@ -186,11 +183,8 @@ function RemboursementAnnonceurPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs uppercase tracking-widest text-muted-foreground">
-                {t("advertiser.remboursement.label_reason")}{" "}
-                <span className="normal-case">
-                  {t("advertiser.remboursement.label_reason_hint")}
-                </span>
+              <label className="text-sm font-medium text-foreground">
+                {t("advertiser.remboursement.label_reason")}
               </label>
               <textarea
                 value={reason}
