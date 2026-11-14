@@ -20,7 +20,13 @@ Object.assign(process.env, serverEnv);
 // trailing newline. If that newline ends up in an HTTP header (e.g. Authorization: Bearer <jwt>\n)
 // Chrome throws "Failed to execute 'fetch' on 'Window': Invalid value".
 // Also sanitize Stripe keys explicitly (non-VITE_ but injected via Lovable Secrets).
-const SANITIZE_KEYS = new Set(["STRIPE_PUBLISHABLE_KEY", "STRIPE_SECRET_KEY", "MOVESPOT_STRIPE_SECRET_KEY"]);
+const SANITIZE_KEYS = new Set([
+  "STRIPE_PUBLISHABLE_KEY",
+  "STRIPE_SECRET_KEY",
+  "MOVESPOT_STRIPE_SECRET_KEY",
+  "ADMIN_SETUP_TOKEN",
+  "CRON_SECRET",
+]);
 for (const key of Object.keys(process.env)) {
   if ((key.startsWith("VITE_") || SANITIZE_KEYS.has(key)) && typeof process.env[key] === "string") {
     process.env[key] = (process.env[key] as string).replace(/[\x00-\x1F\x7F]/g, "").trim();
