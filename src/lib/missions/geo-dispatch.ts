@@ -84,10 +84,12 @@ export async function dispatchMission(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Géocoder une adresse via Mapbox Geocoding API
-// (utilise VITE_MAPBOX_TOKEN depuis l'env)
+// Utilise le server function getMapboxToken() pour éviter d'exposer le token
+// dans le bundle client via import.meta.env.VITE_MAPBOX_TOKEN.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
-  const token = import.meta.env.VITE_MAPBOX_TOKEN;
+  const { getMapboxToken } = await import("@/lib/geo/mapbox.functions");
+  const { token } = await getMapboxToken();
   if (!token) return null;
 
   const encoded = encodeURIComponent(address);

@@ -15,11 +15,9 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
       POST: async ({ request }: { request: Request }) => {
         const cronSecret = process.env["CRON_SECRET"];
         const serviceRoleKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
-        const url = new URL(request.url);
         const token =
           request.headers.get("x-cron-secret") ??
-          request.headers.get("authorization")?.replace("Bearer ", "") ??
-          url.searchParams.get("secret");
+          request.headers.get("authorization")?.replace("Bearer ", "");
         const validTokens = [cronSecret].filter(Boolean) as string[];
         if (!token || !validTokens.includes(token)) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
@@ -495,11 +493,9 @@ export const Route = createFileRoute("/api/admin/cron/enforce")({
         if (!cronSecret) {
           return Response.json({ error: "CRON_SECRET non configuré" }, { status: 503 });
         }
-        const url = new URL(request.url);
         const token =
           request.headers.get("x-cron-secret") ??
-          request.headers.get("authorization")?.replace("Bearer ", "") ??
-          url.searchParams.get("secret");
+          request.headers.get("authorization")?.replace("Bearer ", "");
         if (token !== cronSecret) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
