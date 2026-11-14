@@ -177,7 +177,7 @@ export function ProviderSubscriptionCard({
               ? "..."
               : subscriptionStatus === "past_due"
                 ? t("subscription.btn_regularize")
-                : t("provider_sub.btn_subscribe")}
+                : t("provider_sub.btn_subscribe", { price: fmtAmount(activePlan.amountEur) })}
           </button>
         </div>
       )}

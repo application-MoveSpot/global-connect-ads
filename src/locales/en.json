@@ -3948,7 +3948,7 @@
     "feature3": "✓ Access campaigns in progress in your zone",
     "past_due_action": "Settle your account to keep receiving requests.",
     "inactive_msg": "Without an active subscription, your profile does not appear in the directory and you receive no new requests.",
-    "btn_subscribe": "Subscribe — €79 excl. VAT/month",
+    "btn_subscribe": "Subscribe — {{price}} excl. VAT/month",
     "dialog_title": "MoveSpot provider subscription"
   },
   "partner_sub": {
