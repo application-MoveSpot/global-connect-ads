@@ -8,10 +8,8 @@ import { toast } from "sonner";
 import { AppHeader } from "@/components/app/AppHeader";
 import { pushNotification } from "@/hooks/useNotifications";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
-import { CampaignTrialCheckout } from "@/components/advertiser/CampaignTrialCheckout";
 import { useVehiclePhotoUrls } from "@/hooks/useVehiclePhotoUrls";
 import {
-  RefreshCw,
   Wallet,
   FileText,
   Activity,
@@ -566,48 +564,22 @@ function BriefDetailPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-primary bg-primary/5 p-4 ring-1 ring-primary/30">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <RefreshCw className="h-5 w-5 text-primary" />
-                      <span className="font-semibold text-sm">
-                        {t("advertiser.briefs.detail.trial_title")}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                      {t("advertiser.briefs.detail.trial_desc", {
-                        count: acceptedProposals.length,
-                        n: acceptedProposals.length,
-                      })}
-                    </p>
-                    <CampaignTrialCheckout
-                      campaignRequestId={
-                        // Use the first accepted proposal's campaign_request.id if available
-                        campaignRequestIds[acceptedProposals[0]?.id] ?? brief.id
-                      }
-                      vehicleQuantity={acceptedProposals.length}
-                      buttonLabel={t("advertiser.briefs.detail.trial_btn")}
-                      className="w-full"
-                    />
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <Wallet className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-semibold text-sm">
+                      {t("advertiser.briefs.detail.wallet_title")}
+                    </span>
                   </div>
-
-                  <div className="rounded-xl border border-border bg-card p-4">
-                    <div className="flex items-center gap-2.5 mb-1.5">
-                      <Wallet className="h-5 w-5 text-muted-foreground" />
-                      <span className="font-semibold text-sm">
-                        {t("advertiser.briefs.detail.wallet_title")}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                      {t("advertiser.briefs.detail.wallet_desc")}
-                    </p>
-                    <Link
-                      to="/advertiser/portefeuille"
-                      className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
-                    >
-                      {t("advertiser.briefs.detail.wallet_btn")}
-                    </Link>
-                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    {t("advertiser.briefs.detail.wallet_desc")}
+                  </p>
+                  <Link
+                    to="/advertiser/portefeuille"
+                    className="block w-full rounded-lg border border-border bg-secondary px-4 py-2 text-center text-sm font-semibold hover:bg-secondary/70 transition"
+                  >
+                    {t("advertiser.briefs.detail.wallet_btn")}
+                  </Link>
                 </div>
               )}
             </div>
