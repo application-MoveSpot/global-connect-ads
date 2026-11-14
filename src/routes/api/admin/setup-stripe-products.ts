@@ -5,22 +5,56 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         const url = new URL(request.url);
+
+        // Strip all control chars + whitespace (Cloudflare secrets can carry trailing \n).
+        const sanitize = (s: string) => s.replace(/[\x00-\x1F\x7F]/g, "").trim();
+
+        // ── 1. Static token check ───────────────────────────────────────────────
         const rawExpected = process.env["ADMIN_SETUP_TOKEN"];
-        if (!rawExpected) {
-          return Response.json({ error: "ADMIN_SETUP_TOKEN non configuré" }, { status: 503 });
-        }
-        const expectedToken = rawExpected.trim();
+        const expectedToken = rawExpected ? sanitize(rawExpected) : null;
 
-        // Accept x-admin-setup-token or Authorization: Bearer <token>
         const headerDirect = request.headers.get("x-admin-setup-token");
-        const authBearer = request.headers.get("authorization");
-        const bearerToken = authBearer?.startsWith("Bearer ")
-          ? authBearer.slice(7).trim()
-          : null;
-        const receivedToken = (headerDirect ?? bearerToken ?? "").trim();
+        const authHeader = request.headers.get("authorization");
+        const bearerRaw = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+        const bearerValue = bearerRaw ? sanitize(bearerRaw) : null;
 
-        if (receivedToken !== expectedToken) {
-          return Response.json({ error: "Non autorisé" }, { status: 401 });
+        const receivedToken = headerDirect ? sanitize(headerDirect) : (bearerValue ?? "");
+
+        let authorized = !!expectedToken && receivedToken === expectedToken;
+
+        // ── 2. Fallback: Supabase admin session ─────────────────────────────────
+        // If static token missing/wrong, accept a valid admin Supabase JWT.
+        if (!authorized && bearerValue && bearerValue.startsWith("eyJ")) {
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            const {
+              data: { user },
+              error: authErr,
+            } = await supabaseAdmin.auth.getUser(bearerValue);
+            if (!authErr && user) {
+              const { data: roleRow } = await supabaseAdmin
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", user.id)
+                .eq("role", "admin")
+                .maybeSingle();
+              authorized = roleRow !== null;
+            }
+          } catch {
+            // supabaseAdmin unavailable — stay unauthorized
+          }
+        }
+
+        if (!authorized) {
+          return Response.json(
+            {
+              error: "Non autorisé",
+              hint: expectedToken
+                ? "Vérifiez x-admin-setup-token / Authorization: Bearer, ou connectez-vous en tant qu'admin."
+                : "ADMIN_SETUP_TOKEN non configuré — connectez-vous en tant qu'admin depuis /admin/dashboard.",
+            },
+            { status: 401 },
+          );
         }
 
         const key = process.env["MOVESPOT_STRIPE_SECRET_KEY"] ?? process.env["STRIPE_SECRET_KEY"];

@@ -62,6 +62,7 @@ import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard";
 import { AdminCronJobPanel } from "@/components/admin/AdminCronJobPanel";
 import { AdminBankTransfersPanel } from "@/components/admin/AdminBankTransfersPanel";
+import { AdminStripeSetupPanel } from "@/components/admin/AdminStripeSetupPanel";
 import {
   moderateBriefVisual,
   type VisualModerationResult,
@@ -2160,6 +2161,10 @@ function AdminDashboard() {
             </div>
             <AdminCronJobPanel />
             <AdminBankTransfersPanel />
+            <div>
+              <h2 className="font-display text-base font-bold mb-3">Configuration Stripe</h2>
+              <AdminStripeSetupPanel />
+            </div>
           </div>
         ) : null}
 
