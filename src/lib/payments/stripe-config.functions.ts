@@ -12,7 +12,7 @@ export type StripePublicConfig = {
 export const getStripePublicConfig = createServerFn({ method: "GET" }).handler(
   async (): Promise<StripePublicConfig> => {
     const publishableKey = process.env["STRIPE_PUBLISHABLE_KEY"] ?? null;
-    const secretKey = process.env["STRIPE_SECRET_KEY"] ?? null;
+    const secretKey = process.env["MOVESPOT_STRIPE_SECRET_KEY"] ?? process.env["STRIPE_SECRET_KEY"] ?? null;
 
     if (!publishableKey || !secretKey) {
       return { publishableKey: null, environment: null };

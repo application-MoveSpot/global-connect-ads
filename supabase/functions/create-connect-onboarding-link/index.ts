@@ -13,7 +13,7 @@ import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
 const SUPABASE_URL     = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY         = Deno.env.get("SUPABASE_ANON_KEY")!;
-const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
+const STRIPE_SECRET_KEY = (Deno.env.get("MOVESPOT_STRIPE_SECRET_KEY") ?? Deno.env.get("STRIPE_SECRET_KEY"))!;
 const APP_URL          = Deno.env.get("APP_URL") ?? "https://app.movespot.fr";
 
 const corsHeaders = {

@@ -10,7 +10,9 @@ export type StripeEnv = "sandbox" | "live";
 
 /** Clé secrète du compte Stripe du client (intégration « bring your own key »). */
 function getSecretKey(): string {
-  return getEnv("STRIPE_SECRET_KEY");
+  const value = process.env["MOVESPOT_STRIPE_SECRET_KEY"] ?? process.env["STRIPE_SECRET_KEY"];
+  if (!value) throw new Error("MOVESPOT_STRIPE_SECRET_KEY (ou STRIPE_SECRET_KEY) is not configured");
+  return value;
 }
 
 export function getDefaultStripeEnvironment(): StripeEnv {
