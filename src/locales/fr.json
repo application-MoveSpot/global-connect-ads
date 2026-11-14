@@ -3948,7 +3948,7 @@
     "feature3": "✓ Accès aux campagnes en cours sur votre zone",
     "past_due_action": "Régularisez votre situation pour continuer à recevoir des demandes.",
     "inactive_msg": "Sans abonnement actif, votre fiche n'apparaît pas dans l'annuaire et vous ne recevez pas de nouvelles demandes.",
-    "btn_subscribe": "S'abonner — 79 € HT/mois",
+    "btn_subscribe": "S'abonner — {{price}} HT/mois",
     "dialog_title": "Abonnement prestataire MoveSpot"
   },
   "partner_sub": {
