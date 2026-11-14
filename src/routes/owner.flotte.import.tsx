@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { importVehiclesCSV } from "@/lib/fleet/fleet-import.functions";
 import { LogoLink } from "@/components/app/LogoLink";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
+import { Download } from "lucide-react";
 
 export const Route = createFileRoute("/owner/flotte/import")({
   head: () => ({ meta: [{ title: "Import CSV de la flotte — MoveSpot" }] }),
@@ -18,12 +19,33 @@ Renault Master #12,Van utilitaire,Habillage total,120,Paris,AA-123-BB,bon
 Citroën Jumpy #07,Van utilitaire,Bâche latérale,80,Lyon,CC-456-DD,bon
 Vespa Livraison #03,Scooter,Top box arrière,25,Marseille,EE-789-FF,moyen`;
 
+function downloadTemplate() {
+  const blob = new Blob([EXAMPLE], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modele_import_vehicules.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function parseCsvPreview(raw: string): { headers: string[]; rows: string[][] } {
+  const lines = raw.trim().split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) return { headers: [], rows: [] };
+  const headers = lines[0].split(",").map((h) => h.trim());
+  const rows = lines
+    .slice(1, 11)
+    .map((line) => line.split(",").map((c) => c.trim()));
+  return { headers, rows };
+}
+
 function ImportPage() {
   const { t } = useTranslation();
   const importFn = useServerFn(importVehiclesCSV);
   const navigate = useNavigate();
   const [csv, setCsv] = useState("");
   const [loading, setLoading] = useState(false);
+  const preview = useMemo(() => (csv.trim() ? parseCsvPreview(csv) : null), [csv]);
   const [result, setResult] = useState<{
     inserted: number;
     errors: { line: number; error: string }[];
@@ -80,13 +102,23 @@ function ImportPage() {
             dangerouslySetInnerHTML={{ __html: t("owner.flotte.import.format_desc") }}
           />
           <pre className="text-xs bg-secondary/40 p-3 rounded-lg overflow-x-auto">{EXAMPLE}</pre>
-          <button
-            type="button"
-            onClick={() => setCsv(EXAMPLE)}
-            className="mt-3 text-xs text-primary hover:underline"
-          >
-            {t("owner.flotte.import.load_example")}
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={downloadTemplate}
+              className="inline-flex items-center gap-1.5 text-xs font-medium border border-border rounded-lg px-3 py-1.5 hover:bg-secondary transition-colors"
+            >
+              <Download className="h-3.5 w-3.5" />
+              {t("owner.flotte.import.download_template", { defaultValue: "Télécharger le modèle CSV" })}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCsv(EXAMPLE)}
+              className="text-xs text-primary hover:underline"
+            >
+              {t("owner.flotte.import.load_example")}
+            </button>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
@@ -113,12 +145,54 @@ function ImportPage() {
               className="w-full font-mono text-xs rounded-lg bg-input border border-border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
+          {preview && preview.headers.length > 0 && (
+            <div>
+              <p className="text-sm font-medium mb-2">
+                {t("owner.flotte.import.preview_title", {
+                  defaultValue: `Aperçu — ${preview.rows.length} ligne(s)`,
+                  count: preview.rows.length,
+                })}
+              </p>
+              <div className="overflow-x-auto rounded-lg border border-border">
+                <table className="text-xs w-full">
+                  <thead>
+                    <tr className="bg-secondary/40">
+                      {preview.headers.map((h) => (
+                        <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {preview.rows.map((row, i) => (
+                      <tr key={i} className="border-t border-border">
+                        {row.map((cell, j) => (
+                          <td key={j} className="px-3 py-1.5 whitespace-nowrap">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={submit}
             disabled={loading || !csv.trim()}
             className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold disabled:opacity-50"
           >
-            {loading ? t("owner.flotte.import.loading") : t("owner.flotte.import.submit")}
+            {loading
+              ? t("owner.flotte.import.loading")
+              : preview && preview.rows.length > 0
+                ? t("owner.flotte.import.submit_count", {
+                    defaultValue: `Importer ${preview.rows.length} véhicule(s)`,
+                    count: preview.rows.length,
+                  })
+                : t("owner.flotte.import.submit")}
           </button>
         </div>
 
