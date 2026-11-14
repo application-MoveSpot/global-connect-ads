@@ -179,12 +179,33 @@ const CONTENT = {
         q: "Les prestataires peuvent-ils résilier à tout moment ?",
         a: "Oui, sans frais ni préavis. L'abonnement se poursuit jusqu'à la fin de la période en cours.",
       },
+      {
+        q: "Quelle est la différence entre un Propriétaire de flotte et un Partenaire Réseau ?",
+        a: "Un Propriétaire de flotte inscrit ses véhicules gratuitement et touche 70 % de chaque campagne, sans aucun abonnement. Un Partenaire Réseau est un apporteur d'affaires (agence, courtier, gestionnaire de réseau) qui met en relation des annonceurs ou des flottes avec MoveSpot et perçoit des commissions réseau. L'abonnement Partenaire Réseau est à 149 €/mois, sans engagement.",
+      },
     ],
     // CTA
     cta_h2: "Prêt à démarrer ?",
     cta_desc: "Inscription gratuite, première campagne en moins de 10 minutes.",
     cta_advertiser: "Je lance une campagne",
     cta_owner: "J'inscris mon véhicule",
+    // Partenaire Réseau
+    part_eyebrow: "Partenaires Réseau",
+    part_h2: "Vous apportez des clients ou des flottes — 149 €/mois",
+    part_sub: "Référencement dans l'annuaire partenaires MoveSpot, commissions sur vos apports. Distinct du rôle Propriétaire de véhicule qui reste 100 % gratuit.",
+    part_badge: "Apporteur d'affaires · Agence · Réseau",
+    part_price: "149 €",
+    part_unit: "/mois",
+    part_trial: "Sans engagement · résiliable à tout moment",
+    part_distinct: "À ne pas confondre avec un Propriétaire de flotte : l'inscription de véhicules sur MoveSpot est 100 % gratuite (commission de 30 % uniquement sur les campagnes encaissées).",
+    part_features: [
+      "Référencement prioritaire dans l'annuaire partenaires",
+      "Commissions réseau sur chaque client ou flotte apporté",
+      "Tableau de bord suivi des apports et des commissions",
+      "Badge « Partenaire certifié MoveSpot »",
+      "Support dédié partenaire",
+    ],
+    part_cta: "Devenir partenaire réseau",
     // Feature rows
     adv_features: [
       { label: "Inscription", particulier: "Gratuit", pme: "Gratuit", enterprise: "Gratuit" },
@@ -347,11 +368,31 @@ const CONTENT = {
         q: "Can installers cancel at any time?",
         a: "Yes, with no fee or notice period. The subscription continues until the end of the current billing period.",
       },
+      {
+        q: "What is the difference between a Fleet Owner and a Network Partner?",
+        a: "A Fleet Owner registers their vehicles for free and keeps 70% of every campaign — no subscription required. A Network Partner is a business referrer (agency, broker, fleet manager) who connects advertisers or fleets with MoveSpot and earns network commissions. The Network Partner subscription is €149/month, no commitment.",
+      },
     ],
     cta_h2: "Ready to get started?",
     cta_desc: "Free sign-up, first campaign live in under 10 minutes.",
     cta_advertiser: "Launch a campaign",
     cta_owner: "Register my vehicle",
+    part_eyebrow: "Network Partners",
+    part_h2: "You bring clients or fleets — €149/month",
+    part_sub: "Listed in the MoveSpot partner directory, commissions on your referrals. Different from the Vehicle Owner role, which is always free.",
+    part_badge: "Business referrer · Agency · Network",
+    part_price: "€149",
+    part_unit: "/month",
+    part_trial: "No commitment · cancel anytime",
+    part_distinct: "Not to be confused with a Fleet Owner: registering vehicles on MoveSpot is 100% free (30% commission only on campaigns collected).",
+    part_features: [
+      "Priority listing in the partner directory",
+      "Network commissions on every referred client or fleet",
+      "Dashboard to track referrals and commissions",
+      "\"Certified MoveSpot Partner\" badge",
+      "Dedicated partner support",
+    ],
+    part_cta: "Become a network partner",
     adv_features: [
       { label: "Sign-up", particulier: "Free", pme: "Free", enterprise: "Free" },
       { label: "MoveSpot commission", particulier: "30%", pme: "25%", enterprise: "Custom" },
@@ -690,6 +731,50 @@ function Tarifs() {
                 </Link>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ── Partenaires Réseau / Network Partners ── */}
+        <section className="mb-20">
+          <div className="mb-8">
+            <span className="text-xs font-semibold tracking-widest uppercase text-primary/70">
+              {c.part_eyebrow}
+            </span>
+            <h2 className="font-display text-3xl font-bold mt-1">{c.part_h2}</h2>
+            <p className="text-muted-foreground mt-2">{c.part_sub}</p>
+          </div>
+
+          <div className="max-w-sm mb-6">
+            <div className="rounded-2xl border-2 border-primary/30 bg-card p-6 flex flex-col">
+              <div className="mb-4">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                  {c.part_badge}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="font-display text-4xl font-bold">{c.part_price}</span>
+                <span className="text-sm text-muted-foreground">{c.part_unit}</span>
+              </div>
+              <div className="text-xs text-muted-foreground mb-6">{c.part_trial}</div>
+              <ul className="space-y-2 text-sm text-muted-foreground mb-8 flex-1">
+                {c.part_features.map((f) => (
+                  <li key={f} className="flex gap-2">
+                    <Check className="h-4 w-4 text-signal shrink-0 mt-0.5" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/partner/inscription"
+                className="rounded-lg bg-primary text-primary-foreground py-2.5 text-sm font-semibold text-center hover:bg-primary/90 transition shadow-glow"
+              >
+                {c.part_cta}
+              </Link>
+            </div>
+          </div>
+
+          <div className="max-w-lg rounded-xl border border-border bg-secondary/40 px-5 py-4 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">ℹ️</span> {c.part_distinct}
           </div>
         </section>
 
