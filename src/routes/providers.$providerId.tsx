@@ -8,6 +8,7 @@ import { getProviderPublicMeta } from "@/lib/providers/provider-public.functions
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
+import PublicFooter from "@/components/shared/PublicFooter";
 
 const BriefIntentAssistant = lazy(() =>
   import("@/components/advertiser/BriefIntentAssistant").then((m) => ({
@@ -434,6 +435,7 @@ function ProviderDetailPage() {
           </button>
         )}
       </main>
+      <PublicFooter />
     </div>
   );
 }
