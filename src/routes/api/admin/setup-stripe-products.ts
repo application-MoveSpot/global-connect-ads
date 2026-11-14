@@ -14,9 +14,9 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
 
-        const key = process.env["STRIPE_SECRET_KEY"];
+        const key = process.env["MOVESPOT_STRIPE_SECRET_KEY"] ?? process.env["STRIPE_SECRET_KEY"];
         if (!key) {
-          return Response.json({ error: "STRIPE_SECRET_KEY manquante" }, { status: 500 });
+          return Response.json({ error: "MOVESPOT_STRIPE_SECRET_KEY manquante" }, { status: 500 });
         }
 
         const { createStripeClient } = await import("@/lib/payments/stripe.server");
