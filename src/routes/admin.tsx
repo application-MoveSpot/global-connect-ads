@@ -208,6 +208,8 @@ function AdminPage() {
     );
 
   if (authState === "unauthenticated") {
+    // Already on the login page — let the connexion route render.
+    if (location.pathname === "/admin/connexion") return <Outlet />;
     return (
       <div className="min-h-screen flex items-center justify-center p-4 text-center">
         <div>
