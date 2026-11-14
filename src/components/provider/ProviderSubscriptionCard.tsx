@@ -36,6 +36,14 @@ function SubscriptionBadge({ status }: { status: SubscriptionStatus }) {
   );
 }
 
+const PROVIDER_PLANS = [
+  { id: "provider_starter",  label: "Starter",  amountEur: 29 },
+  { id: "provider_standard", label: "Standard", amountEur: 42 },
+  { id: "provider_pro",      label: "Pro",       amountEur: 59 },
+] as const;
+
+type PlanId = (typeof PROVIDER_PLANS)[number]["id"];
+
 type Props = {
   subscriptionStatus: SubscriptionStatus;
   subscriptionPeriodEnd: string | null | undefined;
@@ -52,6 +60,7 @@ export function ProviderSubscriptionCard({
   const createCheckout = useServerFn(createProviderSubscriptionCheckout);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>("provider_standard");
 
   const STATUS_LABELS: Record<string, string> = {
     active: t("subscription.status_active"),
@@ -62,6 +71,7 @@ export function ProviderSubscriptionCard({
   };
 
   const isActive = subscriptionStatus === "active" || subscriptionStatus === "trialing";
+  const activePlan = PROVIDER_PLANS.find((p) => p.id === selectedPlan) ?? PROVIDER_PLANS[1];
 
   const handleSubscribe = async () => {
     setError(null);
@@ -69,7 +79,8 @@ export function ProviderSubscriptionCard({
     try {
       const result = await createCheckout({
         data: {
-          priceId: "provider_monthly",
+          priceId: selectedPlan,
+          trialPeriodDays: 14,
           returnUrl: `${window.location.origin}/prestataire`,
         },
       });
@@ -112,10 +123,30 @@ export function ProviderSubscriptionCard({
         </div>
       ) : (
         <div className="space-y-3">
+          {/* Sélecteur de plan */}
+          <div className="flex gap-2 flex-wrap">
+            {PROVIDER_PLANS.map((plan) => (
+              <button
+                key={plan.id}
+                type="button"
+                onClick={() => setSelectedPlan(plan.id)}
+                className={`flex-1 min-w-[80px] rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
+                  selectedPlan === plan.id
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:border-primary/50"
+                }`}
+              >
+                <span className="block">{plan.label}</span>
+                <span className="block font-bold">{fmtAmount(plan.amountEur)}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-baseline gap-1.5">
-            <span className="font-display text-3xl font-bold">{fmtAmount(79)}</span>
+            <span className="font-display text-3xl font-bold">{fmtAmount(activePlan.amountEur)}</span>
             <span className="text-sm text-muted-foreground">{t("subscription.price_suffix")}</span>
           </div>
+          <p className="text-xs text-muted-foreground">14 jours d'essai gratuit — sans engagement</p>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>{t("provider_sub.feature1")}</li>
             <li>{t("provider_sub.feature2")}</li>
