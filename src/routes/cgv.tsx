@@ -117,6 +117,15 @@ function CGV() {
         </p>
 
         <p>
+          <strong>Abonnement Partenaire Réseau :</strong> Les apporteurs d'affaires, agences et
+          membres du programme de référencement MoveSpot bénéficient d'un abonnement mensuel{" "}
+          <strong>Partenaire Réseau à 149 € HT/mois</strong>, sans engagement, résiliable à tout
+          moment. Cet abonnement est distinct du rôle Propriétaire de véhicule (inscription et
+          utilisation 100 % gratuites, commission de 30 % uniquement sur les campagnes encaissées)
+          et des formules Prestataire poseur ci-dessus.
+        </p>
+
+        <p>
           Les prix de nos services sont indiqués en euros hors taxes (HT). La TVA applicable est
           ajoutée lors de la facturation selon les règles de territorialité en vigueur :
         </p>
