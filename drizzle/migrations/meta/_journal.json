@@ -225,6 +225,13 @@
       "when": 1794615341378,
       "tag": "0031_restore_admin_cron_notifications_and_search",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794693826106,
+      "tag": "0032_provider_profiles_add_subscription_columns",
+      "breakpoints": true
     }
   ]
 }
