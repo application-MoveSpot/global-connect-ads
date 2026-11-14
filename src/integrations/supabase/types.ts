@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_cron_logs: {
+        Row: {
+          executed_at: string
+          id: number
+          job_name: string
+          max_retries: number
+          parent_log_id: number | null
+          result: Json | null
+          retry_count: number
+          status: string
+        }
+        Insert: {
+          executed_at?: string
+          id?: never
+          job_name: string
+          max_retries?: number
+          parent_log_id?: number | null
+          result?: Json | null
+          retry_count?: number
+          status?: string
+        }
+        Update: {
+          executed_at?: string
+          id?: never
+          job_name?: string
+          max_retries?: number
+          parent_log_id?: number | null
+          result?: Json | null
+          retry_count?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_cron_logs_parent_log_id_fkey"
+            columns: ["parent_log_id"]
+            isOneToOne: false
+            referencedRelation: "admin_cron_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_intrusion_attempts: {
         Row: {
           attempted_at: string
@@ -378,11 +419,14 @@ export type Database = {
           campaign_request_id: string | null
           created_at: string
           currency: string
+          failure_reason: string | null
           id: string
           receipt_path: string | null
           reference: string
           reviewed_at: string | null
           status: string
+          stripe_account_id: string | null
+          stripe_transfer_id: string | null
           updated_at: string
           user_id: string
         }
@@ -392,11 +436,14 @@ export type Database = {
           campaign_request_id?: string | null
           created_at?: string
           currency?: string
+          failure_reason?: string | null
           id?: string
           receipt_path?: string | null
           reference: string
           reviewed_at?: string | null
           status?: string
+          stripe_account_id?: string | null
+          stripe_transfer_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -406,11 +453,14 @@ export type Database = {
           campaign_request_id?: string | null
           created_at?: string
           currency?: string
+          failure_reason?: string | null
           id?: string
           receipt_path?: string | null
           reference?: string
           reviewed_at?: string | null
           status?: string
+          stripe_account_id?: string | null
+          stripe_transfer_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1666,6 +1716,7 @@ export type Database = {
           docs_ai_report: Json | null
           docs_ai_status: string | null
           email: string
+          embedding: string | null
           full_name: string
           id_doc_url: string | null
           kbis_url: string | null
@@ -1697,6 +1748,7 @@ export type Database = {
           docs_ai_report?: Json | null
           docs_ai_status?: string | null
           email: string
+          embedding?: string | null
           full_name: string
           id_doc_url?: string | null
           kbis_url?: string | null
@@ -1728,6 +1780,7 @@ export type Database = {
           docs_ai_report?: Json | null
           docs_ai_status?: string | null
           email?: string
+          embedding?: string | null
           full_name?: string
           id_doc_url?: string | null
           kbis_url?: string | null
@@ -2205,6 +2258,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          dismissed_at: string | null
+          href: string | null
+          id: string
+          kind: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          dismissed_at?: string | null
+          href?: string | null
+          id?: string
+          kind?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          dismissed_at?: string | null
+          href?: string | null
+          id?: string
+          kind?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2571,6 +2657,26 @@ export type Database = {
         Args: { p_campaign_id: string; p_lat: number; p_lng: number }
         Returns: boolean
       }
+      match_providers: {
+        Args: {
+          filter_category?: string
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          company: string
+          coverage_areas: string[]
+          description: string
+          full_name: string
+          logo_url: string
+          pricing_info: string
+          services: string[]
+          similarity: number
+          user_id: string
+          website: string
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -2607,6 +2713,7 @@ export type Database = {
           points_total: number
         }[]
       }
+      retry_bank_transfer: { Args: { request_id: string }; Returns: Json }
       settle_campaign_from_wallet: {
         Args: { p_campaign_request_id: string; p_description?: string }
         Returns: {
