@@ -5,12 +5,21 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
     handlers: {
       GET: async ({ request }: { request: Request }) => {
         const url = new URL(request.url);
-        const authHeader = request.headers.get("x-admin-setup-token");
-        const expectedToken = process.env["ADMIN_SETUP_TOKEN"];
-        if (!expectedToken) {
+        const rawExpected = process.env["ADMIN_SETUP_TOKEN"];
+        if (!rawExpected) {
           return Response.json({ error: "ADMIN_SETUP_TOKEN non configuré" }, { status: 503 });
         }
-        if (authHeader !== expectedToken) {
+        const expectedToken = rawExpected.trim();
+
+        // Accept x-admin-setup-token or Authorization: Bearer <token>
+        const headerDirect = request.headers.get("x-admin-setup-token");
+        const authBearer = request.headers.get("authorization");
+        const bearerToken = authBearer?.startsWith("Bearer ")
+          ? authBearer.slice(7).trim()
+          : null;
+        const receivedToken = (headerDirect ?? bearerToken ?? "").trim();
+
+        if (receivedToken !== expectedToken) {
           return Response.json({ error: "Non autorisé" }, { status: 401 });
         }
 
