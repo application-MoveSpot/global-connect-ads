@@ -479,13 +479,14 @@ export const createCampaignSubscriptionCheckout = createServerFn({ method: "POST
     }
   });
 
-// ================== PRESTATAIRE — Abonnement mensuel (provider_monthly) ==================
+// ================== PRESTATAIRE — Abonnement mensuel (provider_starter / standard / pro) ==================
 const ProviderSubscriptionInput = z.object({
   priceId: z
     .string()
     .regex(/^[a-zA-Z0-9_-]+$/)
-    .default("provider_monthly"),
+    .default("provider_standard"),
   returnUrl: z.string().url(),
+  trialPeriodDays: z.number().int().min(0).max(30).default(14),
 });
 
 export const createProviderSubscriptionCheckout = createServerFn({ method: "POST" })
@@ -539,7 +540,7 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
       // Résout le tarif via lookup_key
       const prices = await stripe.prices.list({ lookup_keys: [data.priceId] });
       if (!prices.data.length)
-        return { error: "Tarif prestataire introuvable (lookup key : provider_monthly)" };
+        return { error: `Tarif prestataire introuvable (lookup key : ${data.priceId})` };
       const price = prices.data[0];
 
       const successUrl = `${data.returnUrl}${data.returnUrl.includes("?") ? "&" : "?"}subscription=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -547,6 +548,7 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
         kind: "provider_subscription",
         userId,
         user_id: userId,
+        plan: data.priceId,
       };
 
       const baseParams = {
@@ -557,7 +559,10 @@ export const createProviderSubscriptionCheckout = createServerFn({ method: "POST
         customer: customerId,
         line_items: [{ price: price.id, quantity: 1 }],
         metadata: meta,
-        subscription_data: { metadata: meta },
+        subscription_data: {
+          ...(data.trialPeriodDays > 0 ? { trial_period_days: data.trialPeriodDays } : {}),
+          metadata: meta,
+        },
       } as Record<string, unknown>;
 
       let session;

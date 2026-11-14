@@ -23,20 +23,29 @@ export const Route = createFileRoute("/api/admin/setup-stripe-products")({
         const stripe = createStripeClient();
 
         const products = [
+          // ── Prestataires : 3 formules mensuelles (essai 14 j géré au checkout) ──
           {
-            name: "Abonnement MoveSpot par véhicule",
+            name: "Abonnement Prestataire MoveSpot — Starter",
             description:
-              "Abonnement mensuel par véhicule pour diffuser une campagne publicitaire covering sur la flotte sélectionnée. Facturation au prorata, résiliable à tout moment.",
-            lookupKey: "campaign_vehicle_monthly",
-            amountCents: 9900,
+              "Accès Starter à l'annuaire poseurs MoveSpot et aux demandes de devis de couverture véhicule sur votre zone. Sans engagement, résiliable à tout moment.",
+            lookupKey: "provider_starter",
+            amountCents: 2900,
           },
           {
-            name: "Abonnement Prestataire MoveSpot",
+            name: "Abonnement Prestataire MoveSpot — Standard",
             description:
-              "Abonnement mensuel donnant accès à l'annuaire providers MoveSpot, aux demandes de devis des advertisers et aux campagnes de covering véhicule disponibles sur votre zone d'intervention. Sans engagement, résiliable à tout moment.",
-            lookupKey: "provider_monthly",
-            amountCents: 7900,
+              "Accès Standard à l'annuaire poseurs MoveSpot, aux demandes de devis et aux campagnes disponibles sur votre zone avec priorité de contact. Sans engagement, résiliable à tout moment.",
+            lookupKey: "provider_standard",
+            amountCents: 4200,
           },
+          {
+            name: "Abonnement Prestataire MoveSpot — Pro",
+            description:
+              "Accès Pro complet : annuaire, devis prioritaires, badge Pro, statistiques avancées et support dédié. Sans engagement, résiliable à tout moment.",
+            lookupKey: "provider_pro",
+            amountCents: 5900,
+          },
+          // ── Partenaires ──────────────────────────────────────────────────────────
           {
             name: "Abonnement Partenaire MoveSpot",
             description:
