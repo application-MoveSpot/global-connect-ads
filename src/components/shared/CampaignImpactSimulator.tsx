@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { Eye, MapPin, Car, TrendingUp, Zap, ChevronRight } from "lucide-react";
+import { Eye, MapPin, Car, TrendingUp, Zap, ChevronRight, Globe } from "lucide-react";
 import {
   calculateCampaignImpact,
   CITY_CONFIG,
@@ -13,11 +13,11 @@ import { cn } from "@/lib/utils";
 
 // ── Static lists ──────────────────────────────────────────────────────────────
 
-const CITIES: { id: SimCity; flag: string }[] = [
+const CITIES: { id: SimCity; flag: React.ReactNode }[] = [
   { id: "paris", flag: "🗼" },
   { id: "lyon", flag: "🦁" },
   { id: "marseille", flag: "⚓" },
-  { id: "france", flag: "🇫🇷" },
+  { id: "france", flag: <Globe className="w-4 h-4" /> },
 ];
 
 const VEHICLES: { id: SimVehicle; icon: string; desc: string }[] = [
