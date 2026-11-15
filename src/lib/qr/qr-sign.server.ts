@@ -2,11 +2,15 @@
 // Uses Web Crypto (SubtleCrypto) — available in Cloudflare Workers runtime.
 
 function getSecret(): string {
-  const s =
-    process.env.QR_SIGNING_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    "movespot-dev-secret-DO-NOT-USE-IN-PROD";
-  return s;
+  const s = process.env.QR_SIGNING_SECRET;
+  if (s) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "QR_SIGNING_SECRET must be configured in production. " +
+        "Generate: openssl rand -hex 32",
+    );
+  }
+  return "movespot-dev-secret-DO-NOT-USE-IN-PROD";
 }
 
 function b64urlEncode(buf: ArrayBuffer | Uint8Array): string {

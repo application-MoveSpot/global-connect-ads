@@ -108,7 +108,16 @@ export async function handleStripeEvent(
 
       if (s.metadata?.kind === "wallet_topup" && s.payment_status === "paid") {
         const userId = s.metadata.user_id;
-        const amountCents = Number(s.metadata.amount_cents ?? s.amount_total ?? 0);
+        // amount_total is the authoritative Stripe-confirmed amount; never use metadata alone.
+        const amountCents = Number(s.amount_total ?? 0);
+        const metaAmount = Number(s.metadata.amount_cents ?? amountCents);
+        if (metaAmount !== amountCents) {
+          log.warn("stripe_amount_mismatch", {
+            session_id: s.id,
+            meta_cents: metaAmount,
+            actual_cents: amountCents,
+          });
+        }
         if (userId && amountCents > 0) {
           await supabaseAdmin.rpc("apply_wallet_transaction", {
             p_user_id: userId,
