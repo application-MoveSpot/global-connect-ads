@@ -4592,7 +4592,7 @@
       "offline": "Offline",
       "online": "Online",
       "send_errors": "{{count}} network send error(s)",
-      "start": "Start",
+      "start": "Start tracking",
       "stat_coords": "GPS coordinates",
       "stat_driving": "Driving",
       "stat_duration": "Duration",

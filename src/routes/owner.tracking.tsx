@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { AppHeader } from "@/components/app/AppHeader";
+import { LogoLink } from "@/components/app/LogoLink";
 import { useEffect, useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -247,13 +247,17 @@ function TrackingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader
-        right={
-          <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
+      <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
+        <div className="max-w-md mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+          <LogoLink />
+          <Link
+            to="/owner"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
             {t("owner.tracking.back")}
           </Link>
-        }
-      />
+        </div>
+      </header>
       <div className="p-4">
       <div className="mx-auto max-w-md space-y-4">
         <div className="flex items-center justify-end">
