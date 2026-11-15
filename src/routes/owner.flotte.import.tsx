@@ -57,7 +57,6 @@ function ImportPage() {
     format_publicitaire: t("owner.flotte.import.col_format_publicitaire"),
     price_per_day: t("owner.flotte.import.col_price_per_day"),
     city: t("owner.flotte.import.col_city"),
-    license_plate: t("owner.flotte.import.col_license_plate"),
     condition: t("owner.flotte.import.col_condition"),
   };
   const [csv, setCsv] = useState("");
@@ -118,7 +117,7 @@ function ImportPage() {
             className="text-sm text-muted-foreground mb-3"
             dangerouslySetInnerHTML={{ __html: t("owner.flotte.import.format_desc") }}
           />
-          <pre className="text-xs bg-secondary/40 p-3 rounded-lg overflow-x-auto">{EXAMPLE}</pre>
+          <pre className="text-xs bg-secondary/40 p-3 rounded-lg overflow-x-auto">{EXAMPLE.split("\n")[0]}</pre>
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <button
               type="button"
