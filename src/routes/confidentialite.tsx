@@ -161,6 +161,14 @@ function Privacy() {
               </td>
               <td className="p-3">Intérêt légitime (art. 6.1.f du RGPD)</td>
             </tr>
+            <tr>
+              <td className="p-3">
+                Extraction automatique par IA des informations figurant sur les certificats
+                d'immatriculation (OCR — marque, modèle, immatriculation, VIN, énergie). Le document
+                est analysé à la volée et n'est jamais stocké sur nos serveurs.
+              </td>
+              <td className="p-3">Consentement de l'utilisateur (action volontaire)</td>
+            </tr>
           </tbody>
         </table>
       </LegalSection>
@@ -256,8 +264,10 @@ function Privacy() {
           </li>
           <li>
             <strong>Fournisseur de modèles d'IA</strong> (Anthropic) — assistance
-            conversationnelle (FAQ) et analyse automatisée de photos de véhicules ; aucune donnée
-            n'est utilisée pour entraîner des modèles tiers.
+            conversationnelle (FAQ), analyse automatisée de photos de véhicules et extraction OCR
+            des informations figurant sur les certificats d'immatriculation (carte grise). Les
+            documents sont transmis à la volée pour traitement immédiat et ne sont jamais conservés
+            ni utilisés pour entraîner des modèles tiers.
           </li>
         </ul>
       </LegalSection>
@@ -326,10 +336,12 @@ function Privacy() {
             Commission européenne.
           </li>
           <li>
-            <strong>Anthropic PBC</strong> (San Francisco, États-Unis) — assistance FAQ et analyse
-            automatisée : encadré par les Clauses Contractuelles Types (SCC) et un accord de
-            traitement des données (DPA) garantissant qu'aucune donnée des utilisateurs n'est
-            utilisée pour l'entraînement des modèles d'intelligence artificielle.
+            <strong>Anthropic PBC</strong> (San Francisco, États-Unis) — assistance FAQ, analyse
+            automatisée de photos de véhicules et extraction OCR des certificats
+            d'immatriculation : encadré par les Clauses Contractuelles Types (SCC) et un accord de
+            traitement des données (DPA) garantissant que les documents transmis sont analysés
+            uniquement à la volée, ne sont jamais stockés par Anthropic et ne sont en aucun cas
+            utilisés pour l'entraînement de modèles d'intelligence artificielle.
           </li>
         </ul>
       </LegalSection>
