@@ -4693,7 +4693,7 @@
         "plate_label": "License plate",
         "plate_placeholder": "e.g. AA-123-BB",
         "price_hint": "Set a competitive price to attract more campaigns.",
-        "price_label": "Price per campaign (€)",
+        "price_label": "Daily rate (€)",
         "price_range_hint": "Price range based on similar vehicles on the platform.",
         "submit": "Submit",
         "submitting": "Submitting…",
