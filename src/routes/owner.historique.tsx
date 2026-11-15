@@ -5,13 +5,13 @@ import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { downloadCsv } from "@/lib/exportCsv";
-import { ArrowLeft, TrendingUp } from "lucide-react";
+import { ArrowLeft, TrendingUp, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/owner/historique")({
   head: () => ({
     meta: [
-      { title: "Historique des reversements — MoveSpot" },
+      { title: "Mes reversements — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -29,6 +29,8 @@ type Reversement = {
   end_date: string | null;
   days_count: number | null;
   total_price: number | null;
+  owner_amount_cents: number | null;
+  owner_net: number;
   status: string;
   owner_response: string;
   created_at: string;
@@ -93,7 +95,7 @@ function HistoriquePage() {
       const { data: requests, error: rErr } = await supabase
         .from("campaign_requests")
         .select(
-          "id, vehicle_id, spot_name, company, start_date, end_date, days_count, total_price, status, owner_response, created_at",
+          "id, vehicle_id, spot_name, company, start_date, end_date, days_count, total_price, owner_amount_cents, status, owner_response, created_at",
         )
         .in("vehicle_id", vehicleIds)
         .or("owner_response.eq.accepted,status.in.(approved,paid,completed)")
@@ -109,16 +111,20 @@ function HistoriquePage() {
         (requests ?? []).map((r) => ({
           ...r,
           vehicle_name: r.vehicle_id ? (vehicleMap[r.vehicle_id] ?? null) : null,
+          owner_net:
+            r.owner_amount_cents != null
+              ? r.owner_amount_cents / 100
+              : (r.total_price ?? 0) * 0.7,
         })),
       );
       setLoading(false);
     })();
   }, [navigate]);
 
-  const totalEarnings = reversements.reduce((sum, r) => sum + (r.total_price ?? 0), 0);
+  const totalEarnings = reversements.reduce((sum, r) => sum + r.owner_net, 0);
   const completedEarnings = reversements
     .filter((r) => COMPLETED_STATUSES.has(r.status))
-    .reduce((sum, r) => sum + (r.total_price ?? 0), 0);
+    .reduce((sum, r) => sum + r.owner_net, 0);
 
   // Monthly chart data — last 12 months
   const monthlyData = useMemo(() => {
@@ -133,7 +139,7 @@ function HistoriquePage() {
     for (const r of reversements) {
       const key = r.created_at.slice(0, 7);
       const m = months.find((x) => x.key === key);
-      if (m) m.value += r.total_price ?? 0;
+      if (m) m.value += r.owner_net;
     }
     return months;
   }, [reversements, dateLocale]);
@@ -147,7 +153,7 @@ function HistoriquePage() {
       debut: r.start_date ?? "",
       fin: r.end_date ?? "",
       jours: r.days_count ?? "",
-      montant_eur: r.total_price ?? "",
+      montant_net_eur: r.owner_net,
       statut: t(`owner.historique.status_${r.status}`, r.status),
       date_reception: r.created_at,
     }));
@@ -176,6 +182,7 @@ function HistoriquePage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+        <h1 className="font-display text-3xl font-bold">{t("owner.historique.title")}</h1>
         {error && (
           <div className="rounded-xl bg-destructive/10 border border-destructive/30 p-4 text-sm text-destructive">
             {error}
@@ -247,10 +254,11 @@ function HistoriquePage() {
         )}
 
         {reversements.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card p-10 text-center">
-            <p className="text-muted-foreground text-sm">{t("owner.historique.empty")}</p>
-            <p className="text-muted-foreground text-xs mt-1">{t("owner.historique.empty_hint")}</p>
-            <Link to="/owner" className="mt-4 inline-block text-sm text-primary underline">
+          <div className="rounded-2xl border border-border bg-card p-10 text-center flex flex-col items-center gap-3">
+            <Wallet className="w-10 h-10 text-muted-foreground/40" />
+            <p className="text-base font-semibold">{t("owner.historique.empty")}</p>
+            <p className="text-muted-foreground text-sm max-w-sm">{t("owner.historique.empty_hint")}</p>
+            <Link to="/owner" className="mt-2 inline-block text-sm text-primary underline">
               {t("owner.historique.empty_link")}
             </Link>
           </div>
@@ -292,14 +300,12 @@ function HistoriquePage() {
                         )}
                       </div>
                       <div className="text-right shrink-0">
-                        {r.total_price != null && (
-                          <p className="font-display text-xl font-bold text-primary">
-                            {r.total_price.toLocaleString(currencyLocale, {
-                              style: "currency",
-                              currency: "EUR",
-                            })}
-                          </p>
-                        )}
+                        <p className="font-display text-xl font-bold text-primary">
+                          {r.owner_net.toLocaleString(currencyLocale, {
+                            style: "currency",
+                            currency: "EUR",
+                          })}
+                        </p>
                         {r.days_count != null && (
                           <p className="text-xs text-muted-foreground">
                             {t("owner.historique.days", { count: r.days_count })}
