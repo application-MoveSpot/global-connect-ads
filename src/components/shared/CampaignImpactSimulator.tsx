@@ -36,8 +36,7 @@ function fmtImpressions(n: number): string {
 }
 
 function fmtKm(n: number): string {
-  if (n >= 1_000) return `${Math.round(n / 1_000)} k km`;
-  return `${n} km`;
+  return `${n.toLocaleString("fr-FR")} km`;
 }
 
 // ── Animated metric card ──────────────────────────────────────────────────────
