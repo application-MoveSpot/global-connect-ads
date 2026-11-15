@@ -11,7 +11,7 @@ import {
 } from "@/lib/providers/provider-services";
 import { useTranslation } from "react-i18next";
 import { Loader2, Sparkles } from "lucide-react";
-import PublicFooter from "@/components/shared/PublicFooter";
+import { PublicFooter } from "@/components/shared/PublicFooter";
 
 export const Route = createFileRoute("/providers/")({
   component: ProvidersDirectory,

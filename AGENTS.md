@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- Public provider listings use the restricted public_provider_profiles view with approved status and Stripe active/trialing filtering; its explicit public-field allowlist permits anonymous reads without exposing private profile fields.
+
 - AppBrandShell supplies a white official-logo band around all page states; CSS suppresses it only when the rendered page already has a branded header, preventing duplicate navigation without changing authentication.
 - AI brief summary cache grants are read-only for authenticated advertisers with owner-scoped RLS, with writes reserved to service_role; cache schema lives in applied migrations rather than hand-written database types.
 - Refund and chat AI schema is restored through applied additive Drizzle migrations; caches have privileged-only writes, translations inherit message visibility, and summary uniqueness is per conversation and user to prevent cross-user cache leakage.
