@@ -53,7 +53,7 @@ function CartePage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border backdrop-blur-sm print:hidden light-band">
-        <div className="max-w-4xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <div className="flex gap-3">
             <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
@@ -172,14 +172,21 @@ function CartePage() {
                 <div style={{ fontSize: 11, color: "#64748b", marginBottom: 2 }}>
                   {t("owner.carte.card_fleet_role")}
                 </div>
-                <div style={{ fontSize: 11, color: "#64748b" }}>{t("owner.carte.card_cta")}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#fb923c", fontWeight: 600 }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  {t("owner.carte.card_cta")}
+                </div>
               </div>
               <div
                 style={{
                   background: "#f97316",
-                  color: "#ffffff",
+                  color: "#0f172a",
                   fontSize: 10,
-                  fontWeight: 700,
+                  fontWeight: 800,
                   padding: "4px 12px",
                   borderRadius: 999,
                   letterSpacing: "0.03em",
