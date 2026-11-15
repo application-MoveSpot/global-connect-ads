@@ -127,13 +127,6 @@ function ImportPage() {
               <Download className="h-3.5 w-3.5" />
               {t("owner.flotte.import.download_template", { defaultValue: "Télécharger le modèle CSV" })}
             </button>
-            <button
-              type="button"
-              onClick={() => setCsv(EXAMPLE)}
-              className="text-xs text-primary hover:underline"
-            >
-              {t("owner.flotte.import.load_example")}
-            </button>
           </div>
         </div>
 
