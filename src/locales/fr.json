@@ -4435,7 +4435,7 @@
       "kpi_active": "Actifs",
       "kpi_approved": "Approuvés",
       "kpi_occupancy": "Taux d'occupation",
-      "kpi_revenue": "Revenus totaux",
+      "kpi_revenue": "Revenus nets (70 %)",
       "map_positions": "{{count}} position(s) en direct",
       "map_title": "Carte temps réel",
       "no_driver": "Aucun chauffeur",

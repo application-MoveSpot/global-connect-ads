@@ -561,7 +561,9 @@ function CGU() {
           de dommages et intérêts correspondant au minimum à la commission MoveSpot perdue (30 % du
           montant hors taxes de la transaction détournée). La commission reste due et exigible même
           en l'absence de transaction via la Plateforme, dès lors que la mise en relation initiale a
-          été effectuée par son intermédiaire.
+          été effectuée par son intermédiaire, pendant une durée de{" "}
+          <strong>douze (12) mois</strong> suivant la date de la mise en relation initiale ou de la
+          fin de la dernière campagne réalisée en commun.
         </p>
       </LegalSection>
 
