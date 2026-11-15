@@ -4797,6 +4797,23 @@
       "empty": "No messages yet.",
       "select_thread": "Select a conversation",
       "placeholder": "Your message…"
+    },
+    "referral": {
+      "page_title": "Referral Program",
+      "page_desc": "Refer other vehicle owners and earn a commission on their campaigns.",
+      "code_title": "Your referral code",
+      "code_desc": "Share this code or link with your contacts when they sign up.",
+      "stat_friends": "Referred friends",
+      "stat_earned": "Total earned",
+      "how_title": "How it works",
+      "step1": "Share your code or invitation link with a vehicle owner.",
+      "step2": "They sign up on MoveSpot using your code during registration.",
+      "step3": "Once their first campaign is completed, you automatically receive €15 in your wallet.",
+      "empty": "No referrals yet.",
+      "history_title": "Your referral history",
+      "unknown_referee": "Unknown owner",
+      "status_pending": "Pending",
+      "copy_link": "Copy link"
     }
   },
   "advertiser": {

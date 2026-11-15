@@ -4797,6 +4797,23 @@
       "empty": "Aucun message pour l'instant.",
       "select_thread": "Sélectionnez une conversation",
       "placeholder": "Votre message…"
+    },
+    "referral": {
+      "page_title": "Parrainage",
+      "page_desc": "Parrainez d'autres propriétaires de véhicules et gagnez une commission sur leurs campagnes.",
+      "code_title": "Votre code de parrainage",
+      "code_desc": "Partagez ce code ou ce lien avec vos contacts lors de leur inscription.",
+      "stat_friends": "Filleuls inscrits",
+      "stat_earned": "Gains cumulés",
+      "how_title": "Comment ça marche ?",
+      "step1": "Partagez votre code ou votre lien d'invitation avec un propriétaire de véhicule.",
+      "step2": "Il s'inscrit sur MoveSpot en utilisant votre code lors de son inscription.",
+      "step3": "Dès sa première campagne complétée, vous recevez automatiquement 15 € sur votre portefeuille.",
+      "empty": "Aucun filleul parrainé pour le moment.",
+      "history_title": "Historique de vos filleuls",
+      "unknown_referee": "Propriétaire inconnu",
+      "status_pending": "En attente",
+      "copy_link": "Copier le lien"
     }
   },
   "advertiser": {

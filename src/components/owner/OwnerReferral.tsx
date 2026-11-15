@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Copy, Check, Users, Gift, Clock } from "lucide-react";
+import { Copy, Check, Users, Gift, Clock, Link2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+
+const SIGNUP_BASE = `${typeof window !== "undefined" ? window.location.origin : "https://move-spot.lovable.app"}/owner/inscription`;
 
 type Referral = {
   id: string;
@@ -17,6 +19,7 @@ export function OwnerReferral() {
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -38,7 +41,16 @@ export function OwnerReferral() {
           .order("created_at", { ascending: false }),
       ]);
 
-      setReferralCode((profileResult.data as { referral_code?: string | null } | null)?.referral_code ?? null);
+      let code: string | null =
+        (profileResult.data as { referral_code?: string | null } | null)?.referral_code ?? null;
+
+      // Auto-generate if missing
+      if (!code) {
+        const { data: generated } = await sb.rpc("ensure_referral_code");
+        code = (generated as string | null) ?? null;
+      }
+
+      setReferralCode(code);
       setReferrals((referralResult.data as Referral[] | null) ?? []);
       setLoading(false);
     })();
@@ -52,6 +64,18 @@ export function OwnerReferral() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!referralCode) return;
+    const link = `${SIGNUP_BASE}?ref=${referralCode}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      setCopiedLink(false);
     }
   };
 
@@ -86,6 +110,15 @@ export function OwnerReferral() {
             {copied ? t("common.copied") : t("common.copy")}
           </button>
         </div>
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          disabled={!referralCode}
+          className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2.5 text-sm font-medium hover:bg-secondary/80 transition disabled:opacity-50"
+        >
+          {copiedLink ? <Check className="h-4 w-4 text-emerald-600" /> : <Link2 className="h-4 w-4" />}
+          {copiedLink ? t("common.copied") : t("owner.referral.copy_link")}
+        </button>
       </div>
 
       {/* Stats */}
