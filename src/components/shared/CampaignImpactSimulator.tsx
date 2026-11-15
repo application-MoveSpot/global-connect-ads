@@ -30,9 +30,7 @@ const VEHICLES: { id: SimVehicle; icon: string; desc: string }[] = [
 // ── Formatters ────────────────────────────────────────────────────────────────
 
 function fmtImpressions(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} M`;
-  if (n >= 1_000) return `${Math.round(n / 1_000)} k`;
-  return String(n);
+  return n.toLocaleString("fr-FR");
 }
 
 function fmtKm(n: number): string {
