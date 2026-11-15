@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Gift } from "lucide-react";
 import { RouteError } from "@/components/app/RouteError";
@@ -21,7 +21,16 @@ function ParrainagePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <AppHeader
+        right={
+          <Link
+            to="/owner"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t("common.back")}
+          </Link>
+        }
+      />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center gap-3">
