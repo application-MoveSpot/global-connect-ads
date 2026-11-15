@@ -4417,7 +4417,7 @@
         "desc_status": "La colonne condition accepte : bon, moyen ou mauvais.",
         "desc_suffix": "Chaque ligne représente un véhicule.",
         "file_label": "Fichier CSV",
-        "format_desc": "Colonnes <strong>requises</strong> : <code>name</code>, <code>type</code>, <code>format_publicitaire</code>, <code>price_per_day</code>. Colonnes optionnelles : <code>city</code>, <code>license_plate</code>, <code>condition</code> (défaut : <code>bon</code>).",
+        "format_desc": "Colonnes <strong>requises</strong> : <code>name</code>, <code>type</code>, <code>format_publicitaire</code>, <code>price_per_day</code>. Colonnes optionnelles : <code>city</code>, <code>condition</code> (défaut : <code>bon</code>).",
         "format_title": "Format du fichier",
         "load_example": "Charger un exemple",
         "loading": "Chargement…",
@@ -4439,7 +4439,6 @@
         "col_format_publicitaire": "Format publicitaire",
         "col_price_per_day": "Tarif / jour (€)",
         "col_city": "Ville",
-        "col_license_plate": "Immatriculation",
         "col_condition": "État"
       },
       "kpi_active": "Actifs",
