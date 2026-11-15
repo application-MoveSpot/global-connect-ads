@@ -101,15 +101,42 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // ── Vérifier que le véhicule existe et appartient à l'owner de la campagne ─
+  // ── Vérifier que le véhicule existe ─────────────────────────────────────────
   const { data: vehicle, error: vehicleErr } = await admin
     .from("vehicles")
-    .select("id, owner_id")
+    .select("id, owner_id, driver_id")
     .eq("id", vehicle_id)
     .maybeSingle();
 
   if (vehicleErr || !vehicle) {
     return json({ error: "Vehicle not found" }, 404);
+  }
+
+  // ── H1: Rejeter si l'utilisateur n'est ni propriétaire ni chauffeur assigné ─
+  // vehicles.owner_id → owner_profiles(id), owner_profiles.user_id → auth.users
+  // vehicles.driver_id → drivers(id),       drivers.user_id        → auth.users
+  const [ownerCheck, driverCheck] = await Promise.all([
+    admin
+      .from("owner_profiles")
+      .select("id")
+      .eq("id", vehicle.owner_id)
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    vehicle.driver_id
+      ? admin
+          .from("drivers")
+          .select("id")
+          .eq("id", vehicle.driver_id)
+          .eq("user_id", user.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+
+  if (!ownerCheck.data && !driverCheck.data) {
+    return json(
+      { error: "Forbidden: vous n'êtes ni propriétaire ni chauffeur assigné de ce véhicule" },
+      403,
+    );
   }
 
   const now = Date.now();
