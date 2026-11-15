@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
 import { useTranslation } from "react-i18next";
 import { Download } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/owner/flotte/import")({
   head: () => ({ meta: [{ title: "Import CSV de la flotte — MoveSpot" }] }),
@@ -39,10 +40,26 @@ function parseCsvPreview(raw: string): { headers: string[]; rows: string[][] } {
   return { headers, rows };
 }
 
+const CONDITION_STYLES: Record<string, string> = {
+  bon: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  moyen: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+  mauvais: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+};
+
 function ImportPage() {
   const { t } = useTranslation();
   const importFn = useServerFn(importVehiclesCSV);
   const navigate = useNavigate();
+
+  const COLUMN_LABELS: Record<string, string> = {
+    name: t("owner.flotte.import.col_name"),
+    type: t("owner.flotte.import.col_type"),
+    format_publicitaire: t("owner.flotte.import.col_format_publicitaire"),
+    price_per_day: t("owner.flotte.import.col_price_per_day"),
+    city: t("owner.flotte.import.col_city"),
+    license_plate: t("owner.flotte.import.col_license_plate"),
+    condition: t("owner.flotte.import.col_condition"),
+  };
   const [csv, setCsv] = useState("");
   const [loading, setLoading] = useState(false);
   const preview = useMemo(() => (csv.trim() ? parseCsvPreview(csv) : null), [csv]);
@@ -159,7 +176,7 @@ function ImportPage() {
                     <tr className="bg-secondary/40">
                       {preview.headers.map((h) => (
                         <th key={h} className="px-3 py-2 text-left font-semibold whitespace-nowrap">
-                          {h}
+                          {COLUMN_LABELS[h] ?? h}
                         </th>
                       ))}
                     </tr>
@@ -169,7 +186,18 @@ function ImportPage() {
                       <tr key={i} className="border-t border-border">
                         {row.map((cell, j) => (
                           <td key={j} className="px-3 py-1.5 whitespace-nowrap">
-                            {cell}
+                            {preview.headers[j] === "condition" ? (
+                              <span
+                                className={cn(
+                                  "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                                  CONDITION_STYLES[cell] ?? "bg-secondary text-secondary-foreground",
+                                )}
+                              >
+                                {cell.charAt(0).toUpperCase() + cell.slice(1)}
+                              </span>
+                            ) : (
+                              cell
+                            )}
                           </td>
                         ))}
                       </tr>
