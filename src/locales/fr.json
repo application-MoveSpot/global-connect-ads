@@ -4683,7 +4683,7 @@
         "plate_label": "Immatriculation",
         "plate_placeholder": "Ex : AA-123-BB",
         "price_hint": "Définissez un prix compétitif pour attirer plus de campagnes.",
-        "price_label": "Prix par campagne (€)",
+        "price_label": "Tarif par jour (€)",
         "price_range_hint": "Fourchette de prix basée sur les véhicules similaires sur la plateforme.",
         "submit": "Soumettre",
         "submitting": "Envoi en cours…",

@@ -1050,7 +1050,7 @@ function NewVehiclePage() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || condition === "mauvais"}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
                 {loading
