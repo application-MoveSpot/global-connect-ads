@@ -1577,7 +1577,7 @@
         "desc_status": "« En attente validation »",
         "desc_suffix": "jusqu'à modération.",
         "format_title": "Format attendu",
-        "format_desc": "Colonnes requises : <code>name, type, format_publicitaire, price_per_day</code>. Optionnelles : <code>city, license_plate, condition</code> (bon/moyen/mauvais).",
+        "format_desc": "Colonnes requises : <code>name, type, format_publicitaire, price_per_day</code>. Optionnelles : <code>city, condition</code> (bon/moyen/mauvais).",
         "load_example": "Charger cet exemple",
         "file_label": "Fichier CSV",
         "paste_label": "Ou collez le contenu",

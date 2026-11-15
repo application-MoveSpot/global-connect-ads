@@ -9,7 +9,6 @@ const RowSchema = z.object({
   format_publicitaire: z.string().min(1).max(120),
   price_per_day: z.coerce.number().min(0).max(100000),
   city: z.string().max(120).optional().nullable(),
-  license_plate: z.string().max(20).optional().nullable(),
   condition: z.enum(["bon", "moyen", "mauvais"]).optional().default("bon"),
 });
 

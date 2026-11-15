@@ -14,10 +14,10 @@ export const Route = createFileRoute("/owner/flotte/import")({
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
 });
 
-const EXAMPLE = `name,type,format_publicitaire,price_per_day,city,license_plate,condition
-Renault Master #12,Van utilitaire,Habillage total,120,Paris,AA-123-BB,bon
-Citroën Jumpy #07,Van utilitaire,Bâche latérale,80,Lyon,CC-456-DD,bon
-Vespa Livraison #03,Scooter,Top box arrière,25,Marseille,EE-789-FF,moyen`;
+const EXAMPLE = `name,type,format_publicitaire,price_per_day,city,condition
+Renault Master #12,Van utilitaire,Habillage total,120,Paris,bon
+Citroën Jumpy #07,Van utilitaire,Bâche latérale,80,Lyon,bon
+Vespa Livraison #03,Scooter,Top box arrière,25,Marseille,moyen`;
 
 function downloadTemplate() {
   const blob = new Blob([EXAMPLE], { type: "text/csv;charset=utf-8;" });
