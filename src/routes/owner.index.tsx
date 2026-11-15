@@ -388,7 +388,7 @@ function DashboardPage() {
           <h2 className="font-display text-2xl font-bold mb-2">{t("owner.map_title")}</h2>
           <p className="text-sm text-muted-foreground mb-4">{t("owner.map_desc")}</p>
           <Suspense fallback={<div className="h-64 rounded-xl bg-secondary/40 animate-pulse" />}>
-            <MobilityMap />
+            <MobilityMap ownerMode />
           </Suspense>
         </section>
         <div className="mt-6 flex justify-end">
