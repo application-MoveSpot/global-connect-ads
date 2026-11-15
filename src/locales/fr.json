@@ -4582,7 +4582,7 @@
       "offline": "Hors ligne",
       "online": "En ligne",
       "send_errors": "{{count}} erreur(s) d'envoi réseau",
-      "start": "Début",
+      "start": "Démarrer le suivi",
       "stat_coords": "Coordonnées GPS",
       "stat_driving": "En route",
       "stat_duration": "Durée",
