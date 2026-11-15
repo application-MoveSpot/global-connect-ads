@@ -242,10 +242,15 @@ Deno.serve(async (req: Request) => {
   const finalStatus = stripeTransferId ? "completed" : "completed";
   // Note : si Stripe a échoué, on crédite quand même le wallet (virement manuel possible)
 
-  await admin
-    .from("owner_wallets")
-    .update({ balance_ht: (wallet.balance_ht ?? 0) + netEur })
-    .eq("id", wallet.id);
+  // Atomic increment to prevent race condition on concurrent payouts for the same owner.
+  const { error: balanceErr } = await admin.rpc("increment_owner_wallet", {
+    p_wallet_id: wallet.id,
+    p_delta: netEur,
+  });
+  if (balanceErr) {
+    console.error("Failed to increment wallet balance:", balanceErr);
+    return json({ error: "Failed to update wallet balance" }, 500);
+  }
 
   // Mettre à jour toutes les transactions pending de ce wallet pour cette campagne
   for (const tx of insertedTxs) {
@@ -325,10 +330,10 @@ Deno.serve(async (req: Request) => {
           reference_id: referral.id,
           description: "Bonus parrainage — filleul première campagne",
         });
-        await admin
-          .from("owner_wallets")
-          .update({ balance_ht: (referrerWallet.balance_ht ?? 0) + BONUS_EUR })
-          .eq("id", referrerWallet.id);
+        await admin.rpc("increment_owner_wallet", {
+          p_wallet_id: referrerWallet.id,
+          p_delta: BONUS_EUR,
+        });
       }
 
       // Bonus filleul
@@ -340,10 +345,10 @@ Deno.serve(async (req: Request) => {
         reference_id: referral.id,
         description: "Bonus parrainage — première campagne",
       });
-      await admin
-        .from("owner_wallets")
-        .update({ balance_ht: newBalanceHt + BONUS_EUR })
-        .eq("id", wallet.id);
+      await admin.rpc("increment_owner_wallet", {
+        p_wallet_id: wallet.id,
+        p_delta: BONUS_EUR,
+      });
 
       await admin
         .from("referrals")

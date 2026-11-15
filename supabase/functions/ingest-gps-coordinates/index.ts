@@ -112,8 +112,22 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Vehicle not found" }, 404);
   }
 
-  const now = new Date().toISOString();
-  const posRecordedAt = recorded_at ?? now;
+  const now = Date.now();
+  const MAX_AGE_MS   = 5 * 60 * 1000; // 5 minutes in the past
+  const MAX_AHEAD_MS = 30 * 1000;      // 30 seconds in the future
+
+  let posTs: number;
+  if (recorded_at) {
+    posTs = new Date(recorded_at).getTime();
+    if (isNaN(posTs)) return json({ error: "recorded_at invalide" }, 422);
+    const drift = now - posTs;
+    if (drift > MAX_AGE_MS || drift < -MAX_AHEAD_MS) {
+      return json({ error: "recorded_at hors fenêtre temporelle autorisée (±5 min)" }, 422);
+    }
+  } else {
+    posTs = now;
+  }
+  const posRecordedAt = new Date(posTs).toISOString();
 
   // ── Insérer le point GPS ──────────────────────────────────────────────────
   const { error: insertErr } = await admin.from("vehicle_positions").insert({

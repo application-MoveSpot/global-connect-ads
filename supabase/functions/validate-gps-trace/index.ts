@@ -6,6 +6,11 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const SUPABASE_URL       = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE_KEY   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const ANON_KEY           = Deno.env.get("SUPABASE_ANON_KEY")!;
+const INTERNAL_SECRET    = Deno.env.get("INTERNAL_FUNCTION_SECRET") ?? "";
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 // Au-delà de 200 km/h, on considère le GPS comme frauduleux.
@@ -183,10 +188,31 @@ function analyzeTrace(points: GpsPoint[]): FraudAlert[] {
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return new Response("Method Not Allowed", { status: 405 });
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
+  // ── Auth ─────────────────────────────────────────────────────────────────────
+  const internalSecret = req.headers.get("x-internal-secret");
+  const authHeader     = req.headers.get("Authorization");
+
+  if (internalSecret && INTERNAL_SECRET && internalSecret === INTERNAL_SECRET) {
+    // appel interne (cq-analyze-gps, batch job, cron)
+  } else if (authHeader?.startsWith("Bearer ")) {
+    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user }, error } = await userClient.auth.getUser();
+    if (error || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  } else {
+    return new Response(JSON.stringify({ error: "Missing authorization" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
   const { vehicle_id, driver_id, campaign_request_id, points } = await req.json() as {
     vehicle_id: string;
