@@ -54,7 +54,8 @@ function MentionsLegales() {
             <strong>SIRET</strong> : 804 671 444 00052
           </li>
           <li>
-            <strong>RCS</strong> : 804 671 444 R.C.S. Pointe-à-Pitre
+            <strong>Immatriculation</strong> : Immatriculée au Registre National des Entreprises
+            (RNE) sous le numéro SIREN 804 671 444
           </li>
           <li>
             <strong>Code APE</strong> : 47.91B — Vente à distance sur catalogue spécialisé
@@ -100,6 +101,15 @@ function MentionsLegales() {
         <ul className="list-disc pl-6 space-y-2">
           <li>
             <strong>Adresse</strong> : Sveavägen 31, 111 34 Stockholm, Suède
+          </li>
+          <li>
+            <strong>Téléphone</strong> : +46 8 501 640 00
+          </li>
+          <li>
+            <strong>Contact</strong> :{" "}
+            <a href="mailto:support@lovable.dev" className="underline">
+              support@lovable.dev
+            </a>
           </li>
           <li>
             <strong>Site web</strong> :{" "}

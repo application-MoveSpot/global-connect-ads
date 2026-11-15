@@ -155,7 +155,8 @@ function FleetPage() {
   const activeNow = positions.length;
   const occupancyRate =
     approvedCount > 0 ? Math.round((activeCampaigns.length / approvedCount) * 100) : 0;
-  const monthlyRevenue = activeCampaigns.reduce((s, c) => s + (c.total_price ?? 0), 0);
+  const PARTNER_SHARE = 0.70;
+  const monthlyRevenue = activeCampaigns.reduce((s, c) => s + (c.total_price ?? 0) * PARTNER_SHARE, 0);
 
   // Map
   const mapContainer = useRef<HTMLDivElement>(null);

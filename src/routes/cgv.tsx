@@ -249,13 +249,16 @@ function CGV() {
         </p>
 
         <p>
-          <strong>b) Véhicule alternatif — Acceptation tacite après 48 heures.</strong> MoveSpot
-          peut proposer à l'Annonceur un ou plusieurs véhicules alternatifs de remplacement issus de
-          la flotte disponible. L'Annonceur dispose d'un délai de <strong>48 heures</strong> à
-          compter de la notification de l'offre alternative pour refuser expressément cette
-          proposition. Passé ce délai de 48 heures sans réponse de sa part, le silence de
-          l'Annonceur vaut <strong>acceptation tacite</strong> du ou des véhicules alternatifs
-          proposés, et la campagne reprend son cours sans modification du prix convenu.
+          <strong>b) Véhicule alternatif — Validation expresse requise.</strong> En cas
+          d'indisponibilité imprévue du véhicule initialement sélectionné, MoveSpot s'engage à
+          proposer à l'Annonceur un véhicule alternatif de catégorie, de format publicitaire et de
+          zone de circulation équivalents, sans surcoût. L'Annonceur dispose d'un délai de{" "}
+          <strong>48 heures</strong> à compter de la notification pour{" "}
+          <strong>valider expressément</strong> ce remplacement depuis son espace client ou par
+          retour d'e-mail. À défaut de validation expresse dans ce délai, ou en cas de refus du
+          véhicule alternatif proposé, la campagne concernée est annulée de plein droit et
+          l'Annonceur bénéficie du remboursement intégral des sommes versées au prorata des jours
+          non diffusés, dans les conditions du paragraphe a) ci-dessus.
         </p>
 
         <p>

@@ -4435,7 +4435,7 @@
       "kpi_active": "Active",
       "kpi_approved": "Approved",
       "kpi_occupancy": "Occupancy rate",
-      "kpi_revenue": "Total revenue",
+      "kpi_revenue": "Net revenue (70 %)",
       "map_positions": "{{count}} live position(s)",
       "map_title": "Real-time Map",
       "no_driver": "No Driver",

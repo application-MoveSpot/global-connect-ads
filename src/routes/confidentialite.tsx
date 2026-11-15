@@ -154,31 +154,42 @@ function Privacy() {
               <td className="p-3">Mesure d'audience et statistiques</td>
               <td className="p-3">Consentement (cookies)</td>
             </tr>
+            <tr>
+              <td className="p-3">
+                Analyse automatisée des messages internes (détection de coordonnées personnelles
+                partagées à des fins de contournement de la Plateforme)
+              </td>
+              <td className="p-3">Intérêt légitime (art. 6.1.f du RGPD)</td>
+            </tr>
           </tbody>
         </table>
       </LegalSection>
 
       <LegalSection title={t("confidentialite.s5")}>
         <p>
-          Les positions GPS sont collectées uniquement lorsque le driver active le suivi, et
-          uniquement pendant les périodes de conduite déclarées d'une campagne. Elles sont mises en
-          mémoire tampon sur le terminal puis envoyées par lots à la Plateforme.
+          Dans le cadre de l'exécution du contrat de diffusion publicitaire (art. 6.1.b du RGPD),
+          les véhicules partenaires transmettent leur position GPS toutes les trente (30) secondes
+          pendant les périodes d'activation de campagne. Ces données sont mises en mémoire tampon
+          sur le terminal puis envoyées par lots à la Plateforme.
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
             Les positions sont rattachées au <strong>véhicule</strong> et à la campagne, non à
-            l'identité personnelle du driver.
+            l'identité civile du conducteur.
           </li>
           <li>
-            L'advertiser n'accède aux positions que pendant la fenêtre de la campagne approuvée, via
+            L'annonceur n'accède aux positions que pendant la fenêtre de la campagne approuvée, via
             des règles d'accès appliquées au niveau de la base de données.
           </li>
           <li>
-            Les positions brutes sont conservées 13 mois maximum, puis supprimées ; seules les
-            métriques agrégées de campagne sont conservées pour la facturation.
+            Les positions brutes sont conservées <strong>13 mois maximum</strong>, puis anonymisées
+            à des fins statistiques ; seules les métriques agrégées de campagne sont conservées pour
+            la facturation.
           </li>
           <li>
-            Le driver peut arrêter le suivi à tout moment ; aucune collecte n'a lieu hors campagne.
+            Le suivi GPS constitue une condition technique indispensable au calcul de la
+            rémunération et à la preuve de diffusion ; sa désactivation entraîne la suspension
+            automatique du décompte des revenus sur la période concernée (CGU, art. 11).
           </li>
         </ul>
       </LegalSection>
@@ -299,10 +310,28 @@ function Privacy() {
 
       <LegalSection title={t("confidentialite.s11")}>
         <p>
-          Certains de nos providers peuvent traiter des données en dehors de l'Union européenne.
-          Dans ce cas, nous nous assurons que des garanties appropriées sont mises en place (clauses
-          contractuelles types de la Commission européenne ou décision d'adéquation).
+          Les bases de données principales de MoveSpot sont hébergées en France (AWS eu-west-3,
+          Paris). Certains sous-traitants techniques sont situés aux États-Unis et encadrés par des
+          garanties conformes à l'article 46 du RGPD :
         </p>
+        <ul className="list-disc pl-6 space-y-2">
+          <li>
+            <strong>Mapbox Inc.</strong> (Washington DC, États-Unis) — cartographie interactive :
+            encadré par le <em>Data Privacy Framework UE–États-Unis</em> et des Clauses
+            Contractuelles Types (SCC) de la Commission européenne.
+          </li>
+          <li>
+            <strong>Resend Inc.</strong> (San Francisco, États-Unis) — envoi d'e-mails
+            transactionnels : encadré par les Clauses Contractuelles Types (SCC, version 2021) de la
+            Commission européenne.
+          </li>
+          <li>
+            <strong>Anthropic PBC</strong> (San Francisco, États-Unis) — assistance FAQ et analyse
+            automatisée : encadré par les Clauses Contractuelles Types (SCC) et un accord de
+            traitement des données (DPA) garantissant qu'aucune donnée des utilisateurs n'est
+            utilisée pour l'entraînement des modèles d'intelligence artificielle.
+          </li>
+        </ul>
       </LegalSection>
 
       <LegalSection title={t("confidentialite.s12")}>
