@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "@tanstack/react-router";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapboxToken } from "@/lib/geo/mapbox.functions";
@@ -45,7 +46,7 @@ const statusColor: Record<Hub["status"], string> = {
   low: "#ef4444",
 };
 
-export function MobilityMap() {
+export function MobilityMap({ ownerMode = false }: { ownerMode?: boolean } = {}) {
   const { t, i18n } = useTranslation();
   const getVehicleLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -249,7 +250,7 @@ export function MobilityMap() {
             </div>
           </div>
         ) : isLaunching ? (
-          <LaunchingState />
+          <LaunchingState ownerMode={ownerMode} />
         ) : (
           <>
             <div className="text-xs uppercase tracking-widest text-muted-foreground">
@@ -301,7 +302,7 @@ export function MobilityMap() {
   );
 }
 
-function LaunchingState() {
+function LaunchingState({ ownerMode }: { ownerMode?: boolean }) {
   const { t } = useTranslation();
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 py-4">
@@ -310,12 +311,21 @@ function LaunchingState() {
       <p className="text-sm text-muted-foreground leading-relaxed">
         {t("mobility_map.launching_desc")}
       </p>
-      <a
-        href="/devenir-partenaire"
-        className="mt-2 text-xs font-semibold text-primary hover:underline"
-      >
-        {t("mobility_map.register_vehicle")}
-      </a>
+      {ownerMode ? (
+        <Link
+          to="/owner/vehicules/nouveau"
+          className="mt-2 text-xs font-semibold text-primary hover:underline"
+        >
+          {t("owner.add_vehicle")} →
+        </Link>
+      ) : (
+        <a
+          href="/devenir-partenaire"
+          className="mt-2 text-xs font-semibold text-primary hover:underline"
+        >
+          {t("mobility_map.register_vehicle")}
+        </a>
+      )}
     </div>
   );
 }
