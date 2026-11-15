@@ -6,8 +6,26 @@ import { assertRateLimit } from "@/lib/rateLimit.server";
 import { captureServerException } from "@/lib/sentry.server";
 import { generateText } from "ai";
 
+const ALLOWED_MIME_PREFIXES = [
+  "data:image/jpeg;base64,",
+  "data:image/jpg;base64,",
+  "data:image/png;base64,",
+  "data:image/webp;base64,",
+  "data:image/gif;base64,",
+  "data:application/pdf;base64,",
+];
+
+// 10 MB expressed as a base64-encoded string length (ceil(10*1024*1024 * 4/3) + prefix slack)
+const MAX_DATA_URL_LENGTH = 13_981_014;
+
 const Input = z.object({
-  imageDataUrl: z.string().max(15_000_000),
+  imageDataUrl: z
+    .string()
+    .max(MAX_DATA_URL_LENGTH, "Fichier trop volumineux (max 10 Mo)")
+    .refine(
+      (v) => ALLOWED_MIME_PREFIXES.some((p) => v.startsWith(p)),
+      "Format non supporté — utilisez JPG, PNG, WebP ou PDF",
+    ),
 });
 
 export type VehicleOcrResult = {
