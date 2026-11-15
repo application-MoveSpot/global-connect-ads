@@ -82,7 +82,7 @@ const AVANTAGES = {
     {
       icon: "🔒",
       titre: "Hébergement en France",
-      desc: "Hébergement européen, support francophone et paiement en euros via Stripe 3D Secure. Vos données et celles de vos clients ne quittent jamais l'Union européenne.",
+      desc: "Base de données et données de campagne hébergées en France (AWS eu-west-3, Paris). Support francophone, paiement en euros via Stripe 3D Secure. Les transferts vers certains prestataires techniques (cartographie, email, IA) sont encadrés par des garanties RGPD (Clauses Contractuelles Types).",
       vs: "Les plateformes américaines comme Wrapify ou Carvertise ne couvrent pas l'Europe et ne sont pas soumises au RGPD.",
     },
   ],
@@ -132,7 +132,7 @@ const AVANTAGES = {
     {
       icon: "🔒",
       titre: "Hosted in France",
-      desc: "European hosting, French-speaking support and payment in euros via Stripe 3D Secure. Your data and your customers' data never leave the European Union.",
+      desc: "Campaign database hosted in France (AWS eu-west-3, Paris). French-speaking support and payment in euros via Stripe 3D Secure. Transfers to certain technical providers (mapping, email, AI) are covered by GDPR safeguards (Standard Contractual Clauses).",
       vs: "US platforms like Wrapify or Carvertise do not cover Europe and are not subject to GDPR.",
     },
   ],
