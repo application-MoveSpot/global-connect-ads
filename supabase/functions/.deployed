@@ -1,0 +1,33 @@
+# Edge Functions — Journal de déploiement
+
+## 2026-11-15 — Security hardening (AppSec audit)
+
+Projet Supabase : kbloaebbwgzudtkrvulp
+
+| Fonction                  | Version déployée | Correctifs inclus                        |
+|---------------------------|-----------------|------------------------------------------|
+| validate-gps-trace        | v1              | C1 — auth requise (Bearer / internal)    |
+| ingest-gps-coordinates    | v15             | H1 — vérif propriétaire/chauffeur (403)  |
+|                           |                 | M1 — fenêtre temporelle ±5 min           |
+| process-campaign-payout   | v16             | M2 — incrément atomique wallet (RPC)     |
+
+### Détail des correctifs déployés
+
+**C1 — validate-gps-trace** (`verify_jwt: false`, auth interne)
+- Toute requête sans `Authorization: Bearer <token>` ni `x-internal-secret` reçoit HTTP 401.
+- Les appels internes (cron, batch) utilisent `INTERNAL_FUNCTION_SECRET`.
+
+**H1 — ingest-gps-coordinates** (`verify_jwt: true`)
+- Après vérification du token JWT, deux requêtes parallèles (`Promise.all`) vérifient que
+  l'utilisateur est soit le propriétaire du véhicule (`owner_profiles.user_id`)
+  soit son chauffeur assigné (`vehicles.driver_id → drivers.user_id`).
+- Sinon : HTTP 403 `Forbidden`.
+
+**M1 — ingest-gps-coordinates**
+- Le champ `recorded_at` doit être dans une fenêtre ±5 min par rapport à l'heure serveur.
+- Points trop anciens ou trop en avance : HTTP 422.
+
+**M2 — process-campaign-payout** (`verify_jwt: false`, auth admin/interne)
+- `UPDATE balance_ht = balance_ht + delta` remplacé par appel RPC
+  `increment_owner_wallet(p_wallet_id, p_delta)` — SECURITY DEFINER, atomique.
+- Migration SQL `20261115120000_atomic_wallet_increment.sql` appliquée.
