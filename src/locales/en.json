@@ -2875,7 +2875,21 @@
       "support_reply_placeholder": "Reply to advertiser…",
       "support_resolve_btn": "Mark as resolved",
       "support_resolved_toast": "Conversation marked as resolved.",
-      "support_back_btn": "Back"
+      "support_back_btn": "Back",
+      "incident_title": "Damage / incident reports (T&Cs §11)",
+      "incident_subtitle": "Reports submitted by owners and drivers from /owner/tracking.",
+      "incident_empty": "No pending reports.",
+      "incident_pending_count": "{{count}} report(s) pending",
+      "incident_load_error": "Failed to load reports.",
+      "incident_updated_toast": "Status updated.",
+      "incident_update_error": "Error while updating.",
+      "incident_status_open": "Open",
+      "incident_status_in_progress": "In progress",
+      "incident_status_closed": "Closed",
+      "incident_btn_take_charge": "Take charge",
+      "incident_btn_close": "Close",
+      "incident_note_placeholder": "Internal admin note…",
+      "incident_closed_summary": "{{count}} closed report(s)"
     },
     "support": {
       "title": "Support MoveSpot",
@@ -6058,5 +6072,25 @@
     "translating": "Translating…",
     "placeholder": "Your message…",
     "error_generic": "Feature temporarily unavailable"
+  },
+  "incident": {
+    "btn_report": "Report a damage / incident on the ad wrap",
+    "modal_title": "Report an incident",
+    "vehicle_label": "Vehicle:",
+    "type_label": "Type of incident",
+    "type_accident_sinistre": "Accident / insurance claim",
+    "type_degradation_vandalisme": "Damage / vandalism",
+    "type_decollement_vinyle": "Vinyl wrap peeling off",
+    "type_retrait_urgence": "Emergency removal",
+    "type_autre": "Other",
+    "description_label": "Description (optional)",
+    "description_placeholder": "Briefly describe the situation…",
+    "photo_label": "Supporting photo (optional)",
+    "photo_cta": "Add a photo",
+    "photo_hint": "JPG, PNG or WebP · max 1.5 MB · automatically resized",
+    "btn_submit": "Submit report",
+    "toast_sent": "Report submitted — the MoveSpot team has been notified.",
+    "err_photo": "Could not compress the photo.",
+    "err_generic": "An error occurred, please try again."
   }
 }

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AlertTriangle, MapPin, Play, Square, Wifi, WifiOff } from "lucide-react";
+import { IncidentReportDialog } from "@/components/owner/IncidentReportDialog";
 import { getDrivingRules } from "@/lib/fleet/driving-rules";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -449,6 +450,17 @@ function TrackingPage() {
                 <li>{t("owner.tracking.tip_4")}</li>
               </ul>
             </div>
+
+            {vehicleId && (
+              <IncidentReportDialog
+                vehicleId={vehicleId}
+                vehicleName={
+                  vehicles.find((v: { id: string; name: string }) => v.id === vehicleId)?.name ??
+                  vehicleId
+                }
+                campaignRequestId={campaign?.id ?? null}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
