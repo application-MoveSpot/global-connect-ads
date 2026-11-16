@@ -80,6 +80,11 @@ import {
   adminGetObstaclePhotoUrls,
   type ObstacleReport,
 } from "@/lib/tracking/obstacle.functions";
+import {
+  adminListIncidentReports,
+  adminUpdateIncidentReport,
+  type AdminIncidentReport,
+} from "@/lib/tracking/incident.functions";
 
 const FleetMap = lazy(() => import("@/components/owner/FleetMap"));
 
@@ -2029,6 +2034,7 @@ function AdminDashboard() {
           <div className="space-y-10">
             <AdminAlertesPanel />
             <AdminObstacleReportsPanel />
+            <AdminIncidentReportsPanel />
           </div>
         ) : null}
 
@@ -3379,6 +3385,163 @@ function AdminObstacleReportsPanel() {
                   </span>
                 </div>
                 <span>{new Date(r.reported_at).toLocaleDateString(i18n.language)}</span>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+// ─── Panel signalements sinistres / dégradations (CGU §11) ────────────────────
+
+function AdminIncidentReportsPanel() {
+  const { t, i18n } = useTranslation();
+  const listIncidents = useServerFn(adminListIncidentReports);
+  const updateIncident = useServerFn(adminUpdateIncidentReport);
+
+  const [reports, setReports] = useState<AdminIncidentReport[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setLoading(true);
+    listIncidents()
+      .then((r) => setReports(r.reports))
+      .catch(() => toast.error(t("admin.dashboard.incident_load_error")))
+      .finally(() => setLoading(false));
+  }, [listIncidents, t]);
+
+  async function handleUpdate(id: string, status: "open" | "in_progress" | "closed") {
+    try {
+      await updateIncident({ data: { id, status, adminNote: adminNotes[id] } });
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === id ? { ...r, status, admin_note: adminNotes[id] ?? r.admin_note } : r,
+        ),
+      );
+      toast.success(t("admin.dashboard.incident_updated_toast"));
+    } catch {
+      toast.error(t("admin.dashboard.incident_update_error"));
+    }
+  }
+
+  const open = reports.filter((r) => r.status === "open");
+  const inProgress = reports.filter((r) => r.status === "in_progress");
+  const closed = reports.filter((r) => r.status === "closed");
+  const active = [...open, ...inProgress];
+
+  if (loading) return <Skeleton />;
+
+  return (
+    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 space-y-4">
+      <div>
+        <h2 className="font-display text-lg font-bold">{t("admin.dashboard.incident_title")}</h2>
+        <p className="text-xs text-muted-foreground">{t("admin.dashboard.incident_subtitle")}</p>
+      </div>
+
+      {active.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{t("admin.dashboard.incident_empty")}</p>
+      ) : (
+        <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+          ⚠️ {t("admin.dashboard.incident_pending_count", { count: active.length })}
+        </p>
+      )}
+
+      <div className="space-y-3">
+        {active.map((r) => (
+          <div
+            key={r.id}
+            className={`rounded-xl border p-4 space-y-3 ${
+              r.status === "in_progress"
+                ? "border-blue-500/30 bg-blue-500/5"
+                : "border-amber-500/30 bg-background"
+            }`}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-sm">{r.vehicle_name ?? r.vehicle_id}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t(`incident.type_${r.incident_type}`, { defaultValue: r.incident_type })}
+                  {" · "}
+                  {r.user_email ?? r.user_id}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(r.created_at).toLocaleString(i18n.language)}
+                </p>
+              </div>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  r.status === "in_progress"
+                    ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                    : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                }`}
+              >
+                {t(`admin.dashboard.incident_status_${r.status}`, { defaultValue: r.status })}
+              </span>
+            </div>
+
+            {r.description && (
+              <p className="text-sm text-foreground bg-secondary/50 rounded-lg px-3 py-2">
+                {r.description}
+              </p>
+            )}
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder={t("admin.dashboard.incident_note_placeholder")}
+                value={adminNotes[r.id] ?? r.admin_note ?? ""}
+                onChange={(e) =>
+                  setAdminNotes((prev) => ({ ...prev, [r.id]: e.target.value }))
+                }
+                className="flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {r.status === "open" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-blue-600 border-blue-500/40 text-xs"
+                  onClick={() => handleUpdate(r.id, "in_progress")}
+                >
+                  {t("admin.dashboard.incident_btn_take_charge")}
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-emerald-600 border-emerald-500/40 text-xs"
+                onClick={() => handleUpdate(r.id, "closed")}
+              >
+                {t("admin.dashboard.incident_btn_close")}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {closed.length > 0 && (
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer hover:text-foreground">
+            {t("admin.dashboard.incident_closed_summary", { count: closed.length })}
+          </summary>
+          <div className="mt-2 space-y-2">
+            {closed.map((r) => (
+              <div
+                key={r.id}
+                className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 flex items-start justify-between gap-2 text-xs"
+              >
+                <div>
+                  <span className="font-medium">{r.vehicle_name ?? r.vehicle_id}</span>
+                  <span className="ml-2 text-muted-foreground">
+                    {t(`incident.type_${r.incident_type}`, { defaultValue: r.incident_type })}
+                  </span>
+                </div>
+                <span>{new Date(r.created_at).toLocaleDateString(i18n.language)}</span>
               </div>
             ))}
           </div>
