@@ -866,7 +866,7 @@ function NewBriefPage() {
     return (
       <div className="min-h-screen bg-background">
         <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-          <div className="max-w-3xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
             <LogoLink />
             <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
               {t("advertiser.briefs.nouveau.back")}
@@ -937,7 +937,7 @@ function NewBriefPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">
             {t("advertiser.briefs.nouveau.back")}
@@ -1748,7 +1748,7 @@ function NewBriefPage() {
             onHighlightDismiss={() => setBriefJustGeneratedByAi(false)}
           />
 
-          <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-muted-foreground">
+          <div className="rounded-xl border border-border bg-secondary/20 p-4 text-xs text-slate-400">
             <strong className="text-foreground">{t("advertiser.briefs.nouveau.ip_notice")}</strong>{" "}
             {t("advertiser.briefs.nouveau.ip_notice_body")}
           </div>
