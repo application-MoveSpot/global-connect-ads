@@ -60,6 +60,7 @@ import {
 import { StatusHistory } from "@/components/shared/StatusHistory";
 import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard";
+import { SalesAgentContractGenerator } from "@/components/admin/SalesAgentContractGenerator";
 import { AdminCronJobPanel } from "@/components/admin/AdminCronJobPanel";
 import { AdminBankTransfersPanel } from "@/components/admin/AdminBankTransfersPanel";
 import { AdminStripeSetupPanel } from "@/components/admin/AdminStripeSetupPanel";
@@ -130,7 +131,8 @@ type Tab =
   | "referral"
   | "regions"
   | "support"
-  | "cron";
+  | "cron"
+  | "contrat";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -158,6 +160,7 @@ function AdminDashboard() {
     "regions",
     "support",
     "cron",
+    "contrat",
   ];
   const [tab, setTab] = useState<Tab>("afaire");
   const [ready, setReady] = useState(false);
@@ -695,6 +698,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "cron"} onClick={() => switchTab("cron")}>
             Automatisation
+          </TabBtn>
+          <TabBtn active={tab === "contrat"} onClick={() => switchTab("contrat")}>
+            Contrat apporteur
           </TabBtn>
         </div>
 
@@ -2172,6 +2178,10 @@ function AdminDashboard() {
               <AdminStripeSetupPanel />
             </div>
           </div>
+        ) : null}
+
+        {tab === "contrat" ? (
+          <SalesAgentContractGenerator />
         ) : null}
 
         {tab === "analytics" ? (
