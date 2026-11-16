@@ -47,6 +47,9 @@ function fmtKm(n: number): string {
 
 // ── Animated metric card ──────────────────────────────────────────────────────
 
+const CARD_BASE =
+  "flex-1 min-w-[140px] rounded-2xl border border-border bg-card p-4 text-center flex flex-col items-center gap-1.5";
+
 function MetricCard({
   icon,
   label,
@@ -64,7 +67,7 @@ function MetricCard({
 }) {
   const animated = useAnimatedNumber(rawValue);
   return (
-    <div className="flex-1 min-w-[140px] rounded-2xl border border-border bg-card p-4 text-center flex flex-col items-center gap-1.5">
+    <div className={CARD_BASE}>
       <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", accent + "/15")}>
         <span className={accent}>{icon}</span>
       </div>
@@ -76,6 +79,77 @@ function MetricCard({
       >
         {formatter(animated)}
         {unit && <span className="text-sm font-semibold ml-0.5 opacity-80">{unit}</span>}
+      </div>
+      <div className="text-[11px] text-muted-foreground leading-snug max-w-[110px]">{label}</div>
+    </div>
+  );
+}
+
+// ── Vehicle stepper card (3rd metric card, interactive) ───────────────────────
+
+function VehicleStepperCard({
+  count,
+  atMin,
+  atMax,
+  onDecrement,
+  onIncrement,
+  label,
+  unit,
+  tDecrement,
+  tIncrement,
+}: {
+  count: number;
+  atMin: boolean;
+  atMax: boolean;
+  onDecrement: () => void;
+  onIncrement: () => void;
+  label: string;
+  unit: string;
+  tDecrement: string;
+  tIncrement: string;
+}) {
+  const animated = useAnimatedNumber(count);
+  return (
+    <div className={CARD_BASE}>
+      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-violet-400/15">
+        <span className="text-violet-400">
+          <Car className="w-4 h-4" />
+        </span>
+      </div>
+      {/* Number flanked by − / + on the same row as other cards' number row */}
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={onDecrement}
+          disabled={atMin}
+          aria-label={tDecrement}
+          className={cn(
+            "w-6 h-6 rounded-lg border flex items-center justify-center transition-all shrink-0",
+            atMin
+              ? "border-border/40 text-muted-foreground/30 cursor-not-allowed"
+              : "border-violet-500/40 text-violet-400 hover:bg-violet-500/10 active:scale-90",
+          )}
+        >
+          <Minus className="w-3 h-3" />
+        </button>
+        <div className="font-display text-2xl font-bold tabular-nums leading-tight text-violet-400">
+          {animated}
+          <span className="text-sm font-semibold ml-0.5 opacity-80">&nbsp;{unit}</span>
+        </div>
+        <button
+          type="button"
+          onClick={onIncrement}
+          disabled={atMax}
+          aria-label={tIncrement}
+          className={cn(
+            "w-6 h-6 rounded-lg border flex items-center justify-center transition-all shrink-0",
+            atMax
+              ? "border-border/40 text-muted-foreground/30 cursor-not-allowed"
+              : "border-violet-500/40 text-violet-400 hover:bg-violet-500/10 active:scale-90",
+          )}
+        >
+          <Plus className="w-3 h-3" />
+        </button>
       </div>
       <div className="text-[11px] text-muted-foreground leading-snug max-w-[110px]">{label}</div>
     </div>
@@ -239,84 +313,31 @@ export function CampaignImpactSimulator() {
         </div>
       </div>
 
-      {/* Budget ↔ Vehicles — bidirectional controls */}
-      <div className="grid sm:grid-cols-2 gap-4 items-end">
-        {/* Budget slider */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label htmlFor="sim-budget" className="text-xs font-medium text-foreground">
-              {t("sim.budget_label")}
-            </label>
-            <span className="text-lg font-bold text-primary tabular-nums">
-              {sliderBudget.toLocaleString("fr-FR")} €/mois
-            </span>
-          </div>
-          <input
-            id="sim-budget"
-            type="range"
-            min={MIN_BUDGET}
-            max={MAX_BUDGET}
-            step={BUDGET_STEP}
-            value={sliderBudget}
-            onChange={handleSliderChange}
-            onMouseUp={handleSliderCommit}
-            onTouchEnd={handleSliderCommit}
-            className="w-full accent-primary"
-          />
-          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-            <span>{MIN_BUDGET} €</span>
-            <span>{MAX_BUDGET.toLocaleString("fr-FR")} €</span>
-          </div>
+      {/* Budget slider */}
+      <div>
+        <div className="flex justify-between items-center mb-2">
+          <label htmlFor="sim-budget" className="text-xs font-medium text-foreground">
+            {t("sim.budget_label")}
+          </label>
+          <span className="text-lg font-bold text-primary tabular-nums">
+            {sliderBudget.toLocaleString("fr-FR")} €/mois
+          </span>
         </div>
-
-        {/* Vehicle stepper */}
-        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/5 p-4">
-          <p className="text-xs font-medium text-foreground mb-3 flex items-center gap-1.5">
-            <Car className="w-3.5 h-3.5 text-violet-400" />
-            {t("sim.vehicles_stepper_label")}
-          </p>
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => handleVehicleStep(-1)}
-              disabled={atMinVehicles}
-              aria-label={t("sim.vehicles_decrement")}
-              className={cn(
-                "w-10 h-10 rounded-xl border flex items-center justify-center transition-all",
-                atMinVehicles
-                  ? "border-border text-muted-foreground/40 cursor-not-allowed"
-                  : "border-violet-500/40 text-violet-400 hover:bg-violet-500/15 active:scale-95",
-              )}
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-            <div className="flex-1 text-center">
-              <span className="font-display text-3xl font-bold text-violet-400 tabular-nums">
-                {impact.activeVehicles}
-              </span>
-              <span className="text-sm text-muted-foreground ml-1.5">{t("sim.vehicles_unit")}</span>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                {t("sim.vehicles_range", { min: MIN_VEHICLES, max: MAX_VEHICLES })}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleVehicleStep(+1)}
-              disabled={atMaxVehicles}
-              aria-label={t("sim.vehicles_increment")}
-              className={cn(
-                "w-10 h-10 rounded-xl border flex items-center justify-center transition-all",
-                atMaxVehicles
-                  ? "border-border text-muted-foreground/40 cursor-not-allowed"
-                  : "border-violet-500/40 text-violet-400 hover:bg-violet-500/15 active:scale-95",
-              )}
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-          <p className="mt-2 text-[10px] text-center text-muted-foreground">
-            {t("sim.vehicles_hint")}
-          </p>
+        <input
+          id="sim-budget"
+          type="range"
+          min={MIN_BUDGET}
+          max={MAX_BUDGET}
+          step={BUDGET_STEP}
+          value={sliderBudget}
+          onChange={handleSliderChange}
+          onMouseUp={handleSliderCommit}
+          onTouchEnd={handleSliderCommit}
+          className="w-full accent-primary"
+        />
+        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+          <span>{MIN_BUDGET} €</span>
+          <span>{MAX_BUDGET.toLocaleString("fr-FR")} €</span>
         </div>
       </div>
 
@@ -336,13 +357,16 @@ export function CampaignImpactSimulator() {
           formatter={fmtKm}
           accent="text-emerald-400"
         />
-        <MetricCard
-          icon={<Car className="w-4 h-4" />}
+        <VehicleStepperCard
+          count={impact.activeVehicles}
+          atMin={atMinVehicles}
+          atMax={atMaxVehicles}
+          onDecrement={() => handleVehicleStep(-1)}
+          onIncrement={() => handleVehicleStep(+1)}
           label={t("sim.metric_vehicles")}
-          rawValue={impact.activeVehicles}
-          formatter={(n) => String(n)}
-          unit={` ${t("sim.vehicles_unit")}`}
-          accent="text-violet-400"
+          unit={t("sim.vehicles_unit")}
+          tDecrement={t("sim.vehicles_decrement")}
+          tIncrement={t("sim.vehicles_increment")}
         />
       </div>
 
