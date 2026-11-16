@@ -1547,7 +1547,7 @@ function NewBriefPage() {
               }}
               rows={3}
               className="w-full rounded-lg border border-border bg-card px-4 py-2.5"
-              placeholder="Tapez un quartier pour centrer la carte, ou dessinez sur la carte"
+              placeholder="Ex : Paris, Lyon, Marseille..."
             />
             <p className="text-xs text-muted-foreground mt-1">
               {t("advertiser.briefs.nouveau.zones_hint")}

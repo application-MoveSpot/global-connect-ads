@@ -635,7 +635,7 @@ function Index() {
             <p className="text-sm text-muted-foreground">
               {tx(
                 "simulator.desc",
-                "Choisissez votre ville, votre type de flotte et votre budget mensuel — chaque paramètre met à jour vos métriques en temps réel.",
+                "Choisissez votre ville, votre type de véhicules et votre budget mensuel — chaque paramètre met à jour vos métriques en temps réel.",
               )}
             </p>
           </div>
