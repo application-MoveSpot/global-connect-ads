@@ -40,7 +40,6 @@ interface MonthlyStatRow {
   estimated_impressions: number;
   pdf_storage_url: string | null;
   created_at: string;
-  campaign_requests?: { spot_name: string | null } | null;
 }
 
 function fmtPeriod(period: string) {
@@ -71,13 +70,14 @@ export function AdvertiserReports() {
     queryFn: async () => {
       const { data, error } = await db
         .from("campaign_monthly_stats")
-        .select("*, campaign_requests(spot_name)")
+        .select("id, campaign_id, report_period, total_kilometers, active_vehicles_count, estimated_impressions, pdf_storage_url, created_at")
         .order("report_period", { ascending: false })
         .limit(24);
-      if (error) throw error;
+      if (error) return [];
       return (data ?? []) as MonthlyStatRow[];
     },
     staleTime: 120_000,
+    retry: false,
   });
 
   const handleDownload = async (row: MonthlyStatRow) => {
@@ -142,12 +142,7 @@ export function AdvertiserReports() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-semibold text-sm">{fmtPeriod(r.report_period)}</p>
-                      {r.campaign_requests?.spot_name && (
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {r.campaign_requests.spot_name}
-                        </p>
-                      )}
-                    </div>
+                      </div>
                     <Badge variant="secondary" className="text-[10px] border shrink-0">
                       {r.report_period}
                     </Badge>
@@ -207,7 +202,7 @@ export function AdvertiserReports() {
                         {fmtPeriod(r.report_period)}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground max-w-[180px] truncate">
-                        {r.campaign_requests?.spot_name ?? "—"}
+                        {"—"}
                       </TableCell>
                       <TableCell className="text-sm text-right tabular-nums font-semibold text-primary">
                         {fmtNum(r.total_kilometers)} km
