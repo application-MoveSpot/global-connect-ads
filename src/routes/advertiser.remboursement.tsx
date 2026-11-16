@@ -190,7 +190,7 @@ function RemboursementAnnonceurPage() {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={4}
-                maxLength={1000}
+                maxLength={500}
                 placeholder={t("advertiser.remboursement.reason_placeholder")}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
