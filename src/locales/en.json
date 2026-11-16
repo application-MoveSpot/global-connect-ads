@@ -6092,5 +6092,32 @@
     "toast_sent": "Report submitted — the MoveSpot team has been notified.",
     "err_photo": "Could not compress the photo.",
     "err_generic": "An error occurred, please try again."
+  },
+  "sim": {
+    "title": "Campaign impact simulator",
+    "desc": "Adjust the city, fleet type and budget — all metrics update in real time.",
+    "data_badge": "France 2025 field data",
+    "city_label": "Target city",
+    "vehicle_label": "Vehicle type",
+    "vehicle_desc_urbains": "Food trucks, scooters, cargo bikes",
+    "vehicle_desc_eco": "Electric & hybrid sedans",
+    "vehicle_desc_premium": "High-end ride-hailing",
+    "vehicle_desc_mixte": "Optimised mixed fleet",
+    "budget_label": "Monthly budget",
+    "vehicles_stepper_label": "Number of vehicles",
+    "vehicles_decrement": "Decrease vehicle count",
+    "vehicles_increment": "Increase vehicle count",
+    "vehicles_unit": "veh.",
+    "vehicles_range": "{{min}} to {{max}} vehicles",
+    "vehicles_hint": "Budget recalculates automatically",
+    "metric_impressions": "visual contacts / month",
+    "metric_km": "kilometres covered / month",
+    "metric_vehicles": "vehicles in service",
+    "cpm_label": "Effective CPM",
+    "cpm_excellent": "excellent",
+    "cpm_good": "good",
+    "cpm_per_vehicle": "km/d per vehicle",
+    "cpm_contacts_per_km": "contacts/km in",
+    "cta": "Launch my campaign now"
   }
 }
