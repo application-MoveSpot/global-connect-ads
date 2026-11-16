@@ -4259,6 +4259,9 @@
     "as_legal_note": "La réglementation publicitaire varie très fortement selon les pays asiatiques. MoveSpot applique les règles locales de la flotte partenaire et les lois nationales applicables. L'annonceur reste responsable du respect de la législation du marché ciblé."
   },
   "owner": {
+    "stat0": "minimum garanti / véhicule / jour actif",
+    "stat1": "du tarif annonceur reversé aux partenaires",
+    "stat2": "pour faire valider votre véhicule",
     "inscription": {
       "back": "Retour",
       "step_account": "Compte",

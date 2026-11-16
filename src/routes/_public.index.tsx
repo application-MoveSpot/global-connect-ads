@@ -470,7 +470,7 @@ function Index() {
               <div className="rounded-2xl border border-border bg-card p-5">
                 <dt className="font-display text-2xl font-bold text-primary">70 %</dt>
                 <dd className="mt-1 text-sm text-muted-foreground">
-                  {tx("owner.stat1", "du tarif annonceur reversé aux partners")}
+                  {tx("owner.stat1", "du tarif annonceur reversé aux partenaires")}
                 </dd>
               </div>
               <div className="rounded-2xl border border-border bg-card p-5">
