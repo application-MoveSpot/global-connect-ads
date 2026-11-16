@@ -111,8 +111,20 @@ function ProvidersDirectory() {
   const [mode, setMode] = useState<"keyword" | "semantic">("keyword");
   const [q, setQ] = useState("");
   const [serviceFilter, setServiceFilter] = useState<ProviderServiceKey | "">("");
+  const [isAdvertiser, setIsAdvertiser] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) return;
+      const { data } = await supabase.rpc("has_role", {
+        _user_id: session.user.id,
+        _role: "advertiser",
+      });
+      if (data) setIsAdvertiser(true);
+    });
+  }, []);
 
   // Initial load
   useEffect(() => {
@@ -204,12 +216,22 @@ function ProvidersDirectory() {
       <header className="sticky top-0 z-40 bg-header text-header-foreground border-b border-header-border backdrop-blur-sm light-band">
         <div className="max-w-5xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
-          <Link
-            to="/provider/inscription"
-            className="text-sm rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2 font-semibold hover:bg-primary/20"
-          >
-            {t("providers.annuaire.cta_provider")}
-          </Link>
+          <div className="flex items-center gap-3">
+            {isAdvertiser && (
+              <Link
+                to="/advertiser"
+                className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                ← Mon espace annonceur
+              </Link>
+            )}
+            <Link
+              to="/provider/inscription"
+              className="text-sm rounded-full border border-primary/40 bg-primary/10 text-primary px-4 py-2 font-semibold hover:bg-primary/20"
+            >
+              {t("providers.annuaire.cta_provider")}
+            </Link>
+          </div>
         </div>
       </header>
       <main id="main-content" className="max-w-5xl mx-auto px-4 py-10">
