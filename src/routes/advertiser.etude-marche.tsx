@@ -738,7 +738,7 @@ const SEGMENTS_DATA: SegmentEntry[] = [
     formats: "Taxi, van",
     budgetMin: 200,
     budgetMax: 800,
-    cpm: 12,
+    cpm: 2.0,
   },
   {
     key: "retail",
@@ -747,7 +747,7 @@ const SEGMENTS_DATA: SegmentEntry[] = [
     formats: "Van, food truck",
     budgetMin: 1000,
     budgetMax: 5000,
-    cpm: 12,
+    cpm: 2.0,
   },
   {
     key: "evenement",
@@ -756,7 +756,7 @@ const SEGMENTS_DATA: SegmentEntry[] = [
     formats: "Tutuk, vélo cargo",
     budgetMin: 500,
     budgetMax: 3000,
-    cpm: 14,
+    cpm: 2.5,
   },
   {
     key: "startup",
@@ -765,7 +765,7 @@ const SEGMENTS_DATA: SegmentEntry[] = [
     formats: "Scooter, taxi",
     budgetMin: 1500,
     budgetMax: 8000,
-    cpm: 12,
+    cpm: 1.8,
   },
   {
     key: "grandemarque",
@@ -774,7 +774,7 @@ const SEGMENTS_DATA: SegmentEntry[] = [
     formats: "Flotte multi-formats",
     budgetMin: 10000,
     budgetMax: 50000,
-    cpm: 11,
+    cpm: 1.8,
   },
 ];
 
@@ -867,8 +867,8 @@ function EtudeMarche() {
   const activeSeg = SEGMENTS_DATA.find((s) => s.key === selectedSegment) ?? SEGMENTS_DATA[0];
   const activeMatching = SEGMENT_TO_MATCHING[selectedSegment] ?? SEGMENT_TO_MATCHING.commerce;
   const simImpressions = Math.round((simBudget / activeSeg.cpm) * 1000);
-  const simCommission = Math.round(simBudget * 0.3);
-  const simProprio = Math.round(simBudget * 0.7);
+  const simVehicles = Math.max(1, Math.floor(simBudget / 165));
+  const simKm = simVehicles * 2_550;
 
   useEffect(() => {
     if (previewCachedSeg === selectedSegment) return;
@@ -1603,24 +1603,24 @@ function EtudeMarche() {
                     </div>
                     <div className="text-sm text-muted-foreground">impressions estimées / mois</div>
                     <div className="text-xs text-muted-foreground/70 mt-0.5">
-                      CPM référence : {activeSeg.cpm} €
+                      CPM contacts : {activeSeg.cpm} €
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400 tabular-nums">
-                        {simCommission.toLocaleString(i18n.language)} €
+                    <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4 text-center">
+                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400 tabular-nums">
+                        ~ {simKm.toLocaleString(i18n.language)} km
                       </div>
                       <div className="text-xs text-muted-foreground mt-0.5">
-                        Commission MoveSpot (30 %)
+                        Kilomètres couverts / mois
                       </div>
                     </div>
                     <div className="rounded-xl bg-secondary/50 p-4 text-center">
                       <div className="text-lg font-bold tabular-nums">
-                        {simProprio.toLocaleString(i18n.language)} €
+                        {simVehicles} véhicule{simVehicles > 1 ? "s" : ""}
                       </div>
                       <div className="text-xs text-muted-foreground mt-0.5">
-                        Reversé propriétaires (70 %)
+                        Véhicules mobilisés estimés
                       </div>
                     </div>
                   </div>
