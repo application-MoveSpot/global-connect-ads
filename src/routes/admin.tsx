@@ -256,7 +256,7 @@ function AdminPage() {
     <div className="min-h-screen bg-background">
       <AppHeader right={<button onClick={logout} className="text-sm text-muted-foreground hover:text-foreground">{t("admin.dashboard.logout")}</button>} />
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-display text-2xl font-bold mb-6">{t("admin.dashboard.title")}</h1>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex gap-2 flex-wrap">

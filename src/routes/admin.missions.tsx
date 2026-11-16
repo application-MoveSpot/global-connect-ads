@@ -514,7 +514,7 @@ function AdminMissionsPage() {
         }
       />
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         <h1 className="font-display text-xl font-bold mb-6">Missions Pose / Dépose</h1>
         {/* Dispatch new mission */}
         <section className="rounded-xl border border-border bg-card p-6 space-y-4">

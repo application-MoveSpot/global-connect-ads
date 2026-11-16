@@ -155,7 +155,7 @@ function AnnonceurDashboard() {
       </header>
 
       {loadError && (
-        <div className="max-w-6xl mx-auto px-6 pt-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
           <NetworkErrorBanner
             message={loadError}
             onRetry={() => loadWithRetry(true)}
@@ -164,7 +164,7 @@ function AnnonceurDashboard() {
         </div>
       )}
 
-      <main id="main-content" className="max-w-6xl mx-auto px-6 py-10">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
           <div>
             <h1 className="font-display text-3xl font-bold">{t("advertiser.my_campaigns")}</h1>

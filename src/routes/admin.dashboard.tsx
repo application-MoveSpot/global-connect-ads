@@ -536,7 +536,7 @@ function AdminDashboard() {
         right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.dashboard.back")}</Link>}
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
         <h1 className="font-display text-2xl font-bold mb-6">{t("admin.dashboard.title")}</h1>
         {/* KPI summary bar */}
         {pendingCountsQuery.data && (

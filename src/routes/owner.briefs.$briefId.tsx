@@ -299,7 +299,7 @@ function BriefDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link
             to="/owner/briefs"
@@ -309,7 +309,7 @@ function BriefDetailPage() {
           </Link>
         </div>
       </header>
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-display text-3xl font-bold mb-2">{brief.title}</h1>
         <p className="text-sm text-muted-foreground mb-6">
           {t("owner.briefs.detail.dates", {

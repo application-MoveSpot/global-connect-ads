@@ -170,7 +170,7 @@ function HistoriquePage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link
             to="/owner"
@@ -181,7 +181,7 @@ function HistoriquePage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <h1 className="font-display text-3xl font-bold">{t("owner.historique.title")}</h1>
         {error && (
           <div className="rounded-xl bg-destructive/10 border border-destructive/30 p-4 text-sm text-destructive">

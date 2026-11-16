@@ -177,7 +177,7 @@ function AdminProvidersPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.back")}</Link>} />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-display text-3xl font-bold mb-6">{t("admin.providers.title")}</h1>
 
         {impossibleInstalls.length > 0 && (

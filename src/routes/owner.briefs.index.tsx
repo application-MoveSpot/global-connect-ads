@@ -214,7 +214,7 @@ function OpenBriefsPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
@@ -224,7 +224,7 @@ function OpenBriefsPage() {
           </div>
         </div>
       </header>
-      <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-display text-3xl font-bold mb-2">{t("owner.briefs.index.title")}</h1>
         <p className="text-sm text-muted-foreground mb-4">
           {myTypes.length === 0

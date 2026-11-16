@@ -307,7 +307,7 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
       )}
       <PaymentTestModeBanner />
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link
             to="/advertiser"
@@ -318,7 +318,7 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
         </div>
       </header>
 
-      <main id="main-content" className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         <section>
           <h1 className="font-display text-3xl font-bold mb-2">{t("wallet.title")}</h1>
           <p className="text-sm text-muted-foreground">

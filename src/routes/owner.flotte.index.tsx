@@ -296,7 +296,7 @@ function FleetPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link to="/owner" className="text-sm text-muted-foreground hover:text-foreground">
             {t("owner.flotte.back")}
@@ -304,7 +304,7 @@ function FleetPage() {
         </div>
       </header>
 
-      <main id="main-content" className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Kpi

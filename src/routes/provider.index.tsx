@@ -53,7 +53,7 @@ function ProviderDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-t-2 border-t-orange-400 border-b border-border backdrop-blur-sm light-band">
-        <div className="max-w-5xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:inline">
@@ -104,7 +104,7 @@ function ProviderDashboard() {
           </div>
         </div>
       </header>
-      <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-start justify-between flex-wrap gap-3 mb-6">
           <div>
             <h1 className="font-display text-3xl font-bold">{t("provider.dashboard.title")}</h1>

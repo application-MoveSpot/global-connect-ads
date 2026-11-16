@@ -161,7 +161,7 @@ function CommissionsAdmin() {
     <div className="min-h-screen bg-background">
       <AppHeader right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.commissions.back")}</Link>} />
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-10">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10">
         <h1 className="font-display text-xl font-bold mb-6">{t("admin.commissions.title")}</h1>
         {/* Taux en vigueur */}
         <section>

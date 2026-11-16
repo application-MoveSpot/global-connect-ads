@@ -51,7 +51,7 @@ function AdminCommerciauxPage() {
         }
       />
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <h1 className="font-display text-2xl font-bold mb-6">{t("admin.commerciaux.title")}</h1>
         {loading ? (
           <div className="text-muted-foreground text-sm">{t("admin.commerciaux.loading")}</div>

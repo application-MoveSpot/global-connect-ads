@@ -207,7 +207,7 @@ function AdminAuditPage() {
         }
       />
 
-      <main className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
         <div>
           <h1 className="font-display text-3xl font-bold">{t("admin.audit.title")}</h1>
           <p className="text-muted-foreground mt-1">{t("admin.audit.desc")}</p>
