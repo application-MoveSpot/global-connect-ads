@@ -116,6 +116,7 @@ import { Route as LovableCronEnforceRouteImport } from './routes/lovable/cron/en
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as OwnerBriefsIndexRouteImport } from './routes/owner.briefs.index'
 import { Route as OwnerBriefsBriefIdRouteImport } from './routes/owner.briefs.$briefId'
+import { Route as OwnerFlotteIndexRouteImport } from './routes/owner.flotte.index'
 import { Route as OwnerFlotteImportRouteImport } from './routes/owner.flotte.import'
 import { Route as OwnerFlotteQrRouteImport } from './routes/owner.flotte.qr'
 import { Route as OwnerVehiculesVehicleIdRouteImport } from './routes/owner.vehicules.$vehicleId'
@@ -675,6 +676,11 @@ const OwnerBriefsBriefIdRoute = OwnerBriefsBriefIdRouteImport.update({
   path: '/owner/briefs/$briefId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerFlotteIndexRoute = OwnerFlotteIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OwnerFlotteRoute,
+} as any)
 const OwnerFlotteImportRoute = OwnerFlotteImportRouteImport.update({
   id: '/import',
   path: '/import',
@@ -865,6 +871,7 @@ export interface FileRoutesByFullPath {
   '/owner/vehicules/nouveau': typeof OwnerVehiculesNouveauRoute
   '/advertiser/briefs/': typeof AdvertiserBriefsIndexRoute
   '/owner/briefs/': typeof OwnerBriefsIndexRoute
+  '/owner/flotte/': typeof OwnerFlotteIndexRoute
   '/advertiser/briefs/confirmation/$briefId': typeof AdvertiserBriefsConfirmationBriefIdRoute
   '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
   '/api/public/cinetpay/webhook': typeof ApiPublicCinetpayWebhookRoute
@@ -936,7 +943,6 @@ export interface FileRoutesByTo {
   '/driver/inscription': typeof DriverInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/owner/carte': typeof OwnerCarteRoute
-  '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
   '/owner/messages': typeof OwnerMessagesRoute
@@ -987,6 +993,7 @@ export interface FileRoutesByTo {
   '/owner/vehicules/nouveau': typeof OwnerVehiculesNouveauRoute
   '/advertiser/briefs': typeof AdvertiserBriefsIndexRoute
   '/owner/briefs': typeof OwnerBriefsIndexRoute
+  '/owner/flotte': typeof OwnerFlotteIndexRoute
   '/advertiser/briefs/confirmation/$briefId': typeof AdvertiserBriefsConfirmationBriefIdRoute
   '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
   '/api/public/cinetpay/webhook': typeof ApiPublicCinetpayWebhookRoute
@@ -1111,6 +1118,7 @@ export interface FileRoutesById {
   '/owner/vehicules/nouveau': typeof OwnerVehiculesNouveauRoute
   '/advertiser/briefs/': typeof AdvertiserBriefsIndexRoute
   '/owner/briefs/': typeof OwnerBriefsIndexRoute
+  '/owner/flotte/': typeof OwnerFlotteIndexRoute
   '/advertiser/briefs/confirmation/$briefId': typeof AdvertiserBriefsConfirmationBriefIdRoute
   '/api/admin/cron/enforce': typeof ApiAdminCronEnforceRoute
   '/api/public/cinetpay/webhook': typeof ApiPublicCinetpayWebhookRoute
@@ -1235,6 +1243,7 @@ export interface FileRouteTypes {
     | '/owner/vehicules/nouveau'
     | '/advertiser/briefs/'
     | '/owner/briefs/'
+    | '/owner/flotte/'
     | '/advertiser/briefs/confirmation/$briefId'
     | '/api/admin/cron/enforce'
     | '/api/public/cinetpay/webhook'
@@ -1306,7 +1315,6 @@ export interface FileRouteTypes {
     | '/driver/inscription'
     | '/email/unsubscribe'
     | '/owner/carte'
-    | '/owner/flotte'
     | '/owner/historique'
     | '/owner/inscription'
     | '/owner/messages'
@@ -1357,6 +1365,7 @@ export interface FileRouteTypes {
     | '/owner/vehicules/nouveau'
     | '/advertiser/briefs'
     | '/owner/briefs'
+    | '/owner/flotte'
     | '/advertiser/briefs/confirmation/$briefId'
     | '/api/admin/cron/enforce'
     | '/api/public/cinetpay/webhook'
@@ -1480,6 +1489,7 @@ export interface FileRouteTypes {
     | '/owner/vehicules/nouveau'
     | '/advertiser/briefs/'
     | '/owner/briefs/'
+    | '/owner/flotte/'
     | '/advertiser/briefs/confirmation/$briefId'
     | '/api/admin/cron/enforce'
     | '/api/public/cinetpay/webhook'
@@ -2341,6 +2351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerBriefsBriefIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/owner/flotte/': {
+      id: '/owner/flotte/'
+      path: '/'
+      fullPath: '/owner/flotte/'
+      preLoaderRoute: typeof OwnerFlotteIndexRouteImport
+      parentRoute: typeof OwnerFlotteRoute
+    }
     '/owner/flotte/import': {
       id: '/owner/flotte/import'
       path: '/import'
@@ -2508,11 +2525,13 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface OwnerFlotteRouteChildren {
   OwnerFlotteImportRoute: typeof OwnerFlotteImportRoute
   OwnerFlotteQrRoute: typeof OwnerFlotteQrRoute
+  OwnerFlotteIndexRoute: typeof OwnerFlotteIndexRoute
 }
 
 const OwnerFlotteRouteChildren: OwnerFlotteRouteChildren = {
   OwnerFlotteImportRoute: OwnerFlotteImportRoute,
   OwnerFlotteQrRoute: OwnerFlotteQrRoute,
+  OwnerFlotteIndexRoute: OwnerFlotteIndexRoute,
 }
 
 const OwnerFlotteRouteWithChildren = OwnerFlotteRoute._addFileChildren(

@@ -1,3 +1,16 @@
+/* Self-hosted fonts via @fontsource — RGPD compliant, zero external requests */
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/inter/300.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -5,8 +18,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* MoveSpot brand: Syne (impact/advertising) + Inter (UI) + JetBrains Mono (data) */
-  --font-display: "Syne", system-ui, sans-serif;
+  /* MoveSpot brand: Space Grotesk (impact/B2B) + Inter (UI) + JetBrains Mono (data) */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
@@ -179,7 +192,6 @@
     letter-spacing: -0.02em;
     font-weight: 700;
     line-height: 1.3;
-    padding-bottom: 0.16em; /* jambages Syne (g p q y j ç) */
   }
 
   code, kbd, samp, pre {
@@ -268,10 +280,8 @@
 .covering-texture { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) brightness(1.5); mix-blend-mode: multiply; opacity: 0.45; clip-path: inherit; }
 .covering-reflections { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: grayscale(1) contrast(1.7); mix-blend-mode: screen; opacity: 0.1; clip-path: inherit; }
 
-/* Jambages Syne Bold (g p q y j ç 9) — hors @layer : prime sur TOUTES les
- * utilities Tailwind layered (text-5xl line-height:1, leading-tight 1.25, etc.)
- * Pas de padding-bottom ni display:inline-block : cassait l'alignement baseline
- * dans les conteneurs flex items-baseline (prix "29 € /mois", etc.) */
+/* Hors @layer : prime sur toutes les utilities Tailwind (leading-tight 1.25, etc.)
+ * Évite padding-bottom/inline-block qui cassent l'alignement baseline flex. */
 .font-display:not(.tabular-nums) {
   line-height: 1.4;
 }
