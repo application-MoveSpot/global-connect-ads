@@ -46,8 +46,27 @@ function CGV() {
         </p>
         <p>
           La diffusion est mesurée par géolocalisation : distance parcourue, minutes actives et part
-          du trajet réalisée dans la zone de ciblage sont restitues à l'annonceur dans son tableau
+          du trajet réalisée dans la zone de ciblage sont restituées à l'annonceur dans son tableau
           de suivi.
+        </p>
+        <p>
+          <strong>Fourniture et impression du support publicitaire.</strong> Le support publicitaire
+          (vinyle adhésif, sticker, covering partiel ou total) est imprimé et fourni par le
+          prestataire certifié MoveSpot sélectionné par l'annonceur, à partir du fichier de création
+          validé par MoveSpot (BAT numérique). L'annonceur transmet son fichier graphique via la
+          Plateforme ; il n'a pas à se procurer ni à livrer de support physique au prestataire ni au
+          propriétaire du véhicule. Le propriétaire du véhicule n'assure en aucun cas l'impression,
+          la fourniture ou le transport du support publicitaire.
+        </p>
+        <p>
+          <strong>Option support fourni par l'annonceur.</strong> À titre exceptionnel, si
+          l'annonceur dispose déjà de supports publicitaires physiques préalablement imprimés
+          (ex. : vinyle prédécoupé, stickers en rouleau), il peut convenir directement avec le
+          prestataire certifié que ces supports lui seront remis ou expédiés avant la date
+          d'intervention. Dans ce cas, l'annonceur est seul responsable de la conformité, des
+          dimensions et de la qualité d'adhérence de ses supports, et aucun remboursement ne sera
+          accordé en cas de pose impossible due à un support inadapté fourni par ses soins. Le
+          propriétaire du véhicule n'est en aucun cas destinataire ni dépositaire de ces supports.
         </p>
       </LegalSection>
 
