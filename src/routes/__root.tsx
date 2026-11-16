@@ -74,12 +74,6 @@ export const Route = (createRootRouteWithContext as any)()({
       { name: "google-site-verification", content: "Zxfh0u093_IIhcQhtBVtR8IOteGY8APBba1oQcwcOWQ" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "shortcut icon", href: "/favicon.ico" },
