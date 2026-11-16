@@ -96,6 +96,7 @@
     "see_packs": "See event packs ($49 · $79 · $149) →",
     "topup_card_title": "Top up by card",
     "topup_card_subtitle": "Secure payment via Stripe. Balance credited instantly.",
+    "topup_tax_note": "Amount excl. tax — VAT applies only for advertisers based in French overseas territories (8.5%). Mainland France & international: VAT exempt (art. 259 B CGI), excl. tax = incl. tax.",
     "topup_btn": "Top up ${{amount}}",
     "history_title": "Wallet history",
     "export_csv_btn": "↓ Export CSV",

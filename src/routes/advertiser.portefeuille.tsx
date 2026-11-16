@@ -377,6 +377,7 @@ td{padding:.5rem .75rem;border-bottom:1px solid #e5e7eb}
         <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
           <h2 className="font-display text-xl font-semibold">{t("wallet.topup_card_title")}</h2>
           <p className="text-sm text-muted-foreground">{t("wallet.topup_card_subtitle")}</p>
+          <p className="text-xs text-muted-foreground/70">{t("wallet.topup_tax_note")}</p>
           <div className="flex flex-wrap items-center gap-2">
             {(accountType === "individual"
               ? [
