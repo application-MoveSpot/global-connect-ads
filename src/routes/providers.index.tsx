@@ -222,7 +222,7 @@ function ProvidersDirectory() {
                 to="/advertiser"
                 className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                ← Mon espace annonceur
+                Mon espace annonceur
               </Link>
             )}
             <Link

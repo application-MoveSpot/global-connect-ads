@@ -5947,7 +5947,7 @@
   },
   "providers": {
     "annuaire": {
-      "cta_provider": "Devenir prestataire →",
+      "cta_provider": "Devenir prestataire",
       "no_results": "Aucun résultat",
       "search_placeholder": "Rechercher un prestataire…",
       "subtitle": "Trouvez un prestataire qualifié pour la pose et la dépose de vos adhésifs.",
