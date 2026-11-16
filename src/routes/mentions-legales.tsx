@@ -207,7 +207,7 @@ function MentionsLegales() {
         <ul className="list-disc pl-6 space-y-2">
           <li>
             <strong>Paiements</strong> : Stripe Payments Europe, Ltd. — paiements par carte,
-            abonnements mensuels par véhicule, comptes de paiement partners (Stripe Connect) et
+            abonnements mensuels par véhicule, comptes de paiement partenaires (Stripe Connect) et
             reversements.
           </li>
           <li>
@@ -258,7 +258,7 @@ function MentionsLegales() {
             <strong>Adresse postale :</strong> 49 Rue de Ponthieu, 75008 Paris
           </li>
           <li>
-            <strong>Site & formulaire de saisine :</strong>{" "}
+            <strong>Site &amp; formulaire de saisine :</strong>{" "}
             <a
               href="https://cm2c.net"
               target="_blank"
