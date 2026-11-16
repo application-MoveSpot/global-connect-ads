@@ -181,6 +181,14 @@ function CGU() {
 
       <LegalSection title={t("cgu.s11bis")}>
         <p>
+          <strong>Fourniture du support publicitaire.</strong> Le support publicitaire (vinyle
+          adhésif, covering, sticker) est exclusivement imprimé et fourni par le prestataire
+          certifié MoveSpot, à partir du fichier de création validé par MoveSpot. Le propriétaire
+          du véhicule n'assure en aucun cas l'impression, la fourniture ni le transport du support
+          publicitaire. Il n'est pas tenu de se procurer, de commander ni de réceptionner de
+          matériau publicitaire physique dans le cadre d'une campagne MoveSpot.
+        </p>
+        <p>
           Le propriétaire du véhicule s'engage à présenter son véhicule dans un état compatible avec
           la pose d'un support publicitaire vinyle le jour de l'intervention planifiée. À ce titre,
           il s'engage expressément à :
@@ -355,7 +363,14 @@ function CGU() {
         <p>
           La pose du covering est réalisée exclusivement par un poseur professionnel certifié
           MoveSpot. Ni le chauffeur ni le propriétaire du véhicule ne peuvent procéder eux-mêmes à la
-          pose. Après pose, le poseur certifié transmet lui-même, depuis son espace prestataire de la
+          pose. Le support publicitaire (vinyle adhésif, covering, sticker) est imprimé et apporté
+          sur site par le poseur certifié, à partir du fichier validé par MoveSpot. L'annonceur
+          n'a pas à livrer de support physique au poseur ni au propriétaire du véhicule ; le
+          propriétaire du véhicule ne réceptionne, ne stocke ni ne transporte aucun matériau
+          publicitaire.
+        </p>
+        <p>
+          Après pose, le poseur certifié transmet lui-même, depuis son espace prestataire de la
           Plateforme, quatre photographies du véhicule (face avant, côté gauche, côté droit, face
           arrière). MoveSpot peut y procéder à titre subsidiaire en cas d'empêchement technique du
           poseur. La campagne passe alors au statut « en attente de validation ». MoveSpot peut
