@@ -3438,7 +3438,7 @@ function AdminIncidentReportsPanel() {
   useEffect(() => {
     setLoading(true);
     listIncidents()
-      .then((r) => setReports(r.reports))
+      .then((r: { reports: AdminIncidentReport[] }) => setReports(r.reports))
       .catch(() => toast.error(t("admin.dashboard.incident_load_error")))
       .finally(() => setLoading(false));
   }, [listIncidents, t]);
