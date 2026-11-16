@@ -6095,7 +6095,7 @@
   },
   "sim": {
     "title": "Simulateur d'impact campagne",
-    "desc": "Ajustez la ville, le type de flotte et le budget — les métriques se mettent à jour en temps réel.",
+    "desc": "Choisissez votre ville, votre type de véhicules et votre budget mensuel.",
     "data_badge": "Données terrain France 2025",
     "city_label": "Ville cible",
     "vehicle_label": "Type de véhicules",
