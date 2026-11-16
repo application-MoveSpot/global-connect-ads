@@ -96,6 +96,7 @@
     "see_packs": "Voir les packs événement (49 € · 79 € · 149 €) →",
     "topup_card_title": "Recharger par carte bancaire",
     "topup_card_subtitle": "Paiement sécurisé via Stripe. Le solde est crédité instantanément.",
+    "topup_tax_note": "Montant HT — TVA applicable uniquement pour les annonceurs domiciliés dans les DOM (8,5 %). France métro & international : TVA non applicable (art. 259 B CGI), HT = TTC.",
     "topup_btn": "Recharger {{amount}} €",
     "history_title": "Historique du portefeuille",
     "export_csv_btn": "↓ Exporter CSV",
