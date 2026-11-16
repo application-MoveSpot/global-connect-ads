@@ -43,6 +43,7 @@ import {
   adminListReferrals,
   adminCreditReferral,
   getAdminRegionStats,
+  adminListCampaignsMissingInstallation,
   type AdminReferralRow,
   type AdminRegionStat,
 } from "@/lib/admin.functions";
@@ -63,6 +64,7 @@ import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard"
 import { SalesAgentContractGenerator } from "@/components/admin/SalesAgentContractGenerator";
 import { AdminCronJobPanel } from "@/components/admin/AdminCronJobPanel";
 import { AdminBankTransfersPanel } from "@/components/admin/AdminBankTransfersPanel";
+import { AdminSubsidiaryUploadPanel } from "@/components/admin/AdminSubsidiaryUploadPanel";
 import { AdminStripeSetupPanel } from "@/components/admin/AdminStripeSetupPanel";
 import {
   moderateBriefVisual,
@@ -229,6 +231,7 @@ function AdminDashboard() {
   const listVehicles = useServerFn(adminListVehicles);
   const reviewVehicle = useServerFn(adminReviewVehicle);
   const listInstallations = useServerFn(adminListInstallations);
+  const listMissingInstallations = useServerFn(adminListCampaignsMissingInstallation);
   const reviewInstallation = useServerFn(adminReviewInstallation);
   const listDeposePending = useServerFn(adminListDeposePending);
   const doReviewDepose = useServerFn(adminReviewDepose);
@@ -270,6 +273,7 @@ function AdminDashboard() {
       .on("postgres_changes", { event: "*", schema: "public", table: "campaign_requests" }, () => {
         qc.invalidateQueries({ queryKey: ["admin-briefs"] });
         qc.invalidateQueries({ queryKey: ["admin-installations"] });
+        qc.invalidateQueries({ queryKey: ["admin-missing-installations"] });
         qc.invalidateQueries({ queryKey: ["admin-pending-counts"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "brief_proposals" }, () => {
@@ -324,6 +328,12 @@ function AdminDashboard() {
     enabled: ready && tab === "poses",
     retry: false,
   });
+  const missingInstallationsQuery = useQuery({
+    queryKey: ["admin-missing-installations"],
+    queryFn: () => listMissingInstallations(),
+    enabled: ready && tab === "poses",
+    retry: false,
+  });
   const reviewMut = useMutation({
     mutationFn: (v: { id: string; approve: boolean; notes?: string }) =>
       reviewInstallation({
@@ -336,6 +346,7 @@ function AdminDashboard() {
           : t("admin.dashboard.toast_pose_rejected"),
       );
       qc.invalidateQueries({ queryKey: ["admin-installations"] });
+      qc.invalidateQueries({ queryKey: ["admin-missing-installations"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -369,6 +380,7 @@ function AdminDashboard() {
           : t("admin.dashboard.toast_pose_transferred"),
       );
       qc.invalidateQueries({ queryKey: ["admin-installations"] });
+      qc.invalidateQueries({ queryKey: ["admin-missing-installations"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -1461,6 +1473,13 @@ function AdminDashboard() {
               <p className="text-sm text-muted-foreground">
                 {t("admin.dashboard.poses_description")}
               </p>
+              <AdminSubsidiaryUploadPanel
+                campaigns={missingInstallationsQuery.data?.campaigns ?? []}
+                onRefresh={() => {
+                  qc.invalidateQueries({ queryKey: ["admin-installations"] });
+                  qc.invalidateQueries({ queryKey: ["admin-missing-installations"] });
+                }}
+              />
               {(installationsQuery.data?.installations ?? []).map((i: any) => (
                 <InstallationReviewCard
                   key={i.id}
@@ -1471,7 +1490,8 @@ function AdminDashboard() {
                   transferring={poseTransferMut.isPending}
                 />
               ))}
-              {(installationsQuery.data?.installations ?? []).length === 0 ? (
+              {(installationsQuery.data?.installations ?? []).length === 0 &&
+              (missingInstallationsQuery.data?.campaigns ?? []).length === 0 ? (
                 <Empty>{t("admin.dashboard.poses_empty")}</Empty>
               ) : null}
             </div>
