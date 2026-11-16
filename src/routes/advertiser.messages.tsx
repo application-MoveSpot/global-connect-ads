@@ -158,7 +158,7 @@ function AdvertiserMessagesPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border light-band backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <Link
             to="/advertiser"
@@ -169,7 +169,7 @@ function AdvertiserMessagesPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid md:grid-cols-[280px_1fr] gap-4 h-[70vh]">
           {/* Thread list */}
           <div className="rounded-2xl border border-border bg-card overflow-y-auto">

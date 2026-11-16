@@ -136,7 +136,7 @@ function BriefsListPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader right={<Link to="/advertiser" className="text-sm text-muted-foreground hover:text-foreground">{t("advertiser.briefs_list.back")}</Link>} />
-      <main id="main-content" className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-3xl font-bold">{t("advertiser.briefs_list.title")}</h1>

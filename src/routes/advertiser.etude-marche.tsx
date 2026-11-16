@@ -913,7 +913,7 @@ function EtudeMarche() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border backdrop-blur-sm sticky top-0 z-40 light-band">
-        <div className="max-w-6xl mx-auto px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <nav className="flex items-center gap-2">
             <Link
@@ -932,7 +932,7 @@ function EtudeMarche() {
         </div>
       </header>
 
-      <main id="main-content" className="max-w-6xl mx-auto px-6 py-10">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         {/* En-tête */}
         <div className="mb-6">
           <h1 className="font-display text-4xl font-bold mb-2">

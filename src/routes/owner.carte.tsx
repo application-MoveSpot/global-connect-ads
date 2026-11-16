@@ -66,7 +66,7 @@ function CartePage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 print:p-0">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 print:p-0">
         <div className="print:hidden mb-6">
           <h1 className="font-display text-3xl font-bold mb-1">{t("owner.carte.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("owner.carte.desc")}</p>

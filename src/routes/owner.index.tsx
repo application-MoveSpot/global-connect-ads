@@ -83,7 +83,7 @@ function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-t-2 border-t-cyan-400 border-b border-border backdrop-blur-sm light-band">
-        <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
           <LogoLink />
           <div className="flex items-center gap-2">
             <NotificationBell userId={userId} />
@@ -122,7 +122,7 @@ function DashboardPage() {
       />
 
       {loadError && (
-        <div className="max-w-6xl mx-auto px-4 pt-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
           <NetworkErrorBanner
             message={loadError}
             onRetry={() => loadWithRetry(true)}
@@ -131,7 +131,7 @@ function DashboardPage() {
         </div>
       )}
 
-      <main id="main-content" className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* Alerte vigilance Urssaf — s'affiche uniquement si nécessaire */}
         <VigAlerte />
         <OwnerConnectCard />

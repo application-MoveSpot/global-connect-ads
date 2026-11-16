@@ -81,7 +81,7 @@ function AdminBankTransfers() {
     <div className="min-h-screen bg-background">
       <AppHeader right={<Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">{t("admin.back")}</Link>} />
 
-      <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
+      <main className="mx-auto max-w-6xl space-y-6 px-4 sm:px-6 py-8">
         <h1 className="font-display text-3xl font-bold">{t("admin.virements.title")}</h1>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
