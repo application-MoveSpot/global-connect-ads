@@ -5947,7 +5947,7 @@
   },
   "providers": {
     "annuaire": {
-      "cta_provider": "Become a provider →",
+      "cta_provider": "Become a provider",
       "no_results": "No Results",
       "search_placeholder": "Search a provider…",
       "subtitle": "Subtitle",
