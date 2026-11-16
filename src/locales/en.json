@@ -4259,6 +4259,9 @@
     "as_legal_note": "Advertising regulations vary greatly across Asian countries. MoveSpot applies the local rules of the partner fleet and applicable national laws. The advertiser remains responsible for compliance with the legislation of the target market."
   },
   "owner": {
+    "stat0": "guaranteed minimum / vehicle / active day",
+    "stat1": "of advertiser rate paid to partners",
+    "stat2": "to get your vehicle validated",
     "inscription": {
       "back": "Back",
       "step_account": "Account",
