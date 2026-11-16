@@ -93,7 +93,7 @@ function ProvidersDirectory() {
   const [searching, setSearching] = useState(false);
   const [mode, setMode] = useState<"keyword" | "semantic">("keyword");
   const [q, setQ] = useState("");
-  const [serviceFilter, setServiceFilter] = useState<ProviderServiceKey | "">("");
+  const [serviceFilter, setServiceFilter] = useState<ProviderServiceKey | "">("" );
   const [isAdvertiser, setIsAdvertiser] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
