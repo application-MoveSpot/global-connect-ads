@@ -45,15 +45,27 @@ export const submitIncidentReport = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId } = context;
 
-    // Vérifier que le véhicule appartient à l'utilisateur
-    const { data: vehicle } = await supabaseAdmin
-      .from("vehicles" as never)
-      .select("id, name")
-      .eq("id" as never, data.vehicleId)
-      .eq("owner_id" as never, userId)
+    // Résoudre le profil propriétaire pour comparer avec vehicles.owner_id (FK → owner_profiles.id)
+    const { data: ownerProfile } = await supabaseAdmin
+      .from("owner_profiles" as never)
+      .select("id")
+      .eq("user_id" as never, userId)
       .maybeSingle();
 
-    if (!vehicle) throw new Error("Véhicule introuvable ou non autorisé.");
+    // Récupérer le véhicule sans filtrer owner_id directement (car owner_id ≠ auth.uid())
+    const { data: vehicle } = await supabaseAdmin
+      .from("vehicles" as never)
+      .select("id, name, owner_id, driver_id")
+      .eq("id" as never, data.vehicleId)
+      .maybeSingle();
+
+    type VehicleRow = { id: string; name: string; owner_id: string | null; driver_id: string | null };
+    const veh = vehicle as VehicleRow | null;
+
+    const ownedByUser = ownerProfile && veh?.owner_id === (ownerProfile as { id: string }).id;
+    const drivenByUser = veh?.driver_id === userId;
+
+    if (!veh || (!ownedByUser && !drivenByUser)) throw new Error("Véhicule introuvable ou non autorisé.");
 
     const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     let photoPath: string | null = null;
@@ -94,7 +106,7 @@ export const submitIncidentReport = createServerFn({ method: "POST" })
         .select("user_id")
         .eq("role" as never, "admin");
 
-      const v = vehicle as unknown as { name: string };
+      const v = veh as unknown as { name: string };
 
       for (const admin of (admins ?? []) as Array<{ user_id: string }>) {
         await sendWebPushToUser(admin.user_id, {

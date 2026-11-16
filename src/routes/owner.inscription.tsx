@@ -16,6 +16,9 @@ import { AiAssistantPanel } from "@/components/shared/AiAssistantPanel";
 import { RouteError } from "@/components/app/RouteError";
 
 export const Route = createFileRoute("/owner/inscription")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    ref: typeof search.ref === "string" ? search.ref : "",
+  }),
   head: () => ({
     meta: [
       { title: "Inscription propriétaire — MoveSpot" },
@@ -29,6 +32,7 @@ export const Route = createFileRoute("/owner/inscription")({
 function InscriptionPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { ref: refParam } = Route.useSearch();
   const [market] = useMarket();
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [step, setStep] = useState<"auth" | "profile">("auth");
@@ -46,7 +50,7 @@ function InscriptionPage() {
   });
   const [isParticulier, setIsParticulier] = useState(false);
   const [euCountry, setEuCountry] = useState<"FR" | "BE" | "LU" | "DE">("FR");
-  const [referralCode, setReferralCode] = useState("");
+  const [referralCode, setReferralCode] = useState(() => refParam.trim().toUpperCase());
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
