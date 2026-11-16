@@ -76,6 +76,10 @@
 }
 
 :root {
+  --promo-dark: #090D16;
+  --promo-orange: #F97316;
+  --promo-white: #ffffff;
+  --promo-muted: #b8bec9;
   --covering-highlight: oklch(1 0 0 / 0.2);
   --covering-shade: oklch(0 0 0 / 0.14);
   --covering-sheen: linear-gradient(175deg, var(--covering-highlight), transparent 42%, var(--covering-shade));

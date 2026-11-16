@@ -22,3 +22,4 @@
 
 
 - [x] Préparer le filigrane YouTube avec le logo officiel : PNG 150 × 150 pixels, 12 853 octets ; aucun ajout dans l’application.
+- [x] Créer le générateur de cartes MoveSpot réservé aux aperçus : personnalisation et téléchargements PNG/PDF testés, recto-verso 85 × 55 mm à 300 ppp, carré 1080 px, trois QR décodés vers le site officiel ; aucune publication.

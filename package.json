@@ -92,6 +92,7 @@
     "ml-matrix": "^6.15.1",
     "nitro": "3.0.260603-beta",
     "papaparse": "^5.5.3",
+    "pdf-lib": "^1.17.1",
     "postgres": "^3.4.9",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",

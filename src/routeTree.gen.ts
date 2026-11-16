@@ -72,6 +72,7 @@ import { Route as DriverEcranRouteImport } from './routes/driver.ecran'
 import { Route as DriverEspaceRouteImport } from './routes/driver.espace'
 import { Route as DriverInscriptionRouteImport } from './routes/driver.inscription'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as OutilsCartesRouteImport } from './routes/outils.cartes'
 import { Route as OwnerIndexRouteImport } from './routes/owner.index'
 import { Route as OwnerCarteRouteImport } from './routes/owner.carte'
 import { Route as OwnerFlotteRouteImport } from './routes/owner.flotte'
@@ -449,6 +450,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OutilsCartesRoute = OutilsCartesRouteImport.update({
+  id: '/outils/cartes',
+  path: '/outils/cartes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerIndexRoute = OwnerIndexRouteImport.update({
   id: '/owner/',
   path: '/owner/',
@@ -820,6 +826,7 @@ export interface FileRoutesByFullPath {
   '/driver/espace': typeof DriverEspaceRoute
   '/driver/inscription': typeof DriverInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/outils/cartes': typeof OutilsCartesRoute
   '/owner/carte': typeof OwnerCarteRoute
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
@@ -942,6 +949,7 @@ export interface FileRoutesByTo {
   '/driver/espace': typeof DriverEspaceRoute
   '/driver/inscription': typeof DriverInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/outils/cartes': typeof OutilsCartesRoute
   '/owner/carte': typeof OwnerCarteRoute
   '/owner/historique': typeof OwnerHistoriqueRoute
   '/owner/inscription': typeof OwnerInscriptionRoute
@@ -1066,6 +1074,7 @@ export interface FileRoutesById {
   '/driver/espace': typeof DriverEspaceRoute
   '/driver/inscription': typeof DriverInscriptionRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/outils/cartes': typeof OutilsCartesRoute
   '/owner/carte': typeof OwnerCarteRoute
   '/owner/flotte': typeof OwnerFlotteRouteWithChildren
   '/owner/historique': typeof OwnerHistoriqueRoute
@@ -1192,6 +1201,7 @@ export interface FileRouteTypes {
     | '/driver/espace'
     | '/driver/inscription'
     | '/email/unsubscribe'
+    | '/outils/cartes'
     | '/owner/carte'
     | '/owner/flotte'
     | '/owner/historique'
@@ -1314,6 +1324,7 @@ export interface FileRouteTypes {
     | '/driver/espace'
     | '/driver/inscription'
     | '/email/unsubscribe'
+    | '/outils/cartes'
     | '/owner/carte'
     | '/owner/historique'
     | '/owner/inscription'
@@ -1437,6 +1448,7 @@ export interface FileRouteTypes {
     | '/driver/espace'
     | '/driver/inscription'
     | '/email/unsubscribe'
+    | '/outils/cartes'
     | '/owner/carte'
     | '/owner/flotte'
     | '/owner/historique'
@@ -1541,6 +1553,7 @@ export interface RootRouteChildren {
   DriverEspaceRoute: typeof DriverEspaceRoute
   DriverInscriptionRoute: typeof DriverInscriptionRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  OutilsCartesRoute: typeof OutilsCartesRoute
   OwnerCarteRoute: typeof OwnerCarteRoute
   OwnerFlotteRoute: typeof OwnerFlotteRouteWithChildren
   OwnerHistoriqueRoute: typeof OwnerHistoriqueRoute
@@ -2041,6 +2054,13 @@ declare module '@tanstack/react-router' {
       path: '/email/unsubscribe'
       fullPath: '/email/unsubscribe'
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/outils/cartes': {
+      id: '/outils/cartes'
+      path: '/outils/cartes'
+      fullPath: '/outils/cartes'
+      preLoaderRoute: typeof OutilsCartesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/owner/': {
@@ -2590,6 +2610,7 @@ const rootRouteChildren: RootRouteChildren = {
   DriverEspaceRoute: DriverEspaceRoute,
   DriverInscriptionRoute: DriverInscriptionRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  OutilsCartesRoute: OutilsCartesRoute,
   OwnerCarteRoute: OwnerCarteRoute,
   OwnerFlotteRoute: OwnerFlotteRouteWithChildren,
   OwnerHistoriqueRoute: OwnerHistoriqueRoute,

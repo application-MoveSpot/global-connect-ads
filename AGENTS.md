@@ -1,4 +1,6 @@
 # Project architecture rules
+- The card studio lives at /outils/cartes without public navigation and rejects published request hosts through a server-checked preview gate; all personalization and PNG/PDF rendering stay in browser memory to avoid storing contact data.
+- Card exports share one canvas renderer with the existing official logo asset, fixed official-site QR destination, 300 dpi business-card dimensions and exact-size PDF pages to keep preview and downloads consistent.
 
 - Public provider listings use the restricted public_provider_profiles view with approved status and Stripe active/trialing filtering; its explicit public-field allowlist permits anonymous reads without exposing private profile fields.
 
