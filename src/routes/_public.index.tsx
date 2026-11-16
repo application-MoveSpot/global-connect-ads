@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { buildSeoHead, FAQ_ADVERTISERS_JSON_LD } from "@/components/SEO";
+import { buildSeoHead, FAQ_ADVERTISERS_JSON_LD, WEBSITE_JSON_LD } from "@/components/SEO";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { AdSpots, type Spot } from "@/components/shared/AdSpots";
@@ -27,11 +27,12 @@ export const Route = createFileRoute("/_public/")({
   },
   head: () => {
     const seoBase = buildSeoHead({
-      title: "MoveSpot — Régie Publicitaire Mobile sur Véhicules",
+      title: "MoveSpot — Publicité sur véhicule & régie publicitaire mobile",
       description:
-        "MoveSpot, régie publicitaire mobile : publicité sur véhicule et street-marketing certifiés GPS. Annonceurs et propriétaires de flottes en direct.",
+        "Transformez vos trajets en revenus ou lancez votre campagne de publicité sur voiture ciblée au km² avec preuve GPS en temps réel. Dès 25 €/jour.",
       path: "/",
       jsonLd: [
+        WEBSITE_JSON_LD,
         {
           "@context": "https://schema.org",
           "@type": "Service",

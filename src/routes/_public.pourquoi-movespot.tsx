@@ -1,30 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { buildSeoHead } from "@/components/SEO";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_public/pourquoi-movespot")({
-  head: () => ({
-    meta: [
-      { title: "Why MoveSpot — Mobile advertising without an agency | Pourquoi MoveSpot" },
-      {
-        name: "description",
-        content:
-          "MoveSpot est le premier marketplace français de publicité mobile sur véhicules. Lancez votre campagne en 5 minutes, suivez vos résultats GPS en temps réel, sans engagement.",
-      },
-      {
-        name: "keywords",
-        content:
-          "publicité mobile alternative agence, comparatif publicité véhicule, movespot vs agence, DOOH mobile France, publicité sans engagement",
-      },
-      { property: "og:title", content: "Why MoveSpot — Mobile advertising without an agency" },
-      {
-        property: "og:description",
-        content:
-          "Launch your campaign in 5 minutes on real vehicles owned by real people. No agency, no contract, GPS measurement included.",
-      },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/pourquoi-movespot" },
-    ],
+  head: () => buildSeoHead({
+    title: "Publicité sur voiture vs panneau fixe : tarifs et ROI | MoveSpot",
+    description:
+      "Découvrez pourquoi la publicité mobile sur véhicule offre jusqu'à 5x plus de visibilité locale qu'un panneau classique, avec suivi GPS certifié.",
+    path: "/pourquoi-movespot",
   }),
   component: PourquoiMovespot,
 });

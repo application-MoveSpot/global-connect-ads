@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { hreflangLinks } from "@/lib/seo";
+import { buildSeoHead } from "@/components/SEO";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RouteError } from "@/components/app/RouteError";
@@ -16,74 +16,57 @@ import { PublicFooter } from "@/components/shared/PublicFooter";
 export const Route = createFileRoute("/providers/")({
   component: ProvidersDirectory,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
-  head: () => ({
-    meta: [
-      { title: "Prestataires impression covering — MoveSpot" },
-      { property: "og:title", content: "Prestataires impression covering — MoveSpot" },
-      { property: "og:description", content: "Annuaire des prestataires de covering véhicule sur MoveSpot. Demandez un devis en ligne." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      {
-        name: "description",
-        content:
-          "Annuaire des prestataires d'impression covering véhicule sur MoveSpot. Demandez un devis en ligne.",
-      },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/providers" },
-      ...hreflangLinks("/providers"),
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@graph": [
-            {
-              "@type": "CollectionPage",
-              "@id": "https://move-spot.com/providers#page",
-              url: "https://move-spot.com/providers",
-              name: "Annuaire des prestataires covering véhicule — MoveSpot",
-              description:
-                "Annuaire des professionnels sélectionnés par MoveSpot : covering véhicule, production vidéo publicitaire, création graphique.",
-              isPartOf: { "@id": "https://move-spot.com/#website" },
-            },
-            {
-              "@type": "Service",
-              name: "Covering et habillage de véhicules publicitaires",
-              description:
-                "Impression et pose d'habillage publicitaire sur tout type de véhicule : food truck, van, taxi, camion LED, scooter de livraison.",
-              provider: { "@id": "https://move-spot.com/#organization" },
-              areaServed: { "@type": "Country", name: "France" },
-              serviceType: "Impression covering véhicule",
-              category: "Publicité extérieure",
-              hasOfferCatalog: {
-                "@type": "OfferCatalog",
-                name: "Prestations covering",
-                itemListElement: [
-                  {
-                    "@type": "Offer",
-                    itemOffered: { "@type": "Service", name: "Impression covering adhésif" },
-                  },
-                  {
-                    "@type": "Offer",
-                    itemOffered: { "@type": "Service", name: "Pose et dépose d'habillage" },
-                  },
-                  {
-                    "@type": "Offer",
-                    itemOffered: { "@type": "Service", name: "Création graphique publicitaire" },
-                  },
-                  {
-                    "@type": "Offer",
-                    itemOffered: { "@type": "Service", name: "Production vidéo publicitaire" },
-                  },
-                ],
+  head: () => buildSeoHead({
+    title: "Annuaire des poseurs de covering & marquage véhicule | MoveSpot",
+    description:
+      "Trouvez un professionnel certifié pour l'impression et la pose de publicité adhésive (covering, micro-perforé, magnétique) sur véhicule.",
+    path: "/providers",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "CollectionPage",
+          "@id": "https://move-spot.com/providers#page",
+          url: "https://move-spot.com/providers",
+          name: "Annuaire des poseurs de covering & marquage véhicule — MoveSpot",
+          description:
+            "Annuaire des professionnels certifiés MoveSpot : covering adhésif, micro-perforé, magnétique — impression et pose sur tout type de véhicule.",
+          isPartOf: { "@id": "https://move-spot.com/#website" },
+        },
+        {
+          "@type": "Service",
+          name: "Covering et habillage de véhicules publicitaires",
+          description:
+            "Impression et pose d'habillage publicitaire sur tout type de véhicule : food truck, van, taxi, camion LED, scooter de livraison.",
+          provider: { "@id": "https://move-spot.com/#organization" },
+          areaServed: { "@type": "Country", name: "France" },
+          serviceType: "Impression covering véhicule",
+          category: "Publicité extérieure",
+          hasOfferCatalog: {
+            "@type": "OfferCatalog",
+            name: "Prestations covering",
+            itemListElement: [
+              {
+                "@type": "Offer",
+                itemOffered: { "@type": "Service", name: "Impression covering adhésif" },
               },
-            },
-          ],
-        }),
-      },
-    ],
+              {
+                "@type": "Offer",
+                itemOffered: { "@type": "Service", name: "Pose et dépose d'habillage" },
+              },
+              {
+                "@type": "Offer",
+                itemOffered: { "@type": "Service", name: "Création graphique publicitaire" },
+              },
+              {
+                "@type": "Offer",
+                itemOffered: { "@type": "Service", name: "Production vidéo publicitaire" },
+              },
+            ],
+          },
+        },
+      ],
+    },
   }),
 });
 
