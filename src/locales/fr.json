@@ -2875,7 +2875,21 @@
       "support_reply_placeholder": "Répondre à l'annonceur…",
       "support_resolve_btn": "Marquer résolu",
       "support_resolved_toast": "Conversation marquée comme résolue.",
-      "support_back_btn": "Retour"
+      "support_back_btn": "Retour",
+      "incident_title": "Signalements sinistres / dégradations (CGU §11)",
+      "incident_subtitle": "Signalements soumis par les propriétaires et chauffeurs depuis /owner/tracking.",
+      "incident_empty": "Aucun signalement en attente.",
+      "incident_pending_count": "{{count}} signalement(s) en attente",
+      "incident_load_error": "Impossible de charger les signalements.",
+      "incident_updated_toast": "Statut mis à jour.",
+      "incident_update_error": "Erreur lors de la mise à jour.",
+      "incident_status_open": "Ouvert",
+      "incident_status_in_progress": "En traitement",
+      "incident_status_closed": "Clôturé",
+      "incident_btn_take_charge": "Prendre en charge",
+      "incident_btn_close": "Clôturer",
+      "incident_note_placeholder": "Note interne admin…",
+      "incident_closed_summary": "{{count}} signalement(s) clôturé(s)"
     },
     "support": {
       "title": "Support MoveSpot",
@@ -6058,5 +6072,25 @@
     "translating": "Traduction…",
     "placeholder": "Votre message…",
     "error_generic": "Fonctionnalité temporairement indisponible"
+  },
+  "incident": {
+    "btn_report": "Signaler un sinistre / problème sur le support",
+    "modal_title": "Signaler un incident",
+    "vehicle_label": "Véhicule concerné :",
+    "type_label": "Type d'incident",
+    "type_accident_sinistre": "Accident / sinistre",
+    "type_degradation_vandalisme": "Dégradation / vandalisme",
+    "type_decollement_vinyle": "Décollement spontané du vinyle",
+    "type_retrait_urgence": "Retrait d'urgence",
+    "type_autre": "Autre",
+    "description_label": "Description (facultatif)",
+    "description_placeholder": "Décrivez brièvement la situation…",
+    "photo_label": "Photo justificative (facultatif)",
+    "photo_cta": "Ajouter une photo",
+    "photo_hint": "JPG, PNG ou WebP · max 1,5 Mo · redimensionné automatiquement",
+    "btn_submit": "Envoyer le signalement",
+    "toast_sent": "Signalement envoyé — l'équipe MoveSpot en a été notifiée.",
+    "err_photo": "Impossible de compresser la photo.",
+    "err_generic": "Une erreur s'est produite, veuillez réessayer."
   }
 }

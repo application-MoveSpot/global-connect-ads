@@ -59,7 +59,7 @@ function CGV() {
           CGV.
         </p>
         <p>
-          Les étapes de l'itinéraire saisies par l'Annonceur sont géocodées automatiquement : la
+          Les étapes de l'itinéraire saisies par l'Annonceur sont géocodées automatiquement : la
           Plateforme calcule le tracé, les quartiers traversés, les points d'intérêt à proximité et
           une estimation d'impressions quotidiennes. Ces éléments sont fournis à titre indicatif
           pour le dimensionnement de la campagne et ne constituent pas un engagement de résultat sur

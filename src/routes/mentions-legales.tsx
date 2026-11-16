@@ -258,7 +258,7 @@ function MentionsLegales() {
             <strong>Adresse postale :</strong> 49 Rue de Ponthieu, 75008 Paris
           </li>
           <li>
-            <strong>Site & formulaire de saisine :</strong>{" "}
+            <strong>Site &amp; formulaire de saisine :</strong>{" "}
             <a
               href="https://cm2c.net"
               target="_blank"

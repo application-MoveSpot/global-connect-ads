@@ -238,7 +238,7 @@ function CGU() {
         <p>
           Les paiements des annonceurs sont encaissés via Stripe (ou par virement bancaire pour les
           budgets B2B) et conservés en séquestre par l'intermédiaire de Stripe Connect jusqu'à
-          l'exécution de la campagne. MoveSpot prélève une commission d'intermédiation de 30 % du
+          l'exécution de la campagne. MoveSpot prèlève une commission d'intermédiation de 30 % du
           montant hors taxes. Sur les 70 % restants, MoveSpot verse directement{" "}
           <strong>au propriétaire du véhicule</strong> sa part de diffusion, et directement{" "}
           <strong>au poseur certifié</strong> ses honoraires de pose et de dépose, chacun via leur
@@ -275,7 +275,7 @@ function CGU() {
         </p>
         <p>
           La commission due au commercial est calculée en pourcentage du montant hors taxes des
-          campagnes conclues par les annonceurs qu'il a parrainés, selon le taux fixé dans son
+          campagnes conclues par les annonceurs qu'il a parrrainés, selon le taux fixé dans son
           accord. Elle est versée par virement bancaire, selon les modalités et délais prévus audit
           accord, et uniquement pour les campagnes effectivement encaissées par MoveSpot. Aucune
           commission n'est due sur les remboursements, annulations ou transactions non exécutées.
@@ -284,7 +284,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s12ter")}>
         <p>
-          MoveSpot est assujettie aux obligations de tiers déclarant prévues par l'
+          MoveSpot est assujettie aux obligations de tiers déclarant prévues par l'{" "}
           <strong>article 242 bis du Code général des impôts</strong> (transposition de la directive
           DAC7). À ce titre, MoveSpot collecte les informations fiscales (NIF ou NIR) de chaque
           bénéficiaire de revenus sur la Plateforme et communique annuellement à l'administration
