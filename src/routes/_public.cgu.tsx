@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_public/cgu")({
       {
         name: "description",
         content:
-          "CGU MoveSpot : accès au service, charte publicitaire, obligations des drivers, calcul du budget de zone, flux financiers, force majeure et sécurité des comptes.",
+          "CGU MoveSpot : accès au service, charte publicitaire, obligations des chauffeurs, calcul du budget de zone, flux financiers, force majeure et sécurité des comptes.",
       },
       { property: "og:title", content: "Conditions Générales d'Utilisation — MoveSpot" },
       {
@@ -114,7 +114,7 @@ function CGU() {
       <LegalSection title={t("cgu.s7")}>
         <p>
           L'ensemble des éléments composant la Plateforme (textes, graphismes, logos, icônes,
-          images, données) est la propriété exclusive de MoveSpot ou de ses partners. Toute
+          images, données) est la propriété exclusive de MoveSpot ou de ses partenaires. Toute
           reproduction, représentation ou exploitation, totale ou partielle, est strictement
           interdite sans autorisation préalable et écrite.
         </p>
@@ -140,7 +140,7 @@ function CGU() {
       <LegalSection title={t("cgu.s10")}>
         <p>
           MoveSpot est un intermédiaire numérique de mise en relation entre annonceurs,
-          propriétaires de véhicules, drivers et poseurs certifiés. MoveSpot ne possède aucun
+          propriétaires de véhicules, chauffeurs et poseurs certifiés. MoveSpot ne possède aucun
           véhicule, aucun matériel d'affichage et n'exerce aucune activité de transport ni de pose
           de covering.
         </p>
@@ -154,7 +154,7 @@ function CGU() {
       </LegalSection>
 
       <LegalSection title={t("cgu.s11")}>
-        <p>Le driver participant à une campagne s'engage à :</p>
+        <p>Le chauffeur participant à une campagne s'engage à :</p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
             activer et maintenir actif le module de géolocalisation en arrière-plan pendant
@@ -330,13 +330,13 @@ function CGU() {
 
       <LegalSection title={t("cgu.s14")}>
         <p>
-          Les relevés de géolocalisation transmis par les drivers sont agrégés (distance parcourue,
+          Les relevés de géolocalisation transmis par les chauffeurs sont agrégés (distance parcourue,
           minutes actives, part du trajet effectuée à l'intérieur de la zone de ciblage) et
           restitués à l'annonceur dans son tableau de suivi de campagne. Ces métriques, calculées
           côté serveur, constituent la base contractuelle des reversements.
         </p>
         <p>
-          Les positions sont mises en mémoire tampon sur le terminal du driver (y compris en mémoire
+          Les positions sont mises en mémoire tampon sur le terminal du chauffeur (y compris en mémoire
           locale persistante) puis envoyées par lots au serveur. Ce mécanisme garantit qu'une
           interruption de réseau temporaire, un rechargement de page lié à une mise à jour de la
           Plateforme ou une reconnexion normale n'entraîne pas de perte de relevés : les données
@@ -354,8 +354,8 @@ function CGU() {
       <LegalSection title={t("cgu.s15")}>
         <p>
           La pose du covering est réalisée exclusivement par un poseur professionnel certifié
-          MoveSpot. Ni le driver ni le propriétaire du véhicule ne peuvent procéder eux-mêmes à la
-          pose. Après pose, le poseur certifié transmet lui-même, depuis son espace provider de la
+          MoveSpot. Ni le chauffeur ni le propriétaire du véhicule ne peuvent procéder eux-mêmes à la
+          pose. Après pose, le poseur certifié transmet lui-même, depuis son espace prestataire de la
           Plateforme, quatre photographies du véhicule (face avant, côté gauche, côté droit, face
           arrière). MoveSpot peut y procéder à titre subsidiaire en cas d'empêchement technique du
           poseur. La campagne passe alors au statut « en attente de validation ». MoveSpot peut
@@ -370,7 +370,7 @@ function CGU() {
           constate que la pose est techniquement impossible (surface incompatible, état du véhicule
           ou contrainte matérielle indépendante de la volonté des parties), il doit le signaler{" "}
           <strong>dans les 24 heures suivant le constat</strong> via le bouton « Signaler une pose
-          impossible » de son espace provider, en joignant obligatoirement{" "}
+          impossible » de son espace prestataire, en joignant obligatoirement{" "}
           <strong>au moins deux photographies horodatées</strong> justifiant l'impossibilité.
         </p>
         <p>
@@ -471,7 +471,7 @@ function CGU() {
           Cette estimation est une <strong>projection statistique indicative</strong> destinée au
           dimensionnement de la campagne. Elle ne constitue ni un engagement de résultat, ni une
           garantie de volume d'impressions ou de passage effectif par les étapes indiquées,
-          l'itinéraire réel dépendant de la circulation et de l'activité du driver.
+          l'itinéraire réel dépendant de la circulation et de l'activité du chauffeur.
         </p>
       </LegalSection>
 
@@ -487,7 +487,7 @@ function CGU() {
 
       <LegalSection title={t("cgu.s21")}>
         <p>
-          Certaines situations indépendantes de la volonté du driver ou du propriétaire du véhicule
+          Certaines situations indépendantes de la volonté du chauffeur ou du propriétaire du véhicule
           peuvent empêcher ou limiter la circulation dans la zone de ciblage déclarée par
           l'annonceur. Sont notamment visés :
         </p>
@@ -510,7 +510,7 @@ function CGU() {
           </li>
         </ul>
         <p>
-          Dans ces situations, le driver ou le propriétaire peut{" "}
+          Dans ces situations, le chauffeur ou le propriétaire peut{" "}
           <strong>signaler un obstacle</strong> directement depuis son espace personnel. La période
           signalée est instruite par MoveSpot ; si l'événement est avéré et documenté (arrêté
           municipal, capture d'écran, référence presse), les métriques de la période concernée
@@ -533,7 +533,7 @@ function CGU() {
       <LegalSection title={t("cgu.s22")}>
         <p>
           Toute relation commerciale entre utilisateurs (annonceur, propriétaire de véhicule,
-          driver, poseur) dont la mise en contact a été réalisée via MoveSpot doit être
+          chauffeur, poseur) dont la mise en contact a été réalisée via MoveSpot doit être
           intégralement conclue et exécutée au sein de la Plateforme. Il est expressément interdit
           de :
         </p>

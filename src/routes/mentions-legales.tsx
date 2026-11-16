@@ -207,7 +207,7 @@ function MentionsLegales() {
         <ul className="list-disc pl-6 space-y-2">
           <li>
             <strong>Paiements</strong> : Stripe Payments Europe, Ltd. — paiements par carte,
-            abonnements mensuels par véhicule, comptes de paiement partners (Stripe Connect) et
+            abonnements mensuels par véhicule, comptes de paiement partenaires (Stripe Connect) et
             reversements.
           </li>
           <li>
