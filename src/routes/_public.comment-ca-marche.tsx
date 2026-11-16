@@ -1,73 +1,55 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { hreflangLinks } from "@/lib/seo";
+import { buildSeoHead } from "@/components/SEO";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_public/comment-ca-marche")({
-  head: () => ({
-    meta: [
-      { title: "How MoveSpot works | Comment ça marche — MoveSpot" },
-      {
-        name: "description",
-        content:
-          "MoveSpot en 3 minutes : comment annonceurs, propriétaires de véhicules et chauffeurs utilisent la marketplace de publicité mobile.",
-      },
-      { property: "og:title", content: "Comment fonctionne MoveSpot" },
-      {
-        property: "og:description",
-        content: "Annonceur, propriétaire, chauffeur : découvrez le parcours complet sur MoveSpot.",
-      },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/comment-ca-marche" },
-      ...hreflangLinks("/comment-ca-marche"),
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "HowTo",
-          name: "Comment lancer une campagne de publicité mobile avec MoveSpot",
-          description:
-            "La marketplace qui transforme tout véhicule en média publicitaire géolocalisé. Trois rôles, un flux simple, des données 100 % vérifiables.",
-          totalTime: "PT3M",
-          supply: [
-            { "@type": "HowToSupply", name: "Un compte MoveSpot (gratuit)" },
-            { "@type": "HowToSupply", name: "Un visuel publicitaire (JPG ou PDF)" },
-          ],
-          step: [
-            {
-              "@type": "HowToStep",
-              position: 1,
-              name: "Créer un brief",
-              text: "Format, ville, dates et budget en quelques minutes. L'itinéraire, les quartiers traversés et les impressions estimées se calculent automatiquement.",
-              url: "https://move-spot.com/comment-ca-marche#brief",
-            },
-            {
-              "@type": "HowToStep",
-              position: 2,
-              name: "Recevoir des propositions",
-              text: "Les propriétaires de véhicules dont la flotte correspond au brief proposent leur prix.",
-              url: "https://move-spot.com/comment-ca-marche#propositions",
-            },
-            {
-              "@type": "HowToStep",
-              position: 3,
-              name: "Accepter une offre",
-              text: "Un clic crée la campagne, valide les dates et déclenche la production de l'habillage véhicule.",
-              url: "https://move-spot.com/comment-ca-marche#offre",
-            },
-            {
-              "@type": "HowToStep",
-              position: 4,
-              name: "Suivre la campagne en direct",
-              text: "Carte temps réel : positions GPS, kilomètres parcourus, zones réellement traversées. Données vérifiables, pas de promesses.",
-              url: "https://move-spot.com/comment-ca-marche#suivi",
-            },
-          ],
-        }),
-      },
-    ],
+  head: () => buildSeoHead({
+    title: "Gagner de l'argent avec sa voiture ou lancer une pub | MoveSpot",
+    description:
+      "Conducteurs : touchez 70 % du tarif annonceur sur vos trajets. Entreprises : créez votre campagne de publicité locale sur véhicule en 5 minutes.",
+    path: "/comment-ca-marche",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: "Comment lancer une campagne de publicité mobile avec MoveSpot",
+      description:
+        "La marketplace qui transforme tout véhicule en média publicitaire géolocalisé. Trois rôles, un flux simple, des données 100 % vérifiables.",
+      totalTime: "PT3M",
+      supply: [
+        { "@type": "HowToSupply", name: "Un compte MoveSpot (gratuit)" },
+        { "@type": "HowToSupply", name: "Un visuel publicitaire (JPG ou PDF)" },
+      ],
+      step: [
+        {
+          "@type": "HowToStep",
+          position: 1,
+          name: "Créer un brief",
+          text: "Format, ville, dates et budget en quelques minutes. L'itinéraire, les quartiers traversés et les impressions estimées se calculent automatiquement.",
+          url: "https://move-spot.com/comment-ca-marche#brief",
+        },
+        {
+          "@type": "HowToStep",
+          position: 2,
+          name: "Recevoir des propositions",
+          text: "Les propriétaires de véhicules dont la flotte correspondent au brief proposent leur prix.",
+          url: "https://move-spot.com/comment-ca-marche#propositions",
+        },
+        {
+          "@type": "HowToStep",
+          position: 3,
+          name: "Accepter une offre",
+          text: "Un clic crée la campagne, valide les dates et déclenche la production de l'habillage véhicule.",
+          url: "https://move-spot.com/comment-ca-marche#offre",
+        },
+        {
+          "@type": "HowToStep",
+          position: 4,
+          name: "Suivre la campagne en direct",
+          text: "Carte temps réel : positions GPS, kilomètres parcourus, zones réellement traversées. Données vérifiables, pas de promesses.",
+          url: "https://move-spot.com/comment-ca-marche#suivi",
+        },
+      ],
+    },
   }),
   component: HowItWorks,
 });

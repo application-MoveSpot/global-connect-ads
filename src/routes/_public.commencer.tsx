@@ -1,23 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Megaphone, Car, Navigation, Wrench, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { hreflangLinks } from "@/lib/seo";
+import { buildSeoHead } from "@/components/SEO";
 
 export const Route = createFileRoute("/_public/commencer")({
-  head: () => ({
-    meta: [
-      { title: "Get started with MoveSpot | Rejoindre MoveSpot — Choisissez votre profil" },
-      {
-        name: "description",
-        content:
-          "Advertiser, vehicle owner, driver, installer, partner or sales rep — create your MoveSpot account in 2 minutes. Annonceur, propriétaire de véhicule, driver, poseur, partner ou commercial — créez votre compte MoveSpot en 2 minutes.",
-      },
-      { name: "robots", content: "index,follow" },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/commencer" },
-      ...hreflangLinks("/commencer"),
-    ],
+  head: () => buildSeoHead({
+    title: "Inscrire son véhicule ou lancer une campagne pub | MoveSpot",
+    description:
+      "Rejoignez MoveSpot en tant qu'annonceur, propriétaire de véhicule (voiture, VTC, van, utilitaire) ou poseur de covering certifié.",
+    path: "/commencer",
   }),
   component: CommencerPage,
 });

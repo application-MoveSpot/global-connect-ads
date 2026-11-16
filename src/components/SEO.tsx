@@ -110,7 +110,15 @@ export const FAQ_ADVERTISERS_JSON_LD = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "Comment est calculé le prix d'une campagne de publicité mobile ?",
+      name: "Combien rapporte la publicité sur sa voiture ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Le minimum garanti est de 17,50 € par véhicule et par jour actif (70 % du tarif plancher annonceur de 25 €). Avec 15 jours actifs par mois, c'est au moins 262 € de revenu complémentaire net. En zone dense (Paris, Lyon, Marseille), les revenus peuvent atteindre 49 €/jour.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Combien coûte une campagne publicitaire sur véhicule ?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Le prix se calcule automatiquement selon la surface de votre zone (en km²), la densité urbaine et la durée. Tarif plancher : 1,80 €/km²/jour (2,70 € en grande agglomération). Vous dessinez votre polygone sur la carte interactive et le budget s'affiche instantanément — sans engagement, sans minimum de durée.",
@@ -118,7 +126,7 @@ export const FAQ_ADVERTISERS_JSON_LD = {
     },
     {
       "@type": "Question",
-      name: "Comment MoveSpot suit-il les campagnes publicitaires en temps réel ?",
+      name: "Comment fonctionne le suivi GPS de MoveSpot ?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Chaque véhicule partenaire envoie sa position GPS toutes les 30 secondes. MoveSpot calcule les kilomètres réellement parcourus dans votre zone, les impressions estimées par densité de population, et vous génère un rapport mensuel en PDF téléchargeable depuis votre espace annonceur. Zéro estimation approximative — 100 % de données certifiées GPS.",
@@ -133,6 +141,27 @@ export const FAQ_ADVERTISERS_JSON_LD = {
       },
     },
   ],
+};
+
+/** Schéma WebSite — injecté sur la page d'accueil */
+export const WEBSITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://move-spot.com/#website",
+  name: "MoveSpot",
+  url: "https://move-spot.com",
+  description:
+    "Régie publicitaire mobile sur véhicules — publicité sur voiture, taxi, VTC, van, utilitaire avec suivi GPS en temps réel",
+  publisher: { "@id": "https://move-spot.com/#organization" },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: "https://move-spot.com/providers?q={search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
+  },
+  inLanguage: "fr-FR",
 };
 
 /** FAQ dédiée aux propriétaires de véhicules */
