@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -27,7 +27,7 @@ export type Database = {
         }
         Insert: {
           executed_at?: string
-          id?: number
+          id?: never
           job_name: string
           max_retries?: number
           parent_log_id?: number | null
@@ -37,7 +37,7 @@ export type Database = {
         }
         Update: {
           executed_at?: string
-          id?: number
+          id?: never
           job_name?: string
           max_retries?: number
           parent_log_id?: number | null
@@ -54,6 +54,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_intrusion_attempts: {
+        Row: {
+          attempted_at: string
+          email: string | null
+          id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempted_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempted_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       advertiser_briefs: {
         Row: {
@@ -72,7 +96,7 @@ export type Database = {
           status: Database["public"]["Enums"]["brief_status"]
           title: string
           updated_at: string
-          vehicle_id: string | null
+          vehicle_count: number
           vehicle_types: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2: number | null
           zone_polygon: unknown
@@ -94,7 +118,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["brief_status"]
           title: string
           updated_at?: string
-          vehicle_id?: string | null
+          vehicle_count?: number
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2?: number | null
           zone_polygon?: unknown
@@ -116,27 +140,17 @@ export type Database = {
           status?: Database["public"]["Enums"]["brief_status"]
           title?: string
           updated_at?: string
-          vehicle_id?: string | null
+          vehicle_count?: number
           vehicle_types?: Database["public"]["Enums"]["vehicle_type"][]
           zone_area_km2?: number | null
           zone_polygon?: unknown
           zones?: string[]
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertiser_briefs_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertiser_profiles: {
         Row: {
           account_type: string
-          activation_j1_sent_at: string | null
-          activation_j7_sent_at: string | null
           address: string | null
           cgu_accepted_at: string | null
           cgu_version: string | null
@@ -147,7 +161,6 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
-          referral_code: string | null
           referred_by_advertiser_id: string | null
           siret: string | null
           siret_denomination: string | null
@@ -158,8 +171,6 @@ export type Database = {
         }
         Insert: {
           account_type?: string
-          activation_j1_sent_at?: string | null
-          activation_j7_sent_at?: string | null
           address?: string | null
           cgu_accepted_at?: string | null
           cgu_version?: string | null
@@ -170,7 +181,6 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
-          referral_code?: string | null
           referred_by_advertiser_id?: string | null
           siret?: string | null
           siret_denomination?: string | null
@@ -181,8 +191,6 @@ export type Database = {
         }
         Update: {
           account_type?: string
-          activation_j1_sent_at?: string | null
-          activation_j7_sent_at?: string | null
           address?: string | null
           cgu_accepted_at?: string | null
           cgu_version?: string | null
@@ -193,7 +201,6 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
-          referral_code?: string | null
           referred_by_advertiser_id?: string | null
           siret?: string | null
           siret_denomination?: string | null
@@ -204,13 +211,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "advertiser_profiles_commercial_id_fkey"
-            columns: ["commercial_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "advertiser_profiles_referred_by_advertiser_id_fkey"
             columns: ["referred_by_advertiser_id"]
             isOneToOne: false
@@ -218,66 +218,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      advertiser_referral_rewards: {
-        Row: {
-          created_at: string
-          credited_at: string | null
-          id: string
-          referee_id: string
-          referrer_id: string
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          credited_at?: string | null
-          id?: string
-          referee_id: string
-          referrer_id: string
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          credited_at?: string | null
-          id?: string
-          referee_id?: string
-          referrer_id?: string
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "advertiser_referral_rewards_referee_id_fkey"
-            columns: ["referee_id"]
-            isOneToOne: true
-            referencedRelation: "advertiser_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "advertiser_referral_rewards_referrer_id_fkey"
-            columns: ["referrer_id"]
-            isOneToOne: false
-            referencedRelation: "advertiser_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      advertiser_wallets: {
-        Row: {
-          advertiser_id: string
-          balance: number
-          updated_at: string
-        }
-        Insert: {
-          advertiser_id: string
-          balance?: number
-          updated_at?: string
-        }
-        Update: {
-          advertiser_id?: string
-          balance?: number
-          updated_at?: string
-        }
-        Relationships: []
       }
       ai_brief_data: {
         Row: {
@@ -289,7 +229,7 @@ export type Database = {
           mockup_url: string | null
           regeneration_count: number
           service_type: string
-          user_id: string | null
+          user_id: string
           vehicle_type: string | null
         }
         Insert: {
@@ -301,7 +241,7 @@ export type Database = {
           mockup_url?: string | null
           regeneration_count?: number
           service_type: string
-          user_id?: string | null
+          user_id: string
           vehicle_type?: string | null
         }
         Update: {
@@ -313,7 +253,7 @@ export type Database = {
           mockup_url?: string | null
           regeneration_count?: number
           service_type?: string
-          user_id?: string | null
+          user_id?: string
           vehicle_type?: string | null
         }
         Relationships: []
@@ -429,34 +369,15 @@ export type Database = {
           target_lang?: string
           translation?: string
         }
-        Relationships: []
-      }
-      analytics_events: {
-        Row: {
-          created_at: string
-          event: string
-          id: string
-          properties: Json | null
-          session_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          event: string
-          id?: string
-          properties?: Json | null
-          session_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          event?: string
-          id?: string
-          properties?: Json | null
-          session_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_translations_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       api_keys: {
         Row: {
@@ -551,14 +472,31 @@ export type Database = {
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "bank_transfer_requests_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
         ]
+      }
+      beta_whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string
+          email: string
+          id: string
+          note: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
       }
       brief_proposals: {
         Row: {
@@ -618,42 +556,6 @@ export type Database = {
           },
         ]
       }
-      campaign_allocations: {
-        Row: {
-          campaign_id: string
-          created_at: string
-          id: string
-          vehicle_id: string
-        }
-        Insert: {
-          campaign_id: string
-          created_at?: string
-          id?: string
-          vehicle_id: string
-        }
-        Update: {
-          campaign_id?: string
-          created_at?: string
-          id?: string
-          vehicle_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaign_allocations_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaigns"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_allocations_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       campaign_metrics: {
         Row: {
           active_minutes: number
@@ -699,77 +601,15 @@ export type Database = {
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "campaign_metrics_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-        ]
-      }
-      campaign_monthly_stats: {
-        Row: {
-          active_vehicles_count: number
-          advertiser_id: string
-          campaign_id: string
-          created_at: string
-          estimated_impressions: number
-          heatmap_summary_url: string | null
-          id: string
-          pdf_storage_url: string | null
-          report_period: string
-          total_kilometers: number
-        }
-        Insert: {
-          active_vehicles_count?: number
-          advertiser_id: string
-          campaign_id: string
-          created_at?: string
-          estimated_impressions?: number
-          heatmap_summary_url?: string | null
-          id?: string
-          pdf_storage_url?: string | null
-          report_period: string
-          total_kilometers?: number
-        }
-        Update: {
-          active_vehicles_count?: number
-          advertiser_id?: string
-          campaign_id?: string
-          created_at?: string
-          estimated_impressions?: number
-          heatmap_summary_url?: string | null
-          id?: string
-          pdf_storage_url?: string | null
-          report_period?: string
-          total_kilometers?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaign_monthly_stats_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_monthly_stats_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
         ]
       }
       campaign_requests: {
         Row: {
           admin_notes: string | null
-          commercial_id: string | null
-          commission_amount_cents: number | null
-          commission_paid_at: string | null
+          audience: string | null
+          campaign_goal: string | null
           company: string
-          country_code: string
+          country_code: string | null
           created_at: string
           creative_files: string[]
           daily_end_time: string | null
@@ -787,6 +627,10 @@ export type Database = {
           end_date: string | null
           estimated_impressions_per_day: number | null
           id: string
+          installation_address: string | null
+          installation_impossible_at: string | null
+          installation_impossible_photos: string[]
+          installation_impossible_reason: string | null
           installation_notes: string | null
           installation_photos: Json | null
           installation_reviewed_at: string | null
@@ -801,9 +645,9 @@ export type Database = {
           payout_status: string
           payout_transferred_at: string | null
           platform_fee_cents: number | null
-          pm_status: string
           pose_fee_cents: number | null
           pose_installer_user_id: string | null
+          pose_location_type: string | null
           pose_payout_status: string | null
           pose_stripe_transfer_id: string | null
           route_pois: string[] | null
@@ -819,12 +663,11 @@ export type Database = {
           stripe_payment_intent_id: string | null
           stripe_subscription_id: string | null
           stripe_transfer_id: string | null
-          subscription_current_period_end: string | null
-          subscription_customer_id: string | null
           subscription_status: string | null
           target_region: string | null
-          timezone: string
+          timezone: string | null
           total_price: number | null
+          trial_end: string | null
           updated_at: string
           user_id: string | null
           vehicle_id: string | null
@@ -833,11 +676,10 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
-          commercial_id?: string | null
-          commission_amount_cents?: number | null
-          commission_paid_at?: string | null
+          audience?: string | null
+          campaign_goal?: string | null
           company: string
-          country_code?: string
+          country_code?: string | null
           created_at?: string
           creative_files?: string[]
           daily_end_time?: string | null
@@ -855,6 +697,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_address?: string | null
+          installation_impossible_at?: string | null
+          installation_impossible_photos?: string[]
+          installation_impossible_reason?: string | null
           installation_notes?: string | null
           installation_photos?: Json | null
           installation_reviewed_at?: string | null
@@ -869,9 +715,9 @@ export type Database = {
           payout_status?: string
           payout_transferred_at?: string | null
           platform_fee_cents?: number | null
-          pm_status?: string
           pose_fee_cents?: number | null
           pose_installer_user_id?: string | null
+          pose_location_type?: string | null
           pose_payout_status?: string | null
           pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
@@ -887,12 +733,11 @@ export type Database = {
           stripe_payment_intent_id?: string | null
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
-          subscription_current_period_end?: string | null
-          subscription_customer_id?: string | null
           subscription_status?: string | null
           target_region?: string | null
-          timezone?: string
+          timezone?: string | null
           total_price?: number | null
+          trial_end?: string | null
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
@@ -901,11 +746,10 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
-          commercial_id?: string | null
-          commission_amount_cents?: number | null
-          commission_paid_at?: string | null
+          audience?: string | null
+          campaign_goal?: string | null
           company?: string
-          country_code?: string
+          country_code?: string | null
           created_at?: string
           creative_files?: string[]
           daily_end_time?: string | null
@@ -923,6 +767,10 @@ export type Database = {
           end_date?: string | null
           estimated_impressions_per_day?: number | null
           id?: string
+          installation_address?: string | null
+          installation_impossible_at?: string | null
+          installation_impossible_photos?: string[]
+          installation_impossible_reason?: string | null
           installation_notes?: string | null
           installation_photos?: Json | null
           installation_reviewed_at?: string | null
@@ -937,9 +785,9 @@ export type Database = {
           payout_status?: string
           payout_transferred_at?: string | null
           platform_fee_cents?: number | null
-          pm_status?: string
           pose_fee_cents?: number | null
           pose_installer_user_id?: string | null
+          pose_location_type?: string | null
           pose_payout_status?: string | null
           pose_stripe_transfer_id?: string | null
           route_pois?: string[] | null
@@ -955,12 +803,11 @@ export type Database = {
           stripe_payment_intent_id?: string | null
           stripe_subscription_id?: string | null
           stripe_transfer_id?: string | null
-          subscription_current_period_end?: string | null
-          subscription_customer_id?: string | null
           subscription_status?: string | null
           target_region?: string | null
-          timezone?: string
+          timezone?: string | null
           total_price?: number | null
+          trial_end?: string | null
           updated_at?: string
           user_id?: string | null
           vehicle_id?: string | null
@@ -969,13 +816,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "campaign_requests_commercial_id_fkey"
-            columns: ["commercial_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "campaign_requests_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
@@ -983,39 +823,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      campaigns: {
-        Row: {
-          advertiser_id: string | null
-          end_date: string
-          id: string
-          region_id: string | null
-          start_date: string
-          status: string
-          total_cost: number
-          updated_at: string
-        }
-        Insert: {
-          advertiser_id?: string | null
-          end_date: string
-          id?: string
-          region_id?: string | null
-          start_date: string
-          status?: string
-          total_cost?: number
-          updated_at?: string
-        }
-        Update: {
-          advertiser_id?: string | null
-          end_date?: string
-          id?: string
-          region_id?: string | null
-          start_date?: string
-          status?: string
-          total_cost?: number
-          updated_at?: string
-        }
-        Relationships: []
       }
       commercial_profiles: {
         Row: {
@@ -1071,59 +878,11 @@ export type Database = {
         }
         Relationships: []
       }
-      contact_leads: {
-        Row: {
-          budget_range: string | null
-          company_name: string | null
-          contact_name: string
-          created_at: string
-          email: string
-          id: string
-          message: string | null
-          phone: string | null
-          plan: string
-          siret: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          budget_range?: string | null
-          company_name?: string | null
-          contact_name: string
-          created_at?: string
-          email: string
-          id?: string
-          message?: string | null
-          phone?: string | null
-          plan?: string
-          siret?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          budget_range?: string | null
-          company_name?: string | null
-          contact_name?: string
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string | null
-          phone?: string | null
-          plan?: string
-          siret?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       control_photo_requests: {
         Row: {
           admin_notes: string | null
-          admin_validated: boolean | null
+          admin_validated: boolean
           campaign_request_id: string | null
-          cq_checked_at: string | null
-          cq_fraud_score: number
-          cq_status: string
           created_at: string
           deadline_at: string
           driver_id: string | null
@@ -1133,7 +892,6 @@ export type Database = {
           photo_lat: number | null
           photo_lng: number | null
           photo_path: string | null
-          photo_type: string | null
           scheduled_at: string
           status: string
           submitted_at: string | null
@@ -1141,11 +899,8 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
-          admin_validated?: boolean | null
+          admin_validated?: boolean
           campaign_request_id?: string | null
-          cq_checked_at?: string | null
-          cq_fraud_score?: number
-          cq_status?: string
           created_at?: string
           deadline_at: string
           driver_id?: string | null
@@ -1155,19 +910,15 @@ export type Database = {
           photo_lat?: number | null
           photo_lng?: number | null
           photo_path?: string | null
-          photo_type?: string | null
-          scheduled_at?: string
+          scheduled_at: string
           status?: string
           submitted_at?: string | null
           vehicle_id?: string | null
         }
         Update: {
           admin_notes?: string | null
-          admin_validated?: boolean | null
+          admin_validated?: boolean
           campaign_request_id?: string | null
-          cq_checked_at?: string | null
-          cq_fraud_score?: number
-          cq_status?: string
           created_at?: string
           deadline_at?: string
           driver_id?: string | null
@@ -1177,7 +928,6 @@ export type Database = {
           photo_lat?: number | null
           photo_lng?: number | null
           photo_path?: string | null
-          photo_type?: string | null
           scheduled_at?: string
           status?: string
           submitted_at?: string | null
@@ -1190,20 +940,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "control_photo_requests_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "control_photo_requests_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
           },
           {
             foreignKeyName: "control_photo_requests_driver_id_fkey"
@@ -1221,318 +957,23 @@ export type Database = {
           },
         ]
       }
-      cq_jobs: {
+      cron_config: {
         Row: {
-          campaign_request_id: string | null
-          created_at: string
-          driver_id: string | null
-          error_message: string | null
-          id: string
-          job_type: string
-          payload: Json
-          photo_request_id: string | null
-          processed_at: string | null
-          status: string
-          vehicle_id: string | null
+          key: string
+          updated_at: string
+          value: string
         }
         Insert: {
-          campaign_request_id?: string | null
-          created_at?: string
-          driver_id?: string | null
-          error_message?: string | null
-          id?: string
-          job_type: string
-          payload?: Json
-          photo_request_id?: string | null
-          processed_at?: string | null
-          status?: string
-          vehicle_id?: string | null
+          key: string
+          updated_at?: string
+          value: string
         }
         Update: {
-          campaign_request_id?: string | null
-          created_at?: string
-          driver_id?: string | null
-          error_message?: string | null
-          id?: string
-          job_type?: string
-          payload?: Json
-          photo_request_id?: string | null
-          processed_at?: string | null
-          status?: string
-          vehicle_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cq_jobs_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cq_jobs_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "cq_jobs_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
-          },
-          {
-            foreignKeyName: "cq_jobs_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cq_jobs_photo_request_id_fkey"
-            columns: ["photo_request_id"]
-            isOneToOne: false
-            referencedRelation: "control_photo_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cq_jobs_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      creative_assets: {
-        Row: {
-          ad_format: string | null
-          advertiser_id: string
-          brief_id: string | null
-          cost_cents: number
-          created_at: string
-          id: string
-          prompt: string | null
-          provider: string
-          storage_path: string | null
-          type: string
-          url: string
-          vehicle_types: string[]
-        }
-        Insert: {
-          ad_format?: string | null
-          advertiser_id: string
-          brief_id?: string | null
-          cost_cents?: number
-          created_at?: string
-          id?: string
-          prompt?: string | null
-          provider: string
-          storage_path?: string | null
-          type: string
-          url: string
-          vehicle_types?: string[]
-        }
-        Update: {
-          ad_format?: string | null
-          advertiser_id?: string
-          brief_id?: string | null
-          cost_cents?: number
-          created_at?: string
-          id?: string
-          prompt?: string | null
-          provider?: string
-          storage_path?: string | null
-          type?: string
-          url?: string
-          vehicle_types?: string[]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creative_assets_brief_id_fkey"
-            columns: ["brief_id"]
-            isOneToOne: false
-            referencedRelation: "advertiser_briefs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      device_integrity_checks: {
-        Row: {
-          attestation_raw: Json | null
-          checked_at: string
-          device_id: string
-          id: string
-          is_emulator: boolean
-          is_mock_enabled: boolean
-          is_rooted: boolean
-          platform: string | null
-          play_integrity_verdict: string | null
-          user_id: string
-          wallet_frozen: boolean
-        }
-        Insert: {
-          attestation_raw?: Json | null
-          checked_at?: string
-          device_id: string
-          id?: string
-          is_emulator?: boolean
-          is_mock_enabled?: boolean
-          is_rooted?: boolean
-          platform?: string | null
-          play_integrity_verdict?: string | null
-          user_id: string
-          wallet_frozen?: boolean
-        }
-        Update: {
-          attestation_raw?: Json | null
-          checked_at?: string
-          device_id?: string
-          id?: string
-          is_emulator?: boolean
-          is_mock_enabled?: boolean
-          is_rooted?: boolean
-          platform?: string | null
-          play_integrity_verdict?: string | null
-          user_id?: string
-          wallet_frozen?: boolean
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
-      }
-      driver_fraud_scores: {
-        Row: {
-          driver_id: string
-          last_alert_at: string | null
-          score: number
-          status: string
-          total_alerts: number
-          updated_at: string
-        }
-        Insert: {
-          driver_id: string
-          last_alert_at?: string | null
-          score?: number
-          status?: string
-          total_alerts?: number
-          updated_at?: string
-        }
-        Update: {
-          driver_id?: string
-          last_alert_at?: string | null
-          score?: number
-          status?: string
-          total_alerts?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "driver_fraud_scores_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: true
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
-          },
-          {
-            foreignKeyName: "driver_fraud_scores_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: true
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      driver_skills: {
-        Row: {
-          driver_id: string
-          skill_id: string
-          verified_at: string | null
-        }
-        Insert: {
-          driver_id: string
-          skill_id: string
-          verified_at?: string | null
-        }
-        Update: {
-          driver_id?: string
-          skill_id?: string
-          verified_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "driver_skills_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
-          },
-          {
-            foreignKeyName: "driver_skills_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "driver_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "skills"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      driver_trust_scores: {
-        Row: {
-          control_requests_expired: number
-          control_requests_ok: number
-          control_requests_rejected: number
-          control_requests_total: number
-          driver_id: string
-          gps_anomaly_flags: number
-          last_updated_at: string
-          score: number
-          zone_compliance_pct: number | null
-        }
-        Insert: {
-          control_requests_expired?: number
-          control_requests_ok?: number
-          control_requests_rejected?: number
-          control_requests_total?: number
-          driver_id: string
-          gps_anomaly_flags?: number
-          last_updated_at?: string
-          score?: number
-          zone_compliance_pct?: number | null
-        }
-        Update: {
-          control_requests_expired?: number
-          control_requests_ok?: number
-          control_requests_rejected?: number
-          control_requests_total?: number
-          driver_id?: string
-          gps_anomaly_flags?: number
-          last_updated_at?: string
-          score?: number
-          zone_compliance_pct?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "driver_trust_scores_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: true
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
-          },
-          {
-            foreignKeyName: "driver_trust_scores_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: true
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       drivers: {
         Row: {
@@ -1668,386 +1109,6 @@ export type Database = {
         }
         Relationships: []
       }
-      gps_fraud_alerts: {
-        Row: {
-          alert_type: string
-          campaign_request_id: string | null
-          computed_speed_kmh: number | null
-          detected_at: string
-          distance_m: number | null
-          driver_id: string | null
-          elapsed_s: number | null
-          fraud_score: number | null
-          id: string
-          notes: string | null
-          point_a: Json | null
-          point_b: Json | null
-          resolved: boolean
-          resolved_at: string | null
-          resolved_by: string | null
-          severity: string
-          vehicle_id: string
-        }
-        Insert: {
-          alert_type: string
-          campaign_request_id?: string | null
-          computed_speed_kmh?: number | null
-          detected_at?: string
-          distance_m?: number | null
-          driver_id?: string | null
-          elapsed_s?: number | null
-          fraud_score?: number | null
-          id?: string
-          notes?: string | null
-          point_a?: Json | null
-          point_b?: Json | null
-          resolved?: boolean
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: string
-          vehicle_id: string
-        }
-        Update: {
-          alert_type?: string
-          campaign_request_id?: string | null
-          computed_speed_kmh?: number | null
-          detected_at?: string
-          distance_m?: number | null
-          driver_id?: string | null
-          elapsed_s?: number | null
-          fraud_score?: number | null
-          id?: string
-          notes?: string | null
-          point_a?: Json | null
-          point_b?: Json | null
-          resolved?: boolean
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: string
-          vehicle_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gps_fraud_alerts_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "gps_fraud_alerts_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "gps_fraud_alerts_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
-          },
-          {
-            foreignKeyName: "gps_fraud_alerts_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "drivers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "gps_fraud_alerts_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hs_sync_log: {
-        Row: {
-          created_at: string
-          error_message: string | null
-          hubspot_id: string | null
-          id: string
-          object_type: string
-          supabase_id: string
-          sync_status: string
-          synced_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          error_message?: string | null
-          hubspot_id?: string | null
-          id?: string
-          object_type: string
-          supabase_id: string
-          sync_status?: string
-          synced_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          error_message?: string | null
-          hubspot_id?: string | null
-          id?: string
-          object_type?: string
-          supabase_id?: string
-          sync_status?: string
-          synced_at?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      installation_missions: {
-        Row: {
-          accepted_at: string | null
-          admin_notes: string | null
-          admin_reviewed_at: string | null
-          admin_reviewed_by: string | null
-          campaign_request_id: string
-          completed_at: string | null
-          created_at: string
-          dispatch_radius_km: number
-          fault_cause: string | null
-          fee_cents: number
-          id: string
-          location_address: string | null
-          location_city: string | null
-          location_geom: unknown
-          location_lat: number | null
-          location_lng: number | null
-          location_postal_code: string | null
-          mission_type: string
-          payee_id: string | null
-          payee_user_id: string | null
-          payout_status: string
-          payout_transferred_at: string | null
-          pose_impossible_reason: string | null
-          pose_impossible_reported_at: string | null
-          provider_notes: string | null
-          rejection_reason: string | null
-          scheduled_date: string | null
-          scheduled_time_slot: string | null
-          started_at: string | null
-          status: string
-          stripe_transfer_id: string | null
-          updated_at: string
-          validation_submitted_at: string | null
-        }
-        Insert: {
-          accepted_at?: string | null
-          admin_notes?: string | null
-          admin_reviewed_at?: string | null
-          admin_reviewed_by?: string | null
-          campaign_request_id: string
-          completed_at?: string | null
-          created_at?: string
-          dispatch_radius_km?: number
-          fault_cause?: string | null
-          fee_cents?: number
-          id?: string
-          location_address?: string | null
-          location_city?: string | null
-          location_geom?: unknown
-          location_lat?: number | null
-          location_lng?: number | null
-          location_postal_code?: string | null
-          mission_type: string
-          payee_id?: string | null
-          payee_user_id?: string | null
-          payout_status?: string
-          payout_transferred_at?: string | null
-          pose_impossible_reason?: string | null
-          pose_impossible_reported_at?: string | null
-          provider_notes?: string | null
-          rejection_reason?: string | null
-          scheduled_date?: string | null
-          scheduled_time_slot?: string | null
-          started_at?: string | null
-          status?: string
-          stripe_transfer_id?: string | null
-          updated_at?: string
-          validation_submitted_at?: string | null
-        }
-        Update: {
-          accepted_at?: string | null
-          admin_notes?: string | null
-          admin_reviewed_at?: string | null
-          admin_reviewed_by?: string | null
-          campaign_request_id?: string
-          completed_at?: string | null
-          created_at?: string
-          dispatch_radius_km?: number
-          fault_cause?: string | null
-          fee_cents?: number
-          id?: string
-          location_address?: string | null
-          location_city?: string | null
-          location_geom?: unknown
-          location_lat?: number | null
-          location_lng?: number | null
-          location_postal_code?: string | null
-          mission_type?: string
-          payee_id?: string | null
-          payee_user_id?: string | null
-          payout_status?: string
-          payout_transferred_at?: string | null
-          pose_impossible_reason?: string | null
-          pose_impossible_reported_at?: string | null
-          provider_notes?: string | null
-          rejection_reason?: string | null
-          scheduled_date?: string | null
-          scheduled_time_slot?: string | null
-          started_at?: string | null
-          status?: string
-          stripe_transfer_id?: string | null
-          updated_at?: string
-          validation_submitted_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "installation_missions_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "installation_missions_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "installation_missions_payee_id_fkey"
-            columns: ["payee_id"]
-            isOneToOne: false
-            referencedRelation: "payee_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      installation_moderation_queue: {
-        Row: {
-          campaign_request_id: string
-          created_at: string
-          id: string
-          mission_id: string
-          mission_type: string | null
-          poseur_name: string | null
-          resolution_note: string | null
-          resolved_at: string | null
-          resolved_by: string | null
-          status: string
-          submitted_by: string
-        }
-        Insert: {
-          campaign_request_id: string
-          created_at?: string
-          id?: string
-          mission_id: string
-          mission_type?: string | null
-          poseur_name?: string | null
-          resolution_note?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: string
-          submitted_by: string
-        }
-        Update: {
-          campaign_request_id?: string
-          created_at?: string
-          id?: string
-          mission_id?: string
-          mission_type?: string | null
-          poseur_name?: string | null
-          resolution_note?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: string
-          submitted_by?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "installation_moderation_queue_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "installation_moderation_queue_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "installation_moderation_queue_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: true
-            referencedRelation: "installation_missions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      invoices: {
-        Row: {
-          advertiser_id: string
-          amount_ht: number
-          amount_ttc: number
-          campaign_id: string
-          created_at: string
-          id: string
-          invoice_number: string
-          pdf_url: string | null
-          status: string
-          vat_amount: number
-        }
-        Insert: {
-          advertiser_id: string
-          amount_ht: number
-          amount_ttc: number
-          campaign_id: string
-          created_at?: string
-          id?: string
-          invoice_number: string
-          pdf_url?: string | null
-          status?: string
-          vat_amount: number
-        }
-        Update: {
-          advertiser_id?: string
-          amount_ht?: number
-          amount_ttc?: number
-          campaign_id?: string
-          created_at?: string
-          id?: string
-          invoice_number?: string
-          pdf_url?: string | null
-          status?: string
-          vat_amount?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invoices_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-        ]
-      }
       messages: {
         Row: {
           body: string
@@ -2095,95 +1156,6 @@ export type Database = {
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "brief_proposals"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mission_dispatch_log: {
-        Row: {
-          dispatched_at: string
-          distance_km: number | null
-          id: string
-          mission_id: string
-          payee_id: string
-          payee_user_id: string
-          responded_at: string | null
-          response: string
-        }
-        Insert: {
-          dispatched_at?: string
-          distance_km?: number | null
-          id?: string
-          mission_id: string
-          payee_id: string
-          payee_user_id: string
-          responded_at?: string | null
-          response?: string
-        }
-        Update: {
-          dispatched_at?: string
-          distance_km?: number | null
-          id?: string
-          mission_id?: string
-          payee_id?: string
-          payee_user_id?: string
-          responded_at?: string | null
-          response?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mission_dispatch_log_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "installation_missions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "mission_dispatch_log_payee_id_fkey"
-            columns: ["payee_id"]
-            isOneToOne: false
-            referencedRelation: "payee_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mission_proofs: {
-        Row: {
-          id: string
-          metadata: Json | null
-          mission_id: string
-          proof_type: string
-          storage_path: string
-          storage_url: string | null
-          uploaded_at: string
-          uploaded_by: string
-        }
-        Insert: {
-          id?: string
-          metadata?: Json | null
-          mission_id: string
-          proof_type: string
-          storage_path: string
-          storage_url?: string | null
-          uploaded_at?: string
-          uploaded_by: string
-        }
-        Update: {
-          id?: string
-          metadata?: Json | null
-          mission_id?: string
-          proof_type?: string
-          storage_path?: string
-          storage_url?: string | null
-          uploaded_at?: string
-          uploaded_by?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mission_proofs_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "installation_missions"
             referencedColumns: ["id"]
           },
         ]
@@ -2247,63 +1219,65 @@ export type Database = {
           },
         ]
       }
-      owner_penalties: {
+      obstacle_reports: {
         Row: {
-          amount_eur: number
-          campaign_request_id: string
-          created_at: string
-          fault_cause: string
+          admin_notes: string | null
+          admin_validated: boolean
+          admin_validated_at: string | null
+          campaign_id: string | null
+          description: string | null
           id: string
-          mission_id: string
-          notes: string | null
-          owner_user_id: string
-          processed_at: string | null
-          status: string
+          impact_end: string | null
+          impact_start: string | null
+          metadata: Json
+          obstacle_type: string
+          photo_paths: string[]
+          reported_at: string
+          vehicle_id: string | null
         }
         Insert: {
-          amount_eur?: number
-          campaign_request_id: string
-          created_at?: string
-          fault_cause: string
+          admin_notes?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          campaign_id?: string | null
+          description?: string | null
           id?: string
-          mission_id: string
-          notes?: string | null
-          owner_user_id: string
-          processed_at?: string | null
-          status?: string
+          impact_end?: string | null
+          impact_start?: string | null
+          metadata?: Json
+          obstacle_type: string
+          photo_paths?: string[]
+          reported_at?: string
+          vehicle_id?: string | null
         }
         Update: {
-          amount_eur?: number
-          campaign_request_id?: string
-          created_at?: string
-          fault_cause?: string
+          admin_notes?: string | null
+          admin_validated?: boolean
+          admin_validated_at?: string | null
+          campaign_id?: string | null
+          description?: string | null
           id?: string
-          mission_id?: string
-          notes?: string | null
-          owner_user_id?: string
-          processed_at?: string | null
-          status?: string
+          impact_end?: string | null
+          impact_start?: string | null
+          metadata?: Json
+          obstacle_type?: string
+          photo_paths?: string[]
+          reported_at?: string
+          vehicle_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "owner_penalties_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
+            foreignKeyName: "obstacle_reports_campaign_id_fkey"
+            columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "owner_penalties_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
+            foreignKeyName: "obstacle_reports_vehicle_id_fkey"
+            columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "owner_penalties_mission_id_fkey"
-            columns: ["mission_id"]
-            isOneToOne: false
-            referencedRelation: "installation_missions"
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -2317,7 +1291,6 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
-          referral_code: string | null
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
@@ -2332,10 +1305,10 @@ export type Database = {
           user_id: string
           vigilance_attestation_url: string | null
           vigilance_date_verification: string | null
-          vigilance_gains_cumules_centimes: number
+          vigilance_gains_cumules_centimes: number | null
           vigilance_notes: string | null
           vigilance_seuil_atteint_at: string | null
-          vigilance_statut: string
+          vigilance_statut: string | null
         }
         Insert: {
           bio?: string | null
@@ -2345,7 +1318,6 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
-          referral_code?: string | null
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
@@ -2360,10 +1332,10 @@ export type Database = {
           user_id: string
           vigilance_attestation_url?: string | null
           vigilance_date_verification?: string | null
-          vigilance_gains_cumules_centimes?: number
+          vigilance_gains_cumules_centimes?: number | null
           vigilance_notes?: string | null
           vigilance_seuil_atteint_at?: string | null
-          vigilance_statut?: string
+          vigilance_statut?: string | null
         }
         Update: {
           bio?: string | null
@@ -2373,7 +1345,6 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
-          referral_code?: string | null
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
@@ -2388,17 +1359,17 @@ export type Database = {
           user_id?: string
           vigilance_attestation_url?: string | null
           vigilance_date_verification?: string | null
-          vigilance_gains_cumules_centimes?: number
+          vigilance_gains_cumules_centimes?: number | null
           vigilance_notes?: string | null
           vigilance_seuil_atteint_at?: string | null
-          vigilance_statut?: string
+          vigilance_statut?: string | null
         }
         Relationships: []
       }
       owner_reviews: {
         Row: {
           advertiser_id: string
-          campaign_request_id: string | null
+          campaign_request_id: string
           comment: string | null
           created_at: string
           id: string
@@ -2407,7 +1378,7 @@ export type Database = {
         }
         Insert: {
           advertiser_id: string
-          campaign_request_id?: string | null
+          campaign_request_id: string
           comment?: string | null
           created_at?: string
           id?: string
@@ -2416,7 +1387,7 @@ export type Database = {
         }
         Update: {
           advertiser_id?: string
-          campaign_request_id?: string | null
+          campaign_request_id?: string
           comment?: string | null
           created_at?: string
           id?: string
@@ -2431,49 +1402,10 @@ export type Database = {
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "owner_reviews_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: true
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "owner_reviews_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "owner_profiles"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      owner_wallets: {
-        Row: {
-          balance_ht: number
-          created_at: string
-          id: string
-          owner_id: string
-          stripe_connect_id: string | null
-        }
-        Insert: {
-          balance_ht?: number
-          created_at?: string
-          id?: string
-          owner_id: string
-          stripe_connect_id?: string | null
-        }
-        Update: {
-          balance_ht?: number
-          created_at?: string
-          id?: string
-          owner_id?: string
-          stripe_connect_id?: string | null
-        }
-        Relationships: []
       }
       partner_profiles: {
         Row: {
-          admin_notes: string | null
           city: string | null
           company: string | null
           created_at: string
@@ -2487,7 +1419,9 @@ export type Database = {
           siret: string | null
           siret_denomination: string | null
           siret_verified_at: string | null
-          status: string
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           stripe_subscription_period_end: string | null
           stripe_subscription_status: string | null
           updated_at: string
@@ -2495,7 +1429,6 @@ export type Database = {
           website: string | null
         }
         Insert: {
-          admin_notes?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
@@ -2509,7 +1442,9 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
-          status?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           stripe_subscription_period_end?: string | null
           stripe_subscription_status?: string | null
           updated_at?: string
@@ -2517,7 +1452,6 @@ export type Database = {
           website?: string | null
         }
         Update: {
-          admin_notes?: string | null
           city?: string | null
           company?: string | null
           created_at?: string
@@ -2531,7 +1465,9 @@ export type Database = {
           siret?: string | null
           siret_denomination?: string | null
           siret_verified_at?: string | null
-          status?: string
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           stripe_subscription_period_end?: string | null
           stripe_subscription_status?: string | null
           updated_at?: string
@@ -2587,13 +1523,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payee_earnings_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
           },
         ]
       }
@@ -2680,102 +1609,6 @@ export type Database = {
           vehicle_plate?: string | null
         }
         Relationships: []
-      }
-      pm_coverage_snapshots: {
-        Row: {
-          campaign_request_id: string
-          coverage_rate: number
-          created_at: string
-          id: string
-          positions_count: number
-          snapshot_date: string
-          zone_intersect_pct: number
-        }
-        Insert: {
-          campaign_request_id: string
-          coverage_rate?: number
-          created_at?: string
-          id?: string
-          positions_count?: number
-          snapshot_date: string
-          zone_intersect_pct?: number
-        }
-        Update: {
-          campaign_request_id?: string
-          coverage_rate?: number
-          created_at?: string
-          id?: string
-          positions_count?: number
-          snapshot_date?: string
-          zone_intersect_pct?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pm_coverage_snapshots_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pm_coverage_snapshots_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-        ]
-      }
-      pm_jobs: {
-        Row: {
-          campaign_request_id: string
-          created_at: string
-          error_message: string | null
-          id: string
-          job_type: string
-          payload: Json
-          processed_at: string | null
-          status: string
-          user_id: string | null
-        }
-        Insert: {
-          campaign_request_id: string
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          job_type: string
-          payload?: Json
-          processed_at?: string | null
-          status?: string
-          user_id?: string | null
-        }
-        Update: {
-          campaign_request_id?: string
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          job_type?: string
-          payload?: Json
-          processed_at?: string | null
-          status?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pm_jobs_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pm_jobs_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-        ]
       }
       pricing_seasonal_multipliers: {
         Row: {
@@ -2871,13 +1704,6 @@ export type Database = {
             referencedRelation: "public_provider_profiles"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "provider_positions_service_quote_id_fkey"
-            columns: ["service_quote_id"]
-            isOneToOne: false
-            referencedRelation: "service_quotes"
-            referencedColumns: ["id"]
-          },
         ]
       }
       provider_profiles: {
@@ -2891,14 +1717,13 @@ export type Database = {
           docs_ai_status: string | null
           email: string
           embedding: string | null
-          formation_doc_urls: string[] | null
           full_name: string
           id_doc_url: string | null
           kbis_url: string | null
           logo_url: string | null
           phone: string | null
           portfolio_urls: string[]
-          pose_location_types: string[] | null
+          pose_location_types: string[]
           pricing_info: string | null
           rc_pro_expiry: string | null
           rc_pro_url: string | null
@@ -2924,14 +1749,13 @@ export type Database = {
           docs_ai_status?: string | null
           email: string
           embedding?: string | null
-          formation_doc_urls?: string[] | null
           full_name: string
           id_doc_url?: string | null
           kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
-          pose_location_types?: string[] | null
+          pose_location_types?: string[]
           pricing_info?: string | null
           rc_pro_expiry?: string | null
           rc_pro_url?: string | null
@@ -2957,14 +1781,13 @@ export type Database = {
           docs_ai_status?: string | null
           email?: string
           embedding?: string | null
-          formation_doc_urls?: string[] | null
           full_name?: string
           id_doc_url?: string | null
           kbis_url?: string | null
           logo_url?: string | null
           phone?: string | null
           portfolio_urls?: string[]
-          pose_location_types?: string[] | null
+          pose_location_types?: string[]
           pricing_info?: string | null
           rc_pro_expiry?: string | null
           rc_pro_url?: string | null
@@ -2979,60 +1802,6 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website?: string | null
-        }
-        Relationships: []
-      }
-      push_subscriptions: {
-        Row: {
-          auth: string
-          created_at: string
-          endpoint: string
-          id: string
-          p256dh: string
-          user_agent: string | null
-          user_id: string
-        }
-        Insert: {
-          auth: string
-          created_at?: string
-          endpoint: string
-          id?: string
-          p256dh: string
-          user_agent?: string | null
-          user_id: string
-        }
-        Update: {
-          auth?: string
-          created_at?: string
-          endpoint?: string
-          id?: string
-          p256dh?: string
-          user_agent?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      referrals: {
-        Row: {
-          created_at: string
-          id: string
-          referee_id: string
-          referrer_id: string
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          referee_id: string
-          referrer_id: string
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          referee_id?: string
-          referrer_id?: string
-          status?: string
         }
         Relationships: []
       }
@@ -3152,13 +1921,6 @@ export type Database = {
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "refund_requests_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
         ]
       }
       refunds: {
@@ -3212,13 +1974,6 @@ export type Database = {
             referencedRelation: "campaign_requests"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "refunds_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
         ]
       }
       service_quotes: {
@@ -3231,7 +1986,7 @@ export type Database = {
           format: string | null
           id: string
           impossible_at: string | null
-          impossible_photos: string[] | null
+          impossible_photos: string[]
           impossible_reason: string | null
           message: string
           provider_id: string
@@ -3243,6 +1998,7 @@ export type Database = {
           service_type: string
           status: string
           updated_at: string
+          vehicle_id: string | null
           vehicle_type: string | null
           zone: string | null
         }
@@ -3255,7 +2011,7 @@ export type Database = {
           format?: string | null
           id?: string
           impossible_at?: string | null
-          impossible_photos?: string[] | null
+          impossible_photos?: string[]
           impossible_reason?: string | null
           message: string
           provider_id: string
@@ -3267,6 +2023,7 @@ export type Database = {
           service_type: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -3279,7 +2036,7 @@ export type Database = {
           format?: string | null
           id?: string
           impossible_at?: string | null
-          impossible_photos?: string[] | null
+          impossible_photos?: string[]
           impossible_reason?: string | null
           message?: string
           provider_id?: string
@@ -3291,6 +2048,7 @@ export type Database = {
           service_type?: string
           status?: string
           updated_at?: string
+          vehicle_id?: string | null
           vehicle_type?: string | null
           zone?: string | null
         }
@@ -3302,69 +2060,43 @@ export type Database = {
             referencedRelation: "ai_brief_data"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "service_quotes_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
         ]
-      }
-      skills: {
-        Row: {
-          category: string
-          created_at: string
-          description: string | null
-          icon: string | null
-          id: string
-          label: string
-          revenue_boost_pct: number | null
-          slug: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          label: string
-          revenue_boost_pct?: number | null
-          slug: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          label?: string
-          revenue_boost_pct?: number | null
-          slug?: string
-        }
-        Relationships: []
       }
       status_history: {
         Row: {
-          actor_id: string | null
+          changed_by: string | null
           created_at: string
           entity_id: string
           entity_type: string
           id: string
-          new_status: string
+          new_status: string | null
           previous_status: string | null
           reason: string | null
         }
         Insert: {
-          actor_id?: string | null
+          changed_by?: string | null
           created_at?: string
           entity_id: string
           entity_type: string
           id?: string
-          new_status: string
+          new_status?: string | null
           previous_status?: string | null
           reason?: string | null
         }
         Update: {
-          actor_id?: string | null
+          changed_by?: string | null
           created_at?: string
           entity_id?: string
           entity_type?: string
           id?: string
-          new_status?: string
+          new_status?: string | null
           previous_status?: string | null
           reason?: string | null
         }
@@ -3502,42 +2234,6 @@ export type Database = {
           },
         ]
       }
-      support_tickets: {
-        Row: {
-          admin_response: string | null
-          context_url: string | null
-          created_at: string
-          id: string
-          message: string
-          resolved_at: string | null
-          status: string
-          subject: string
-          user_id: string
-        }
-        Insert: {
-          admin_response?: string | null
-          context_url?: string | null
-          created_at?: string
-          id?: string
-          message: string
-          resolved_at?: string | null
-          status?: string
-          subject: string
-          user_id: string
-        }
-        Update: {
-          admin_response?: string | null
-          context_url?: string | null
-          created_at?: string
-          id?: string
-          message?: string
-          resolved_at?: string | null
-          status?: string
-          subject?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -3561,193 +2257,6 @@ export type Database = {
           reason?: string
         }
         Relationships: []
-      }
-      sv_contracts: {
-        Row: {
-          campaign_request_id: string
-          content_md: string | null
-          contract_type: string
-          created_at: string
-          expires_at: string | null
-          id: string
-          party_user_id: string
-          pdf_url: string | null
-          signed_at: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          campaign_request_id: string
-          content_md?: string | null
-          contract_type: string
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          party_user_id: string
-          pdf_url?: string | null
-          signed_at?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          campaign_request_id?: string
-          content_md?: string | null
-          contract_type?: string
-          created_at?: string
-          expires_at?: string | null
-          id?: string
-          party_user_id?: string
-          pdf_url?: string | null
-          signed_at?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sv_contracts_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sv_contracts_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-        ]
-      }
-      sv_payout_queue: {
-        Row: {
-          amount_cents: number
-          campaign_request_id: string
-          created_at: string
-          currency: string
-          error_message: string | null
-          id: string
-          payout_type: string
-          processed_at: string | null
-          recipient_user_id: string
-          retry_count: number
-          scheduled_at: string
-          status: string
-          stripe_account_id: string | null
-          stripe_payout_id: string | null
-          stripe_transfer_id: string | null
-        }
-        Insert: {
-          amount_cents: number
-          campaign_request_id: string
-          created_at?: string
-          currency?: string
-          error_message?: string | null
-          id?: string
-          payout_type: string
-          processed_at?: string | null
-          recipient_user_id: string
-          retry_count?: number
-          scheduled_at?: string
-          status?: string
-          stripe_account_id?: string | null
-          stripe_payout_id?: string | null
-          stripe_transfer_id?: string | null
-        }
-        Update: {
-          amount_cents?: number
-          campaign_request_id?: string
-          created_at?: string
-          currency?: string
-          error_message?: string | null
-          id?: string
-          payout_type?: string
-          processed_at?: string | null
-          recipient_user_id?: string
-          retry_count?: number
-          scheduled_at?: string
-          status?: string
-          stripe_account_id?: string | null
-          stripe_payout_id?: string | null
-          stripe_transfer_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sv_payout_queue_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sv_payout_queue_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-        ]
-      }
-      sv_refund_decisions: {
-        Row: {
-          campaign_request_id: string
-          created_at: string
-          decided_at: string
-          decision: string
-          executed_at: string | null
-          id: string
-          reason: string | null
-          refund_amount_cents: number
-          refund_request_id: string | null
-          stripe_refund_id: string | null
-        }
-        Insert: {
-          campaign_request_id: string
-          created_at?: string
-          decided_at?: string
-          decision: string
-          executed_at?: string | null
-          id?: string
-          reason?: string | null
-          refund_amount_cents?: number
-          refund_request_id?: string | null
-          stripe_refund_id?: string | null
-        }
-        Update: {
-          campaign_request_id?: string
-          created_at?: string
-          decided_at?: string
-          decision?: string
-          executed_at?: string | null
-          id?: string
-          reason?: string | null
-          refund_amount_cents?: number
-          refund_request_id?: string | null
-          stripe_refund_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sv_refund_decisions_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sv_refund_decisions_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
-            foreignKeyName: "sv_refund_decisions_refund_request_id_fkey"
-            columns: ["refund_request_id"]
-            isOneToOne: false
-            referencedRelation: "refund_requests"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_notifications: {
         Row: {
@@ -3852,47 +2361,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "vehicle_positions_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
             foreignKeyName: "vehicle_positions_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vehicle_skills: {
-        Row: {
-          skill_id: string
-          vehicle_id: string
-          verified_at: string | null
-        }
-        Insert: {
-          skill_id: string
-          vehicle_id: string
-          verified_at?: string | null
-        }
-        Update: {
-          skill_id?: string
-          vehicle_id?: string
-          verified_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "vehicle_skills_skill_id_fkey"
-            columns: ["skill_id"]
-            isOneToOne: false
-            referencedRelation: "skills"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_skills_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
@@ -3904,6 +2373,8 @@ export type Database = {
         Row: {
           admin_notes: string | null
           ai_verification: Json | null
+          brand: string | null
+          color: string | null
           condition: Database["public"]["Enums"]["vehicle_condition"] | null
           covering_zone: Json | null
           created_at: string
@@ -3912,9 +2383,8 @@ export type Database = {
           format_publicitaire: string | null
           id: string
           km_per_day: number | null
-          last_lat: number | null
-          last_lng: number | null
-          last_position_at: string | null
+          license_plate: string | null
+          model: string | null
           name: string
           owner_id: string
           photos: string[] | null
@@ -3928,6 +2398,8 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           covering_zone?: Json | null
           created_at?: string
@@ -3936,9 +2408,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
-          last_lat?: number | null
-          last_lng?: number | null
-          last_position_at?: string | null
+          license_plate?: string | null
+          model?: string | null
           name: string
           owner_id: string
           photos?: string[] | null
@@ -3952,6 +2423,8 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           ai_verification?: Json | null
+          brand?: string | null
+          color?: string | null
           condition?: Database["public"]["Enums"]["vehicle_condition"] | null
           covering_zone?: Json | null
           created_at?: string
@@ -3960,9 +2433,8 @@ export type Database = {
           format_publicitaire?: string | null
           id?: string
           km_per_day?: number | null
-          last_lat?: number | null
-          last_lng?: number | null
-          last_position_at?: string | null
+          license_plate?: string | null
+          model?: string | null
           name?: string
           owner_id?: string
           photos?: string[] | null
@@ -3974,13 +2446,6 @@ export type Database = {
           zones?: string[] | null
         }
         Relationships: [
-          {
-            foreignKeyName: "vehicles_driver_id_fkey"
-            columns: ["driver_id"]
-            isOneToOne: false
-            referencedRelation: "cq_dashboard"
-            referencedColumns: ["driver_id"]
-          },
           {
             foreignKeyName: "vehicles_driver_id_fkey"
             columns: ["driver_id"]
@@ -4049,13 +2514,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "wallet_transactions_campaign_request_id_fkey"
-            columns: ["campaign_request_id"]
-            isOneToOne: false
-            referencedRelation: "sv_dashboard"
-            referencedColumns: ["campaign_id"]
-          },
-          {
             foreignKeyName: "wallet_transactions_wallet_id_fkey"
             columns: ["wallet_id"]
             isOneToOne: false
@@ -4093,58 +2551,6 @@ export type Database = {
       }
     }
     Views: {
-      cq_dashboard: {
-        Row: {
-          controls_ok: number | null
-          controls_total: number | null
-          driver_id: string | null
-          fraud_alerts: number | null
-          fraud_score: number | null
-          full_name: string | null
-          gps_flags: number | null
-          open_gps_alerts: number | null
-          pending_reviews: number | null
-          trust_score: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
-      hs_sync_dashboard: {
-        Row: {
-          error_message: string | null
-          hubspot_id: string | null
-          id: string | null
-          label: string | null
-          object_type: string | null
-          supabase_id: string | null
-          sync_status: string | null
-          synced_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          error_message?: string | null
-          hubspot_id?: string | null
-          id?: string | null
-          label?: never
-          object_type?: string | null
-          supabase_id?: string | null
-          sync_status?: string | null
-          synced_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          error_message?: string | null
-          hubspot_id?: string | null
-          id?: string | null
-          label?: never
-          object_type?: string | null
-          supabase_id?: string | null
-          sync_status?: string | null
-          synced_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       public_provider_profiles: {
         Row: {
           company: string | null
@@ -4190,69 +2596,8 @@ export type Database = {
         }
         Relationships: []
       }
-      sv_dashboard: {
-        Row: {
-          campaign_id: string | null
-          contracts_count: number | null
-          depose_fee_cents: number | null
-          depose_payout_status: string | null
-          depose_stripe_transfer_id: string | null
-          done_payouts: number | null
-          owner_amount_cents: number | null
-          paid_amount_cents: number | null
-          payout_status: string | null
-          pending_payouts: number | null
-          pm_status: string | null
-          pose_fee_cents: number | null
-          pose_payout_status: string | null
-          pose_stripe_transfer_id: string | null
-          stripe_payment_intent_id: string | null
-          stripe_transfer_id: string | null
-        }
-        Insert: {
-          campaign_id?: string | null
-          contracts_count?: never
-          depose_fee_cents?: number | null
-          depose_payout_status?: string | null
-          depose_stripe_transfer_id?: string | null
-          done_payouts?: never
-          owner_amount_cents?: number | null
-          paid_amount_cents?: number | null
-          payout_status?: string | null
-          pending_payouts?: never
-          pm_status?: string | null
-          pose_fee_cents?: number | null
-          pose_payout_status?: string | null
-          pose_stripe_transfer_id?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_transfer_id?: string | null
-        }
-        Update: {
-          campaign_id?: string | null
-          contracts_count?: never
-          depose_fee_cents?: number | null
-          depose_payout_status?: string | null
-          depose_stripe_transfer_id?: string | null
-          done_payouts?: never
-          owner_amount_cents?: number | null
-          paid_amount_cents?: number | null
-          payout_status?: string | null
-          pending_payouts?: never
-          pm_status?: string | null
-          pose_fee_cents?: number | null
-          pose_payout_status?: string | null
-          pose_stripe_transfer_id?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_transfer_id?: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
-      accept_dispatched_mission: {
-        Args: { p_installer_uid: string; p_mission_id: string }
-        Returns: Json
-      }
       apply_wallet_transaction: {
         Args: {
           p_amount_cents: number
@@ -4276,48 +2621,18 @@ export type Database = {
         }
         Returns: number
       }
-      call_send_push: { Args: { payload: Json }; Returns: undefined }
-      check_incomplete_stripe_onboarding: { Args: never; Returns: Json }
+      check_beta_access: { Args: never; Returns: boolean }
       check_is_admin: { Args: never; Returns: boolean }
-      credit_advertiser_referral: {
-        Args: { p_referee_user_id: string }
-        Returns: undefined
-      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
-      ensure_referral_code: { Args: never; Returns: string }
-      find_available_installers: {
-        Args: {
-          p_lat: number
-          p_lng: number
-          p_mission_date?: string
-          p_radius_km?: number
-        }
-        Returns: {
-          city: string
-          distance_km: number
-          full_name: string
-          last_position_at: string
-          payee_id: string
-          phone: string
-          stripe_connect_id: string
-          user_id: string
-        }[]
-      }
-      fn_cq_recompute_trust: {
-        Args: { p_driver_id: string }
-        Returns: undefined
-      }
-      fn_pm_call_edge: {
-        Args: { p_body: Json; p_function_name: string }
-        Returns: undefined
-      }
+      fleet_public_stats: { Args: never; Returns: Json }
       get_owner_financial_analytics: {
         Args: { p_owner_id: string }
         Returns: Json
@@ -4336,10 +2651,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      increment_owner_wallet: {
-        Args: { p_delta: number; p_wallet_id: string }
-        Returns: number
       }
       is_admin: { Args: never; Returns: boolean }
       is_point_in_campaign_zone: {
@@ -4375,20 +2686,6 @@ export type Database = {
         }
         Returns: number
       }
-      pm_calc_coverage_rate: {
-        Args: { p_campaign_id: string; p_date?: string }
-        Returns: number
-      }
-      pm_find_matching_vehicles: {
-        Args: { p_brief_id: string; p_max_results?: number }
-        Returns: {
-          geo_overlap_pct: number
-          owner_id: string
-          price_per_day: number
-          score: number
-          vehicle_id: string
-        }[]
-      }
       process_campaign_wallet_payment: {
         Args: {
           p_advertiser_id: string
@@ -4399,8 +2696,6 @@ export type Database = {
         }
         Returns: Json
       }
-      process_expired_campaigns_payouts: { Args: never; Returns: Json }
-      process_support_email_queue: { Args: never; Returns: undefined }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -4419,8 +2714,6 @@ export type Database = {
         }[]
       }
       retry_bank_transfer: { Args: { request_id: string }; Returns: Json }
-      retry_failed_cron_jobs: { Args: never; Returns: Json }
-      run_advertiser_activation_followup: { Args: never; Returns: Json }
       settle_campaign_from_wallet: {
         Args: { p_campaign_request_id: string; p_description?: string }
         Returns: {
@@ -4428,7 +2721,6 @@ export type Database = {
           amount_cents: number
         }[]
       }
-      trigger_bank_transfers_processing: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role:
@@ -4456,6 +2748,7 @@ export type Database = {
         | "tutuk"
         | "sac_a_dos_lcd"
         | "sac_a_dos_affiche"
+        | "camion_boxled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4609,6 +2902,7 @@ export const Constants = {
         "tutuk",
         "sac_a_dos_lcd",
         "sac_a_dos_affiche",
+        "camion_boxled",
       ],
     },
   },
