@@ -6092,5 +6092,32 @@
     "toast_sent": "Signalement envoyé — l'équipe MoveSpot en a été notifiée.",
     "err_photo": "Impossible de compresser la photo.",
     "err_generic": "Une erreur s'est produite, veuillez réessayer."
+  },
+  "sim": {
+    "title": "Simulateur d'impact campagne",
+    "desc": "Ajustez la ville, le type de flotte et le budget — les métriques se mettent à jour en temps réel.",
+    "data_badge": "Données terrain France 2025",
+    "city_label": "Ville cible",
+    "vehicle_label": "Type de véhicules",
+    "vehicle_desc_urbains": "Food trucks, scooters, vélos cargo",
+    "vehicle_desc_eco": "Berlines électriques & hybrides",
+    "vehicle_desc_premium": "VTC hauts de gamme",
+    "vehicle_desc_mixte": "Panachage optimisé",
+    "budget_label": "Budget mensuel",
+    "vehicles_stepper_label": "Nombre de véhicules",
+    "vehicles_decrement": "Diminuer le nombre de véhicules",
+    "vehicles_increment": "Augmenter le nombre de véhicules",
+    "vehicles_unit": "véh.",
+    "vehicles_range": "{{min}} à {{max}} véhicules",
+    "vehicles_hint": "Le budget se recalcule automatiquement",
+    "metric_impressions": "contacts visuels / mois",
+    "metric_km": "kilomètres couverts / mois",
+    "metric_vehicles": "véhicules mobilisés",
+    "cpm_label": "CPM effectif",
+    "cpm_excellent": "excellent",
+    "cpm_good": "bon",
+    "cpm_per_vehicle": "km/j par véhicule",
+    "cpm_contacts_per_km": "contacts/km à",
+    "cta": "Lancer ma campagne maintenant"
   }
 }

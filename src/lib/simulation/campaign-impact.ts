@@ -142,6 +142,25 @@ export function calculateCampaignImpact(
   return { impressionsCount, kmCovered, activeVehicles, cpmEffectif };
 }
 
+// ── Inverse function: vehicles → budget ───────────────────────────────────────
+//
+// Returns the budget (rounded to nearest 100 €) needed to run `vehicleCount`
+// vehicles of `vehicleType` in `city`. Clamped to [100, 10 000].
+
+export function calculateBudgetFromVehicles(
+  city: SimCity,
+  vehicleType: SimVehicle,
+  vehicleCount: number,
+): number {
+  const c = CITY_CONFIG[city];
+  const v = VEHICLE_CONFIG[vehicleType];
+  const coveringCost = c.baseCoverEuro * v.costMultiplier;
+  const driverBonusPerMonth = v.avgKmPerDay * 30 * v.kmRateEuro;
+  const totalCostPerVehicle = coveringCost + driverBonusPerMonth;
+  const raw = Math.round((vehicleCount * totalCostPerVehicle) / 100) * 100;
+  return Math.min(10_000, Math.max(100, raw));
+}
+
 // ── Re-exports for UI ─────────────────────────────────────────────────────────
 
 export { CITY_CONFIG, VEHICLE_CONFIG };
