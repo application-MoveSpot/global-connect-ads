@@ -1286,3 +1286,70 @@ export const getAdminRegionStats = createServerFn({ method: "POST" })
 
     return { ok: true as const, stats };
   });
+
+// ============ Upload subsidiaire (CGU art. 15) ============
+
+/** Campagnes approuvées sans photos de pose : candidats à l'upload subsidiaire admin. */
+export const adminListCampaignsMissingInstallation = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("campaign_requests")
+      .select("id, spot_name, company, start_date, end_date, installation_status")
+      .eq("status", "approved")
+      .is("installation_photos", null)
+      .not("installation_status", "in", '("approved","impossible")')
+      .order("start_date", { ascending: true })
+      .limit(100);
+    return { campaigns: data ?? [] };
+  });
+
+/** Soumet les 4 photos de pose pour le compte de l'administrateur (prestataire subsidiaire CGU art. 15). */
+export const adminSubmitSubsidiaryInstallationPhotos = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        campaignRequestId: z.string().uuid(),
+        photos: z.object({
+          front: z.string().min(1),
+          left: z.string().min(1),
+          right: z.string().min(1),
+          rear: z.string().min(1),
+        }),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        installation_photos: {
+          claimed_by: context.userId,
+          claimed_at: new Date().toISOString(),
+          ...data.photos,
+          submitted_at: new Date().toISOString(),
+          admin_subsidiary_upload: true,
+        } as never,
+        installation_status: "pending_approval",
+        installation_notes:
+          "📋 Photos soumises par l'administrateur MoveSpot en tant que prestataire de substitution (CGU art. 15) — en attente de validation.",
+        installation_reviewed_at: null,
+        pose_installer_user_id: context.userId,
+      } as never)
+      .eq("id", data.campaignRequestId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
