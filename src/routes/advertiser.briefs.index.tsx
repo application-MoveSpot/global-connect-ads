@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/advertiser/briefs/")({
   head: () => ({
-    meta: [{ title: "Mes briefs — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
+    meta: [{ title: "Mes campagnes — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: BriefsListPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
