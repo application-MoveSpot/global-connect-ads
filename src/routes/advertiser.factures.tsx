@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { RouteError } from "@/components/app/RouteError";
 import { AppHeader } from "@/components/app/AppHeader";
 import { AdvertiserBilling } from "@/components/advertiser/AdvertiserBilling";
@@ -19,7 +19,16 @@ export const Route = createFileRoute("/advertiser/factures")({
 function FacturesPage() {
   return (
     <div className="min-h-screen bg-background">
-      <AppHeader />
+      <AppHeader
+        right={
+          <Link
+            to="/advertiser"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+          >
+            Mon espace
+          </Link>
+        }
+      />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <div className="flex items-center gap-3">
