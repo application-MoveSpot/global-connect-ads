@@ -33,12 +33,14 @@ function MentionsLegales() {
     <LegalPage eyebrow={t("mentions.eyebrow")} title={t("mentions.title")} updatedAt="11 novembre 2026">
       <LegalSection title={t("mentions.s_editor")}>
         <p>
-          La plateforme MoveSpot (ci-après « le Site ») est éditée par <strong>RAKOUN KLUB</strong>,
-          entreprise individuelle.
+          La plateforme MoveSpot (ci-après « le Site ») est éditée par{" "}
+          <strong>Garry PALERME</strong>, Entrepreneur individuel (EI) — Nom commercial :{" "}
+          <strong>RAKOUN KLUB</strong>.
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
-            <strong>Dénomination</strong> : RAKOUN KLUB
+            <strong>Identité de l'éditeur</strong> : Garry PALERME, Entrepreneur individuel (EI) —
+            Nom commercial : RAKOUN KLUB
           </li>
           <li>
             <strong>Forme juridique</strong> : Entrepreneur individuel
@@ -276,16 +278,15 @@ function MentionsLegales() {
           </li>
         </ul>
         <p className="mt-3">
-          Conformément au règlement (UE) n° 524/2013 et à l'article L.616-2 du Code de la
-          consommation, vous pouvez également utiliser la plateforme européenne de règlement en
-          ligne des litiges :{" "}
+          Pour en savoir plus sur les organismes européens de règlement extrajudiciaire des litiges,
+          consultez l'annuaire de la Commission européenne :{" "}
           <a
-            href="https://ec.europa.eu/consumers/odr"
+            href="https://europa.eu/youreurope/citizens/consumers/resolve-problem/alternative-dispute-resolution/index_fr.htm"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"
           >
-            https://ec.europa.eu/consumers/odr
+            europa.eu
           </a>
           .
         </p>
