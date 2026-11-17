@@ -38,6 +38,31 @@ export const Route = createFileRoute("/sitemap.xml")({
           // ── Propriétaires ───────────────────────────────────────────────────
           { path: "/devenir-partenaire", changefreq: "monthly", priority: "0.8", lastmod: today },
           { path: "/driver/inscription", changefreq: "monthly", priority: "0.6", lastmod: today },
+          // ── Pages locales SEO ────────────────────────────────────────────────
+          {
+            path: "/publicite-voiture-guadeloupe",
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: today,
+          },
+          {
+            path: "/publicite-voiture-paris",
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: today,
+          },
+          {
+            path: "/publicite-voiture-lyon",
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: today,
+          },
+          {
+            path: "/publicite-voiture-marseille",
+            changefreq: "monthly",
+            priority: "0.8",
+            lastmod: today,
+          },
           // ── Prestataires (directory = public) ───────────────────────────────
           { path: "/providers", changefreq: "weekly", priority: "0.7", lastmod: today },
           // ── Contact & support ───────────────────────────────────────────────
