@@ -30,7 +30,7 @@ const CONFIG: LocalPageConfig = {
     {
       icon: "🎪",
       title: "Événements & foires",
-      desc: "Euronext Lyon, Sirha, Sirha Green, Fête des Lumières — ciblez les grandes périodes d'affluence avec des campagnes sur véhicule activables en 24 h.",
+      desc: "Euronext Lyon, Sirha, Sirha Green — ciblez les grandes périodes d'affluence avec des campagnes sur véhicule activables en 24 h.",
     },
   ],
   faqs: [
