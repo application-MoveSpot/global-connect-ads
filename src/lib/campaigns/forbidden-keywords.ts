@@ -43,9 +43,11 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
       "baptême",
       "bapteme",
       "communion",
+      "fête des lumières",
+      "fete des lumieres",
     ],
     advice:
-      "Les contenus à caractère religieux sont strictement interdits sur MoveSpot, conformément à la charte de neutralité (art. 8).",
+      "Les contenus à caractère religieux sont strictement interdits sur MoveSpot, conformément à la charte de neutralité (art. 6).",
   },
   {
     category: "Politique / électoral",
