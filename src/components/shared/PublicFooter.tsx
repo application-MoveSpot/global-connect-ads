@@ -60,6 +60,23 @@ export function PublicFooter() {
           </a>
         </div>
 
+        {/* Pages locales */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground/60">Publicité locale :</span>
+          <Link to="/publicite-voiture-guadeloupe" className="hover:text-foreground transition">
+            Guadeloupe
+          </Link>
+          <Link to="/publicite-voiture-paris" className="hover:text-foreground transition">
+            Paris & Île-de-France
+          </Link>
+          <Link to="/publicite-voiture-lyon" className="hover:text-foreground transition">
+            Lyon & Villeurbanne
+          </Link>
+          <Link to="/publicite-voiture-marseille" className="hover:text-foreground transition">
+            Marseille & Aix
+          </Link>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="space-y-0.5">
             <div>
