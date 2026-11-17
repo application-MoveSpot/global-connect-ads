@@ -1,3 +1,5 @@
+import { getConsent } from "@/lib/consent";
+
 const UTM_KEYS = [
   "utm_source",
   "utm_medium",
@@ -17,6 +19,7 @@ type UtmEntry = { data: UtmData; capturedAt: number };
 /** Read UTMs from current URL and persist them to localStorage (first-touch model). */
 export function captureUtm(): void {
   if (typeof window === "undefined") return;
+  if (getConsent() !== "accepted") return;
   try {
     const params = new URLSearchParams(window.location.search);
     const fresh: UtmData = {};

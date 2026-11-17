@@ -4055,7 +4055,8 @@
   },
   "map_consent_gate": {
     "msg": "La carte utilise Mapbox, un service tiers. Acceptez les cookies pour l'afficher.",
-    "btn_manage": "Gérer mes préférences →"
+    "btn_manage": "Gérer mes préférences →",
+    "btn_activate": "Activer la carte interactive"
   },
   "signed_in_banner": {
     "connected_as": "Connecté en tant que",

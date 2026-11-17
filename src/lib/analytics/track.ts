@@ -1,10 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getConsent } from "@/lib/consent";
 import { getStoredUtm } from "./utm";
 
 // Stable session identifier for this browser tab
 const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 export async function track(event: string, properties?: Record<string, unknown>): Promise<void> {
+  if (getConsent() !== "accepted") return;
   try {
     const { data } = await supabase.auth.getUser();
     const utm = getStoredUtm();

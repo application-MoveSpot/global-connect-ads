@@ -261,6 +261,14 @@ function RootComponent() {
     initPixels();
     firePixelEvent("PageView");
 
+    // Rejoue captureUtm() si le visiteur accepte les cookies après le chargement
+    // initial (les paramètres UTM présents dans l'URL sont alors capturés).
+    const onConsentChange = (e: Event) => {
+      const detail = (e as CustomEvent<string | null>).detail;
+      if (detail === "accepted") captureUtm();
+    };
+    window.addEventListener("ms-consent-change", onConsentChange);
+
     const unsubRouter = router.subscribe("onResolved", () => {
       firePixelEvent("PageView");
     });
@@ -275,7 +283,7 @@ function RootComponent() {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
-          Sentry.setUser({ id: session.user.id, email: session.user.email });
+          Sentry.setUser({ id: session.user.id });
         } else {
           Sentry.setUser(null);
         }
@@ -288,6 +296,7 @@ function RootComponent() {
     return () => {
       unsubRouter();
       unsubAuth?.();
+      window.removeEventListener("ms-consent-change", onConsentChange);
     };
   }, []);
 

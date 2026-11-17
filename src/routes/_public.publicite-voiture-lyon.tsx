@@ -30,7 +30,7 @@ const CONFIG: LocalPageConfig = {
     {
       icon: "🎪",
       title: "Événements & foires",
-      desc: "Euronext Lyon, Sirha, Sirha Green, Fête des Lumières — ciblez les grandes périodes d'affluence avec des campagnes sur véhicule activables en 24 h.",
+      desc: "Euronext Lyon, Sirha, Sirha Green — ciblez les grandes périodes d'affluence avec des campagnes sur véhicule activables en 24 h.",
     },
   ],
   faqs: [
@@ -47,8 +47,8 @@ const CONFIG: LocalPageConfig = {
       a: `La flotte disponible dans la métropole lyonnaise comprend des taxis, des VTC, des véhicules de livraison et des utilitaires. Inscrivez votre brief : les propriétaires dont les trajets traversent votre zone proposeront leur offre sous 48 h.`,
     },
     {
-      q: `Puis-je lancer une campagne pendant la Fête des Lumières à Lyon ?`,
-      a: `Oui. MoveSpot permet de créer des campagnes ponctuelles de quelques jours. Pensez à soumettre votre brief au moins 7 jours à l'avance pour permettre aux propriétaires de confirmer leur disponibilité sur la période.`,
+      q: `Puis-je lancer une campagne lors des périodes de forte affluence à Lyon ?`,
+      a: `Oui, MoveSpot permet de créer des campagnes ponctuelles de quelques jours pour accompagner les pics de fréquentation dans la métropole. Pensez à soumettre votre brief au moins 7 jours à l'avance afin de permettre aux propriétaires de confirmer leur disponibilité sur la période souhaitée.`,
     },
   ],
 };
