@@ -78,19 +78,9 @@ create policy "incident_reports_owner_insert"
 -- Admin : lecture totale
 create policy "incident_reports_admin_select"
   on public.incident_reports for select
-  using (
-    exists (
-      select 1 from public.admin_profiles ap
-      where ap.id = auth.uid()
-    )
-  );
+  using (public.has_role(auth.uid(), 'admin'));
 
 -- Admin : mise à jour (statut, note)
 create policy "incident_reports_admin_update"
   on public.incident_reports for update
-  using (
-    exists (
-      select 1 from public.admin_profiles ap
-      where ap.id = auth.uid()
-    )
-  );
+  using (public.has_role(auth.uid(), 'admin'));
