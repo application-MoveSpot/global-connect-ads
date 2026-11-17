@@ -6,6 +6,7 @@
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { log } from "@/lib/logger";
 
 type AdminClient = SupabaseClient<Database>;
 
