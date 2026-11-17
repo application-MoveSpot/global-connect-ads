@@ -4055,7 +4055,8 @@
   },
   "map_consent_gate": {
     "msg": "The map uses Mapbox, a third-party service. Accept cookies to display it.",
-    "btn_manage": "Manage my preferences →"
+    "btn_manage": "Manage my preferences →",
+    "btn_activate": "Activate the interactive map"
   },
   "signed_in_banner": {
     "connected_as": "Signed in as",

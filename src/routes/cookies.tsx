@@ -32,7 +32,7 @@ export const Route = createFileRoute("/cookies")({
 function Cookies() {
   const { t } = useTranslation();
   return (
-    <LegalPage eyebrow={t("cookies.eyebrow")} title={t("cookies.title")} updatedAt="11 novembre 2026">
+    <LegalPage eyebrow={t("cookies.eyebrow")} title={t("cookies.title")} updatedAt="17 novembre 2026">
       <LegalSection title={t("cookies.s1")}>
         <p>
           Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, tablette,
@@ -111,6 +111,36 @@ function Cookies() {
               </td>
               <td className="p-3">Variable</td>
               <td className="p-3">Non requis (nécessaire au paiement)</td>
+            </tr>
+            <tr>
+              <td className="p-3">Tiers (surveillance des erreurs)</td>
+              <td className="p-3">
+                Détection et débogage des erreurs techniques de l'application —{" "}
+                <strong>Sentry, Inc.</strong> (États-Unis, SCC). Aucune donnée d'identité civile
+                transmise (<code>sendDefaultPii: false</code>).
+              </td>
+              <td className="p-3">90 jours</td>
+              <td className="p-3">Non requis (intérêt légitime — sécurité/stabilité)</td>
+            </tr>
+            <tr>
+              <td className="p-3">Tiers (publicité — Meta Pixel)</td>
+              <td className="p-3">
+                Mesure de conversion des campagnes publicitaires Meta —{" "}
+                <strong>Meta Platforms Ireland Ltd.</strong> (DPF UE–US + SCC). Activé uniquement
+                après votre consentement.
+              </td>
+              <td className="p-3">90 jours</td>
+              <td className="p-3">Requis</td>
+            </tr>
+            <tr>
+              <td className="p-3">Tiers (publicité — Google Ads)</td>
+              <td className="p-3">
+                Mesure de conversion des campagnes Google Ads —{" "}
+                <strong>Google Ireland Ltd. / Google LLC</strong> (DPF UE–US + SCC). Activé
+                uniquement après votre consentement.
+              </td>
+              <td className="p-3">90 jours</td>
+              <td className="p-3">Requis</td>
             </tr>
             <tr>
               <td className="p-3">Tiers (SMS)</td>

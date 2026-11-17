@@ -34,7 +34,7 @@ function Privacy() {
     <LegalPage
       eyebrow={t("confidentialite.eyebrow")}
       title={t("confidentialite.title")}
-      updatedAt="11 novembre 2026"
+      updatedAt="17 novembre 2026"
     >
       <LegalSection title={t("confidentialite.s1")}>
         <p>
@@ -47,8 +47,9 @@ function Privacy() {
 
       <LegalSection title={t("confidentialite.s2")}>
         <p>
-          Le responsable du traitement est RAKOUN KLUB, entreprise individuelle exploitant MoveSpot
-          (voir les{" "}
+          Le responsable du traitement est{" "}
+          <strong>Garry PALERME, Entrepreneur individuel (EI) — Nom commercial : RAKOUN KLUB</strong>{" "}
+          (SIRET : 804 671 444 00052), exploitant MoveSpot (voir les{" "}
           <a href="/mentions-legales" className="text-primary hover:underline">
             mentions légales
           </a>
@@ -182,8 +183,9 @@ function Privacy() {
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
-            Les positions sont rattachées au <strong>véhicule</strong> et à la campagne, non à
-            l'identité civile du conducteur.
+            Les positions sont rattachées à un <strong>identifiant technique de véhicule et de
+            session de campagne</strong>, non à l'identité civile du conducteur. Elles ne font
+            l'objet d'aucun profilage comportemental du conducteur.
           </li>
           <li>
             L'annonceur n'accède aux positions que pendant la fenêtre de la campagne approuvée, via
@@ -269,6 +271,24 @@ function Privacy() {
             documents sont transmis à la volée pour traitement immédiat et ne sont jamais conservés
             ni utilisés pour entraîner des modèles tiers.
           </li>
+          <li>
+            <strong>Sentry, Inc.</strong> (45 Fremont Street, 8th Floor, San Francisco, CA 94105,
+            États-Unis) — surveillance des erreurs techniques et de la stabilité de l'application
+            (stack traces, URL, identifiant technique de session). La transmission est limitée aux
+            données strictement nécessaires au débogage ; aucun email ou donnée d'identité civile
+            n'est communiqué à Sentry (<code>sendDefaultPii: false</code>).
+          </li>
+          <li>
+            <strong>Meta Platforms Ireland Ltd.</strong> (Merrion Road, Dublin 4, Irlande) — Pixel
+            Meta : mesure de conversion publicitaire. Ce traceur n'est activé qu'après votre
+            consentement explicite.
+          </li>
+          <li>
+            <strong>Google Ireland Ltd. / Google LLC</strong> (Gordon House, Barrow Street, Dublin 4,
+            Irlande — siège mondial : 1600 Amphitheatre Parkway, Mountain View, CA 94043,
+            États-Unis) — Google Ads Conversion Tag : mesure de conversion publicitaire. Ce traceur
+            n'est activé qu'après votre consentement explicite.
+          </li>
         </ul>
       </LegalSection>
 
@@ -342,6 +362,22 @@ function Privacy() {
             traitement des données (DPA) garantissant que les documents transmis sont analysés
             uniquement à la volée, ne sont jamais stockés par Anthropic et ne sont en aucun cas
             utilisés pour l'entraînement de modèles d'intelligence artificielle.
+          </li>
+          <li>
+            <strong>Sentry, Inc.</strong> (San Francisco, États-Unis) — surveillance des erreurs
+            techniques : encadré par les Clauses Contractuelles Types (SCC) de la Commission
+            européenne. Seules des données techniques de débogage (sans PII par défaut) sont
+            transmises.
+          </li>
+          <li>
+            <strong>Meta Platforms Ireland Ltd.</strong> (Irlande / UE) — Pixel Meta (mesure de
+            conversion, activé uniquement après consentement) : encadré par le{" "}
+            <em>Data Privacy Framework UE–États-Unis</em> et les SCC.
+          </li>
+          <li>
+            <strong>Google Ireland Ltd. / Google LLC</strong> (Irlande / États-Unis) — Google Ads
+            Conversion Tag (activé uniquement après consentement) : encadré par le{" "}
+            <em>Data Privacy Framework UE–États-Unis</em> et les SCC.
           </li>
         </ul>
       </LegalSection>

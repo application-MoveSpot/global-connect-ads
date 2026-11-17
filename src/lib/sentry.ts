@@ -11,6 +11,7 @@ export function initSentry() {
     dsn: DSN,
     environment: import.meta.env.MODE,
     release: import.meta.env["VITE_APP_VERSION"] as string | undefined,
+    sendDefaultPii: false,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
