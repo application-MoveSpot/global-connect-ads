@@ -2890,7 +2890,10 @@
       "incident_btn_take_charge": "Take charge",
       "incident_btn_close": "Close",
       "incident_note_placeholder": "Internal admin note…",
-      "incident_closed_summary": "{{count}} closed report(s)"
+      "incident_closed_summary": "{{count}} closed report(s)",
+      "incident_provider_label": "Installer",
+      "incident_provider_none": "No installer assigned",
+      "incident_btn_poses": "Install photos"
     },
     "support": {
       "title": "Support MoveSpot",

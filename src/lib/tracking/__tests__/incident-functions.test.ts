@@ -10,7 +10,7 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText;
 
-function setup(role: boolean | null = true, emailFails = false) {
+function setup(role: boolean | null = true, emailFails = false, extraRows: Record<string, unknown> = {}) {
   const queries: string[] = [];
   const roles: unknown[] = [];
   const emails: Array<Record<string, unknown>> = [];
@@ -21,6 +21,7 @@ function setup(role: boolean | null = true, emailFails = false) {
     vehicles: { id: vehicleId, name: "Test véhicule", owner_id: "owner-profile", driver_id: null },
     incident_reports: { id: "incident-id" },
     user_roles: [],
+    ...extraRows,
   };
   const admin = {
     from(table: string) {
@@ -30,7 +31,15 @@ function setup(role: boolean | null = true, emailFails = false) {
       for (const key of ["select", "eq", "insert", "update", "limit"]) {
         chain[key] = () => chain;
       }
-      chain.order = () => { result.data = []; return chain; };
+      chain.order = () => { if (!Array.isArray(result.data)) result.data = []; return chain; };
+      chain.in = (col: string, values: unknown[]) => {
+        if (Array.isArray(result.data)) {
+          result.data = result.data.filter((row) =>
+            (values as unknown[]).includes((row as Record<string, unknown>)[col]),
+          );
+        }
+        return chain;
+      };
       chain.single = chain.maybeSingle = async () => result;
       chain.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
       return chain;
@@ -99,4 +108,54 @@ describe("incident email notifications", () => {
       assert.equal((s.emails[0].templateData as Record<string, unknown>).reporterEmail, "reporter@example.test");
     });
   }
+});
+
+describe("incident installer attribution", () => {
+  const quoted = "vehicle-with-quote";
+  const unquoted = "vehicle-without-quote";
+
+  const report = (vehicleId: string) => ({
+    id: `incident-${vehicleId}`,
+    created_at: "2026-11-18T10:00:00.000Z",
+    user_id: "reporter-user",
+    vehicle_id: vehicleId,
+    campaign_request_id: null,
+    incident_type: "decollement_vinyle",
+    description: null,
+    photo_path: null,
+    status: "open",
+    admin_note: null,
+    vehicles: { name: `Voiture ${vehicleId}` },
+  });
+
+  it("shows the installer resolved from service_quotes and provider_profiles", async () => {
+    const s = setup(true, false, {
+      incident_reports: [report(quoted), report(unquoted)],
+      service_quotes: [{ vehicle_id: quoted, provider_id: "provider-user" }],
+      provider_profiles: [{ user_id: "provider-user", full_name: "Atelier Covering Pro" }],
+    });
+    const result = (await s.exports.adminListIncidentReports({ context: s.context, data: {} })) as {
+      reports: Array<Record<string, unknown>>;
+    };
+
+    const withInstaller = result.reports.find((r) => r.vehicle_id === quoted);
+    assert.equal(withInstaller?.provider_name, "Atelier Covering Pro");
+    assert.equal(withInstaller?.provider_user_id, "provider-user");
+
+    const withoutInstaller = result.reports.find((r) => r.vehicle_id === unquoted);
+    assert.equal(withoutInstaller?.provider_name, null);
+    assert.equal(withoutInstaller?.provider_user_id, null);
+
+    assert.deepEqual(s.queries, ["incident_reports", "service_quotes", "provider_profiles"]);
+  });
+
+  it("keeps listing reports when the installer lookup fails", async () => {
+    const s = setup(true, false, { incident_reports: [report(quoted)] });
+    s.exports; // ensure module loaded
+    const result = (await s.exports.adminListIncidentReports({ context: s.context, data: {} })) as {
+      reports: Array<Record<string, unknown>>;
+    };
+    assert.equal(result.reports.length, 1);
+    assert.equal(result.reports[0].provider_name, null);
+  });
 });

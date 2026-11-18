@@ -200,6 +200,8 @@ export type AdminIncidentReport = OwnerIncidentReport & {
   user_id: string;
   user_email: string | null;
   campaign_request_id: string | null;
+  provider_name: string | null;
+  provider_user_id: string | null;
 };
 
 export const adminListIncidentReports = createServerFn({ method: "GET" })
@@ -236,6 +238,61 @@ export const adminListIncidentReports = createServerFn({ method: "GET" })
       /* best-effort */
     }
 
+    // Résoudre le poseur via service_quotes → provider_profiles (best-effort)
+    const vehicleIds = [
+      ...new Set(
+        ((data ?? []) as unknown[]).map((r) => (r as Record<string, unknown>).vehicle_id as string),
+      ),
+    ];
+    let providerMap: Record<string, { name: string | null; userId: string | null }> = {};
+    try {
+      if (vehicleIds.length > 0) {
+        const { data: quotes } = await supabaseAdmin
+          .from("service_quotes" as never)
+          .select("vehicle_id, provider_id")
+          .in("vehicle_id" as never, vehicleIds as never)
+          .order("created_at" as never, { ascending: false });
+
+        const providerIds = [
+          ...new Set(
+            ((quotes ?? []) as Array<{ vehicle_id: string; provider_id: string | null }>)
+              .map((q) => q.provider_id)
+              .filter(Boolean) as string[],
+          ),
+        ];
+
+        if (providerIds.length > 0) {
+          const { data: providers } = await supabaseAdmin
+            .from("provider_profiles" as never)
+            .select("user_id, full_name")
+            .in("user_id" as never, providerIds as never);
+
+          const providerNameMap: Record<string, string | null> = {};
+          for (const p of (providers ?? []) as Array<{
+            user_id: string;
+            full_name: string | null;
+          }>) {
+            providerNameMap[p.user_id] = p.full_name;
+          }
+
+          // Le devis le plus récent par véhicule fait foi (dernier poseur intervenu).
+          for (const q of (quotes ?? []) as Array<{
+            vehicle_id: string;
+            provider_id: string | null;
+          }>) {
+            if (q.provider_id && !providerMap[q.vehicle_id]) {
+              providerMap[q.vehicle_id] = {
+                name: providerNameMap[q.provider_id] ?? null,
+                userId: q.provider_id,
+              };
+            }
+          }
+        }
+      }
+    } catch {
+      /* best-effort */
+    }
+
     return {
       reports: ((data ?? []) as unknown[]).map((r: unknown) => {
         const row = r as Record<string, unknown>;
@@ -248,6 +305,8 @@ export const adminListIncidentReports = createServerFn({ method: "GET" })
           vehicle_id: row.vehicle_id as string,
           vehicle_name: (veh.name as string | null) ?? null,
           campaign_request_id: (row.campaign_request_id as string | null) ?? null,
+          provider_name: providerMap[row.vehicle_id as string]?.name ?? null,
+          provider_user_id: providerMap[row.vehicle_id as string]?.userId ?? null,
           incident_type: row.incident_type as IncidentType,
           description: row.description as string | null,
           photo_path: row.photo_path as string | null,
