@@ -19,6 +19,8 @@
 
 - AI brief actions return typed error results for expired sessions or provider failures, because thrown HTTP responses can escape TanStack server functions and blank the page.
 
+- `vehicles.owner_id` references `owner_profiles.id`, never `auth.users.id`: queries that scope vehicles to their owner must resolve the profile first with `getOwnerProfileId()` from `src/lib/fleet/owner-profile.ts`, because filtering on the authenticated id silently returns no rows. `vehicle_positions.owner_id` is the opposite — it stores the authenticated id, so position inserts keep `auth.uid()`.
+
 ## Règle absolue — témoignages et avis utilisateurs
 
 **INTERDIT** d'ajouter des témoignages, avis, citations ou retours d'expérience fictifs sur n'importe quelle page publique ou privée de l'application (pages marketing, landing pages, pages "pourquoi nous choisir", pages "exemples", etc.).

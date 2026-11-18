@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getOwnerProfileId } from "@/lib/fleet/owner-profile";
 
 // ── Export RGPD : toutes les données personnelles de l'utilisateur ─────────────
 export const exportUserData = createServerFn({ method: "GET" })
@@ -85,14 +86,18 @@ export const exportUserData = createServerFn({ method: "GET" })
       ),
       // Véhicules du propriétaire
       // admin_notes et ai_verification exclus (données internes d'administration)
-      safeQuery(() =>
-        supabaseAdmin
+      // vehicles.owner_id référence owner_profiles.id : on filtre sur le profil,
+      // jamais sur l'identifiant d'authentification.
+      safeQuery(async () => {
+        const ownerProfileId = await getOwnerProfileId(supabaseAdmin, userId);
+        if (!ownerProfileId) return { data: [], error: null };
+        return supabaseAdmin
           .from("vehicles")
           .select(
             "id, name, brand, model, type, color, license_plate, condition, price_per_day, surface_m2, format_publicitaire, km_per_day, zones, status, description, created_at, updated_at",
           )
-          .eq("owner_id", userId),
-      ),
+          .eq("owner_id", ownerProfileId);
+      }),
       // Demandes de virement (paiements propriétaire)
       // stripe_account_id, stripe_transfer_id et admin_notes exclus : IDs techniques internes
       safeQuery(() =>
