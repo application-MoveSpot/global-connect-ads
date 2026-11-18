@@ -1,5 +1,7 @@
 # Project architecture rules
 
+- Incident administration must verify has_role through the authenticated client before privileged reads or updates; incident email alerts use a fixed admin recipient and event-derived idempotency, and email failures must never prevent report persistence.
+
 - Public provider listings use the restricted public_provider_profiles view with approved status and Stripe active/trialing filtering; its explicit public-field allowlist permits anonymous reads without exposing private profile fields.
 
 - AppBrandShell supplies a white official-logo band around all page states; CSS suppresses it only when the rendered page already has a branded header, preventing duplicate navigation without changing authentication.
