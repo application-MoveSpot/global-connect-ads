@@ -157,7 +157,7 @@ export function calculateBudgetFromVehicles(
   const coveringCost = c.baseCoverEuro * v.costMultiplier;
   const driverBonusPerMonth = v.avgKmPerDay * 30 * v.kmRateEuro;
   const totalCostPerVehicle = coveringCost + driverBonusPerMonth;
-  const raw = Math.round((vehicleCount * totalCostPerVehicle) / 100) * 100;
+  const raw = Math.ceil((vehicleCount * totalCostPerVehicle) / 100) * 100;
   return Math.min(10_000, Math.max(100, raw));
 }
 
