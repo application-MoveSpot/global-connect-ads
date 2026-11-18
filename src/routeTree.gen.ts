@@ -36,6 +36,10 @@ import { Route as PublicCommentCaMarcheRouteImport } from './routes/_public.comm
 import { Route as PublicDevenirPartenaireRouteImport } from './routes/_public.devenir-partenaire'
 import { Route as PublicPourquoiMovespotRouteImport } from './routes/_public.pourquoi-movespot'
 import { Route as PublicPrevisionnelRouteImport } from './routes/_public.previsionnel'
+import { Route as PublicPubliciteVoitureGuadeloupeRouteImport } from './routes/_public.publicite-voiture-guadeloupe'
+import { Route as PublicPubliciteVoitureLyonRouteImport } from './routes/_public.publicite-voiture-lyon'
+import { Route as PublicPubliciteVoitureMarseilleRouteImport } from './routes/_public.publicite-voiture-marseille'
+import { Route as PublicPubliciteVoitureParisRouteImport } from './routes/_public.publicite-voiture-paris'
 import { Route as PublicRemboursementRouteImport } from './routes/_public.remboursement'
 import { Route as PublicTarifsRouteImport } from './routes/_public.tarifs'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
@@ -269,6 +273,30 @@ const PublicPrevisionnelRoute = PublicPrevisionnelRouteImport.update({
   path: '/previsionnel',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicPubliciteVoitureGuadeloupeRoute =
+  PublicPubliciteVoitureGuadeloupeRouteImport.update({
+    id: '/publicite-voiture-guadeloupe',
+    path: '/publicite-voiture-guadeloupe',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicPubliciteVoitureLyonRoute =
+  PublicPubliciteVoitureLyonRouteImport.update({
+    id: '/publicite-voiture-lyon',
+    path: '/publicite-voiture-lyon',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicPubliciteVoitureMarseilleRoute =
+  PublicPubliciteVoitureMarseilleRouteImport.update({
+    id: '/publicite-voiture-marseille',
+    path: '/publicite-voiture-marseille',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicPubliciteVoitureParisRoute =
+  PublicPubliciteVoitureParisRouteImport.update({
+    id: '/publicite-voiture-paris',
+    path: '/publicite-voiture-paris',
+    getParentRoute: () => PublicRoute,
+  } as any)
 const PublicRemboursementRoute = PublicRemboursementRouteImport.update({
   id: '/remboursement',
   path: '/remboursement',
@@ -787,6 +815,10 @@ export interface FileRoutesByFullPath {
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/previsionnel': typeof PublicPrevisionnelRoute
+  '/publicite-voiture-guadeloupe': typeof PublicPubliciteVoitureGuadeloupeRoute
+  '/publicite-voiture-lyon': typeof PublicPubliciteVoitureLyonRoute
+  '/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
+  '/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/remboursement': typeof PublicRemboursementRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -909,6 +941,10 @@ export interface FileRoutesByTo {
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/previsionnel': typeof PublicPrevisionnelRoute
+  '/publicite-voiture-guadeloupe': typeof PublicPubliciteVoitureGuadeloupeRoute
+  '/publicite-voiture-lyon': typeof PublicPubliciteVoitureLyonRoute
+  '/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
+  '/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/remboursement': typeof PublicRemboursementRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -1033,6 +1069,10 @@ export interface FileRoutesById {
   '/_public/devenir-partenaire': typeof PublicDevenirPartenaireRoute
   '/_public/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/_public/previsionnel': typeof PublicPrevisionnelRoute
+  '/_public/publicite-voiture-guadeloupe': typeof PublicPubliciteVoitureGuadeloupeRoute
+  '/_public/publicite-voiture-lyon': typeof PublicPubliciteVoitureLyonRoute
+  '/_public/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
+  '/_public/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/_public/remboursement': typeof PublicRemboursementRoute
   '/_public/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -1159,6 +1199,10 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/pourquoi-movespot'
     | '/previsionnel'
+    | '/publicite-voiture-guadeloupe'
+    | '/publicite-voiture-lyon'
+    | '/publicite-voiture-marseille'
+    | '/publicite-voiture-paris'
     | '/remboursement'
     | '/tarifs'
     | '/admin/audit'
@@ -1281,6 +1325,10 @@ export interface FileRouteTypes {
     | '/devenir-partenaire'
     | '/pourquoi-movespot'
     | '/previsionnel'
+    | '/publicite-voiture-guadeloupe'
+    | '/publicite-voiture-lyon'
+    | '/publicite-voiture-marseille'
+    | '/publicite-voiture-paris'
     | '/remboursement'
     | '/tarifs'
     | '/admin/audit'
@@ -1404,6 +1452,10 @@ export interface FileRouteTypes {
     | '/_public/devenir-partenaire'
     | '/_public/pourquoi-movespot'
     | '/_public/previsionnel'
+    | '/_public/publicite-voiture-guadeloupe'
+    | '/_public/publicite-voiture-lyon'
+    | '/_public/publicite-voiture-marseille'
+    | '/_public/publicite-voiture-paris'
     | '/_public/remboursement'
     | '/_public/tarifs'
     | '/admin/audit'
@@ -1789,6 +1841,34 @@ declare module '@tanstack/react-router' {
       path: '/previsionnel'
       fullPath: '/previsionnel'
       preLoaderRoute: typeof PublicPrevisionnelRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/publicite-voiture-guadeloupe': {
+      id: '/_public/publicite-voiture-guadeloupe'
+      path: '/publicite-voiture-guadeloupe'
+      fullPath: '/publicite-voiture-guadeloupe'
+      preLoaderRoute: typeof PublicPubliciteVoitureGuadeloupeRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/publicite-voiture-lyon': {
+      id: '/_public/publicite-voiture-lyon'
+      path: '/publicite-voiture-lyon'
+      fullPath: '/publicite-voiture-lyon'
+      preLoaderRoute: typeof PublicPubliciteVoitureLyonRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/publicite-voiture-marseille': {
+      id: '/_public/publicite-voiture-marseille'
+      path: '/publicite-voiture-marseille'
+      fullPath: '/publicite-voiture-marseille'
+      preLoaderRoute: typeof PublicPubliciteVoitureMarseilleRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/publicite-voiture-paris': {
+      id: '/_public/publicite-voiture-paris'
+      path: '/publicite-voiture-paris'
+      fullPath: '/publicite-voiture-paris'
+      preLoaderRoute: typeof PublicPubliciteVoitureParisRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/remboursement': {
@@ -2468,6 +2548,10 @@ interface PublicRouteChildren {
   PublicDevenirPartenaireRoute: typeof PublicDevenirPartenaireRoute
   PublicPourquoiMovespotRoute: typeof PublicPourquoiMovespotRoute
   PublicPrevisionnelRoute: typeof PublicPrevisionnelRoute
+  PublicPubliciteVoitureGuadeloupeRoute: typeof PublicPubliciteVoitureGuadeloupeRoute
+  PublicPubliciteVoitureLyonRoute: typeof PublicPubliciteVoitureLyonRoute
+  PublicPubliciteVoitureMarseilleRoute: typeof PublicPubliciteVoitureMarseilleRoute
+  PublicPubliciteVoitureParisRoute: typeof PublicPubliciteVoitureParisRoute
   PublicRemboursementRoute: typeof PublicRemboursementRoute
   PublicTarifsRoute: typeof PublicTarifsRoute
   PublicIndexRoute: typeof PublicIndexRoute
@@ -2483,6 +2567,10 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicDevenirPartenaireRoute: PublicDevenirPartenaireRoute,
   PublicPourquoiMovespotRoute: PublicPourquoiMovespotRoute,
   PublicPrevisionnelRoute: PublicPrevisionnelRoute,
+  PublicPubliciteVoitureGuadeloupeRoute: PublicPubliciteVoitureGuadeloupeRoute,
+  PublicPubliciteVoitureLyonRoute: PublicPubliciteVoitureLyonRoute,
+  PublicPubliciteVoitureMarseilleRoute: PublicPubliciteVoitureMarseilleRoute,
+  PublicPubliciteVoitureParisRoute: PublicPubliciteVoitureParisRoute,
   PublicRemboursementRoute: PublicRemboursementRoute,
   PublicTarifsRoute: PublicTarifsRoute,
   PublicIndexRoute: PublicIndexRoute,

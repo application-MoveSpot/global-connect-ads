@@ -4,6 +4,45 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { getDrivingRules } from "@/lib/fleet/driving-rules";
 import { detectGpsAnomalies } from "@/lib/tracking/gps-anomaly";
 import { recomputeTrustScore } from "@/lib/tracking/control-photo";
+import { getOwnerProfileId } from "@/lib/fleet/owner-profile";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+
+// Accès d'un appelant à un véhicule pour la pousée de positions GPS.
+// `vehicles.owner_id` référence `owner_profiles.id` (et non `auth.users.id`) :
+// on résout d'abord le profil du propriétaire, puis on teste le chauffeur
+// assigné. Sans profil propriétaire valide, le filtre ne renvoie aucune ligne.
+async function canPushVehiclePosition(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  vehicleId: string,
+): Promise<boolean> {
+  const ownerProfileId = await getOwnerProfileId(supabase, userId);
+  if (ownerProfileId) {
+    const { data } = await supabase
+      .from("vehicles")
+      .select("id")
+      .eq("id", vehicleId)
+      .eq("owner_id", ownerProfileId)
+      .maybeSingle();
+    if (data) return true;
+  }
+
+  const { data: driverRec } = await supabase
+    .from("drivers")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!driverRec) return false;
+
+  const { data: driverVehicle } = await supabase
+    .from("vehicles")
+    .select("id")
+    .eq("id", vehicleId)
+    .eq("driver_id", driverRec.id)
+    .maybeSingle();
+  return Boolean(driverVehicle);
+}
 
 // Retourne "HH:MM" dans le fuseau IANA indiqué pour comparer aux plages horaires
 // stockées sans timezone dans daily_start_time / daily_end_time.
@@ -48,27 +87,10 @@ export const pushPosition = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Verify the caller owns or is assigned to this vehicle
-    const { data: ownedVehicle } = await supabase
-      .from("vehicles")
-      .select("id")
-      .eq("id", data.vehicleId)
-      .eq("owner_id", userId)
-      .maybeSingle();
-    if (!ownedVehicle) {
-      const { data: driverRec } = await supabase
-        .from("drivers")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (!driverRec) throw new Error("Accès non autorisé à ce véhicule.");
-      const { data: driverVehicle } = await supabase
-        .from("vehicles")
-        .select("id")
-        .eq("id", data.vehicleId)
-        .eq("driver_id", driverRec.id)
-        .maybeSingle();
-      if (!driverVehicle) throw new Error("Accès non autorisé à ce véhicule.");
+    // vehicles.owner_id référence owner_profiles.id (jamais auth.users.id) :
+    // la résolution du profil propriétaire est faite dans canPushVehiclePosition.
+    if (!(await canPushVehiclePosition(supabase, userId, data.vehicleId))) {
+      throw new Error("Accès non autorisé à ce véhicule.");
     }
 
     // Même protection que pushPositionBatch : on ne taggue le point avec la
@@ -130,27 +152,9 @@ export const pushPositionBatch = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Verify the caller owns or is assigned to this vehicle
-    const { data: ownedVehicle } = await supabase
-      .from("vehicles")
-      .select("id")
-      .eq("id", data.vehicleId)
-      .eq("owner_id", userId)
-      .maybeSingle();
-    if (!ownedVehicle) {
-      const { data: driverRec } = await supabase
-        .from("drivers")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-      if (!driverRec) throw new Error("Accès non autorisé à ce véhicule.");
-      const { data: driverVehicle } = await supabase
-        .from("vehicles")
-        .select("id")
-        .eq("id", data.vehicleId)
-        .eq("driver_id", driverRec.id)
-        .maybeSingle();
-      if (!driverVehicle) throw new Error("Accès non autorisé à ce véhicule.");
+    // Même règle que pushPosition : véhicules rattachés à owner_profiles.id.
+    if (!(await canPushVehiclePosition(supabase, userId, data.vehicleId))) {
+      throw new Error("Accès non autorisé à ce véhicule.");
     }
 
     // Récupère la plage horaire de la campagne pour ne taguer les points
@@ -329,16 +333,14 @@ export const getOwnerVehiclesForTracking = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: ownerProfile } = await supabase
-      .from("owner_profiles")
-      .select("id")
-      .eq("user_id", userId)
-      .single();
-    if (!ownerProfile) return { vehicles: [] };
+    // vehicles.owner_id = owner_profiles.id, pas auth.users.id : sans profil
+    // propriétaire on renvoie une liste vide plutôt qu'une requête fausse.
+    const ownerProfileId = await getOwnerProfileId(supabase, userId);
+    if (!ownerProfileId) return { vehicles: [] };
     const { data, error } = await supabase
       .from("vehicles")
       .select("id, name, type, status")
-      .eq("owner_id", (ownerProfile as { id: string }).id)
+      .eq("owner_id", ownerProfileId)
       .eq("status", "approved");
     if (error) throw new Error(error.message);
     return { vehicles: data ?? [] };
