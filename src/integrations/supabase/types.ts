@@ -1109,6 +1109,66 @@ export type Database = {
         }
         Relationships: []
       }
+      incident_reports: {
+        Row: {
+          admin_note: string | null
+          campaign_request_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          incident_type: Database["public"]["Enums"]["incident_type"]
+          photo_path: string | null
+          resolved_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          campaign_request_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          incident_type: Database["public"]["Enums"]["incident_type"]
+          photo_path?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          campaign_request_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          incident_type?: Database["public"]["Enums"]["incident_type"]
+          photo_path?: string | null
+          resolved_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_reports_campaign_request_id_fkey"
+            columns: ["campaign_request_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_reports_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           body: string
@@ -2735,6 +2795,12 @@ export type Database = {
         | "provider"
         | "partner"
       brief_status: "open" | "closed" | "fulfilled" | "cancelled"
+      incident_type:
+        | "accident_sinistre"
+        | "degradation_vandalisme"
+        | "decollement_vinyle"
+        | "retrait_urgence"
+        | "autre"
       proposal_status: "pending" | "accepted" | "rejected" | "withdrawn"
       vehicle_condition: "excellent" | "bon" | "moyen" | "mauvais"
       vehicle_status: "pending" | "approved" | "rejected" | "paused"
@@ -2889,6 +2955,13 @@ export const Constants = {
         "partner",
       ],
       brief_status: ["open", "closed", "fulfilled", "cancelled"],
+      incident_type: [
+        "accident_sinistre",
+        "degradation_vandalisme",
+        "decollement_vinyle",
+        "retrait_urgence",
+        "autre",
+      ],
       proposal_status: ["pending", "accepted", "rejected", "withdrawn"],
       vehicle_condition: ["excellent", "bon", "moyen", "mauvais"],
       vehicle_status: ["pending", "approved", "rejected", "paused"],
