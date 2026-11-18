@@ -2060,7 +2060,7 @@ function AdminDashboard() {
           <div className="space-y-10">
             <AdminAlertesPanel />
             <AdminObstacleReportsPanel />
-            <AdminIncidentReportsPanel />
+            <AdminIncidentReportsPanel onOpenPoses={() => switchTab("poses")} />
           </div>
         ) : null}
 
@@ -3426,7 +3426,7 @@ function AdminObstacleReportsPanel() {
 
 // ─── Panel signalements sinistres / dégradations (CGU §11) ────────────────────
 
-function AdminIncidentReportsPanel() {
+function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }) {
   const { t, i18n } = useTranslation();
   const listIncidents = useServerFn(adminListIncidentReports);
   const updateIncident = useServerFn(adminUpdateIncidentReport);
@@ -3497,6 +3497,20 @@ function AdminIncidentReportsPanel() {
                   {" · "}
                   {r.user_email ?? r.user_id}
                 </p>
+                {r.provider_name && (
+                  <p className="text-xs text-muted-foreground">
+                    🔧{" "}
+                    {t("admin.dashboard.incident_provider_label", { defaultValue: "Poseur" })} :{" "}
+                    <span className="font-medium text-foreground">{r.provider_name}</span>
+                  </p>
+                )}
+                {!r.provider_name && (
+                  <p className="text-xs text-muted-foreground italic">
+                    {t("admin.dashboard.incident_provider_none", {
+                      defaultValue: "Poseur non attribué",
+                    })}
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground">
                   {new Date(r.created_at).toLocaleString(i18n.language)}
                 </p>
@@ -3548,6 +3562,17 @@ function AdminIncidentReportsPanel() {
                 onClick={() => handleUpdate(r.id, "closed")}
               >
                 {t("admin.dashboard.incident_btn_close")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-violet-600 border-violet-500/40 text-xs"
+                onClick={() => {
+                  if (onOpenPoses) onOpenPoses();
+                  else window.location.hash = "poses";
+                }}
+              >
+                📷 {t("admin.dashboard.incident_btn_poses", { defaultValue: "Photos de pose" })}
               </Button>
             </div>
           </div>

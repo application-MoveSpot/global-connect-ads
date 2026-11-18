@@ -24,3 +24,4 @@
 - [x] Préparer le filigrane YouTube avec le logo officiel : PNG 150 × 150 pixels, 12 853 octets ; aucun ajout dans l’application.
 - [x] Corriger les contrôles administrateur des incidents via has_role et ajouter l’alerte email avec modèle dédié ; 6 tests réussis, compilation OK.
 - [ ] Vérifier la réception réelle de l’alerte incident : domaine email signalé « Needs attention » ; compte de vérification refusé sur l’espace admin et redirigé vers l’inscription propriétaire.
+- [x] Afficher le poseur lié au véhicule et un accès direct aux photos de pose dans les alertes admin : poseur résolu via devis → prestataires (best-effort, devis le plus récent), bouton « Photos de pose » ouvrant l’onglet Poses à valider ; 8 tests réussis, compilation OK. Panel non exercé en navigateur : la session de test disponible n’est pas administratrice.

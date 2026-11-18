@@ -2890,7 +2890,10 @@
       "incident_btn_take_charge": "Prendre en charge",
       "incident_btn_close": "Clôturer",
       "incident_note_placeholder": "Note interne admin…",
-      "incident_closed_summary": "{{count}} signalement(s) clôturé(s)"
+      "incident_closed_summary": "{{count}} signalement(s) clôturé(s)",
+      "incident_provider_label": "Poseur",
+      "incident_provider_none": "Poseur non attribué",
+      "incident_btn_poses": "Photos de pose"
     },
     "support": {
       "title": "Support MoveSpot",
