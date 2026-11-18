@@ -98,7 +98,7 @@ export const submitIncidentReport = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    // Notifier les admins — push + email (best-effort)
+    // Notifier les admins (best-effort)
     try {
       const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
       const { data: admins } = await supabaseAdmin
@@ -126,24 +126,20 @@ export const submitIncidentReport = createServerFn({ method: "POST" })
       try {
         const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
         reporterEmail = authUser?.user?.email ?? undefined;
-      } catch {
-        /* best-effort */
-      }
+      } catch { /* best-effort */ }
       await sendAppEmail({
         templateName: "admin-incident-alert",
         recipientEmail: "",
         idempotencyKey: `incident-alert-${(report as unknown as { id: string }).id}`,
         templateData: {
-          vehicleName: (veh as unknown as { name: string }).name,
+          vehicleName: veh.name,
           incidentType: data.incidentType,
           reporterEmail,
           description: data.description,
           createdAt: new Date().toLocaleString("fr-FR"),
         },
       });
-    } catch {
-      /* best-effort */
-    }
+    } catch { /* best-effort */ }
 
     return { ok: true, id: (report as unknown as { id: string }).id };
   });
