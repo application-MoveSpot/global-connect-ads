@@ -28,6 +28,7 @@ import { template as advertiserWelcomeDay3Template } from "./advertiser-welcome-
 import { template as ownerWelcomeTemplate } from "./owner-welcome";
 import { template as ownerWelcomeDay2Template } from "./owner-welcome-day2";
 import { template as adminIntrusionAlertTemplate } from "./admin-intrusion-alert";
+import { template as adminIncidentAlertTemplate } from "./admin-incident-alert";
 import { template as briefDecisionTemplate } from "./brief-decision";
 import { template as campaignOwnerResponseTemplate } from "./campaign-owner-response";
 
@@ -74,6 +75,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   "owner-welcome": ownerWelcomeTemplate,
   "owner-welcome-day2": ownerWelcomeDay2Template,
   "admin-intrusion-alert": adminIntrusionAlertTemplate,
+  "admin-incident-alert": adminIncidentAlertTemplate,
   "brief-decision": briefDecisionTemplate,
   "campaign-owner-response": campaignOwnerResponseTemplate,
 };

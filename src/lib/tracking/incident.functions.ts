@@ -98,7 +98,7 @@ export const submitIncidentReport = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
-    // Notifier les admins (best-effort)
+    // Notifier les admins — push + email (best-effort)
     try {
       const { sendWebPushToUser } = await import("@/lib/notifications/push-send.server");
       const { data: admins } = await supabaseAdmin
@@ -115,6 +115,32 @@ export const submitIncidentReport = createServerFn({ method: "POST" })
           url: "/admin/dashboard",
         }).catch(() => {});
       }
+    } catch {
+      /* best-effort */
+    }
+
+    // Email admin (best-effort)
+    try {
+      const { sendAppEmail } = await import("@/lib/email/send.server");
+      let reporterEmail: string | undefined;
+      try {
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+        reporterEmail = authUser?.user?.email ?? undefined;
+      } catch {
+        /* best-effort */
+      }
+      await sendAppEmail({
+        templateName: "admin-incident-alert",
+        recipientEmail: "",
+        idempotencyKey: `incident-alert-${(report as unknown as { id: string }).id}`,
+        templateData: {
+          vehicleName: (veh as unknown as { name: string }).name,
+          incidentType: data.incidentType,
+          reporterEmail,
+          description: data.description,
+          createdAt: new Date().toLocaleString("fr-FR"),
+        },
+      });
     } catch {
       /* best-effort */
     }
@@ -183,13 +209,10 @@ export type AdminIncidentReport = OwnerIncidentReport & {
 export const adminListIncidentReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
 
-    const { data: adminRow } = await supabase
-      .from("admin_profiles" as never)
-      .select("id")
-      .maybeSingle();
-    if (!adminRow) throw new Error("Accès refusé.");
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Accès refusé.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -251,13 +274,10 @@ export const adminUpdateIncidentReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof UpdateIncidentInput>) => UpdateIncidentInput.parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
 
-    const { data: adminRow } = await supabase
-      .from("admin_profiles" as never)
-      .select("id")
-      .maybeSingle();
-    if (!adminRow) throw new Error("Accès refusé.");
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Accès refusé.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
