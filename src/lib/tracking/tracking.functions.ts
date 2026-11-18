@@ -329,10 +329,16 @@ export const getOwnerVehiclesForTracking = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    const { data: ownerProfile } = await supabase
+      .from("owner_profiles")
+      .select("id")
+      .eq("user_id", userId)
+      .single();
+    if (!ownerProfile) return { vehicles: [] };
     const { data, error } = await supabase
       .from("vehicles")
       .select("id, name, type, status")
-      .eq("owner_id", userId)
+      .eq("owner_id", (ownerProfile as { id: string }).id)
       .eq("status", "approved");
     if (error) throw new Error(error.message);
     return { vehicles: data ?? [] };
