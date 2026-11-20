@@ -1,6 +1,7 @@
 # Project architecture rules
 
 - Incident administration must verify has_role through the authenticated client before privileged reads or updates; incident email alerts use a fixed admin recipient and event-derived idempotency, and email failures must never prevent report persistence.
+- The standalone /promo-short studio omits site chrome but retains BetaGuard; its pure timeline drives a client-only R3F scene composited with captions onto one 1080×1920 canvas, so MediaRecorder exports the same frame as the preview and uses the actual supported file format.
 
 - Public provider listings use the restricted public_provider_profiles view with approved status and Stripe active/trialing filtering; its explicit public-field allowlist permits anonymous reads without exposing private profile fields.
 

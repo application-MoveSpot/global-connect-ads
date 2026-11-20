@@ -5,6 +5,7 @@ import {
   HeadContent,
   Scripts,
   useRouter,
+  useLocation,
 } from "@tanstack/react-router";
 import { CSP_HEADER } from "@/lib/security/csp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -227,12 +228,13 @@ export const Route = (createRootRouteWithContext as any)()({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
+  const isPromoStudio = useLocation().pathname === "/promo-short";
   // useTranslation() re-renders on language change; read lang from the i18n
   // singleton imported at module scope so Rollup cannot tree-shake the import.
-  const lang = i18n.resolvedLanguage ?? "fr";
+  const lang = isPromoStudio ? "fr" : i18n.resolvedLanguage ?? "fr";
 
   return (
-    <html lang={lang}>
+    <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"}>
       <head>
         <HeadContent />
         <meta httpEquiv="Content-Security-Policy" content={CSP_HEADER} />
@@ -243,7 +245,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
         >
-          {t("root.skip_to_content")}
+          {isPromoStudio ? "Aller au contenu principal" : t("root.skip_to_content")}
         </a>
         {children}
         <Scripts />
@@ -255,6 +257,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const isPromoStudio = useLocation().pathname === "/promo-short";
 
   useEffect(() => {
     captureUtm();
@@ -304,18 +307,18 @@ function RootComponent() {
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <QueryClientProvider client={queryClient}>
         <RegionProvider>
-          <OfflineBanner />
-          <TestEnvBanner />
+          {!isPromoStudio && <OfflineBanner />}
+          {!isPromoStudio && <TestEnvBanner />}
           <SessionKeeper />
           <AppUpdateGuard />
           <LanguageAuditGuard />
-          <StatusBanner />
-          <AppBrandShell>
+          {!isPromoStudio && <StatusBanner />}
+          {isPromoStudio ? <BetaGuard><Outlet /></BetaGuard> : <AppBrandShell>
             <BetaGuard>
               <Outlet />
             </BetaGuard>
-          </AppBrandShell>
-          <CookieBanner />
+          </AppBrandShell>}
+          {!isPromoStudio && <CookieBanner />}
         </RegionProvider>
       </QueryClientProvider>
     </Sentry.ErrorBoundary>
