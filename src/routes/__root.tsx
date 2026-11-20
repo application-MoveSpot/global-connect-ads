@@ -102,9 +102,9 @@ export const Route = (createRootRouteWithContext as any)()({
               email: "contact@move-spot.com",
               logo: {
                 "@type": "ImageObject",
-                url: "https://move-spot.com/icon-512.png",
-                width: 512,
-                height: 512,
+                url: "https://move-spot.com/og-image.png",
+                width: 1200,
+                height: 630,
               },
               description:
                 "Marketplace de publicité mobile sur véhicules (food trucks, vans, taxis, scooters). Marchés : France, Europe, Afrique, Asie, États-Unis.",
@@ -172,8 +172,8 @@ export const Route = (createRootRouteWithContext as any)()({
               legalName: "RAKOUN KLUB",
               url: "https://move-spot.com",
               email: "contact@move-spot.com",
-              image: "https://move-spot.com/icon-512.png",
-              logo: "https://move-spot.com/icon-512.png",
+              image: "https://move-spot.com/og-image.png",
+              logo: "https://move-spot.com/og-image.png",
               description:
                 "Marketplace de publicité mobile sur véhicules (food trucks, vans, taxis, scooters). Connectez annonceurs et flottes en France, Europe, Afrique, Asie et États-Unis.",
               address: {
