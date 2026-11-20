@@ -1,5 +1,6 @@
 supabase/.temp/
-.claude/
+.claude/*
+!.claude/skills/
 
 # Logs
 logs
@@ -18,24 +19,3 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
-.env
-.env.*
-!.env.example
-
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-e2e/report/
-test-results/
-playwright-report/
