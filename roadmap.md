@@ -27,3 +27,5 @@
 - [x] Afficher le poseur lié au véhicule et un accès direct aux photos de pose dans les alertes admin : poseur résolu via devis → prestataires (best-effort, devis le plus récent), bouton « Photos de pose » ouvrant l’onglet Poses à valider ; 8 tests réussis, compilation OK. Panel non exercé en navigateur : la session de test disponible n’est pas administratrice.
 - [x] Créer /promo-short isolé avec animation verticale de 45 secondes, séquençage, sous-titres et export vidéo ; lecture et téléchargement MP4 H.264 1080×1920 de 44,99 s vérifiés en navigateur, quatre tests réussis ; aucune publication.
 - [x] Intégrer les chiffres propriétaires confirmés au scénario : 22 × 17,50 € minimum garanti = 385 €/mois, 70 % du tarif annonceur, jusqu’à 514,50 €/mois en zone dense et validation sous 48 h ; sans publication.
+
+- [x] Améliorer les six séquences /promo-short : accroche 385 €, contraste véhicule, roulage, GPS animé, équation séquentielle et outro sûre ; 11 tests réussis, lecture et export MP4 H.264 1080×1920 de 44,98 s sans audio vérifiés sur ordinateur et téléphone ; sans publication.

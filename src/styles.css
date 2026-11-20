@@ -292,7 +292,7 @@
 .promo-studio {
   --background: oklch(0.141 0.015 278);
   --foreground: oklch(1 0 0);
-  --primary: oklch(0.705 0.194 39.23);
+  --primary: #FF6B35;
   --primary-foreground: oklch(0.141 0.015 278);
   --accent: oklch(0.887 0.182 95.33);
   --muted: oklch(0.19 0.009 278);
@@ -302,6 +302,7 @@
   --secondary-foreground: oklch(1 0 0);
   --signal: oklch(0.76 0.17 151);
   --destructive: oklch(0.64 0.23 25);
+  --vehicle-idle: oklch(0.67 0.014 245);
   --studio-shadow: 0 28px 80px oklch(0 0 0 / .5);
   min-height: 100dvh;
   background: var(--background);

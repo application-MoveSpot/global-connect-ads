@@ -4,10 +4,10 @@ import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { Box3, CanvasTexture, Color, Group, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader, Vector3 } from "three";
 import sedanAsset from "@/assets/models/promo-sedan.glb.asset.json";
 import carTexture from "@/assets/models/promo-car-colormap.png.asset.json";
-import { captionAt, DURATION, euroAmount, HEIGHT, OWNER_TERMS, shotAt, spring, WIDTH } from "@/lib/promo/timeline";
+import { CAPTION_BASELINE, captionAt, DURATION, equationStage, euroAmount, GPS_POINTS, GPS_REFRESH_SECONDS, gpsPosition, HEIGHT, OWNER_MONTHLY_EUR, OWNER_TERMS, shotAt, spring, WIDTH } from "@/lib/promo/timeline";
 
 export interface Playback { time: number; playing: boolean; started: number; offset: number }
-export interface FilmPalette { background: string; foreground: string; primary: string; accent: string; muted: string; border: string; signal: string; destructive: string }
+export interface FilmPalette { background: string; foreground: string; primary: string; accent: string; muted: string; border: string; signal: string; destructive: string; "vehicle-idle": string }
 
 function Vehicle({ playback, logo, palette }: { playback: React.RefObject<Playback>; logo: HTMLImageElement; palette: FilmPalette }) {
   const gltf = useGLTF(sedanAsset.url, false, false, (loader) => {
@@ -47,17 +47,26 @@ function Vehicle({ playback, logo, palette }: { playback: React.RefObject<Playba
     const texture = new CanvasTexture(canvas); texture.colorSpace = SRGBColorSpace; return texture;
   }, [logo, palette]);
   const wrap = useRef<Group>(null);
+  const idleColor = useMemo(() => new Color(palette["vehicle-idle"]), [palette]);
+  const activeColor = useMemo(() => new Color(palette.primary), [palette]);
   useEffect(() => () => {
     decal.dispose();
     model.traverse((o) => { if (o instanceof Mesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose()); });
   }, [model, decal]);
   useFrame(() => {
     const t = playback.current.time;
-    if (group.current) { group.current.visible = (t >= 3 && t < 18) || (t >= 29 && t < 37); group.current.rotation.y = -.15 + Math.sin(t * .15) * .1; }
-    if (wrap.current) { wrap.current.visible = t >= 8; wrap.current.scale.z = Math.max(.001, Math.min(1, spring((t - 8) * .7))); }
+    if (group.current) { group.current.visible = t >= 3 && t < 18; group.current.rotation.y = -.15 + Math.sin(t * .35) * .08; }
+    if (wrap.current) {
+      wrap.current.visible = t >= 8;
+      wrap.current.scale.z = Math.max(.001, Math.min(1, spring((t - 8) * 1.4)));
+      // The sheet approaches the door before flattening onto its side.
+      wrap.current.scale.x = 1 + Math.exp(-Math.max(0, t - 8) * 5) * .12;
+    }
     model.traverse((o) => {
-      if (!(o instanceof Mesh) || o.name !== "body") return;
-      (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { if (m instanceof MeshStandardMaterial) m.color.copy(new Color(palette.foreground)).lerp(new Color(palette.primary), Math.min(.6, Math.max(0, (t - 8) / 2))); });
+      if (!(o instanceof Mesh)) return;
+      if (o.name.startsWith("wheel-")) o.rotation.x = t < 9 ? 0 : -(t - 9) * 7;
+      if (o.name !== "body") return;
+      (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => { if (m instanceof MeshStandardMaterial) m.color.copy(idleColor).lerp(activeColor, Math.min(1, Math.max(0, (t - 8) * 3))); });
     });
   });
   return <group ref={group}>
@@ -71,13 +80,15 @@ function Vehicle({ playback, logo, palette }: { playback: React.RefObject<Playba
 
 function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t: number, logo: HTMLImageElement, p: FilmPalette) {
   const shot = shotAt(t); const local = t - shot.start;
+  ctx.save();
+  if (t < 2) ctx.translate(Math.sin(t * 46) * Math.exp(-t * 3) * 14, Math.cos(t * 39) * Math.exp(-t * 3) * 9);
   ctx.globalAlpha = 1; ctx.fillStyle = p.background; ctx.fillRect(0, 0, WIDTH, HEIGHT);
   ctx.strokeStyle = p.border; ctx.lineWidth = 1; ctx.globalAlpha = .3;
   for (let i = 0; i < 1080; i += 90) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, HEIGHT); ctx.stroke(); }
   for (let i = 0; i < HEIGHT; i += 90) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(WIDTH, i); ctx.stroke(); }
   ctx.globalAlpha = 1;
   ctx.textAlign = "center";
-  ctx.font = '800 23px "Unbounded"'; ctx.fillStyle = p.foreground; ctx.fillText("MOVESPOT / EN MOUVEMENT", 540, 140);
+  if (t < 37) { ctx.font = '800 23px "Unbounded"'; ctx.fillStyle = p.foreground; ctx.fillText("MOVESPOT / EN MOUVEMENT", 540, 140); }
   ctx.font = '800 34px "Barlow Condensed"'; ctx.fillStyle = p.primary; ctx.fillText(shot.kicker, 540, 315);
   function text(value: string, y: number, max: number, color: string, scale = 1) {
     ctx.save(); ctx.translate(540, y); ctx.scale(scale, scale); let size = max;
@@ -86,42 +97,43 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
     ctx.fillStyle = color; ctx.fillText(value, 0, 0); ctx.restore();
   }
   const entrance = .86 + .14 * spring(local * 1.4);
-  text(shot.title, 488, 133, t < 3 ? p.primary : p.foreground, entrance);
-  // Deterministic gold burst, confetti and continuous parallax.
-  if (t < 3 || (t >= 29 && t < 37)) {
+  if (t >= 3 && t < 29) text(shot.title, 488, 133, p.foreground, entrance);
+  // Deterministic burst: a fresh reveal on the monthly result, not throughout the equation.
+  if (t < 3 || (t >= 34 && t < 37)) {
+    const burst = t < 3 ? t : t - 34;
     for (let i = 0; i < 80; i++) {
-      const angle = i * 2.399; const radius = (50 + (i % 9) * 36) * Math.min(2.4, local + .4);
-      const x = 540 + Math.cos(angle) * radius; const y = 1030 + Math.sin(angle) * radius * 1.35;
-      ctx.save(); ctx.translate(x, y); ctx.rotate(angle + t * .6); ctx.globalAlpha = .3 + (i % 6) / 10;
-      ctx.fillStyle = i % 3 ? p.accent : p.primary; ctx.fillRect(-3, -3, 6 + i % 8, 6 + i % 4); ctx.restore();
+      const angle = i * 2.399; const radius = (120 + (i % 9) * 36) * Math.min(2.4, burst * 1.5 + .4);
+      const x = 540 + Math.cos(angle) * radius; const y = 900 + Math.sin(angle) * radius + burst * burst * 75;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(angle + burst * 2); ctx.globalAlpha = Math.max(0, 1 - burst / 3) * (.4 + (i % 6) / 10);
+      ctx.fillStyle = i % 3 ? p.foreground : p.primary; ctx.fillRect(-3, -3, 8 + i % 8, 6 + i % 4); ctx.restore();
     }
   }
-  if ((t >= 3 && t < 18) || (t >= 29 && t < 37)) {
+  if (t >= 3 && t < 18) {
+    if (t >= 9) {
+      // Road strips move in the same direction as the rotating wheel axles.
+      ctx.save(); ctx.beginPath(); ctx.rect(60, 1080, 960, 240); ctx.clip();
+      for (let i = -3; i < 9; i++) {
+        const z = ((i * 170 + (t - 9) * 380) % 1500 + 1500) % 1500 - 750;
+        ctx.save(); ctx.translate(540 + z, 1210 - z * .23); ctx.rotate(-.23);
+        ctx.fillStyle = p.foreground; ctx.globalAlpha = .4; ctx.fillRect(-52, -5, 104, 10); ctx.restore();
+      }
+      ctx.restore();
+    }
     ctx.save(); ctx.globalAlpha = Math.min(1, Math.max(.1, local * 2));
+    if (t < 8) ctx.filter = "grayscale(1)";
     ctx.drawImage(source, 25, 580, 1030, 1030); ctx.restore();
     if (t < 8) {
       const hours = Math.min(8, Math.floor((t - 3) * 1.6));
       text(`${String(hours).padStart(2, "0")}:00`, 690, 70, p.destructive);
-      text("ENTRE DEUX TRAJETS", 1350, 55, p.muted);
-      for (let i = 0; i < 3; i++) {
-        const x = 280 + i * 260; const y = 780 + ((local * 95 + i * 110) % 270);
-        ctx.beginPath(); ctx.ellipse(x, y, 40, 45, t * .7, 0, Math.PI * 2); ctx.fillStyle = p.accent; ctx.fill();
-        ctx.fillStyle = p.background; ctx.font = '800 42px "Barlow Condensed"'; ctx.fillText("€", x, y + 14);
-      }
+      text("ENTRE DEUX TRAJETS", 1340, 55, p.foreground);
     } else if (t < 18) {
-      text(`${euroAmount(OWNER_TERMS.minimumDailyEur)} €/JOUR · MINIMUM GARANTI`, 1370, 62, p.accent, entrance);
-    } else {
-      text(`${OWNER_TERMS.daysPerMonth} JOURS × ${euroAmount(OWNER_TERMS.minimumDailyEur)} €`, 660, 64, p.primary);
-      text(`${OWNER_TERMS.advertiserShare * 100} % DU TARIF ANNONCEUR`, 1360, 53, p.accent);
-      text(`JUSQU’À ${euroAmount(OWNER_TERMS.denseZoneMonthlyEur)} €/MOIS EN ZONE DENSE`, 1440, 48, p.foreground);
+      text(`${euroAmount(OWNER_TERMS.minimumDailyEur)} €/JOUR · MINIMUM GARANTI`, 1340, 62, p.primary, entrance);
     }
   }
   if (t < 3) {
-    ctx.save(); ctx.translate(540 + Math.sin(t * 25) * Math.exp(-t * 3) * 9, 970); ctx.rotate(-.09 + Math.sin(t * .2) * .03);
-    ctx.font = '800 250px "Barlow Condensed"'; ctx.fillStyle = p.border;
-    for (let i = 15; i > 0; i--) ctx.fillText("VOTRE", i, -40 + i);
-    ctx.fillStyle = p.foreground; ctx.fillText("VOTRE", 0, -40);
-    ctx.fillStyle = p.primary; ctx.fillText("VOITURE", 0, 205); ctx.restore();
+    text(`${euroAmount(OWNER_MONTHLY_EUR)} €`, 920, 320, p.primary, 1 + Math.sin(t * 21) * Math.exp(-t * 4) * .1);
+    text("/MOIS", 1110, 180, p.primary, entrance);
+    text("22 JOURS · MINIMUM GARANTI", 1260, 52, p.foreground);
   }
   if (t >= 18 && t < 29) {
     ctx.save(); ctx.beginPath(); ctx.rect(45, 640, 990, 675); ctx.clip();
@@ -132,24 +144,52 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
       ctx.beginPath(); ctx.moveTo(i * 130, -400); ctx.lineTo(i * 130, 400); ctx.stroke();
       for (let j = -3; j < 3; j++) { ctx.fillStyle = p.muted; ctx.globalAlpha = .3; ctx.fillRect(i * 130 + 22, j * 135 + 24, 82, 86); ctx.globalAlpha = 1; }
     }
-    const points = [[-380, 285], [-120, 285], [-120, 15], [140, 15], [140, -255], [380, -255]];
-    const progress = Math.min(4.99, local / 9 * 5); ctx.strokeStyle = p.primary; ctx.lineWidth = 14; ctx.lineJoin = "round";
-    ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]);
-    for (let i = 1; i <= Math.floor(progress); i++) ctx.lineTo(points[i][0], points[i][1]);
-    const a = points[Math.floor(progress)]; const b = points[Math.floor(progress) + 1]; const f = progress % 1;
-    const x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
+    const { x, y, segment, angle } = gpsPosition(t);
+    ctx.strokeStyle = p.primary; ctx.lineWidth = 14; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.moveTo(-380, 285);
+    for (let i = 1; i <= segment; i++) { const point = GPS_POINTS[i]; if (point) ctx.lineTo(point[0], point[1]); }
     ctx.lineTo(x, y); ctx.stroke();
-    ctx.fillStyle = p.primary; ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI * 2); ctx.fill();
-    const pulse = (local % 2) / 2; ctx.globalAlpha = 1 - pulse; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 28 + pulse * 100, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
-    ctx.restore(); text("SUIVI GPS", 1370, 64, p.primary);
+    for (let i = 0; i < 3; i++) {
+      const pulse = ((local + i * .65) % 2) / 2; ctx.globalAlpha = (1 - pulse) * .7; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x, y, 32 + pulse * 100, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    // A mini-car centred exactly on the animated route endpoint.
+    ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+    ctx.fillStyle = p.foreground; ctx.fillRect(-20, -25, 12, 8); ctx.fillRect(9, -25, 12, 8); ctx.fillRect(-20, 17, 12, 8); ctx.fillRect(9, 17, 12, 8);
+    ctx.fillStyle = p.primary; ctx.beginPath(); ctx.roundRect(-32, -19, 64, 38, 12); ctx.fill();
+    ctx.fillStyle = p.background; ctx.fillRect(1, -12, 13, 24); ctx.restore();
+    ctx.restore();
+    ctx.fillStyle = p.border;
+    ctx.beginPath(); ctx.roundRect(282, 1320, 516, 64, 16); ctx.fill();
+    text(`GPS ACTIF · ${GPS_REFRESH_SECONDS}s`, 1366, 44, p.primary);
+  }
+  if (t >= 29 && t < 37) {
+    const stage = equationStage(t); const elapsed = Math.max(0, t - (stage === 0 ? 30 : stage === 1 ? 32 : 34));
+    const size = 1 + Math.sin(elapsed * 17) * Math.exp(-elapsed * 4) * .07;
+    if (stage === 0) text(`${OWNER_TERMS.daysPerMonth} JOURS`, 980, 190, p.foreground, size);
+    else if (stage === 1) {
+      text(`${OWNER_TERMS.daysPerMonth} JOURS`, 730, 72, p.foreground);
+      text(`× ${euroAmount(OWNER_TERMS.minimumDailyEur)} €`, 1020, 190, p.primary, size);
+    } else {
+      text(`${OWNER_TERMS.daysPerMonth} JOURS × ${euroAmount(OWNER_TERMS.minimumDailyEur)} €`, 690, 62, p.foreground);
+      text(`= ${euroAmount(OWNER_MONTHLY_EUR)} €`, 975, 245, p.primary, size);
+      text("/MOIS", 1115, 126, p.primary);
+      const badgeOpacity = Math.min(1, Math.max(0, (t - 35) * 3));
+      ctx.save(); ctx.globalAlpha = badgeOpacity;
+      ctx.fillStyle = p.border; ctx.beginPath(); ctx.roundRect(90, 1200, 900, 152, 16); ctx.fill();
+      text(`${OWNER_TERMS.advertiserShare * 100} % REVERSÉ`, 1263, 50, p.foreground);
+      text(`Jusqu’à ${euroAmount(OWNER_TERMS.denseZoneMonthlyEur)} €/mois en zone dense`, 1316, 42, p.foreground); ctx.restore();
+    }
   }
   if (t >= 37) {
     const reveal = Math.min(1, spring(local));
     ctx.save(); ctx.translate(540, 945); ctx.scale(reveal, reveal);
     ctx.fillStyle = p.foreground; ctx.beginPath(); ctx.roundRect(-200, -260, 400, 520, 12); ctx.fill();
     ctx.drawImage(logo, -160, -235, 320, 420); ctx.restore();
-    text("move-spot.com".slice(0, Math.min(13, Math.floor(local * 4))), 1360, 92, p.primary);
-    text(`VALIDATION SOUS ${OWNER_TERMS.validationHours} H`, 1440, 52, p.accent);
+    text("move-spot.com".slice(0, Math.min(13, Math.floor(local * 7))), 1290, 108, p.primary);
+    text("@MoveSpot_GP", 1350, 55, p.foreground);
+    text(`VALIDATION SOUS ${OWNER_TERMS.validationHours} H`, 1560, 44, p.foreground);
   }
   const c = captionAt(t);
   let fontSize = 62; ctx.font = `800 ${fontSize}px "Barlow Condensed"`;
@@ -157,8 +197,8 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
   const widths = c.words.map((w) => ctx.measureText(w).width); const space = ctx.measureText(" ").width;
   let x = (WIDTH - widths.reduce((a, b) => a + b, 0) - space * (widths.length - 1)) / 2;
   ctx.textAlign = "left";
-  c.words.forEach((word, i) => { ctx.fillStyle = i === c.active ? p.primary : p.foreground; ctx.fillText(word, x, 1545); x += widths[i] + space; });
-  ctx.textAlign = "center"; ctx.fillStyle = p.muted; ctx.font = '800 24px "Unbounded"'; ctx.fillText("move-spot.com", 540, 1750);
+  c.words.forEach((word, i) => { ctx.fillStyle = i === c.active ? p.primary : p.foreground; ctx.fillText(word, x, CAPTION_BASELINE); x += widths[i] + space; });
+  ctx.textAlign = "center";
   // One expanding/contracting shape bridges each chapter without a hard cut.
   if (t > 2.6 && t < 43.5) {
     const distance = Math.min(Math.abs(local), Math.abs(shot.end - t));
@@ -167,7 +207,8 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
       ctx.fillStyle = p.primary; ctx.beginPath(); ctx.ellipse(540, 960, radius, radius * .65, t * .03, 0, Math.PI * 2); ctx.fill();
     }
   }
-  if (t > 43.5) { ctx.globalAlpha = Math.min(1, (t - 43.5) / 1.5); ctx.fillStyle = p.background; ctx.fillRect(0, 0, WIDTH, HEIGHT); ctx.globalAlpha = 1; }
+  // Keep the logo and destination visible through the final frame.
+  ctx.restore();
 }
 
 function Stepper({ playback, output, logo, palette, onTick }: { playback: React.RefObject<Playback>; output: HTMLCanvasElement; logo: HTMLImageElement; palette: FilmPalette; onTick: (time: number) => void }) {
@@ -175,7 +216,8 @@ function Stepper({ playback, output, logo, palette, onTick }: { playback: React.
   useFrame(() => {
     const state = playback.current;
     if (state.playing) state.time = Math.min(DURATION, state.offset + (performance.now() - state.started) / 1000);
-    camera.position.set(7.2 + Math.sin(state.time * .13) * .4, 3.3 + Math.cos(state.time * .1) * .25, 4.6 - state.time * .012);
+    const driving = Math.min(9, Math.max(0, state.time - 9));
+    camera.position.set(7.2 + Math.sin(state.time * .3) * .25 - driving * .035, 3.3 + Math.cos(state.time * .22) * .12, 4.6 - driving * .03);
     camera.lookAt(0, .55, 0); gl.render(scene, camera);
     const ctx = output.getContext("2d");
     if (ctx) paintFrame(ctx, gl.domElement, state.time, logo, palette);

@@ -56,7 +56,7 @@ function ShortStudio() {
     Promise.all([logo.decode(), document.fonts.load('800 100px "Unbounded"'), document.fonts.load('800 100px "Barlow Condensed"')]).then(() => {
       if (disposed || !studio.current) return;
       const css = getComputedStyle(studio.current);
-      const palette = Object.fromEntries(["background", "foreground", "primary", "accent", "muted", "border", "signal", "destructive"].map((key) => [key, css.getPropertyValue(`--${key}`).trim()])) as unknown as FilmPalette;
+      const palette = Object.fromEntries(["background", "foreground", "primary", "accent", "muted", "border", "signal", "destructive", "vehicle-idle"].map((key) => [key, css.getPropertyValue(`--${key}`).trim()])) as unknown as FilmPalette;
       // Canvas2D accepts oklch, but Three's Color does not: resolve tokens through Canvas.
       const probe = document.createElement("canvas").getContext("2d");
       if (probe) {
