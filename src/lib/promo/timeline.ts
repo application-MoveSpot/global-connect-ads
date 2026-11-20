@@ -1,14 +1,25 @@
 export const DURATION = 45;
 export const WIDTH = 1080;
 export const HEIGHT = 1920;
+export const OWNER_TERMS = {
+  daysPerMonth: 22,
+  minimumDailyEur: 17.5,
+  advertiserShare: 0.7,
+  denseZoneMonthlyEur: 514.5,
+  validationHours: 48,
+} as const;
+export const OWNER_MONTHLY_EUR = OWNER_TERMS.daysPerMonth * OWNER_TERMS.minimumDailyEur;
+export function euroAmount(amount: number) {
+  return amount.toLocaleString("fr-FR", { minimumFractionDigits: Number.isInteger(amount) ? 0 : 2, maximumFractionDigits: 2 });
+}
 
 export const SHOTS = [
   { start: 0, end: 3, name: "L’accroche", title: "DU POTENTIEL.", kicker: "VOTRE VOITURE A", subtitle: "Et si votre voiture devenait un espace publicitaire ?" },
   { start: 3, end: 8, name: "Le constat", title: "À L’ARRÊT.", kicker: "ENTRE DEUX TRAJETS", subtitle: "Vous conduisez pour travailler. Votre voiture reste parfois à l’arrêt." },
-  { start: 8, end: 18, name: "La transformation", title: "PRENEZ LA ROUTE.", kicker: "AVEC MOVESPOT", subtitle: "Un vinyle publicitaire sur votre véhicule. Une marque qui prend la route." },
+  { start: 8, end: 18, name: "La transformation", title: "PRENEZ LA ROUTE.", kicker: "AVEC MOVESPOT", subtitle: `Un vinyle publicitaire sur votre véhicule. ${euroAmount(OWNER_TERMS.minimumDailyEur)} €/jour minimum garanti, soit ${OWNER_TERMS.advertiserShare * 100} % du tarif annonceur.` },
   { start: 18, end: 29, name: "Le suivi GPS", title: "EN MOUVEMENT.", kicker: "LA VISIBILITÉ", subtitle: "L’annonceur suit sa campagne grâce à la géolocalisation du véhicule." },
-  { start: 29, end: 37, name: "L’opportunité", title: "CHAQUE TRAJET.", kicker: "VALORISEZ", subtitle: "Découvrez les campagnes disponibles avec MoveSpot." },
-  { start: 37, end: 45, name: "La signature", title: "MoveSpot", kicker: "VOTRE PUB PREND LA ROUTE", subtitle: "Découvrez MoveSpot sur move-spot.com." },
+  { start: 29, end: 37, name: "L’opportunité", title: `${euroAmount(OWNER_MONTHLY_EUR)} €/MOIS`, kicker: "CÔTÉ PROPRIÉTAIRE · MINIMUM GARANTI", subtitle: `${OWNER_TERMS.daysPerMonth} jours × ${euroAmount(OWNER_TERMS.minimumDailyEur)} € = ${euroAmount(OWNER_MONTHLY_EUR)} €/mois. Jusqu’à ${euroAmount(OWNER_TERMS.denseZoneMonthlyEur)} €/mois en zone dense.` },
+  { start: 37, end: 45, name: "La signature", title: "MoveSpot", kicker: "VOTRE PUB PREND LA ROUTE", subtitle: `Validation sous ${OWNER_TERMS.validationHours} h. Découvrez MoveSpot sur move-spot.com.` },
 ] as const;
 
 export function shotAt(time: number) {

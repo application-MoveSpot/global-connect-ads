@@ -26,4 +26,4 @@
 - [ ] Vérifier la réception réelle de l’alerte incident : domaine email signalé « Needs attention » ; compte de vérification refusé sur l’espace admin et redirigé vers l’inscription propriétaire.
 - [x] Afficher le poseur lié au véhicule et un accès direct aux photos de pose dans les alertes admin : poseur résolu via devis → prestataires (best-effort, devis le plus récent), bouton « Photos de pose » ouvrant l’onglet Poses à valider ; 8 tests réussis, compilation OK. Panel non exercé en navigateur : la session de test disponible n’est pas administratrice.
 - [x] Créer /promo-short isolé avec animation verticale de 45 secondes, séquençage, sous-titres et export vidéo ; lecture et téléchargement MP4 H.264 1080×1920 de 44,99 s vérifiés en navigateur, quatre tests réussis ; aucune publication.
-- [ ] Confirmer les chiffres et promesses du scénario : 22 × 17,50 € = 385 €, et non 375 € ; utiliser une version sans ces promesses en attendant.
+- [x] Intégrer les chiffres propriétaires confirmés au scénario : 22 × 17,50 € minimum garanti = 385 €/mois, 70 % du tarif annonceur, jusqu’à 514,50 €/mois en zone dense et validation sous 48 h ; sans publication.

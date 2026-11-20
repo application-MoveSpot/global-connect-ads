@@ -4,7 +4,7 @@ import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { Box3, CanvasTexture, Color, Group, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader, Vector3 } from "three";
 import sedanAsset from "@/assets/models/promo-sedan.glb.asset.json";
 import carTexture from "@/assets/models/promo-car-colormap.png.asset.json";
-import { captionAt, DURATION, HEIGHT, shotAt, spring, WIDTH } from "@/lib/promo/timeline";
+import { captionAt, DURATION, euroAmount, HEIGHT, OWNER_TERMS, shotAt, spring, WIDTH } from "@/lib/promo/timeline";
 
 export interface Playback { time: number; playing: boolean; started: number; offset: number }
 export interface FilmPalette { background: string; foreground: string; primary: string; accent: string; muted: string; border: string; signal: string; destructive: string }
@@ -109,8 +109,12 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
         ctx.fillStyle = p.background; ctx.font = '800 42px "Barlow Condensed"'; ctx.fillText("€", x, y + 14);
       }
     } else if (t < 18) {
-      text("PUBLICITÉ MOBILE", 1370, 62, p.accent, entrance);
-    } else text("VOTRE VÉHICULE. UNE OPPORTUNITÉ.", 1360, 53, p.accent);
+      text(`${euroAmount(OWNER_TERMS.minimumDailyEur)} €/JOUR · MINIMUM GARANTI`, 1370, 62, p.accent, entrance);
+    } else {
+      text(`${OWNER_TERMS.daysPerMonth} JOURS × ${euroAmount(OWNER_TERMS.minimumDailyEur)} €`, 660, 64, p.primary);
+      text(`${OWNER_TERMS.advertiserShare * 100} % DU TARIF ANNONCEUR`, 1360, 53, p.accent);
+      text(`JUSQU’À ${euroAmount(OWNER_TERMS.denseZoneMonthlyEur)} €/MOIS EN ZONE DENSE`, 1440, 48, p.foreground);
+    }
   }
   if (t < 3) {
     ctx.save(); ctx.translate(540 + Math.sin(t * 25) * Math.exp(-t * 3) * 9, 970); ctx.rotate(-.09 + Math.sin(t * .2) * .03);
@@ -145,6 +149,7 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
     ctx.fillStyle = p.foreground; ctx.beginPath(); ctx.roundRect(-200, -260, 400, 520, 12); ctx.fill();
     ctx.drawImage(logo, -160, -235, 320, 420); ctx.restore();
     text("move-spot.com".slice(0, Math.min(13, Math.floor(local * 4))), 1360, 92, p.primary);
+    text(`VALIDATION SOUS ${OWNER_TERMS.validationHours} H`, 1440, 52, p.accent);
   }
   const c = captionAt(t);
   let fontSize = 62; ctx.font = `800 ${fontSize}px "Barlow Condensed"`;

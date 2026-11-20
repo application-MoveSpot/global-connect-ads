@@ -1,6 +1,22 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { DURATION, WIDTH, HEIGHT, SHOTS, captionAt, shotAt, recorderFormat } from "../timeline.ts";
+import { DURATION, WIDTH, HEIGHT, SHOTS, captionAt, shotAt, recorderFormat, OWNER_TERMS, OWNER_MONTHLY_EUR } from "../timeline.ts";
+
+test("owner minimum is 17.50 euros per day and 385 euros for 22 days", () => {
+  assert.equal(OWNER_TERMS.minimumDailyEur, 17.5);
+  assert.equal(OWNER_TERMS.daysPerMonth, 22);
+  assert.equal(OWNER_MONTHLY_EUR, 385);
+});
+test("owner minimum represents 70 percent of the 25 euro advertiser rate", () => {
+  assert.equal(OWNER_TERMS.advertiserShare, 0.7);
+  assert.equal(25 * OWNER_TERMS.advertiserShare, OWNER_TERMS.minimumDailyEur);
+});
+test("dense-zone monthly revenue reaches 514.50 euros", () => {
+  assert.equal(OWNER_TERMS.denseZoneMonthlyEur, 514.5);
+});
+test("validation window is 48 hours", () => {
+  assert.equal(OWNER_TERMS.validationHours, 48);
+});
 
 test("the Short lasts exactly 45 seconds with contiguous scenes", () => {
   assert.equal(DURATION, 45);

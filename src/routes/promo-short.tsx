@@ -153,7 +153,6 @@ function ShortStudio() {
             {active.start === shot.start && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
           </Button>)}
         </div>
-        <p className="mt-8 hidden text-[10px] uppercase tracking-widest text-muted-foreground sm:block">SCÉNARIO / SANS PROMESSE DE REVENUS</p>
       </aside>
       <section className="min-w-0" aria-label="Aperçu du Short">
         <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground"><span className="flex items-center gap-2"><span className={`h-1.5 w-1.5 rounded-full ${recording ? "bg-destructive" : "bg-primary"}`} />{recording ? "Enregistrement" : "Aperçu"}</span><span>1080 × 1920</span></div>
