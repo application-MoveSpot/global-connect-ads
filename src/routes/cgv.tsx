@@ -68,6 +68,37 @@ function CGV() {
           accordé en cas de pose impossible due à un support inadapté fourni par ses soins. Le
           propriétaire du véhicule n'est en aucun cas destinataire ni dépositaire de ces supports.
         </p>
+        <p>
+          <strong>Impression haute définition &amp; pose professionnelle en atelier agréé.</strong>{" "}
+          Pour toute campagne d'une durée <strong>égale ou supérieure à 15 jours</strong>, ou
+          souscrite par abonnement mensuel, l'impression haute définition du support et la pose
+          professionnelle en atelier agréé MoveSpot sont <strong>incluses sans surcoût</strong>. Pour
+          les campagnes courtes (inférieures à 15 jours), un{" "}
+          <strong>forfait de mise en service</strong> (impression + pose en atelier) est facturé à
+          l'Annonceur :
+        </p>
+        <ul className="list-disc pl-6 space-y-1 text-sm">
+          <li>
+            <strong>59 € HT</strong> — Support simple (lunette arrière ou 1 panneau latéral)
+          </li>
+          <li>
+            <strong>79 € HT</strong> — Support double (2 portières latérales)
+          </li>
+          <li>
+            <strong>99 € HT</strong> — Support complet / grand format (2 portières + lunette arrière,
+            ou véhicule utilitaire / van)
+          </li>
+        </ul>
+        <p className="text-sm text-muted-foreground">
+          Ce forfait ne s'applique pas lorsqu'un support magnétique ou micro-ventousé réutilisable
+          est mis à disposition par MoveSpot, ni pour les formats disposant d'un tel kit prémonté.
+        </p>
+        <p>
+          <strong>Dépose en fin de campagne.</strong> La dépose du support vinyle en fin de campagne
+          est incluse <strong>gratuitement</strong> lors d'un passage en atelier agréé MoveSpot. Le
+          vinyle utilisé est à colle enlevable (<em>removable</em>), sans trace ni altération de la
+          carrosserie après dépose dans des conditions normales d'utilisation.
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgv.s3")}>
