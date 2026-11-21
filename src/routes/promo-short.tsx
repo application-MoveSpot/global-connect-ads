@@ -7,6 +7,8 @@ import officialLogo from "@/assets/movespot-logo.png.asset.json";
 import { PromoScene } from "@/components/promo/PromoScene";
 import type { FilmPalette, Playback } from "@/components/promo/PromoScene";
 import { DURATION, HEIGHT, recorderFormat, SHOTS, shotAt, WIDTH } from "@/lib/promo/timeline";
+import voiceAsset from "@/assets/audio/movespot-garry-narration.m4a.asset.json";
+import { ShortAudio } from "@/lib/promo/audio";
 
 export const Route = createFileRoute("/promo-short")({
   ssr: false,
@@ -38,6 +40,9 @@ function ShortStudio() {
   const playback = useRef<Playback>({ time: 0, playing: false, started: 0, offset: 0 });
   const recorder = useRef<MediaRecorder | null>(null);
   const canceled = useRef(false);
+  const audio = useRef<ShortAudio | null>(null);
+  const capture = useRef<ReturnType<ShortAudio["capture"]> | null>(null);
+  const [audioReady, setAudioReady] = useState(false);
   const tick = useRef(0);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const [assets, setAssets] = useState<{ logo: HTMLImageElement; palette: FilmPalette } | null>(null);
@@ -53,6 +58,14 @@ function ShortStudio() {
     let disposed = false;
     const logo = new Image(); logo.crossOrigin = "anonymous";
     logo.src = officialLogo.url;
+    const context = new AudioContext();
+    fetch(voiceAsset.url).then(async (response) => {
+      if (!response.ok) throw new Error("Audio unavailable");
+      return context.decodeAudioData(await response.arrayBuffer());
+    }).then((buffer) => {
+      if (disposed) return;
+      audio.current = new ShortAudio(context, buffer); setAudioReady(true);
+    }).catch(() => { if (!disposed) setError("La voix de Garry n’a pas pu être chargée. Rechargez le studio."); });
     Promise.all([logo.decode(), document.fonts.load('800 100px "Unbounded"'), document.fonts.load('800 100px "Barlow Condensed"')]).then(() => {
       if (disposed || !studio.current) return;
       const css = getComputedStyle(studio.current);
@@ -73,6 +86,9 @@ function ShortStudio() {
       disposed = true; canceled.current = true;
       if (recorder.current && recorder.current.state !== "inactive") recorder.current.stop();
       recorder.current?.stream.getTracks().forEach((track) => track.stop());
+      capture.current?.release();
+      if (audio.current) audio.current.dispose();
+      else void context.close();
     };
   }, []);
 
@@ -82,30 +98,45 @@ function ShortStudio() {
     if (performance.now() - tick.current > 100 || t === DURATION) { tick.current = performance.now(); setTime(t); }
     if (t >= DURATION && playback.current.playing) {
       playback.current.playing = false; setPlaying(false);
+      audio.current?.pause();
       if (recorder.current?.state === "recording") recorder.current.stop();
     }
   }, []);
   function seek(t: number) {
     if (recording) return;
     playback.current.time = t; playback.current.offset = t; playback.current.started = performance.now(); setTime(t);
+    if (playback.current.playing) audio.current?.play(t);
   }
-  function togglePlay() {
-    if (playback.current.playing) { playback.current.playing = false; setPlaying(false); }
+  async function togglePlay() {
+    const sound = audio.current;
+    if (!sound) return;
+    if (playback.current.playing) { sound.pause(); playback.current.time = sound.time(); playback.current.playing = false; setPlaying(false); }
     else {
       if (playback.current.time >= DURATION) seek(0);
-      playback.current.offset = playback.current.time; playback.current.started = performance.now(); playback.current.playing = true; setPlaying(true);
+      try {
+        await sound.resume(); sound.play(playback.current.time);
+        playback.current.clock = sound.time;
+        playback.current.offset = playback.current.time; playback.current.started = performance.now(); playback.current.playing = true; setPlaying(true);
+      } catch { setError("Le son ne peut pas démarrer. Réessayez dans Chrome ou Edge."); }
     }
   }
-  function exportVideo() {
-    if (!canvas || !format || !ready) return;
+  async function exportVideo() {
+    const sound = audio.current;
+    if (!canvas || !format || !ready || !sound || recording) return;
     setError(""); setCompleted(false); canceled.current = false;
     let stream: MediaStream | null = null;
     try {
+      await sound.resume(); sound.pause();
       stream = canvas.captureStream(30);
-      const instance = new MediaRecorder(stream, { mimeType: format.mime, videoBitsPerSecond: 12_000_000 });
+      capture.current = sound.capture();
+      for (const track of capture.current.stream.getAudioTracks()) stream.addTrack(track);
+      if (stream.getAudioTracks().length === 0) throw new Error("No audio track");
+      const instance = new MediaRecorder(stream, { mimeType: format.mime, videoBitsPerSecond: 12_000_000, audioBitsPerSecond: 192_000 });
       const chunks: Blob[] = []; recorder.current = instance;
       instance.ondataavailable = (event) => { if (event.data.size > 0) chunks.push(event.data); };
       instance.onstop = () => {
+        sound.pause(); playback.current.playing = false; setPlaying(false);
+        capture.current?.release(); capture.current = null;
         instance.stream.getTracks().forEach((track) => track.stop()); recorder.current = null; setRecording(false);
         if (canceled.current) return;
         const blob = new Blob(chunks, { type: instance.mimeType });
@@ -116,17 +147,21 @@ function ShortStudio() {
       };
       instance.onerror = () => {
         canceled.current = true; playback.current.playing = false; setPlaying(false); setRecording(false);
+        sound.pause(); capture.current?.release(); capture.current = null;
         instance.stream.getTracks().forEach((track) => track.stop()); setError("L’enregistrement a échoué. Réessayez avec un autre navigateur.");
       };
-      playback.current = { time: 0, playing: true, started: performance.now(), offset: 0 };
-      instance.start(1000); setTime(0); setRecording(true); setPlaying(true);
+      instance.start(1000); sound.play(0);
+      playback.current = { time: 0, playing: true, started: performance.now(), offset: 0, clock: sound.time };
+      setTime(0); setRecording(true); setPlaying(true);
     } catch {
+      sound.pause(); capture.current?.release(); capture.current = null;
       stream?.getTracks().forEach((track) => track.stop());
-      setError("Ce navigateur ne permet pas l’export du canvas. Essayez Chrome ou Edge.");
+      setError("Ce navigateur ne permet pas l’export avec son. Essayez Chrome ou Edge.");
     }
   }
   function cancelExport() {
     canceled.current = true;
+    audio.current?.pause();
     if (recorder.current?.state === "recording") recorder.current.stop();
     playback.current.playing = false; setPlaying(false); setRecording(false);
   }
@@ -164,7 +199,7 @@ function ShortStudio() {
         <div className="mx-auto mt-5 max-w-[405px]">
           <input type="range" aria-label="Position dans le film" min={0} max={45} step={.1} value={time} disabled={recording || !ready} onChange={(e) => seek(Number(e.target.value))} className="promo-track h-1 w-full cursor-pointer" />
           <div className="mt-3 flex items-center justify-between"><div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" title={playing ? "Pause" : "Lancer l’animation"} aria-label={playing ? "Pause" : "Lancer l’animation"} disabled={!ready || recording} onClick={togglePlay}>{playing ? <Pause /> : <Play />}</Button>
+            <Button variant="ghost" size="icon" title={playing ? "Pause" : "Lancer l’animation"} aria-label={playing ? "Pause" : "Lancer l’animation"} disabled={!ready || !audioReady || recording} onClick={togglePlay}>{playing ? <Pause /> : <Play />}</Button>
             <Button variant="ghost" size="icon" title="Recommencer" aria-label="Recommencer" disabled={!ready || recording} onClick={() => seek(0)}><RotateCcw /></Button>
           </div><p className="font-mono text-xs"><span className="text-foreground">{timecode(time)}</span><span className="text-muted-foreground"> / 00:45</span></p></div>
         </div>
@@ -173,11 +208,11 @@ function ShortStudio() {
         <div><p className="mb-5 flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground"><Film className="h-3 w-3" /> LIVRAISON</p>
           <h2 className="promo-condensed text-2xl">LE FORMAT SHORT.</h2>
           <dl className="mt-6 space-y-4 text-xs">
-            {[['Définition', '1080 × 1920'], ['Durée', '45 secondes'], ['Cadence cible', '30 images/s'], ['Conteneur', format?.extension.toUpperCase() ?? 'Non disponible'], ['Audio', 'Sans audio']].map(([label, value]) => <div key={label} className="flex justify-between gap-4 border-b border-border pb-3"><dt className="text-muted-foreground">{label}</dt><dd>{value}</dd></div>)}
+            {[['Définition', '1080 × 1920'], ['Durée', '45 secondes'], ['Cadence cible', '30 images/s'], ['Conteneur', format?.extension.toUpperCase() ?? 'Non disponible'], ['Audio', audioReady ? 'Avec audio (Voix Garry)' : 'Chargement…']].map(([label, value]) => <div key={label} className="flex justify-between gap-4 border-b border-border pb-3"><dt className="text-muted-foreground">{label}</dt><dd className="min-w-0 text-right">{value}</dd></div>)}
           </dl>
         </div>
         <div className="mt-8 min-w-0">
-          <Button onClick={recording ? cancelExport : exportVideo} disabled={!ready || !format || !!error} className="h-11 w-full text-xs">{recording ? <Square /> : <ArrowDownToLine />}{recording ? "Annuler l’export" : "Télécharger la vidéo"}</Button>
+          <Button onClick={recording ? cancelExport : exportVideo} disabled={!ready || !audioReady || !format || !!error} className="h-11 w-full text-xs">{recording ? <Square /> : <ArrowDownToLine />}{recording ? "Annuler l’export" : "Télécharger la vidéo"}</Button>
           {recording && <p role="status" className="mt-3 text-xs text-primary">Enregistrement : {Math.round(time / DURATION * 100)} %</p>}
           {completed && <p role="status" className="mt-3 flex items-center gap-2 text-xs text-signal"><Check className="h-3 w-3" /> Vidéo téléchargée</p>}
           {!format && ready && <p className="mt-3 text-xs text-destructive">Export vidéo indisponible dans ce navigateur.</p>}

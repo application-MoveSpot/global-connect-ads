@@ -6,7 +6,7 @@ import sedanAsset from "@/assets/models/promo-sedan.glb.asset.json";
 import carTexture from "@/assets/models/promo-car-colormap.png.asset.json";
 import { CAPTION_BASELINE, captionAt, DURATION, equationStage, euroAmount, GPS_POINTS, GPS_REFRESH_SECONDS, gpsPosition, HEIGHT, OWNER_MONTHLY_EUR, OWNER_TERMS, shotAt, spring, WIDTH } from "@/lib/promo/timeline";
 
-export interface Playback { time: number; playing: boolean; started: number; offset: number }
+export interface Playback { time: number; playing: boolean; started: number; offset: number; clock?: () => number }
 export interface FilmPalette { background: string; foreground: string; primary: string; accent: string; muted: string; border: string; signal: string; destructive: string; "vehicle-idle": string }
 
 function Vehicle({ playback, logo, palette }: { playback: React.RefObject<Playback>; logo: HTMLImageElement; palette: FilmPalette }) {
@@ -121,13 +121,13 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
     }
     ctx.save(); ctx.globalAlpha = Math.min(1, Math.max(.1, local * 2));
     if (t < 8) ctx.filter = "grayscale(1)";
-    ctx.drawImage(source, 25, 580, 1030, 1030); ctx.restore();
+    ctx.drawImage(source, 25, t >= 9 ? 550 : 580, 1030, 1030); ctx.restore();
     if (t < 8) {
       const hours = Math.min(8, Math.floor((t - 3) * 1.6));
       text(`${String(hours).padStart(2, "0")}:00`, 690, 70, p.destructive);
       text("ENTRE DEUX TRAJETS", 1340, 55, p.foreground);
     } else if (t < 18) {
-      text(`${euroAmount(OWNER_TERMS.minimumDailyEur)} €/JOUR · MINIMUM GARANTI`, 1340, 62, p.primary, entrance);
+      text(`${euroAmount(OWNER_TERMS.minimumDailyEur)} €/JOUR · MINIMUM GARANTI`, t >= 9 ? 1310 : 1340, 62, p.primary, entrance);
     }
   }
   if (t < 3) {
@@ -189,7 +189,6 @@ function paintFrame(ctx: CanvasRenderingContext2D, source: HTMLCanvasElement, t:
     ctx.drawImage(logo, -160, -235, 320, 420); ctx.restore();
     text("move-spot.com".slice(0, Math.min(13, Math.floor(local * 7))), 1290, 108, p.primary);
     text("@MoveSpot_GP", 1350, 55, p.foreground);
-    text(`VALIDATION SOUS ${OWNER_TERMS.validationHours} H`, 1560, 44, p.foreground);
   }
   const c = captionAt(t);
   let fontSize = 62; ctx.font = `800 ${fontSize}px "Barlow Condensed"`;
@@ -215,7 +214,7 @@ function Stepper({ playback, output, logo, palette, onTick }: { playback: React.
   const { gl, scene, camera } = useThree();
   useFrame(() => {
     const state = playback.current;
-    if (state.playing) state.time = Math.min(DURATION, state.offset + (performance.now() - state.started) / 1000);
+    if (state.playing) state.time = state.clock ? state.clock() : Math.min(DURATION, state.offset + (performance.now() - state.started) / 1000);
     const driving = Math.min(9, Math.max(0, state.time - 9));
     camera.position.set(7.2 + Math.sin(state.time * .3) * .25 - driving * .035, 3.3 + Math.cos(state.time * .22) * .12, 4.6 - driving * .03);
     camera.lookAt(0, .55, 0); gl.render(scene, camera);

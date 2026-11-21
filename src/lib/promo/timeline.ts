@@ -1,3 +1,5 @@
+import { NARRATION_WORDS } from "./narration-cues";
+
 export const DURATION = 45;
 export const WIDTH = 1080;
 export const HEIGHT = 1920;
@@ -46,14 +48,16 @@ export function spring(t: number) {
 
 export function captionAt(time: number) {
   const shot = shotAt(time);
-  const words = shot.subtitle.split(" ");
-  const position = Math.min(words.length - 1, Math.floor(Math.max(0, time - shot.start) / (shot.end - shot.start) * words.length));
+  const cues = NARRATION_WORDS.filter((word) => word.start >= shot.start && word.start < shot.end);
+  const words = cues.map((cue) => cue.word);
+  const next = cues.findIndex((cue) => cue.start > time);
+  const position = Math.max(0, next < 0 ? cues.length - 1 : next - 1);
   const start = Math.floor(position / 4) * 4;
   return { words: words.slice(start, start + 4), active: position - start };
 }
 
 export function recorderFormat(supported: (mime: string) => boolean) {
-  for (const mime of ["video/mp4;codecs=avc1.424028", "video/mp4", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"]) {
+  for (const mime of ["video/mp4;codecs=avc1.424028,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]) {
     if (supported(mime)) return { mime, extension: mime.startsWith("video/mp4") ? "mp4" : "webm" };
   }
   return null;

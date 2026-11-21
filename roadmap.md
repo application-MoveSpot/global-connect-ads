@@ -29,3 +29,6 @@
 - [x] Intégrer les chiffres propriétaires confirmés au scénario : 22 × 17,50 € minimum garanti = 385 €/mois, 70 % du tarif annonceur, jusqu’à 514,50 €/mois en zone dense et validation sous 48 h ; sans publication.
 
 - [x] Améliorer les six séquences /promo-short : accroche 385 €, contraste véhicule, roulage, GPS animé, équation séquentielle et outro sûre ; 11 tests réussis, lecture et export MP4 H.264 1080×1920 de 44,98 s sans audio vérifiés sur ordinateur et téléphone ; sans publication.
+- [x] Finaliser les visuels /promo-short : CÔTÉ PROPRIÉTAIRE déjà correct, voiture et tarif remontés de 30 px, doublon de validation supprimé.
+- [x] Ajouter la narration Charon de Garry synchronisée et vérifier lecture, pause et téléchargement image + son sans publication ; génération musicale refusée, voix seule retenue avec l’accord utilisateur.
+- [x] Afficher « Avec audio (Voix Garry) » ; téléchargement navigateur vérifié : MP4 1080×1920 de 44,98 s, piste audio Opus audible ; 14 tests réussis, aucune erreur navigateur, affichage téléphone sans débordement. Musique ajoutée ensuite par l’utilisateur sur YouTube.
