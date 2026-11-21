@@ -143,7 +143,9 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
         const { supabase, userId } = context;
         const { data: campaign, error } = await supabase
           .from("campaign_requests")
-          .select("id, user_id, total_price, status, payment_status, spot_name")
+          .select(
+            "id, user_id, total_price, status, payment_status, spot_name, ad_format, days_count, setup_fee_cents",
+          )
           .eq("id", data.campaignRequestId)
           .maybeSingle();
         if (error || !campaign) throw new Error("Campagne introuvable");
@@ -153,6 +155,22 @@ export const payCampaignWithWallet = createServerFn({ method: "POST" })
         if (campaign.payment_status === "paid") return { ok: true, alreadyPaid: true };
         if (!campaign.total_price || Number(campaign.total_price) <= 0)
           throw new Error("Montant invalide");
+
+        // Calcule et persiste le forfait mise en service si ce n'est pas encore fait.
+        const existingFee = Number((campaign as { setup_fee_cents?: number }).setup_fee_cents ?? 0);
+        if (existingFee === 0) {
+          const { computeSetupFeeCents } = await import("@/lib/payments/setup-fee");
+          const feeCents = computeSetupFeeCents(
+            (campaign as { ad_format?: string | null }).ad_format,
+            (campaign as { days_count?: number | null }).days_count,
+          );
+          if (feeCents > 0) {
+            await supabase
+              .from("campaign_requests")
+              .update({ setup_fee_cents: feeCents } as never)
+              .eq("id", campaign.id);
+          }
+        }
 
         const { settleCampaignFromWallet } =
           await import("@/lib/campaigns/campaign-settlement.server");

@@ -507,6 +507,7 @@ export function BookingForm({ spot, onClose }: Props) {
         depose_fee_cents: installerFees.deposeFee,
         pose_location_type: poseLocationType ?? null,
         installation_address: installationAddress.trim() || null,
+        ad_format: spot.format ?? null,
       })
       .select("id, status, admin_notes")
       .single();
@@ -1150,6 +1151,11 @@ export function BookingForm({ spot, onClose }: Props) {
                     </button>
                   ))}
                 </div>
+                {poseLocationType === "domicile" && (
+                  <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2 text-xs text-amber-800 dark:text-amber-300">
+                    {t("booking.domicile_supplement_note")}
+                  </div>
+                )}
                 {poseLocationType && (
                   <div>
                     <label className="block text-xs font-medium mb-1 text-muted-foreground">

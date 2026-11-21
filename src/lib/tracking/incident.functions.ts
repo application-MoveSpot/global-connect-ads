@@ -661,6 +661,72 @@ export const submitInstallerConfirmation = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// ─── Refacturation incident vinyle (CGU Art. 25) ─────────────────────────────
+
+type SupabaseAdmin = Awaited<
+  ReturnType<typeof import("@/integrations/supabase/client.server").supabaseAdmin["from"]>
+> extends never
+  ? never
+  : Awaited<ReturnType<typeof import("@/integrations/supabase/client.server")>>["supabaseAdmin"];
+
+async function applyIncidentCharge(
+  admin: { from: (t: string) => unknown; rpc: (fn: string, args: unknown) => Promise<{ error: { message: string } | null }> },
+  incidentId: string,
+): Promise<void> {
+  // Récupère l'incident et son lien campagne
+  const { data: incident } = await (admin.from("incident_reports") as ReturnType<SupabaseAdmin["from"]>)
+    .select("campaign_request_id, installer_diagnosis")
+    .eq("id", incidentId)
+    .maybeSingle() as { data: { campaign_request_id: string | null; installer_diagnosis: string | null } | null };
+
+  if (!incident?.campaign_request_id) return;
+
+  const { data: campaign } = await (admin.from("campaign_requests") as ReturnType<SupabaseAdmin["from"]>)
+    .select(
+      "id, vehicle_id, ad_format, owner_amount_cents, payout_status, incident_charge_cents, pose_location_type",
+    )
+    .eq("id", incident.campaign_request_id)
+    .maybeSingle() as {
+      data: {
+        id: string;
+        vehicle_id: string | null;
+        ad_format: string | null;
+        owner_amount_cents: number | null;
+        payout_status: string | null;
+        incident_charge_cents: number;
+        pose_location_type: string | null;
+      } | null;
+    };
+
+  if (!campaign) return;
+  if ((campaign.incident_charge_cents ?? 0) > 0) return; // déjà traité
+
+  const { computeIncidentChargeCents } = await import("@/lib/payments/setup-fee");
+  // Le supplément déplacement s'applique si la pose initiale était à domicile (CGU Art. 11bis)
+  const withTravel = campaign.pose_location_type === "domicile";
+  const chargeCents = computeIncidentChargeCents(campaign.ad_format, withTravel);
+
+  const ownerPending = Number(campaign.owner_amount_cents ?? 0);
+  // Si la campagne n'est pas encore virée, on réduit owner_amount_cents
+  const canDeduct = campaign.payout_status !== "transferred";
+  const netOwner = canDeduct ? Math.max(0, ownerPending - chargeCents) : ownerPending;
+  const isBlocked = chargeCents > ownerPending && canDeduct;
+
+  const campaignUpdate: Record<string, unknown> = { incident_charge_cents: chargeCents };
+  if (canDeduct) campaignUpdate.owner_amount_cents = netOwner;
+
+  await (admin.from("campaign_requests") as ReturnType<SupabaseAdmin["from"]>)
+    .update(campaignUpdate)
+    .eq("id", campaign.id);
+
+  // Bloque les nouveaux attributions de campagne si le propriétaire ne peut pas couvrir
+  if (isBlocked && campaign.vehicle_id) {
+    await (admin.from("vehicles") as ReturnType<SupabaseAdmin["from"]>)
+      .update({ incident_payment_blocked: true })
+      .eq("id", campaign.vehicle_id);
+  }
+}
+
 // ─── Admin : arbitrer le constat contradictoire ───────────────────────────────
 
 const AdminArbitrateInput = z.object({
@@ -691,6 +757,12 @@ export const adminArbitrateIncident = createServerFn({ method: "POST" })
       .in("status" as never, ["confirmed_by_installer"] as never);
 
     if (error) throw new Error(error.message);
+
+    // Refacturation automatique si le propriétaire est en tort (CGU Art. 25).
+    if (data.resolution === "resolved_rejected") {
+      await applyIncidentCharge(supabaseAdmin, data.id);
+    }
+
     return { ok: true };
   });
 

@@ -11,10 +11,17 @@ import { BankTransferPanel } from "@/components/advertiser/BankTransferPanel";
 type Props = {
   campaignRequestId: string;
   totalPriceEur: number;
+  /** Forfait mise en service HT (€) — 0 si offert (≥ 15 jours). */
+  setupFeeEur?: number;
   onPaid?: () => void;
 };
 
-export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPaid }: Props) {
+export function CampaignPaymentCheckout({
+  campaignRequestId,
+  totalPriceEur,
+  setupFeeEur = 0,
+  onPaid,
+}: Props) {
   const { t } = useTranslation();
   const fetchWallet = useServerFn(getMyWallet);
   const payWithWallet = useServerFn(payCampaignWithWallet);
@@ -26,7 +33,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   const [pendingTopup, setPendingTopup] = useState(false);
   const realtimeChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  const neededCents = Math.round(totalPriceEur * 100);
+  const neededCents = Math.round(totalPriceEur * 100) + Math.round(setupFeeEur * 100);
 
   const refreshBalance = async (): Promise<number> => {
     const w = await fetchWallet().catch(() => ({ balance_cents: 0 }));
@@ -149,13 +156,34 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
   const enough = balance !== null && balance >= neededCents;
   const missingEur = enough ? 0 : Math.max(10, Math.ceil((neededCents - (balance ?? 0)) / 100));
 
+  const totalWithFeeEur = totalPriceEur + setupFeeEur;
+
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-border bg-secondary/30 p-3 text-sm">
-        {t("campaign_payment.balance", {
-          balance: ((balance ?? 0) / 100).toFixed(2),
-          total: totalPriceEur.toFixed(2),
-        })}
+      {/* Récapitulatif des frais */}
+      <div className="rounded-lg border border-border bg-secondary/30 p-3 text-sm space-y-1">
+        <div className="flex justify-between">
+          <span>{t("campaign_payment.line_campaign")}</span>
+          <span>{totalPriceEur.toFixed(2)} €</span>
+        </div>
+        {setupFeeEur > 0 ? (
+          <div className="flex justify-between text-muted-foreground">
+            <span>{t("campaign_payment.line_setup_fee")}</span>
+            <span>{setupFeeEur.toFixed(2)} € HT</span>
+          </div>
+        ) : (
+          <div className="flex justify-between text-green-600 dark:text-green-400">
+            <span>{t("campaign_payment.line_setup_free")}</span>
+            <span>0,00 €</span>
+          </div>
+        )}
+        <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
+          <span>{t("campaign_payment.line_total")}</span>
+          <span>{totalWithFeeEur.toFixed(2)} €</span>
+        </div>
+        <div className="text-xs text-muted-foreground pt-1">
+          {t("campaign_payment.balance_line", { balance: ((balance ?? 0) / 100).toFixed(2) })}
+        </div>
       </div>
 
       {checking ? (
@@ -166,7 +194,7 @@ export function CampaignPaymentCheckout({ campaignRequestId, totalPriceEur, onPa
         <Button onClick={onPayWallet} disabled={loading}>
           {loading
             ? t("campaign_payment.btn_paying")
-            : t("campaign_payment.btn_pay", { amount: totalPriceEur.toFixed(2) })}
+            : t("campaign_payment.btn_pay", { amount: totalWithFeeEur.toFixed(2) })}
         </Button>
       ) : pendingTopup ? (
         <div className="space-y-3">
