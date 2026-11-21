@@ -28,7 +28,7 @@ export const Route = createFileRoute("/cgv")({
 function CGV() {
   const { t } = useTranslation();
   return (
-    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="11 novembre 2026">
+    <LegalPage eyebrow={t("cgv.eyebrow")} title={t("cgv.title")} updatedAt="21 novembre 2026">
       <LegalSection title={t("cgv.s1")}>
         <p>
           Les présentes Conditions Générales de Vente (« CGV ») régissent les relations
@@ -340,6 +340,33 @@ function CGV() {
           Les présentes CGV sont soumises au droit français. À défaut de résolution amiable, tout
           litige sera porté devant les tribunaux compétents du ressort du siège de MoveSpot.
         </p>
+      </LegalSection>
+
+      <LegalSection title={t("cgv.s12ter_constat")}>
+        <p>
+          Lorsqu'un propriétaire signale un incident sur le support vinyle publicitaire, la
+          procédure de constat contradictoire décrite à l'article&nbsp;24 des Conditions Générales
+          d'Utilisation s'applique. Elle produit les effets commerciaux suivants :
+        </p>
+        <ol className="mt-2 space-y-2 list-decimal list-inside">
+          <li>
+            <strong>Suspension de la campagne.</strong> La campagne est immédiatement suspendue
+            (statut <em>« vérification d'incident »</em>) à compter de l'ouverture du constat. La
+            durée de suspension n'est pas facturée à l'Annonceur.
+          </li>
+          <li>
+            <strong>Repose gratuite.</strong> Si l'arbitrage MoveSpot retient un défaut
+            d'installation ou de matériau, la repose du vinyle est prise en charge sans
+            facturation supplémentaire. La campagne reprend à l'issue de la repose.
+          </li>
+          <li>
+            <strong>Responsabilité du propriétaire.</strong> Si l'arbitrage retient un mauvais
+            usage ou un dommage extérieur imputable au propriétaire, les frais de remplacement du
+            vinyle sont à la charge exclusive du propriétaire. L'Annonceur peut demander une
+            adaptation tarifaire pour la durée de suspension ou un report de campagne selon les
+            modalités en vigueur.
+          </li>
+        </ol>
       </LegalSection>
 
       <LegalSection title={t("cgv.s12bis_mediation")}>

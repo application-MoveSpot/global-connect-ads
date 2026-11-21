@@ -294,5 +294,40 @@
       "referral_code_label": "رمز الإحالة",
       "referral_code_hint": "إذا تلقيت رمز إحالة، أدخله هنا."
     }
+  },
+  "cgu": {
+    "s24": "24. إدارة الحوادث والتقرير التعارضي للدعم الإعلاني (فينيل)"
+  },
+  "cgv": {
+    "s12ter_constat": "12 ثالثاً. حوادث دعم الفينيل — التقرير التعارضي"
+  },
+  "incident": {
+    "vinyl_contradictoire_title": "تقرير تعارضي إلزامي",
+    "vinyl_contradictoire_info": "لأي تقشير أو تلف في الفينيل، يلزم تقديم صورتين (نظرة عامة + تكبير). سيُفتح تقرير تعارضي مع المُركِّب خلال 48 ساعة.",
+    "photos_vinyl_label": "صور التقرير (إلزامية)",
+    "photos_vinyl_hint": "الصورة 1: نظرة عامة للمركبة. الصورة 2: تكبير للمنطقة التالفة.",
+    "photos_min_required": "الحد الأدنى المطلوب",
+    "photo_add_more": "إضافة صورة",
+    "err_vinyl_min_photos": "يرجى تقديم صورتين على الأقل لحادثة الفينيل.",
+    "toast_vinyl_sent": "تم إرسال البلاغ — تم فتح تقرير تعارضي مع المُركِّب.",
+    "btn_need_more_photos": "مطلوب {{n}} صورة (صور) أخرى",
+    "diagnosis_installation_defect": "خلل في التركيب (مسؤولية المُركِّب)",
+    "diagnosis_material_defect": "خلل في المواد (مسؤولية MoveSpot / المورد)",
+    "diagnosis_owner_misuse": "سوء استخدام من المالك",
+    "diagnosis_external_damage": "ضرر خارجي (حادث، تخريب)"
+  },
+  "installer_incidents": {
+    "title": "حوادث الفينيل للتأكيد",
+    "subtitle": "انتظار ردك على {{count}} تقرير (أجل 48 ساعة)",
+    "load_error": "تعذر تحميل الحوادث المُكلَّف بها.",
+    "owner_photos": "صور المالك",
+    "your_photos": "صورك (2 على الأقل)",
+    "diagnosis_label": "تشخيصك",
+    "notes_label": "ملاحظات إضافية",
+    "notes_placeholder": "صف تقييمك التقني…",
+    "btn_submit": "تقديم التقرير التعارضي",
+    "sent_ok": "تم تقديم التقرير. التحكيم قيد المعالجة.",
+    "need_min_photos": "مطلوب صورتان على الأقل",
+    "overdue": "تجاوزت 48 ساعة"
   }
 }

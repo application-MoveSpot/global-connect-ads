@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { AlertTriangle, Camera, Loader2, X } from "lucide-react";
+import { AlertTriangle, Camera, Loader2, X, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   submitIncidentReport,
@@ -52,25 +52,31 @@ function compressImage(file: File): Promise<CapturedPhoto> {
   });
 }
 
+const VINYL_TYPES: IncidentType[] = ["decollement_vinyle"];
+
 export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId }: Props) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [incidentType, setIncidentType] = useState<IncidentType>("accident_sinistre");
   const [description, setDescription] = useState("");
-  const [photo, setPhoto] = useState<CapturedPhoto | null>(null);
+  const [photos, setPhotos] = useState<CapturedPhoto[]>([]);
   const [compressing, setCompressing] = useState(false);
   const [sending, setSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const submit = useServerFn(submitIncidentReport);
 
+  const isVinyl = VINYL_TYPES.includes(incidentType);
+  const minPhotos = isVinyl ? 2 : 0;
+  const canSubmit = !sending && (!isVinyl || photos.length >= 2);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     setCompressing(true);
     try {
-      const compressed = await compressImage(file);
-      setPhoto(compressed);
+      const compressed = await Promise.all(files.map(compressImage));
+      setPhotos((prev) => [...prev, ...compressed].slice(0, 5));
     } catch {
       toast.error(t("incident.err_photo"));
     } finally {
@@ -79,9 +85,15 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
     }
   };
 
+  const removePhoto = (idx: number) => setPhotos((prev) => prev.filter((_, i) => i !== idx));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (sending) return;
+    if (!canSubmit) return;
+    if (isVinyl && photos.length < 2) {
+      toast.error(t("incident.err_vinyl_min_photos"));
+      return;
+    }
     setSending(true);
     try {
       await submit({
@@ -90,14 +102,16 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
           campaignRequestId: campaignRequestId ?? null,
           incidentType,
           description: description.trim() || undefined,
-          photo: photo?.b64,
-          photoMimeType: photo?.mime,
+          ownerReportPhotos: photos.map((p) => ({ b64: p.b64, mime: p.mime })),
+          // legacy single-photo for non-vinyl types (keeps compatibility)
+          photo: !isVinyl ? photos[0]?.b64 : undefined,
+          photoMimeType: !isVinyl ? photos[0]?.mime : undefined,
         },
       });
-      toast.success(t("incident.toast_sent"));
+      toast.success(t(isVinyl ? "incident.toast_vinyl_sent" : "incident.toast_sent"));
       setOpen(false);
       setDescription("");
-      setPhoto(null);
+      setPhotos([]);
       setIncidentType("accident_sinistre");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("incident.err_generic"));
@@ -123,7 +137,7 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-background border border-border shadow-xl">
+      <div className="w-full max-w-md rounded-2xl bg-background border border-border shadow-xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2">
@@ -166,7 +180,10 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
                     name="incidentType"
                     value={it.value}
                     checked={incidentType === it.value}
-                    onChange={() => setIncidentType(it.value as IncidentType)}
+                    onChange={() => {
+                      setIncidentType(it.value as IncidentType);
+                      setPhotos([]);
+                    }}
                     className="sr-only"
                   />
                   <span
@@ -181,6 +198,19 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
               ))}
             </div>
           </div>
+
+          {/* Alerte constat contradictoire pour vinyle */}
+          {isVinyl && (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-sm space-y-1">
+              <div className="flex items-center gap-2 font-semibold text-amber-700 dark:text-amber-400">
+                <Info className="h-4 w-4 shrink-0" />
+                {t("incident.vinyl_contradictoire_title")}
+              </div>
+              <p className="text-amber-700/80 dark:text-amber-400/80 text-xs leading-relaxed">
+                {t("incident.vinyl_contradictoire_info")}
+              </p>
+            </div>
+          )}
 
           {/* Description */}
           <div>
@@ -197,51 +227,76 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
             />
           </div>
 
-          {/* Photo */}
+          {/* Photos */}
           <div>
             <label className="mb-1.5 block text-sm font-medium">
-              {t("incident.photo_label")}
+              {isVinyl
+                ? t("incident.photos_vinyl_label")
+                : t("incident.photo_label")}
+              {isVinyl && (
+                <span className="ml-1.5 text-xs text-muted-foreground font-normal">
+                  {photos.length}/2 {t("incident.photos_min_required")}
+                </span>
+              )}
             </label>
-            {photo ? (
-              <div className="relative inline-block">
-                <img
-                  src={photo.dataUrl}
-                  alt="Aperçu"
-                  className="h-24 w-24 rounded-lg object-cover border border-border"
-                />
-                <button
-                  type="button"
-                  onClick={() => setPhoto(null)}
-                  className="absolute -top-1.5 -right-1.5 rounded-full bg-destructive p-0.5 text-destructive-foreground shadow"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+
+            {/* Grid of captured photos */}
+            {photos.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {photos.map((p, idx) => (
+                  <div key={idx} className="relative">
+                    <img
+                      src={p.dataUrl}
+                      alt={`Photo ${idx + 1}`}
+                      className="h-20 w-20 rounded-lg object-cover border border-border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(idx)}
+                      className="absolute -top-1.5 -right-1.5 rounded-full bg-destructive p-0.5 text-destructive-foreground shadow"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            ) : (
+            )}
+
+            {photos.length < 5 && (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={compressing}
-                className="flex h-20 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border text-sm text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors"
+                className={`flex h-16 w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed text-sm transition-colors ${
+                  isVinyl && photos.length < 2
+                    ? "border-amber-500/60 text-amber-600 hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-950/20"
+                    : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                }`}
               >
                 {compressing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
                     <Camera className="h-4 w-4" />
-                    {t("incident.photo_cta")}
+                    {photos.length === 0
+                      ? t("incident.photo_cta")
+                      : t("incident.photo_add_more")}
                   </>
                 )}
               </button>
             )}
+
             <input
               ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png,image/webp"
+              multiple
               onChange={handleFileChange}
               className="sr-only"
             />
-            <p className="mt-1 text-xs text-muted-foreground">{t("incident.photo_hint")}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {isVinyl ? t("incident.photos_vinyl_hint") : t("incident.photo_hint")}
+            </p>
           </div>
 
           {/* Footer */}
@@ -257,15 +312,17 @@ export function IncidentReportDialog({ vehicleId, vehicleName, campaignRequestId
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-amber-500 text-white hover:bg-amber-600"
-              disabled={sending}
+              className="flex-1 bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
+              disabled={!canSubmit}
             >
               {sending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <AlertTriangle className="mr-2 h-4 w-4" />
               )}
-              {t("incident.btn_submit")}
+              {isVinyl && photos.length < 2
+                ? t("incident.btn_need_more_photos", { n: 2 - photos.length })
+                : t("incident.btn_submit")}
             </Button>
           </div>
         </form>

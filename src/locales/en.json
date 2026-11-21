@@ -3251,7 +3251,8 @@
     "s10": "10. MoveSpot liability",
     "s11": "11. Personal data",
     "s12": "12. Applicable law and disputes",
-    "s12bis_mediation": "12 bis. Consumer mediation (CM2C)"
+    "s12bis_mediation": "12 bis. Consumer mediation (CM2C)",
+    "s12ter_constat": "12 ter. Incidents on vinyl support — contradictory assessment"
   },
   "confidentialite": {
     "eyebrow": "GDPR",
@@ -3317,7 +3318,8 @@
     "s20": "20. Service continuity during updates",
     "s21": "21. External events and force majeure",
     "s22": "22. Exclusivity of transactions on the Platform",
-    "s23": "23. Applicable law and jurisdiction"
+    "s23": "23. Applicable law and jurisdiction",
+    "s24": "24. Incident management and contradictory assessment of the advertising support (vinyl)"
   },
   "kit": {
     "print_btn": "Print / PDF",
@@ -6099,7 +6101,20 @@
     "btn_submit": "Submit report",
     "toast_sent": "Report submitted — the MoveSpot team has been notified.",
     "err_photo": "Could not compress the photo.",
-    "err_generic": "An error occurred, please try again."
+    "err_generic": "An error occurred, please try again.",
+    "vinyl_contradictoire_title": "Mandatory contradictory assessment",
+    "vinyl_contradictoire_info": "For any vinyl peeling or damage, 2 photos are required (wide shot + close-up). A contradictory assessment will be opened with the installer within 48 h.",
+    "photos_vinyl_label": "Assessment photos (mandatory)",
+    "photos_vinyl_hint": "Photo 1: wide shot of the vehicle. Photo 2: close-up of the damaged area.",
+    "photos_min_required": "min. required",
+    "photo_add_more": "Add a photo",
+    "err_vinyl_min_photos": "Please provide at least 2 photos for a vinyl incident.",
+    "toast_vinyl_sent": "Report submitted — contradictory assessment opened with the installer.",
+    "btn_need_more_photos": "{{n}} more photo(s) required",
+    "diagnosis_installation_defect": "Installation defect (installer liability)",
+    "diagnosis_material_defect": "Material defect (MoveSpot / supplier liability)",
+    "diagnosis_owner_misuse": "Owner misuse",
+    "diagnosis_external_damage": "External damage (accident, vandalism)"
   },
   "sim": {
     "title": "Campaign impact simulator",
@@ -6127,5 +6142,19 @@
     "cpm_per_vehicle": "km/d per vehicle",
     "cpm_contacts_per_km": "contacts/km in",
     "cta": "Launch my campaign now"
+  },
+  "installer_incidents": {
+    "title": "Vinyl incidents to confirm",
+    "subtitle": "{{count}} assessment(s) awaiting your response (48 h deadline)",
+    "load_error": "Unable to load assigned incidents.",
+    "owner_photos": "Owner photos",
+    "your_photos": "Your assessment photos (min. 2)",
+    "diagnosis_label": "Your diagnosis",
+    "notes_label": "Additional notes",
+    "notes_placeholder": "Describe your technical assessment…",
+    "btn_submit": "Submit the contradictory assessment",
+    "sent_ok": "Assessment submitted. Admin arbitration in progress.",
+    "need_min_photos": "Minimum 2 photos required",
+    "overdue": "48h exceeded"
   }
 }

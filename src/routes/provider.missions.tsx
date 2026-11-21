@@ -14,6 +14,7 @@ import { getOrRefreshSession } from "@/integrations/supabase/session";
 import { LogoLink } from "@/components/app/LogoLink";
 import { RouteError } from "@/components/app/RouteError";
 import { PoseImpossibleModal } from "@/components/provider/PoseImpossibleModal";
+import { InstallerVinylIncidents } from "@/components/provider/InstallerVinylIncidents";
 import { useMyMissions, useAvailableMissions, useAcceptMission } from "@/hooks/useMissions";
 import {
   MISSION_STATUS_LABELS,
@@ -124,6 +125,9 @@ function ProviderMissionsPage() {
             Acceptez de nouvelles missions ou suivez vos missions en cours.
           </p>
         </div>
+
+        {/* ── Incidents vinyle à confirmer ── */}
+        <InstallerVinylIncidents />
 
         {/* ── Onglets ── */}
         <div className="flex gap-1 p-1 rounded-xl bg-muted w-fit">

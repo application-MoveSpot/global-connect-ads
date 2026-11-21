@@ -10,6 +10,7 @@ import { ProviderSubscriptionCard } from "@/components/provider/ProviderSubscrip
 import { RouteError } from "@/components/app/RouteError";
 import { WeatherInstallCheck } from "@/components/provider/WeatherInstallCheck";
 import { ProviderQuoteReview } from "@/components/provider/ProviderQuoteReview";
+import { ProviderVinylIncidents } from "@/components/provider/ProviderVinylIncidents";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
@@ -147,6 +148,8 @@ function ProviderDashboard() {
         />
 
         <ProfilePreview profile={profile} onSaved={load} />
+
+        <ProviderVinylIncidents />
 
         {quotes.length > 0 && (
           <div className="grid sm:grid-cols-4 gap-4 mb-6">
