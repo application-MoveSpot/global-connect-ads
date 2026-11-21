@@ -189,6 +189,24 @@ function CGU() {
           matériau publicitaire physique dans le cadre d'une campagne MoveSpot.
         </p>
         <p>
+          <strong>Prise en charge intégrale des frais de pose et de dépose.</strong> Dans le cadre
+          d'une campagne MoveSpot, le Propriétaire bénéficie d'une prise en charge intégrale (
+          <strong>0 € d'avance de frais</strong>) pour l'impression haute définition du support, la
+          pose initiale et la dépose en fin de campagne, lorsqu'il se rend sur rendez-vous dans un
+          atelier de pose agréé MoveSpot, ou lorsqu'il reçoit directement un kit magnétique ou
+          micro-ventousé prêt à poser.
+        </p>
+        <p>
+          <strong>Supplément forfaitaire de déplacement.</strong> Si le Propriétaire demande une
+          intervention à domicile ou sur son lieu de travail (déplacement du poseur hors atelier,
+          dans un rayon maximal de 25 km), un supplément forfaitaire de déplacement de{" "}
+          <strong>35 € TTC</strong> s'applique, à sa charge (ou déduit de sa cagnotte disponible).
+          Au-delà de 25 km, l'intervention fait l'objet d'un devis préalable. Ce supplément
+          s'ajoute, le cas échéant, au barème forfaitaire de remise en état prévu à l'article 25
+          (49 € / 69 € / 89 € TTC selon le format) lorsque la réintervention est motivée par un
+          incident imputable au Propriétaire.
+        </p>
+        <p>
           Le propriétaire du véhicule s'engage à présenter son véhicule dans un état compatible avec
           la pose d'un support publicitaire vinyle le jour de l'intervention planifiée. À ce titre,
           il s'engage expressément à :
