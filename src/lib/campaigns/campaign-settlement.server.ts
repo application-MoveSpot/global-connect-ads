@@ -16,7 +16,9 @@ export async function settleCampaignFromWallet(params: {
 
   const { data: campaign, error } = await supabaseAdmin
     .from("campaign_requests")
-    .select("id, spot_name, company, email, start_date, end_date")
+    .select(
+      "id, spot_name, company, email, start_date, end_date, user_id, setup_fee_cents, setup_fee_charged",
+    )
     .eq("id", params.campaignRequestId)
     .maybeSingle();
   if (error || !campaign) throw new Error("Campagne introuvable");
@@ -59,6 +61,23 @@ export async function settleCampaignFromWallet(params: {
         trackingUrl: `https://move-spot.com/advertiser/suivi/${campaign.id}`,
       },
     });
+  }
+
+  // Débit du forfait mise en service (CGV Art. 2) — idempotent.
+  const setupFeeCents = Number((campaign as { setup_fee_cents?: number }).setup_fee_cents ?? 0);
+  const setupFeeCharged = Boolean((campaign as { setup_fee_charged?: boolean }).setup_fee_charged);
+  if (setupFeeCents > 0 && !setupFeeCharged) {
+    await supabaseAdmin.rpc("apply_wallet_transaction" as never, {
+      p_user_id: (campaign as { user_id?: string }).user_id,
+      p_kind: "campaign_debit",
+      p_amount_cents: -setupFeeCents,
+      p_description: `Forfait mise en service — ${campaign.spot_name}`,
+      p_campaign_request_id: campaign.id,
+    } as never);
+    await supabaseAdmin
+      .from("campaign_requests")
+      .update({ setup_fee_charged: true } as never)
+      .eq("id", campaign.id);
   }
 
   // Virement automatique de la part propriétaire via Stripe Connect.
