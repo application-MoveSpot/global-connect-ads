@@ -31,7 +31,7 @@ function CGU() {
     <LegalPage
       eyebrow={t("cgu.eyebrow")}
       title={t("cgu.title")}
-      updatedAt="11 novembre 2026"
+      updatedAt="21 novembre 2026"
       showHeader={false}
     >
       <LegalSection title={t("cgu.s1")}>
@@ -579,6 +579,103 @@ function CGU() {
           été effectuée par son intermédiaire, pendant une durée de{" "}
           <strong>douze (12) mois</strong> suivant la date de la mise en relation initiale ou de la
           fin de la dernière campagne réalisée en commun.
+        </p>
+      </LegalSection>
+
+      <LegalSection title={t("cgu.s24")}>
+        <p>
+          Lorsqu'un propriétaire de véhicule signale un problème sur le support publicitaire
+          vinyle apposé par un prestataire certifié MoveSpot (décollement, déchirure, dégradation),
+          la résolution de l'incident suit la procédure de constat contradictoire décrite ci-après.
+        </p>
+        <ol className="mt-2 space-y-2 list-decimal list-inside">
+          <li>
+            <strong>Obligation de preuve photo du propriétaire.</strong> Tout signalement portant
+            sur un incident de type « décollement / dégradation vinyle » doit être accompagné{" "}
+            <em>d'au moins deux photographies</em> : une vue d'ensemble du véhicule et un gros
+            plan de la zone endommagée. La soumission est bloquée tant que ces deux photos ne
+            sont pas téléchargées. Les photos sont horodatées et conservées dans le système pour
+            la durée du litige.
+          </li>
+          <li>
+            <strong>Délai de confirmation du poseur (48 heures).</strong> Dès réception du
+            signalement, le prestataire qui a effectué la pose est automatiquement notifié. Il
+            dispose d'un délai de <strong>48 heures</strong> pour soumettre son propre constat
+            contradictoire : deux photos minimum de son intervention, un diagnostic parmi les
+            quatre catégories officielles (défaut d'installation, défaut de matériau, mauvais
+            usage propriétaire, dommage extérieur) et des notes complémentaires. Passé ce délai,
+            l'arbitrage est effectué par MoveSpot sur la base des seuls éléments disponibles.
+          </li>
+          <li>
+            <strong>Arbitrage et répartition de la responsabilité.</strong> L'équipe MoveSpot
+            examine les trois séries de photos (pose initiale, signalement propriétaire, constat
+            poseur) et rend une décision dans un délai raisonnable :
+            <ul className="mt-1 ml-4 space-y-1 list-disc">
+              <li>
+                <strong>Repose gratuite validée</strong> : si le diagnostic retenu est un défaut
+                d'installation ou un défaut de matériau, MoveSpot prend en charge la repose sans
+                frais supplémentaires pour l'annonceur et le propriétaire.
+              </li>
+              <li>
+                <strong>Rejet / frais à la charge du propriétaire</strong> : si le diagnostic
+                retenu est un mauvais usage ou un dommage extérieur imputable au propriétaire,
+                les frais de remplacement sont à la charge de ce dernier, conformément aux CGV.
+              </li>
+            </ul>
+          </li>
+        </ol>
+        <p className="mt-2">
+          La campagne est automatiquement mise en pause (statut{" "}
+          <em>« vérification d'incident »</em>) dès l'ouverture du constat et reprend son cours
+          normal après la résolution.
+        </p>
+      </LegalSection>
+
+      <LegalSection title={t("cgu.s25_contradictoire", { defaultValue: "Article 25 — Constat contradictoire pour les incidents vinyle" })}>
+        <p>
+          Lorsqu'un propriétaire de véhicule signale un problème relatif au vinyle publicitaire
+          (décollement, dégradation), la Plateforme met en œuvre un <strong>constat
+          contradictoire</strong> impliquant le prestataire poseur certifié qui a effectué la pose.
+        </p>
+        <p className="mt-2">
+          <strong>Procédure de signalement.</strong> Le signalement ne peut être soumis qu'accompagné
+          d'au moins <strong>deux (2) photographies</strong> documentant l'état du vinyle. Le dépôt
+          de ces photos est obligatoire ; à défaut, le formulaire de signalement est bloqué. La
+          campagne publicitaire associée est automatiquement mise en pause le temps de la vérification.
+        </p>
+        <p className="mt-2">
+          <strong>Délai de réponse du poseur.</strong> Le prestataire poseur dispose de{" "}
+          <strong>48 heures</strong> à compter de la notification pour confirmer le constat. Cette
+          confirmation doit être accompagnée d'au moins deux (2) photographies de sa propre
+          inspection ainsi que d'un diagnostic choisi parmi les causes suivantes : défaut de pose,
+          défaut matière, mauvais usage par le propriétaire ou dommage extérieur. Passé ce délai,
+          MoveSpot se réserve le droit de statuer en faveur du propriétaire.
+        </p>
+        <p className="mt-2">
+          <strong>Arbitrage par MoveSpot.</strong> À réception du constat contradictoire (photos
+          propriétaire + photos poseur + diagnostic), l'équipe MoveSpot dispose d'un droit
+          d'arbitrage et peut décider :
+        </p>
+        <ul className="list-disc list-inside mt-1 ml-4 space-y-0.5">
+          <li>
+            <strong>Repose gratuite :</strong> le poseur est tenu d'effectuer une nouvelle pose sans
+            frais supplémentaires pour le propriétaire, si le diagnostic retenu est un défaut de pose
+            ou un défaut matière.
+          </li>
+          <li>
+            <strong>Rejet de la réclamation :</strong> la réclamation est rejetée si le diagnostic
+            retenu indique un mauvais usage par le propriétaire ou un dommage extérieur. Dans ce
+            cas, les frais éventuels de repose sont à la charge du propriétaire.
+          </li>
+        </ul>
+        <p className="mt-2">
+          <strong>Notification.</strong> Le propriétaire et le poseur sont notifiés par email et par
+          notification push de chaque étape de la procédure.
+        </p>
+        <p className="mt-2">
+          <strong>Conservation des preuves.</strong> Les photographies déposées dans le cadre du
+          constat contradictoire sont conservées pendant toute la durée de la procédure et au moins
+          trente (30) jours après sa clôture.
         </p>
       </LegalSection>
 

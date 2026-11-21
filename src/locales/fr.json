@@ -3251,7 +3251,8 @@
     "s10": "10. Responsabilité de MoveSpot",
     "s11": "11. Données personnelles",
     "s12": "12. Droit applicable et litiges",
-    "s12bis_mediation": "12 bis. Médiation de la consommation (CM2C)"
+    "s12bis_mediation": "12 bis. Médiation de la consommation (CM2C)",
+    "s12ter_constat": "12 ter. Incidents sur le support vinyle — constat contradictoire"
   },
   "confidentialite": {
     "eyebrow": "RGPD",
@@ -3317,7 +3318,8 @@
     "s20": "20. Continuité de service lors des mises à jour",
     "s21": "21. Événements extérieurs et force majeure",
     "s22": "22. Obligation d'exclusivité des transactions sur la Plateforme",
-    "s23": "23. Droit applicable et juridiction"
+    "s23": "23. Droit applicable et juridiction",
+    "s24": "24. Gestion des incidents et constat contradictoire du support publicitaire (vinyle)"
   },
   "kit": {
     "print_btn": "Imprimer / PDF",
@@ -6099,7 +6101,20 @@
     "btn_submit": "Envoyer le signalement",
     "toast_sent": "Signalement envoyé — l'équipe MoveSpot en a été notifiée.",
     "err_photo": "Impossible de compresser la photo.",
-    "err_generic": "Une erreur s'est produite, veuillez réessayer."
+    "err_generic": "Une erreur s'est produite, veuillez réessayer.",
+    "vinyl_contradictoire_title": "Constat contradictoire obligatoire",
+    "vinyl_contradictoire_info": "Pour tout décollement ou dégradation du vinyle, 2 photos sont requises (vue d'ensemble + gros plan). Un constat contradictoire sera ouvert avec le poseur dans les 48 h.",
+    "photos_vinyl_label": "Photos du constat (obligatoires)",
+    "photos_vinyl_hint": "Photo 1 : vue d'ensemble du véhicule. Photo 2 : gros plan de la zone endommagée.",
+    "photos_min_required": "min. requises",
+    "photo_add_more": "Ajouter une photo",
+    "err_vinyl_min_photos": "Veuillez fournir au moins 2 photos pour un incident vinyle.",
+    "toast_vinyl_sent": "Signalement envoyé — constat contradictoire ouvert avec le poseur.",
+    "btn_need_more_photos": "Encore {{n}} photo(s) requise(s)",
+    "diagnosis_installation_defect": "Défaut d'installation (responsabilité poseur)",
+    "diagnosis_material_defect": "Défaut de matériau (responsabilité MoveSpot / fournisseur)",
+    "diagnosis_owner_misuse": "Mauvais usage propriétaire",
+    "diagnosis_external_damage": "Dommage extérieur (accident, vandalisme)"
   },
   "sim": {
     "title": "Simulateur d'impact campagne",
@@ -6127,5 +6142,19 @@
     "cpm_per_vehicle": "km/j par véhicule",
     "cpm_contacts_per_km": "contacts/km à",
     "cta": "Lancer ma campagne maintenant"
+  },
+  "installer_incidents": {
+    "title": "Incidents vinyle à confirmer",
+    "subtitle": "{{count}} constat(s) en attente de votre réponse (délai 48 h)",
+    "load_error": "Impossible de charger les incidents assignés.",
+    "owner_photos": "Photos du propriétaire",
+    "your_photos": "Vos photos de constat (min. 2)",
+    "diagnosis_label": "Votre diagnostic",
+    "notes_label": "Notes complémentaires",
+    "notes_placeholder": "Décrivez votre constat technique…",
+    "btn_submit": "Soumettre le constat contradictoire",
+    "sent_ok": "Constat soumis. L'arbitrage admin est en cours.",
+    "need_min_photos": "2 photos minimum requises",
+    "overdue": "48h dépassées"
   }
 }

@@ -86,6 +86,8 @@ import {
 import {
   adminListIncidentReports,
   adminUpdateIncidentReport,
+  adminArbitrateIncident,
+  getIncidentPhotoUrl,
   type AdminIncidentReport,
 } from "@/lib/tracking/incident.functions";
 
@@ -3430,10 +3432,15 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
   const { t, i18n } = useTranslation();
   const listIncidents = useServerFn(adminListIncidentReports);
   const updateIncident = useServerFn(adminUpdateIncidentReport);
+  const arbitrate = useServerFn(adminArbitrateIncident);
+  const getPhotoUrl = useServerFn(getIncidentPhotoUrl);
 
   const [reports, setReports] = useState<AdminIncidentReport[]>([]);
   const [loading, setLoading] = useState(false);
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
+  const [arbitrating, setArbitrating] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setLoading(true);
@@ -3457,10 +3464,38 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
     }
   }
 
+  async function handleArbitrate(id: string, resolution: "resolved_reprint" | "resolved_rejected") {
+    setArbitrating(id);
+    try {
+      await arbitrate({ data: { id, resolution, adminNote: adminNotes[id] } });
+      setReports((prev) => prev.map((r) => r.id === id ? { ...r, status: resolution } : r));
+      toast.success(resolution === "resolved_reprint"
+        ? t("admin.dashboard.incident_arbitrate_reprint_ok", { defaultValue: "Repose gratuite validée." })
+        : t("admin.dashboard.incident_arbitrate_reject_ok", { defaultValue: "Rejet enregistré." }));
+    } catch {
+      toast.error(t("admin.dashboard.incident_update_error"));
+    } finally {
+      setArbitrating(null);
+    }
+  }
+
+  async function loadPhotoUrls(paths: string[]) {
+    for (const path of paths) {
+      if (photoUrls[path]) continue;
+      try {
+        const { signedUrl } = await getPhotoUrl({ data: { path } });
+        if (signedUrl) setPhotoUrls((prev) => ({ ...prev, [path]: signedUrl }));
+      } catch { /* best-effort */ }
+    }
+  }
+
   const open = reports.filter((r) => r.status === "open");
   const inProgress = reports.filter((r) => r.status === "in_progress");
-  const closed = reports.filter((r) => r.status === "closed");
-  const active = [...open, ...inProgress];
+  const awaitingArbitration = reports.filter((r) => r.status === "confirmed_by_installer");
+  const closed = reports.filter((r) =>
+    ["closed", "resolved_reprint", "resolved_rejected"].includes(r.status),
+  );
+  const active = [...awaitingArbitration, ...open, ...inProgress];
 
   if (loading) return <Skeleton />;
 
@@ -3476,15 +3511,31 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
       ) : (
         <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
           ⚠️ {t("admin.dashboard.incident_pending_count", { count: active.length })}
+          {awaitingArbitration.length > 0 && (
+            <span className="ml-2 rounded-full bg-violet-500/15 px-2 py-0.5 text-xs text-violet-600 dark:text-violet-400">
+              {awaitingArbitration.length} {t("admin.dashboard.incident_await_arbitration", { defaultValue: "à arbitrer" })}
+            </span>
+          )}
         </p>
       )}
 
       <div className="space-y-3">
-        {active.map((r) => (
+        {active.map((r) => {
+          const isConstat = r.status === "confirmed_by_installer";
+          const isExpanded = expandedId === r.id;
+          const rExt = r as AdminIncidentReport & {
+            owner_report_photos?: string[];
+            installer_confirmation_photos?: string[];
+            installer_diagnosis?: string | null;
+            installer_notes?: string | null;
+          };
+          return (
           <div
             key={r.id}
             className={`rounded-xl border p-4 space-y-3 ${
-              r.status === "in_progress"
+              isConstat
+                ? "border-violet-500/40 bg-violet-500/5"
+                : r.status === "in_progress"
                 ? "border-blue-500/30 bg-blue-500/5"
                 : "border-amber-500/30 bg-background"
             }`}
@@ -3517,7 +3568,9 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
               </div>
               <span
                 className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  r.status === "in_progress"
+                  isConstat
+                    ? "bg-violet-500/15 text-violet-600 dark:text-violet-400"
+                    : r.status === "in_progress"
                     ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
                     : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
                 }`}
@@ -3530,6 +3583,75 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
               <p className="text-sm text-foreground bg-secondary/50 rounded-lg px-3 py-2">
                 {r.description}
               </p>
+            )}
+
+            {/* Comparaison photo 3-panneaux pour les constats contradictoires */}
+            {isConstat && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = expandedId === r.id ? null : r.id;
+                    setExpandedId(next);
+                    if (next) {
+                      const allPaths = [
+                        ...(rExt.owner_report_photos ?? []),
+                        ...(rExt.installer_confirmation_photos ?? []),
+                      ];
+                      loadPhotoUrls(allPaths);
+                    }
+                  }}
+                  className="text-xs text-violet-600 dark:text-violet-400 underline-offset-2 hover:underline"
+                >
+                  {isExpanded ? "▲" : "▼"} {t("admin.dashboard.incident_view_photos", { defaultValue: "Voir les 3 séries de photos" })}
+                </button>
+                {isExpanded && (
+                  <div className="mt-3 space-y-3">
+                    {/* Diagnostic poseur */}
+                    {rExt.installer_diagnosis && (
+                      <div className="rounded-lg bg-violet-500/5 border border-violet-500/20 px-3 py-2 text-xs">
+                        <span className="font-medium text-violet-700 dark:text-violet-400">
+                          {t("installer_incidents.diagnosis_label")} :{" "}
+                        </span>
+                        {t(`incident.diagnosis_${rExt.installer_diagnosis}`, { defaultValue: rExt.installer_diagnosis })}
+                        {rExt.installer_notes && (
+                          <p className="mt-1 text-muted-foreground">{rExt.installer_notes}</p>
+                        )}
+                      </div>
+                    )}
+                    {/* Photos propriétaire */}
+                    {(rExt.owner_report_photos ?? []).length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1.5">📸 {t("admin.dashboard.incident_owner_photos", { defaultValue: "Photos propriétaire" })}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(rExt.owner_report_photos ?? []).map((path) =>
+                            photoUrls[path] ? (
+                              <img key={path} src={photoUrls[path]} alt="Propriétaire" className="h-24 w-24 rounded-lg object-cover border border-border" />
+                            ) : (
+                              <div key={path} className="h-24 w-24 rounded-lg bg-secondary animate-pulse" />
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {/* Photos poseur */}
+                    {(rExt.installer_confirmation_photos ?? []).length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground mb-1.5">🔧 {t("admin.dashboard.incident_installer_photos", { defaultValue: "Photos poseur" })}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {(rExt.installer_confirmation_photos ?? []).map((path) =>
+                            photoUrls[path] ? (
+                              <img key={path} src={photoUrls[path]} alt="Poseur" className="h-24 w-24 rounded-lg object-cover border border-border" />
+                            ) : (
+                              <div key={path} className="h-24 w-24 rounded-lg bg-secondary animate-pulse" />
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             <div className="flex gap-2">
@@ -3545,6 +3667,29 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
             </div>
 
             <div className="flex flex-wrap gap-2">
+              {/* Boutons d'arbitrage pour les constats confirmés */}
+              {isConstat && (
+                <>
+                  <Button
+                    size="sm"
+                    className="bg-emerald-600 text-white hover:bg-emerald-700 text-xs"
+                    disabled={arbitrating === r.id}
+                    onClick={() => handleArbitrate(r.id, "resolved_reprint")}
+                  >
+                    {arbitrating === r.id ? <span className="h-3 w-3 animate-spin rounded-full border border-white border-t-transparent" /> : "✅"}
+                    {" "}{t("admin.dashboard.incident_btn_reprint", { defaultValue: "Valider la repose gratuite" })}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-red-600 border-red-500/40 text-xs"
+                    disabled={arbitrating === r.id}
+                    onClick={() => handleArbitrate(r.id, "resolved_rejected")}
+                  >
+                    ❌ {t("admin.dashboard.incident_btn_reject", { defaultValue: "Rejeter / Frais propriétaire" })}
+                  </Button>
+                </>
+              )}
               {r.status === "open" && (
                 <Button
                   size="sm"
@@ -3555,14 +3700,16 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
                   {t("admin.dashboard.incident_btn_take_charge")}
                 </Button>
               )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-emerald-600 border-emerald-500/40 text-xs"
-                onClick={() => handleUpdate(r.id, "closed")}
-              >
-                {t("admin.dashboard.incident_btn_close")}
-              </Button>
+              {!isConstat && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-emerald-600 border-emerald-500/40 text-xs"
+                  onClick={() => handleUpdate(r.id, "closed")}
+                >
+                  {t("admin.dashboard.incident_btn_close")}
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="outline"
@@ -3576,7 +3723,8 @@ function AdminIncidentReportsPanel({ onOpenPoses }: { onOpenPoses?: () => void }
               </Button>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {closed.length > 0 && (
