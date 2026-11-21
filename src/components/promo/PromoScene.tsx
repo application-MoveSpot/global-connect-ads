@@ -2,6 +2,8 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, useGLTF } from "@react-three/drei";
 import { Box3, CanvasTexture, Color, Group, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader, Vector3 } from "three";
+import { Euler } from "three";
+import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 import sedanAsset from "@/assets/models/promo-sedan.glb.asset.json";
 import carTexture from "@/assets/models/promo-car-colormap.png.asset.json";
 import { CAPTION_BASELINE, captionAt, DURATION, equationStage, euroAmount, GPS_POINTS, GPS_REFRESH_SECONDS, gpsPosition, HEIGHT, OWNER_MONTHLY_EUR, OWNER_TERMS, shotAt, spring, WIDTH } from "@/lib/promo/timeline";
@@ -36,31 +38,43 @@ function Vehicle({ playback, logo, palette }: { playback: React.RefObject<Playba
     return clone;
   }, [gltf.scene]);
   const decal = useMemo(() => {
-    const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 256;
+    const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 320;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.fillStyle = palette.primary; ctx.fillRect(0, 0, 512, 256);
-      ctx.fillStyle = palette.foreground; ctx.fillRect(22, 16, 166, 224);
-      ctx.drawImage(logo, 35, 24, 140, 184);
-      ctx.font = '800 34px "Barlow Condensed"'; ctx.fillText("VOTRE PUB", 218, 95); ctx.fillText("PREND LA ROUTE", 218, 138);
+      ctx.fillStyle = palette.foreground; ctx.fillRect(0, 0, 1024, 320);
+      const logoHeight = 236; const logoWidth = logoHeight * logo.naturalWidth / logo.naturalHeight;
+      ctx.drawImage(logo, (240 - logoWidth) / 2, 32, logoWidth, logoHeight);
+      ctx.fillStyle = palette.primary; ctx.fillRect(255, 38, 8, 228);
+      ctx.fillStyle = palette.background;
+      ctx.font = '800 106px "Barlow Condensed"'; ctx.fillText("VOTRE PUB.", 306, 144);
+      ctx.font = '800 58px "Barlow Condensed"'; ctx.fillText("move-spot.com", 310, 232);
+      ctx.fillStyle = palette.primary; ctx.fillRect(0, 292, 1024, 28);
     }
     const texture = new CanvasTexture(canvas); texture.colorSpace = SRGBColorSpace; return texture;
   }, [logo, palette]);
+  const vinylGeometry = useMemo(() => {
+    model.updateMatrixWorld(true);
+    const body = model.getObjectByName("body");
+    if (!(body instanceof Mesh)) return [];
+    // Project onto the actual body triangles: no floating board, no wheel or glass coverage.
+    return [1, -1].map((side) => new DecalGeometry(body, new Vector3(side * 1.15, 1.24, .03), new Euler(0, side * Math.PI / 2, 0), new Vector3(1.7, .46, 1.2)));
+  }, [model]);
   const wrap = useRef<Group>(null);
   const idleColor = useMemo(() => new Color(palette["vehicle-idle"]), [palette]);
   const activeColor = useMemo(() => new Color(palette.primary), [palette]);
   useEffect(() => () => {
     decal.dispose();
+    vinylGeometry.forEach((geometry) => geometry.dispose());
     model.traverse((o) => { if (o instanceof Mesh) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose()); });
-  }, [model, decal]);
+  }, [model, decal, vinylGeometry]);
   useFrame(() => {
     const t = playback.current.time;
-    if (group.current) { group.current.visible = t >= 3 && t < 18; group.current.rotation.y = -.15 + Math.sin(t * .35) * .08; }
+    if (group.current) { group.current.visible = t >= 3 && t < 18; group.current.rotation.y = -.04 + Math.sin(t * .35) * .025; }
     if (wrap.current) {
       wrap.current.visible = t >= 8;
-      wrap.current.scale.z = Math.max(.001, Math.min(1, spring((t - 8) * 1.4)));
-      // The sheet approaches the door before flattening onto its side.
-      wrap.current.scale.x = 1 + Math.exp(-Math.max(0, t - 8) * 5) * .12;
+      wrap.current.children.forEach((child) => {
+        if (child instanceof Mesh && child.material instanceof MeshStandardMaterial) child.material.opacity = Math.min(1, Math.max(0, (t - 8) * 2));
+      });
     }
     model.traverse((o) => {
       if (!(o instanceof Mesh)) return;
@@ -72,8 +86,7 @@ function Vehicle({ playback, logo, palette }: { playback: React.RefObject<Playba
   return <group ref={group}>
     <primitive object={model} />
     <group ref={wrap}>
-      <mesh position={[1.327, .86, .05]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[1.7, .65]} /><meshStandardMaterial map={decal} roughness={.3} polygonOffset polygonOffsetFactor={-2} /></mesh>
-      <mesh position={[-1.327, .86, .05]} rotation={[0, -Math.PI / 2, 0]}><planeGeometry args={[1.7, .65]} /><meshStandardMaterial map={decal} roughness={.3} /></mesh>
+      {vinylGeometry.map((geometry, i) => <mesh key={i} geometry={geometry}><meshStandardMaterial map={decal} roughness={.72} metalness={0} transparent polygonOffset polygonOffsetFactor={-4} depthWrite={false} /></mesh>)}
     </group>
   </group>;
 }
@@ -216,7 +229,7 @@ function Stepper({ playback, output, logo, palette, onTick }: { playback: React.
     const state = playback.current;
     if (state.playing) state.time = state.clock ? state.clock() : Math.min(DURATION, state.offset + (performance.now() - state.started) / 1000);
     const driving = Math.min(9, Math.max(0, state.time - 9));
-    camera.position.set(7.2 + Math.sin(state.time * .3) * .25 - driving * .035, 3.3 + Math.cos(state.time * .22) * .12, 4.6 - driving * .03);
+    camera.position.set(8.1 + Math.sin(state.time * .3) * .12 - driving * .02, 2.8 + Math.cos(state.time * .22) * .06, 2.2 - driving * .035);
     camera.lookAt(0, .55, 0); gl.render(scene, camera);
     const ctx = output.getContext("2d");
     if (ctx) paintFrame(ctx, gl.domElement, state.time, logo, palette);

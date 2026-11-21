@@ -31,11 +31,11 @@ export function euroAmount(amount: number) {
 
 export const SHOTS = [
   { start: 0, end: 3, name: "L’accroche", title: `${euroAmount(OWNER_MONTHLY_EUR)} €/MOIS`, kicker: "ET SI TA VOITURE TE PAYAIT ?", subtitle: "385 euros par mois. Minimum garanti pour 22 jours." },
-  { start: 3, end: 8, name: "Le constat", title: "À L’ARRÊT.", kicker: "ENTRE DEUX TRAJETS", subtitle: "Vous conduisez pour travailler. Votre voiture reste parfois à l’arrêt." },
-  { start: 8, end: 18, name: "La transformation", title: "PRENEZ LA ROUTE.", kicker: "AVEC MOVESPOT", subtitle: `Un vinyle publicitaire sur votre véhicule. ${euroAmount(OWNER_TERMS.minimumDailyEur)} €/jour minimum garanti, soit ${OWNER_TERMS.advertiserShare * 100} % du tarif annonceur.` },
-  { start: 18, end: 29, name: "Le suivi GPS", title: "EN MOUVEMENT.", kicker: "LA VISIBILITÉ", subtitle: "L’annonceur suit sa campagne grâce à la géolocalisation du véhicule." },
-  { start: 29, end: 37, name: "L’opportunité", title: `${euroAmount(OWNER_MONTHLY_EUR)} €/MOIS`, kicker: "CÔTÉ PROPRIÉTAIRE · MINIMUM GARANTI", subtitle: `${OWNER_TERMS.daysPerMonth} jours × ${euroAmount(OWNER_TERMS.minimumDailyEur)} € = ${euroAmount(OWNER_MONTHLY_EUR)} €/mois. Jusqu’à ${euroAmount(OWNER_TERMS.denseZoneMonthlyEur)} €/mois en zone dense.` },
-  { start: 37, end: 45, name: "La signature", title: "", kicker: "VOTRE PUB PREND LA ROUTE", subtitle: `Validation sous ${OWNER_TERMS.validationHours} h. Découvrez MoveSpot sur move-spot.com.` },
+  { start: 3, end: 8, name: "Le constat", title: "À L’ARRÊT.", kicker: "ENTRE DEUX TRAJETS", subtitle: "Vous conduisez. Et votre voiture peut aussi travailler." },
+  { start: 8, end: 18, name: "La transformation", title: "PRENEZ LA ROUTE.", kicker: "AVEC MOVESPOT", subtitle: `Un vinyle publicitaire sur votre véhicule. ${euroAmount(OWNER_TERMS.minimumDailyEur)} €/jour. Minimum garanti.` },
+  { start: 18, end: 29, name: "Le suivi GPS", title: "EN MOUVEMENT.", kicker: "LA VISIBILITÉ", subtitle: "L’annonceur suit sa campagne, grâce à la géolocalisation de votre véhicule." },
+  { start: 29, end: 37, name: "L’opportunité", title: `${euroAmount(OWNER_MONTHLY_EUR)} €/MOIS`, kicker: "CÔTÉ PROPRIÉTAIRE · MINIMUM GARANTI", subtitle: `${OWNER_TERMS.daysPerMonth} jours. ${euroAmount(OWNER_MONTHLY_EUR)} euros par mois.` },
+  { start: 37, end: 45, name: "La signature", title: "", kicker: "VOTRE PUB PREND LA ROUTE", subtitle: `Validation sous ${OWNER_TERMS.validationHours} heures. Retrouvez-nous sur move-spot.com.` },
 ] as const;
 
 export function shotAt(time: number) {

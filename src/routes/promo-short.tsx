@@ -7,7 +7,7 @@ import officialLogo from "@/assets/movespot-logo.png.asset.json";
 import { PromoScene } from "@/components/promo/PromoScene";
 import type { FilmPalette, Playback } from "@/components/promo/PromoScene";
 import { DURATION, HEIGHT, recorderFormat, SHOTS, shotAt, WIDTH } from "@/lib/promo/timeline";
-import voiceAsset from "@/assets/audio/movespot-garry-narration.m4a.asset.json";
+import voiceAsset from "@/assets/audio/movespot-garry-natural-slow-v2.m4a.asset.json";
 import { ShortAudio } from "@/lib/promo/audio";
 
 export const Route = createFileRoute("/promo-short")({
