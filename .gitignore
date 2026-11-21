@@ -1,6 +1,7 @@
 supabase/.temp/
 .claude/*
 !.claude/skills/
+!.claude/rls-decisions.md
 
 # Logs
 logs
