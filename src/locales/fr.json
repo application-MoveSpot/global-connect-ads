@@ -3452,7 +3452,8 @@
     "pose_type_domicile": "À domicile",
     "installation_address_label": "Adresse exacte de pose",
     "installation_address_placeholder": "Ex : 12 rue des Flamboyants, Pointe-à-Pitre",
-    "installation_address_hint": "Cette adresse sera communiquée au poseur certifié MoveSpot."
+    "installation_address_hint": "Cette adresse sera communiquée au poseur certifié MoveSpot.",
+    "domicile_supplement_note": "⚠️ Intervention à domicile : un supplément forfaitaire de 35,00 € TTC sera déduit des gains du propriétaire pour couvrir les frais de déplacement du poseur (≤ 25 km)."
   },
   "prev": {
     "title": "🧮 Simulateur d'abonnement",
@@ -3788,6 +3789,7 @@
   },
   "campaign_payment": {
     "balance": "Solde portefeuille : {{balance}} € · Montant dû : {{total}} €",
+    "balance_line": "Solde disponible : {{balance}} €",
     "checking": "En attente de confirmation du paiement…",
     "btn_pay": "Payer {{amount}} € avec mon portefeuille",
     "btn_paying": "Paiement…",
@@ -3799,7 +3801,11 @@
     "bank_transfer_summary": "Payer cette campagne par virement bancaire",
     "bank_transfer_title": "Virement bancaire pour cette campagne",
     "bank_transfer_subtitle": "Effectuez le virement avec la référence indiquée, puis téléversez votre reçu. Dès validation par notre équipe, la campagne est automatiquement marquée comme payée — aucun autre paiement n'est nécessaire.",
-    "err_generic": "Erreur"
+    "err_generic": "Erreur",
+    "line_campaign": "Campagne publicitaire",
+    "line_setup_fee": "Forfait mise en service (impression HD + pose)",
+    "line_setup_free": "Impression HD + pose en atelier",
+    "line_total": "Total à débiter"
   },
   "campaign_pack": {
     "individual_notice": "Le montant est crédité sur votre portefeuille — utilisez-le pour payer votre campagne une fois qu'un propriétaire accepte votre brief.",

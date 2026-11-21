@@ -17,7 +17,7 @@ export async function settleCampaignFromWallet(params: {
   const { data: campaign, error } = await supabaseAdmin
     .from("campaign_requests")
     .select(
-      "id, spot_name, company, email, start_date, end_date, user_id, setup_fee_cents, setup_fee_charged",
+      "id, spot_name, company, email, start_date, end_date, user_id, setup_fee_cents, setup_fee_charged, pose_location_type, travel_supplement_charged, owner_amount_cents",
     )
     .eq("id", params.campaignRequestId)
     .maybeSingle();
@@ -77,6 +77,27 @@ export async function settleCampaignFromWallet(params: {
     await supabaseAdmin
       .from("campaign_requests")
       .update({ setup_fee_charged: true } as never)
+      .eq("id", campaign.id);
+  }
+
+  // Supplément déplacement (CGU Art. 11bis) — déduit des gains propriétaire si pose à domicile.
+  const travelCharged = Boolean(
+    (campaign as { travel_supplement_charged?: boolean }).travel_supplement_charged,
+  );
+  const poseType = (campaign as { pose_location_type?: string | null }).pose_location_type;
+  if (poseType === "domicile" && !travelCharged) {
+    const { TRAVEL_SUPPLEMENT_TTC_CENTS } = await import("@/lib/payments/setup-fee");
+    const ownerNet = Number(
+      (campaign as { owner_amount_cents?: number | null }).owner_amount_cents ?? 0,
+    );
+    const netAfterTravel = Math.max(0, ownerNet - TRAVEL_SUPPLEMENT_TTC_CENTS);
+    await supabaseAdmin
+      .from("campaign_requests")
+      .update({
+        travel_supplement_cents: TRAVEL_SUPPLEMENT_TTC_CENTS,
+        travel_supplement_charged: true,
+        owner_amount_cents: netAfterTravel,
+      } as never)
       .eq("id", campaign.id);
   }
 

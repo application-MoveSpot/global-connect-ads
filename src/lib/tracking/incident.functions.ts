@@ -683,7 +683,7 @@ async function applyIncidentCharge(
 
   const { data: campaign } = await (admin.from("campaign_requests") as ReturnType<SupabaseAdmin["from"]>)
     .select(
-      "id, vehicle_id, ad_format, owner_amount_cents, payout_status, incident_charge_cents",
+      "id, vehicle_id, ad_format, owner_amount_cents, payout_status, incident_charge_cents, pose_location_type",
     )
     .eq("id", incident.campaign_request_id)
     .maybeSingle() as {
@@ -694,6 +694,7 @@ async function applyIncidentCharge(
         owner_amount_cents: number | null;
         payout_status: string | null;
         incident_charge_cents: number;
+        pose_location_type: string | null;
       } | null;
     };
 
@@ -701,10 +702,8 @@ async function applyIncidentCharge(
   if ((campaign.incident_charge_cents ?? 0) > 0) return; // déjà traité
 
   const { computeIncidentChargeCents } = await import("@/lib/payments/setup-fee");
-  // Le déplacement est inclus si le diagnostic indique un usage imputable au propriétaire
-  const withTravel =
-    incident.installer_diagnosis === "owner_misuse" ||
-    incident.installer_diagnosis === "external_damage";
+  // Le supplément déplacement s'applique si la pose initiale était à domicile (CGU Art. 11bis)
+  const withTravel = campaign.pose_location_type === "domicile";
   const chargeCents = computeIncidentChargeCents(campaign.ad_format, withTravel);
 
   const ownerPending = Number(campaign.owner_amount_cents ?? 0);

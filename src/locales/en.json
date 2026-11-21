@@ -3452,7 +3452,8 @@
     "pose_type_domicile": "At home",
     "installation_address_label": "Exact installation address",
     "installation_address_placeholder": "E.g.: 12 rue des Flamboyants, Pointe-à-Pitre",
-    "installation_address_hint": "This address will be shared with the certified MoveSpot installer."
+    "installation_address_hint": "This address will be shared with the certified MoveSpot installer.",
+    "domicile_supplement_note": "⚠️ Home visit: a flat supplement of €35.00 (incl. tax) will be deducted from the owner's earnings to cover the installer's travel costs (≤ 25 km)."
   },
   "prev": {
     "title": "🧮 Subscription Simulator",
@@ -3788,6 +3789,7 @@
   },
   "campaign_payment": {
     "balance": "Wallet balance: {{balance}} € · Amount due: {{total}} €",
+    "balance_line": "Available balance: {{balance}} €",
     "checking": "Awaiting payment confirmation…",
     "btn_pay": "Pay {{amount}} € with my wallet",
     "btn_paying": "Paying…",
@@ -3799,7 +3801,11 @@
     "bank_transfer_summary": "Pay this campaign by bank transfer",
     "bank_transfer_title": "Bank transfer for this campaign",
     "bank_transfer_subtitle": "Make the transfer with the reference shown, then upload your receipt. Once validated by our team, the campaign is automatically marked as paid — no other payment needed.",
-    "err_generic": "Error"
+    "err_generic": "Error",
+    "line_campaign": "Advertising campaign",
+    "line_setup_fee": "Setup fee (HD print + installation)",
+    "line_setup_free": "HD print + in-garage installation",
+    "line_total": "Total to debit"
   },
   "campaign_pack": {
     "individual_notice": "The amount is credited to your wallet — use it to pay for your campaign once an owner accepts your brief.",
