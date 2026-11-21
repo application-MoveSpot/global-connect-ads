@@ -664,8 +664,31 @@ function CGU() {
           </li>
           <li>
             <strong>Rejet de la réclamation :</strong> la réclamation est rejetée si le diagnostic
-            retenu indique un mauvais usage par le propriétaire ou un dommage extérieur. Dans ce
-            cas, les frais éventuels de repose sont à la charge du propriétaire.
+            retenu indique un mauvais usage par le propriétaire ou un dommage extérieur imputable
+            à ce dernier (retrait volontaire anticipé du vinyle inclus). Dans ce cas, les frais de
+            réimpression et de nouvelle pose par l'atelier agréé sont facturés au Propriétaire selon
+            le barème forfaitaire TTC suivant :
+            <ul className="list-disc list-inside mt-1.5 ml-4 space-y-0.5 text-sm">
+              <li>
+                <strong>Support simple</strong> (lunette arrière ou 1 panneau latéral) :{" "}
+                <strong>49 € TTC</strong>
+              </li>
+              <li>
+                <strong>Support double</strong> (2 portières latérales) :{" "}
+                <strong>69 € TTC</strong>
+              </li>
+              <li>
+                <strong>Support complet / grand format</strong> (2 portières + lunette arrière, ou
+                véhicule utilitaire / van) : <strong>89 € TTC</strong>
+              </li>
+            </ul>
+            <p className="mt-1.5 text-sm">
+              Ce montant forfaitaire couvre l'intégralité des frais de réimpression du support et de
+              la nouvelle pose par l'atelier agréé MoveSpot. Il pourra être compensé directement sur
+              les sommes en attente de versement au Propriétaire ou réglé par carte bancaire ; dans
+              ce dernier cas, aucune nouvelle campagne ne sera attribuée au véhicule tant que le
+              règlement n'aura pas été réceptionné.
+            </p>
           </li>
         </ul>
         <p className="mt-2">

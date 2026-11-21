@@ -361,10 +361,31 @@ function CGV() {
           </li>
           <li>
             <strong>Responsabilité du propriétaire.</strong> Si l'arbitrage retient un mauvais
-            usage ou un dommage extérieur imputable au propriétaire, les frais de remplacement du
-            vinyle sont à la charge exclusive du propriétaire. L'Annonceur peut demander une
-            adaptation tarifaire pour la durée de suspension ou un report de campagne selon les
-            modalités en vigueur.
+            usage, un retrait volontaire anticipé du vinyle ou un dommage extérieur imputable au
+            propriétaire, les frais de réimpression et de nouvelle pose par l'atelier agréé sont
+            facturés au Propriétaire selon le barème forfaitaire TTC suivant :
+            <ul className="list-disc list-inside mt-1.5 ml-4 space-y-0.5 text-sm">
+              <li>
+                <strong>Support simple</strong> (lunette arrière ou 1 panneau latéral) :{" "}
+                <strong>49 € TTC</strong>
+              </li>
+              <li>
+                <strong>Support double</strong> (2 portières latérales) :{" "}
+                <strong>69 € TTC</strong>
+              </li>
+              <li>
+                <strong>Support complet / grand format</strong> (2 portières + lunette arrière, ou
+                véhicule utilitaire / van) : <strong>89 € TTC</strong>
+              </li>
+            </ul>
+            <p className="mt-1.5 text-sm">
+              Ce montant forfaitaire couvre l'intégralité des frais de réimpression et de nouvelle
+              pose par l'atelier agréé MoveSpot. Il pourra être compensé sur les sommes en attente
+              de versement au Propriétaire ou réglé par carte bancaire avant toute nouvelle
+              attribution de campagne au véhicule concerné. L'Annonceur peut demander une adaptation
+              tarifaire pour la durée de suspension ou un report de campagne selon les modalités en
+              vigueur.
+            </p>
           </li>
         </ol>
       </LegalSection>
