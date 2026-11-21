@@ -10,6 +10,8 @@
 @import "@fontsource/inter/700.css";
 @import "@fontsource/jetbrains-mono/400.css";
 @import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/unbounded/800.css";
+@import "@fontsource/barlow-condensed/800.css";
 
 @import "tailwindcss" source(none);
 @source "../src";
@@ -284,4 +286,46 @@
  * Évite padding-bottom/inline-block qui cassent l'alignement baseline flex. */
 .font-display:not(.tabular-nums) {
   line-height: 1.4;
+}
+
+/* Isolated Short studio. Palette is scoped, leaving the application unchanged. */
+.promo-studio {
+  --background: oklch(0.141 0.015 278);
+  --foreground: oklch(1 0 0);
+  --primary: #FF6B35;
+  --primary-foreground: oklch(0.141 0.015 278);
+  --accent: oklch(0.887 0.182 95.33);
+  --muted: oklch(0.19 0.009 278);
+  --muted-foreground: oklch(0.65 0.012 278);
+  --border: oklch(0.27 0.012 278);
+  --secondary: oklch(0.22 0.012 278);
+  --secondary-foreground: oklch(1 0 0);
+  --signal: oklch(0.76 0.17 151);
+  --destructive: oklch(0.64 0.23 25);
+  --vehicle-idle: oklch(0.67 0.014 245);
+  --studio-shadow: 0 28px 80px oklch(0 0 0 / .5);
+  min-height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+  letter-spacing: 0;
+}
+.promo-studio h1, .promo-studio h2 { letter-spacing: 0; }
+.promo-stage { display: grid; grid-template-columns: 250px minmax(0, 1fr) 230px; gap: 36px; max-width: 1600px; margin: auto; padding: 32px; }
+.promo-film { width: min(100%, 405px, calc((100dvh - 235px) * .5625)); aspect-ratio: 9 / 16; margin: auto; box-shadow: var(--studio-shadow); background: var(--background); }
+.promo-film canvas { display: block; width: 100%; height: 100%; }
+.promo-renderer { position: fixed; left: -2000px; top: 0; width: 540px; height: 540px; pointer-events: none; }
+.promo-wordmark { font-family: "Unbounded", sans-serif; }
+.promo-condensed { font-family: "Barlow Condensed", sans-serif; }
+.promo-track { accent-color: var(--primary); }
+.promo-sequence:hover { background: var(--secondary); }
+@media (max-width: 1000px) {
+  .promo-stage { grid-template-columns: 190px minmax(0, 1fr); gap: 24px; padding: 24px; }
+  .promo-delivery { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--border); padding-top: 20px; }
+}
+@media (max-width: 640px) {
+  .promo-stage { display: flex; flex-direction: column; padding: 20px 16px; gap: 24px; }
+  .promo-film { width: min(100%, 360px); }
+  .promo-sequences { display: none; }
+  .promo-project { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .promo-project h1 { font-size: 24px; }
 }

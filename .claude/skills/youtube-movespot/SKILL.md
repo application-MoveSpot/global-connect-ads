@@ -9,27 +9,19 @@ Automatise la production de contenus vidéo YouTube (format long ≥ 60 s) et Yo
 | Donnée | Valeur exacte |
 |---|---|
 | Tarif annonceur plancher | **25 €/jour/véhicule** |
-| Reversement propriétaire minimum garanti (70 %) | **17,50 €/jour** |
-| Pic zone dense — tarif annonceur (Paris, Lyon, Marseille…) | jusqu'à **49 €/jour** par véhicule |
-| Reversement propriétaire en zone dense (70 % × 49 €) | jusqu'à **34,30 €/jour** |
+| Reversement propriétaire | **70 % minimum** → **17,50 €/jour** garanti |
+| Pic zone dense (Paris, Lyon, Marseille) | jusqu'à **49 €/jour** par véhicule |
 | Ciblage GPS (tarif au km²) | à partir de **1,80 €/km²/jour** (2,70 € grande agglo) |
 | Événements particuliers | à partir de **49 €** la journée |
 | Essai gratuit propriétaire | **14 jours** sans engagement |
 | Commission MoveSpot reversée aux partenaires | **70 %** |
 | Intervalle GPS | toutes les **30 secondes** |
 | Délai validation véhicule | **48 heures** |
-| **Exemples de revenus — côté annonceur** | |
-| Annonceur standard, 15 jours actifs | **15 j × 25 € = 375 €/mois** |
-| Annonceur zone dense, 15 jours actifs | **15 j × 49 € = 735 €/mois** |
-| **Exemples de revenus — côté propriétaire (reversement 70 %)** | |
-| Propriétaire standard, 15 jours actifs | **15 j × 17,50 € = 262,50 €/mois** |
-| Propriétaire standard, 22 jours ouvrés | **22 j × 17,50 € = 385,00 €/mois** ← chiffre clé Short |
-| Propriétaire zone dense, 15 jours actifs | **15 j × 34,30 € = 514,50 €/mois** |
 | URL principale | **https://move-spot.com** |
 | URL suivi GPS | **https://move-spot.com/tracking** (mention contextuelle) |
 | Profil annonceur | **https://move-spot.com/annonceurs** |
 | Profil propriétaire | **https://move-spot.com/proprietaires** |
-| Handle social / YouTube | **@MoveSpot_GP** |
+| Handle social | **@movespot_pub** |
 
 > Ne jamais inventer de chiffre. Si une donnée manque, écrire `[À CONFIRMER]`.
 
@@ -130,7 +122,7 @@ publicité mobile, véhicule, GPS, annonceur, propriétaire, food truck, taxi, V
 • Espace annonceur → https://move-spot.com/annonceurs
 • Espace propriétaire → https://move-spot.com/proprietaires
 
-📲 Réseaux / YouTube : @MoveSpot_GP
+📲 Réseaux : @movespot_pub
 
 #MoveSpot #PublicitéMobile #VéhiculePublicitaire #MarketingGPS
 #FoodTruck #Taxi #VTC #PublicitéVoiture #RevenusPassifs
