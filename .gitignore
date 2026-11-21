@@ -19,3 +19,4 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+.wrangler/
