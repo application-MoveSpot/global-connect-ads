@@ -52,13 +52,17 @@ jobs:
       - name: Run unit & security tests
         run: npm test
 
+      # Idempotence setup_fee_charged / travel_supplement / incident — Supabase uniquement
+      - name: Run payment & settlement unit/integration tests
+        run: npm run test:payments
+
       # Build du worker Cloudflare (génère .output/server/)
       - name: Build application
         run: npm run build
 
       # Démarre le worker via Miniflare (wrangler dev local, sans auth Cloudflare)
-      # puis enchaîne les tests d'intégration SQL et webhook
-      - name: Start server and run webhook + payment tests
+      # puis exécute les tests webhook qui envoient des requêtes HTTP signées HMAC
+      - name: Start server and run webhook simulation tests
         run: |
           npm run start &
           SERVER_PID=$!
@@ -67,5 +71,4 @@ jobs:
           echo "Attente du serveur sur http://localhost:3000..."
           timeout 60 bash -c 'until curl -sf http://localhost:3000/ > /dev/null; do sleep 2; done'
 
-          npm run test:payments
           npm run test:webhooks
