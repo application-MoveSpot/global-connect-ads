@@ -5,6 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import type { Spot } from "./AdSpots";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { FORBIDDEN_KEYWORDS } from "@/lib/campaigns/forbidden-keywords";
 import { detectContact } from "@/lib/moderation/contact-detection";
 import { COUNTRY_OPTIONS } from "@/lib/fleet/driving-rules";
@@ -478,9 +479,7 @@ export function BookingForm({ spot, onClose }: Props) {
       deposeFee: 2000,
     }));
 
-    const { data: created, error } = await supabase
-      .from("campaign_requests")
-      .insert({
+    const campaignRequest = {
         user_id: auth.userId,
         spot_id: String(spot.id),
         vehicle_id: spot.vehicleId ?? null,
@@ -508,7 +507,11 @@ export function BookingForm({ spot, onClose }: Props) {
         pose_location_type: poseLocationType ?? null,
         installation_address: installationAddress.trim() || null,
         ad_format: spot.format ?? null,
-      })
+      } satisfies Database["public"]["Tables"]["campaign_requests"]["Insert"] & { ad_format: string | null };
+
+    const { data: created, error } = await supabase
+      .from("campaign_requests")
+      .insert(campaignRequest as Database["public"]["Tables"]["campaign_requests"]["Insert"])
       .select("id, status, admin_notes")
       .single();
 

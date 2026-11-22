@@ -7,6 +7,21 @@
  * deux échoue, l'autre est annulé — impossible de débiter sans marquer payé
  * (ce qui provoquerait un double débit si l'annonceur retentait le paiement).
  */
+type SettlementCampaign = {
+  id: string;
+  spot_name: string;
+  company: string;
+  email: string;
+  start_date: string | null;
+  end_date: string | null;
+  user_id: string | null;
+  setup_fee_cents: number | null;
+  setup_fee_charged: boolean | null;
+  pose_location_type: string | null;
+  travel_supplement_charged: boolean | null;
+  owner_amount_cents: number | null;
+};
+
 export async function settleCampaignFromWallet(params: {
   campaignRequestId: string;
   /** Description de l'écriture portefeuille (débit campagne). */
@@ -20,7 +35,8 @@ export async function settleCampaignFromWallet(params: {
       "id, spot_name, company, email, start_date, end_date, user_id, setup_fee_cents, setup_fee_charged, pose_location_type, travel_supplement_charged, owner_amount_cents",
     )
     .eq("id", params.campaignRequestId)
-    .maybeSingle();
+    .maybeSingle()
+    .overrideTypes<SettlementCampaign | null, { merge: false }>();
   if (error || !campaign) throw new Error("Campagne introuvable");
 
   const { data: settlement, error: rpcError } = await (

@@ -282,7 +282,7 @@ describe("Supplément déplacement domicile (CGU Art. 11bis)", { skip }, () => {
     const ownerBefore = Number(campaign?.owner_amount_cents);
 
     // La garde `poseType === 'domicile' && !travelCharged` est false → pas de déduction
-    const wouldApply = campaign?.travel_supplement_charged === false;
+    const wouldApply = !Boolean(campaign?.travel_supplement_charged);
     assert.equal(wouldApply, false, "La garde travel_supplement_charged doit bloquer un second passage");
 
     // Pas de modification en DB (pas de doublon)
