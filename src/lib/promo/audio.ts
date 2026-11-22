@@ -1,4 +1,4 @@
-import { DURATION } from "./timeline";
+import { DURATION } from "./timeline.ts";
 
 /** One audio clock drives both the rendered frame and the captured audio. */
 export class ShortAudio {
@@ -7,8 +7,12 @@ export class ShortAudio {
   private offset = 0;
   private running = false;
   private master: GainNode;
+  readonly context: AudioContext;
+  private voice: AudioBuffer;
 
-  constructor(readonly context: AudioContext, private voice: AudioBuffer) {
+  constructor(context: AudioContext, voice: AudioBuffer) {
+    this.context = context;
+    this.voice = voice;
     this.master = context.createGain();
     this.master.connect(context.destination);
   }
