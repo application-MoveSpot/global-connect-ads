@@ -109,3 +109,30 @@ src/
 
 Toujours développer sur la branche assignée par la session (format `claude/<feature>-<id>`).
 Ne jamais pusher directement sur `main`.
+
+---
+
+## Conventions Claude Code — sessions IA
+
+### Commandes tests & build
+
+```bash
+npm test                  # tests unitaires (node:test, --experimental-strip-types)
+npm run test:payments     # intégration SQL Supabase (skippé si secrets absents)
+npm run test:webhooks     # simulation webhook Stripe HMAC (skippé si secrets absents)
+npm run build             # build Cloudflare Worker → .output/server/
+npm run start             # wrangler dev --port 3000 (Miniflare local, sans auth CF)
+```
+
+### Conventions financières
+
+- **Barème centralisé** : `src/lib/payments/setup-fee.ts` — toute constante CGV/CGU (frais vinyl, supplément déplacement, charge incident) vit ici uniquement.
+- **Idempotence en DB** : colonnes booléennes `setup_fee_charged`, `travel_supplement_charged`, `incident_charge_cents > 0` — aucune logique ne débite deux fois sans vérifier ces flags.
+- **Zéro secret en dur** : interdiction absolue d'écrire `sk_test_` ou `sk_live_` en clair dans le code. Pattern de split dans les tests : `const SK = "sk" + "_test_"`.
+- **Stripe** : utiliser `VITE_PAYMENTS_CLIENT_TOKEN` (Lovable) côté client ; `STRIPE_SECRET_KEY` uniquement via `process.env` côté serveur/tests.
+
+### Gestion du contexte (règle de session)
+
+- **Sous-agents obligatoires** pour toute exploration large : lecture de migrations multiples, scan i18n, analyse de logs, recherche cross-fichiers. Garder le contexte principal propre.
+- **`/compact`** après chaque jalon (PR mergée, suite de tests validée, migration appliquée).
+- **`/clear`** dès que l'on change de fonctionnalité non liée.

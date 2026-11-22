@@ -1,0 +1,71 @@
+name: Payment, Settlement & Webhook Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/payment*'
+      - 'src/**/campaign-settlement*'
+      - 'src/**/setup-fee*'
+      - 'src/**/webhooks/**'
+      - 'src/**/incident*'
+      - 'supabase/migrations/**'
+      - '.github/workflows/payment-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**/payment*'
+      - 'src/**/campaign-settlement*'
+      - 'src/**/setup-fee*'
+      - 'src/**/webhooks/**'
+      - 'src/**/incident*'
+      - 'supabase/migrations/**'
+      - '.github/workflows/payment-tests.yml'
+
+jobs:
+  test-payments:
+    name: Payment, Settlement & Webhook Tests
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_URL:               ${{ secrets.STAGING_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      STRIPE_SECRET_KEY:          ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+      STRIPE_WEBHOOK_SECRET:      ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }}
+      # URL locale fixe — pas un secret
+      TEST_WEBHOOK_URL:           http://localhost:3000/api/webhooks/stripe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Barème CGV/CGU + sécurité — pas de réseau requis
+      - name: Run unit & security tests
+        run: npm test
+
+      # Build du worker Cloudflare (génère .output/server/)
+      - name: Build application
+        run: npm run build
+
+      # Démarre le worker via Miniflare (wrangler dev local, sans auth Cloudflare)
+      # puis enchaîne les tests d'intégration SQL et webhook
+      - name: Start server and run webhook + payment tests
+        run: |
+          npm run start &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+
+          echo "Attente du serveur sur http://localhost:3000..."
+          timeout 60 bash -c 'until curl -sf http://localhost:3000/ > /dev/null; do sleep 2; done'
+
+          npm run test:payments
+          npm run test:webhooks
