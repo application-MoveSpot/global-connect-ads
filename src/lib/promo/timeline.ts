@@ -1,4 +1,4 @@
-import { NARRATION_WORDS } from "./narration-cues";
+import { NARRATION_WORDS } from "./narration-cues.ts";
 
 export const DURATION = 45;
 export const WIDTH = 1080;
