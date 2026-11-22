@@ -1,4 +1,4 @@
-name: Payment & Settlement Integration Tests
+name: Payment, Settlement & Webhook Tests
 
 on:
   push:
@@ -24,7 +24,7 @@ on:
 
 jobs:
   test-payments:
-    name: Run Payment & Webhook Suite
+    name: Payment, Settlement & Webhook Tests
     runs-on: ubuntu-latest
 
     env:
@@ -32,7 +32,8 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY:  ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
       STRIPE_SECRET_KEY:          ${{ secrets.STRIPE_TEST_SECRET_KEY }}
       STRIPE_WEBHOOK_SECRET:      ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }}
-      TEST_WEBHOOK_URL:           ${{ secrets.STAGING_WEBHOOK_URL }}
+      # URL locale fixe — pas un secret
+      TEST_WEBHOOK_URL:           http://localhost:3000/api/webhooks/stripe
 
     steps:
       - name: Checkout repository
@@ -51,19 +52,20 @@ jobs:
       - name: Run unit & security tests
         run: npm test
 
-      # Idempotence setup_fee_charged / travel_supplement / incident_payment_blocked
-      - name: Run payment & settlement integration tests
-        run: npm run test:payments
-        env:
-          SUPABASE_URL:              ${{ secrets.STAGING_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      # Build du worker Cloudflare (génère .output/server/)
+      - name: Build application
+        run: npm run build
 
-      # Simulation webhook Stripe — skippé si STRIPE_TEST_SECRET_KEY absent
-      - name: Run webhook simulation tests
-        run: npm run test:webhooks
-        env:
-          STRIPE_SECRET_KEY:     ${{ secrets.STRIPE_TEST_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_TEST_WEBHOOK_SECRET }}
-          TEST_WEBHOOK_URL:      ${{ secrets.STAGING_WEBHOOK_URL }}
-          SUPABASE_URL:          ${{ secrets.STAGING_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+      # Démarre le worker via Miniflare (wrangler dev local, sans auth Cloudflare)
+      # puis enchaîne les tests d'intégration SQL et webhook
+      - name: Start server and run webhook + payment tests
+        run: |
+          npm run start &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+
+          echo "Attente du serveur sur http://localhost:3000..."
+          timeout 60 bash -c 'until curl -sf http://localhost:3000/ > /dev/null; do sleep 2; done'
+
+          npm run test:payments
+          npm run test:webhooks
