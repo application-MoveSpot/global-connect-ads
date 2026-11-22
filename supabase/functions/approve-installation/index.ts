@@ -18,6 +18,7 @@
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { singleRelation } from "../../../src/lib/data/postgrest-relation.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -99,10 +100,11 @@ Deno.serve(async (req: Request) => {
   }
 
   const now = new Date().toISOString();
-  const campaignId = (mission.campaign_requests as { id: string }).id;
-  const advertiserId = (mission.campaign_requests as { advertiser_id: string | null })
-    .advertiser_id;
-  const ownerId = (mission.campaign_requests as { owner_id: string | null }).owner_id;
+  const campaign = singleRelation(mission.campaign_requests);
+  if (!campaign) return json({ error: "Campaign not found" }, 404);
+  const campaignId = campaign.id;
+  const advertiserId = campaign.advertiser_id;
+  const ownerId = campaign.owner_id;
 
   // ── 1. Valider la mission ─────────────────────────────────────────────────
   const { error: updateMissionErr } = await admin

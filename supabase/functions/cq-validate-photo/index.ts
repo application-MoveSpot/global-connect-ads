@@ -171,21 +171,21 @@ Deno.serve(async (req) => {
       await supabase.from("moderation_alerts").insert({
         intent: "photo_fraud_suspected",
         severity: fraudScore / 100,
-        flags: Object.keys(flags).filter((k) => k !== "fraud_score" && (flags as Record<string, unknown>)[k] === true),
+        flags: Object.entries(flags).filter(([key, value]) => key !== "fraud_score" && value === true).map(([key]) => key),
         suggested_action: fraudScore >= 70 ? "reject_and_warn" : "human_review",
         reviewed: false,
         brief_id: null,
         message_id: null,
         conversation_id: null,
         sender_id: pr.driver_id,
-      }).catch(() => null);
+      }).then((result) => result).catch(() => null);
 
       // Notify admin
       await supabase.from("notifications").insert({
         user_id: null,
         type: "photo_fraud_flagged",
         payload: { photo_request_id: pr.id, campaign_id: pr.campaign_request_id, fraud_score: fraudScore, flags },
-      }).catch(() => null);
+      }).then((result) => result).catch(() => null);
 
       log.push(`→ fraud flagged for review (score=${fraudScore})`);
     }

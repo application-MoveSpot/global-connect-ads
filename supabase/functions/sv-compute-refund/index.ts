@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
       reason,
       stripe_refund_id: stripeRefundId,
     },
-  }).throwOnError().catch(() => null);
+  }).throwOnError().then((result) => result).catch(() => null);
 
   console.log(`[sv-compute-refund] campaign=${campaign_id} decision=${decision} amount=${refundAmountCents} stripe=${stripeRefundId ?? "none"}`);
 

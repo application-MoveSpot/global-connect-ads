@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
         user_id: await resolveOwnerId(supabase, campaign.vehicle_id),
         type: "campaign_installation_requested",
         payload: { campaign_id },
-      }).throwOnError().catch(() => null);
+      }).throwOnError().then((result) => result).catch(() => null);
       break;
     }
 
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
         user_id: campaign.user_id,
         type: "campaign_live",
         payload: { campaign_id },
-      }).throwOnError().catch(() => null);
+      }).throwOnError().then((result) => result).catch(() => null);
       break;
     }
 
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
         user_id: campaign.user_id,
         type: "campaign_completed",
         payload: { campaign_id },
-      }).throwOnError().catch(() => null);
+      }).throwOnError().then((result) => result).catch(() => null);
       break;
     }
 
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
           user_id: await resolveOwnerId(supabase, campaign.vehicle_id),
           type: "campaign_installation_overdue",
           payload: { campaign_id },
-        }).throwOnError().catch(() => null);
+        }).throwOnError().then((result) => result).catch(() => null);
       }
       break;
     }
@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
           user_id: await resolveOwnerId(supabase, campaign.vehicle_id),
           type: "campaign_depose_requested",
           payload: { campaign_id },
-        }).throwOnError().catch(() => null);
+        }).throwOnError().then((result) => result).catch(() => null);
       }
       break;
     }
@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
 });
 
 async function resolveOwnerId(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   vehicleId: string | null
 ): Promise<string | null> {
   if (!vehicleId) return null;

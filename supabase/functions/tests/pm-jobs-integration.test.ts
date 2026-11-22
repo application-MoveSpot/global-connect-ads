@@ -57,7 +57,7 @@ async function createTestCampaign(): Promise<string> {
 async function createTestMission(
   campaignId: string,
   status: string,
-  payeeUserId: string,
+  payeeUserId: string | null,
 ): Promise<string> {
   const { data, error } = await db
     .from("installation_missions")

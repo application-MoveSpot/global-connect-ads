@@ -9,7 +9,7 @@
  * Auth : x-internal-secret  OU  Bearer JWT admin
  */
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@1.17.1";
 
 const SUPABASE_URL     = Deno.env.get("SUPABASE_URL")!;
@@ -93,7 +93,9 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── Mode single ───────────────────────────────────────────────────────────
-  const result = await generateForCampaign(admin, body.campaign_id!, period);
+  const campaignId = body.campaign_id;
+  if (!campaignId) return json({ error: "Missing campaign_id" }, 422);
+  const result = await generateForCampaign(admin, campaignId, period);
   if (!result.ok && !result.already_exists) {
     return json({ error: result.error }, 500);
   }
@@ -102,7 +104,7 @@ Deno.serve(async (req: Request) => {
 
 // ── Batch : génère les rapports pour toutes les campagnes actives ─────────────
 async function runBatch(
-  admin: ReturnType<typeof createClient>,
+  admin: SupabaseClient,
   period: string,
 ): Promise<Response> {
   const { data: campaigns, error: listErr } = await admin
@@ -144,7 +146,7 @@ async function runBatch(
 
 // ── Génération du rapport pour une campagne ───────────────────────────────────
 async function generateForCampaign(
-  admin: ReturnType<typeof createClient>,
+  admin: SupabaseClient,
   campaign_id: string,
   period: string,
 ): Promise<ReportResult> {

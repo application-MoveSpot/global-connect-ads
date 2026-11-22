@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
   // ── Générer le numéro de facture ──────────────────────────────────────────
   const year = new Date().getFullYear();
   const { data: seqRow } = await admin.rpc("nextval", { seq_name: "invoices_seq" }).maybeSingle()
-    .catch(() => ({ data: null }));
+    .then((result) => result).catch(() => ({ data: null }));
   const seqNum = (seqRow as number | null) ?? Math.floor(Math.random() * 9000) + 1000;
   const invoiceNumber = `INV-${year}-${String(seqNum).padStart(4, "0")}`;
   const invoiceDate   = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });

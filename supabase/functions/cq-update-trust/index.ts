@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
           },
           { onConflict: "driver_id", ignoreDuplicates: false }
         )
-        .catch(() => null);
+        .then((result) => result).catch(() => null);
     }
   }
 
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
     .eq("job_type", "update_trust")
     .eq("payload->>driver_user_id", body.driver_user_id ?? "")
     .eq("status", "pending")
-    .catch(() => null);
+    .then((result) => result).catch(() => null);
 
   console.log(
     `[cq-update-trust] driver=${driverId} reason=${body.reason ?? "manual"} score=${trustScore?.score ?? "?"}`

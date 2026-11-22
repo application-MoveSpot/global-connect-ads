@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
       user_id: payout.recipient_user_id,
       type: "payout_transferred",
       payload: { campaign_id, payout_type, amount_cents: payout.amount_cents, transfer_id: transferId },
-    }).throwOnError().catch(() => null);
+    }).throwOnError().then((result) => result).catch(() => null);
 
     console.log(`[sv-trigger-payout] campaign=${campaign_id} type=${payout_type} transfer=${transferId} amount=${payout.amount_cents}`);
   } else {

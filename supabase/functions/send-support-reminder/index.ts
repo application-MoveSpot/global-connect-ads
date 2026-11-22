@@ -8,7 +8,7 @@
  * Ne jamais exposer cette fonction publiquement sans ce contrôle.
  */
 import { createClient } from "npm:@supabase/supabase-js@2";
-import Resend from "npm:resend";
+import { Resend } from "npm:resend";
 
 const SUPABASE_URL             = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

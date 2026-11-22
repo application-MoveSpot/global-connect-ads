@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -82,10 +82,9 @@ Deno.serve(async (req) => {
   const twoHoursAgo = new Date(Date.now() - 2 * 3600000).toISOString();
   const { count: timedOut } = await supabase
     .from("pm_jobs")
-    .update({ status: "error", error_message: "timeout" })
+    .update({ status: "error", error_message: "timeout" }, { count: "exact" })
     .eq("status", "pending")
-    .lt("created_at", twoHoursAgo)
-    .select("id", { count: "exact", head: true });
+    .lt("created_at", twoHoursAgo);
 
   if (timedOut && timedOut > 0) {
     summary.push(`timed_out jobs: ${timedOut}`);
@@ -100,7 +99,7 @@ Deno.serve(async (req) => {
 });
 
 async function callLifecycle(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   campaignId: string,
   event: string
 ): Promise<void> {

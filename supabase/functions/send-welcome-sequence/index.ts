@@ -13,7 +13,7 @@
  * Uses enqueue_email RPC so the existing process-email-queue function dispatches via Resend.
  * Locale is determined by the user's country_code: 'DE' → German, all others → French.
  */
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -451,7 +451,7 @@ function countryToLang(countryCode: string | null | undefined): string {
 // ─── Enqueue helper ──────────────────────────────────────────────────────────
 
 async function enqueueWelcomeEmail(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   recipientEmail: string,
   templateName: string,
   content: { subject: string; html: string; text: string },
@@ -495,7 +495,7 @@ async function enqueueWelcomeEmail(
 // ─── Handlers ────────────────────────────────────────────────────────────────
 
 async function handleWelcome(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   userId: string,
   role: "advertiser" | "vehicle_owner",
 ) {
@@ -540,7 +540,7 @@ async function handleWelcome(
   });
 }
 
-async function handleBatchFollowup(supabase: ReturnType<typeof createClient>) {
+async function handleBatchFollowup(supabase: SupabaseClient) {
   const now = new Date();
   const stats = { advertiserDay3: 0, ownerDay2: 0, skipped: 0, errors: 0 };
 
@@ -634,7 +634,7 @@ async function handleBatchFollowup(supabase: ReturnType<typeof createClient>) {
 
 // ─── Activation batch (J+1 / J+7) ───────────────────────────────────────────
 
-async function handleActivationBatch(supabase: ReturnType<typeof createClient>) {
+async function handleActivationBatch(supabase: SupabaseClient) {
   const now = new Date();
   const stats = { j1Sent: 0, j7Sent: 0, j7Notified: 0, skipped: 0, errors: 0 };
 

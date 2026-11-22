@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
         .update({ sync_status: "deleted", updated_at: new Date().toISOString() })
         .eq("object_type", "contact")
         .eq("hubspot_id", hsId)
-        .catch(() => null);
+        .then((result) => result).catch(() => null);
       processed.push(`contact.deleted:${hsId}`);
       continue;
     }
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
             .from("campaign_requests")
             .update({ pm_status: pmStatus, updated_at: new Date().toISOString() })
             .eq("id", syncLog.supabase_id)
-            .catch(() => null);
+            .then((result) => result).catch(() => null);
           processed.push(`deal.stage:${hsId}→${event.propertyValue}→pm_status=${pmStatus}`);
         } else {
           processed.push(`deal.stage:${hsId}→${event.propertyValue} (no Supabase mapping)`);

@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
           elapsed_s: Math.round(elapsedS),
           fraud_score: fraudScore,
           resolved: false,
-        }).catch(() => null); // Ignore unique conflicts
+        }).then((result) => result).catch(() => null); // Ignore unique conflicts
 
         anomaliesFound++;
       }
@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
           elapsed_s: Math.round(elapsedS),
           fraud_score: 100,
           resolved: false,
-        }).catch(() => null);
+        }).then((result) => result).catch(() => null);
 
         anomaliesFound++;
       }
@@ -192,11 +192,11 @@ Deno.serve(async (req) => {
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
   const { count: autoResolved } = await supabase
     .from("gps_fraud_alerts")
-    .update({ resolved: true, resolved_at: new Date().toISOString(), notes: "auto_closed_7d" })
+    .update({ resolved: true, resolved_at: new Date().toISOString(), notes: "auto_closed_7d" }, { count: "exact" })
     .eq("resolved", false)
     .eq("severity", "medium")
     .lt("detected_at", sevenDaysAgo)
-    .select("id", { count: "exact", head: true });
+    .select("id");
 
   if (autoResolved && autoResolved > 0) {
     summary.push(`auto_resolved=${autoResolved} medium_alerts`);

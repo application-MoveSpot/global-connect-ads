@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
   const created: string[] = [];
 
   // Helper: generate contract markdown content
-  function buildContractMd(type: string, partyUserId: string): string {
+  const buildContractMd = (type: string, partyUserId: string): string => {
     return [
       `# Contrat — ${type}`,
       ``,
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       ``,
       `_Généré automatiquement par le Secrétariat Virtuel MoveSpot_`,
     ].join("\n");
-  }
+  };
 
   // Upsert contracts for each party
   const contractDefs: Array<{ type: string; userId: string | null }> = [
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
       user_id: def.userId,
       type: "contract_ready",
       payload: { campaign_id, contract_type: def.type },
-    }).throwOnError().catch(() => null);
+    }).throwOnError().then((result) => result).catch(() => null);
 
     created.push(`${def.type}:${def.userId}`);
   }
