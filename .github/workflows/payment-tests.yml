@@ -49,11 +49,7 @@ jobs:
         run: npm ci
 
       # Barème CGV/CGU + sécurité — pas de réseau requis
-      - name: Run unit & security tests
-        run: npm test
-
-      # Idempotence setup_fee_charged / travel_supplement / incident — Supabase uniquement
-      - name: Run payment & settlement unit/integration tests
+      - name: Run payment & security unit tests
         run: npm run test:payments
 
       # Build du worker Cloudflare (génère .output/server/)
