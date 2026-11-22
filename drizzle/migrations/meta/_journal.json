@@ -232,6 +232,13 @@
       "when": 1794693826106,
       "tag": "0032_provider_profiles_add_subscription_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1795365906086,
+      "tag": "0033_add_ad_format_to_campaign_requests",
+      "breakpoints": true
     }
   ]
 }

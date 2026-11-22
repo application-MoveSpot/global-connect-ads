@@ -605,6 +605,7 @@ export type Database = {
       }
       campaign_requests: {
         Row: {
+          ad_format: string | null
           admin_notes: string | null
           audience: string | null
           campaign_goal: string | null
@@ -675,6 +676,7 @@ export type Database = {
           zone_polygon: unknown
         }
         Insert: {
+          ad_format?: string | null
           admin_notes?: string | null
           audience?: string | null
           campaign_goal?: string | null
@@ -745,6 +747,7 @@ export type Database = {
           zone_polygon?: unknown
         }
         Update: {
+          ad_format?: string | null
           admin_notes?: string | null
           audience?: string | null
           campaign_goal?: string | null
