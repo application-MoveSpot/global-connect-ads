@@ -60,6 +60,11 @@ jobs:
       # puis exécute les tests webhook qui envoient des requêtes HTTP signées HMAC
       - name: Start server and run webhook simulation tests
         run: |
+          # Le build génère .wrangler/deploy/config.json qui pointe vers
+          # .output/server/wrangler.json. Wrangler refuserait de démarrer en
+          # trouvant deux configs ; on supprime le fichier de déploiement avant
+          # de lancer wrangler dev en mode local (Miniflare, sans auth CF).
+          rm -f .wrangler/deploy/config.json
           npm run start &
           SERVER_PID=$!
           trap "kill $SERVER_PID 2>/dev/null || true" EXIT
