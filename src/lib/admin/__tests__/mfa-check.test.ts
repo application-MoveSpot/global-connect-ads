@@ -22,3 +22,9 @@ test("no factor enrolled (nextLevel aal1) → needsEnrollment true", () => {
   assert.equal(result.level, "aal1");
   assert.equal(result.needsEnrollment, true);
 });
+
+test("missing assurance levels retain the aal1 fallback, never aal2", () => {
+  const result = computeAdminMFAStatus(null, null);
+  assert.equal(result.level, "aal1");
+  assert.equal(result.needsEnrollment, false);
+});

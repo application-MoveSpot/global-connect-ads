@@ -5,8 +5,8 @@ export type AdminMFAStatus = {
 
 /** Pure helper: maps Supabase AAL levels to an AdminMFAStatus. */
 export function computeAdminMFAStatus(
-  currentLevel: string,
-  nextLevel: string,
+  currentLevel: string | null,
+  nextLevel: string | null,
 ): AdminMFAStatus {
   // nextLevel === 'aal1' means no TOTP factor is enrolled
   const needsEnrollment = nextLevel === "aal1";

@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useLocation, useNavigate, type ParsedLocation } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [{ title: "Administration — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async ({ location }: { location: ParsedLocation }) => {
     // La page de connexion et l'enrôlement 2FA doivent rester accessibles sans être admin
     if (location.pathname === "/admin/connexion") return;
     // SSR : pas de session navigateur disponible — useEffect prend le relai
