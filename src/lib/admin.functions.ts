@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAdminMFA } from "@/integrations/supabase/admin-auth-middleware";
 import { getAiGatewayFetchConfig } from "@/lib/ai/ai-gateway.server";
 
 // ============ Onglet Briefs & Campagnes ============
@@ -35,7 +36,7 @@ export const adminListBriefsAndCampaigns = createServerFn({ method: "GET" })
   });
 
 export const adminApproveCampaign = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .inputValidator((d) =>
     z
       .object({
@@ -226,7 +227,7 @@ async function notifyActiveProviders(campaign: {
 }
 
 export const adminApproveBrief = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .inputValidator((d) =>
     z
       .object({
@@ -311,7 +312,7 @@ export const adminListPoseurs = createServerFn({ method: "GET" })
   });
 
 export const adminCertifyPoseur = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .inputValidator((d) =>
     z
       .object({
@@ -564,7 +565,7 @@ export const adminListInactiveStripeAccounts = createServerFn({ method: "GET" })
   });
 
 export const adminReviewInstallation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .inputValidator((d) =>
     z
       .object({
@@ -599,7 +600,7 @@ export const adminReviewInstallation = createServerFn({ method: "POST" })
   });
 
 export const adminReviewDepose = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .inputValidator((d) =>
     z
       .object({
@@ -674,7 +675,7 @@ export const adminListVehicles = createServerFn({ method: "GET" })
   });
 
 export const adminReviewVehicle = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .inputValidator((d) =>
     z
       .object({
@@ -1031,7 +1032,7 @@ export type AdminUserRow = {
 };
 
 export const adminListUsers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSupabaseAuth, requireAdminMFA])
   .handler(async ({ context }) => {
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
