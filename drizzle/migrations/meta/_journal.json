@@ -239,6 +239,13 @@
       "when": 1795365906086,
       "tag": "0033_add_ad_format_to_campaign_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1795477363539,
+      "tag": "0034_extend_incident_report_evidence_fields",
+      "breakpoints": true
     }
   ]
 }

@@ -1120,6 +1120,12 @@ export type Database = {
           description: string | null
           id: string
           incident_type: Database["public"]["Enums"]["incident_type"]
+          installer_confirmation_photos: string[] | null
+          installer_confirmed_at: string | null
+          installer_diagnosis: string | null
+          installer_id: string | null
+          installer_notes: string | null
+          owner_report_photos: string[] | null
           photo_path: string | null
           resolved_at: string | null
           status: string
@@ -1134,6 +1140,12 @@ export type Database = {
           description?: string | null
           id?: string
           incident_type: Database["public"]["Enums"]["incident_type"]
+          installer_confirmation_photos?: string[] | null
+          installer_confirmed_at?: string | null
+          installer_diagnosis?: string | null
+          installer_id?: string | null
+          installer_notes?: string | null
+          owner_report_photos?: string[] | null
           photo_path?: string | null
           resolved_at?: string | null
           status?: string
@@ -1148,6 +1160,12 @@ export type Database = {
           description?: string | null
           id?: string
           incident_type?: Database["public"]["Enums"]["incident_type"]
+          installer_confirmation_photos?: string[] | null
+          installer_confirmed_at?: string | null
+          installer_diagnosis?: string | null
+          installer_id?: string | null
+          installer_notes?: string | null
+          owner_report_photos?: string[] | null
           photo_path?: string | null
           resolved_at?: string | null
           status?: string
