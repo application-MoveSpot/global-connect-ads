@@ -9,10 +9,15 @@ export async function isAdmin(): Promise<boolean> {
   const { data, error } = await supabase.rpc("check_is_admin" as never);
   if (!error && typeof data === "boolean") return data;
 
-  // Fallback : requête directe (fonctionne si la migration n'est pas encore appliquée)
+  // Fallback : requête directe filtrée sur l'utilisateur courant
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
   const { data: row } = await supabase
     .from("user_roles")
     .select("role")
+    .eq("user_id", user.id)
     .eq("role", "admin")
     .maybeSingle();
   return row !== null;
