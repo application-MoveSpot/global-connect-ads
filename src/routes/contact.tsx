@@ -229,6 +229,10 @@ function ChatPage() {
           {t("contact.chat.or_email")}{" "}
           <a href="mailto:contact@move-spot.com" className="underline hover:text-foreground">
             contact@move-spot.com
+          </a>{" "}
+          ou au{" "}
+          <a href="tel:+33972178087" className="underline hover:text-foreground">
+            09 72 17 80 87
           </a>
         </p>
       </main>

@@ -86,7 +86,7 @@ function MentionsLegales() {
         <p>
           <strong>Téléphone</strong> :{" "}
           <a href="tel:+33972178087" className="text-primary hover:underline">
-            +33 9 72 17 80 87
+            09 72 17 80 87
           </a>
         </p>
         <p>

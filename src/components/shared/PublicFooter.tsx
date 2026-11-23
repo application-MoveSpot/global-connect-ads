@@ -83,6 +83,15 @@ export function PublicFooter() {
               © {new Date().getFullYear()} MoveSpot — RAKOUN KLUB · SIRET : 804 671 444 00052
             </div>
             <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+              <a href="tel:+33972178087" className="hover:text-foreground transition">
+                09 72 17 80 87
+              </a>
+              <span aria-hidden="true">·</span>
+              <a href="mailto:contact@move-spot.com" className="hover:text-foreground transition">
+                contact@move-spot.com
+              </a>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <Link to="/annonceurs-entreprise" className="hover:text-foreground transition">
