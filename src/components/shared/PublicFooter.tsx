@@ -84,8 +84,8 @@ export function PublicFooter() {
             </div>
             <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-              <a href="tel:+33972178057" className="hover:text-foreground transition">
-                09 72 17 80 57
+              <a href="tel:+33972178087" className="hover:text-foreground transition">
+                09 72 17 80 87
               </a>
               <span aria-hidden="true">·</span>
               <a href="mailto:contact@move-spot.com" className="hover:text-foreground transition">
