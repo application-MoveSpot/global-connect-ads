@@ -159,3 +159,90 @@ describe("incident installer attribution", () => {
     assert.equal(result.reports[0].provider_name, null);
   });
 });
+
+describe("vinyl incident owner photos", () => {
+  it("rejects vinyl reports with fewer than 2 photos", async () => {
+    const s = setup();
+    await assert.rejects(
+      s.exports.submitIncidentReport({
+        context: s.context,
+        data: {
+          vehicleId: s.vehicleId,
+          incidentType: "decollement_vinyle",
+          ownerReportPhotos: [{ base64: "aGVsbG8=", mime: "image/jpeg" }],
+        },
+      }),
+      /Au moins 2 photos/,
+    );
+  });
+
+  it("stores owner_report_photos and sets status=reported_by_owner for vinyl", async () => {
+    const inserts: Array<Record<string, unknown>> = [];
+    const userId = "reporter-user";
+    const vehicleId = "vehicle-id";
+    const rows: Record<string, unknown> = {
+      owner_profiles: { id: "owner-profile" },
+      vehicles: { id: vehicleId, name: "Van Test", owner_id: "owner-profile", driver_id: null },
+      incident_reports: { id: "vinyl-incident-id" },
+      user_roles: [],
+      service_quotes: [],
+      provider_profiles: [],
+    };
+    const admin = {
+      from(table: string) {
+        const result: { data: unknown; error: null } = { data: rows[table], error: null };
+        const chain: Record<string, unknown> = {};
+        chain.insert = (payload: Record<string, unknown>) => { inserts.push(payload); return chain; };
+        for (const key of ["select", "eq", "update", "limit"]) chain[key] = () => chain;
+        chain.order = () => { if (!Array.isArray(result.data)) result.data = []; return chain; };
+        chain.in = () => chain;
+        chain.single = chain.maybeSingle = async () => result;
+        chain.then = (resolve: (v: unknown) => unknown) => Promise.resolve(result).then(resolve);
+        return chain;
+      },
+      auth: {
+        admin: {
+          getUserById: async () => ({ data: { user: { email: "reporter@example.test" } } }),
+          listUsers: async () => ({ data: { users: [] } }),
+        },
+      },
+      storage: { from: () => ({ upload: async () => ({ error: null }) }) },
+    };
+    const exports: Record<string, (input: unknown) => Promise<unknown>> = {};
+    new Function("require", "exports", compiled)((name: string) => {
+      if (name === "@tanstack/react-start") {
+        return { createServerFn: () => { const b = { middleware: () => b, inputValidator: () => b, handler: (fn: unknown) => fn }; return b; } };
+      }
+      if (name.endsWith("auth-middleware")) return { requireSupabaseAuth: {} };
+      if (name.endsWith("rateLimit.server")) return { assertRateLimit: () => {} };
+      if (name.endsWith("client.server")) return { supabaseAdmin: admin };
+      if (name.endsWith("push-send.server")) return { sendWebPushToUser: async () => {} };
+      if (name.endsWith("send.server")) return { sendAppEmail: async () => ({ sent: true }) };
+      return require(name);
+    }, exports);
+
+    const context = { userId, supabase: { rpc: async () => ({ data: true }) } };
+    const result = await exports.submitIncidentReport({
+      context,
+      data: {
+        vehicleId,
+        incidentType: "decollement_vinyle",
+        ownerReportPhotos: [
+          { b64: "aGVsbG8=", mime: "image/jpeg" },
+          { b64: "d29ybGQ=", mime: "image/jpeg" },
+        ],
+      },
+    });
+
+    assert.deepEqual(result, { ok: true, id: "vinyl-incident-id" });
+    assert.equal(inserts.length, 1, "exactly one INSERT should be performed");
+    const payload = inserts[0]!;
+    assert.equal(payload["status"], "reported_by_owner", "vinyl incident status must be reported_by_owner");
+    assert.ok(Array.isArray(payload["owner_report_photos"]), "owner_report_photos must be an array");
+    assert.equal(
+      (payload["owner_report_photos"] as string[]).length,
+      2,
+      "both uploaded photo paths must be stored",
+    );
+  });
+});
