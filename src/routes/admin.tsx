@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@ta
 import { useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { isAdmin } from "@/lib/admin/isAdmin";
+import { isAdmin, checkAdminMFA } from "@/lib/admin/isAdmin";
 import { AppHeader } from "@/components/app/AppHeader";
 import { RouteSummary } from "@/components/shared/RouteSummary";
 import { CreativeFiles } from "@/components/shared/CreativeFiles";
@@ -15,13 +15,17 @@ export const Route = createFileRoute("/admin")({
     meta: [{ title: "Administration — MoveSpot" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   beforeLoad: async ({ location }) => {
-    // La page de connexion doit rester accessible sans être admin
+    // La page de connexion et l'enrôlement 2FA doivent rester accessibles sans être admin
     if (location.pathname === "/admin/connexion") return;
     // SSR : pas de session navigateur disponible — useEffect prend le relai
     if (typeof window === "undefined") return;
-    const { isAdmin: checkAdmin } = await import("@/lib/admin/isAdmin");
+    const { isAdmin: checkAdmin, checkAdminMFA: checkMFA } = await import("@/lib/admin/isAdmin");
     const ok = await checkAdmin();
     if (!ok) throw redirect({ to: "/admin/connexion" });
+    // MFA check: redirect to challenge or enrollment as needed
+    const mfaStatus = await checkMFA();
+    if (mfaStatus.needsEnrollment) throw redirect({ to: "/securite" });
+    if (mfaStatus.level === "aal1") throw redirect({ to: "/admin/connexion" });
   },
   component: AdminPage,
   errorComponent: ({ error }: { error: Error }) => <RouteError error={error} />,
@@ -175,6 +179,19 @@ function AdminPage() {
             }).catch(() => {});
           }
           await supabase.auth.signOut();
+          return;
+        }
+        // MFA level check
+        const mfaStatus = await withTimeout(checkAdminMFA(), "La vérification MFA");
+        if (cancelled) return;
+        if (mfaStatus.needsEnrollment) {
+          setAuthState("unauthenticated");
+          navigate({ to: "/securite" });
+          return;
+        }
+        if (mfaStatus.level === "aal1") {
+          setAuthState("unauthenticated");
+          navigate({ to: "/admin/connexion" });
           return;
         }
         setAuthState("ok");
