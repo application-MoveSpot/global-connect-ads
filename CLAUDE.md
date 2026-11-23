@@ -136,3 +136,7 @@ npm run start             # wrangler dev --port 3000 (Miniflare local, sans auth
 - **Sous-agents obligatoires** pour toute exploration large : lecture de migrations multiples, scan i18n, analyse de logs, recherche cross-fichiers. Garder le contexte principal propre.
 - **`/compact`** après chaque jalon (PR mergée, suite de tests validée, migration appliquée).
 - **`/clear`** dès que l'on change de fonctionnalité non liée.
+
+### Sécurité / Outils
+
+- **Audit des skills :** Avant d'installer ou d'utiliser un nouveau skill externe (`SKILL.md`) ou serveur MCP, exécuter `skillspector scan <chemin_ou_url> --no-llm` (ou avec `ANTHROPIC_API_KEY` pour les dépôts GitHub tiers) et vérifier l'absence d'exfiltration ou d'injection de prompt.
