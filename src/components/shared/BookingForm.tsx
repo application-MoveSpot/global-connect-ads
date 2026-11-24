@@ -507,7 +507,7 @@ export function BookingForm({ spot, onClose }: Props) {
         pose_location_type: poseLocationType ?? null,
         installation_address: installationAddress.trim() || null,
         ad_format: spot.format ?? null,
-      } satisfies Database["public"]["Tables"]["campaign_requests"]["Insert"] & { ad_format: string | null };
+      } satisfies Database["public"]["Tables"]["campaign_requests"]["Insert"];
 
     const { data: created, error } = await supabase
       .from("campaign_requests")
