@@ -276,6 +276,16 @@ function CGU() {
           un montant pouvant aller jusqu'à <strong>50 € TTC</strong>, prélevés sur son portefeuille
           prépayé ou déduits de sa prochaine rémunération de campagne.
         </p>
+        <p className="mt-2">
+          <em>Pour les Conducteurs Particuliers agissant en qualité de consommateurs</em>, ces
+          frais de déplacement à vide correspondent à un{" "}
+          <strong>préjudice matériel réel et justifié</strong> subi par le poseur certifié déplacé
+          inutilement ; ils ne constituent pas une pénalité forfaitaire mais le remboursement d'un
+          coût effectif. — <strong>Réciprocité :</strong> si MoveSpot annule ou reporte le
+          rendez-vous de pose sans faute du conducteur et sans délai de préavis de 24 heures,
+          MoveSpot versera au conducteur concerné une <strong>indemnité compensatrice équivalente</strong>{" "}
+          (jusqu'à 50 € TTC) sur son portefeuille Plateforme, dans les 5 jours ouvrés.
+        </p>
 
         <p className="mt-3">
           <strong>Retrait anticipé du support publicitaire.</strong> Tout retrait du covering
@@ -290,6 +300,13 @@ function CGU() {
           </strong>{" "}
           selon le barème forfaitaire applicable (49 € / 69 € / 89 € TTC selon le format), ces
           sommes étant déductibles des versements en attente ou facturées directement au propriétaire.
+        </p>
+        <p className="mt-2">
+          <em>Pour les Conducteurs Particuliers consommateurs</em>, les sommes retenues au titre
+          d'un retrait anticipé injustifié correspondent aux{" "}
+          <strong>frais de réimpression et de repose effectivement engagés</strong> par MoveSpot et
+          documentés sur demande. Ces sommes ne peuvent en aucun cas dépasser le préjudice matériel
+          réellement subi.
         </p>
       </LegalSection>
 
@@ -345,28 +362,41 @@ function CGU() {
         <p>
           MoveSpot est assujettie aux obligations de tiers déclarant prévues par l'{" "}
           <strong>article 242 bis du Code général des impôts</strong> (transposition de la directive
-          DAC7). À ce titre, MoveSpot collecte les informations fiscales (NIF ou NIR) de chaque
-          bénéficiaire de revenus sur la Plateforme et communique annuellement à l'administration
-          fiscale française un récapitulatif des sommes versées à chaque utilisateur. Ce récapitulatif
-          est également adressé à l'utilisateur concerné avant le{" "}
+          DAC7 — Directive 2021/514/UE). À ce titre, MoveSpot et son prestataire de paiement{" "}
+          <strong>Stripe Connect</strong> collectent les informations fiscales (NIF, SIREN ou NIR)
+          de chaque bénéficiaire de revenus sur la Plateforme et{" "}
+          <strong>
+            transmettent annuellement à l'administration fiscale française un récapitulatif des
+            sommes versées à chaque utilisateur
+          </strong>
+          . Ce récapitulatif est également adressé directement à l'utilisateur concerné avant le{" "}
           <strong>31 janvier de chaque année</strong> pour les sommes perçues au cours de l'année
           civile précédente.
         </p>
         <p>
+          <strong>
+            Imposition dès le premier euro pour les Conducteurs Particuliers (consommateurs).
+          </strong>{" "}
+          Conformément à l'article 242 bis du CGI et aux règles générales de l'impôt sur le revenu,{" "}
+          <strong>
+            les revenus perçus via la Plateforme sont imposables dès le premier euro versé
+          </strong>
+          , sans abattement ni franchise. Il n'existe pas de seuil de non-imposition pour les
+          revenus de location de support publicitaire mobile. Chaque Conducteur Particulier est seul
+          responsable de la déclaration de ces revenus à l'administration fiscale (case appropriée
+          de la déclaration annuelle de revenus 2042) et du règlement des impositions correspondantes.
+        </p>
+        <p>
           Chaque bénéficiaire (propriétaire de véhicule, poseur certifié, apporteur d'affaires) est
           seul responsable de la déclaration de ses revenus perçus via la Plateforme auprès de
-          l'administration fiscale compétente et du règlement des impositions correspondantes.{" "}
-          <strong>
-            Les revenus versés par MoveSpot constituent des revenus imposables au titre de l'impôt
-            sur le revenu.
-          </strong>
+          l'administration fiscale compétente et du règlement des impositions correspondantes.
         </p>
         <p>
           Les propriétaires de véhicules personnes physiques (particuliers) sont informés que, si
           leur activité sur la Plateforme présente un caractère régulier ou génère des revenus
           excédant les seuils légaux en vigueur, ils peuvent être tenus de s'immatriculer sous un
           statut professionnel (notamment micro-entrepreneur) et d'acquitter les cotisations sociales
-          afférentes. MoveSpot ne fournit pas de conseil fiscal ou social ; les utilisateurs sont
+          afférentes. MoveSpot ne fournit pas de conseil fiscal ou social ; les utilisateurs sont
           invités à se rapprocher d'un expert-comptable ou de l'URSSAF pour toute question relative à
           leur situation personnelle.
         </p>
@@ -822,18 +852,57 @@ function CGU() {
           suspension de campagne du fait de l'accident ne donne droit à aucune indemnité de la part
           de MoveSpot.
         </p>
+        <p className="mt-2">
+          <strong>X.6 — Limitation de responsabilité selon le statut de l'utilisateur.</strong>{" "}
+          Pour les <strong>Utilisateurs agissant à titre professionnel</strong> (Annonceurs
+          personnes morales, propriétaires de flotte, prestataires), la responsabilité de MoveSpot
+          au titre des présentes CGU est plafonnée à{" "}
+          <strong>5 000 € par événement</strong>, tous préjudices confondus, à l'exclusion des dommages
+          indirects, pertes d'exploitation, manque à gagner ou atteinte à l'image.
+        </p>
+        <p className="mt-2">
+          Pour les <strong>Conducteurs Particuliers agissant en qualité de consommateurs</strong>{" "}
+          au sens du Code de la consommation, la responsabilité de Garry PALERME, Entrepreneur
+          individuel (MoveSpot), demeure régie par le droit commun français. En cas de manquement
+          prouvé de MoveSpot à ses obligations d'opérateur de plateforme, l'utilisateur
+          consommateur peut solliciter l'indemnisation de son préjudice direct réel selon les règles
+          du droit de la responsabilité civile. Aucune clause des présentes CGU ne saurait
+          exclure ou limiter la responsabilité de MoveSpot pour des dommages causés par une faute
+          lourde ou dolosive, ni restreindre les droits légaux des consommateurs reconnus par le
+          Code de la consommation.
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgu.s23")}>
         <p>
-          Les présentes CGU sont régies par le droit français. Tout litige relatif à leur
-          interprétation ou exécution relève de la compétence exclusive des tribunaux français.
+          Les présentes CGU sont régies par le <strong>droit français</strong>.
         </p>
         <p className="mt-2">
-          <strong>Médiation de la consommation.</strong> Conformément aux articles L.612-1 et
-          L.616-1 du Code de la consommation, les consommateurs peuvent recourir gratuitement au
-          médiateur agréé de MoveSpot :{" "}
-          <strong>CM2C</strong> — 49 Rue de Ponthieu, 75008 Paris —{" "}
+          <strong>Utilisateurs professionnels.</strong> Pour tout litige entre MoveSpot et un
+          utilisateur agissant à titre professionnel (Annonceur personne morale, propriétaire de
+          flotte, prestataire poseur ou partenaire commercial), les parties conviennent de la
+          compétence exclusive du{" "}
+          <strong>Tribunal de Commerce ou du Tribunal judiciaire de Pointe-à-Pitre (Guadeloupe)</strong>,
+          même en cas de pluralité de défendeurs ou d'appel en garantie, sauf disposition légale
+          impérative contraire.
+        </p>
+        <p className="mt-2">
+          <strong>Conducteurs Particuliers (consommateurs).</strong> Conformément aux articles
+          R. 631-3 et R. 631-4 du Code de la consommation, le Conducteur Particulier agissant en
+          qualité de consommateur peut saisir, à son choix, le tribunal compétent du lieu de son{" "}
+          <strong>domicile au moment de la conclusion du contrat</strong>, du lieu de la{" "}
+          <strong>prestation de service</strong>, ou du lieu du siège social de MoveSpot
+          (Pointe-à-Pitre). Toute clause qui contraindrait le consommateur à se soumettre
+          exclusivement à la juridiction du siège de MoveSpot serait réputée non écrite au sens
+          de l'article R. 212-2 du Code de la consommation.
+        </p>
+        <p className="mt-2">
+          <strong>Médiation préalable obligatoire (art. L.612-1 C.conso.).</strong> Avant toute
+          action judiciaire, le consommateur est invité à soumettre son litige au médiateur agréé
+          de MoveSpot. Cette démarche est gratuite, confidentielle et sans obligation de résultat.
+          Le médiateur désigné est :{" "}
+          <strong>CM2C</strong> (Centre de Médiation et d'Arbitrage de la Consommation) — 49 Rue
+          de Ponthieu, 75008 Paris —{" "}
           <a
             href="https://cm2c.net"
             target="_blank"
@@ -842,7 +911,9 @@ function CGU() {
           >
             https://cm2c.net
           </a>
-          . Plateforme européenne de RLL :{" "}
+          . Pour les litiges transfrontaliers (résidence hors de France), la médiation peut
+          également être initiée via la plateforme européenne de Règlement en Ligne des Litiges
+          (RLL) de la Commission européenne :{" "}
           <a
             href="https://ec.europa.eu/consumers/odr"
             target="_blank"
@@ -851,7 +922,12 @@ function CGU() {
           >
             https://ec.europa.eu/consumers/odr
           </a>
-          .
+          . L'adresse électronique de MoveSpot pour la saisine :{" "}
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
+          </a>
+          . En cas d'échec de la médiation dans un délai de 90 jours, chaque partie recouvre la
+          liberté d'agir en justice.
         </p>
       </LegalSection>
     </LegalPage>
