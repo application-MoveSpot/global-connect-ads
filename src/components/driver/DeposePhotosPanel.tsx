@@ -178,6 +178,15 @@ export function DeposePhotosPanel({
             </p>
           )}
 
+          {/* GPS rationale — required before triggering geolocation on submit */}
+          {geoStatus === "idle" && (
+            <p className="mt-2 rounded-md bg-secondary/40 px-2 py-1.5 text-[10px] text-muted-foreground leading-snug">
+              📍 En envoyant les photos, votre position GPS sera relevée{" "}
+              <strong>une seule fois</strong> pour horodater et géolocaliser la preuve de dépose.
+              Aucune donnée de position n'est enregistrée en dehors de cet envoi.
+            </p>
+          )}
+
           <button
             onClick={handleSubmit}
             disabled={!canSubmit}

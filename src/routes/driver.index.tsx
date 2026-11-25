@@ -290,12 +290,28 @@ function DriverPage() {
             </div>
 
             {state === "ready" ? (
-              <button
-                onClick={start}
-                className="w-full rounded-2xl bg-primary text-primary-foreground py-4 text-lg font-semibold hover:bg-primary/90"
-              >
-                {t("driver.start")}
-              </button>
+              <>
+                {/* GPS rationale — shown before watchPosition is called, as required by
+                    Google Play policy and best-practice for sensitive permissions */}
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
+                  <p className="font-semibold text-foreground mb-1">
+                    📍 Utilisation de la géolocalisation GPS
+                  </p>
+                  <p>
+                    En appuyant sur « {t("driver.start")} », vous autorisez MoveSpot à enregistrer
+                    votre position GPS <strong>uniquement pendant ce trajet actif</strong>, afin de
+                    comptabiliser les kilomètres parcourus dans la zone de campagne publicitaire.
+                    Le GPS est arrêté dès que vous quittez cette page ou appuyez sur Arrêter.{" "}
+                    <strong>Aucune donnée de position n'est collectée hors session active.</strong>
+                  </p>
+                </div>
+                <button
+                  onClick={start}
+                  className="w-full rounded-2xl bg-primary text-primary-foreground py-4 text-lg font-semibold hover:bg-primary/90"
+                >
+                  {t("driver.start")}
+                </button>
+              </>
             ) : (
               <>
                 <div className="rounded-2xl border border-signal/40 bg-signal/10 p-6 text-center">
