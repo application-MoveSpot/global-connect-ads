@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
+import { ShieldAlert } from "lucide-react";
 import { ClientOnly } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -44,6 +45,9 @@ import {
   adminCreditReferral,
   getAdminRegionStats,
   adminListCampaignsMissingInstallation,
+  adminGetInsuranceCompliance,
+  adminVerifyVehicleInsurance,
+  adminVerifyInstallerRCPro,
   type AdminReferralRow,
   type AdminRegionStat,
 } from "@/lib/admin.functions";
@@ -462,6 +466,45 @@ function AdminDashboard() {
     enabled: ready && tab === "prestataires",
     staleTime: 60 * 1000,
     retry: false,
+  });
+
+  const getInsuranceCompliance = useServerFn(adminGetInsuranceCompliance);
+  const insuranceComplianceQuery = useQuery({
+    queryKey: ["admin-insurance-compliance"],
+    queryFn: () => getInsuranceCompliance(),
+    enabled: ready,
+    staleTime: 60 * 1000,
+    retry: false,
+  });
+  const isInsuranceCompliant =
+    (insuranceComplianceQuery.data?.hasVerifiedDriver ?? false) &&
+    (insuranceComplianceQuery.data?.hasVerifiedInstaller ?? false);
+  const insuranceBlockReason = !insuranceComplianceQuery.data?.hasVerifiedDriver
+    ? "Blocage : aucun conducteur avec assurance auto vérifiée — onglet Véhicules"
+    : !insuranceComplianceQuery.data?.hasVerifiedInstaller
+      ? "Blocage : aucun poseur avec RC Pro « biens confiés » vérifiée — onglet Poseurs"
+      : undefined;
+
+  const doVerifyVehicleInsurance = useServerFn(adminVerifyVehicleInsurance);
+  const verifyVehicleInsuranceMut = useMutation({
+    mutationFn: (vehicleId: string) => doVerifyVehicleInsurance({ data: { vehicleId } }),
+    onSuccess: () => {
+      toast.success("Assurance auto marquée vérifiée ✅");
+      qc.invalidateQueries({ queryKey: ["admin-vehicles"] });
+      qc.invalidateQueries({ queryKey: ["admin-insurance-compliance"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const doVerifyInstallerRCPro = useServerFn(adminVerifyInstallerRCPro);
+  const verifyInstallerRCProMut = useMutation({
+    mutationFn: (payeeProfileId: string) => doVerifyInstallerRCPro({ data: { payeeProfileId } }),
+    onSuccess: () => {
+      toast.success("RC Pro « biens confiés » marquée vérifiée ✅");
+      qc.invalidateQueries({ queryKey: ["admin-poseurs"] });
+      qc.invalidateQueries({ queryKey: ["admin-insurance-compliance"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const approveCampaignMut = useMutation({
@@ -1042,6 +1085,31 @@ function AdminDashboard() {
                         <p className="text-xs text-muted-foreground">
                           {new Date(v.created_at).toLocaleDateString(i18n.language)}
                         </p>
+                        {/* Assurance auto — statut et bouton de vérification rapide */}
+                        <div
+                          className={`mt-1 flex flex-wrap items-center gap-2 rounded-lg px-3 py-1.5 text-xs ${
+                            (v as any).auto_insurance_verified
+                              ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                              : "bg-red-500/10 text-red-700 dark:text-red-400"
+                          }`}
+                        >
+                          <span>
+                            {(v as any).auto_insurance_verified
+                              ? "✅ Assurance auto vérifiée"
+                              : "❌ Assurance auto non vérifiée"}
+                            {(v as any).auto_insurance_expires_at &&
+                              ` · expire ${new Date((v as any).auto_insurance_expires_at).toLocaleDateString("fr-FR")}`}
+                          </span>
+                          {!(v as any).auto_insurance_verified && v.status === "approved" && (
+                            <button
+                              onClick={() => verifyVehicleInsuranceMut.mutate(v.id)}
+                              disabled={verifyVehicleInsuranceMut.isPending}
+                              className="rounded px-2 py-0.5 bg-primary text-primary-foreground text-[11px] font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+                            >
+                              Marquer vérifiée
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="flex flex-col gap-2 items-end">
                         {v.status === "pending" ? (
@@ -1179,6 +1247,59 @@ function AdminDashboard() {
             <Skeleton />
           ) : (
             <div className="space-y-8">
+              {/* Bandeau verrou assurance — permanent */}
+              <div
+                className={`rounded-xl border p-4 flex gap-3 items-start ${
+                  isInsuranceCompliant
+                    ? "border-amber-400/40 bg-amber-500/5"
+                    : "border-red-500/40 bg-red-500/5"
+                }`}
+              >
+                <ShieldAlert
+                  className={`h-5 w-5 mt-0.5 shrink-0 ${isInsuranceCompliant ? "text-amber-600" : "text-red-600"}`}
+                />
+                <div className="flex-1 min-w-0">
+                  <p
+                    className={`font-semibold text-sm ${isInsuranceCompliant ? "text-amber-700 dark:text-amber-400" : "text-red-700 dark:text-red-400"}`}
+                  >
+                    Règle d&apos;or opérationnelle (Sans RC Pro MoveSpot)
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Ne validez aucune campagne réelle tant que le conducteur n&apos;a pas
+                    téléversé son attestation d&apos;assurance auto (avec usage publicitaire
+                    déclaré) et que le poseur n&apos;a pas fourni son attestation de RC Pro
+                    «&nbsp;biens confiés&nbsp;».
+                  </p>
+                  {insuranceComplianceQuery.data && (
+                    <div className="flex flex-wrap gap-4 mt-2 text-xs">
+                      <span
+                        className={
+                          insuranceComplianceQuery.data.hasVerifiedDriver
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }
+                      >
+                        {insuranceComplianceQuery.data.hasVerifiedDriver ? "✅" : "❌"}{" "}
+                        Conducteurs assurés vérifiés :{" "}
+                        {insuranceComplianceQuery.data.verifiedDrivers}/
+                        {insuranceComplianceQuery.data.totalDrivers}
+                      </span>
+                      <span
+                        className={
+                          insuranceComplianceQuery.data.hasVerifiedInstaller
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }
+                      >
+                        {insuranceComplianceQuery.data.hasVerifiedInstaller ? "✅" : "❌"}{" "}
+                        Poseurs RC Pro vérifiés :{" "}
+                        {insuranceComplianceQuery.data.verifiedInstallers}/
+                        {insuranceComplianceQuery.data.totalInstallers}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
               <section>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                   <h2 className="font-display text-lg font-bold">
@@ -1265,11 +1386,19 @@ function AdminDashboard() {
                                   size="sm"
                                   onClick={() => approveCampaignMut.mutate(c.id)}
                                   disabled={
-                                    approveCampaignMut.isPending || rejectCampaignMut.isPending
+                                    approveCampaignMut.isPending ||
+                                    rejectCampaignMut.isPending ||
+                                    !isInsuranceCompliant
                                   }
+                                  title={insuranceBlockReason}
                                 >
                                   {t("admin.dashboard.btn_approve")}
                                 </Button>
+                                {!isInsuranceCompliant && (
+                                  <p className="text-[11px] text-red-600 dark:text-red-400 max-w-[180px] text-right leading-tight">
+                                    {insuranceBlockReason}
+                                  </p>
+                                )}
                                 {refuseMap[c.id]?.open ? (
                                   <div className="flex flex-col gap-1 items-end w-56">
                                     <Button
@@ -1397,10 +1526,20 @@ function AdminDashboard() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => approveBriefMut.mutate(b.id)}
-                                disabled={approveBriefMut.isPending || rejectBriefMut.isPending}
+                                disabled={
+                                  approveBriefMut.isPending ||
+                                  rejectBriefMut.isPending ||
+                                  !isInsuranceCompliant
+                                }
+                                title={insuranceBlockReason}
                               >
                                 {t("admin.dashboard.btn_approve")}
                               </Button>
+                              {!isInsuranceCompliant && (
+                                <p className="text-[11px] text-red-600 dark:text-red-400 max-w-[180px] text-right leading-tight">
+                                  {insuranceBlockReason}
+                                </p>
+                              )}
                               {refuseMap[b.id]?.open ? (
                                 <div className="flex flex-col gap-1 items-end w-56">
                                   <Button
@@ -1564,6 +1703,31 @@ function AdminDashboard() {
                             rejected: t("admin.dashboard.status_rejected"),
                           }}
                         />
+                      </div>
+                      {/* RC Pro biens confiés — statut et bouton de vérification rapide */}
+                      <div
+                        className={`mt-1 flex flex-wrap items-center gap-2 rounded-lg px-3 py-1.5 text-xs ${
+                          (p as any).rcpro_verified
+                            ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                        }`}
+                      >
+                        <span>
+                          {(p as any).rcpro_verified
+                            ? '✅ RC Pro "biens confiés" vérifiée'
+                            : '⚠ RC Pro "biens confiés" non vérifiée'}
+                          {(p as any).rcpro_expires_at &&
+                            ` · expire ${new Date((p as any).rcpro_expires_at).toLocaleDateString("fr-FR")}`}
+                        </span>
+                        {!(p as any).rcpro_verified && p.certification_status === "certified" && (
+                          <button
+                            onClick={() => verifyInstallerRCProMut.mutate(p.id)}
+                            disabled={verifyInstallerRCProMut.isPending}
+                            className="rounded px-2 py-0.5 bg-primary text-primary-foreground text-[11px] font-semibold hover:bg-primary/90 transition disabled:opacity-60"
+                          >
+                            Marquer vérifiée
+                          </button>
+                        )}
                       </div>
                     </div>
                     {p.certification_status === "certified" ? (
