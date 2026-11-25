@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ContratPoseursRouteImport } from './routes/contrat-poseurs'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as KitRouteImport } from './routes/kit'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -164,6 +165,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratPoseursRoute = ContratPoseursRouteImport.update({
+  id: '/contrat-poseurs',
+  path: '/contrat-poseurs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CookiesRoute = CookiesRouteImport.update({
@@ -801,6 +807,7 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
@@ -928,6 +935,7 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
@@ -1057,6 +1065,7 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
   '/mcp': typeof McpRoute
@@ -1188,6 +1197,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
     | '/mcp'
@@ -1315,6 +1325,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
     | '/mcp'
@@ -1443,6 +1454,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
     | '/mcp'
@@ -1573,6 +1585,7 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ContactRoute: typeof ContactRoute
+  ContratPoseursRoute: typeof ContratPoseursRoute
   CookiesRoute: typeof CookiesRoute
   KitRoute: typeof KitRoute
   McpRoute: typeof McpRoute
@@ -1707,6 +1720,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contrat-poseurs': {
+      id: '/contrat-poseurs'
+      path: '/contrat-poseurs'
+      fullPath: '/contrat-poseurs'
+      preLoaderRoute: typeof ContratPoseursRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cookies': {
@@ -2665,6 +2685,7 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ContactRoute: ContactRoute,
+  ContratPoseursRoute: ContratPoseursRoute,
   CookiesRoute: CookiesRoute,
   KitRoute: KitRoute,
   McpRoute: McpRoute,
