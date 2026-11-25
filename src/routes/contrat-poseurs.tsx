@@ -142,7 +142,55 @@ function ContratPoseurs() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="Article 5 — Rémunération">
+      <LegalSection title="Article 5 — Ponctualité et absence injustifiée (no-show)">
+        <p>
+          Le Prestataire s'engage à être présent au lieu et à l'heure convenus avec MoveSpot pour
+          chaque intervention planifiée. Tout empêchement doit être signalé à MoveSpot{" "}
+          <strong>au moins vingt-quatre (24) heures avant le rendez-vous</strong>, par email à{" "}
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
+          </a>{" "}
+          ou via la messagerie de son espace Prestataire, en indiquant le motif et en proposant
+          une date de remplacement dans les quarante-huit (48) heures.
+        </p>
+        <p className="mt-2">
+          <strong>Absence injustifiée (no-show).</strong> Est considérée comme absence injustifiée
+          toute non-présentation sans signalement préalable dans le délai ci-dessus, ou tout
+          signalement intervenu postérieurement à l'heure du rendez-vous. En cas d'absence
+          injustifiée :
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mt-2">
+          <li>
+            <strong>Aucun honoraire</strong> n'est dû au Prestataire pour la mission concernée,
+            y compris les frais de déplacement éventuellement engagés ;
+          </li>
+          <li>
+            Le Prestataire demeure <strong>responsable des supports vinyles</strong> déjà confiés
+            par MoveSpot et doit les restituer en parfait état dans un délai de quarante-huit
+            (48) heures. À défaut, leur valeur est retenue sur les prochains honoraires dus
+            ou fait l'objet d'une facturation séparée ;
+          </li>
+          <li>
+            MoveSpot peut <strong>suspendre temporairement le compte</strong> du Prestataire sur
+            la Plateforme, réaffecter la mission à un autre prestataire disponible, et imputer
+            les éventuels frais de réaffectation d'urgence sur les sommes dues au Prestataire ;
+          </li>
+          <li>
+            En cas de récidive (deux absences injustifiées sur une période de douze mois),
+            MoveSpot peut résilier le présent contrat avec effet immédiat, sans indemnité,
+            conformément à l'article 9.
+          </li>
+        </ul>
+        <p className="mt-2">
+          Le Prestataire reconnaît que le décompte de la durée de la campagne publicitaire associée
+          ne prend effet qu'à compter de la <strong>validation des photographies de pose effective</strong>{" "}
+          par MoveSpot. Toute absence retardant la pose n'entraîne aucune prolongation automatique
+          de la campagne ni aucune obligation d'indemnisation de MoveSpot envers l'annonceur ou le
+          propriétaire du véhicule du fait du Prestataire.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Article 6 — Rémunération">
         <p>
           Les tarifs applicables à chaque type d'intervention (pose, dépose, dépose-repose) sont
           définis dans le barème transmis au Prestataire lors de son inscription et consultables
@@ -161,7 +209,7 @@ function ContratPoseurs() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Article 6 — Responsabilité et dommages au véhicule">
+      <LegalSection title="Article 7 — Responsabilité et dommages au véhicule">
         <p>
           Le Prestataire est seul responsable des dommages causés au véhicule pendant son
           intervention. En cas de dommage constaté après la pose ou la dépose du support, MoveSpot
@@ -175,7 +223,7 @@ function ContratPoseurs() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Article 7 — Confidentialité et non-contournement">
+      <LegalSection title="Article 8 — Confidentialité et non-contournement">
         <p>
           Le Prestataire s'engage à ne pas contacter directement les Propriétaires ou Annonceurs
           rencontrés via la Plateforme à des fins commerciales extérieures à MoveSpot, pendant toute
@@ -187,7 +235,7 @@ function ContratPoseurs() {
         </p>
       </LegalSection>
 
-      <LegalSection title="Article 8 — Durée et résiliation">
+      <LegalSection title="Article 9 — Durée et résiliation">
         <p>
           Le présent contrat est conclu pour une durée indéterminée à compter de l'acceptation par
           le Prestataire lors de son inscription sur la Plateforme.
@@ -195,12 +243,13 @@ function ContratPoseurs() {
         <p className="mt-2">
           Chaque partie peut résilier le contrat par email avec un préavis de quinze (15) jours.
           MoveSpot peut procéder à une résiliation immédiate et sans indemnité en cas de : défaut
-          d'assurance, dommages répétés non couverts, violation du protocole photographique,
-          contournement de la Plateforme ou comportement frauduleux.
+          d'assurance, absence injustifiée répétée (art. 5), dommages répétés non couverts,
+          violation du protocole photographique, contournement de la Plateforme ou comportement
+          frauduleux.
         </p>
       </LegalSection>
 
-      <LegalSection title="Article 9 — Droit applicable et litiges">
+      <LegalSection title="Article 10 — Droit applicable et litiges">
         <p>
           Le présent contrat est régi par le droit français. Tout litige sera soumis à la
           compétence des tribunaux de Pointe-à-Pitre (Guadeloupe), sauf disposition légale
