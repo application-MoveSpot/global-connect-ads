@@ -251,13 +251,17 @@ function FacturePage() {
             {t("advertiser.facture.tva_note")}
           </div>
 
-          {/* B2B late-payment penalty — mandatory under French commercial law (art. L.441-10 C.com.) */}
-          {profile.siret && (
+          {/* B2B late-payment penalty — art. L.441-10 C.com. — applies to inter-professional relations only,
+              not to associations acting on a non-commercial basis (account_type !== 'association') */}
+          {profile.siret && profile.account_type !== "association" && (
             <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-800 mb-8">
-              En application de l&apos;article L. 441-10 du Code de commerce, tout retard de
-              paiement entraîne de plein droit des pénalités de retard calculées au taux légal en
-              vigueur, ainsi qu&apos;une <strong>indemnité forfaitaire de 40 € pour frais de
-              recouvrement</strong> (décret n° 2012-1115 du 2 octobre 2012).
+              <strong>Mention applicable aux seules relations inter-professionnelles (art.
+              L. 441-10 C. com.)</strong> — En application de l&apos;article L. 441-10 du Code de
+              commerce, tout retard de paiement entre professionnels entraîne de plein droit des
+              pénalités de retard calculées au taux légal en vigueur, ainsi qu&apos;une{" "}
+              <strong>indemnité forfaitaire de 40 € pour frais de recouvrement</strong> (décret
+              n° 2012-1115 du 2 octobre 2012). Cette clause ne s&apos;applique pas aux associations
+              loi 1901 agissant à titre non lucratif.
             </div>
           )}
 
