@@ -2234,9 +2234,34 @@ function AdminDashboard() {
           referralQuery.isLoading ? (
             <Skeleton />
           ) : referralQuery.isError ? (
-            <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-              {(referralQuery.error as Error).message}
-            </div>
+            (() => {
+              const msg = (referralQuery.error as Error).message ?? "";
+              const isSchemaErr =
+                msg.includes("schema cache") || msg.includes("does not exist");
+              return (
+                <div
+                  className={`rounded-xl border p-6 text-sm text-center ${
+                    isSchemaErr
+                      ? "border-amber-300 bg-amber-50 text-amber-800"
+                      : "border-destructive/40 bg-destructive/10 text-destructive"
+                  }`}
+                >
+                  {isSchemaErr ? (
+                    <>
+                      <p className="font-semibold mb-1">
+                        Table de parrainage en cours d'initialisation
+                      </p>
+                      <p className="text-xs opacity-70">
+                        La migration SQL a été appliquée — rechargez la page dans quelques
+                        secondes pour que le cache PostgREST se rafraîchisse.
+                      </p>
+                    </>
+                  ) : (
+                    msg
+                  )}
+                </div>
+              );
+            })()
           ) : (
             <ReferralTab
               data={referralQuery.data!}
