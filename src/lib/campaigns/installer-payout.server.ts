@@ -3,6 +3,20 @@
  * Appelé par les server fns admin après validation.
  */
 
+/** Pure guard — testable sans dépendance externe. */
+export function assertPhotoStatusApproved(
+  status: string | null | undefined,
+  type: "pose" | "depose",
+): void {
+  if (status !== "approved") {
+    throw new Error(
+      type === "pose"
+        ? `Versement impossible — les photographies de pose n'ont pas encore été validées par MoveSpot (statut actuel : ${status ?? "absent"}). Validez d'abord les photos dans l'onglet Installations.`
+        : `Versement impossible — les photographies de dépose n'ont pas encore été validées par MoveSpot (statut actuel : ${status ?? "absent"}). Validez d'abord les photos dans l'onglet Dépose.`,
+    );
+  }
+}
+
 export async function payInstallerFee(
   campaignRequestId: string,
   type: "pose" | "depose",
@@ -30,14 +44,7 @@ export async function payInstallerFee(
   const cr = campaign as Record<string, unknown>;
 
   // Guard : photos de pose/dépose obligatoirement validées avant tout versement
-  const photoStatus = cr[photoStatusCol] as string | null;
-  if (photoStatus !== "approved") {
-    throw new Error(
-      type === "pose"
-        ? `Versement impossible — les photographies de pose n'ont pas encore été validées par MoveSpot (statut actuel : ${photoStatus ?? "absent"}). Validez d'abord les photos dans l'onglet Installations.`
-        : `Versement impossible — les photographies de dépose n'ont pas encore été validées par MoveSpot (statut actuel : ${photoStatus ?? "absent"}). Validez d'abord les photos dans l'onglet Dépose.`,
-    );
-  }
+  assertPhotoStatusApproved(cr[photoStatusCol] as string | null, type);
 
   // Idempotency
   if (cr[payoutStatusCol] === "transferred" || cr[transferIdCol]) {
