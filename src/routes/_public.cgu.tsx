@@ -85,6 +85,18 @@ function CGU() {
           fournir des informations exactes, complètes et à jour. Il est responsable de la
           confidentialité de ses identifiants et de toute action effectuée depuis son compte.
         </p>
+        <p className="mt-2">
+          <strong>Associations loi 1901.</strong> Toute personne physique procédant à l'inscription
+          d'une <strong>association déclarée en vertu de la loi du 1er juillet 1901</strong>{" "}
+          garantit disposer du <strong>pouvoir statutaire</strong> nécessaire pour l'engager
+          juridiquement (qualité de président·e, trésorier·ère, ou mandataire désigné·e par
+          délibération du bureau ou de l'assemblée générale). Elle renseigne lors de l'inscription
+          le <strong>numéro RNA</strong> (Répertoire National des Associations, format{" "}
+          <code>W + 9 chiffres</code>) et, le cas échéant, le <strong>numéro SIREN</strong>{" "}
+          attribué par l'INSEE. Elle s'engage également à déclarer l'usage publicitaire de tout
+          véhicule associatif à l'<strong>assureur de ce véhicule</strong> préalablement à la
+          pose du covering, l'absence de déclaration pouvant entraîner la déchéance de garantie.
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgu.s5")}>
@@ -871,6 +883,17 @@ function CGU() {
           lourde ou dolosive, ni restreindre les droits légaux des consommateurs reconnus par le
           Code de la consommation.
         </p>
+        <p className="mt-2">
+          Les <strong>Associations loi 1901 agissant à titre non lucratif</strong> (dont l'objet
+          social exclut toute activité commerciale à titre principal) bénéficient du{" "}
+          <strong>régime protecteur des non-professionnels</strong> prévu par le Code de la
+          consommation, en ce qui concerne notamment la limitation de responsabilité et les règles
+          de juridiction compétente définies ci-après. Sont considérées comme agissant à titre
+          professionnel les associations exerçant une activité économique à titre habituel, même
+          sans but lucratif, dès lors que ladite activité entre dans le champ d'application des
+          règles commerciales (notamment les associations soumises à la TVA ou employant du
+          personnel salarié à titre principal).
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgu.s23")}>
@@ -887,12 +910,14 @@ function CGU() {
           impérative contraire.
         </p>
         <p className="mt-2">
-          <strong>Conducteurs Particuliers (consommateurs).</strong> Conformément aux articles
-          R. 631-3 et R. 631-4 du Code de la consommation, le Conducteur Particulier agissant en
-          qualité de consommateur peut saisir, à son choix, le tribunal compétent du lieu de son{" "}
-          <strong>domicile au moment de la conclusion du contrat</strong>, du lieu de la{" "}
-          <strong>prestation de service</strong>, ou du lieu du siège social de MoveSpot
-          (Pointe-à-Pitre). Toute clause qui contraindrait le consommateur à se soumettre
+          <strong>Conducteurs Particuliers (consommateurs) et Associations non lucratives.</strong>{" "}
+          Conformément aux articles R. 631-3 et R. 631-4 du Code de la consommation, le
+          Conducteur Particulier agissant en qualité de consommateur, ainsi que toute Association
+          loi 1901 agissant à titre non lucratif au sens défini à l'article X.6 ci-dessus, peut
+          saisir, à son choix, le tribunal compétent du lieu de son{" "}
+          <strong>domicile ou siège social au moment de la conclusion du contrat</strong>, du lieu
+          de la <strong>prestation de service</strong>, ou du lieu du siège social de MoveSpot
+          (Pointe-à-Pitre). Toute clause qui contraindrait le non-professionnel à se soumettre
           exclusivement à la juridiction du siège de MoveSpot serait réputée non écrite au sens
           de l'article R. 212-2 du Code de la consommation.
         </p>

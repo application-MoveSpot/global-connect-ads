@@ -23,6 +23,7 @@ export type InvoiceData = {
     siret: string | null;
     address: string | null;
     phone: string | null;
+    account_type: string | null;
   };
   email: string;
 };
@@ -46,7 +47,7 @@ export const getInvoiceData = createServerFn({ method: "GET" })
 
     const { data: profile } = await supabaseAdmin
       .from("advertiser_profiles")
-      .select("full_name, company, siret, address, phone")
+      .select("full_name, company, siret, address, phone, account_type")
       .eq("user_id", context.userId)
       .maybeSingle();
 
@@ -60,6 +61,7 @@ export const getInvoiceData = createServerFn({ method: "GET" })
         siret: null,
         address: null,
         phone: null,
+        account_type: null,
       },
       email: userAuth?.user?.email ?? "",
     };
