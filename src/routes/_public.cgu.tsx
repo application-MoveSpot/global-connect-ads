@@ -259,6 +259,38 @@ function CGU() {
           . MoveSpot examine la contestation dans les 5 jours ouvrés et notifie sa décision. En
           l'absence de contestation dans ce délai, les frais de traitement sont définitivement acquis.
         </p>
+
+        <p className="mt-3">
+          <strong>Absence du propriétaire ou du conducteur au rendez-vous de pose (no-show
+          conducteur).</strong> Tout empêchement au rendez-vous de pose doit être signalé à
+          MoveSpot{" "}
+          <strong>au moins vingt-quatre (24) heures avant l'heure prévue</strong>, par email à{" "}
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
+          </a>{" "}
+          ou via la messagerie de l'espace propriétaire sur la Plateforme. À défaut de signalement
+          préalable dans ce délai, MoveSpot peut : (i){" "}
+          <strong>réaffecter immédiatement la campagne à un autre véhicule</strong> disponible sans
+          accord préalable du propriétaire défaillant ; (ii) imputer au propriétaire défaillant les{" "}
+          <strong>frais de déplacement à vide</strong> du poseur certifié, forfaitairement fixés à
+          un montant pouvant aller jusqu'à <strong>50 € TTC</strong>, prélevés sur son portefeuille
+          prépayé ou déduits de sa prochaine rémunération de campagne.
+        </p>
+
+        <p className="mt-3">
+          <strong>Retrait anticipé du support publicitaire.</strong> Tout retrait du covering
+          (vinyle adhésif, sticker, support magnétique) avant le terme contractuel de la campagne,
+          sans motif légitime reconnu par MoveSpot — accident de la circulation dûment déclaré et
+          justifié par un constat ou un procès-verbal, cession du véhicule justifiée par acte de
+          cession, ou cas de force majeure au sens des présentes CGU — entraîne : (i) la{" "}
+          <strong>perte intégrale de la rémunération non encore versée</strong> au titre de la
+          campagne concernée ; (ii) la{" "}
+          <strong>
+            responsabilité du propriétaire pour les frais d'impression et de pose du support
+          </strong>{" "}
+          selon le barème forfaitaire applicable (49 € / 69 € / 89 € TTC selon le format), ces
+          sommes étant déductibles des versements en attente ou facturées directement au propriétaire.
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgu.s12")}>
