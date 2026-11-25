@@ -13,7 +13,7 @@ export function isStripeUnsupportedRegion(region: string): boolean {
 }
 
 const BANK_DETAILS = {
-  beneficiary: "MoveSpot SAS",
+  beneficiary: "RAKOUN KLUB",
   iban: "FR76 3000 4028 3700 0100 0000 943",
   bic: "BNPAFRPPXXX",
   bank: "BNP Paribas",
