@@ -15,11 +15,12 @@ export async function payInstallerFee(
   const installerUserIdCol =
     type === "pose" ? "pose_installer_user_id" : "depose_installer_user_id";
   const photosCol = type === "pose" ? "installation_photos" : "depose_photos";
+  const photoStatusCol = type === "pose" ? "installation_status" : "depose_status";
 
   const { data: campaign, error } = await supabaseAdmin
     .from("campaign_requests")
     .select(
-      `id, spot_name, ${feeCentsCol}, ${installerUserIdCol}, ${photosCol}, ${payoutStatusCol}, ${transferIdCol}`,
+      `id, spot_name, ${feeCentsCol}, ${installerUserIdCol}, ${photosCol}, ${photoStatusCol}, ${payoutStatusCol}, ${transferIdCol}`,
     )
     .eq("id", campaignRequestId)
     .maybeSingle();
@@ -27,6 +28,16 @@ export async function payInstallerFee(
   if (error || !campaign) throw new Error("Campagne introuvable");
 
   const cr = campaign as Record<string, unknown>;
+
+  // Guard : photos de pose/dépose obligatoirement validées avant tout versement
+  const photoStatus = cr[photoStatusCol] as string | null;
+  if (photoStatus !== "approved") {
+    throw new Error(
+      type === "pose"
+        ? `Versement impossible — les photographies de pose n'ont pas encore été validées par MoveSpot (statut actuel : ${photoStatus ?? "absent"}). Validez d'abord les photos dans l'onglet Installations.`
+        : `Versement impossible — les photographies de dépose n'ont pas encore été validées par MoveSpot (statut actuel : ${photoStatus ?? "absent"}). Validez d'abord les photos dans l'onglet Dépose.`,
+    );
+  }
 
   // Idempotency
   if (cr[payoutStatusCol] === "transferred" || cr[transferIdCol]) {

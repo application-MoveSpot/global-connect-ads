@@ -396,6 +396,24 @@ function CGU() {
           approuver ou refuser la pose ; en cas de refus motivé, une nouvelle pose conforme par un
           poseur certifié est requise avant tout démarrage de la diffusion et de la rémunération.
         </p>
+        <p>
+          <strong>Point de départ de la durée de campagne.</strong> Le décompte de la durée
+          contractuelle de la campagne publicitaire ne commence qu'à compter de la{" "}
+          <strong>validation effective des photographies de pose</strong> par MoveSpot. Aucune
+          journée antérieure à cette validation n'entre dans le calcul de la durée de diffusion ni
+          dans la base de rémunération du propriétaire du véhicule.
+        </p>
+        <p>
+          <strong>Absence du prestataire poseur indépendant (no-show).</strong> Dans l'hypothèse
+          où le prestataire poseur indépendant ne se présente pas au rendez-vous prévu sans avoir
+          préalablement notifié MoveSpot, MoveSpot s'engage{" "}
+          <strong>exclusivement à reprogrammer le rendez-vous</strong> dans les meilleurs délais,
+          sans frais supplémentaires pour l'annonceur ou le propriétaire du véhicule. Aucune
+          indemnité, pénalité ou compensation financière ne peut être réclamée à MoveSpot du fait
+          de l'absence d'un prestataire indépendant. Le prestataire poseur est seul responsable des
+          conséquences de son absence vis-à-vis de MoveSpot, conformément aux dispositions du
+          contrat de prestation applicable (contrat prestataire poseur, art. 5).
+        </p>
       </LegalSection>
 
       <LegalSection title={t("cgu.s15bis")}>
