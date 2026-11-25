@@ -35,12 +35,12 @@ function MentionsLegales() {
         <p>
           La plateforme MoveSpot (ci-après « le Site ») est éditée par{" "}
           <strong>Garry PALERME</strong>, Entrepreneur individuel (EI) — Nom commercial :{" "}
-          <strong>RAKOUN KLUB</strong>.
+          <strong>MoveSpot</strong>.
         </p>
         <ul className="list-disc pl-6 space-y-2">
           <li>
             <strong>Identité de l'éditeur</strong> : Garry PALERME, Entrepreneur individuel (EI) —
-            Nom commercial : RAKOUN KLUB
+            Nom commercial : MoveSpot
           </li>
           <li>
             <strong>Forme juridique</strong> : Entrepreneur individuel
@@ -154,14 +154,14 @@ function MentionsLegales() {
 
       <LegalSection title={t("mentions.s_ip")}>
         <p>
-          Le nom commercial <strong>MoveSpot</strong> est exploité par RAKOUN KLUB, entreprise
-          individuelle, et rattaché au SIRET mentionné ci-dessus. À ce jour, il ne fait pas l'objet
+          Le nom commercial <strong>MoveSpot</strong> est exploité par Garry PALERME (EI) et
+          rattaché au SIREN mentionné ci-dessus. À ce jour, il ne fait pas l'objet
           d'un dépôt de marque auprès de l'INPI : son usage commercial est légal, mais ne confère
           pas de droit exclusif au titre du droit des marques.
         </p>
         <p>
           Les contenus éditoriaux propres au Site (textes, choix graphiques, identité visuelle,
-          structure des pages) sont la propriété de RAKOUN KLUB / MoveSpot et sont protégés par le
+          structure des pages) sont la propriété de MoveSpot et sont protégés par le
           droit d'auteur dès leur création (article L.111-1 du Code de la propriété intellectuelle).
         </p>
         <p>

@@ -49,9 +49,10 @@ function CGU() {
 
       <LegalSection title={t("cgu.s2")}>
         <p>
-          La Plateforme MoveSpot est éditée par <strong>RAKOUN KLUB</strong>, entreprise
-          individuelle. Adresse postale de l'entreprise : 1 Lot, Immeuble Sud Jarry, ZAC de
-          Houelbourg, 97122 Baie-Mahault (Guadeloupe, France). SIRET : 804 671 444 00052. Contact :{" "}
+          La Plateforme MoveSpot est éditée par{" "}
+          <strong>Garry PALERME, Entrepreneur individuel (EI) — Nom commercial : MoveSpot</strong>.
+          Adresse postale : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault
+          (Guadeloupe, France). SIREN : 804 671 444. Contact :{" "}
           <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
             contact@move-spot.com
           </a>
@@ -717,6 +718,59 @@ function CGU() {
           <strong>Conservation des preuves.</strong> Les photographies déposées dans le cadre du
           constat contradictoire sont conservées pendant toute la durée de la procédure et au moins
           trente (30) jours après sa clôture.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Article X — Responsabilité automobile et assurances">
+        <p>
+          <strong>X.1 — Statut de la Plateforme.</strong> MoveSpot, exploitée par Garry PALERME,
+          Entrepreneur individuel (EI) — SIREN 804 671 444, agit exclusivement en qualité
+          d'intermédiaire de mise en relation entre Annonceurs, Propriétaires de véhicules et
+          Prestataires de pose. MoveSpot n'a ni la garde juridique, ni l'usage, ni la direction du
+          véhicule au sens de l'article 1242, alinéa 1er du Code civil. La seule présence d'un
+          support publicitaire MoveSpot sur un véhicule ne confère pas à MoveSpot la qualité de
+          gardien du véhicule.
+        </p>
+        <p className="mt-2">
+          <strong>X.2 — Obligation d'assurance du Propriétaire et du Chauffeur.</strong> Tout
+          Propriétaire et tout Chauffeur inscrit sur la Plateforme s'engage à être titulaire, pour
+          chaque véhicule enregistré, d'un contrat d'assurance automobile en cours de validité
+          couvrant au minimum la responsabilité civile obligatoire (art. L. 211-1 du Code des
+          assurances). Sur simple demande de MoveSpot ou d'un Annonceur, l'attestation d'assurance
+          doit être fournie dans un délai de quarante-huit (48) heures. Le défaut de fourniture
+          entraîne la suspension immédiate du véhicule et de ses campagnes en cours.
+        </p>
+        <p className="mt-2">
+          <strong>X.3 — Décharge de responsabilité de MoveSpot.</strong> MoveSpot ne saurait être
+          tenue responsable, à quelque titre que ce soit, des dommages corporels, matériels ou
+          immatériels causés à des tiers ou aux parties dans le cadre de la conduite ou de
+          l'utilisation d'un véhicule enregistré sur la Plateforme. Toute réclamation relative à un
+          accident de la circulation impliquant un véhicule partenaire doit être adressée directement
+          à l'assureur du Propriétaire ou du Chauffeur. L'Annonceur reconnaît qu'aucune
+          responsabilité ne peut être imputée à MoveSpot du seul fait que son logo ou sa création
+          publicitaire figure sur le véhicule accidenté.
+        </p>
+        <p className="mt-2">
+          <strong>X.4 — Signalement obligatoire et conservation des preuves.</strong> En cas
+          d'accident impliquant un véhicule enregistré sur la Plateforme pendant une campagne active,
+          le Propriétaire ou le Chauffeur est tenu de : (i) signaler l'événement à MoveSpot par
+          email à{" "}
+          <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+            contact@move-spot.com
+          </a>{" "}
+          dans un délai de vingt-quatre (24) heures ; (ii) conserver le constat amiable ou le
+          procès-verbal de police ; (iii) photographier l'état du support publicitaire avant tout
+          retrait ou remplacement. Le non-respect de cette obligation de signalement est susceptible
+          d'engager la responsabilité du Propriétaire ou du Chauffeur à l'égard des autres parties.
+        </p>
+        <p className="mt-2">
+          <strong>X.5 — Suspension de campagne et prise en charge des dommages.</strong> À
+          réception du signalement, MoveSpot peut suspendre la campagne du véhicule concerné le
+          temps de l'instruction. Si le support publicitaire est endommagé, les frais de
+          réimpression et de nouvelle pose sont à la charge du Propriétaire ou du Chauffeur
+          responsable, sauf si le dommage est exclusivement imputable à un tiers identifié. La
+          suspension de campagne du fait de l'accident ne donne droit à aucune indemnité de la part
+          de MoveSpot.
         </p>
       </LegalSection>
 

@@ -40,7 +40,7 @@ export function EmailFooter({ unsubscribeUrl }: { unsubscribeUrl?: string }) {
       <Section style={{ padding: "0 24px 24px" }}>
         <Text style={footerTitle}>MoveSpot</Text>
         <Text style={footerText}>
-          RAKOUN KLUB — 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault
+          MoveSpot — 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault
           (Guadeloupe, France)
         </Text>
         <Row style={{ marginTop: "10px" }}>

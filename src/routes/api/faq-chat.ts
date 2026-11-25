@@ -14,7 +14,7 @@ MoveSpot est une marketplace française de publicité mobile qui met en relation
 - des PRESTATAIRES spécialisés (covering, production vidéo, création graphique) référencés dans un annuaire
 - des PARTENAIRES apporteurs d'affaires qui recommandent MoveSpot à des advertisers
 
-ÉDITEUR : MoveSpot est édité par RAKOUN KLUB, entreprise individuelle (SIRET 804 671 444 00052, RCS Pointe-à-Pitre). TVA non applicable — franchise en base art. 293 B CGI. Contact général : contact@move-spot.com.
+ÉDITEUR : MoveSpot est édité par Garry PALERME, Entrepreneur individuel (EI) — Nom commercial : MoveSpot. SIREN 804 671 444, Baie-Mahault (Guadeloupe). TVA non applicable — franchise en base art. 293 B CGI. Contact général : contact@move-spot.com.
 
 ════════════════════════════════════════
 ESPACE PROPRIÉTAIRE

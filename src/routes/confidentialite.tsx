@@ -48,7 +48,7 @@ function Privacy() {
       <LegalSection title={t("confidentialite.s2")}>
         <p>
           Le responsable du traitement est{" "}
-          <strong>Garry PALERME, Entrepreneur individuel (EI) — Nom commercial : RAKOUN KLUB</strong>{" "}
+          <strong>Garry PALERME, Entrepreneur individuel (EI) — Nom commercial : MoveSpot</strong>{" "}
           (SIRET : 804 671 444 00052), exploitant MoveSpot (voir les{" "}
           <a href="/mentions-legales" className="text-primary hover:underline">
             mentions légales
@@ -200,6 +200,12 @@ function Privacy() {
             Le suivi GPS constitue une condition technique indispensable au calcul de la
             rémunération et à la preuve de diffusion ; sa désactivation entraîne la suspension
             automatique du décompte des revenus sur la période concernée (CGU, art. 11).
+          </li>
+          <li>
+            <strong>Hors campagne active et validée</strong>, aucune donnée de géolocalisation GPS
+            n'est collectée ni transmise à la Plateforme. L'application ne conserve aucune position
+            après la clôture d'une session de conduite et ne procède à aucun suivi de localisation
+            en arrière-plan.
           </li>
         </ul>
       </LegalSection>

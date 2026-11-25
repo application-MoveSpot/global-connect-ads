@@ -80,7 +80,7 @@ export function PublicFooter() {
         <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="space-y-0.5">
             <div>
-              © {new Date().getFullYear()} MoveSpot — RAKOUN KLUB · SIRET : 804 671 444 00052
+              © {new Date().getFullYear()} MoveSpot · SIREN : 804 671 444
             </div>
             <div>1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, France</div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
