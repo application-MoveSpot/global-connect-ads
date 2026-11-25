@@ -53,6 +53,33 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verrou assurance obligatoire — bloque toute approbation de campagne réelle
+    if (data.approve) {
+      const [{ count: verifiedDrivers }, { count: verifiedInstallers }] = await Promise.all([
+        supabaseAdmin
+          .from("vehicles")
+          .select("id", { count: "exact", head: true })
+          .eq("auto_insurance_verified" as never, true)
+          .eq("status", "approved"),
+        supabaseAdmin
+          .from("payee_profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("rcpro_verified" as never, true)
+          .eq("certification_status", "certified"),
+      ]);
+      if (!verifiedDrivers) {
+        throw new Error(
+          "Validation bloquée — aucun conducteur n'a fourni d'attestation d'assurance auto vérifiée. Vérifiez les justificatifs dans l'onglet Véhicules.",
+        );
+      }
+      if (!verifiedInstallers) {
+        throw new Error(
+          "Validation bloquée — aucun poseur n'a fourni d'attestation de RC Pro « biens confiés » vérifiée. Vérifiez les justificatifs dans l'onglet Poseurs.",
+        );
+      }
+    }
+
     const adminNotes = data.approve
       ? "✅ Visuel et zone de ciblage approuvés par MoveSpot — recherche de chauffeurs lancée."
       : data.notes?.trim() || "⛔ Visuel ou zone refusés par MoveSpot.";
@@ -244,6 +271,33 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
     });
     if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verrou assurance obligatoire — bloque toute approbation de brief réel
+    if (data.approve) {
+      const [{ count: verifiedDrivers }, { count: verifiedInstallers }] = await Promise.all([
+        supabaseAdmin
+          .from("vehicles")
+          .select("id", { count: "exact", head: true })
+          .eq("auto_insurance_verified" as never, true)
+          .eq("status", "approved"),
+        supabaseAdmin
+          .from("payee_profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("rcpro_verified" as never, true)
+          .eq("certification_status", "certified"),
+      ]);
+      if (!verifiedDrivers) {
+        throw new Error(
+          "Validation bloquée — aucun conducteur n'a fourni d'attestation d'assurance auto vérifiée. Vérifiez les justificatifs dans l'onglet Véhicules.",
+        );
+      }
+      if (!verifiedInstallers) {
+        throw new Error(
+          "Validation bloquée — aucun poseur n'a fourni d'attestation de RC Pro « biens confiés » vérifiée. Vérifiez les justificatifs dans l'onglet Poseurs.",
+        );
+      }
+    }
+
     const { data: brief, error } = await supabaseAdmin
       .from("advertiser_briefs")
       .update({ status: data.approve ? "open" : "cancelled" } as never)
@@ -304,7 +358,7 @@ export const adminListPoseurs = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("payee_profiles")
       .select(
-        "id, user_id, kind, full_name, phone, city, siret, siret_denomination, vehicle_kind, vehicle_plate, status, certification_status, certification_notes, stripe_payouts_enabled, created_at",
+        "id, user_id, kind, full_name, phone, city, siret, siret_denomination, vehicle_kind, vehicle_plate, status, certification_status, certification_notes, stripe_payouts_enabled, created_at, rcpro_verified, rcpro_doc_url, rcpro_expires_at",
       )
       .order("created_at", { ascending: false })
       .limit(200);
@@ -647,7 +701,7 @@ export const adminListVehicles = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin
       .from("vehicles")
       .select(
-        "id, name, type, condition, status, zones, price_per_day, km_per_day, surface_m2, photos, description, ai_verification, admin_notes, created_at, owner_id",
+        "id, name, type, condition, status, zones, price_per_day, km_per_day, surface_m2, photos, description, ai_verification, admin_notes, created_at, owner_id, auto_insurance_verified, auto_insurance_doc_url, auto_insurance_expires_at",
       )
       .order("created_at", { ascending: false })
       .limit(200);
@@ -1351,6 +1405,111 @@ export const adminSubmitSubsidiaryInstallationPhotos = createServerFn({ method: 
         pose_installer_user_id: context.userId,
       } as never)
       .eq("id", data.campaignRequestId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ============ Vérification assurances (verrou opérationnel) ============
+export const adminGetInsuranceCompliance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [
+      { count: verifiedDrivers },
+      { count: totalDrivers },
+      { count: verifiedInstallers },
+      { count: totalInstallers },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from("vehicles")
+        .select("id", { count: "exact", head: true })
+        .eq("auto_insurance_verified" as never, true)
+        .eq("status", "approved"),
+      supabaseAdmin
+        .from("vehicles")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "approved"),
+      supabaseAdmin
+        .from("payee_profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("rcpro_verified" as never, true)
+        .eq("certification_status", "certified"),
+      supabaseAdmin
+        .from("payee_profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("certification_status", "certified"),
+    ]);
+    return {
+      hasVerifiedDriver: (verifiedDrivers ?? 0) > 0,
+      hasVerifiedInstaller: (verifiedInstallers ?? 0) > 0,
+      verifiedDrivers: verifiedDrivers ?? 0,
+      totalDrivers: totalDrivers ?? 0,
+      verifiedInstallers: verifiedInstallers ?? 0,
+      totalInstallers: totalInstallers ?? 0,
+    };
+  });
+
+export const adminVerifyVehicleInsurance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth, requireAdminMFA])
+  .inputValidator((d) =>
+    z
+      .object({
+        vehicleId: z.string().uuid(),
+        expiresAt: z.string().nullable().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("vehicles")
+      .update({
+        auto_insurance_verified: true,
+        auto_insurance_verified_at: new Date().toISOString(),
+        auto_insurance_verified_by: context.userId,
+        ...(data.expiresAt ? { auto_insurance_expires_at: data.expiresAt } : {}),
+      } as never)
+      .eq("id", data.vehicleId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminVerifyInstallerRCPro = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth, requireAdminMFA])
+  .inputValidator((d) =>
+    z
+      .object({
+        payeeProfileId: z.string().uuid(),
+        expiresAt: z.string().nullable().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("payee_profiles")
+      .update({
+        rcpro_verified: true,
+        rcpro_verified_at: new Date().toISOString(),
+        rcpro_verified_by: context.userId,
+        ...(data.expiresAt ? { rcpro_expires_at: data.expiresAt } : {}),
+      } as never)
+      .eq("id", data.payeeProfileId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
