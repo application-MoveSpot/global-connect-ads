@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 // ─── MoveSpot legal identity (matches mentions-legales.tsx) ──────────────────
 const MOVESPOT = {
-  denomination: "RAKOUN KLUB",
+  denomination: "Garry PALERME (EI)",
   forme: "Entrepreneur individuel",
   exploitant: "MoveSpot",
   representant: "Garry PALERME",
@@ -218,7 +218,7 @@ SIGNATURES
 
 Fait en deux exemplaires originaux.
 
-▌ POUR MOVESPOT / RAKOUN KLUB
+▌ POUR MOVESPOT — Garry PALERME (EI)
 
 Nom : ${MOVESPOT.representant}
 Qualité : ${MOVESPOT.qualite}

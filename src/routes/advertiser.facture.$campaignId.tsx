@@ -130,7 +130,7 @@ function FacturePage() {
               <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
                 {t("advertiser.facture.from_label")}
               </div>
-              <div className="font-semibold text-gray-900">RAKOUN KLUB</div>
+              <div className="font-semibold text-gray-900">MoveSpot</div>
               <div className="text-gray-600 text-xs leading-relaxed mt-0.5">
                 1 Lot, Immeuble Sud Jarry
                 <br />
@@ -258,7 +258,7 @@ function FacturePage() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-            MoveSpot — RAKOUN KLUB · SIRET en cours d'enregistrement · contact@move-spot.com
+            MoveSpot · SIREN 804 671 444 · contact@move-spot.com
             <br />1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe
           </div>
         </div>

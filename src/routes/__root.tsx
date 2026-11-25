@@ -92,7 +92,7 @@ export const Route = (createRootRouteWithContext as any)()({
               "@type": "Organization",
               "@id": "https://move-spot.com/#organization",
               name: "MoveSpot",
-              legalName: "RAKOUN KLUB",
+              legalName: "MoveSpot",
               taxID: "804671444",
               identifier: {
                 "@type": "PropertyValue",
@@ -170,7 +170,7 @@ export const Route = (createRootRouteWithContext as any)()({
               "@type": "LocalBusiness",
               "@id": "https://move-spot.com/#localbusiness",
               name: "MoveSpot",
-              legalName: "RAKOUN KLUB",
+              legalName: "MoveSpot",
               url: "https://move-spot.com",
               email: "contact@move-spot.com",
               image: "https://move-spot.com/og-image.png",

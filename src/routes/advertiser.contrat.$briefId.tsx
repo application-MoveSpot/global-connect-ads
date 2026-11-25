@@ -144,8 +144,8 @@ function ContratPage() {
               <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
                 {t("advertiser.contrat.party_provider")}
               </div>
-              <div className="font-semibold text-gray-900">RAKOUN KLUB</div>
-              <div className="text-xs text-gray-700">MoveSpot</div>
+              <div className="font-semibold text-gray-900">MoveSpot</div>
+              <div className="text-xs text-gray-700">Garry PALERME (EI) — SIREN 804 671 444</div>
               <div className="text-xs text-gray-600 leading-relaxed mt-0.5">
                 1 Lot, Immeuble Sud Jarry
                 <br />
@@ -314,7 +314,7 @@ function ContratPage() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-            MoveSpot — RAKOUN KLUB · contact@move-spot.com
+            MoveSpot · contact@move-spot.com
             <br />
             1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe
             <br />

@@ -48,7 +48,7 @@ function ReceiptModal({ row, onClose }: { row: OwnerBankTransferRow; onClose: ()
         </style>
       </head><body>
         <h1>✅ Reçu de virement</h1>
-        <p>MoveSpot SAS — virements@move-spot.com</p>
+        <p>MoveSpot — virements@move-spot.com</p>
         <table>
           <tr><td>Montant</td><td class="amount">${fmt(row.amount_cents)}</td></tr>
           <tr><td>Statut</td><td>${htmlEscape(STATUS_STYLES[row.status]?.label ?? row.status)}</td></tr>
