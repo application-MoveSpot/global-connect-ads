@@ -131,7 +131,12 @@ function FacturePage() {
                 {t("advertiser.facture.from_label")}
               </div>
               <div className="font-semibold text-gray-900">MoveSpot</div>
+              <div className="text-gray-700 text-xs mt-0.5">
+                Garry PALERME, Entrepreneur Individuel
+              </div>
               <div className="text-gray-600 text-xs leading-relaxed mt-0.5">
+                SIREN : 804 671 444
+                <br />
                 1 Lot, Immeuble Sud Jarry
                 <br />
                 ZAC de Houelbourg
@@ -242,9 +247,19 @@ function FacturePage() {
           </div>
 
           {/* TVA note */}
-          <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-500 mb-8">
+          <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-xs text-gray-500 mb-4">
             {t("advertiser.facture.tva_note")}
           </div>
+
+          {/* B2B late-payment penalty — mandatory under French commercial law (art. L.441-10 C.com.) */}
+          {profile.siret && (
+            <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-800 mb-8">
+              En application de l&apos;article L. 441-10 du Code de commerce, tout retard de
+              paiement entraîne de plein droit des pénalités de retard calculées au taux légal en
+              vigueur, ainsi qu&apos;une <strong>indemnité forfaitaire de 40 € pour frais de
+              recouvrement</strong> (décret n° 2012-1115 du 2 octobre 2012).
+            </div>
+          )}
 
           {/* Route zones */}
           {campaign.route_zones && campaign.route_zones.length > 0 && (
@@ -258,8 +273,11 @@ function FacturePage() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 text-xs text-gray-400 text-center">
-            MoveSpot · SIREN 804 671 444 · contact@move-spot.com
-            <br />1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe
+            MoveSpot — Garry PALERME, Entrepreneur Individuel · SIREN 804 671 444
+            <br />
+            1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe
+            <br />
+            contact@move-spot.com · TVA non applicable, art. 293 B du CGI
           </div>
         </div>
       </div>
