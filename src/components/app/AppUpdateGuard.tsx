@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { getOrRefreshSession } from "@/integrations/supabase/session";
+import { supabase } from "@/integrations/supabase/client";
+import { PENDING_CONSENT_KEY } from "@/routes/auth";
 
 const RELOAD_FLAG = "movespot:update-reload";
 
@@ -40,6 +42,30 @@ export function AppUpdateGuard() {
       const msg = typeof e.reason === "string" ? e.reason : (e.reason?.message ?? "");
       if (msg && isChunkError(msg)) softReload();
     };
+
+    // Persist pending consent stored before an OAuth redirect
+    void getOrRefreshSession().then(async (session) => {
+      if (!session) return;
+      let raw: string | null = null;
+      try { raw = localStorage.getItem(PENDING_CONSENT_KEY); } catch { return; }
+      if (!raw) return;
+      try {
+        const payload = JSON.parse(raw) as {
+          terms_accepted_at: string;
+          privacy_accepted_at: string;
+          marketing_consent: boolean;
+          marketing_consent_at: string | null;
+        };
+        await supabase
+          .from("user_consents" as never)
+          .upsert(
+            { user_id: session.user.id, ...payload } as never,
+            { onConflict: "user_id" as never, ignoreDuplicates: false },
+          );
+      } catch { /* non-blocking */ } finally {
+        try { localStorage.removeItem(PENDING_CONSENT_KEY); } catch { /* ignore */ }
+      }
+    });
 
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;

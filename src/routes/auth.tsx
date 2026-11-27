@@ -9,6 +9,8 @@ import { getStoredUtm } from "@/lib/analytics/utm";
 import { AppHeader } from "@/components/app/AppHeader";
 import { withAuthRetry, isServiceUnavailable } from "@/lib/auth/auth-retry";
 
+export const PENDING_CONSENT_KEY = "movespot_pending_consent";
+
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
     typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
@@ -41,6 +43,8 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [mfa, setMfa] = useState<{ factorId: string; challengeId: string } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   const goNext = () => {
     if (next) {
@@ -87,7 +91,24 @@ function AuthPage() {
     setRetrying(false);
     setLoading(true);
     if (mode === "signup") {
+      if (!termsAccepted) {
+        setError(t("auth.error_terms_required"));
+        setLoading(false);
+        return;
+      }
       const utm = getStoredUtm();
+      const now = new Date().toISOString();
+      const consentPayload = {
+        terms_accepted_at: now,
+        privacy_accepted_at: now,
+        marketing_consent: marketingConsent,
+        marketing_consent_at: marketingConsent ? now : null,
+      };
+      try {
+        localStorage.setItem(PENDING_CONSENT_KEY, JSON.stringify(consentPayload));
+      } catch {
+        // localStorage unavailable — proceed without it
+      }
       const { error, wasServiceError } = await withAuthRetry(
         () =>
           supabase.auth.signUp({
@@ -95,7 +116,7 @@ function AuthPage() {
             password,
             options: {
               emailRedirectTo: `${window.location.origin}${next ?? "/admin"}`,
-              ...(utm ? { data: { utm } } : {}),
+              data: { utm: getStoredUtm() ?? undefined, ...consentPayload },
             },
           }),
         { onRetry: () => setRetrying(true) },
@@ -267,6 +288,41 @@ function AuthPage() {
                   </div>
                 )}
               </div>
+              {mode === "signup" && (
+                <div className="space-y-2.5 pt-1">
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => {
+                        setTermsAccepted(e.target.checked);
+                        setError("");
+                      }}
+                      className="mt-0.5 h-4 w-4 rounded border-border shrink-0"
+                    />
+                    <span>
+                      {t("auth.signup_terms_prefix")}{" "}
+                      <a href="/cgu" className="underline hover:text-foreground">
+                        {t("auth.signup_terms_cgu")}
+                      </a>{" "}
+                      {t("auth.signup_terms_and")}{" "}
+                      <a href="/confidentialite" className="underline hover:text-foreground">
+                        {t("auth.signup_terms_privacy")}
+                      </a>
+                      .
+                    </span>
+                  </label>
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={marketingConsent}
+                      onChange={(e) => setMarketingConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-border shrink-0"
+                    />
+                    <span>{t("auth.signup_marketing")}</span>
+                  </label>
+                </div>
+              )}
               {error && (
                 <div className="rounded-lg bg-destructive/15 border border-destructive/40 p-3 text-sm text-destructive">
                   {error}
@@ -274,7 +330,7 @@ function AuthPage() {
               )}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (mode === "signup" && !termsAccepted)}
                 className="w-full rounded-lg bg-primary text-primary-foreground py-3 font-semibold hover:bg-primary/90 transition disabled:opacity-60"
               >
                 {retrying
@@ -295,14 +351,35 @@ function AuthPage() {
 
             <button
               type="button"
+              disabled={mode === "signup" && !termsAccepted}
               onClick={async () => {
+                if (mode === "signup") {
+                  if (!termsAccepted) {
+                    setError(t("auth.error_terms_required"));
+                    return;
+                  }
+                  const now = new Date().toISOString();
+                  try {
+                    localStorage.setItem(
+                      PENDING_CONSENT_KEY,
+                      JSON.stringify({
+                        terms_accepted_at: now,
+                        privacy_accepted_at: now,
+                        marketing_consent: marketingConsent,
+                        marketing_consent_at: marketingConsent ? now : null,
+                      }),
+                    );
+                  } catch {
+                    // localStorage unavailable — proceed
+                  }
+                }
                 const result = await lovable.auth.signInWithOAuth("google", {
                   redirect_uri: `${window.location.origin}${next ?? "/admin"}`,
                 });
                 if (result.error) setError(result.error.message);
                 else if (!result.redirected) goNext();
               }}
-              className="w-full rounded-lg border border-border bg-card hover:bg-secondary py-3 font-semibold flex items-center justify-center gap-2 transition"
+              className="w-full rounded-lg border border-border bg-card hover:bg-secondary py-3 font-semibold flex items-center justify-center gap-2 transition disabled:opacity-60"
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
