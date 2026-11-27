@@ -1513,3 +1513,230 @@ export const adminVerifyInstallerRCPro = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ============ Copilote Admin ============
+
+export type CopiloteUrgences = {
+  moderationAlerts: Array<{
+    id: string;
+    severity: number;
+    intent: string;
+    flags: string[];
+    suggested_action: string | null;
+    created_at: string;
+  }>;
+  refundReviews: Array<{
+    id: string;
+    refund_request_id: string;
+    decision: string;
+    risk_score: string;
+    suggested_admin_note: string;
+    analyzed_at: string;
+  }>;
+  vehiclesNoInsurance: Array<{
+    id: string;
+    name: string;
+    type: string;
+    owner_id: string;
+    created_at: string;
+  }>;
+  poseurNoRCPro: Array<{
+    id: string;
+    full_name: string;
+    user_id: string;
+    created_at: string;
+  }>;
+};
+
+export type CopiloteOpportunite = {
+  orphanBriefs: Array<{
+    id: string;
+    title: string;
+    description: string;
+    budget_max: number | null;
+    created_at: string;
+    advertiser_id: string;
+    proposal_count: number;
+  }>;
+  inactiveAdvertisers: Array<{
+    id: string;
+    full_name: string;
+    company: string | null;
+    user_id: string;
+    updated_at: string;
+  }>;
+};
+
+export const adminCopiloteUrgences = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdminRole } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdminRole) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [
+      { data: moderationAlerts },
+      { data: refundReviews },
+      { data: vehiclesNoInsurance },
+      { data: poseurNoRCPro },
+    ] = await Promise.all([
+      supabaseAdmin
+        .from("moderation_alerts")
+        .select("id, severity, intent, flags, suggested_action, created_at")
+        .eq("reviewed", false)
+        .gte("severity", 0.8)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      supabaseAdmin
+        .from("refund_claims_moderation")
+        .select("id, refund_request_id, decision, risk_score, suggested_admin_note, analyzed_at")
+        .eq("decision", "requires_human_review")
+        .order("analyzed_at", { ascending: false })
+        .limit(20),
+      supabaseAdmin
+        .from("vehicles")
+        .select("id, name, type, owner_id, created_at")
+        .eq("status", "approved")
+        .eq("auto_insurance_verified" as never, false)
+        .order("created_at", { ascending: true })
+        .limit(20),
+      supabaseAdmin
+        .from("payee_profiles")
+        .select("id, full_name, user_id, created_at")
+        .eq("certification_status", "certified")
+        .eq("rcpro_verified" as never, false)
+        .order("created_at", { ascending: true })
+        .limit(20),
+    ]);
+
+    return {
+      moderationAlerts: moderationAlerts ?? [],
+      refundReviews: refundReviews ?? [],
+      vehiclesNoInsurance: vehiclesNoInsurance ?? [],
+      poseurNoRCPro: poseurNoRCPro ?? [],
+    } as CopiloteUrgences;
+  });
+
+export const adminCopiloteOpportunites = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdminRole } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdminRole) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const twentyOneDaysAgo = new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: oldOpenBriefs } = await supabaseAdmin
+      .from("advertiser_briefs")
+      .select("id, title, description, budget_max, created_at, advertiser_id")
+      .eq("status", "open")
+      .lt("created_at", fortyEightHoursAgo)
+      .order("created_at", { ascending: true })
+      .limit(30);
+
+    let orphanBriefs: CopiloteOpportunite["orphanBriefs"] = [];
+    if (oldOpenBriefs && oldOpenBriefs.length > 0) {
+      const briefIds = oldOpenBriefs.map((b) => b.id);
+      const { data: proposals } = await supabaseAdmin
+        .from("brief_proposals")
+        .select("brief_id")
+        .in("brief_id", briefIds);
+
+      const proposalCounts = new Map<string, number>();
+      (proposals ?? []).forEach((p) => {
+        proposalCounts.set(p.brief_id, (proposalCounts.get(p.brief_id) ?? 0) + 1);
+      });
+
+      orphanBriefs = oldOpenBriefs
+        .map((b) => ({ ...b, proposal_count: proposalCounts.get(b.id) ?? 0 }))
+        .filter((b) => b.proposal_count === 0)
+        .slice(0, 15);
+    }
+
+    const { data: inactiveAdvertisers } = await supabaseAdmin
+      .from("advertiser_profiles")
+      .select("id, full_name, company, user_id, updated_at")
+      .lt("updated_at", twentyOneDaysAgo)
+      .order("updated_at", { ascending: true })
+      .limit(15);
+
+    return {
+      orphanBriefs,
+      inactiveAdvertisers: inactiveAdvertisers ?? [],
+    } as CopiloteOpportunite;
+  });
+
+export const adminMarkModerationReviewed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth, requireAdminMFA])
+  .inputValidator((d) => z.object({ alertId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: isAdminRole } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdminRole) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("moderation_alerts")
+      .update({
+        reviewed: true,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+      })
+      .eq("id", data.alertId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminSendBriefRelance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth, requireAdminMFA])
+  .inputValidator((d) =>
+    z
+      .object({
+        briefId: z.string().uuid(),
+        advertiserId: z.string().uuid(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdminRole } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdminRole) throw new Error("Accès réservé aux administrateurs");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [{ data: brief }, { data: profile }] = await Promise.all([
+      supabaseAdmin.from("advertiser_briefs").select("title").eq("id", data.briefId).single(),
+      supabaseAdmin
+        .from("advertiser_profiles")
+        .select("user_id, full_name")
+        .eq("id", data.advertiserId)
+        .single(),
+    ]);
+
+    if (!brief || !profile) throw new Error("Brief ou profil introuvable");
+
+    await supabaseAdmin.functions.invoke("send-push", {
+      body: {
+        userId: profile.user_id,
+        title: "Votre brief attend des propositions",
+        body: `Votre brief "${brief.title}" est disponible. Des prestataires peuvent vous contacter.`,
+      },
+    });
+
+    await supabaseAdmin.from("admin_cron_logs").insert({
+      job_name: "copilote-brief-relance",
+      status: "success",
+      result: { briefId: data.briefId, advertiserId: data.advertiserId, sentBy: context.userId },
+    });
+
+    return { ok: true };
+  });

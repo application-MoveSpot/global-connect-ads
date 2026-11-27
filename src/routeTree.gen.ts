@@ -59,6 +59,7 @@ import { Route as AdminTranslationIssuesRouteImport } from './routes/admin.trans
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AdvertiserIndexRouteImport } from './routes/advertiser.index'
 import { Route as AdvertiserCalendrierRouteImport } from './routes/advertiser.calendrier'
+import { Route as AdvertiserConseilIaRouteImport } from './routes/advertiser.conseil-ia'
 import { Route as AdvertiserEssaiActiveRouteImport } from './routes/advertiser.essai-active'
 import { Route as AdvertiserEtudeMarcheRouteImport } from './routes/advertiser.etude-marche'
 import { Route as AdvertiserExemplesRouteImport } from './routes/advertiser.exemples'
@@ -394,6 +395,11 @@ const AdvertiserIndexRoute = AdvertiserIndexRouteImport.update({
 const AdvertiserCalendrierRoute = AdvertiserCalendrierRouteImport.update({
   id: '/advertiser/calendrier',
   path: '/advertiser/calendrier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvertiserConseilIaRoute = AdvertiserConseilIaRouteImport.update({
+  id: '/advertiser/conseil-ia',
+  path: '/advertiser/conseil-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdvertiserEssaiActiveRoute = AdvertiserEssaiActiveRouteImport.update({
@@ -861,6 +867,7 @@ export interface FileRoutesByFullPath {
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
+  '/advertiser/conseil-ia': typeof AdvertiserConseilIaRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
@@ -991,6 +998,7 @@ export interface FileRoutesByTo {
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
+  '/advertiser/conseil-ia': typeof AdvertiserConseilIaRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
@@ -1123,6 +1131,7 @@ export interface FileRoutesById {
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
+  '/advertiser/conseil-ia': typeof AdvertiserConseilIaRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
@@ -1257,6 +1266,7 @@ export interface FileRouteTypes {
     | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/calendrier'
+    | '/advertiser/conseil-ia'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
@@ -1387,6 +1397,7 @@ export interface FileRouteTypes {
     | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/calendrier'
+    | '/advertiser/conseil-ia'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
@@ -1518,6 +1529,7 @@ export interface FileRouteTypes {
     | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/calendrier'
+    | '/advertiser/conseil-ia'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
@@ -1625,6 +1637,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdvertiserCalendrierRoute: typeof AdvertiserCalendrierRoute
+  AdvertiserConseilIaRoute: typeof AdvertiserConseilIaRoute
   AdvertiserEssaiActiveRoute: typeof AdvertiserEssaiActiveRoute
   AdvertiserEtudeMarcheRoute: typeof AdvertiserEtudeMarcheRoute
   AdvertiserExemplesRoute: typeof AdvertiserExemplesRoute
@@ -2053,6 +2066,13 @@ declare module '@tanstack/react-router' {
       path: '/advertiser/calendrier'
       fullPath: '/advertiser/calendrier'
       preLoaderRoute: typeof AdvertiserCalendrierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advertiser/conseil-ia': {
+      id: '/advertiser/conseil-ia'
+      path: '/advertiser/conseil-ia'
+      fullPath: '/advertiser/conseil-ia'
+      preLoaderRoute: typeof AdvertiserConseilIaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advertiser/essai-active': {
@@ -2743,6 +2763,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdvertiserCalendrierRoute: AdvertiserCalendrierRoute,
+  AdvertiserConseilIaRoute: AdvertiserConseilIaRoute,
   AdvertiserEssaiActiveRoute: AdvertiserEssaiActiveRoute,
   AdvertiserEtudeMarcheRoute: AdvertiserEtudeMarcheRoute,
   AdvertiserExemplesRoute: AdvertiserExemplesRoute,

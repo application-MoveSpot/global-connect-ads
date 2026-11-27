@@ -67,6 +67,7 @@ import { VigilanceAdminPanel } from "@/components/admin/VigilanceAdminPanel";
 import { AdminSupportDashboard } from "@/components/admin/AdminSupportDashboard";
 import { SalesAgentContractGenerator } from "@/components/admin/SalesAgentContractGenerator";
 import { AdminCronJobPanel } from "@/components/admin/AdminCronJobPanel";
+import { AdminCopilotePanel } from "@/components/admin/AdminCopilotePanel";
 import { AdminBankTransfersPanel } from "@/components/admin/AdminBankTransfersPanel";
 import { AdminSubsidiaryUploadPanel } from "@/components/admin/AdminSubsidiaryUploadPanel";
 import { AdminStripeSetupPanel } from "@/components/admin/AdminStripeSetupPanel";
@@ -140,7 +141,8 @@ type Tab =
   | "regions"
   | "support"
   | "cron"
-  | "contrat";
+  | "contrat"
+  | "copilote";
 
 type AnalyticsRow = { week: string; label: string; briefs: number; campaigns: number };
 
@@ -169,6 +171,7 @@ function AdminDashboard() {
     "support",
     "cron",
     "contrat",
+    "copilote",
   ];
   const [tab, setTab] = useState<Tab>("afaire");
   const [ready, setReady] = useState(false);
@@ -758,6 +761,9 @@ function AdminDashboard() {
           </TabBtn>
           <TabBtn active={tab === "contrat"} onClick={() => switchTab("contrat")}>
             Contrat apporteur
+          </TabBtn>
+          <TabBtn active={tab === "copilote"} onClick={() => switchTab("copilote")}>
+            🤖 Copilote Admin
           </TabBtn>
         </div>
 
@@ -2394,6 +2400,8 @@ function AdminDashboard() {
         {tab === "contrat" ? (
           <SalesAgentContractGenerator />
         ) : null}
+
+        {tab === "copilote" ? <AdminCopilotePanel /> : null}
 
         {tab === "analytics" ? (
           analyticsQuery.isLoading ? (
