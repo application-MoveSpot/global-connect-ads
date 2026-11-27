@@ -241,6 +241,12 @@ function AnnonceurDashboard() {
               Factures
             </Link>
             <Link
+              to="/advertiser/conseil-ia"
+              className="rounded-full border border-primary/50 bg-primary/10 text-primary px-3 py-1.5 text-xs font-semibold whitespace-nowrap hover:bg-primary/20 transition"
+            >
+              {t("advertiser.nav.conseil_ia")}
+            </Link>
+            <Link
               to="/advertiser/briefs/nouveau"
               className="rounded-full bg-primary text-primary-foreground px-4 py-1.5 text-xs font-semibold whitespace-nowrap hover:bg-primary/90 transition"
             >
