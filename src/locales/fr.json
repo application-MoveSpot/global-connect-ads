@@ -5405,7 +5405,8 @@
       "packs": "Packs",
       "providers": "Prestataires",
       "refunds": "Remboursements",
-      "wallet": "Portefeuille"
+      "wallet": "Portefeuille",
+      "conseil_ia": "✨ Conseil IA"
     },
     "onboarding": {
       "done": "Fait",
