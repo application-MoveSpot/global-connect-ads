@@ -319,7 +319,13 @@
     "retrying": "Auto-reconnecting…",
     "confirm_email": "Check your inbox to confirm your account.",
     "reset_sent": "A reset link has been sent.",
-    "sign_in_with_google": "Sign in with Google"
+    "sign_in_with_google": "Sign in with Google",
+    "signup_terms_prefix": "I confirm that I am at least 18 years old (or have verified parental consent) and I accept the",
+    "signup_terms_cgu": "Terms and Conditions",
+    "signup_terms_and": "and the",
+    "signup_terms_privacy": "Privacy Policy",
+    "signup_marketing": "I agree to receive news and commercial offers from MoveSpot by email. (Optional — revocable at any time in your settings.)",
+    "error_terms_required": "You must certify your age and accept the Terms and the Privacy Policy to continue."
   },
   "parametres": {
     "page_title": "Account settings — MoveSpot",

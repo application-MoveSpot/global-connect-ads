@@ -319,7 +319,13 @@
     "error_service_unavailable": "Service momentanément indisponible. Votre mot de passe est correct — réessayez dans quelques secondes.",
     "retrying": "Reconnexion automatique…",
     "confirm_email": "Vérifiez votre boîte mail pour confirmer votre compte.",
-    "reset_sent": "Un lien de réinitialisation vous a été envoyé."
+    "reset_sent": "Un lien de réinitialisation vous a été envoyé.",
+    "signup_terms_prefix": "Je certifie avoir au moins 18 ans (ou disposer d'une autorisation parentale vérifiée) et j'accepte les",
+    "signup_terms_cgu": "Conditions Générales d'Utilisation",
+    "signup_terms_and": "et la",
+    "signup_terms_privacy": "Politique de Confidentialité",
+    "signup_marketing": "J'accepte de recevoir les actualités et offres commerciales de MoveSpot par e-mail. (Facultatif — révocable à tout moment dans vos paramètres.)",
+    "error_terms_required": "Vous devez certifier votre âge et accepter les CGU et la Politique de Confidentialité pour continuer."
   },
   "parametres": {
     "page_title": "Paramètres du compte — MoveSpot",
