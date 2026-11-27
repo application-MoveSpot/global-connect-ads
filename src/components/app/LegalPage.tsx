@@ -61,6 +61,9 @@ export function LegalPage({ eyebrow, title, updatedAt, showHeader = true, childr
             <Link to="/confidentialite" className="hover:text-foreground transition">
               {t("legal.link_privacy")}
             </Link>
+            <Link to="/mentions-legales" className="hover:text-foreground transition">
+              {t("legal.link_mentions")}
+            </Link>
             <Link to="/cookies" className="hover:text-foreground transition">
               {t("legal.link_cookies")}
             </Link>

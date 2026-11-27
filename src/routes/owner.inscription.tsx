@@ -49,6 +49,10 @@ function InscriptionPage() {
     verified: false,
   });
   const [isParticulier, setIsParticulier] = useState(false);
+  const [acceptedCGU, setAcceptedCGU] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedAge, setAcceptedAge] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [euCountry, setEuCountry] = useState<"FR" | "BE" | "LU" | "DE">("FR");
   const [referralCode, setReferralCode] = useState(() => refParam.trim().toUpperCase());
   const [error, setError] = useState("");
@@ -223,6 +227,18 @@ function InscriptionPage() {
   const handleProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!acceptedCGU) {
+      setError(t("owner.inscription.error_cgu"));
+      return;
+    }
+    if (!acceptedPrivacy) {
+      setError(t("owner.inscription.error_privacy"));
+      return;
+    }
+    if (!acceptedAge) {
+      setError(t("owner.inscription.error_age"));
+      return;
+    }
     if (!isParticulier && !siret.verified) {
       setError(t("owner.inscription.error_siret"));
       return;
@@ -238,6 +254,8 @@ function InscriptionPage() {
       setLoading(false);
       return;
     }
+    const CGU_VERSION = "2026-11";
+    const now = new Date().toISOString();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from("owner_profiles") as any).upsert(
       {
@@ -249,8 +267,14 @@ function InscriptionPage() {
         bio: bio || null,
         siret: isParticulier ? null : siret.siret || null,
         siret_denomination: isParticulier ? null : siret.denomination,
-        siret_verified_at: isParticulier ? null : new Date().toISOString(),
+        siret_verified_at: isParticulier ? null : now,
         country_code: euCountry,
+        terms_accepted_at: now,
+        terms_version: CGU_VERSION,
+        privacy_accepted_at: now,
+        privacy_version: CGU_VERSION,
+        marketing_consent: marketingConsent,
+        marketing_consent_at: marketingConsent ? now : null,
       },
       { onConflict: "user_id" },
     );
@@ -560,6 +584,56 @@ function InscriptionPage() {
                   {t("owner.inscription.referral_code_hint")}
                 </p>
               </div>
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedAge}
+                  onChange={(e) => setAcceptedAge(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>{t("owner.inscription.age_confirm")}</span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedCGU}
+                  onChange={(e) => setAcceptedCGU(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>
+                  {t("owner.inscription.cgu_accept")}{" "}
+                  <a href="/cgu" className="underline hover:text-foreground">
+                    {t("owner.inscription.cgu_link_label")}
+                  </a>
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedPrivacy}
+                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>
+                  {t("owner.inscription.privacy_accept")}{" "}
+                  <a href="/confidentialite" className="underline hover:text-foreground">
+                    {t("owner.inscription.privacy_link_label")}
+                  </a>
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>{t("owner.inscription.marketing_consent")}</span>
+              </label>
+
               {error && <Err msg={error} />}
               <button
                 type="submit"

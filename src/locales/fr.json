@@ -358,7 +358,13 @@
     "export_loading": "Compilation en cours…",
     "export_hint": "Génère un fichier JSON contenant vos données personnelles, briefs, campagnes et historique portefeuille.",
     "export_success": "Export téléchargé avec succès.",
-    "export_error": "Erreur lors de la génération de l'export."
+    "export_error": "Erreur lors de la génération de l'export.",
+    "marketing_title": "Préférences de communication",
+    "marketing_desc": "Choisissez si vous souhaitez recevoir nos offres, actualités et conseils par email. Vous pouvez modifier ce choix à tout moment.",
+    "marketing_on": "Emails marketing activés",
+    "marketing_off": "Emails marketing désactivés",
+    "marketing_saved": "Préférences mises à jour.",
+    "marketing_error": "Erreur lors de la mise à jour de vos préférences."
   },
   "securite": {
     "page_title": "Sécurité — Comment MoveSpot protège vos données",
@@ -1954,7 +1960,13 @@
       "submit_signin": "Se connecter",
       "submit_signup": "Créer mon compte",
       "title_signin": "Se connecter",
-      "title_signup": "Créer mon compte prestataire"
+      "title_signup": "Créer mon compte prestataire",
+      "age_confirm": "Je confirme avoir 18 ans ou plus.",
+      "privacy_accept": "J'ai lu et j'accepte la",
+      "privacy_link_label": "Politique de confidentialité",
+      "marketing_consent": "J'accepte de recevoir des offres, actualités et conseils de MoveSpot par email. (facultatif — révocable à tout moment)",
+      "error_privacy": "Vous devez accepter la Politique de confidentialité pour continuer.",
+      "error_age": "Vous devez avoir 18 ans ou plus pour vous inscrire."
     },
     "connexion": {
       "title": "Espace prestataire",
@@ -3233,7 +3245,8 @@
     "link_cgv": "CGV",
     "link_privacy": "Confidentialité",
     "link_cookies": "Cookies",
-    "manage_cookies": "Gérer mes cookies"
+    "manage_cookies": "Gérer mes cookies",
+    "link_mentions": "Mentions légales"
   },
   "cgv": {
     "eyebrow": "Mentions légales",
@@ -4311,7 +4324,16 @@
       "ai_generate_error": "Erreur lors de la génération. Réessayez.",
       "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
       "referral_code_label": "Code de parrainage",
-      "referral_code_hint": "Si vous avez reçu un code de parrainage, saisissez-le ici."
+      "referral_code_hint": "Si vous avez reçu un code de parrainage, saisissez-le ici.",
+      "age_confirm": "Je confirme avoir 18 ans ou plus.",
+      "cgu_accept": "J'ai lu et j'accepte les",
+      "cgu_link_label": "Conditions Générales d'Utilisation",
+      "privacy_accept": "J'ai lu et j'accepte la",
+      "privacy_link_label": "Politique de confidentialité",
+      "marketing_consent": "J'accepte de recevoir des offres, actualités et conseils de MoveSpot par email. (facultatif — révocable à tout moment)",
+      "error_cgu": "Vous devez accepter les CGU pour continuer.",
+      "error_privacy": "Vous devez accepter la Politique de confidentialité pour continuer.",
+      "error_age": "Vous devez avoir 18 ans ou plus pour vous inscrire."
     },
     "add_vehicle": "Ajouter Véhicule",
     "ai_pricing_cta": "Estimer mon tarif →",
@@ -5352,7 +5374,13 @@
       "ai_placeholder": "Ex. : Je dirige une agence de communication à Paris, je souhaite promouvoir mes services…",
       "error_invalid_credentials": "Email ou mot de passe incorrect.",
       "account_type_business": "Professionnel",
-      "account_type_individual": "Particulier"
+      "account_type_individual": "Particulier",
+      "age_confirm": "Je confirme avoir 18 ans ou plus (ou agir en qualité de représentant légal d'une société).",
+      "privacy_accept": "J'ai lu et j'accepte la",
+      "privacy_link_label": "Politique de confidentialité",
+      "marketing_consent": "J'accepte de recevoir des offres, actualités et conseils de MoveSpot par email. (facultatif — révocable à tout moment)",
+      "error_privacy": "Vous devez accepter la Politique de confidentialité pour continuer.",
+      "error_age": "Vous devez avoir 18 ans ou plus (ou agir en qualité de représentant légal) pour vous inscrire."
     },
     "insufficient_balance": "Solde insuffisant",
     "ip_notice": "Les visuels fournis doivent être libres de droits.",
@@ -5764,7 +5792,13 @@
       "ai_placeholder": "Ex. : Je conduis un utilitaire à Lyon pour des livraisons du lundi au vendredi, environ 120 km par jour. Je cherche à monétiser l'espace publicitaire de mon véhicule.",
       "ai_generate": "Générer",
       "ai_generating": "Génération…",
-      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin."
+      "ai_filled": "✨ L'IA a rempli : {{fields}} — vérifiez et ajustez si besoin.",
+      "age_confirm": "Je confirme avoir 18 ans ou plus (ou être autorisé par un représentant légal).",
+      "privacy_accept": "J'ai lu et j'accepte la",
+      "privacy_link_label": "Politique de confidentialité",
+      "marketing_consent": "J'accepte de recevoir des offres, actualités et conseils de MoveSpot par email. (facultatif — révocable à tout moment)",
+      "error_privacy": "Vous devez accepter la Politique de confidentialité pour continuer.",
+      "error_age": "Vous devez avoir 18 ans ou plus pour vous inscrire."
     },
     "invalid_qr": "QR invalide",
     "invalid_vehicle": "Ce véhicule ne vous est pas assigné.",

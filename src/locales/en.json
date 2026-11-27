@@ -358,7 +358,13 @@
     "export_loading": "Compiling data…",
     "export_hint": "Generates a JSON file containing your personal data, briefs, campaigns and wallet history.",
     "export_success": "Export downloaded successfully.",
-    "export_error": "Error generating the export."
+    "export_error": "Error generating the export.",
+    "marketing_title": "Communication preferences",
+    "marketing_desc": "Choose whether you want to receive our offers, news and tips by email. You can change this choice at any time.",
+    "marketing_on": "Marketing emails enabled",
+    "marketing_off": "Marketing emails disabled",
+    "marketing_saved": "Preferences updated.",
+    "marketing_error": "Error updating your preferences."
   },
   "securite": {
     "page_title": "Security — How MoveSpot protects your data",
@@ -1954,7 +1960,13 @@
       "submit_signin": "Sign in",
       "submit_signup": "Create my account",
       "title_signin": "Sign in",
-      "title_signup": "Create my provider account"
+      "title_signup": "Create my provider account",
+      "age_confirm": "I confirm I am 18 years of age or older.",
+      "privacy_accept": "I have read and accept the",
+      "privacy_link_label": "Privacy Policy",
+      "marketing_consent": "I agree to receive offers, news and tips from MoveSpot by email. (optional — revocable at any time)",
+      "error_privacy": "You must accept the Privacy Policy to continue.",
+      "error_age": "You must be 18 years of age or older to register."
     },
     "connexion": {
       "title": "Provider account",
@@ -3233,7 +3245,8 @@
     "link_cgv": "Terms of Sale",
     "link_privacy": "Privacy",
     "link_cookies": "Cookies",
-    "manage_cookies": "Manage cookies"
+    "manage_cookies": "Manage cookies",
+    "link_mentions": "Legal Notice"
   },
   "cgv": {
     "eyebrow": "Legal",
@@ -4311,7 +4324,16 @@
       "ai_generate_error": "Error during generation. Please try again.",
       "ai_filled": "✨ AI filled in: {{fields}} — please review and adjust as needed.",
       "referral_code_label": "Referral code",
-      "referral_code_hint": "If you received a referral code, enter it here."
+      "referral_code_hint": "If you received a referral code, enter it here.",
+      "age_confirm": "I confirm I am 18 years old or over.",
+      "cgu_accept": "I have read and accept the",
+      "cgu_link_label": "Terms of Use",
+      "privacy_accept": "I have read and accept the",
+      "privacy_link_label": "Privacy Policy",
+      "marketing_consent": "I agree to receive offers, news and tips from MoveSpot by email. (optional — revocable at any time)",
+      "error_cgu": "You must accept the Terms of Use to continue.",
+      "error_privacy": "You must accept the Privacy Policy to continue.",
+      "error_age": "You must be 18 years old or over to register."
     },
     "add_vehicle": "Add Vehicle",
     "ai_pricing_cta": "Estimate my price →",
@@ -5352,7 +5374,13 @@
       "ai_placeholder": "E.g.: I run a communication agency in Paris, I want to promote my services…",
       "account_type_business": "Business",
       "account_type_individual": "Individual",
-      "error_invalid_credentials": "Incorrect email or password."
+      "error_invalid_credentials": "Incorrect email or password.",
+      "age_confirm": "I confirm I am 18 years old or over (or acting as a legal representative of a company).",
+      "privacy_accept": "I have read and accept the",
+      "privacy_link_label": "Privacy Policy",
+      "marketing_consent": "I agree to receive offers, news and tips from MoveSpot by email. (optional — revocable at any time)",
+      "error_privacy": "You must accept the Privacy Policy to continue.",
+      "error_age": "You must be 18 years old or over to register."
     },
     "insufficient_balance": "Insufficient Balance",
     "ip_notice": "Ip Notice",
@@ -5764,7 +5792,13 @@
       "ai_placeholder": "e.g. I drive a van in Lyon for deliveries Monday to Friday, about 120 km a day. I want to monetise the advertising space on my vehicle.",
       "ai_generate": "Generate",
       "ai_generating": "Generating…",
-      "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed."
+      "ai_filled": "✨ AI filled in: {{fields}} — review and adjust as needed.",
+      "age_confirm": "I confirm I am 18 years old or over (or authorized by a legal representative).",
+      "privacy_accept": "I have read and accept the",
+      "privacy_link_label": "Privacy Policy",
+      "marketing_consent": "I agree to receive offers, news and tips from MoveSpot by email. (optional — revocable at any time)",
+      "error_privacy": "You must accept the Privacy Policy to continue.",
+      "error_age": "You must be 18 years old or over to register."
     },
     "invalid_qr": "Invalid QR code",
     "invalid_vehicle": "This vehicle is not assigned to you.",

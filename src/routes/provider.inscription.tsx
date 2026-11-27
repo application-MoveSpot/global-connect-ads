@@ -94,6 +94,10 @@ function ProviderSignupPage() {
   const [aiFilled, setAiFilled] = useState<string[]>([]);
   const callProviderAi = useServerFn(generateProviderSuggestion);
   const callVerifyDocs = useServerFn(verifyProviderDocs);
+  const [acceptedCGU, setAcceptedCGU] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedAge, setAcceptedAge] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [aiVerifying, setAiVerifying] = useState(false);
@@ -298,6 +302,18 @@ function ProviderSignupPage() {
         return;
       }
     }
+    if (!acceptedCGU) {
+      setError(t("provider.inscription.error.cgu"));
+      return;
+    }
+    if (!acceptedPrivacy) {
+      setError(t("provider.inscription.error.privacy"));
+      return;
+    }
+    if (!acceptedAge) {
+      setError(t("provider.inscription.error.age"));
+      return;
+    }
     setLoading(true);
     const session = await getOrRefreshSession();
     if (!session) {
@@ -305,6 +321,8 @@ function ProviderSignupPage() {
       setLoading(false);
       return;
     }
+    const CGU_VERSION = "2026-11";
+    const now = new Date().toISOString();
     const portfolioPaths = portfolio.map((p) => p.path);
     const { error } = await supabase.from("provider_profiles").insert({
       user_id: session.user.id,
@@ -324,7 +342,13 @@ function ProviderSignupPage() {
       rc_pro_expiry: rcProExpiry || null,
       rib_url: docRib?.path ?? null,
       id_doc_url: docIdDoc?.path ?? null,
-    });
+      terms_accepted_at: now,
+      terms_version: CGU_VERSION,
+      privacy_accepted_at: now,
+      privacy_version: CGU_VERSION,
+      marketing_consent: marketingConsent,
+      marketing_consent_at: marketingConsent ? now : null,
+    } as never);
     setLoading(false);
     if (error) {
       setError(error.message);
@@ -741,6 +765,56 @@ function ProviderSignupPage() {
                 />
               </div>
             )}
+
+            <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedAge}
+                onChange={(e) => setAcceptedAge(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+              />
+              <span>{t("provider.inscription.age_confirm")}</span>
+            </label>
+
+            <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedCGU}
+                onChange={(e) => setAcceptedCGU(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+              />
+              <span>
+                {t("provider.inscription.cgu_accept")}{" "}
+                <a href="/cgu" className="underline hover:text-foreground">
+                  {t("provider.inscription.cgu_link_label")}
+                </a>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedPrivacy}
+                onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+              />
+              <span>
+                {t("provider.inscription.privacy_accept")}{" "}
+                <a href="/confidentialite" className="underline hover:text-foreground">
+                  {t("provider.inscription.privacy_link_label")}
+                </a>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={marketingConsent}
+                onChange={(e) => setMarketingConsent(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+              />
+              <span>{t("provider.inscription.marketing_consent")}</span>
+            </label>
 
             {error && <ErrorBox>{error}</ErrorBox>}
             {aiVerifying && (

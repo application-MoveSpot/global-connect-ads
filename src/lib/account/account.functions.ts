@@ -210,6 +210,65 @@ export const checkDeletionBlockers = createServerFn({ method: "POST" })
     return { blocked: blockers.length > 0, blockers };
   });
 
+// ── Consentement marketing (lecture + mise à jour) ───────────────────────────
+export const getMarketingConsent = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { userId } = context;
+
+    const tables = [
+      "advertiser_profiles",
+      "owner_profiles",
+      "payee_profiles",
+      "provider_profiles",
+    ] as const;
+
+    for (const table of tables) {
+      const { data } = await supabaseAdmin
+        .from(table)
+        .select("marketing_consent")
+        .eq("user_id" as never, userId)
+        .maybeSingle();
+      if (data) return { marketing_consent: (data as never as { marketing_consent: boolean }).marketing_consent ?? false };
+    }
+    return { marketing_consent: false };
+  });
+
+export const updateMarketingConsent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ marketing_consent: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { userId } = context;
+    const now = new Date().toISOString();
+
+    const tables = [
+      "advertiser_profiles",
+      "owner_profiles",
+      "payee_profiles",
+      "provider_profiles",
+    ] as const;
+
+    for (const table of tables) {
+      const { count } = await supabaseAdmin
+        .from(table)
+        .select("user_id", { count: "exact", head: true })
+        .eq("user_id" as never, userId);
+      if (count && count > 0) {
+        await supabaseAdmin
+          .from(table)
+          .update({
+            marketing_consent: data.marketing_consent,
+            marketing_consent_at: data.marketing_consent ? now : null,
+          } as never)
+          .eq("user_id" as never, userId);
+        return { ok: true };
+      }
+    }
+    return { ok: false };
+  });
+
 // ── Demande de suppression de compte ──────────────────────────────────────────
 export const requestAccountDeletion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

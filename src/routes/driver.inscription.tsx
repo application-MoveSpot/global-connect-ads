@@ -67,6 +67,9 @@ function ChauffeurInscription() {
   });
   const [ein, setEin] = useState("");
   const [acceptedCGU, setAcceptedCGU] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedAge, setAcceptedAge] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -218,6 +221,14 @@ function ChauffeurInscription() {
       setError(t("driver.inscription.error_cgu"));
       return;
     }
+    if (!acceptedPrivacy) {
+      setError(t("driver.inscription.error_privacy"));
+      return;
+    }
+    if (!acceptedAge) {
+      setError(t("driver.inscription.error_age"));
+      return;
+    }
     if (hasCompany && market !== "US" && !siret.verified) {
       setError(t("driver.inscription.error_siret"));
       return;
@@ -237,7 +248,8 @@ function ChauffeurInscription() {
       setLoading(false);
       return;
     }
-    const CGU_VERSION = "2026-08-24";
+    const CGU_VERSION = "2026-11";
+    const now = new Date().toISOString();
     const payload: Record<string, unknown> = {
       user_id: session.user.id,
       kind,
@@ -247,7 +259,13 @@ function ChauffeurInscription() {
       vehicle_kind: kind === "installer" ? null : vehicleKind,
       vehicle_plate: kind === "installer" ? null : vehiclePlate || null,
       cgu_version: CGU_VERSION,
-      cgu_accepted_at: new Date().toISOString(),
+      cgu_accepted_at: now,
+      terms_accepted_at: now,
+      terms_version: CGU_VERSION,
+      privacy_accepted_at: now,
+      privacy_version: CGU_VERSION,
+      marketing_consent: marketingConsent,
+      marketing_consent_at: marketingConsent ? now : null,
     };
     if (hasCompany) {
       if (market === "US") {
@@ -478,6 +496,16 @@ function ChauffeurInscription() {
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={acceptedAge}
+                  onChange={(e) => setAcceptedAge(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>{t("driver.inscription.age_confirm")}</span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={acceptedCGU}
                   onChange={(e) => setAcceptedCGU(e.target.checked)}
                   className="mt-0.5 h-4 w-4 rounded border-border"
@@ -491,6 +519,31 @@ function ChauffeurInscription() {
                   <strong>{t("driver.inscription.cgu_strong")}</strong>
                   {t("driver.inscription.cgu_after_strong")}
                 </span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedPrivacy}
+                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>
+                  {t("driver.inscription.privacy_accept")}{" "}
+                  <Link to="/confidentialite" className="underline hover:text-foreground">
+                    {t("driver.inscription.privacy_link_label")}
+                  </Link>
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>{t("driver.inscription.marketing_consent")}</span>
               </label>
               {hasCompany &&
                 (market === "US" ? (

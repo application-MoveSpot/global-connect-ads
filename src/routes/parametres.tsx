@@ -7,11 +7,15 @@ import {
   checkDeletionBlockers,
   requestAccountDeletion,
   exportUserData,
+  getMarketingConsent,
+  updateMarketingConsent,
 } from "@/lib/account/account.functions";
 import { toast } from "sonner";
 import { RouteError } from "@/components/app/RouteError";
 import {
   AlertTriangle,
+  Bell,
+  BellOff,
   ChevronDown,
   ChevronUp,
   Download,
@@ -19,6 +23,7 @@ import {
   ShieldCheck,
   Trash2,
 } from "lucide-react";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/parametres")({
   head: () => ({ meta: [{ title: "Paramètres du compte — MoveSpot" }] }),
@@ -35,8 +40,31 @@ function ParametresPage() {
   const deleteAccount = useServerFn(requestAccountDeletion);
   const fetchExport = useServerFn(exportUserData);
 
+  const fetchMarketing = useServerFn(getMarketingConsent);
+  const saveMarketing = useServerFn(updateMarketingConsent);
+
   const [exportLoading, setExportLoading] = useState(false);
   const [showDanger, setShowDanger] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
+  const [marketingLoading, setMarketingLoading] = useState(false);
+
+  useEffect(() => {
+    fetchMarketing().then((res: { marketing_consent: boolean }) => setMarketingConsent(res.marketing_consent)).catch(() => {});
+  }, []);
+
+  const handleMarketingToggle = async (value: boolean) => {
+    setMarketingConsent(value);
+    setMarketingLoading(true);
+    try {
+      await saveMarketing({ data: { marketing_consent: value } });
+      toast.success(t("parametres.marketing_saved"));
+    } catch {
+      toast.error(t("parametres.marketing_error"));
+      setMarketingConsent(!value);
+    } finally {
+      setMarketingLoading(false);
+    }
+  };
   const [step, setStep] = useState<
     "idle" | "checking" | "blocked" | "confirm" | "deleting" | "done"
   >("idle");
@@ -162,6 +190,37 @@ function ParametresPage() {
             <p className="mt-1.5 text-[11px] text-muted-foreground/60">
               {t("parametres.export_hint")}
             </p>
+          </div>
+        </section>
+
+        {/* ── Préférences marketing ── */}
+        <section className="rounded-2xl border border-border bg-card p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            {marketingConsent ? (
+              <Bell className="w-5 h-5 text-primary" />
+            ) : (
+              <BellOff className="w-5 h-5 text-muted-foreground" />
+            )}
+            <h2 className="font-semibold text-lg">{t("parametres.marketing_title")}</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">{t("parametres.marketing_desc")}</p>
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={marketingConsent}
+              disabled={marketingLoading}
+              onClick={() => handleMarketingToggle(!marketingConsent)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 ${marketingConsent ? "bg-primary" : "bg-muted"}`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${marketingConsent ? "translate-x-6" : "translate-x-1"}`}
+              />
+            </button>
+            <span className="text-sm font-medium">
+              {marketingConsent ? t("parametres.marketing_on") : t("parametres.marketing_off")}
+            </span>
+            {marketingLoading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
           </div>
         </section>
 
