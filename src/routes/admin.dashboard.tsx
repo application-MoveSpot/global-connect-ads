@@ -1100,7 +1100,7 @@ function AdminDashboard() {
                             {(v as any).auto_insurance_expires_at &&
                               ` · expire ${new Date((v as any).auto_insurance_expires_at).toLocaleDateString("fr-FR")}`}
                           </span>
-                          {!(v as any).auto_insurance_verified && v.status === "approved" && (
+                          {!(v as any).auto_insurance_verified && v.status !== "rejected" && (
                             <button
                               onClick={() => verifyVehicleInsuranceMut.mutate(v.id)}
                               disabled={verifyVehicleInsuranceMut.isPending}
