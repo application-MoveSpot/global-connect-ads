@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ContratCreatifsRouteImport } from './routes/contrat-creatifs'
 import { Route as ContratPoseursRouteImport } from './routes/contrat-poseurs'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as KitRouteImport } from './routes/kit'
@@ -43,6 +44,7 @@ import { Route as PublicPubliciteVoitureLyonRouteImport } from './routes/_public
 import { Route as PublicPubliciteVoitureMarseilleRouteImport } from './routes/_public.publicite-voiture-marseille'
 import { Route as PublicPubliciteVoitureParisRouteImport } from './routes/_public.publicite-voiture-paris'
 import { Route as PublicRemboursementRouteImport } from './routes/_public.remboursement'
+import { Route as PublicSuppressionCompteRouteImport } from './routes/_public.suppression-compte'
 import { Route as PublicTarifsRouteImport } from './routes/_public.tarifs'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminBetaRouteImport } from './routes/admin.beta'
@@ -57,6 +59,7 @@ import { Route as AdminTranslationIssuesRouteImport } from './routes/admin.trans
 import { Route as AdminVirementsRouteImport } from './routes/admin.virements'
 import { Route as AdvertiserIndexRouteImport } from './routes/advertiser.index'
 import { Route as AdvertiserCalendrierRouteImport } from './routes/advertiser.calendrier'
+import { Route as AdvertiserConseilIaRouteImport } from './routes/advertiser.conseil-ia'
 import { Route as AdvertiserEssaiActiveRouteImport } from './routes/advertiser.essai-active'
 import { Route as AdvertiserEtudeMarcheRouteImport } from './routes/advertiser.etude-marche'
 import { Route as AdvertiserExemplesRouteImport } from './routes/advertiser.exemples'
@@ -165,6 +168,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratCreatifsRoute = ContratCreatifsRouteImport.update({
+  id: '/contrat-creatifs',
+  path: '/contrat-creatifs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContratPoseursRoute = ContratPoseursRouteImport.update({
@@ -314,6 +322,11 @@ const PublicRemboursementRoute = PublicRemboursementRouteImport.update({
   path: '/remboursement',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicSuppressionCompteRoute = PublicSuppressionCompteRouteImport.update({
+  id: '/suppression-compte',
+  path: '/suppression-compte',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicTarifsRoute = PublicTarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
@@ -382,6 +395,11 @@ const AdvertiserIndexRoute = AdvertiserIndexRouteImport.update({
 const AdvertiserCalendrierRoute = AdvertiserCalendrierRouteImport.update({
   id: '/advertiser/calendrier',
   path: '/advertiser/calendrier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvertiserConseilIaRoute = AdvertiserConseilIaRouteImport.update({
+  id: '/advertiser/conseil-ia',
+  path: '/advertiser/conseil-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdvertiserEssaiActiveRoute = AdvertiserEssaiActiveRouteImport.update({
@@ -807,6 +825,7 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-creatifs': typeof ContratCreatifsRoute
   '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
@@ -834,6 +853,7 @@ export interface FileRoutesByFullPath {
   '/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
   '/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/remboursement': typeof PublicRemboursementRoute
+  '/suppression-compte': typeof PublicSuppressionCompteRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/beta': typeof AdminBetaRoute
@@ -847,6 +867,7 @@ export interface FileRoutesByFullPath {
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
+  '/advertiser/conseil-ia': typeof AdvertiserConseilIaRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
@@ -935,6 +956,7 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-creatifs': typeof ContratCreatifsRoute
   '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
@@ -962,6 +984,7 @@ export interface FileRoutesByTo {
   '/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
   '/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/remboursement': typeof PublicRemboursementRoute
+  '/suppression-compte': typeof PublicSuppressionCompteRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/beta': typeof AdminBetaRoute
@@ -975,6 +998,7 @@ export interface FileRoutesByTo {
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
+  '/advertiser/conseil-ia': typeof AdvertiserConseilIaRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
@@ -1065,6 +1089,7 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-creatifs': typeof ContratCreatifsRoute
   '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
@@ -1092,6 +1117,7 @@ export interface FileRoutesById {
   '/_public/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
   '/_public/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/_public/remboursement': typeof PublicRemboursementRoute
+  '/_public/suppression-compte': typeof PublicSuppressionCompteRoute
   '/_public/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/beta': typeof AdminBetaRoute
@@ -1105,6 +1131,7 @@ export interface FileRoutesById {
   '/admin/translation-issues': typeof AdminTranslationIssuesRoute
   '/admin/virements': typeof AdminVirementsRoute
   '/advertiser/calendrier': typeof AdvertiserCalendrierRoute
+  '/advertiser/conseil-ia': typeof AdvertiserConseilIaRoute
   '/advertiser/essai-active': typeof AdvertiserEssaiActiveRoute
   '/advertiser/etude-marche': typeof AdvertiserEtudeMarcheRoute
   '/advertiser/exemples': typeof AdvertiserExemplesRoute
@@ -1197,6 +1224,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-creatifs'
     | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
@@ -1224,6 +1252,7 @@ export interface FileRouteTypes {
     | '/publicite-voiture-marseille'
     | '/publicite-voiture-paris'
     | '/remboursement'
+    | '/suppression-compte'
     | '/tarifs'
     | '/admin/audit'
     | '/admin/beta'
@@ -1237,6 +1266,7 @@ export interface FileRouteTypes {
     | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/calendrier'
+    | '/advertiser/conseil-ia'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
@@ -1325,6 +1355,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-creatifs'
     | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
@@ -1352,6 +1383,7 @@ export interface FileRouteTypes {
     | '/publicite-voiture-marseille'
     | '/publicite-voiture-paris'
     | '/remboursement'
+    | '/suppression-compte'
     | '/tarifs'
     | '/admin/audit'
     | '/admin/beta'
@@ -1365,6 +1397,7 @@ export interface FileRouteTypes {
     | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/calendrier'
+    | '/advertiser/conseil-ia'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
@@ -1454,6 +1487,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-creatifs'
     | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
@@ -1481,6 +1515,7 @@ export interface FileRouteTypes {
     | '/_public/publicite-voiture-marseille'
     | '/_public/publicite-voiture-paris'
     | '/_public/remboursement'
+    | '/_public/suppression-compte'
     | '/_public/tarifs'
     | '/admin/audit'
     | '/admin/beta'
@@ -1494,6 +1529,7 @@ export interface FileRouteTypes {
     | '/admin/translation-issues'
     | '/admin/virements'
     | '/advertiser/calendrier'
+    | '/advertiser/conseil-ia'
     | '/advertiser/essai-active'
     | '/advertiser/etude-marche'
     | '/advertiser/exemples'
@@ -1585,6 +1621,7 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ContactRoute: typeof ContactRoute
+  ContratCreatifsRoute: typeof ContratCreatifsRoute
   ContratPoseursRoute: typeof ContratPoseursRoute
   CookiesRoute: typeof CookiesRoute
   KitRoute: typeof KitRoute
@@ -1600,6 +1637,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdvertiserCalendrierRoute: typeof AdvertiserCalendrierRoute
+  AdvertiserConseilIaRoute: typeof AdvertiserConseilIaRoute
   AdvertiserEssaiActiveRoute: typeof AdvertiserEssaiActiveRoute
   AdvertiserEtudeMarcheRoute: typeof AdvertiserEtudeMarcheRoute
   AdvertiserExemplesRoute: typeof AdvertiserExemplesRoute
@@ -1720,6 +1758,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contrat-creatifs': {
+      id: '/contrat-creatifs'
+      path: '/contrat-creatifs'
+      fullPath: '/contrat-creatifs'
+      preLoaderRoute: typeof ContratCreatifsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contrat-poseurs': {
@@ -1918,6 +1963,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRemboursementRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/suppression-compte': {
+      id: '/_public/suppression-compte'
+      path: '/suppression-compte'
+      fullPath: '/suppression-compte'
+      preLoaderRoute: typeof PublicSuppressionCompteRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/tarifs': {
       id: '/_public/tarifs'
       path: '/tarifs'
@@ -2014,6 +2066,13 @@ declare module '@tanstack/react-router' {
       path: '/advertiser/calendrier'
       fullPath: '/advertiser/calendrier'
       preLoaderRoute: typeof AdvertiserCalendrierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advertiser/conseil-ia': {
+      id: '/advertiser/conseil-ia'
+      path: '/advertiser/conseil-ia'
+      fullPath: '/advertiser/conseil-ia'
+      preLoaderRoute: typeof AdvertiserConseilIaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advertiser/essai-active': {
@@ -2593,6 +2652,7 @@ interface PublicRouteChildren {
   PublicPubliciteVoitureMarseilleRoute: typeof PublicPubliciteVoitureMarseilleRoute
   PublicPubliciteVoitureParisRoute: typeof PublicPubliciteVoitureParisRoute
   PublicRemboursementRoute: typeof PublicRemboursementRoute
+  PublicSuppressionCompteRoute: typeof PublicSuppressionCompteRoute
   PublicTarifsRoute: typeof PublicTarifsRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBriefBriefIdRoute: typeof PublicBriefBriefIdRoute
@@ -2612,6 +2672,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicPubliciteVoitureMarseilleRoute: PublicPubliciteVoitureMarseilleRoute,
   PublicPubliciteVoitureParisRoute: PublicPubliciteVoitureParisRoute,
   PublicRemboursementRoute: PublicRemboursementRoute,
+  PublicSuppressionCompteRoute: PublicSuppressionCompteRoute,
   PublicTarifsRoute: PublicTarifsRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBriefBriefIdRoute: PublicBriefBriefIdRoute,
@@ -2685,6 +2746,7 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ContactRoute: ContactRoute,
+  ContratCreatifsRoute: ContratCreatifsRoute,
   ContratPoseursRoute: ContratPoseursRoute,
   CookiesRoute: CookiesRoute,
   KitRoute: KitRoute,
@@ -2701,6 +2763,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdvertiserCalendrierRoute: AdvertiserCalendrierRoute,
+  AdvertiserConseilIaRoute: AdvertiserConseilIaRoute,
   AdvertiserEssaiActiveRoute: AdvertiserEssaiActiveRoute,
   AdvertiserEtudeMarcheRoute: AdvertiserEtudeMarcheRoute,
   AdvertiserExemplesRoute: AdvertiserExemplesRoute,
