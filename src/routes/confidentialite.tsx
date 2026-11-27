@@ -429,6 +429,118 @@ function Privacy() {
           perte de session ni transmission supplémentaire de données. La déconnexion supprime ces
           éléments de votre terminal.
         </p>
+        <p className="mt-3">
+          <strong>Notification de violation (Art. 33–34 RGPD).</strong> En cas de violation de
+          données personnelles susceptible d'engendrer un risque pour vos droits et libertés,
+          MoveSpot notifie la CNIL dans un délai de <strong>72 heures</strong> après avoir pris
+          connaissance de l'incident (art. 33 RGPD). Si cette violation est susceptible d'engendrer
+          un risque <em>élevé</em>, vous en serez également informé directement dans les meilleurs
+          délais (art. 34 RGPD), par email à l'adresse associée à votre compte, avec description de
+          la nature de l'incident, des données concernées et des mesures prises ou envisagées. Pour
+          signaler une faille ou incident de sécurité :{" "}
+          <a href="mailto:legal@move-spot.com" className="text-primary hover:underline">
+            legal@move-spot.com
+          </a>
+          .
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Intelligence artificielle — clause de non-entraînement">
+        <p>
+          Certaines fonctionnalités de la Plateforme font appel à des modèles d'intelligence
+          artificielle (assistance conversationnelle, analyse de photos de véhicules, extraction OCR
+          des certificats d'immatriculation). Conformément à nos accords de traitement des données
+          (DPA) avec nos fournisseurs d'IA :
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mt-2">
+          <li>
+            Vos données (documents, images, messages) transmises à ces services sont traitées{" "}
+            <strong>uniquement à la volée</strong>, pour répondre à votre requête.
+          </li>
+          <li>
+            Elles ne sont <strong>jamais stockées</strong> par le fournisseur d'IA au-delà de la
+            durée strictement nécessaire au traitement de la requête.
+          </li>
+          <li>
+            Elles ne sont <strong>en aucun cas utilisées pour entraîner, affiner ou améliorer</strong>{" "}
+            des modèles d'intelligence artificielle tiers (art. 22 RGPD et accord DPA avec
+            Anthropic PBC).
+          </li>
+        </ul>
+        <p className="mt-2">
+          Le fournisseur d'IA principal est <strong>Anthropic PBC</strong> (San Francisco, CA,
+          États-Unis), encadré par des Clauses Contractuelles Types (SCC) de la Commission
+          européenne et un DPA garantissant ces engagements.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Tableau des sous-traitants (DPA)">
+        <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
+          <thead className="bg-secondary/50">
+            <tr>
+              <th className="text-left p-3 font-medium">Sous-traitant</th>
+              <th className="text-left p-3 font-medium">Rôle</th>
+              <th className="text-left p-3 font-medium">Localisation</th>
+              <th className="text-left p-3 font-medium">Garantie</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            <tr>
+              <td className="p-3">Supabase Inc.</td>
+              <td className="p-3">Base de données, Auth, Stockage</td>
+              <td className="p-3">UE (AWS eu-west-3, Paris)</td>
+              <td className="p-3">DPA + SCC</td>
+            </tr>
+            <tr>
+              <td className="p-3">Stripe Payments Europe, Ltd.</td>
+              <td className="p-3">Paiements, Stripe Connect</td>
+              <td className="p-3">UE (Dublin, Irlande)</td>
+              <td className="p-3">DPA + SCC</td>
+            </tr>
+            <tr>
+              <td className="p-3">Cloudflare, Inc.</td>
+              <td className="p-3">CDN, Workers, réseau</td>
+              <td className="p-3">USA / UE</td>
+              <td className="p-3">DPF UE-USA + SCC</td>
+            </tr>
+            <tr>
+              <td className="p-3">Lovable GPT AB</td>
+              <td className="p-3">Hébergement application web</td>
+              <td className="p-3">UE (Stockholm, Suède)</td>
+              <td className="p-3">DPA</td>
+            </tr>
+            <tr>
+              <td className="p-3">Anthropic PBC</td>
+              <td className="p-3">IA FAQ, OCR, analyse photos</td>
+              <td className="p-3">USA (San Francisco)</td>
+              <td className="p-3">DPA + SCC (non-entraînement garanti)</td>
+            </tr>
+            <tr>
+              <td className="p-3">Resend Inc.</td>
+              <td className="p-3">Emails transactionnels</td>
+              <td className="p-3">USA (San Francisco)</td>
+              <td className="p-3">SCC</td>
+            </tr>
+            <tr>
+              <td className="p-3">Mapbox, Inc.</td>
+              <td className="p-3">Cartographie, géocodage</td>
+              <td className="p-3">USA (Washington DC)</td>
+              <td className="p-3">DPF UE-USA + SCC</td>
+            </tr>
+            <tr>
+              <td className="p-3">Meta Platforms Ireland Ltd.</td>
+              <td className="p-3">Pixel Meta (mesure conversion)</td>
+              <td className="p-3">UE (Dublin) / USA</td>
+              <td className="p-3">DPF UE-USA + SCC (après consentement)</td>
+            </tr>
+            <tr>
+              <td className="p-3">Google Ireland Ltd. / Google LLC</td>
+              <td className="p-3">Google Ads Conversion Tag</td>
+              <td className="p-3">UE / USA</td>
+              <td className="p-3">DPF UE-USA + SCC (après consentement)</td>
+            </tr>
+          </tbody>
+        </table>
       </LegalSection>
 
       <LegalSection title={t("confidentialite.s14")}>
