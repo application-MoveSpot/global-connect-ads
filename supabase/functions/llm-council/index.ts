@@ -10,11 +10,11 @@ const DAILY_LIMIT_ADMIN = 20;
 const MODEL_TIMEOUT_MS = 25_000;
 
 const MODELS = [
-  "anthropic/claude-3.5-sonnet",
-  "openai/gpt-4o",
-  "google/gemini-2.5-flash",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "google/gemma-2-9b-it:free",
+  "mistralai/mistral-7b-instruct:free",
 ];
-const CHAIRMAN_MODEL = "anthropic/claude-3.5-sonnet";
+const CHAIRMAN_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
 const EXPERT_LABELS = ["Expert A", "Expert B", "Expert C"];
 
 // ── PII sanitization ────────────────────────────────────────────────────────
