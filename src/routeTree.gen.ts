@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ContratCreatifsRouteImport } from './routes/contrat-creatifs'
 import { Route as ContratPoseursRouteImport } from './routes/contrat-poseurs'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as KitRouteImport } from './routes/kit'
@@ -43,6 +44,7 @@ import { Route as PublicPubliciteVoitureLyonRouteImport } from './routes/_public
 import { Route as PublicPubliciteVoitureMarseilleRouteImport } from './routes/_public.publicite-voiture-marseille'
 import { Route as PublicPubliciteVoitureParisRouteImport } from './routes/_public.publicite-voiture-paris'
 import { Route as PublicRemboursementRouteImport } from './routes/_public.remboursement'
+import { Route as PublicSuppressionCompteRouteImport } from './routes/_public.suppression-compte'
 import { Route as PublicTarifsRouteImport } from './routes/_public.tarifs'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminBetaRouteImport } from './routes/admin.beta'
@@ -165,6 +167,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratCreatifsRoute = ContratCreatifsRouteImport.update({
+  id: '/contrat-creatifs',
+  path: '/contrat-creatifs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContratPoseursRoute = ContratPoseursRouteImport.update({
@@ -312,6 +319,11 @@ const PublicPubliciteVoitureParisRoute =
 const PublicRemboursementRoute = PublicRemboursementRouteImport.update({
   id: '/remboursement',
   path: '/remboursement',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSuppressionCompteRoute = PublicSuppressionCompteRouteImport.update({
+  id: '/suppression-compte',
+  path: '/suppression-compte',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicTarifsRoute = PublicTarifsRouteImport.update({
@@ -807,6 +819,7 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-creatifs': typeof ContratCreatifsRoute
   '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
@@ -834,6 +847,7 @@ export interface FileRoutesByFullPath {
   '/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
   '/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/remboursement': typeof PublicRemboursementRoute
+  '/suppression-compte': typeof PublicSuppressionCompteRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/beta': typeof AdminBetaRoute
@@ -935,6 +949,7 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-creatifs': typeof ContratCreatifsRoute
   '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
@@ -962,6 +977,7 @@ export interface FileRoutesByTo {
   '/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
   '/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/remboursement': typeof PublicRemboursementRoute
+  '/suppression-compte': typeof PublicSuppressionCompteRoute
   '/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/beta': typeof AdminBetaRoute
@@ -1065,6 +1081,7 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
+  '/contrat-creatifs': typeof ContratCreatifsRoute
   '/contrat-poseurs': typeof ContratPoseursRoute
   '/cookies': typeof CookiesRoute
   '/kit': typeof KitRoute
@@ -1092,6 +1109,7 @@ export interface FileRoutesById {
   '/_public/publicite-voiture-marseille': typeof PublicPubliciteVoitureMarseilleRoute
   '/_public/publicite-voiture-paris': typeof PublicPubliciteVoitureParisRoute
   '/_public/remboursement': typeof PublicRemboursementRoute
+  '/_public/suppression-compte': typeof PublicSuppressionCompteRoute
   '/_public/tarifs': typeof PublicTarifsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/beta': typeof AdminBetaRoute
@@ -1197,6 +1215,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-creatifs'
     | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
@@ -1224,6 +1243,7 @@ export interface FileRouteTypes {
     | '/publicite-voiture-marseille'
     | '/publicite-voiture-paris'
     | '/remboursement'
+    | '/suppression-compte'
     | '/tarifs'
     | '/admin/audit'
     | '/admin/beta'
@@ -1325,6 +1345,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-creatifs'
     | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
@@ -1352,6 +1373,7 @@ export interface FileRouteTypes {
     | '/publicite-voiture-marseille'
     | '/publicite-voiture-paris'
     | '/remboursement'
+    | '/suppression-compte'
     | '/tarifs'
     | '/admin/audit'
     | '/admin/beta'
@@ -1454,6 +1476,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/confidentialite'
     | '/contact'
+    | '/contrat-creatifs'
     | '/contrat-poseurs'
     | '/cookies'
     | '/kit'
@@ -1481,6 +1504,7 @@ export interface FileRouteTypes {
     | '/_public/publicite-voiture-marseille'
     | '/_public/publicite-voiture-paris'
     | '/_public/remboursement'
+    | '/_public/suppression-compte'
     | '/_public/tarifs'
     | '/admin/audit'
     | '/admin/beta'
@@ -1585,6 +1609,7 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ContactRoute: typeof ContactRoute
+  ContratCreatifsRoute: typeof ContratCreatifsRoute
   ContratPoseursRoute: typeof ContratPoseursRoute
   CookiesRoute: typeof CookiesRoute
   KitRoute: typeof KitRoute
@@ -1720,6 +1745,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contrat-creatifs': {
+      id: '/contrat-creatifs'
+      path: '/contrat-creatifs'
+      fullPath: '/contrat-creatifs'
+      preLoaderRoute: typeof ContratCreatifsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contrat-poseurs': {
@@ -1916,6 +1948,13 @@ declare module '@tanstack/react-router' {
       path: '/remboursement'
       fullPath: '/remboursement'
       preLoaderRoute: typeof PublicRemboursementRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/suppression-compte': {
+      id: '/_public/suppression-compte'
+      path: '/suppression-compte'
+      fullPath: '/suppression-compte'
+      preLoaderRoute: typeof PublicSuppressionCompteRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/tarifs': {
@@ -2593,6 +2632,7 @@ interface PublicRouteChildren {
   PublicPubliciteVoitureMarseilleRoute: typeof PublicPubliciteVoitureMarseilleRoute
   PublicPubliciteVoitureParisRoute: typeof PublicPubliciteVoitureParisRoute
   PublicRemboursementRoute: typeof PublicRemboursementRoute
+  PublicSuppressionCompteRoute: typeof PublicSuppressionCompteRoute
   PublicTarifsRoute: typeof PublicTarifsRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBriefBriefIdRoute: typeof PublicBriefBriefIdRoute
@@ -2612,6 +2652,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicPubliciteVoitureMarseilleRoute: PublicPubliciteVoitureMarseilleRoute,
   PublicPubliciteVoitureParisRoute: PublicPubliciteVoitureParisRoute,
   PublicRemboursementRoute: PublicRemboursementRoute,
+  PublicSuppressionCompteRoute: PublicSuppressionCompteRoute,
   PublicTarifsRoute: PublicTarifsRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBriefBriefIdRoute: PublicBriefBriefIdRoute,
@@ -2685,6 +2726,7 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ContactRoute: ContactRoute,
+  ContratCreatifsRoute: ContratCreatifsRoute,
   ContratPoseursRoute: ContratPoseursRoute,
   CookiesRoute: CookiesRoute,
   KitRoute: KitRoute,

@@ -59,6 +59,9 @@ function AnnonceurInscription() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [acceptedCharte, setAcceptedCharte] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedAge, setAcceptedAge] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [siret, setSiret] = useState<SiretCheck>({
     siret: "",
     denomination: null,
@@ -285,6 +288,14 @@ function AnnonceurInscription() {
       setError(t("advertiser.inscription.error_charte"));
       return;
     }
+    if (!acceptedPrivacy) {
+      setError(t("advertiser.inscription.error_privacy"));
+      return;
+    }
+    if (!acceptedAge) {
+      setError(t("advertiser.inscription.error_age"));
+      return;
+    }
     if (accountType === "business" && !siret.verified) {
       setError(t("advertiser.inscription.error_siret"));
       return;
@@ -304,7 +315,8 @@ function AnnonceurInscription() {
       setLoading(false);
       return;
     }
-    const CGU_VERSION = "2026-08-24";
+    const CGU_VERSION = "2026-11";
+    const now = new Date().toISOString();
     const payload: Record<string, unknown> = {
       user_id: session.user.id,
       full_name: fullName,
@@ -312,7 +324,13 @@ function AnnonceurInscription() {
       city: city || null,
       account_type: accountType,
       cgu_version: CGU_VERSION,
-      cgu_accepted_at: new Date().toISOString(),
+      cgu_accepted_at: now,
+      terms_accepted_at: now,
+      terms_version: CGU_VERSION,
+      privacy_accepted_at: now,
+      privacy_version: CGU_VERSION,
+      marketing_consent: marketingConsent,
+      marketing_consent_at: marketingConsent ? now : null,
       commercial_id: commercialId ?? null,
       referred_by_advertiser_id: inviteAdvertiserId ?? null,
     };
@@ -627,11 +645,46 @@ function AnnonceurInscription() {
               <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={acceptedAge}
+                  onChange={(e) => setAcceptedAge(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>{t("advertiser.inscription.age_confirm")}</span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={acceptedCharte}
                   onChange={(e) => setAcceptedCharte(e.target.checked)}
                   className="mt-0.5 h-4 w-4 rounded border-border"
                 />
                 <span dangerouslySetInnerHTML={{ __html: t("advertiser.inscription.cgu_label") }} />
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedPrivacy}
+                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>
+                  {t("advertiser.inscription.privacy_accept")}{" "}
+                  <a href="/confidentialite" className="underline hover:text-foreground">
+                    {t("advertiser.inscription.privacy_link_label")}
+                  </a>
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 text-xs text-muted-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border"
+                />
+                <span>{t("advertiser.inscription.marketing_consent")}</span>
               </label>
 
               {error && <Err msg={error} />}

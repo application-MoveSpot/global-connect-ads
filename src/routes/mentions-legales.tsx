@@ -294,11 +294,55 @@ function MentionsLegales() {
 
       <LegalSection title={t("mentions.s_report")}>
         <p>
-          Tout contenu publicitaire diffusé via la Plateforme peut être signalé à l'adresse{" "}
+          Conformément à la <strong>loi n° 2004-575 du 21 juin 2004 (LCEN)</strong>, tout contenu
+          illicite diffusé via la Plateforme (contenus haineux, pédopornographiques, apologie du
+          terrorisme, contrefaçon manifeste) doit être signalé à l'adresse dédiée :
+        </p>
+        <p className="mt-2">
+          <strong>Email LCEN :</strong>{" "}
+          <a href="mailto:legal@move-spot.com" className="text-primary hover:underline">
+            legal@move-spot.com
+          </a>
+        </p>
+        <p className="mt-2">
+          Les contenus publicitaires ne respectant pas la charte éditoriale de MoveSpot peuvent
+          également être signalés à l'adresse générale :{" "}
           <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
             contact@move-spot.com
           </a>
-          . MoveSpot procède à un examen humain et peut suspendre la campagne concernée.
+          . MoveSpot procède à un examen humain dans les meilleurs délais et peut suspendre la
+          campagne concernée.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Licences open source">
+        <p>
+          Le Site intègre des composants et bibliothèques open source tiers, utilisés conformément
+          à leurs licences respectives. Les principales licences présentes sont :
+        </p>
+        <ul className="list-disc pl-6 space-y-2 mt-2">
+          <li>
+            <strong>MIT</strong> : React, Vite, TanStack Router / Query / Start, shadcn/ui,
+            Tailwind CSS, Lucide React, Radix UI, react-hook-form, Zod, Sonner, date-fns, Turf.js,
+            Leaflet, react-i18next.
+          </li>
+          <li>
+            <strong>Apache 2.0</strong> : AI SDK (`ai`, `@ai-sdk/openai-compatible`).
+          </li>
+          <li>
+            <strong>BSD-3-Clause</strong> : Mapbox GL JS.
+          </li>
+        </ul>
+        <p className="mt-2">
+          <strong>Absence de composant sous licence AGPL ou copyleft fort.</strong> Le code source
+          propriétaire de MoveSpot n'intègre aucune bibliothèque soumise à la licence GNU AGPL
+          (Affero General Public License) ni à toute autre licence copyleft qui imposerait la
+          divulgation du code source de la Plateforme.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Les textes complets des licences sont disponibles dans les dépôts respectifs de chaque
+          bibliothèque (npm / GitHub). L'utilisation de ces composants n'implique aucun transfert de
+          propriété des éléments propres à MoveSpot.
         </p>
       </LegalSection>
 

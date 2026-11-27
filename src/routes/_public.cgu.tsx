@@ -896,6 +896,69 @@ function CGU() {
         </p>
       </LegalSection>
 
+      <LegalSection title="Article 26 — Droit de rétractation (consommateurs)">
+        <p>
+          Conformément aux articles <strong>L.221-18 et suivants du Code de la consommation</strong>,
+          tout utilisateur agissant en qualité de <strong>consommateur</strong> (Conducteur Particulier
+          ou Annonceur personne physique) bénéficie d'un{" "}
+          <strong>droit de rétractation de quatorze (14) jours calendaires</strong> à compter de la
+          conclusion du contrat (inscription, souscription d'un abonnement ou paiement d'une campagne).
+        </p>
+        <p className="mt-2">
+          <strong>Exercice du droit.</strong> Pour exercer ce droit, le consommateur doit notifier sa
+          décision de se rétracter à MoveSpot, avant l'expiration du délai de 14 jours, par l'un des
+          moyens suivants :
+        </p>
+        <ul className="list-disc pl-6 space-y-1 mt-1">
+          <li>
+            Depuis son espace personnel :{" "}
+            <strong>Paramètres → Résilier / Se rétracter</strong> (1 clic).
+          </li>
+          <li>
+            Par email à{" "}
+            <a href="mailto:contact@move-spot.com" className="text-primary hover:underline">
+              contact@move-spot.com
+            </a>{" "}
+            en indiquant son nom, son email d'inscription et la date du contrat.
+          </li>
+          <li>
+            Par courrier recommandé avec accusé de réception à l'adresse postale de MoveSpot :{" "}
+            1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault (Guadeloupe, France).
+          </li>
+        </ul>
+        <p className="mt-2">
+          <strong>Effets de la rétractation.</strong> En cas de rétractation valablement exercée,
+          MoveSpot remboursera toutes les sommes versées, sans frais, dans un délai de{" "}
+          <strong>14 jours</strong> à compter de la réception de la notification, via le même
+          moyen de paiement que celui utilisé lors de la transaction initiale.
+        </p>
+        <p className="mt-2">
+          <strong>Exceptions légales.</strong> Conformément à l'article L.221-28 du Code de la
+          consommation, le droit de rétractation ne s'applique pas :
+        </p>
+        <ul className="list-disc pl-6 space-y-1 mt-1">
+          <li>
+            aux <strong>prestations de services pleinement exécutées</strong> avant la fin du délai
+            de rétractation, lorsque l'exécution a commencé avec l'accord exprès du consommateur et
+            renonciation expresse à son droit de rétractation (p. ex. campagne dont la pose a été
+            réalisée et validée) ;
+          </li>
+          <li>
+            aux <strong>biens ou contenus numériques fournis sur support immatériel</strong> dont
+            l'exécution a commencé avec le consentement préalable exprès du consommateur et
+            renonciation à son droit de rétractation (p. ex. accès immédiat à des métriques et
+            données de campagne).
+          </li>
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Formulaire de rétractation type (prévu à l'article R.221-1 du Code de la consommation) :
+          À l'attention de MoveSpot, Garry PALERME, 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg,
+          97122 Baie-Mahault — contact@move-spot.com. Je vous notifie par la présente ma rétractation
+          du contrat portant sur la prestation suivante : [désignation]. Commandé le [date] / reçu le
+          [date]. Nom et prénom : []. Adresse : []. Signature (papier uniquement) : []. Date : [].
+        </p>
+      </LegalSection>
+
       <LegalSection title={t("cgu.s23")}>
         <p>
           Les présentes CGU sont régies par le <strong>droit français</strong>.
