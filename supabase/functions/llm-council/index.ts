@@ -10,11 +10,11 @@ const DAILY_LIMIT_ADMIN = 20;
 const MODEL_TIMEOUT_MS = 25_000;
 
 const MODELS = [
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "google/gemma-2-9b-it:free",
-  "mistralai/mistral-7b-instruct:free",
+  "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "particle-ai/particle-1:free",
 ];
-const CHAIRMAN_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+const CHAIRMAN_MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free";
 const EXPERT_LABELS = ["Expert A", "Expert B", "Expert C"];
 
 // ── PII sanitization ────────────────────────────────────────────────────────
@@ -49,8 +49,9 @@ async function callOpenRouter(
       body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.4 }),
       signal: controller.signal,
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
-    const json = await res.json() as { choices: Array<{ message: { content: string } }> };
+    const bodyText = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status} from ${model}: ${bodyText.slice(0, 300)}`);
+    const json = JSON.parse(bodyText) as { choices: Array<{ message: { content: string } }> };
     return json.choices[0].message.content.trim();
   } finally {
     clearTimeout(tid);
@@ -91,7 +92,7 @@ type ChairmanData = {
   priority_actions: Array<{ action: string; impact: string; effort: string }>;
 };
 
-type Opinion = { label: string; data: OpinionData; failed: boolean };
+type Opinion = { label: string; data: OpinionData; failed: boolean; debug_error?: string };
 type PeerReview = { reviewer: string; data: PeerReviewData; failed: boolean };
 
 // ── Prompts ──────────────────────────────────────────────────────────────────
@@ -126,12 +127,12 @@ Tu reçois 3 analyses expertes et leurs évaluations croisées. Synthétise en r
 Réponds UNIQUEMENT en JSON strict sans balises de code.`;
 
 function step3User(brief: string, opinions: Opinion[], reviews: PeerReview[]) {
-  const opStr = opinions.map((o) => `${o.label}: "${o.data.analysis}" | ${o.data.score}/10`).join("\n");
+  const opStr = opinions.map((o) => `${o.label}: "${o.data.analysis.slice(0, 120)}" | ${o.data.score}/10`).join("\n");
   const revStr = reviews
     .filter((r) => !r.failed)
     .map((r) => `${r.reviewer}: meilleur=${r.data.ranked_best}, insights=${r.data.key_insights.slice(0, 2).join("; ")}`)
     .join("\n");
-  return `Brief analysé :\n${brief}\n\nOpinions expertes :\n${opStr}\n\nÉvaluations croisées :\n${revStr}\n\nRéponds en JSON strict :\n{"executive_summary":"résumé exécutif en 2 phrases","synthesis":"synthèse complète en 3-4 phrases","recommendations":["recommandation 1","recommandation 2","recommandation 3","recommandation 4"],"priority_actions":[{"action":"action 1","impact":"fort","effort":"faible"},{"action":"action 2","impact":"fort","effort":"moyen"}]}`;
+  return `Brief analysé :\n${brief.slice(0, 200)}\n\nOpinions expertes :\n${opStr}\n\nÉvaluations croisées :\n${revStr}\n\nRéponds en JSON strict (sois concis) :\n{"executive_summary":"1 phrase résumé","synthesis":"2 phrases synthèse","recommendations":["rec 1","rec 2","rec 3"],"priority_actions":[{"action":"action 1","impact":"fort","effort":"faible"},{"action":"action 2","impact":"moyen","effort":"faible"}]}`;
 }
 
 // ── Main handler ─────────────────────────────────────────────────────────────
@@ -202,18 +203,20 @@ Deno.serve(async (req: Request) => {
           callOpenRouter(openrouterKey, model, [
             { role: "system", content: STEP1_SYSTEM },
             { role: "user", content: step1User(sanitized) },
-          ], 600),
+          ], 1500),
         ),
       );
 
       const opinions: Opinion[] = results.map((r, i) => {
         const label = EXPERT_LABELS[i];
         if (r.status === "rejected") {
-          console.error(`Step1 ${label} failed:`, r.reason);
+          const errMsg = String(r.reason);
+          console.error(`Step1 ${label} failed: ${errMsg}`);
           return {
             label,
             data: { analysis: "Analyse indisponible.", strengths: [], weaknesses: [], compliance_flags: [], score: 5 },
             failed: true,
+            debug_error: errMsg.slice(0, 200),
           };
         }
         const data = parseJSON<OpinionData>(r.value, {
@@ -227,7 +230,7 @@ Deno.serve(async (req: Request) => {
       });
 
       const succeeded = opinions.filter((o) => !o.failed).length;
-      if (succeeded === 0) return json({ error: "All models failed at step 1" }, 503);
+      if (succeeded === 0) return json({ error: "All models failed at step 1", debug_opinions: opinions }, 503);
 
       return json({ step: 1, opinions, brief_sanitized: sanitized, models_succeeded: succeeded });
     }
@@ -243,7 +246,7 @@ Deno.serve(async (req: Request) => {
           callOpenRouter(openrouterKey, model, [
             { role: "system", content: STEP2_SYSTEM },
             { role: "user", content: step2User(brief, opinions) },
-          ], 500),
+          ], 1200),
         ),
       );
 
@@ -282,7 +285,7 @@ Deno.serve(async (req: Request) => {
           { role: "system", content: STEP3_SYSTEM },
           { role: "user", content: step3User(brief, opinions, reviews) },
         ],
-        1000,
+        2500,
       );
 
       const chairman = parseJSON<ChairmanData>(text, {
