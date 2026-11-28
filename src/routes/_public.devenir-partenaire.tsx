@@ -50,6 +50,15 @@ export const Route = createFileRoute("/_public/devenir-partenaire")({
         content:
           "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h.",
       },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@movespot_pub" },
+      { name: "twitter:title", content: "Revenu complémentaire sur votre véhicule — MoveSpot" },
+      {
+        name: "twitter:description",
+        content:
+          "Portez des publicités sur votre véhicule et générez jusqu'à 49 €/jour. Inscription gratuite, validation 48h.",
+      },
+      { name: "twitter:image", content: "https://move-spot.com/og-image.png" },
     ],
     scripts: [
       {

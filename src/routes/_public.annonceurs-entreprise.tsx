@@ -1,55 +1,34 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { hreflangLinks } from "@/lib/seo";
+import { buildSeoHead } from "@/components/SEO";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_public/annonceurs-entreprise")({
-  head: () => ({
-    meta: [
-      {
-        title:
-          "GPS-certified mobile advertising for businesses — MoveSpot | Publicité mobile certifiée GPS pour entreprises",
-      },
-      {
-        name: "description",
-        content:
-          "Run campaigns on moving vehicles in your target zones. Every kilometre proved by GPS, downloadable PDF report, CPM between €2 and €5. Ideal for B2B marketing teams.",
-      },
-      { property: "og:title", content: "GPS-certified B2B mobile advertising — MoveSpot" },
-      {
-        property: "og:description",
-        content:
-          "GPS-verified campaigns, certified delivery report, precise geographic targeting. B2B pilot from €25/vehicle/day.",
-      },
-    ],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Service",
-          name: "MoveSpot — GPS-certified B2B mobile advertising",
-          provider: { "@type": "Organization", name: "MoveSpot", url: "https://move-spot.com" },
-          description:
-            "Mobile advertising service on vehicles with GPS delivery proof and certified report. For advertisers and marketing teams.",
-          areaServed: { "@type": "Country", name: "France" },
-          offers: {
-            "@type": "Offer",
+  head: () =>
+    buildSeoHead({
+      title: "Publicité mobile GPS pour entreprises — MoveSpot",
+      description:
+        "Campagnes publicitaires sur véhicules en mouvement dans vos zones cibles. Chaque km prouvé GPS, rapport PDF certifié. CPM entre 2 et 5 €. Pilote B2B dès 25 €/véhicule/jour.",
+      path: "/annonceurs-entreprise",
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: "MoveSpot — Publicité mobile B2B certifiée GPS",
+        provider: { "@type": "Organization", name: "MoveSpot", url: "https://move-spot.com" },
+        description:
+          "Service de publicité mobile sur véhicules avec preuve de diffusion GPS et rapport certifié. Pour les annonceurs et équipes marketing.",
+        areaServed: { "@type": "Country", name: "France" },
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "EUR",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "25",
             priceCurrency: "EUR",
-            priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              price: "25",
-              priceCurrency: "EUR",
-              unitText: "per vehicle per day",
-            },
+            unitText: "par véhicule par jour",
           },
-        }),
+        },
       },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/annonceurs-entreprise" },
-      ...hreflangLinks("/annonceurs-entreprise"),
-    ],
-  }),
+    }),
   component: AnnonceursEntreprise,
 });
 
