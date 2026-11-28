@@ -1,8 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import type { CSSProperties, ReactNode } from "react";
-import { Check, Pause, Play, RotateCcw, Video } from "lucide-react";
+import { Check, Download, Pause, Play, RotateCcw, Video, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { isAdmin } from "@/lib/admin/isAdmin";
+import { isPreviewHostname } from "@/lib/preview-host";
+import { downloadBlob, exportFilm } from "@/lib/promo/film-export";
 import officialLogo from "@/assets/movespot-logo.png.asset.json";
 import { PROVIDER_PLANS, PROVIDER_TRIAL_DAYS } from "@/lib/providers/provider-plans";
 import {
@@ -18,6 +24,12 @@ import {
 
 export const Route = createFileRoute("/promo-poseur")({
   ssr: false,
+  // Film interne : visible en prévisualisation ou par un administrateur connecté, introuvable sinon.
+  beforeLoad: async () => {
+    if (isPreviewHostname(window.location.hostname)) return;
+    const admin = await isAdmin().catch(() => false);
+    if (!admin) throw notFound();
+  },
   head: () => ({
     meta: [
       { title: "MoveSpot — Film vertical Poseurs & ateliers covering" },
@@ -440,6 +452,11 @@ function PoseurFilm() {
   const [playing, setPlaying] = useState(false);
   const [recordMode, setRecordMode] = useState(false);
   const [scale, setScale] = useState(0.3);
+  const film = useRef<HTMLDivElement>(null);
+  const exportAbort = useRef<AbortController | null>(null);
+  const [exportProgress, setExportProgress] = useState<number | null>(null);
+  const [exported, setExported] = useState<{ blob: Blob; name: string } | null>(null);
+  const exporting = exportProgress !== null;
 
   useEffect(() => {
     const el = frame.current;
@@ -499,6 +516,50 @@ function PoseurFilm() {
     window.setTimeout(() => play(0), 1500);
   }, [pause, play]);
 
+  const downloadVideo = useCallback(async () => {
+    const element = film.current?.firstElementChild;
+    if (!(element instanceof HTMLElement)) return;
+    pause();
+    const abort = new AbortController();
+    exportAbort.current = abort;
+    setExported(null);
+    setExportProgress(0);
+    try {
+      const { blob, extension } = await exportFilm({
+        element,
+        width: POSEUR_WIDTH,
+        height: POSEUR_HEIGHT,
+        fps: 30,
+        duration: POSEUR_DURATION,
+        renderAt: (t) => flushSync(() => setTime(t)),
+        onProgress: setExportProgress,
+        assetUrls: [officialLogo.url],
+        fontFamilies: ["Space Grotesk", "Inter", "JetBrains Mono"],
+        signal: abort.signal,
+      });
+      const name = `movespot-poseurs-facebook.${extension}`;
+      setExported({ blob, name });
+      downloadBlob(blob, name);
+      toast.success("Vidéo prête : le téléchargement a démarré.");
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        console.error(error);
+        toast.error(
+          error instanceof Error && error.message
+            ? error.message
+            : "L'export de la vidéo a échoué. Essayez avec Chrome ou Edge sur ordinateur.",
+        );
+      }
+    } finally {
+      exportAbort.current = null;
+      setExportProgress(null);
+      clock.current.offset = 0;
+      setTime(0);
+    }
+  }, [pause]);
+
+  useEffect(() => () => exportAbort.current?.abort(), []);
+
   return (
     <main id="main-content" className="flex h-dvh flex-col bg-background text-foreground">
       <h1 className="sr-only">Film MoveSpot pour les poseurs et ateliers de covering</h1>
@@ -508,6 +569,7 @@ function PoseurFilm() {
         onClick={recordMode ? () => setRecordMode(false) : undefined}
       >
         <div
+          ref={film}
           data-testid="poseur-film"
           className="absolute left-1/2 top-1/2"
           style={{
@@ -520,7 +582,26 @@ function PoseurFilm() {
         </div>
       </div>
 
-      {!recordMode && (
+      {exporting && (
+        <div className="border-t border-border bg-card px-4 py-3" role="status">
+          <div className="mx-auto flex max-w-xl items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="mb-2 text-sm font-medium">
+                Création de la vidéo… {Math.round(exportProgress * 100)} %
+              </p>
+              <Progress value={exportProgress * 100} aria-label="Progression de l'export" />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Gardez cet onglet ouvert : le téléchargement démarre automatiquement à la fin.
+              </p>
+            </div>
+            <Button variant="outline" onClick={() => exportAbort.current?.abort()}>
+              <X className="size-4" /> Annuler
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {!recordMode && !exporting && (
         <div className="flex flex-wrap items-center justify-center gap-3 border-t border-border bg-card px-4 py-3">
           {playing ? (
             <Button onClick={pause}>
@@ -537,6 +618,14 @@ function PoseurFilm() {
           <Button variant="outline" onClick={startRecordMode}>
             <Video className="size-4" /> Mode enregistrement
           </Button>
+          <Button onClick={() => void downloadVideo()}>
+            <Download className="size-4" /> Télécharger la vidéo
+          </Button>
+          {exported && (
+            <Button variant="link" onClick={() => downloadBlob(exported.blob, exported.name)}>
+              Enregistrer à nouveau le fichier
+            </Button>
+          )}
           <span className="font-mono text-sm tabular-nums text-muted-foreground" aria-live="off">
             {timecode(time)} / {timecode(POSEUR_DURATION)}
           </span>
