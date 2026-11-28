@@ -29,7 +29,7 @@ import { useTranslation } from "react-i18next";
 export const Route = createFileRoute("/provider/inscription")({
   head: () => ({
     meta: [
-      { title: "Inscription prestataire — MoveSpot" },
+      { title: "Inscription poseur / atelier covering & signalétique — MoveSpot" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
@@ -386,8 +386,22 @@ function ProviderSignupPage() {
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-4 py-10">
+        <div className="inline-flex items-center rounded-full border border-primary/40 bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary mb-3">
+          Poseur / Atelier covering &amp; signalétique
+        </div>
         <h1 className="font-display text-3xl font-bold mb-2">{t("provider.inscription.title")}</h1>
-        <p className="text-sm text-muted-foreground mb-6">{t("provider.inscription.subtitle")}</p>
+        <p className="text-sm text-muted-foreground mb-3">{t("provider.inscription.subtitle")}</p>
+        <ul className="mb-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <li className="rounded-full border border-border bg-card px-3 py-1">
+            Pose validée sur 4 photos
+          </li>
+          <li className="rounded-full border border-border bg-card px-3 py-1">
+            Assurance RC Pro vérifiée
+          </li>
+          <li className="rounded-full border border-border bg-card px-3 py-1">
+            Paiement sécurisé via Stripe Connect
+          </li>
+        </ul>
 
         {step === "auth" ? (
           <form

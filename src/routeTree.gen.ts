@@ -37,6 +37,7 @@ import { Route as PublicCguRouteImport } from './routes/_public.cgu'
 import { Route as PublicCommencerRouteImport } from './routes/_public.commencer'
 import { Route as PublicCommentCaMarcheRouteImport } from './routes/_public.comment-ca-marche'
 import { Route as PublicDevenirPartenaireRouteImport } from './routes/_public.devenir-partenaire'
+import { Route as PublicDevenirPoseurRouteImport } from './routes/_public.devenir-poseur'
 import { Route as PublicPourquoiMovespotRouteImport } from './routes/_public.pourquoi-movespot'
 import { Route as PublicPrevisionnelRouteImport } from './routes/_public.previsionnel'
 import { Route as PublicPubliciteVoitureGuadeloupeRouteImport } from './routes/_public.publicite-voiture-guadeloupe'
@@ -281,6 +282,11 @@ const PublicCommentCaMarcheRoute = PublicCommentCaMarcheRouteImport.update({
 const PublicDevenirPartenaireRoute = PublicDevenirPartenaireRouteImport.update({
   id: '/devenir-partenaire',
   path: '/devenir-partenaire',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicDevenirPoseurRoute = PublicDevenirPoseurRouteImport.update({
+  id: '/devenir-poseur',
+  path: '/devenir-poseur',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicPourquoiMovespotRoute = PublicPourquoiMovespotRouteImport.update({
@@ -846,6 +852,7 @@ export interface FileRoutesByFullPath {
   '/commencer': typeof PublicCommencerRoute
   '/comment-ca-marche': typeof PublicCommentCaMarcheRoute
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
+  '/devenir-poseur': typeof PublicDevenirPoseurRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/previsionnel': typeof PublicPrevisionnelRoute
   '/publicite-voiture-guadeloupe': typeof PublicPubliciteVoitureGuadeloupeRoute
@@ -977,6 +984,7 @@ export interface FileRoutesByTo {
   '/commencer': typeof PublicCommencerRoute
   '/comment-ca-marche': typeof PublicCommentCaMarcheRoute
   '/devenir-partenaire': typeof PublicDevenirPartenaireRoute
+  '/devenir-poseur': typeof PublicDevenirPoseurRoute
   '/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/previsionnel': typeof PublicPrevisionnelRoute
   '/publicite-voiture-guadeloupe': typeof PublicPubliciteVoitureGuadeloupeRoute
@@ -1110,6 +1118,7 @@ export interface FileRoutesById {
   '/_public/commencer': typeof PublicCommencerRoute
   '/_public/comment-ca-marche': typeof PublicCommentCaMarcheRoute
   '/_public/devenir-partenaire': typeof PublicDevenirPartenaireRoute
+  '/_public/devenir-poseur': typeof PublicDevenirPoseurRoute
   '/_public/pourquoi-movespot': typeof PublicPourquoiMovespotRoute
   '/_public/previsionnel': typeof PublicPrevisionnelRoute
   '/_public/publicite-voiture-guadeloupe': typeof PublicPubliciteVoitureGuadeloupeRoute
@@ -1245,6 +1254,7 @@ export interface FileRouteTypes {
     | '/commencer'
     | '/comment-ca-marche'
     | '/devenir-partenaire'
+    | '/devenir-poseur'
     | '/pourquoi-movespot'
     | '/previsionnel'
     | '/publicite-voiture-guadeloupe'
@@ -1376,6 +1386,7 @@ export interface FileRouteTypes {
     | '/commencer'
     | '/comment-ca-marche'
     | '/devenir-partenaire'
+    | '/devenir-poseur'
     | '/pourquoi-movespot'
     | '/previsionnel'
     | '/publicite-voiture-guadeloupe'
@@ -1508,6 +1519,7 @@ export interface FileRouteTypes {
     | '/_public/commencer'
     | '/_public/comment-ca-marche'
     | '/_public/devenir-partenaire'
+    | '/_public/devenir-poseur'
     | '/_public/pourquoi-movespot'
     | '/_public/previsionnel'
     | '/_public/publicite-voiture-guadeloupe'
@@ -1912,6 +1924,13 @@ declare module '@tanstack/react-router' {
       path: '/devenir-partenaire'
       fullPath: '/devenir-partenaire'
       preLoaderRoute: typeof PublicDevenirPartenaireRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/devenir-poseur': {
+      id: '/_public/devenir-poseur'
+      path: '/devenir-poseur'
+      fullPath: '/devenir-poseur'
+      preLoaderRoute: typeof PublicDevenirPoseurRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/pourquoi-movespot': {
@@ -2645,6 +2664,7 @@ interface PublicRouteChildren {
   PublicCommencerRoute: typeof PublicCommencerRoute
   PublicCommentCaMarcheRoute: typeof PublicCommentCaMarcheRoute
   PublicDevenirPartenaireRoute: typeof PublicDevenirPartenaireRoute
+  PublicDevenirPoseurRoute: typeof PublicDevenirPoseurRoute
   PublicPourquoiMovespotRoute: typeof PublicPourquoiMovespotRoute
   PublicPrevisionnelRoute: typeof PublicPrevisionnelRoute
   PublicPubliciteVoitureGuadeloupeRoute: typeof PublicPubliciteVoitureGuadeloupeRoute
@@ -2665,6 +2685,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicCommencerRoute: PublicCommencerRoute,
   PublicCommentCaMarcheRoute: PublicCommentCaMarcheRoute,
   PublicDevenirPartenaireRoute: PublicDevenirPartenaireRoute,
+  PublicDevenirPoseurRoute: PublicDevenirPoseurRoute,
   PublicPourquoiMovespotRoute: PublicPourquoiMovespotRoute,
   PublicPrevisionnelRoute: PublicPrevisionnelRoute,
   PublicPubliciteVoitureGuadeloupeRoute: PublicPubliciteVoitureGuadeloupeRoute,

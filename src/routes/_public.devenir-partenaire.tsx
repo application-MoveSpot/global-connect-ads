@@ -385,6 +385,46 @@ function DevenirPartenaire() {
         </div>
       </section>
 
+      <section className="max-w-5xl mx-auto px-6 pb-4" aria-labelledby="profil-title">
+        <h2 id="profil-title" className="font-display text-2xl font-bold text-center mb-6">
+          Quel partenaire êtes-vous ?
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Link
+            to="/owner/inscription"
+            className="group rounded-2xl border border-border bg-card p-6 hover:border-primary/60 transition"
+          >
+            <div className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">
+              Propriétaire de véhicule
+            </div>
+            <h3 className="font-display text-xl font-bold mb-2">Je fais rouler une publicité</h3>
+            <p className="text-sm text-muted-foreground">
+              Taxi, VTC, van, food truck, scooter ou flotte : inscrivez votre véhicule et recevez
+              les demandes des annonceurs.
+            </p>
+            <span className="mt-4 inline-block text-sm font-semibold text-primary">
+              Inscrire mon véhicule →
+            </span>
+          </Link>
+          <Link
+            to="/devenir-poseur"
+            className="group rounded-2xl border border-primary/40 bg-card p-6 hover:border-primary transition"
+          >
+            <div className="text-xs font-semibold uppercase tracking-wide text-primary mb-2">
+              Poseur / Atelier covering &amp; signalétique
+            </div>
+            <h3 className="font-display text-xl font-bold mb-2">Je pose les publicités</h3>
+            <p className="text-sm text-muted-foreground">
+              Zéro démarchage : les missions viennent des campagnes réservées. Pose validée sur 4
+              photos, assurance RC Pro vérifiée, paiement sécurisé via Stripe Connect.
+            </p>
+            <span className="mt-4 inline-block text-sm font-semibold text-primary">
+              Découvrir le parcours poseur →
+            </span>
+          </Link>
+        </div>
+      </section>
+
       <section className="max-w-5xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-3 gap-6">
           {(["01", "02", "03"] as const).map((n, i) => (

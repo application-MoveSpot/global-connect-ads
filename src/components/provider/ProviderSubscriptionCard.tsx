@@ -3,6 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useServerFn } from "@tanstack/react-start";
 import { createProviderSubscriptionCheckout } from "@/lib/payments/payments.functions";
+import {
+  PROVIDER_PLANS,
+  PROVIDER_TRIAL_DAYS,
+  type ProviderPlanId,
+} from "@/lib/providers/provider-plans";
 
 type SubscriptionStatus = string | null | undefined;
 
@@ -36,13 +41,7 @@ function SubscriptionBadge({ status }: { status: SubscriptionStatus }) {
   );
 }
 
-const PROVIDER_PLANS = [
-  { id: "provider_starter",  label: "Starter",  amountEur: 29 },
-  { id: "provider_standard", label: "Standard", amountEur: 42 },
-  { id: "provider_pro",      label: "Pro",       amountEur: 59 },
-] as const;
-
-type PlanId = (typeof PROVIDER_PLANS)[number]["id"];
+type PlanId = ProviderPlanId;
 
 type Props = {
   subscriptionStatus: SubscriptionStatus;
@@ -80,7 +79,7 @@ export function ProviderSubscriptionCard({
       const result = await createCheckout({
         data: {
           priceId: selectedPlan,
-          trialPeriodDays: 14,
+          trialPeriodDays: PROVIDER_TRIAL_DAYS,
           returnUrl: `${window.location.origin}/prestataire`,
         },
       });
@@ -146,7 +145,7 @@ export function ProviderSubscriptionCard({
             <span className="font-display text-3xl font-bold">{fmtAmount(activePlan.amountEur)}</span>
             <span className="text-sm text-muted-foreground">{t("subscription.price_suffix")}</span>
           </div>
-          <p className="text-xs text-muted-foreground">14 jours d'essai gratuit — sans engagement</p>
+          <p className="text-xs text-muted-foreground">{PROVIDER_TRIAL_DAYS} jours d'essai gratuit — sans engagement</p>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>{t("provider_sub.feature1")}</li>
             <li>{t("provider_sub.feature2")}</li>

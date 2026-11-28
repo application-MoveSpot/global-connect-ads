@@ -485,6 +485,32 @@ function Index() {
         </div>
       </section>
 
+      {/* Poseurs partenaires */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <div className="rounded-2xl border border-border bg-card p-6 md:p-8 grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          <div className="min-w-0">
+            <div className="text-xs uppercase tracking-widest text-primary mb-2">
+              {tx("installer.badge", "Poseur / Atelier covering & signalétique")}
+            </div>
+            <h2 className="font-display text-2xl font-bold mb-2">
+              {tx("installer.h2", "Les missions arrivent. Vous posez.")}
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-2xl">
+              {tx(
+                "installer.desc",
+                "Zéro démarchage : vos missions viennent des campagnes réservées par les annonceurs. Pose validée sur 4 photos, assurance RC Pro vérifiée, paiement sécurisé via Stripe Connect.",
+              )}
+            </p>
+          </div>
+          <Link
+            to="/devenir-poseur"
+            className="justify-self-start rounded-full border border-primary/50 bg-card px-6 py-3 text-sm font-semibold text-primary hover:bg-primary hover:text-primary-foreground transition"
+          >
+            {tx("installer.cta", "Devenir poseur partenaire →")}
+          </Link>
+        </div>
+      </section>
+
       {/* Comparatif concurrents */}
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-xs uppercase tracking-widest text-primary mb-2">
