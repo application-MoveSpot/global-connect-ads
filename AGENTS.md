@@ -6,6 +6,8 @@
 - Legacy function helpers use the imported SupabaseClient type and native promises before catch; normalize to-one relations with singleRelation and reject missing or ambiguous assigned profiles, because query builders and embedded cardinality are not ordinary promises or guaranteed objects.
 - The standalone /promo-short studio omits site chrome but retains BetaGuard; an AudioContext clock drives a client-only R3F scene composited with aligned captions onto one 1080×1920 canvas. MediaRecorder combines its video track with a Web Audio destination, so export includes the same picture and audio as preview in the actual supported format; saved narration is reused without page-load regeneration. Studio vinyl uses DecalGeometry projected onto body triangles, avoiding floating panels and wheel/glass coverage.
 
+- Standalone promo films live at `/promo-*` routes (root omits site chrome for that prefix, BetaGuard stays); `/promo-poseur` is a DOM film on a fixed 1080×1920 stage scaled to the viewport, a pure function of one clock time with scenario and captions in `src/lib/promo/poseur-timeline.ts`, so seeking and replay are deterministic.
+
 - Public provider listings use the restricted public_provider_profiles view with approved status and Stripe active/trialing filtering; its explicit public-field allowlist permits anonymous reads without exposing private profile fields.
 
 - AppBrandShell supplies a white official-logo band around all page states; CSS suppresses it only when the rendered page already has a branded header, preventing duplicate navigation without changing authentication.

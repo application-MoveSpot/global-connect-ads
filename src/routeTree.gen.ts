@@ -23,6 +23,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as PitchRouteImport } from './routes/pitch'
+import { Route as PromoPoseurRouteImport } from './routes/promo-poseur'
 import { Route as PromoShortRouteImport } from './routes/promo-short'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecuriteRouteImport } from './routes/securite'
@@ -209,6 +210,11 @@ const ParametresRoute = ParametresRouteImport.update({
 const PitchRoute = PitchRouteImport.update({
   id: '/pitch',
   path: '/pitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromoPoseurRoute = PromoPoseurRouteImport.update({
+  id: '/promo-poseur',
+  path: '/promo-poseur',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PromoShortRoute = PromoShortRouteImport.update({
@@ -839,6 +845,7 @@ export interface FileRoutesByFullPath {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
+  '/promo-poseur': typeof PromoPoseurRoute
   '/promo-short': typeof PromoShortRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
@@ -971,6 +978,7 @@ export interface FileRoutesByTo {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
+  '/promo-poseur': typeof PromoPoseurRoute
   '/promo-short': typeof PromoShortRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
@@ -1105,6 +1113,7 @@ export interface FileRoutesById {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/parametres': typeof ParametresRoute
   '/pitch': typeof PitchRoute
+  '/promo-poseur': typeof PromoPoseurRoute
   '/promo-short': typeof PromoShortRoute
   '/reset-password': typeof ResetPasswordRoute
   '/securite': typeof SecuriteRoute
@@ -1241,6 +1250,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/parametres'
     | '/pitch'
+    | '/promo-poseur'
     | '/promo-short'
     | '/reset-password'
     | '/securite'
@@ -1373,6 +1383,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/parametres'
     | '/pitch'
+    | '/promo-poseur'
     | '/promo-short'
     | '/reset-password'
     | '/securite'
@@ -1506,6 +1517,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/parametres'
     | '/pitch'
+    | '/promo-poseur'
     | '/promo-short'
     | '/reset-password'
     | '/securite'
@@ -1641,6 +1653,7 @@ export interface RootRouteChildren {
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   ParametresRoute: typeof ParametresRoute
   PitchRoute: typeof PitchRoute
+  PromoPoseurRoute: typeof PromoPoseurRoute
   PromoShortRoute: typeof PromoShortRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecuriteRoute: typeof SecuriteRoute
@@ -1826,6 +1839,13 @@ declare module '@tanstack/react-router' {
       path: '/pitch'
       fullPath: '/pitch'
       preLoaderRoute: typeof PitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/promo-poseur': {
+      id: '/promo-poseur'
+      path: '/promo-poseur'
+      fullPath: '/promo-poseur'
+      preLoaderRoute: typeof PromoPoseurRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/promo-short': {
@@ -2775,6 +2795,7 @@ const rootRouteChildren: RootRouteChildren = {
   MentionsLegalesRoute: MentionsLegalesRoute,
   ParametresRoute: ParametresRoute,
   PitchRoute: PitchRoute,
+  PromoPoseurRoute: PromoPoseurRoute,
   PromoShortRoute: PromoShortRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SecuriteRoute: SecuriteRoute,

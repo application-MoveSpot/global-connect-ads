@@ -234,7 +234,7 @@ export const Route = (createRootRouteWithContext as any)()({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
-  const isPromoStudio = useLocation().pathname === "/promo-short";
+  const isPromoStudio = useLocation().pathname.startsWith("/promo-");
   // useTranslation() re-renders on language change; read lang from the i18n
   // singleton imported at module scope so Rollup cannot tree-shake the import.
   const lang = isPromoStudio ? "fr" : i18n.resolvedLanguage ?? "fr";
@@ -263,7 +263,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  const isPromoStudio = useLocation().pathname === "/promo-short";
+  const isPromoStudio = useLocation().pathname.startsWith("/promo-");
 
   useEffect(() => {
     captureUtm();
