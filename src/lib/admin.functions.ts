@@ -60,12 +60,12 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         supabaseAdmin
           .from("vehicles")
           .select("id", { count: "exact", head: true })
-          .eq("auto_insurance_verified", true)
+          .eq("auto_insurance_verified" as never, true as never)
           .eq("status", "approved"),
         supabaseAdmin
           .from("payee_profiles")
           .select("id", { count: "exact", head: true })
-          .eq("rcpro_verified", true)
+          .eq("rcpro_verified" as never, true as never)
           .eq("certification_status", "certified"),
       ]);
       if (!verifiedDrivers) {
@@ -278,12 +278,12 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
         supabaseAdmin
           .from("vehicles")
           .select("id", { count: "exact", head: true })
-          .eq("auto_insurance_verified", true)
+          .eq("auto_insurance_verified" as never, true as never)
           .eq("status", "approved"),
         supabaseAdmin
           .from("payee_profiles")
           .select("id", { count: "exact", head: true })
-          .eq("rcpro_verified", true)
+          .eq("rcpro_verified" as never, true as never)
           .eq("certification_status", "certified"),
       ]);
       if (!verifiedDrivers) {
@@ -1252,7 +1252,7 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
         supabaseAdmin
           .from("advertiser_briefs")
           .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
+          .eq("status", "pending" as never),
         supabaseAdmin
           .from("campaign_requests")
           .select("id", { count: "exact", head: true })
@@ -1428,7 +1428,7 @@ export const adminGetInsuranceCompliance = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("vehicles")
         .select("id", { count: "exact", head: true })
-        .eq("auto_insurance_verified", true)
+        .eq("auto_insurance_verified" as never, true as never)
         .eq("status", "approved"),
       supabaseAdmin
         .from("vehicles")
@@ -1437,7 +1437,7 @@ export const adminGetInsuranceCompliance = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("payee_profiles")
         .select("id", { count: "exact", head: true })
-        .eq("rcpro_verified", true)
+        .eq("rcpro_verified" as never, true as never)
         .eq("certification_status", "certified"),
       supabaseAdmin
         .from("payee_profiles")
@@ -1478,7 +1478,7 @@ export const adminVerifyVehicleInsurance = createServerFn({ method: "POST" })
         auto_insurance_verified_at: new Date().toISOString(),
         auto_insurance_verified_by: context.userId,
         ...(data.expiresAt ? { auto_insurance_expires_at: data.expiresAt } : {}),
-      })
+      } as never)
       .eq("id", data.vehicleId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -1508,7 +1508,7 @@ export const adminVerifyInstallerRCPro = createServerFn({ method: "POST" })
         rcpro_verified_at: new Date().toISOString(),
         rcpro_verified_by: context.userId,
         ...(data.expiresAt ? { rcpro_expires_at: data.expiresAt } : {}),
-      })
+      } as never)
       .eq("id", data.payeeProfileId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -1600,14 +1600,14 @@ export const adminCopiloteUrgences = createServerFn({ method: "GET" })
         .from("vehicles")
         .select("id, name, type, owner_id, created_at")
         .eq("status", "approved")
-        .eq("auto_insurance_verified", false)
+        .eq("auto_insurance_verified" as never, false as never)
         .order("created_at", { ascending: true })
         .limit(20),
       supabaseAdmin
         .from("payee_profiles")
         .select("id, full_name, user_id, created_at")
         .eq("certification_status", "certified")
-        .eq("rcpro_verified", false)
+        .eq("rcpro_verified" as never, false as never)
         .order("created_at", { ascending: true })
         .limit(20),
     ]);
