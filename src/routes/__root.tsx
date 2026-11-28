@@ -167,7 +167,7 @@ export const Route = (createRootRouteWithContext as any)()({
               },
             },
             {
-              "@type": "LocalBusiness",
+              "@type": ["LocalBusiness", "AdvertisingAgency"],
               "@id": "https://move-spot.com/#localbusiness",
               name: "MoveSpot",
               legalName: "MoveSpot",
@@ -191,6 +191,12 @@ export const Route = (createRootRouteWithContext as any)()({
                 longitude: -61.5816,
               },
               areaServed: [
+                { "@type": "City", name: "Baie-Mahault" },
+                { "@type": "City", name: "Pointe-à-Pitre" },
+                { "@type": "City", name: "Jarry" },
+                { "@type": "City", name: "Le Gosier" },
+                { "@type": "City", name: "Basse-Terre" },
+                { "@type": "AdministrativeArea", name: "Guadeloupe" },
                 { "@type": "Country", name: "France" },
                 { "@type": "Continent", name: "Europe" },
                 { "@type": "Continent", name: "Africa" },

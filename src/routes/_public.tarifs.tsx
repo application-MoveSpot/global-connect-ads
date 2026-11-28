@@ -1,29 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { hreflangLinks } from "@/lib/seo";
+import { buildSeoHead } from "@/components/SEO";
 import { Check, X, Minus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_public/tarifs")({
-  head: () => ({
-    meta: [
-      { title: "Pricing — MoveSpot | Tarifs MoveSpot" },
-      {
-        name: "description",
-        content:
-          "MoveSpot pricing: free for vehicle owners, transparent commission for advertisers, monthly plans for installers. No hidden fees. / Grille tarifaire MoveSpot : gratuit pour les propriétaires, commission transparente pour les annonceurs.",
-      },
-      { property: "og:title", content: "MoveSpot Pricing — Transparent on price" },
-      {
-        property: "og:description",
-        content:
-          "No hidden subscription. Vehicle owners: free. Advertisers: pay per campaign. Installers: flexible plans.",
-      },
-    ],
-    links: [
-      { rel: "canonical", href: "https://move-spot.com/tarifs" },
-      ...hreflangLinks("/tarifs"),
-    ],
-  }),
+  head: () =>
+    buildSeoHead({
+      title: "Tarifs publicité mobile MoveSpot — Annonceurs & Propriétaires",
+      description:
+        "Tarifs transparents MoveSpot : gratuit pour les propriétaires, dès 25 €/jour annonceurs, formules poseurs dès 29 €/mois. Zéro frais cachés.",
+      path: "/tarifs",
+    }),
   component: Tarifs,
 });
 

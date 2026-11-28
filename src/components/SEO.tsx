@@ -164,6 +164,46 @@ export const WEBSITE_JSON_LD = {
   inLanguage: "fr-FR",
 };
 
+/** FAQ dédiée aux poseurs / prestataires (signal GEO) */
+export const FAQ_POSEURS_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Comment trouver un poseur de covering publicitaire en Guadeloupe ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "MoveSpot référence des prestataires de pose de vinyle publicitaire certifiés en Guadeloupe, notamment à Baie-Mahault et Jarry. Inscrivez-vous sur move-spot.com/devenir-partenaire pour accéder aux missions de pose dans votre zone.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Combien gagne un poseur de covering publicitaire par mission ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Les frais de pose (vinyl + main d'œuvre) sont pris en charge par MoveSpot selon le barème CGV en vigueur. Les poseurs partenaires reçoivent un virement par mission validée. Le tarif varie selon la surface du véhicule et le type de pose.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Quelle formation faut-il pour poser des publicités sur des véhicules ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Une expérience en pose de film adhésif ou covering automobile est requise. MoveSpot vérifie votre RC Pro et vos références avant validation. Aucun diplôme spécifique n'est obligatoire, mais une pratique du vinyle automobile est indispensable.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Est-ce que MoveSpot est légal en Guadeloupe ?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Oui. MoveSpot est une société française (SIREN 804 671 444) établie à Baie-Mahault, Guadeloupe. L'activité de publicité sur véhicules est légale en France sous réserve de respecter le code de la route (pas de publicité obstruant la visibilité du conducteur).",
+      },
+    },
+  ],
+};
+
 /** FAQ dédiée aux propriétaires de véhicules */
 export const FAQ_OWNERS_JSON_LD = {
   "@context": "https://schema.org",
