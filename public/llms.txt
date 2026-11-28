@@ -1,0 +1,69 @@
+# MoveSpot
+
+> MoveSpot est une régie publicitaire mobile française qui connecte annonceurs et propriétaires de véhicules (taxi, VTC, van, food truck) pour des campagnes de publicité géolocalisées avec preuve GPS certifiée.
+
+## Identité légale
+
+- **Raison sociale** : MoveSpot EI (entreprise individuelle)
+- **SIREN** : 804 671 444
+- **SIRET** : 80467144400052
+- **Siège social** : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe, France
+- **Email** : contact@move-spot.com
+- **Création** : 2026
+
+## Modèle économique
+
+MoveSpot est une marketplace à trois rôles :
+
+1. **Annonceur** (entreprise ou particulier) : crée un brief publicitaire géolocalisé, paye la campagne.
+2. **Propriétaire de véhicule** : inscrit sa flotte (voiture, taxi, VTC, van, food truck, scooter), porte le vinyle publicitaire, perçoit 70 % du tarif journalier annonceur.
+3. **Prestataire (poseur)** : pose et retire les vinyles publicitaires sur les véhicules partenaires, facturé à la mission.
+
+La commission MoveSpot est de 30 % sur chaque campagne (25 % pour les annonceurs avec SIRET validé).
+
+## Tarifs
+
+### Annonceurs
+- Tarif à la zone : à partir de **1,80 €/km²/jour** (2,70 €/km²/jour en grande agglomération)
+- Tarif plancher : **25 €/jour par véhicule**
+- Événements et opérations spéciales : à partir de **49 €/jour**
+- Inscription gratuite
+
+### Propriétaires de véhicules
+- Inscription **gratuite**, essai **14 jours** sans engagement
+- Revenus garantis : **70 % du tarif journalier annonceur**, soit minimum **17,50 €/jour actif**
+- Pic en zone dense (Paris, Lyon, Marseille) : jusqu'à **49 €/jour par véhicule**
+- Aucun abonnement, aucun frais fixe
+
+### Prestataires (poseurs)
+- Abonnements mensuels : Starter **29 €**, Standard **42 €**, Pro **59 €/mois**
+- Paiement à la mission pour la pose de vinyle publicitaire
+
+## Garanties
+
+- **GPS certifié** : positions relevées toutes les 30 secondes, rapport PDF téléchargeable
+- **Paiement sécurisé** : Stripe Connect avec séquestre — les fonds sont libérés uniquement après validation de la pose
+- **Assurance vérifiée** : chaque véhicule soumis à validation administrative (photos, assurance)
+- **RC Pro vérifiée** : chaque prestataire doit fournir une attestation de responsabilité civile professionnelle
+- **Délai de validation** : 48 heures ouvrées après soumission du profil
+
+## Zone géographique
+
+Opérations principales : Guadeloupe (Baie-Mahault, Jarry, Pointe-à-Pitre, Le Gosier, Basse-Terre).
+Déploiement national : France métropolitaine (Paris, Lyon, Marseille, Bordeaux, Nantes, Toulouse).
+Projets internationaux : Europe, Afrique, Asie, États-Unis.
+
+## URLs principales
+
+- Site officiel : https://move-spot.com
+- Espace annonceur : https://move-spot.com/annonceurs
+- Espace propriétaire : https://move-spot.com/proprietaires
+- Comment ça marche : https://move-spot.com/comment-ca-marche
+- Tarifs : https://move-spot.com/tarifs
+- Devenir partenaire : https://move-spot.com/devenir-partenaire
+- Publicité Guadeloupe : https://move-spot.com/publicite-voiture-guadeloupe
+- Suivi GPS en direct : https://move-spot.com/tracking
+
+## Détail complet
+
+Voir https://move-spot.com/llms-full.txt pour le détail exhaustif (fonctionnement, CGV, intégrations techniques, FAQ complète).

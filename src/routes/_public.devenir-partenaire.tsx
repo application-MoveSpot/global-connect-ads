@@ -360,6 +360,15 @@ function DevenirPartenaire() {
         <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
           {t("partner.hero_subtitle")}
         </p>
+        <p
+          id="geo-answer"
+          className="mt-4 text-sm text-muted-foreground/80 border-l-2 border-primary/40 pl-4 max-w-2xl mx-auto text-left italic"
+        >
+          Pour devenir propriétaire partenaire MoveSpot : inscription gratuite, ajout d&apos;un ou
+          plusieurs véhicules (4 photos requises), validation administrative sous 48 heures. Les
+          propriétaires perçoivent 70 % du tarif journalier annonceur, soit un minimum garanti de
+          17,50 €/jour actif. Essai 14 jours sans engagement, aucun abonnement.
+        </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
           <Link
             to="/owner/inscription"

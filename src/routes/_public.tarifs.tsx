@@ -30,6 +30,8 @@ const CONTENT = {
   fr: {
     h1: "Transparent sur les prix",
     desc: "Pas d'abonnement caché, pas de frais d'activation. Vous payez uniquement quand une campagne se réalise.",
+    answer_pricing:
+      "Le tarif annonceur MoveSpot part de 25 €/jour par véhicule (1,80 €/km²/jour, 2,70 €/km²/jour en grande agglomération). L'inscription est gratuite. MoveSpot prélève une commission de 30 % (25 % avec SIRET validé). Pour les poseurs, les abonnements mensuels débutent à 29 €. Aucun frais caché, aucun engagement minimum.",
     // Advertiser section
     adv_eyebrow: "Annonceurs",
     adv_h2: "Vous faites la pub — vous choisissez votre budget",
@@ -228,6 +230,8 @@ const CONTENT = {
   en: {
     h1: "Transparent pricing",
     desc: "No hidden subscription, no activation fee. You pay only when a campaign runs.",
+    answer_pricing:
+      "MoveSpot advertiser pricing starts at €25/day per vehicle (€1.80/km²/day, €2.70/km²/day in major urban areas). Registration is free. MoveSpot charges 30% commission (25% with a validated business registration). Installer monthly plans start at €29. No hidden fees, no minimum commitment.",
     adv_eyebrow: "Advertisers",
     adv_h2: "You run the ad — you choose the budget",
     adv_sub: "Individual, association, SME or enterprise: same platform, tailored conditions.",
@@ -430,7 +434,13 @@ function Tarifs() {
         {/* Hero */}
         <div className="text-center mb-16">
           <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">{c.h1}</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{c.desc}</p>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">{c.desc}</p>
+          <p
+            id="geo-answer"
+            className="text-sm text-muted-foreground/80 border-l-2 border-primary/40 pl-4 max-w-2xl mx-auto text-left italic"
+          >
+            {c.answer_pricing}
+          </p>
         </div>
 
         {/* ── Annonceurs / Advertisers ── */}

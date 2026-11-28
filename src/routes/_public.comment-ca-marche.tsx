@@ -72,6 +72,8 @@ const CONTENT = {
   fr: {
     h1: "Comment marche MoveSpot ?",
     desc: "La marketplace qui transforme tout véhicule en média publicitaire géolocalisé. Trois rôles, un flux simple, des données 100 % vérifiables.",
+    answer_geo:
+      "MoveSpot est une régie publicitaire mobile basée à Baie-Mahault (Guadeloupe). Les annonceurs créent un brief géolocalisé (zone, budget, durée) ; des propriétaires de véhicules — taxi, VTC, van, food truck — acceptent la campagne, activent le suivi GPS et portent le vinyle publicitaire. Chaque kilomètre parcouru dans la zone est enregistré et certifié toutes les 30 secondes. Tarif plancher : 25 €/jour par véhicule.",
     advertiser_h2: "🎯 Annonceur (entreprise ou particulier)",
     advertiser: [
       {
@@ -165,6 +167,8 @@ const CONTENT = {
   en: {
     h1: "How does MoveSpot work?",
     desc: "The marketplace that turns any vehicle into a geolocated advertising medium. Three roles, one simple flow, 100% verifiable data.",
+    answer_geo:
+      "MoveSpot is a mobile advertising agency based in Baie-Mahault, Guadeloupe (France). Advertisers create a geolocated brief (zone, budget, dates); vehicle owners — taxis, ride-hails, vans, food trucks — accept the campaign, activate GPS tracking and carry the ad vinyl. Every kilometre driven in the target zone is recorded and certified every 30 seconds. Floor price: €25/day per vehicle.",
     advertiser_h2: "🎯 Advertiser (business or individual)",
     advertiser: [
       {
@@ -265,7 +269,13 @@ function HowItWorks() {
     <div className="min-h-screen bg-background">
       <main id="main-content" className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">{c.h1}</h1>
-        <p className="text-lg text-muted-foreground mb-12">{c.desc}</p>
+        <p className="text-lg text-muted-foreground mb-6">{c.desc}</p>
+        <p
+          id="geo-answer"
+          className="text-sm text-muted-foreground/80 border-l-2 border-primary/40 pl-4 mb-12 italic"
+        >
+          {c.answer_geo}
+        </p>
 
         {/* Annonceur / Advertiser */}
         <section className="mb-12">

@@ -1,0 +1,198 @@
+# MoveSpot — Documentation complète (llms-full.txt)
+
+> MoveSpot est une régie publicitaire mobile française qui connecte annonceurs et propriétaires de véhicules (taxi, VTC, van, food truck) pour des campagnes de publicité géolocalisées avec preuve GPS certifiée.
+
+Résumé léger disponible sur https://move-spot.com/llms.txt
+
+---
+
+## Identité légale
+
+- **Raison sociale** : MoveSpot EI (entreprise individuelle)
+- **SIREN** : 804 671 444
+- **SIRET** : 80467144400052
+- **Siège social** : 1 Lot, Immeuble Sud Jarry, ZAC de Houelbourg, 97122 Baie-Mahault, Guadeloupe, France
+- **Département/Région** : Guadeloupe (971), DROM France
+- **Email contact** : contact@move-spot.com
+- **Création** : 2026
+- **Forme juridique** : Entreprise Individuelle (EI)
+
+---
+
+## Description du service
+
+MoveSpot est une marketplace de publicité extérieure mobile (DOOH mobile) permettant à des annonceurs de lancer des campagnes de publicité sur des véhicules en mouvement dans des zones géographiques précises. Le suivi GPS certifié garantit la preuve de diffusion.
+
+### Ce que MoveSpot n'est pas
+- MoveSpot n'est pas une agence de publicité traditionnelle (pas de création publicitaire obligatoire).
+- MoveSpot n'est pas un service de transport.
+- MoveSpot ne gère pas directement les véhicules : les propriétaires restent indépendants.
+
+---
+
+## Rôles et fonctionnement
+
+### Rôle 1 — Annonceur (entreprise ou particulier)
+1. Crée un compte gratuit.
+2. Dessine une zone géographique sur la carte interactive (polygone ou adresse).
+3. Choisit les dates, le budget et le format publicitaire.
+4. Reçoit des propositions de propriétaires de flottes.
+5. Accepte une offre → la campagne est créée automatiquement.
+6. Suit la campagne en temps réel (positions GPS, km parcourus, zones traversées).
+7. Télécharge le rapport PDF certifié à la fin.
+
+### Rôle 2 — Propriétaire de véhicule(s)
+1. Inscrit son/ses véhicule(s) gratuitement (formulaire + 4 photos).
+2. Validation administrative sous 48 heures.
+3. Reçoit des demandes d'annonceurs ou candidate à des briefs ouverts.
+4. Accepte ou refuse chaque campagne (sans justification requise).
+5. Un prestataire pose le vinyle publicitaire sur le véhicule.
+6. Active le suivi GPS (QR code en cabine → page web, aucune app à installer).
+7. Perçoit 70 % du tarif journalier annonceur, versement automatique.
+
+### Rôle 3 — Prestataire (poseur de covering)
+1. Inscrit son entreprise ou son activité (SIRET + RC Pro).
+2. Choisit un abonnement mensuel (Starter 29 €, Standard 42 €, Pro 59 €).
+3. Reçoit des missions de pose dans sa zone géographique.
+4. Pose le vinyle publicitaire, prend une photo de validation.
+5. Facturation automatique à la mission validée.
+
+### Rôle 4 — Chauffeur (employé d'un propriétaire)
+- Accède à son espace via QR code (aucune installation, aucun compte).
+- Active le suivi GPS au démarrage, l'arrête en fin de tournée.
+- Ses données GPS ne sont accessibles qu'à son employeur et à l'annonceur, uniquement pendant la campagne active.
+
+---
+
+## Tarifs détaillés
+
+### Annonceurs
+| Profil | Commission | Avantages |
+|---|---|---|
+| Particulier / Association | 30 % | Accès standard |
+| PME / Startup (SIRET validé) | 25 % | Factures TVA, rapport PDF |
+| Grand compte | Négocié | Account manager, contrat-cadre |
+
+- **Tarif à la zone** : 1,80 €/km²/jour (zone standard), 2,70 €/km²/jour (grande agglomération)
+- **Tarif plancher** : 25 €/jour par véhicule (minimum absolu par campagne)
+- **Événements** : à partir de 49 €/jour
+- **Campagne multi-véhicules** : budget multiplié par le nombre de véhicules actifs
+
+### Propriétaires
+- Inscription et maintenance du profil : **0 €**
+- Commission MoveSpot prélevée : **30 %** (négociable à partir de 20 véhicules)
+- Reversement garanti : **70 % du tarif journalier annonceur** = minimum **17,50 €/jour actif**
+- Zone dense (Paris, Lyon, Marseille) : revenus pouvant atteindre **49 €/jour**
+- Essai gratuit : **14 jours sans engagement**
+- Délai de virement : 3 à 5 jours ouvrés, dès 50 € de solde
+
+### Prestataires (poseurs)
+| Abonnement | Tarif mensuel | Inclus |
+|---|---|---|
+| Starter | 29 € | Missions de base |
+| Standard | 42 € | Missions prioritaires |
+| Pro | 59 € | Missions prioritaires + dashboard avancé |
+
+Paiement à la mission en supplément selon barème CGV.
+
+---
+
+## Garanties et certifications
+
+### GPS certifié
+- Positions relevées toutes les **30 secondes** via l'API Geolocation du navigateur (Wake Lock activé).
+- Rapport PDF mensuel téléchargeable par l'annonceur.
+- Données horodatées et stockées en base Supabase (PostgreSQL).
+
+### Paiement sécurisé — Stripe Connect
+- Les fonds de l'annonceur sont séquestrés sur le compte Stripe MoveSpot.
+- Libération uniquement après validation de la photo de pose par l'admin.
+- Aucun accès direct aux CB des propriétaires ou des annonceurs par MoveSpot.
+- Conformité PCI-DSS via Stripe.
+
+### Assurance et validation
+- Chaque véhicule : validation administrative (photos × 4, assurance auto vérifiée).
+- Chaque prestataire : RC Pro obligatoire, vérifiée par l'admin avant activation.
+- Délai de validation standard : **48 heures ouvrées**.
+
+### RGPD
+- Données GPS des chauffeurs : accessibles uniquement pendant la campagne active.
+- Suppression de compte disponible sur demande.
+- Cookies : consentement explicite requis (bandeau conforme).
+- Politique de confidentialité : https://move-spot.com/confidentialite
+
+---
+
+## Stack technique
+
+- **Frontend** : React 19, TanStack Router, TanStack Start (SSR)
+- **Backend** : Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- **Paiements** : Stripe Connect
+- **Cartes** : Mapbox GL, Leaflet (polygones de zones)
+- **Géolocalisation** : API Geolocation W3C, Turf.js
+- **Déploiement** : Cloudflare Workers (edge SSR)
+- **Email** : React Email
+
+---
+
+## FAQ
+
+### Annonceurs
+
+**Combien coûte une campagne de publicité sur véhicule ?**
+Le tarif part de 25 €/jour par véhicule. Pour une campagne à la zone, le prix est de 1,80 €/km²/jour (2,70 € en grande agglomération). Le devis se calcule automatiquement pendant le dessin de la zone sur la carte. Aucun minimum de durée.
+
+**Comment est prouvée la diffusion ?**
+Chaque km parcouru dans la zone cible est tracé GPS toutes les 30 secondes. MoveSpot génère un rapport PDF certifié avec les positions, km parcourus, zones traversées et impressions estimées.
+
+**Quelle est la différence avec un panneau publicitaire ?**
+Un panneau fixe (OOH) est statique. La publicité sur véhicule suit les flux de circulation. CPM MoveSpot estimé : 2–5 € (vs 8–15 € pour l'affichage extérieur classique).
+
+### Propriétaires
+
+**Quels véhicules sont acceptés ?**
+Voiture particulière, taxi, VTC, van utilitaire, scooter de livraison, food truck et flottes d'entreprise. Le véhicule doit être en état de circuler et disposer d'une surface utilisable pour l'affichage.
+
+**Est-ce compatible avec l'activité de taxi ou VTC ?**
+Oui. MoveSpot est un revenu 100 % passif : le conducteur roule normalement, le GPS valide automatiquement les km dans la zone.
+
+**Quand et comment suis-je payé ?**
+Virement automatique dès 50 € de solde, traité sous 3 à 5 jours ouvrés. L'argent s'accumule au fil des campagnes actives.
+
+### Poseurs / Prestataires
+
+**Comment trouver des missions de pose en Guadeloupe ?**
+Inscrivez-vous sur https://move-spot.com/devenir-partenaire, fournissez votre RC Pro, choisissez votre abonnement. Les missions disponibles dans votre zone apparaissent dans votre dashboard.
+
+**Est-ce que MoveSpot est légal en Guadeloupe ?**
+Oui. MoveSpot est une société française (SIREN 804 671 444) établie à Baie-Mahault, Guadeloupe. La publicité sur véhicule est légale en France. Le code de la route interdit uniquement les publicités obstruant la visibilité du conducteur.
+
+---
+
+## Comparaison concurrentielle
+
+| Critère | MoveSpot | Affichage OOH classique |
+|---|---|---|
+| Délai de lancement | 5 minutes | 3–6 semaines |
+| Tarif minimum | 25 €/jour | Milliers d'euros/mois |
+| Ciblage géographique | Zone polygone sur carte | Emplacement fixe |
+| Preuve de diffusion | GPS certifié, rapport PDF | Estimation |
+| Engagement minimum | Aucun | Contrat 3–12 mois |
+
+---
+
+## URLs de référence
+
+- Accueil : https://move-spot.com
+- Comment ça marche : https://move-spot.com/comment-ca-marche
+- Tarifs : https://move-spot.com/tarifs
+- Devenir partenaire : https://move-spot.com/devenir-partenaire
+- Annonceurs entreprise : https://move-spot.com/annonceurs-entreprise
+- Publicité Guadeloupe : https://move-spot.com/publicite-voiture-guadeloupe
+- Publicité Paris : https://move-spot.com/publicite-voiture-paris
+- Publicité Lyon : https://move-spot.com/publicite-voiture-lyon
+- Publicité Marseille : https://move-spot.com/publicite-voiture-marseille
+- CGU : https://move-spot.com/cgu
+- CGV : https://move-spot.com/cgv
+- Confidentialité : https://move-spot.com/confidentialite
+- Suivi GPS : https://move-spot.com/tracking
