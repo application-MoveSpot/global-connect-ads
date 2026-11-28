@@ -17,22 +17,22 @@ const PHOTO_SLOTS = [
   {
     key: "face_avant",
     label: "Face avant",
-    description: "Vue frontale du véhicule avec le vinyle posé",
+    description: "Capot + pare-brise face à vous — vinyle entier visible",
   },
   {
     key: "face_arriere",
     label: "Face arrière",
-    description: "Vue arrière du véhicule avec le vinyle posé",
+    description: "Hayon / portes arrière — vinyle entier visible",
   },
   {
     key: "profil_gauche",
-    label: "Profil gauche",
-    description: "Côté conducteur, vinyl visible entier",
+    label: "Côté conducteur",
+    description: "Profil gauche — debout à gauche du véhicule",
   },
   {
     key: "profil_droit",
-    label: "Profil droit",
-    description: "Côté passager, vinyl visible entier",
+    label: "Côté passager",
+    description: "Profil droit — debout à droite du véhicule",
   },
 ] as const;
 
@@ -238,6 +238,46 @@ export function ValidateInstallationModal({
               la bonne pose du vinyl. Toutes les photos doivent montrer clairement l'intégralité du
               marquage.
             </p>
+          </div>
+
+          {/* Schéma orientation 4 angles */}
+          <div className="rounded-xl border border-border bg-secondary/40 p-3 flex flex-col items-center gap-1">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              Position des photos
+            </p>
+            <svg viewBox="0 0 220 160" width="220" height="160" aria-hidden="true">
+              {/* Corps véhicule */}
+              <rect x="60" y="45" width="100" height="70" rx="8" fill="#FF6B35" opacity="0.15" stroke="#FF6B35" strokeWidth="1.5" />
+              {/* Capot */}
+              <rect x="75" y="30" width="70" height="18" rx="4" fill="#FF6B35" opacity="0.1" stroke="#FF6B35" strokeWidth="1" />
+              {/* Coffre */}
+              <rect x="75" y="112" width="70" height="18" rx="4" fill="#FF6B35" opacity="0.1" stroke="#FF6B35" strokeWidth="1" />
+              {/* Roues */}
+              <circle cx="75" cy="62" r="7" fill="#08090F" opacity="0.3" />
+              <circle cx="145" cy="62" r="7" fill="#08090F" opacity="0.3" />
+              <circle cx="75" cy="98" r="7" fill="#08090F" opacity="0.3" />
+              <circle cx="145" cy="98" r="7" fill="#08090F" opacity="0.3" />
+              {/* Flèche AVANT (haut) */}
+              <line x1="110" y1="26" x2="110" y2="8" stroke="#FF6B35" strokeWidth="2" markerEnd="url(#arr)" />
+              <text x="110" y="5" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#FF6B35">AVANT</text>
+              {/* Flèche ARRIÈRE (bas) */}
+              <line x1="110" y1="134" x2="110" y2="152" stroke="#FF6B35" strokeWidth="2" markerEnd="url(#arr)" />
+              <text x="110" y="160" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#FF6B35">ARRIÈRE</text>
+              {/* Flèche CONDUCTEUR (gauche) */}
+              <line x1="56" y1="80" x2="12" y2="80" stroke="#FF6B35" strokeWidth="2" markerEnd="url(#arr)" />
+              <text x="10" y="73" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#FF6B35">CÔTÉ</text>
+              <text x="10" y="83" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#FF6B35">COND.</text>
+              {/* Flèche PASSAGER (droite) */}
+              <line x1="164" y1="80" x2="208" y2="80" stroke="#FF6B35" strokeWidth="2" markerEnd="url(#arr)" />
+              <text x="210" y="73" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#FF6B35">CÔTÉ</text>
+              <text x="210" y="83" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#FF6B35">PASS.</text>
+              {/* Marqueur flèche */}
+              <defs>
+                <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L6,3 z" fill="#FF6B35" />
+                </marker>
+              </defs>
+            </svg>
           </div>
 
           {/* Grille 4 slots */}
