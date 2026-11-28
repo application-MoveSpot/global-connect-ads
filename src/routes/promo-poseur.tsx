@@ -2,7 +2,19 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import type { CSSProperties, ReactNode } from "react";
-import { Check, Download, Pause, Play, RotateCcw, Video, X } from "lucide-react";
+import {
+  Banknote,
+  CalendarClock,
+  Check,
+  Download,
+  Landmark,
+  MapPin,
+  Pause,
+  Play,
+  RotateCcw,
+  Video,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -10,9 +22,10 @@ import { isAdmin } from "@/lib/admin/isAdmin";
 import { isPreviewHostname } from "@/lib/preview-host";
 import { downloadBlob, exportFilm } from "@/lib/promo/film-export";
 import officialLogo from "@/assets/movespot-logo.png.asset.json";
-import { PROVIDER_PLANS, PROVIDER_TRIAL_DAYS } from "@/lib/providers/provider-plans";
+import vanPhoto from "@/assets/promo/poseur-fourgon-atelier.jpg";
+import { PROVIDER_TRIAL_DAYS } from "@/lib/providers/provider-plans";
 import {
-  POSEUR_CITIES,
+  POSEUR_DOCUMENTS,
   POSEUR_DURATION,
   POSEUR_HEIGHT,
   POSEUR_PHOTOS,
@@ -36,12 +49,12 @@ export const Route = createFileRoute("/promo-poseur")({
       {
         name: "description",
         content:
-          "Film animé vertical de 35 secondes pour les poseurs et ateliers de covering, signalétique et vitres teintées en Guadeloupe.",
+          "Film animé vertical de 35 secondes pour les poseurs et ateliers de covering en Guadeloupe.",
       },
       { property: "og:title", content: "MoveSpot — Film vertical Poseurs & ateliers covering" },
       {
         property: "og:description",
-        content: "Animation 9:16 de 35 secondes avec sous-titres, à enregistrer en plein écran.",
+        content: "Animation 9:16 de 35 secondes avec sous-titres, à télécharger pour les réseaux sociaux.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -79,82 +92,124 @@ function Kicker({ children, style }: { children: ReactNode; style?: CSSPropertie
   );
 }
 
-/* ── Séquence 1 : table de découpe ──────────────────────────────────────── */
-function SceneAccroche({ t }: { t: number }) {
-  const draw = prog(t, 0.2, 2.2);
-  const cut = prog(t, 2.0, 3.6);
-  const fill = prog(t, 3.5, 4.4);
-  // Position de la lame le long du rectangle de découpe (périmètre 1080).
-  const d = cut * 1080;
-  const blade =
-    d <= 320
-      ? { x: 480 + d, y: 95 }
-      : d <= 540
-        ? { x: 800, y: 95 + (d - 320) }
-        : d <= 860
-          ? { x: 800 - (d - 540), y: 315 }
-          : { x: 480, y: 315 - (d - 860) };
+/* ── Le fourgon photographié et son covering ────────────────────────────── */
+const VAN_RATIO = 800 / 1200;
+/** Flanc utile du fourgon, en fraction de la photo. */
+const PANEL = { left: 0.392, top: 0.258, width: 0.516, height: 0.292 };
+
+function VanPhoto({
+  width,
+  cover,
+  zoom = 1,
+  flash = 0,
+  lettering = true,
+  children,
+}: {
+  width: number;
+  /** Part d'adhésif déjà posée, de 0 à 1 (de l'avant vers l'arrière). */
+  cover: number;
+  zoom?: number;
+  flash?: number;
+  /** Affiche le texte de l'adhésif (masqué sur les vignettes, parfois inversées). */
+  lettering?: boolean;
+  children?: ReactNode;
+}) {
+  const height = width * VAN_RATIO;
+  const k = width / 960;
+  const panel: CSSProperties = {
+    left: PANEL.left * width,
+    top: PANEL.top * height,
+    width: PANEL.width * width,
+    height: PANEL.height * height,
+    clipPath: `inset(0 ${(1 - cover) * 100}% 0 0 round ${6 * k}px)`,
+  };
   return (
-    <div className="light-band absolute inset-0 bg-background text-foreground" style={matStyle}>
-      <div className="absolute" style={{ left: 90, top: 300, right: 90 }}>
-        <Kicker style={rise(prog(t, 0.1, 0.8), 30)}>Plan de découpe · Guadeloupe</Kicker>
+    <div className="relative overflow-hidden bg-muted" style={{ width, height, borderRadius: 24 * k }}>
+      <div className="absolute inset-0" style={{ transform: `scale(${zoom})`, transformOrigin: "60% 45%" }}>
+        <img
+          src={vanPhoto}
+          crossOrigin="anonymous"
+          alt="Fourgon utilitaire blanc dans un atelier de covering"
+          width={1200}
+          height={800}
+          className="absolute inset-0 size-full"
+        />
+        {/* L'adhésif épouse les ombres de la tôle (fusion en multiplication). */}
+        <div className="absolute bg-primary" style={{ ...panel, mixBlendMode: "multiply" }} />
+        <div className="absolute text-primary-foreground" style={{ ...panel, opacity: lettering ? 1 : 0 }}>
+          <div
+            className="absolute font-display font-bold"
+            style={{ left: 30 * k, top: 34 * k, fontSize: 64 * k, lineHeight: 1 }}
+          >
+            VOTRE PUB ICI
+          </div>
+          <div
+            className="absolute font-semibold"
+            style={{ left: 32 * k, top: 112 * k, fontSize: 30 * k }}
+          >
+            Campagne locale · Guadeloupe
+          </div>
+        </div>
+        {cover > 0 && cover < 1 && (
+          <div
+            className="absolute rounded-full bg-foreground"
+            style={{
+              left: (PANEL.left + PANEL.width * cover) * width - 7 * k,
+              top: PANEL.top * height - 14 * k,
+              width: 14 * k,
+              height: PANEL.height * height + 28 * k,
+              boxShadow: `0 0 ${24 * k}px ${ORANGE(70)}`,
+            }}
+          />
+        )}
+      </div>
+      {flash > 0 && <div className="absolute inset-0 bg-background" style={{ opacity: flash }} />}
+      {children}
+    </div>
+  );
+}
+
+/* ── Séquence 1 : inscris ton atelier ───────────────────────────────────── */
+function SceneAccroche({ t }: { t: number }) {
+  return (
+    <div className="light-band absolute inset-0 bg-background text-foreground">
+      <div className="absolute" style={{ left: 90, top: 290, right: 90 }}>
+        <Kicker style={rise(prog(t, 0.1, 0.8), 30)}>Atelier covering · Guadeloupe</Kicker>
         <h2
           className="font-display font-bold"
-          style={{ fontSize: 92, lineHeight: 1.05, marginTop: 28, ...rise(prog(t, 0.3, 1.2)) }}
+          style={{ fontSize: 84, lineHeight: 1.06, marginTop: 24, ...rise(prog(t, 0.3, 1.2)) }}
         >
-          Poseur vinyle, covering ou vitres teintées&nbsp;?
+          Poseur vinyle ou covering en Guadeloupe&nbsp;?
         </h2>
       </div>
-      <svg
-        viewBox="0 0 900 460"
-        className="absolute"
-        style={{ left: 60, top: 760, width: 960 }}
-        fill="none"
-        aria-hidden
-      >
-        <g stroke="var(--foreground)" strokeWidth={6} strokeLinejoin="round" strokeLinecap="round">
-          <path
-            pathLength={1}
-            strokeDasharray={1}
-            strokeDashoffset={1 - draw}
-            d="M40 360 L40 200 Q40 170 70 165 L250 150 L330 70 Q345 55 370 55 L800 55 Q840 55 840 95 L840 360 Z"
-          />
-          <path
-            pathLength={1}
-            strokeDasharray={1}
-            strokeDashoffset={1 - draw}
-            d="M270 150 L335 85 L450 85 L450 150 Z"
-          />
-          <circle cx={220} cy={370} r={58} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - draw} fill="var(--background)" />
-          <circle cx={680} cy={370} r={58} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - draw} fill="var(--background)" />
-        </g>
-        <rect x={480} y={95} width={320} height={220} fill="var(--primary)" opacity={fill} />
-        <rect
-          x={480}
-          y={95}
-          width={320}
-          height={220}
-          stroke="var(--primary)"
-          strokeWidth={6}
-          pathLength={1080}
-          strokeDasharray="1080"
-          strokeDashoffset={1080 - d}
-        />
-        {cut > 0 && cut < 1 && (
-          <g transform={`translate(${blade.x} ${blade.y})`}>
-            <circle r={16} fill="var(--primary)" />
-            <circle r={30} stroke="var(--primary)" strokeWidth={3} opacity={0.5} />
-          </g>
-        )}
-      </svg>
-      <div className="absolute" style={{ left: 90, right: 90, top: 1290 }}>
+      <div className="absolute" style={{ left: 60, top: 640, opacity: prog(t, 0.2, 1) }}>
+        <VanPhoto width={960} cover={prog(t, 1.6, 4.2)} zoom={1.1 - 0.1 * prog(t, 0, 6)} />
+      </div>
+      <div className="absolute" style={{ left: 60, right: 60, top: 1316 }}>
+        <div className="flex items-center justify-center" style={{ gap: 16 }}>
+          <span className="font-display font-bold" style={{ fontSize: 40, ...rise(prog(t, 2.5, 3.1), 30) }}>
+            Inscris ton atelier
+          </span>
+          {POSEUR_DOCUMENTS.map((doc, i) => (
+            <span
+              key={doc}
+              className="rounded-full border-4 border-foreground font-display font-bold"
+              style={{
+                fontSize: 34,
+                padding: "6px 24px",
+                ...rise(prog(t, 2.8 + i * 0.3, 3.3 + i * 0.3), 30),
+              }}
+            >
+              {doc}
+            </span>
+          ))}
+        </div>
         <p
-          className="font-display font-bold"
-          style={{ fontSize: 68, lineHeight: 1.1, ...rise(prog(t, 3.0, 3.8)) }}
+          className="text-center font-display font-bold"
+          style={{ fontSize: 46, marginTop: 22, ...rise(prog(t, 4.5, 5.2), 30) }}
         >
-          Remplis tes créneaux libres{" "}
-          <span className="bg-primary text-primary-foreground" style={{ padding: "0 14px" }}>
-            sans démarcher.
+          <span className="bg-primary text-primary-foreground" style={{ padding: "2px 16px" }}>
+            {PROVIDER_TRIAL_DAYS} jours d'essai gratuit
           </span>
         </p>
       </div>
@@ -162,106 +217,88 @@ function SceneAccroche({ t }: { t: number }) {
   );
 }
 
-/* ── Séquence 2 : le planning ───────────────────────────────────────────── */
-const DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven"] as const;
-const BUSY = new Set(["0-0", "0-1", "1-2", "2-0", "3-1", "3-3", "4-0", "4-2"]);
-const TARGET = "2-1"; // mercredi, 2e créneau
+/* ── Séquence 2 : la mission arrive ─────────────────────────────────────── */
+const MISSION_ROWS = [
+  { Icon: Banknote, label: "Honoraire affiché" },
+  { Icon: MapPin, label: "Adresse du véhicule" },
+  { Icon: CalendarClock, label: "Créneau de pose" },
+] as const;
 
-function ScenePlanning({ t }: { t: number }) {
-  const card = prog(t, 9.3, 10.2);
-  const drop = prog(t, 12.3, 13.3);
+function SceneMissions({ t }: { t: number }) {
+  const card = prog(t, 8.6, 9.6);
+  const accepted = prog(t, 14.5, 15);
+  const press = t > 14.2 && t < 14.6 ? 0.96 : 1;
   return (
     <div className="light-band absolute inset-0 bg-background text-foreground" style={matStyle}>
-      <div className="absolute" style={{ left: 90, right: 90, top: 280 }}>
-        <Kicker style={rise(prog(t, 6.3, 7), 30)}>Mise en relation</Kicker>
+      <div className="absolute" style={{ left: 90, right: 90, top: 290 }}>
+        <Kicker style={rise(prog(t, 7.3, 8), 30)}>Mise en relation</Kicker>
         <h2
           className="font-display font-bold"
-          style={{ fontSize: 80, lineHeight: 1.06, marginTop: 24, ...rise(prog(t, 6.4, 7.3)) }}
+          style={{ fontSize: 96, lineHeight: 1.04, marginTop: 24, ...rise(prog(t, 7.4, 8.3)) }}
         >
-          Une plateforme, pas un carnet d'adresses à remplir.
+          Zéro démarchage commercial.
         </h2>
       </div>
 
       <div
-        className="absolute rounded-3xl border-4 border-foreground bg-background"
-        style={{ left: 90, right: 90, top: 640, padding: 28, ...rise(card, -80) }}
+        className="absolute rounded-[40px] border-4 border-foreground bg-background"
+        style={{ left: 70, right: 70, top: 640, padding: 32, ...rise(card, 120) }}
       >
-        <div className="flex items-center" style={{ gap: 24 }}>
-          <span
-            className="grid place-items-center rounded-full bg-primary text-primary-foreground"
-            style={{ width: 72, height: 72 }}
-          >
-            <Check style={{ width: 44, height: 44 }} strokeWidth={3} />
-          </span>
-          <div>
-            <div className="font-display font-bold" style={{ fontSize: 46 }}>
-              Campagne locale réservée
+        <div className="flex items-center" style={{ gap: 28 }}>
+          <VanPhoto width={300} cover={1} />
+          <div className="min-w-0 flex-1">
+            <div className="font-mono uppercase text-primary" style={{ fontSize: 26, letterSpacing: 4 }}>
+              Dans ta zone
             </div>
-            <div className="text-muted-foreground" style={{ fontSize: 30 }}>
-              Un annonceur vient de réserver un véhicule.
+            <div className="font-display font-bold" style={{ fontSize: 56, lineHeight: 1.05, marginTop: 8 }}>
+              Nouvelle mission de pose
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="absolute" style={{ left: 90, right: 90, top: 880, ...rise(prog(t, 7.2, 8.2)) }}>
-        <div className="font-mono uppercase text-muted-foreground" style={{ fontSize: 26, letterSpacing: 4 }}>
-          Ton planning
-        </div>
-        <div className="grid grid-cols-5" style={{ gap: 14, marginTop: 18 }}>
-          {DAYS.map((day, col) => (
-            <div key={day}>
-              <div className="font-display font-bold text-center" style={{ fontSize: 32, marginBottom: 12 }}>
-                {day}
+        <div style={{ marginTop: 30 }}>
+          {MISSION_ROWS.map(({ Icon, label }, i) => {
+            const p = prog(t, 10.6 + i * 0.7, 11.3 + i * 0.7);
+            return (
+              <div
+                key={label}
+                className="flex items-center border-t-2 border-border"
+                style={{ gap: 24, padding: "22px 0", ...rise(p, 30) }}
+              >
+                <span
+                  className="grid shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground"
+                  style={{ width: 72, height: 72 }}
+                >
+                  <Icon style={{ width: 42, height: 42 }} strokeWidth={2.5} />
+                </span>
+                <span className="font-display font-bold" style={{ fontSize: 48 }}>
+                  {label}
+                </span>
+                <Check
+                  className="ml-auto text-primary"
+                  style={{ width: 52, height: 52, opacity: p }}
+                  strokeWidth={3.5}
+                />
               </div>
-              {[0, 1, 2, 3].map((row) => {
-                const key = `${col}-${row}`;
-                const appear = prog(t, 7.4 + (col + row) * 0.12, 8.2 + (col + row) * 0.12);
-                const base: CSSProperties = { height: 96, marginBottom: 14, opacity: appear };
-                if (key === TARGET) {
-                  return (
-                    <div key={key} className="relative" style={base}>
-                      <div
-                        className="absolute inset-0 rounded-xl border-4 border-dashed border-primary"
-                        style={{ opacity: 1 - drop }}
-                      />
-                      <div
-                        className="absolute inset-0 grid place-items-center rounded-xl bg-primary text-primary-foreground font-display font-bold text-center"
-                        style={{
-                          fontSize: 26,
-                          lineHeight: 1.05,
-                          opacity: drop,
-                          transform: `translateY(${(1 - drop) * -220}px) scale(${1 + (1 - drop) * 0.4})`,
-                        }}
-                      >
-                        Mission
-                        <br />
-                        de pose
-                      </div>
-                    </div>
-                  );
-                }
-                return BUSY.has(key) ? (
-                  <div
-                    key={key}
-                    className="rounded-xl"
-                    style={{
-                      ...base,
-                      backgroundImage: `repeating-linear-gradient(135deg, ${INK(22)} 0 6px, ${INK(8)} 6px 16px)`,
-                    }}
-                  />
-                ) : (
-                  <div key={key} className="rounded-xl border-4 border-dashed" style={{ ...base, borderColor: INK(28) }} />
-                );
-              })}
-            </div>
-          ))}
+            );
+          })}
         </div>
-        <div className="flex text-muted-foreground" style={{ gap: 36, fontSize: 26, marginTop: 6 }}>
-          <span>▨ Déjà pris</span>
-          <span>▢ Créneau libre</span>
-          <span className="text-primary font-semibold" style={{ opacity: drop }}>
-            ■ Mission prête
+        <div
+          className="relative grid place-items-center rounded-full border-4 border-foreground font-display font-bold"
+          style={{
+            height: 112,
+            fontSize: 46,
+            marginTop: 14,
+            transform: `scale(${press})`,
+            opacity: prog(t, 13.4, 14),
+            background: ORANGE(accepted * 100),
+          }}
+        >
+          <span style={{ opacity: 1 - accepted }}>Accepter la mission</span>
+          <span
+            className="absolute inset-0 flex items-center justify-center text-primary-foreground"
+            style={{ gap: 16, opacity: accepted }}
+          >
+            <Check style={{ width: 52, height: 52 }} strokeWidth={3.5} /> Acceptée en 1 clic
           </span>
         </div>
       </div>
@@ -269,82 +306,101 @@ function ScenePlanning({ t }: { t: number }) {
   );
 }
 
-/* ── Séquence 3 : la check-list de pose ─────────────────────────────────── */
-function CheckRow({ p, title, children }: { p: number; title: string; children?: ReactNode }) {
-  const tick = clamp01(p * 1.6 - 0.6);
-  return (
-    <div className="flex items-start" style={{ gap: 30, marginBottom: 44, ...rise(clamp01(p * 1.8), 40) }}>
-      <span
-        className="grid shrink-0 place-items-center rounded-2xl border-4 border-foreground"
-        style={{ width: 84, height: 84, background: ORANGE(tick * 100) }}
-      >
-        <Check
-          className="text-primary-foreground"
-          style={{ width: 56, height: 56, opacity: tick, transform: `scale(${0.4 + tick * 0.6})` }}
-          strokeWidth={3.5}
-        />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="font-display font-bold" style={{ fontSize: 54, lineHeight: 1.1 }}>
-          {title}
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
+/* ── Séquence 3 : la pose et ses 4 photos ───────────────────────────────── */
+/** Cadrage de chaque photo de validation dans le cliché du fourgon. */
+const SHOTS = [
+  { position: "0% 60%", mirror: false, scale: 2.1 },
+  { position: "100% 60%", mirror: false, scale: 2.1 },
+  { position: "50% 50%", mirror: false, scale: 1 },
+  { position: "50% 50%", mirror: true, scale: 1 },
+] as const;
+/** Largeur intérieure d'une vignette : (960 − 3 × 16) / 4, moins sa bordure. */
+const THUMB_WIDTH = 220;
+const SHOT_START = 21.2;
+const SHOT_GAP = 0.75;
 
 function SceneValidation({ t }: { t: number }) {
+  // Éclair d'appareil photo à chaque prise de vue.
+  const flash = Math.max(
+    0,
+    ...SHOTS.map((_, i) => {
+      const d = t - (SHOT_START + i * SHOT_GAP);
+      return d >= 0 && d < 0.3 ? 0.75 * (1 - d / 0.3) : 0;
+    }),
+  );
+  const verdict = prog(t, 24.5, 25.3);
   return (
-    <div className="light-band absolute inset-0 bg-background text-foreground" style={matStyle}>
-      <div className="absolute" style={{ left: 90, right: 90, top: 280 }}>
+    <div className="light-band absolute inset-0 bg-background text-foreground">
+      <div className="absolute" style={{ left: 90, right: 90, top: 290 }}>
         <Kicker style={rise(prog(t, 16.3, 17), 30)}>Check-list de pose</Kicker>
-        <div style={{ marginTop: 56 }}>
-          <CheckRow p={prog(t, 16.4, 17.8)} title="Zéro prospection commerciale" />
-          <CheckRow p={prog(t, 18.5, 19.9)} title="Tu poses l'adhésif" />
-          <CheckRow p={prog(t, 20.5, 23.2)} title="Tu valides avec 4 photos">
-            <div className="grid grid-cols-4" style={{ gap: 14, marginTop: 22 }}>
-              {POSEUR_PHOTOS.map((label, i) => {
-                const shot = prog(t, 20.9 + i * 0.55, 21.3 + i * 0.55);
-                return (
-                  <div key={label}>
-                    <div
-                      className="relative overflow-hidden rounded-xl border-4 border-foreground"
-                      style={{ height: 150, background: INK(6) }}
-                    >
-                      <div className="absolute inset-0 bg-primary" style={{ opacity: shot }} />
-                      <Check
-                        className="absolute text-primary-foreground"
-                        style={{ width: 60, height: 60, left: "50%", top: "50%", margin: -30, opacity: shot }}
-                        strokeWidth={3.5}
-                      />
-                    </div>
-                    <div className="text-center text-muted-foreground" style={{ fontSize: 24, marginTop: 8 }}>
-                      {label}
-                    </div>
-                  </div>
-                );
-              })}
+        <h2
+          className="font-display font-bold"
+          style={{ fontSize: 92, lineHeight: 1.05, marginTop: 24, ...rise(prog(t, 16.4, 17.3)) }}
+        >
+          Pose validée par 4&nbsp;photos.
+        </h2>
+      </div>
+      <div className="absolute" style={{ left: 60, top: 620, opacity: prog(t, 16.4, 17.2) }}>
+        <VanPhoto width={960} cover={prog(t, 18, 20.6)} flash={flash}>
+          <div
+            className="absolute flex items-center rounded-full bg-foreground font-display font-bold text-background"
+            style={{ right: 24, top: 24, gap: 14, fontSize: 36, padding: "12px 28px", ...rise(verdict, -30) }}
+          >
+            <Check className="text-primary" style={{ width: 44, height: 44 }} strokeWidth={3.5} />
+            Validation sous 48&nbsp;h ouvrées
+          </div>
+        </VanPhoto>
+      </div>
+      <div className="absolute grid grid-cols-4" style={{ left: 60, right: 60, top: 1290, gap: 16 }}>
+        {POSEUR_PHOTOS.map((label, i) => {
+          const shot = SHOTS[i]!;
+          const p = prog(t, SHOT_START + i * SHOT_GAP, SHOT_START + i * SHOT_GAP + 0.4);
+          return (
+            <div key={label} style={{ opacity: 0.35 + 0.65 * p }}>
+              <div
+                className="relative overflow-hidden rounded-2xl border-4"
+                style={{ height: THUMB_WIDTH * VAN_RATIO + 8, borderColor: p > 0.5 ? "var(--primary)" : INK(30) }}
+              >
+                <div
+                  style={{
+                    opacity: p,
+                    transformOrigin: shot.position,
+                    transform: `scale(${shot.mirror ? -shot.scale : shot.scale}, ${shot.scale})`,
+                  }}
+                >
+                  <VanPhoto width={THUMB_WIDTH} cover={1} lettering={false} />
+                </div>
+                <span
+                  className="absolute grid place-items-center rounded-full bg-primary text-primary-foreground"
+                  style={{ right: 8, bottom: 8, width: 44, height: 44, opacity: p, transform: `scale(${0.4 + 0.6 * p})` }}
+                >
+                  <Check style={{ width: 30, height: 30 }} strokeWidth={4} />
+                </span>
+                <span
+                  className="absolute font-mono font-bold"
+                  style={{ left: 12, top: 6, fontSize: 28, color: p > 0.5 ? "var(--primary)" : INK(45) }}
+                >
+                  {i + 1}/4
+                </span>
+              </div>
+              <div className="text-center font-display font-bold" style={{ fontSize: 28, marginTop: 8 }}>
+                {label}
+              </div>
             </div>
-          </CheckRow>
-          <CheckRow p={prog(t, 23.5, 24.9)} title="Paiement sécurisé via Stripe Connect">
-            <span
-              className="inline-block rounded-full border-4 border-primary font-display font-bold text-primary"
-              style={{ fontSize: 34, padding: "8px 28px", marginTop: 20, ...rise(prog(t, 24.8, 25.6), 20) }}
-            >
-              RC Pro vérifiée
-            </span>
-          </CheckRow>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-/* ── Séquence 4 : inscription ───────────────────────────────────────────── */
-function SceneInscription({ t }: { t: number }) {
-  const prices = PROVIDER_PLANS.map((p) => `${p.amountEur} €`);
-  const priceText = `${prices.slice(0, -1).join(", ")} ou ${prices[prices.length - 1]}`;
+/* ── Séquence 4 : virement, dépose, inscription ─────────────────────────── */
+const PAYOUT_ROWS = [
+  { Icon: Landmark, title: "Virement automatique sur ton RIB", note: "via Stripe Connect", at: 29 },
+  { Icon: RotateCcw, title: "Mission de dépose rémunérée", note: "en fin de campagne", at: 31 },
+] as const;
+
+function ScenePaiement({ t }: { t: number }) {
   return (
     <div className="absolute inset-0 bg-background text-foreground">
       <div
@@ -360,41 +416,49 @@ function SceneInscription({ t }: { t: number }) {
       />
       <div
         className="light-band absolute grid place-items-center rounded-[48px] bg-background"
-        style={{ left: 340, top: 250, width: 400, height: 400, ...rise(prog(t, 27.3, 28.2), 40) }}
+        style={{ left: 380, top: 200, width: 320, height: 320, ...rise(prog(t, 27.3, 28.2), 40) }}
       >
-        <img src={officialLogo.url} alt="MoveSpot" style={{ height: 300, width: "auto" }} />
+        <img src={officialLogo.url} crossOrigin="anonymous" alt="MoveSpot" style={{ height: 240, width: "auto" }} />
       </div>
-      <div className="absolute text-center" style={{ left: 80, right: 80, top: 720 }}>
+      <div className="absolute" style={{ left: 80, right: 80, top: 580 }}>
         <h2
-          className="font-display font-bold"
-          style={{ fontSize: 84, lineHeight: 1.06, ...rise(prog(t, 27.8, 28.7)) }}
+          className="text-center font-display font-bold"
+          style={{ fontSize: 80, lineHeight: 1.06, ...rise(prog(t, 27.6, 28.5)) }}
         >
-          Référence ton atelier gratuitement
+          Virement Stripe Connect +&nbsp;dépose.
         </h2>
-        <div
-          className="font-display font-bold text-primary"
-          style={{ fontSize: 104, marginTop: 28, ...rise(prog(t, 28.5, 29.4)) }}
-        >
-          move-spot.com
-        </div>
-        <div className="flex flex-wrap justify-center" style={{ gap: 18, marginTop: 48 }}>
-          {POSEUR_CITIES.map((city, i) => (
-            <span
-              key={city}
-              className="rounded-full border-2 border-primary font-display font-semibold"
-              style={{
-                fontSize: 40,
-                padding: "12px 34px",
-                ...rise(prog(t, 30.5 + i * 0.45, 31.1 + i * 0.45), 30),
-              }}
+        <div style={{ marginTop: 56 }}>
+          {PAYOUT_ROWS.map(({ Icon, title, note, at }) => (
+            <div
+              key={title}
+              className="flex items-center rounded-3xl border-2 border-primary"
+              style={{ gap: 28, padding: "26px 30px", marginBottom: 24, ...rise(prog(t, at, at + 0.8), 40) }}
             >
-              {city}
-            </span>
+              <span
+                className="grid shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground"
+                style={{ width: 96, height: 96 }}
+              >
+                <Icon style={{ width: 56, height: 56 }} strokeWidth={2.5} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-display font-bold" style={{ fontSize: 46, lineHeight: 1.1 }}>
+                  {title}
+                </div>
+                <div className="text-muted-foreground" style={{ fontSize: 34, marginTop: 6 }}>
+                  {note}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-        <p className="text-muted-foreground" style={{ fontSize: 30, marginTop: 40, opacity: prog(t, 32.4, 33.2) }}>
-          {PROVIDER_TRIAL_DAYS} jours d'essai gratuit, puis abonnement à {priceText}/mois.
-        </p>
+        <div className="text-center" style={rise(prog(t, 33.3, 34))}>
+          <div className="font-display font-semibold" style={{ fontSize: 48, marginTop: 20 }}>
+            Rejoins
+          </div>
+          <div className="font-display font-bold text-primary" style={{ fontSize: 112, lineHeight: 1.1 }}>
+            move-spot.com
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -413,13 +477,13 @@ function Film({ t }: { t: number }) {
       style={{ width: POSEUR_WIDTH, height: POSEUR_HEIGHT }}
     >
       {sequence === "accroche" && <SceneAccroche t={t} />}
-      {sequence === "mise-en-relation" && <ScenePlanning t={t} />}
+      {sequence === "missions" && <SceneMissions t={t} />}
       {sequence === "validation" && <SceneValidation t={t} />}
-      {sequence === "inscription" && <SceneInscription t={t} />}
+      {sequence === "paiement" && <ScenePaiement t={t} />}
 
-      {sequence !== "inscription" && (
+      {sequence !== "paiement" && (
         <div className="light-band absolute" style={{ left: 90, top: 120 }}>
-          <img src={officialLogo.url} alt="" style={{ height: 120, width: "auto" }} />
+          <img src={officialLogo.url} crossOrigin="anonymous" alt="" style={{ height: 120, width: "auto" }} />
         </div>
       )}
 
@@ -533,7 +597,7 @@ function PoseurFilm() {
         duration: POSEUR_DURATION,
         renderAt: (t) => flushSync(() => setTime(t)),
         onProgress: setExportProgress,
-        assetUrls: [officialLogo.url],
+        assetUrls: [officialLogo.url, vanPhoto],
         fontFamilies: ["Space Grotesk", "Inter", "JetBrains Mono"],
         signal: abort.signal,
       });
