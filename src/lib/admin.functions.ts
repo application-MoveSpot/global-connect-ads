@@ -60,12 +60,12 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         supabaseAdmin
           .from("vehicles")
           .select("id", { count: "exact", head: true })
-          .eq("auto_insurance_verified" as never, true)
+          .eq("auto_insurance_verified", true)
           .eq("status", "approved"),
         supabaseAdmin
           .from("payee_profiles")
           .select("id", { count: "exact", head: true })
-          .eq("rcpro_verified" as never, true)
+          .eq("rcpro_verified", true)
           .eq("certification_status", "certified"),
       ]);
       if (!verifiedDrivers) {
@@ -90,7 +90,7 @@ export const adminApproveCampaign = createServerFn({ method: "POST" })
         status: data.approve ? "approved" : "rejected",
         owner_response: data.approve ? "approved" : "rejected",
         admin_notes: adminNotes,
-      } as never)
+      })
       .eq("id", data.campaignRequestId)
       .select("spot_name, company, email, start_date, end_date, total_price, user_id")
       .single();
@@ -215,7 +215,7 @@ async function notifyActiveProviders(campaign: {
   const { data: providers } = await supabaseAdmin
     .from("provider_profiles")
     .select("user_id, full_name")
-    .eq("stripe_subscription_status" as never, "active");
+    .eq("stripe_subscription_status", "active");
   if (!providers?.length) return;
 
   const { sendAppEmailSafe } = await import("@/lib/email/send.server");
@@ -278,12 +278,12 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
         supabaseAdmin
           .from("vehicles")
           .select("id", { count: "exact", head: true })
-          .eq("auto_insurance_verified" as never, true)
+          .eq("auto_insurance_verified", true)
           .eq("status", "approved"),
         supabaseAdmin
           .from("payee_profiles")
           .select("id", { count: "exact", head: true })
-          .eq("rcpro_verified" as never, true)
+          .eq("rcpro_verified", true)
           .eq("certification_status", "certified"),
       ]);
       if (!verifiedDrivers) {
@@ -300,7 +300,7 @@ export const adminApproveBrief = createServerFn({ method: "POST" })
 
     const { data: brief, error } = await supabaseAdmin
       .from("advertiser_briefs")
-      .update({ status: data.approve ? "open" : "cancelled" } as never)
+      .update({ status: data.approve ? "open" : "cancelled" })
       .eq("id", data.briefId)
       .select("advertiser_id, title")
       .single();
@@ -394,7 +394,7 @@ export const adminCertifyPoseur = createServerFn({ method: "POST" })
         certification_status: data.certified ? "certified" : "rejected",
         certification_notes: certNotes,
         status: data.certified ? "approved" : "rejected",
-      } as never)
+      })
       .eq("id", data.payeeProfileId)
       .select("user_id, full_name")
       .single();
@@ -647,7 +647,7 @@ export const adminReviewInstallation = createServerFn({ method: "POST" })
           ? (data.notes ?? "✅ Pose conforme validée par MoveSpot.")
           : data.notes!,
         installation_reviewed_at: new Date().toISOString(),
-      } as never)
+      })
       .eq("id", data.campaignRequestId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -682,7 +682,7 @@ export const adminReviewDepose = createServerFn({ method: "POST" })
           ? (data.notes ?? "✅ Dépose conforme validée par MoveSpot.")
           : data.notes!,
         depose_reviewed_at: new Date().toISOString(),
-      } as never)
+      })
       .eq("id", data.campaignRequestId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -754,7 +754,7 @@ export const adminReviewVehicle = createServerFn({ method: "POST" })
       .update({
         status: data.approve ? "approved" : "rejected",
         admin_notes: adminNotes,
-      } as never)
+      })
       .eq("id", data.vehicleId)
       .select("owner_id, name, owner_profiles!inner(user_id)")
       .single();
@@ -918,7 +918,7 @@ Réponds UNIQUEMENT en JSON strict :
     };
     await supabaseAdmin
       .from("vehicles")
-      .update({ ai_verification: aiVerification } as never)
+      .update({ ai_verification: aiVerification })
       .eq("id", data.vehicleId);
     return aiVerification;
   });
@@ -1252,23 +1252,23 @@ export const adminPendingCounts = createServerFn({ method: "GET" })
         supabaseAdmin
           .from("advertiser_briefs")
           .select("id", { count: "exact", head: true })
-          .eq("status" as never, "pending"),
+          .eq("status", "pending"),
         supabaseAdmin
           .from("campaign_requests")
           .select("id", { count: "exact", head: true })
-          .eq("installation_status" as never, "pending_approval"),
+          .eq("installation_status", "pending_approval"),
         supabaseAdmin
           .from("campaign_requests")
           .select("id", { count: "exact", head: true })
-          .eq("depose_status" as never, "pending_approval"),
+          .eq("depose_status", "pending_approval"),
         supabaseAdmin
           .from("payee_profiles")
           .select("id", { count: "exact", head: true })
-          .eq("certification_status" as never, "pending"),
+          .eq("certification_status", "pending"),
         supabaseAdmin
           .from("payee_profiles")
           .select("stripe_account_id, stripe_charges_enabled")
-          .eq("kind" as never, "installer"),
+          .eq("kind", "installer"),
         supabaseAdmin
           .from("provider_profiles")
           .select("user_id", { count: "exact", head: true })
@@ -1308,7 +1308,7 @@ export const getAdminRegionStats = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({}).parse(input ?? {}))
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin } = await supabase.rpc("has_role" as never, {
+    const { data: isAdmin } = await supabase.rpc("has_role", {
       _user_id: userId,
       _role: "admin",
     });
@@ -1397,13 +1397,13 @@ export const adminSubmitSubsidiaryInstallationPhotos = createServerFn({ method: 
           ...data.photos,
           submitted_at: new Date().toISOString(),
           admin_subsidiary_upload: true,
-        } as never,
+        },
         installation_status: "pending_approval",
         installation_notes:
           "📋 Photos soumises par l'administrateur MoveSpot en tant que prestataire de substitution (CGU art. 15) — en attente de validation.",
         installation_reviewed_at: null,
         pose_installer_user_id: context.userId,
-      } as never)
+      })
       .eq("id", data.campaignRequestId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -1428,7 +1428,7 @@ export const adminGetInsuranceCompliance = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("vehicles")
         .select("id", { count: "exact", head: true })
-        .eq("auto_insurance_verified" as never, true)
+        .eq("auto_insurance_verified", true)
         .eq("status", "approved"),
       supabaseAdmin
         .from("vehicles")
@@ -1437,7 +1437,7 @@ export const adminGetInsuranceCompliance = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("payee_profiles")
         .select("id", { count: "exact", head: true })
-        .eq("rcpro_verified" as never, true)
+        .eq("rcpro_verified", true)
         .eq("certification_status", "certified"),
       supabaseAdmin
         .from("payee_profiles")
@@ -1478,7 +1478,7 @@ export const adminVerifyVehicleInsurance = createServerFn({ method: "POST" })
         auto_insurance_verified_at: new Date().toISOString(),
         auto_insurance_verified_by: context.userId,
         ...(data.expiresAt ? { auto_insurance_expires_at: data.expiresAt } : {}),
-      } as never)
+      })
       .eq("id", data.vehicleId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -1508,7 +1508,7 @@ export const adminVerifyInstallerRCPro = createServerFn({ method: "POST" })
         rcpro_verified_at: new Date().toISOString(),
         rcpro_verified_by: context.userId,
         ...(data.expiresAt ? { rcpro_expires_at: data.expiresAt } : {}),
-      } as never)
+      })
       .eq("id", data.payeeProfileId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -1600,14 +1600,14 @@ export const adminCopiloteUrgences = createServerFn({ method: "GET" })
         .from("vehicles")
         .select("id, name, type, owner_id, created_at")
         .eq("status", "approved")
-        .eq("auto_insurance_verified" as never, false)
+        .eq("auto_insurance_verified", false)
         .order("created_at", { ascending: true })
         .limit(20),
       supabaseAdmin
         .from("payee_profiles")
         .select("id, full_name, user_id, created_at")
         .eq("certification_status", "certified")
-        .eq("rcpro_verified" as never, false)
+        .eq("rcpro_verified", false)
         .order("created_at", { ascending: true })
         .limit(20),
     ]);
